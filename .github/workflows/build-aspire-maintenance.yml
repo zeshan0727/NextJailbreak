@@ -1,3 +1,4 @@
+# Aspire 1.1.6 stable line-editor rebuild
 name: Build Aspire Maintenance 1.1.6
 
 on:
@@ -13,6 +14,7 @@ on:
       - "AspireMaintenanceRelease113/**"
       - "AspireMaintenanceRelease114/**"
       - "AspireMaintenanceRelease115/**"
+      - "AspireMaintenanceRelease116/**"
       - ".github/workflows/build-aspire-maintenance.yml"
 
 permissions:
