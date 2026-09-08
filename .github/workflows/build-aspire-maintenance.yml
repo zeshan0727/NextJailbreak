@@ -1,10 +1,10 @@
-name: Build Aspire Maintenance 1.1.5
+name: Build Aspire Maintenance 1.1.6
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - agent/aspire-maintenance-1.1.5
+      - agent/aspire-maintenance-1.1.6
     paths:
       - "AspireMaintenanceSourceChunks/**"
       - "AspireMaintenancePatchScript101/**"
@@ -96,8 +96,19 @@ jobs:
           Path("/tmp/aspire115.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
           PY
           patch --batch -p2 -d AspireMaintenance < /tmp/aspire115.patch
-          grep -q 'MARKETING_VERSION: "1.1.5"' AspireMaintenance/project.yml
-          grep -q 'CURRENT_PROJECT_VERSION: "8"' AspireMaintenance/project.yml
+
+      - name: Apply Aspire 1.1.6 quotation editor stability fix
+        run: |
+          cat AspireMaintenanceRelease116/part-* > /tmp/aspire116.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire116.b64").read_text().strip()
+          Path("/tmp/aspire116.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire116.patch
+          grep -q 'MARKETING_VERSION: "1.1.6"' AspireMaintenance/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "9"' AspireMaintenance/project.yml
 
       - name: Validate Swift syntax
         run: |
@@ -127,7 +138,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: AspireMaintenance-Compiler-Log-1.1.5
+          name: AspireMaintenance-Compiler-Log-1.1.6
           path: aspire-maintenance-build.log
           if-no-files-found: ignore
 
@@ -138,24 +149,24 @@ jobs:
           rm -rf Payload
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload AspireMaintenance-1.1.5-unsigned.ipa
-          cp AspireMaintenance-1.1.5-unsigned.ipa AspireMaintenance-1.1.5.tipa
-          shasum -a 256 AspireMaintenance-1.1.5-unsigned.ipa > AspireMaintenance-1.1.5-unsigned.ipa.sha256
-          shasum -a 256 AspireMaintenance-1.1.5.tipa > AspireMaintenance-1.1.5.tipa.sha256
+          ditto -c -k --sequesterRsrc --keepParent Payload AspireMaintenance-1.1.6-unsigned.ipa
+          cp AspireMaintenance-1.1.6-unsigned.ipa AspireMaintenance-1.1.6.tipa
+          shasum -a 256 AspireMaintenance-1.1.6-unsigned.ipa > AspireMaintenance-1.1.6-unsigned.ipa.sha256
+          shasum -a 256 AspireMaintenance-1.1.6.tipa > AspireMaintenance-1.1.6.tipa.sha256
 
       - name: Package source
         run: |
           rm -rf AspireMaintenance/AspireMaintenance.xcodeproj
-          ditto -c -k --sequesterRsrc --keepParent AspireMaintenance AspireMaintenance-1.1.5-source.zip
+          ditto -c -k --sequesterRsrc --keepParent AspireMaintenance AspireMaintenance-1.1.6-source.zip
 
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
-          name: AspireMaintenance-1.1.5-Build
+          name: AspireMaintenance-1.1.6-Build
           path: |
-            AspireMaintenance-1.1.5-unsigned.ipa
-            AspireMaintenance-1.1.5-unsigned.ipa.sha256
-            AspireMaintenance-1.1.5.tipa
-            AspireMaintenance-1.1.5.tipa.sha256
-            AspireMaintenance-1.1.5-source.zip
+            AspireMaintenance-1.1.6-unsigned.ipa
+            AspireMaintenance-1.1.6-unsigned.ipa.sha256
+            AspireMaintenance-1.1.6.tipa
+            AspireMaintenance-1.1.6.tipa.sha256
+            AspireMaintenance-1.1.6-source.zip
           if-no-files-found: error
