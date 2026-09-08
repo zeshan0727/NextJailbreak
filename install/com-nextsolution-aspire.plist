@@ -11,7 +11,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.1.7/com-nextsolution-aspire-1.1.7-10.ipa</string>
+					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.1.8/com-nextsolution-aspire-1.1.8-11.ipa</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -19,7 +19,7 @@
 					<key>needs-shine</key>
 					<false/>
 					<key>url</key>
-					<string>https://nextjailbreak.com/install/icons/com-nextsolution-aspire-6af31c32e38c.png</string>
+					<string>https://nextjailbreak.com/install/icons/com-nextsolution-aspire-c86cdb9be01f.png</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -27,7 +27,7 @@
 					<key>needs-shine</key>
 					<false/>
 					<key>url</key>
-					<string>https://nextjailbreak.com/install/icons/com-nextsolution-aspire-6af31c32e38c.png</string>
+					<string>https://nextjailbreak.com/install/icons/com-nextsolution-aspire-c86cdb9be01f.png</string>
 				</dict>
 			</array>
 			<key>metadata</key>
@@ -35,7 +35,7 @@
 				<key>bundle-identifier</key>
 				<string>com.nextsolution.aspire</string>
 				<key>bundle-version</key>
-				<string>10</string>
+				<string>11</string>
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
