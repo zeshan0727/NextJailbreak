@@ -34,10 +34,6 @@ jobs:
 
           root = Path('.')
 
-          # Keep automation/published-articles.json events reserved for real
-          # create/update publication events. Older maintenance records are
-          # preserved under maintenance_events so strict publisher preflight
-          # can safely load the audit again.
           audit_path = root / 'automation/published-articles.json'
           audit = json.loads(audit_path.read_text(encoding='utf-8'))
           events = audit.get('events') or []
@@ -63,8 +59,6 @@ jobs:
               audit['maintenance_events'] = migrated
           audit_path.write_text(json.dumps(audit, indent=2, sort_keys=True, ensure_ascii=False) + '\n', encoding='utf-8')
 
-          # Future integrity repairs must never write maintenance records into
-          # the strict publication-event stream.
           integrity_path = root / 'automation/editorial_integrity.py'
           integrity = integrity_path.read_text(encoding='utf-8')
           integrity = integrity.replace(
@@ -73,8 +67,6 @@ jobs:
           )
           integrity_path.write_text(integrity, encoding='utf-8')
 
-          # Skip already-existing original-source pages before spending an API
-          # call, and treat a last-moment target collision as a safe no-op.
           news_path = root / 'automation/ios_repo_news.py'
           news = news_path.read_text(encoding='utf-8')
           old_select = '''            source = resolve_original_source(candidate, config)\n            if _is_duplicate(audit, candidate.package_id, str(source.get("version", ""))):\n                attempts[candidate.discovery_url] = {"status": "duplicate", "checked_at": now.isoformat(), "package": candidate.package_id, "version": source.get("version", "")}\n                continue\n            if not source.get("source_urls"):\n'''
@@ -89,15 +81,6 @@ jobs:
               raise SystemExit('Original-source target collision block changed unexpectedly')
           news = news.replace(old_target, new_target, 1)
           news_path.write_text(news, encoding='utf-8')
-
-          # Correct the documentation on the self-healing primary schedule.
-          primary_path = root / '.github/workflows/tweak-draft-generator.yml'
-          primary = primary_path.read_text(encoding='utf-8')
-          primary = primary.replace(
-              'Policy publishes only unmet 06:00, 14:00, or 22:00 Qatar windows.',
-              'Policy publishes only unmet 00:00, 06:00, 12:00, or 18:00 Qatar windows.',
-          )
-          primary_path.write_text(primary, encoding='utf-8')
 
           print(f'Migrated {len(events) - len(valid_events)} invalid audit event(s) to maintenance_events')
           PY
@@ -126,8 +109,7 @@ jobs:
           git add -- \
             automation/published-articles.json \
             automation/editorial_integrity.py \
-            automation/ios_repo_news.py \
-            .github/workflows/tweak-draft-generator.yml
+            automation/ios_repo_news.py
           git commit -m "Unblock all scheduled article publishers"
           git pull --rebase origin main
           git push origin HEAD:main
