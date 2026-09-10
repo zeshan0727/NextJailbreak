@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Please Stop The Music 0.1.1 Adds Swipe-to-Dismiss Controls for the Lock Screen Now Playing Card</title>
+      <link>https://nextjailbreak.com/please-stop-the-music-0-1-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/please-stop-the-music-0-1-1-update/</guid>
+      <pubDate>Thu, 10 Sep 2026 09:26:59 GMT</pubDate>
+      <description>Please Stop The Music 0.1.1 adds a developer-described left-swipe dismissal gesture to the iOS Lock Screen Now Playing card, with support details to verify.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>Rocket for Instagram 4.15.0 Adds Safari “Open in” Support for Sideloaded Builds</title>
       <link>https://nextjailbreak.com/rocket-for-instagram-4-15-0-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/rocket-for-instagram-4-15-0-update/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Fri, 21 Aug 2026 03:47:10 GMT</pubDate>
       <description>NextUp 3 v1.1.2 lists upcoming-track display and skip controls for Apple Music, Apple Podcasts, YouTube, YouTube Music, and Spotify across three now-playing UI areas.</description>
       <category>Media</category>
-    </item>
-    <item>
-      <title>Dopamine 3 Compatibility: Supported iOS Versions by Device Category</title>
-      <link>https://nextjailbreak.com/dopamine-3-jailbreak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-jailbreak.html</guid>
-      <pubDate>Wed, 19 Aug 2026 15:46:56 GMT</pubDate>
-      <description>Review the documented Dopamine 3 compatibility ranges for arm64e, A12/A13, and arm64 devices, including the separate A12/A13 iOS 26 range.</description>
-      <category>Jailbreak</category>
     </item>
   </channel>
 </rss>

@@ -5,6 +5,31 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "Please Stop The Music 0.1.1 adds a developer-described left-swipe dismissal gesture to the iOS Lock Screen Now Playing card, with support details to verify.",
+      "entry_type": "source-news",
+      "href": "please-stop-the-music-0-1-1-update/",
+      "image": "assets/articles/source-media/please-stop-the-music-0-1-1-update-a77b449ddb.png",
+      "media_credit": "Source visual from b4db1r3r3p0.yourepo.com",
+      "media_source_url": "https://b4db1r3r3p0.yourepo.com/pack/swipeawaynowplaying",
+      "modified_at": "2026-09-10T09:26:59+00:00",
+      "name": "Please Stop The Music",
+      "package": "com.b4db1r3.swipeawaynowplaying",
+      "published_at": "2026-09-10T09:26:59+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "b4db1r3r3p0.yourepo.com",
+      "source_page_url": "https://b4db1r3r3p0.yourepo.com/Packages",
+      "source_url": "https://b4db1r3r3p0.yourepo.com/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://cdn-static.yourepo.com/images/debs/com.yourepo.b4db1r3r3p0.swipeawaynowplaying/1.png?version=2",
+      "title": "Please Stop The Music 0.1.1 Adds Swipe-to-Dismiss Controls for the Lock Screen Now Playing Card",
+      "version": "0.1.1"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Rocket for Instagram 4.15.0 adds a Safari extension for opening Instagram web links in the sideloaded app, alongside fixes for DMs, the tab bar, and Stories.",
       "entry_type": "source-news",
       "href": "rocket-for-instagram-4-15-0-update/",
@@ -1545,27 +1570,17 @@
       "published_at": "2026-09-02T15:32:01+00:00",
       "run_id": "33649093694",
       "version": "3.8.38"
-    }
-  ],
-  "maintenance_events": [
-    {
-      "action": "editorial",
-      "href": "top-home-screen-tweaks.html",
-      "package": "editorial.top-home-screen-tweaks",
-      "published_at": "2026-08-13T07:30:00+00:00",
-      "run_id": "editorial-launch-boost",
-      "version": "2026"
     },
     {
-      "action": "repair-version-metadata",
-      "from_href": "rocket-for-instagram-3-8-38-update/",
-      "from_version": "3.8.38",
-      "package": "me.alfhaily.rocket",
-      "reason": "official depiction/headline used 4.15.0 while manifest and slug used older package stanza version",
-      "to_href": "rocket-for-instagram-4-15-0-update/",
-      "to_version": "4.15.0"
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "please-stop-the-music-0-1-1-update/",
+      "package": "com.b4db1r3.swipeawaynowplaying",
+      "published_at": "2026-09-10T09:26:59+00:00",
+      "run_id": "34460657527",
+      "version": "0.1.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-02T15:32:01+00:00"
+  "updated_at": "2026-09-10T09:26:59+00:00"
 }
