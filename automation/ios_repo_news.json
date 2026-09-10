@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
   "enabled": true,
+  "schema_version": 1,
   "discovery_url": "https://www.ios-repo-updates.com/news/",
   "discovery_only": true,
   "timezone": "Asia/Qatar",
