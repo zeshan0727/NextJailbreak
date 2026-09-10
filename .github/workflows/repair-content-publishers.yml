@@ -1,0 +1,133 @@
+name: Repair scheduled content publishers
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/repair-content-publishers.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextsolution-content-state
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Repair publisher state and duplicate handling
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+
+          import json
+          from datetime import datetime
+          from pathlib import Path
+
+          root = Path('.')
+
+          # Keep automation/published-articles.json events reserved for real
+          # create/update publication events. Older maintenance records are
+          # preserved under maintenance_events so strict publisher preflight
+          # can safely load the audit again.
+          audit_path = root / 'automation/published-articles.json'
+          audit = json.loads(audit_path.read_text(encoding='utf-8'))
+          events = audit.get('events') or []
+          valid_events = []
+          migrated = list(audit.get('maintenance_events') or [])
+
+          for event in events:
+              valid = isinstance(event, dict) and event.get('action') in {'create', 'update'}
+              if valid:
+                  valid = all(str(event.get(k, '')).strip() for k in ('package', 'version', 'href', 'published_at'))
+              if valid:
+                  try:
+                      datetime.fromisoformat(str(event['published_at']).replace('Z', '+00:00'))
+                  except ValueError:
+                      valid = False
+              if valid:
+                  valid_events.append(event)
+              else:
+                  migrated.append(event)
+
+          audit['events'] = valid_events
+          if migrated:
+              audit['maintenance_events'] = migrated
+          audit_path.write_text(json.dumps(audit, indent=2, sort_keys=True, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          # Future integrity repairs must never write maintenance records into
+          # the strict publication-event stream.
+          integrity_path = root / 'automation/editorial_integrity.py'
+          integrity = integrity_path.read_text(encoding='utf-8')
+          integrity = integrity.replace(
+              'data.setdefault("events", []).append(',
+              'data.setdefault("maintenance_events", []).append(',
+          )
+          integrity_path.write_text(integrity, encoding='utf-8')
+
+          # Skip already-existing original-source pages before spending an API
+          # call, and treat a last-moment target collision as a safe no-op.
+          news_path = root / 'automation/ios_repo_news.py'
+          news = news_path.read_text(encoding='utf-8')
+          old_select = '''            source = resolve_original_source(candidate, config)\n            if _is_duplicate(audit, candidate.package_id, str(source.get("version", ""))):\n                attempts[candidate.discovery_url] = {"status": "duplicate", "checked_at": now.isoformat(), "package": candidate.package_id, "version": source.get("version", "")}\n                continue\n            if not source.get("source_urls"):\n'''
+          new_select = '''            source = resolve_original_source(candidate, config)\n            source_version = str(source.get("version", "")).strip()\n            expected_slug = _slug(f"{source['name']} {source_version} update".strip())\n            expected_target_path = f"{expected_slug}/"\n            expected_target = repository_root / expected_target_path / "index.html"\n            if _is_duplicate(audit, candidate.package_id, source_version) or expected_target.exists():\n                attempts[candidate.discovery_url] = {\n                    "status": "duplicate",\n                    "checked_at": now.isoformat(),\n                    "package": candidate.package_id,\n                    "version": source_version,\n                    "target_path": expected_target_path,\n                }\n                continue\n            if not source.get("source_urls"):\n'''
+          if old_select not in news and new_select not in news:
+              raise SystemExit('Original-source candidate selection block changed unexpectedly')
+          news = news.replace(old_select, new_select, 1)
+
+          old_target = '''    if target.exists():\n        raise ValueError("target article already exists")\n'''
+          new_target = '''    if target.exists():\n        attempts[selected_candidate.discovery_url] = {\n            "status": "duplicate",\n            "checked_at": now.isoformat(),\n            "package": selected_candidate.package_id,\n            "version": version,\n            "target_path": target_path,\n        }\n        state["events"].append({\n            "at": now.isoformat(),\n            "action": "no-op",\n            "reason": "target-already-exists",\n            "package": selected_candidate.package_id,\n            "version": version,\n            "target_path": target_path,\n        })\n        state_path.write_text(json.dumps(state, indent=2, sort_keys=True, ensure_ascii=False) + "\\n", encoding="utf-8")\n        result = {"published": False, "reason": "target-already-exists", "target_path": target_path}\n        _write_output(github_output, result)\n        return result\n'''
+          if old_target not in news and new_target not in news:
+              raise SystemExit('Original-source target collision block changed unexpectedly')
+          news = news.replace(old_target, new_target, 1)
+          news_path.write_text(news, encoding='utf-8')
+
+          # Correct the documentation on the self-healing primary schedule.
+          primary_path = root / '.github/workflows/tweak-draft-generator.yml'
+          primary = primary_path.read_text(encoding='utf-8')
+          primary = primary.replace(
+              'Policy publishes only unmet 06:00, 14:00, or 22:00 Qatar windows.',
+              'Policy publishes only unmet 00:00, 06:00, 12:00, or 18:00 Qatar windows.',
+          )
+          primary_path.write_text(primary, encoding='utf-8')
+
+          print(f'Migrated {len(events) - len(valid_events)} invalid audit event(s) to maintenance_events')
+          PY
+
+      - name: Validate all repaired publishers
+        run: |
+          python3 -m py_compile automation/publisher.py automation/ios_repo_news.py automation/editorial_integrity.py
+          python3 -m unittest automation.tests.test_publisher -v
+          python3 -m unittest automation.tests.test_ios_repo_news -v
+          python3 -m unittest automation.tests.test_source_visuals -v
+          python3 - <<'PY'
+          from pathlib import Path
+          from automation.publisher import load_audit
+          audit = load_audit(Path('automation/published-articles.json'))
+          print('Strict publication audit valid:', len(audit.get('events', [])), 'publication event(s)')
+          PY
+
+      - name: Commit publisher repairs
+        run: |
+          if git diff --quiet; then
+            echo "Publisher repairs already applied."
+            exit 0
+          fi
+          git config user.name "nextsolution-content[bot]"
+          git config user.email "nextsolution-content[bot]@users.noreply.github.com"
+          git add -- \
+            automation/published-articles.json \
+            automation/editorial_integrity.py \
+            automation/ios_repo_news.py \
+            .github/workflows/tweak-draft-generator.yml
+          git commit -m "Unblock all scheduled article publishers"
+          git pull --rebase origin main
+          git push origin HEAD:main
