@@ -4,7 +4,7 @@
   "discovery_url": "https://www.ios-repo-updates.com/news/",
   "discovery_only": true,
   "timezone": "Asia/Qatar",
-  "windows_local": ["11:30", "20:00"],
+  "windows_local": ["09:00", "21:00"],
   "max_per_day": 2,
   "minimum_site_gap_minutes": 90,
   "max_candidate_attempts": 8,
