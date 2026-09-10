@@ -1,5 +1,5 @@
 {
-  "reason": "manual health-check trigger after missed 09:00 Qatar cluster publication",
+  "reason": "verify enabled 03:00 and 15:00 Qatar staggered publication schedule",
   "requested_by": "Next Jailbreak automation",
-  "attempt": 5
+  "attempt": 6
 }
