@@ -14,8 +14,10 @@ on:
       - "automation/sync_editorial_indexes.py"
       - ".github/workflows/ios-repo-original-source-news.yml"
   schedule:
-    - cron: "30 8 * * *"
-    - cron: "0 17 * * *"
+    # 06:00 UTC = 09:00 Qatar
+    - cron: "0 6 * * *"
+    # 18:00 UTC = 21:00 Qatar
+    - cron: "0 18 * * *"
   pull_request:
     paths:
       - "automation/ios_repo_news.py"
