@@ -1,4 +1,4 @@
-name: Ensure Google AdSense sitewide
+name: Ensure Monetag sitewide
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - "automation/**/*.py"
       - "automation/site.json"
       - "assets/site-runtime.js"
+      - "assets/adsterra.js"
       - ".github/workflows/adsense-sitewide.yml"
   workflow_dispatch:
 
@@ -15,32 +16,31 @@ permissions:
   contents: write
 
 concurrency:
-  group: adsense-sitewide-${{ github.ref }}
+  group: monetag-sitewide-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  ensure-adsense:
+  ensure-monetag:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Enforce Google AdSense on editorial inventory only
+      - name: Restore Monetag on editorial inventory only
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
 
-          client = 'ca-pub-4770123899731214'
-          publisher = 'pub-4770123899731214'
-          account_meta = f'<meta name="google-adsense-account" content="{client}">'
-          adsense_script = f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={client}" crossorigin="anonymous"></script>'
+          monetag_verification = 'afa6c0ac5c051fa9058f934da7f2c324'
+          monetag_meta = f'<meta name="monetag" content="{monetag_verification}">'
+          monetag_loader = '  <script defer src="/assets/adsterra.js?v=20260910-1" data-ns-monetag-loader="1"></script>'
           runtime_script = '  <script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>'
 
           monetag_meta_re = re.compile(r'\s*<meta\s+name=["\']monetag["\']\s+content=["\'][^"\']*["\']\s*/?>\s*', re.I)
           adsense_meta_re = re.compile(r'\s*<meta\s+name=["\']google-adsense-account["\']\s+content=["\'][^"\']*["\']\s*/?>\s*', re.I)
-          adsense_script_re = re.compile(r'\s*<script\s+async\s+src=["\']https://pagead2\.googlesyndication\.com/pagead/js/adsbygoogle\.js\?client=[^"\']+["\']\s+crossorigin=["\']anonymous["\']\s*>\s*</script>\s*', re.I)
+          adsense_script_re = re.compile(r'\s*<script\b[^>]*pagead2\.googlesyndication\.com/pagead/js/adsbygoogle\.js[^>]*>\s*</script>\s*', re.I | re.S)
           legacy_loader_re = re.compile(r'\s*<script[^>]+src=["\']/assets/adsterra\.js(?:\?[^"\']*)?["\'][^>]*>\s*</script>\s*', re.I)
           runtime_re = re.compile(r'\s*<script[^>]+src=["\']/assets/site-runtime\.js(?:\?[^"\']*)?["\'][^>]*>\s*</script>\s*', re.I)
           noindex_re = re.compile(r'<meta[^>]+name=["\']robots["\'][^>]+content=["\'][^"\']*noindex', re.I)
@@ -71,11 +71,11 @@ jobs:
 
               blocked = rel in blocked_exact or rel.startswith(blocked_prefixes) or bool(noindex_re.search(text))
               if not blocked:
-                  insertion = f'  {account_meta}\n  {adsense_script}\n'
-                  updated, count = re.subn(r'(?i)</head\s*>', insertion + '</head>', updated, count=1)
+                  updated, count = re.subn(r'(?i)</head\s*>', f'  {monetag_meta}\n</head>', updated, count=1)
                   if not count:
                       raise SystemExit(f'Missing </head> in eligible HTML page: {rel}')
-                  updated, body_count = re.subn(r'(?i)</body\s*>', runtime_script + '\n</body>', updated, count=1)
+                  scripts = monetag_loader + '\n' + runtime_script
+                  updated, body_count = re.subn(r'(?i)</body\s*>', scripts + '\n</body>', updated, count=1)
                   if not body_count:
                       raise SystemExit(f'Missing </body> in eligible HTML page: {rel}')
 
@@ -83,18 +83,12 @@ jobs:
                   path.write_text(updated, encoding='utf-8')
                   changed.append(rel)
 
-          ads_path = Path('ads.txt')
-          ads_text = f'google.com, {publisher}, DIRECT, f08c47fec0942fa0\n'
-          if not ads_path.exists() or ads_path.read_text(encoding='utf-8') != ads_text:
-              ads_path.write_text(ads_text, encoding='utf-8')
-              changed.append('ads.txt')
-
           for privacy_path in (Path('privacy.html'), Path('privacy/index.html')):
               if not privacy_path.exists():
                   continue
               text = privacy_path.read_text(encoding='utf-8')
-              updated = text.replace('Third-party services such as Adsterra and YouTube may process information according to their own privacy policies.', 'Third-party services such as Google AdSense and YouTube may process information according to their own privacy policies.')
-              updated = updated.replace('Adsterra and its advertising partners may use cookies, device identifiers, or similar technologies to deliver, measure, and protect advertisements. They may process information such as device and browser details, approximate location, and interactions with ads according to their own policies.', 'Google AdSense and its advertising partners may use cookies, device identifiers, or similar technologies to deliver, measure, and personalize advertisements. They may process information such as device and browser details, approximate location, and interactions with ads according to their own policies.')
+              updated = text.replace('Third-party services such as Google AdSense and YouTube may process information according to their own privacy policies.', 'Third-party services such as Monetag and YouTube may process information according to their own privacy policies.')
+              updated = updated.replace('Google AdSense and its advertising partners may use cookies, device identifiers, or similar technologies to deliver, measure, and personalize advertisements. They may process information such as device and browser details, approximate location, and interactions with ads according to their own policies.', 'Monetag and its advertising partners may use cookies, device identifiers, or similar technologies to deliver, measure, and personalize advertisements. They may process information such as device and browser details, approximate location, and interactions with ads according to their own policies.')
               if updated != text:
                   privacy_path.write_text(updated, encoding='utf-8')
                   changed.append(privacy_path.as_posix())
@@ -106,12 +100,12 @@ jobs:
         shell: bash
         run: |
           if git diff --quiet; then
-            echo "Google AdSense placement is already compliant."
+            echo "Monetag placement is already current."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add --all
-          git commit -m "Restrict AdSense to editorial content pages"
+          git commit -m "Restore Monetag on editorial content pages"
           git pull --rebase origin main
           git push
