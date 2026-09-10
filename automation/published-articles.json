@@ -2,6 +2,27 @@
   "entries": [
     {
       "category": {
+        "id": "tweaks",
+        "label": "Tweaks"
+      },
+      "description": "A practical checklist for checking jailbreak tweak compatibility, package architecture, dependencies, source authenticity, and rollback options before installation.",
+      "entry_type": "editorial-guide",
+      "href": "jailbreak-tweak-compatibility-checklist.html",
+      "image": "/assets/brand/next-jailbreak-social-card.png",
+      "modified_at": "2026-09-10T09:29:47+00:00",
+      "name": "Jailbreak Tweak Compatibility Checklist",
+      "package": "editorial.compatibility-checklist",
+      "published_at": "2026-09-10T09:29:47+00:00",
+      "quality_target": 9,
+      "selection_pool": "editorial-evergreen",
+      "source_name": "Next Jailbreak",
+      "source_page_url": "https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist.html",
+      "source_url": "https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist.html",
+      "title": "How to Check Jailbreak Tweak Compatibility Before Installing",
+      "version": "2026-09-10"
+    },
+    {
+      "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
       },
@@ -1579,8 +1600,17 @@
       "published_at": "2026-09-10T09:26:59+00:00",
       "run_id": "34460657527",
       "version": "0.1.1"
+    },
+    {
+      "action": "create",
+      "channel": "one-live-test-post",
+      "href": "jailbreak-tweak-compatibility-checklist.html",
+      "package": "editorial.compatibility-checklist",
+      "published_at": "2026-09-10T09:29:47+00:00",
+      "run_id": "github-actions-test-post",
+      "version": "2026-09-10"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-10T09:26:59+00:00"
+  "updated_at": "2026-09-10T09:29:47+00:00"
 }
