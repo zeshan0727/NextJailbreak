@@ -1105,14 +1105,6 @@
       "version": "2.0"
     },
     {
-      "action": "editorial",
-      "href": "top-home-screen-tweaks.html",
-      "package": "editorial.top-home-screen-tweaks",
-      "published_at": "2026-08-13T07:30:00+00:00",
-      "run_id": "editorial-launch-boost",
-      "version": "2026"
-    },
-    {
       "action": "create",
       "candidate_fingerprint": "14eb1e26e2a63ce00658465c0168553063600c2798e7682ec1e12c19af43124c",
       "href": "reo-tweak.html",
@@ -1553,6 +1545,16 @@
       "published_at": "2026-09-02T15:32:01+00:00",
       "run_id": "33649093694",
       "version": "3.8.38"
+    }
+  ],
+  "maintenance_events": [
+    {
+      "action": "editorial",
+      "href": "top-home-screen-tweaks.html",
+      "package": "editorial.top-home-screen-tweaks",
+      "published_at": "2026-08-13T07:30:00+00:00",
+      "run_id": "editorial-launch-boost",
+      "version": "2026"
     },
     {
       "action": "repair-version-metadata",

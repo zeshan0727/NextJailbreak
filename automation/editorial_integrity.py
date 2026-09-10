@@ -61,7 +61,7 @@ def enforce_manifest_consistency() -> int:
         kept.append(entry)
     if quarantined:
         data["entries"] = kept
-        data.setdefault("events", []).append({"action": "integrity-quarantine", "items": quarantined})
+        data.setdefault("maintenance_events", []).append({"action": "integrity-quarantine", "items": quarantined})
         AUDIT.write_text(json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps({"quarantined": quarantined}, ensure_ascii=False))
     return len(quarantined)
@@ -85,7 +85,7 @@ def repair_rocket_415() -> bool:
 
     entry["href"] = new_href
     entry["version"] = "4.15.0"
-    data.setdefault("events", []).append({
+    data.setdefault("maintenance_events", []).append({
         "action": "repair-version-metadata",
         "package": entry.get("package"),
         "from_href": old_href,

@@ -735,8 +735,18 @@ def publish(*, repository_root: Path, now: datetime, run_id: str, github_output:
                 pass
         try:
             source = resolve_original_source(candidate, config)
-            if _is_duplicate(audit, candidate.package_id, str(source.get("version", ""))):
-                attempts[candidate.discovery_url] = {"status": "duplicate", "checked_at": now.isoformat(), "package": candidate.package_id, "version": source.get("version", "")}
+            source_version = str(source.get("version", "")).strip()
+            expected_slug = _slug(f"{source['name']} {source_version} update".strip())
+            expected_target_path = f"{expected_slug}/"
+            expected_target = repository_root / expected_target_path / "index.html"
+            if _is_duplicate(audit, candidate.package_id, source_version) or expected_target.exists():
+                attempts[candidate.discovery_url] = {
+                    "status": "duplicate",
+                    "checked_at": now.isoformat(),
+                    "package": candidate.package_id,
+                    "version": source_version,
+                    "target_path": expected_target_path,
+                }
                 continue
             if not source.get("source_urls"):
                 raise ValueError("no original source URLs resolved")
@@ -760,7 +770,25 @@ def publish(*, repository_root: Path, now: datetime, run_id: str, github_output:
     target_path = f"{slug}/"
     target = repository_root / target_path / "index.html"
     if target.exists():
-        raise ValueError("target article already exists")
+        attempts[selected_candidate.discovery_url] = {
+            "status": "duplicate",
+            "checked_at": now.isoformat(),
+            "package": selected_candidate.package_id,
+            "version": version,
+            "target_path": target_path,
+        }
+        state["events"].append({
+            "at": now.isoformat(),
+            "action": "no-op",
+            "reason": "target-already-exists",
+            "package": selected_candidate.package_id,
+            "version": version,
+            "target_path": target_path,
+        })
+        state_path.write_text(json.dumps(state, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+        result = {"published": False, "reason": "target-already-exists", "target_path": target_path}
+        _write_output(github_output, result)
+        return result
 
     media = acquire_unique_source_visual(
         source_urls=selected_source["source_urls"],
