@@ -1,0 +1,217 @@
+name: One live website test post
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/one-live-test-post.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextsolution-content-state
+  cancel-in-progress: false
+
+jobs:
+  publish-test-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out production site
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Publish one useful evergreen test article
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from automation.publisher import _render_feed, _update_sitemap, load_audit
+
+          root = Path('.')
+          slug = 'jailbreak-tweak-compatibility-checklist'
+          target = root / f'{slug}.html'
+          href = f'{slug}.html'
+          now = datetime.now(timezone.utc).replace(microsecond=0)
+          stamp = now.isoformat()
+          day = now.date().isoformat()
+          title = 'How to Check Jailbreak Tweak Compatibility Before Installing'
+          description = 'A practical checklist for checking jailbreak tweak compatibility, package architecture, dependencies, source authenticity, and rollback options before installation.'
+          image = '/assets/brand/next-jailbreak-social-card.png'
+
+          audit_path = root / 'automation/published-articles.json'
+          audit = load_audit(audit_path)
+          if target.exists() or any(isinstance(e, dict) and e.get('href') == href for e in audit.get('entries', [])):
+              print('Test article already exists; refusing to create a duplicate.')
+              raise SystemExit(0)
+
+          article = f'''<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+            <meta name="theme-color" content="#f3f5f6">
+            <title>{title} | Next Jailbreak</title>
+            <meta name="description" content="{description}">
+            <meta name="robots" content="index,follow,max-image-preview:large">
+            <meta name="google-adsense-account" content="ca-pub-4770123899731214">
+            <link rel="canonical" href="https://nextjailbreak.com/{href}">
+            <link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml">
+            <link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg">
+            <link rel="stylesheet" href="/assets/site.css">
+            <meta property="og:type" content="article">
+            <meta property="og:site_name" content="Next Jailbreak">
+            <meta property="og:url" content="https://nextjailbreak.com/{href}">
+            <meta property="og:title" content="{title}">
+            <meta property="og:description" content="{description}">
+            <meta property="og:image" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card.png">
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:title" content="{title}">
+            <meta name="twitter:description" content="{description}">
+            <meta name="twitter:image" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card.png">
+            <script type="application/ld+json">{{"@context":"https://schema.org","@type":"TechArticle","headline":"{title}","description":"{description}","datePublished":"{day}","dateModified":"{day}","author":{{"@type":"Person","name":"Zeeshan Barvi"}},"publisher":{{"@type":"Organization","name":"Next Jailbreak","url":"https://nextjailbreak.com"}},"mainEntityOfPage":"https://nextjailbreak.com/{href}","image":"https://nextjailbreak.com/assets/brand/next-jailbreak-social-card.png"}}</script>
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4770123899731214" crossorigin="anonymous"></script>
+          </head>
+          <body>
+            <div class="topline"><div class="topline-inner"><span>iPhone jailbreak guides, tweak reviews and practical fixes</span><span class="topline-status"><i aria-hidden="true"></i> Check compatibility before installing</span></div></div>
+            <header class="site-header"><div class="nav-shell"><a class="brand" href="/" aria-label="Next Jailbreak home"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><nav aria-label="Primary navigation"><ul class="nav-links"><li><a href="/">Blog</a></li><li><a href="/tutorials/#verified-articles">Tweaks</a></li><li><a href="/tutorials/#jailbreak-guides">Jailbreak</a></li><li><a href="/videos/">Videos</a></li></ul></nav></div></header>
+            <main class="container article-main">
+              <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/tutorials/#verified-articles">Guides</a><span aria-hidden="true">/</span><span>Compatibility checklist</span></nav>
+              <article>
+                <header class="article-hero"><span class="article-kicker">Practical guide · Next Jailbreak</span><h1>{title}</h1><p class="article-summary">Installing a jailbreak tweak should start with compatibility checks, not with the Install button. Package architecture, jailbreak type, dependencies, iOS support and the source of the package all matter. This checklist gives you a repeatable way to decide whether a tweak belongs on your device before you change SpringBoard or system behavior.</p></header>
+                <figure class="article-visual"><img src="{image}" alt="Next Jailbreak compatibility checklist guide" fetchpriority="high"><figcaption>A compatibility-first workflow can prevent avoidable resprings, dependency conflicts and difficult rollbacks.</figcaption></figure>
+                <div class="article-layout"><div class="article-content">
+                  <h2>1. Start with your exact device environment</h2>
+                  <p>Do not begin with the tweak name alone. Write down the iPhone or iPad model, the exact iOS version, the jailbreak you are using and the package-manager environment. Two devices that look similar can need different builds because the jailbreak bootstrap and package architecture are not necessarily the same.</p>
+                  <p>Pay particular attention to whether your setup is rootless, rootful or uses a specialized environment such as RootHide. A package built for one layout should not automatically be assumed to work on another. If the developer distributes separate builds, use the one explicitly intended for your environment rather than trying to force-install a different package.</p>
+                  <ul><li>Record the exact iOS version, not just the major version.</li><li>Confirm the jailbreak and bootstrap type.</li><li>Check whether the package is explicitly offered for your architecture.</li><li>Do not treat a successful download as proof of compatibility.</li></ul>
+
+                  <h2>2. Verify the package at the original source</h2>
+                  <p>Use the developer's repository, project page or official release page as the primary reference. Reposted package listings and aggregator pages can be useful for discovery, but they may lag behind the developer's current version, dependency list or compatibility notes. When multiple pages disagree, the safest approach is to stop and reconcile the difference before installation.</p>
+                  <p>Compare the package identifier, version number and developer name. A familiar tweak name by itself is not enough because unofficial mirrors can use similar titles. If the package manager displays a different version from the developer's release notes, investigate why before upgrading. The difference may be harmless, but it should be understood rather than ignored.</p>
+                  <ul><li>Match the package identifier as well as the display name.</li><li>Compare the offered version with the developer's latest documented release.</li><li>Prefer the developer's official repository or project page.</li><li>Avoid cracked, repackaged or unexplained mirrors.</li></ul>
+
+                  <h2>3. Read dependencies before installing</h2>
+                  <p>A tweak rarely operates in isolation. It may require a preference loader, hooking framework, compatibility library or another package. Your package manager can resolve many dependencies automatically, but automatic resolution does not mean every combination is appropriate for your exact jailbreak environment.</p>
+                  <p>Review what will be installed alongside the tweak. An unexpected dependency can be an early warning that you selected the wrong build or added an unsuitable repository. If an installation proposes removing an important bootstrap component or replacing several core packages, cancel and investigate instead of accepting the transaction blindly.</p>
+                  <p>It is also worth checking whether an older version of the same library is already installed. A tweak that needs a newer dependency may affect other packages relying on the existing version. Keeping a small note of important dependencies makes later troubleshooting much easier.</p>
+
+                  <h2>4. Separate stated compatibility from assumptions</h2>
+                  <p>Compatibility wording should be read literally. If a developer says a release supports a defined iOS range or a particular jailbreak architecture, that is stronger evidence than comments saying it "should work." A package that worked on a previous iOS release may still require an update after framework, app or system changes.</p>
+                  <p>App-specific tweaks need an additional check: the version of the target app. Instagram, YouTube, WhatsApp and similar applications change frequently, and a tweak can remain installable while one of its hooks no longer matches the current app build. Before updating the App Store application, check whether the tweak developer has documented support for the newer version.</p>
+                  <p>If compatibility is unclear, the conservative choice is to wait. A delayed installation is less disruptive than recovering from repeated crashes, Safe Mode loops or lost tweak preferences.</p>
+
+                  <h2>5. Check for conflicts with tweaks you already use</h2>
+                  <p>Two tweaks can be individually compatible with your device yet conflict because they modify the same interface or process. Lock-screen customization, Control Center modules, notification redesigns and app-specific enhancements are common areas where multiple packages may compete for the same behavior.</p>
+                  <p>Before installing a large tweak, identify anything already installed that changes the same part of iOS. If the new package has a documented compatibility list, read it. Otherwise, install one major change at a time. That makes it possible to identify the cause if behavior changes immediately after a respring.</p>
+                  <ul><li>Avoid installing several system tweaks in one transaction when testing compatibility.</li><li>Keep a note or screenshot of packages changed during the installation.</li><li>If a conflict appears, disable or remove the newest change first.</li></ul>
+
+                  <h2>6. Prepare a rollback before you need it</h2>
+                  <p>A good compatibility check includes an exit plan. Make sure you know how to enter your jailbreak's safe or troubleshooting mode, how to open the package manager when tweaks are disabled, and how to remove the package if SpringBoard becomes unstable. Preserve any important tweak configuration when practical.</p>
+                  <p>For updates, record the version you were using successfully. If the developer still provides that release through an official method, knowing the previous version can simplify recovery. Do not depend on random package archives found after a problem occurs; plan the rollback while the working setup is still available.</p>
+
+                  <h2>A quick pre-install checklist</h2>
+                  <ul><li>Exact device and iOS version confirmed.</li><li>Jailbreak environment and package architecture confirmed.</li><li>Package identifier and latest version matched to the original source.</li><li>Dependencies reviewed for unexpected changes.</li><li>Target app version checked for app-specific tweaks.</li><li>Potential conflicts with installed tweaks considered.</li><li>Rollback or Safe Mode procedure understood.</li><li>No unofficial, cracked or misleading download source involved.</li></ul>
+                  <p>Following these checks cannot guarantee that every tweak will behave perfectly, but it turns installation into a controlled change rather than a guess. The most useful habit is simple: when version, architecture or source information conflicts, do not fill the gap with assumptions. Verify first, then install.</p>
+
+                  <h2>Frequently asked questions</h2>
+                  <div class="faq-list">
+                    <details><summary>Does rootless versus rootful really matter for a tweak?</summary><p>Yes. They use different filesystem and packaging expectations. When the developer offers separate builds, select the build intended for the jailbreak environment you actually use.</p></details>
+                    <details><summary>Can I trust a package because my package manager allows installation?</summary><p>No. A package manager can resolve and install metadata, but it cannot guarantee that the tweak's hooks, dependencies and target app versions are correct for every device configuration.</p></details>
+                    <details><summary>What should I do when two sources show different versions?</summary><p>Pause the installation and verify the developer's official repository or project page. A version mismatch can indicate stale metadata, a different distribution channel or an unofficial package.</p></details>
+                    <details><summary>Should I install several new tweaks together?</summary><p>For troubleshooting, installing major system modifications one at a time is safer. If something fails after a respring, you have a much smaller set of possible causes.</p></details>
+                  </div>
+                  <div class="article-disclaimer"><strong>Before installing:</strong> verify the current package version, compatibility, architecture and dependencies at the developer's official source for your exact device and jailbreak.</div>
+                  <p class="article-footnote">Next Jailbreak practical guide · Published {day}</p>
+                </div><aside class="article-sidebar" aria-label="Compatibility checklist"><h2>Use this before Install</h2><p>Device → iOS → jailbreak → architecture → package ID → version → dependencies → conflicts → rollback.</p><div class="button-stack"><a class="button button-primary" href="/tutorials/#verified-articles">Browse verified articles</a><a class="button button-secondary" href="/">Latest Next Jailbreak posts</a></div></aside></div>
+              </article>
+            </main>
+            <footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="brand" href="/"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><p>Jailbreak news, useful tweak information, practical guides, and original videos.</p></div><div class="footer-column"><strong>Read</strong><a href="/#latest">Latest articles</a><a href="/tutorials/#verified-articles">Tweaks</a><a href="/tutorials/#jailbreak-guides">Jailbreak</a></div><div class="footer-column"><strong>Legal</strong><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div><div class="footer-bottom"><div class="container"><span>© 2026 Next Jailbreak</span></div></div></footer>
+            <script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>
+          </body>
+          </html>\n'''
+          target.write_text(article, encoding='utf-8')
+
+          entry = {
+              'entry_type': 'editorial-guide',
+              'package': 'editorial.compatibility-checklist',
+              'name': 'Jailbreak Tweak Compatibility Checklist',
+              'version': day,
+              'title': title,
+              'description': description,
+              'href': href,
+              'category': {'id': 'tweaks', 'label': 'Tweaks'},
+              'source_name': 'Next Jailbreak',
+              'source_url': f'https://nextjailbreak.com/{href}',
+              'source_page_url': f'https://nextjailbreak.com/{href}',
+              'selection_pool': 'editorial-evergreen',
+              'image': image,
+              'published_at': stamp,
+              'modified_at': stamp,
+              'quality_target': 9,
+          }
+          audit['entries'].append(entry)
+          audit['entries'].sort(key=lambda e: str(e.get('modified_at') or e.get('published_at') or ''), reverse=True)
+          audit['events'].append({
+              'published_at': stamp,
+              'action': 'create',
+              'package': entry['package'],
+              'version': entry['version'],
+              'href': href,
+              'channel': 'one-live-test-post',
+              'run_id': 'github-actions-test-post',
+          })
+          audit['updated_at'] = stamp
+          audit_path.write_text(json.dumps(audit, indent=2, sort_keys=True, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          site = json.loads((root / 'automation/site.json').read_text(encoding='utf-8'))
+          (root / 'feed.xml').write_text(_render_feed(audit['entries'], site), encoding='utf-8')
+          sitemap = root / 'sitemap.xml'
+          sitemap.write_text(_update_sitemap(sitemap.read_text(encoding='utf-8'), audit['entries'], site), encoding='utf-8')
+          print('Created:', href)
+          PY
+
+          python3 automation/sync_editorial_indexes.py
+
+      - name: Validate test article and indexes
+        run: |
+          test -s jailbreak-tweak-compatibility-checklist.html
+          grep -q "How to Check Jailbreak Tweak Compatibility Before Installing" jailbreak-tweak-compatibility-checklist.html
+          grep -q "jailbreak-tweak-compatibility-checklist.html" index.html
+          grep -q "jailbreak-tweak-compatibility-checklist.html" tutorials.html
+          grep -q "jailbreak-tweak-compatibility-checklist.html" feed.xml
+          grep -q "jailbreak-tweak-compatibility-checklist.html" sitemap.xml
+          python3 - <<'PY'
+          from pathlib import Path
+          from automation.publisher import load_audit
+          audit = load_audit(Path('automation/published-articles.json'))
+          assert any(e.get('href') == 'jailbreak-tweak-compatibility-checklist.html' for e in audit['entries'])
+          print('Publication audit valid')
+          PY
+
+      - name: Commit live test post
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "nextsolution-publisher[bot]"
+          git config user.email "nextsolution-publisher[bot]@users.noreply.github.com"
+          git add -- \
+            jailbreak-tweak-compatibility-checklist.html \
+            automation/published-articles.json \
+            index.html \
+            tutorials.html \
+            tutorials/index.html \
+            feed.xml \
+            sitemap.xml
+          git commit -m "Publish live compatibility checklist test article"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "### Live test post published" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist.html" >> "$GITHUB_STEP_SUMMARY"
