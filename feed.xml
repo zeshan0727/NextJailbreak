@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Watusi 3 for WhatsApp 1.3.23 Targets WhatsApp 26.36.X Compatibility</title>
+      <link>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-23-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-23-update/</guid>
+      <pubDate>Fri, 11 Sep 2026 20:39:00 GMT</pubDate>
+      <description>Watusi 3 version 1.3.23 focuses on WhatsApp 26.36.X support, an In-App Browser crash fix, and restored chats-list status handling for newer internal status storage.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>HALO2 1.0: Lock Screen Media Player Customizer</title>
       <link>https://nextjailbreak.com/halo2-tweak.html</link>
       <guid isPermaLink="true">https://nextjailbreak.com/halo2-tweak.html</guid>
@@ -235,14 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/darksword-dopamine-3-jailbreak.html</guid>
       <pubDate>Sat, 22 Aug 2026 06:48:41 GMT</pubDate>
       <description>Learn what DarkSword is, how an official Dopamine 2.5 beta note connects it to Dopamine development, and where to find documented Dopamine 3.x compatibility details.</description>
-      <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>Dopamine 3 Jailbreak: iOS 18 Compatibility for A12 and A13 Devices</title>
-      <link>https://nextjailbreak.com/dopamine-3-ios-18-jailbreak-a12-a13.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-ios-18-jailbreak-a12-a13.html</guid>
-      <pubDate>Fri, 21 Aug 2026 15:26:54 GMT</pubDate>
-      <description>Learn what the Dopamine 3.x README confirms about iOS 18 support for A12 and A13 devices, including the documented iOS 18.7.1 endpoint and arm64e limits.</description>
       <category>Jailbreak</category>
     </item>
   </channel>

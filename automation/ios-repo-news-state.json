@@ -13,18 +13,18 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-11T10:06:38.777804+00:00",
+      "checked_at": "2026-09-11T20:39:00.005694+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-1-update/",
       "version": "6.1"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-09-11T10:06:38.777804+00:00",
+      "checked_at": "2026-09-11T20:39:00+00:00",
       "package": "com.fouadraheb.watusi3",
-      "status": "duplicate",
-      "target_path": "watusi-3-for-whatsapp-1-3-22-update/",
-      "version": "1.3.22"
+      "status": "published",
+      "target_path": "watusi-3-for-whatsapp-1-3-23-update/",
+      "version": "1.3.23"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.chloe.physpringboard/": {
       "checked_at": "2026-09-11T10:06:38.777804+00:00",
@@ -387,6 +387,79 @@
         "com.chloe.physpringboard: stale discovery rejected: candidate 1.9.14 is older than original-source version 1.9.23"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0b31855c63e1f879016aa467134b0887d08faf0df22f96b1e7",
+          "usage": {
+            "input_tokens": 28861,
+            "input_tokens_details": {
+              "cache_write_tokens": 28858,
+              "cached_tokens": 0
+            },
+            "output_tokens": 450,
+            "output_tokens_details": {
+              "reasoning_tokens": 318
+            },
+            "total_tokens": 29311
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d56350efec15994016aa467199ddc87d0ab51f1ed4fbe3044",
+          "usage": {
+            "input_tokens": 28954,
+            "input_tokens_details": {
+              "cache_write_tokens": 28951,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2888,
+            "output_tokens_details": {
+              "reasoning_tokens": 76
+            },
+            "total_tokens": 31842
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_001114a7e986a951016aa46732fcdc87d086a9b557feb62589",
+          "usage": {
+            "input_tokens": 29023,
+            "input_tokens_details": {
+              "cache_write_tokens": 29020,
+              "cached_tokens": 0
+            },
+            "output_tokens": 248,
+            "output_tokens_details": {
+              "reasoning_tokens": 137
+            },
+            "total_tokens": 29271
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_058b1b0ff6a09aa9016aa466f4594c87d085c928d37367cea0",
+          "usage": {
+            "input_tokens": 26405,
+            "input_tokens_details": {
+              "cache_write_tokens": 26402,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2786,
+            "output_tokens_details": {
+              "reasoning_tokens": 133
+            },
+            "total_tokens": 29191
+          }
+        }
+      },
+      "at": "2026-09-11T20:39:00+00:00",
+      "package": "com.fouadraheb.watusi3",
+      "target_path": "watusi-3-for-whatsapp-1-3-23-update/",
+      "version": "1.3.23"
     }
   ],
   "schema_version": 1
