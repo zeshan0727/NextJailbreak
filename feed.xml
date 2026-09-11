@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>HALO2 1.0: Lock Screen Media Player Customizer</title>
+      <link>https://nextjailbreak.com/halo2-tweak.html</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/halo2-tweak.html</guid>
+      <pubDate>Fri, 11 Sep 2026 11:45:13 GMT</pubDate>
+      <description>HALO2 1.0 is listed under Lock Screen for iphoneos-arm64 and describes itself as a lock screen media player customizer. MobileSubstrate is listed as a dependency.</description>
+      <category>Lock Screen</category>
+    </item>
+    <item>
       <title>How to Check Jailbreak Tweak Compatibility Before Installing</title>
       <link>https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist.html</link>
       <guid isPermaLink="true">https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist.html</guid>
@@ -235,14 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-ios-18-jailbreak-a12-a13.html</guid>
       <pubDate>Fri, 21 Aug 2026 15:26:54 GMT</pubDate>
       <description>Learn what the Dopamine 3.x README confirms about iOS 18 support for A12 and A13 devices, including the documented iOS 18.7.1 endpoint and arm64e limits.</description>
-      <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>Dopamine 3 iOS 26 Jailbreak Compatibility for A12 and A13</title>
-      <link>https://nextjailbreak.com/dopamine-3-ios-26-jailbreak-a12-a13.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-ios-26-jailbreak-a12-a13.html</guid>
-      <pubDate>Fri, 21 Aug 2026 06:55:47 GMT</pubDate>
-      <description>Learn what the Dopamine 3.x README documents about iOS 26 compatibility, including the A12 and A13 limitation and separate arm64e and arm64 ranges.</description>
       <category>Jailbreak</category>
     </item>
   </channel>

@@ -1,6 +1,29 @@
 {
   "entries": [
     {
+      "article_sha256": "4665addd96b3d18c36358d3427fbcadca51c80a925ad70483062fc0082686a26",
+      "candidate_fingerprint": "e99126b435c92761c251f0c478cbdfdacaef589294104d30f908be2f1a62fc2b",
+      "category": {
+        "id": "lock-screen",
+        "label": "Lock Screen"
+      },
+      "description": "HALO2 1.0 is listed under Lock Screen for iphoneos-arm64 and describes itself as a lock screen media player customizer. MobileSubstrate is listed as a dependency.",
+      "href": "halo2-tweak.html",
+      "image": "https://media.havoc.app/6a8d7ce797a4b94bfa0367c8",
+      "media_credit": "HALO2 official package listing",
+      "media_source_url": "https://havoc.app/package/halo2",
+      "modified_at": "2026-09-11T11:45:13+00:00",
+      "name": "HALO2",
+      "package": "jp.uzra.halo2",
+      "published_at": "2026-09-11T11:45:13+00:00",
+      "selection_pool": "pending",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/halo2",
+      "source_url": "https://havoc.app/",
+      "title": "HALO2 1.0: Lock Screen Media Player Customizer",
+      "version": "1.0"
+    },
+    {
       "category": {
         "id": "tweaks",
         "label": "Tweaks"
@@ -1609,8 +1632,17 @@
       "published_at": "2026-09-10T09:29:47+00:00",
       "run_id": "github-actions-test-post",
       "version": "2026-09-10"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "e99126b435c92761c251f0c478cbdfdacaef589294104d30f908be2f1a62fc2b",
+      "href": "halo2-tweak.html",
+      "package": "jp.uzra.halo2",
+      "published_at": "2026-09-11T11:45:13+00:00",
+      "run_id": "34595182101",
+      "version": "1.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-10T09:29:47+00:00"
+  "updated_at": "2026-09-11T11:45:13+00:00"
 }
