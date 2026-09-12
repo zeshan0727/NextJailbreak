@@ -1,7 +1,7 @@
 {
   "attempts": {
     "https://www.ios-repo-updates.com/repository/bigboss/package/com.vbox/": {
-      "checked_at": "2026-09-10T20:33:44.783262+00:00",
+      "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "com.vbox",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -13,47 +13,47 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-11T20:39:00.005694+00:00",
+      "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-1-update/",
       "version": "6.1"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-09-11T20:39:00+00:00",
+      "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "com.fouadraheb.watusi3",
-      "status": "published",
+      "status": "duplicate",
       "target_path": "watusi-3-for-whatsapp-1-3-23-update/",
       "version": "1.3.23"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.chloe.physpringboard/": {
-      "checked_at": "2026-09-11T10:06:38.777804+00:00",
+      "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "com.chloe.physpringboard",
       "reason": "stale discovery rejected: candidate 1.9.14 is older than original-source version 1.9.23",
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.zqbb.hello.keyboard.ai/": {
-      "checked_at": "2026-09-11T10:06:38.777804+00:00",
+      "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "com.zqbb.hello.keyboard.ai",
       "status": "duplicate",
       "target_path": "hellokeyboardai-2-1-0-1-update/",
       "version": "2.1.0-1"
     },
     "https://www.ios-repo-updates.com/repository/majd-alfhaily/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-11T10:06:38.777804+00:00",
+      "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "me.alfhaily.rocket",
       "status": "duplicate",
       "target_path": "rocket-for-instagram-3-8-38-update/",
       "version": "3.8.38"
     },
     "https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytlegacy/": {
-      "checked_at": "2026-09-11T10:06:38.777804+00:00",
+      "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "com.ps.ytlegacy",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/yourepo/package/com.b4db1r3.swipeawaynowplaying/": {
-      "checked_at": "2026-09-11T10:06:38.777804+00:00",
+      "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "com.b4db1r3.swipeawaynowplaying",
       "status": "duplicate",
       "target_path": "please-stop-the-music-0-1-1-update/",
@@ -460,6 +460,16 @@
       "package": "com.fouadraheb.watusi3",
       "target_path": "watusi-3-for-whatsapp-1-3-23-update/",
       "version": "1.3.23"
+    },
+    {
+      "action": "no-op",
+      "at": "2026-09-12T09:42:11.996855+00:00",
+      "failures": [
+        "com.ps.ytlegacy: resolved source does not independently identify the discovered package",
+        "com.chloe.physpringboard: stale discovery rejected: candidate 1.9.14 is older than original-source version 1.9.23",
+        "com.vbox: resolved source does not independently identify the discovered package"
+      ],
+      "reason": "no-high-quality-original-source-candidate"
     }
   ],
   "schema_version": 1
