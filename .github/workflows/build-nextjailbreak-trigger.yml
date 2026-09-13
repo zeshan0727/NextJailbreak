@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "TriggerApp/**"
+      - "TriggerAppTheos/**"
       - ".github/workflows/build-nextjailbreak-trigger.yml"
 
 permissions:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-15
     timeout-minutes: 15
     steps:
       - name: Check out repository
@@ -22,33 +22,34 @@ jobs:
       - name: Build arm64 iOS app
         shell: bash
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           rm -rf build dist
-          mkdir -p build/Payload/NextJailbreakTrigger.app dist
+          APP="build/Payload/NextJailbreakTrigger.app"
+          mkdir -p "$APP" dist
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
 
-          xcrun --sdk iphoneos swiftc \
-            TriggerApp/App.swift \
-            -parse-as-library \
-            -target arm64-apple-ios16.0 \
-            -sdk "$SDK" \
-            -O \
+          xcrun --sdk iphoneos clang \
+            -fobjc-arc \
+            -arch arm64 \
+            -miphoneos-version-min=16.0 \
+            -isysroot "$SDK" \
+            TriggerAppTheos/main.m \
             -framework UIKit \
             -framework Foundation \
             -framework Security \
-            -o build/Payload/NextJailbreakTrigger.app/NextJailbreakTrigger
+            -o "$APP/NextJailbreakTrigger"
 
-          cp TriggerApp/Info.plist build/Payload/NextJailbreakTrigger.app/Info.plist
-          chmod +x build/Payload/NextJailbreakTrigger.app/NextJailbreakTrigger
+          cp TriggerAppTheos/Resources/Info.plist "$APP/Info.plist"
+          chmod +x "$APP/NextJailbreakTrigger"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${GITHUB_RUN_NUMBER}" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.0" "$APP/Info.plist"
 
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${GITHUB_RUN_NUMBER}" build/Payload/NextJailbreakTrigger.app/Info.plist
-          codesign --force --sign - --timestamp=none build/Payload/NextJailbreakTrigger.app
+          codesign --force --sign - --timestamp=none "$APP"
 
-          ditto -c -k --sequesterRsrc --keepParent build/Payload dist/NextJailbreakTrigger.tipa.tmp.zip
-          mv dist/NextJailbreakTrigger.tipa.tmp.zip dist/NextJailbreakTrigger.tipa
-
-          file build/Payload/NextJailbreakTrigger.app/NextJailbreakTrigger
-          codesign -dv --verbose=2 build/Payload/NextJailbreakTrigger.app 2>&1 | head -30
+          (cd build && /usr/bin/zip -qry ../dist/NextJailbreakTrigger.tipa Payload)
+          unzip -t dist/NextJailbreakTrigger.tipa
+          file "$APP/NextJailbreakTrigger"
+          codesign -dv --verbose=2 "$APP" 2>&1 | head -30 || true
           ls -lh dist/NextJailbreakTrigger.tipa
 
       - name: Upload TIPA artifact
@@ -64,7 +65,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           TAG="nextjailbreak-trigger-v1.0.0"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/NextJailbreakTrigger.tipa --clobber
@@ -72,5 +73,5 @@ jobs:
             gh release create "$TAG" dist/NextJailbreakTrigger.tipa \
               --target "$GITHUB_SHA" \
               --title "Next Jailbreak Trigger v1.0.0" \
-              --notes "TrollStore TIPA for iPhone. Trigger Verified Tweak, Original-Source News, and Dopamine 3 publishers manually. GitHub token is entered on-device and stored in iOS Keychain; no token is embedded in the app or repository."
+              --notes "TrollStore TIPA for iPhone 14 Pro Max / iOS 16 testing. Triggers the verified tweak, original-source news, and Dopamine 3 publishers. GitHub token is entered on-device and stored in iOS Keychain."
           fi
