@@ -1,0 +1,1 @@
+Build Next Signer 1.4.0 with local signing and Signed Apps tab.
