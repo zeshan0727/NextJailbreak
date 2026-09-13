@@ -1,0 +1,1 @@
+Build Next Signer 1.3.9 sign-first workflow.
