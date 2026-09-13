@@ -29,6 +29,7 @@ jobs:
 
           xcrun --sdk iphoneos swiftc \
             TriggerApp/App.swift \
+            -parse-as-library \
             -target arm64-apple-ios16.0 \
             -sdk "$SDK" \
             -O \
