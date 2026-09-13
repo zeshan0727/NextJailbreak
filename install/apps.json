@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-signer",
+      "name": "NJ Signer",
+      "version": "1.4.1",
+      "build": "24",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.Signer",
+      "icon": "/install/icons/com-nextsolution-signer-89ff42f5ee31.png",
+      "manifest": "/install/com-nextsolution-signer.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-signer/1.4.1/com-nextsolution-signer-1.4.1-24.ipa",
+      "sha256": "89ff42f5ee31bf6bca5d18c80ca83d658e31d15273b9d1c2231dadb52f0470db",
+      "sizeBytes": 3354259,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-ksign",
       "name": "KSign",
       "version": "1.2.1",
