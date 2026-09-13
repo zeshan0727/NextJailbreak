@@ -1,4 +1,6 @@
 #import <UIKit/UIKit.h>
+#import "PhotoController.h"
+BOOL NextAIWorking=NO;
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #include "llama.h"
 #include <atomic>
@@ -17,7 +19,7 @@
 - (NSString *)documents { return NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject; }
 - (NSString *)historyPath { return [[self documents] stringByAppendingPathComponent:@"chats.json"]; }
 - (void)viewDidLoad {
- [super viewDidLoad]; self.title=@"Next AI · Test 2"; self.view.backgroundColor=UIColor.systemBackgroundColor;
+ [super viewDidLoad]; self.title=@"Next AI · Test 3"; self.view.backgroundColor=UIColor.systemBackgroundColor;
  _cancel=false; _messages=[NSMutableArray new]; _archive=[NSMutableArray new]; _chatID=NSUUID.UUID.UUIDString;
  NSData *data=[NSData dataWithContentsOfFile:[self historyPath]];
  id saved=data ? [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil] : nil;
@@ -41,8 +43,9 @@
  _status.text=_model ? [@"Offline • " stringByAppendingString:_model.lastPathComponent] : @"Import Qwen2.5 1.5B Instruct Q4_K_M to begin. No internet needed after import.";
  NSMutableString *text=[NSMutableString new];
  for(NSDictionary *m in _messages) [text appendFormat:@"%@\n%@\n\n",[m[@"role"] isEqual:@"user"]?@"You":@"Next AI",m[@"content"]];
- _output.text=text.length?text:@"Welcome to Next AI\n\nYour model and conversations stay on this iPhone.\n\nMenu → Import model to get started.\n\nTest 2: short text conversations, 2,048-token context and up to 384 reply tokens. Long chats will ask you to start a new conversation.";
- if(text.length) [_output scrollRangeToVisible:NSMakeRange(_output.text.length-1,1)];
+ BOOL follow=_output.contentSize.height<=_output.bounds.size.height || _output.contentOffset.y+_output.bounds.size.height>=_output.contentSize.height-100;
+ _output.text=text.length?text:@"Welcome to Next AI\n\nYour model and conversations stay on this iPhone.\n\nMenu → Import model to get started.\n\nTest 3: short text conversations, 2,048-token context and up to 384 reply tokens. Long chats will ask you to start a new conversation.";
+ if(text.length && follow) [_output scrollRangeToVisible:NSMakeRange(_output.text.length-1,1)];
 }
 - (void)alert:(NSString *)message { UIAlertController *a=[UIAlertController alertControllerWithTitle:@"Next AI" message:message preferredStyle:UIAlertControllerStyleAlert]; [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]]; [self presentViewController:a animated:YES completion:nil]; }
 - (void)save {
@@ -53,12 +56,13 @@
  if(data && ![data writeToFile:[self historyPath] options:NSDataWritingAtomic error:&e]) _status.text=[@"Could not save chat: " stringByAppendingString:e.localizedDescription];
 }
 - (void)menu {
- if(_busy) { [self alert:@"Wait for the current operation or tap Stop before opening the menu."]; return; }
+ if(NextAIWorking) { [self alert:@"Wait for the current operation or tap Stop in chat before opening the menu."]; return; }
  UIAlertController *a=[UIAlertController alertControllerWithTitle:@"Next AI" message:@"All processing takes place on your iPhone." preferredStyle:UIAlertControllerStyleActionSheet];
  [a addAction:[UIAlertAction actionWithTitle:@"Import model (.gguf)" style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){ UIDocumentPickerViewController *p=[[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeItem] asCopy:YES]; p.delegate=self; [self presentViewController:p animated:YES completion:nil]; }]];
  [a addAction:[UIAlertAction actionWithTitle:@"Use model from Next AI folder" style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){[self chooseLocalModel];}]];
  [a addAction:[UIAlertAction actionWithTitle:@"New chat" style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){[self save]; self->_chatID=NSUUID.UUID.UUIDString; self->_messages=[NSMutableArray new]; [self refresh];}]];
  [a addAction:[UIAlertAction actionWithTitle:@"Saved chats" style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){[self showChats];}]];
+ [a addAction:[UIAlertAction actionWithTitle:@"Copy last answer" style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){for(NSDictionary *m in [self->_messages reverseObjectEnumerator])if([m[@"role"] isEqual:@"assistant"]){UIPasteboard.generalPasteboard.string=m[@"content"];return;}[self alert:@"No answer to copy yet."];}]];
  [a addAction:[UIAlertAction actionWithTitle:@"Copy conversation" style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){UIPasteboard.generalPasteboard.string=self->_output.text;}]];
  [a addAction:[UIAlertAction actionWithTitle:@"Delete current chat" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *x){[self confirmDelete];}]];
  [a addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]]; a.popoverPresentationController.barButtonItem=self.navigationItem.rightBarButtonItem; [self presentViewController:a animated:YES completion:nil];
@@ -104,14 +108,14 @@
  [controller dismissViewControllerAnimated:YES completion:nil];
  NSURL *url=urls.firstObject; if(!url) return;
  if(![url.pathExtension.lowercaseString isEqual:@"gguf"]) {[self alert:@"Select the downloaded .gguf model file."]; return;}
- _busy=YES; _send.enabled=NO; _status.text=@"Copying model… keep the app open.";
+ NextAIWorking=YES; _busy=YES; _send.enabled=NO; _status.text=@"Copying model… keep the app open.";
  dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0), ^{ @autoreleasepool {
  BOOL scoped=[url startAccessingSecurityScopedResource]; __block NSError *error=nil; __block NSString *relative=nil;
  NSFileCoordinator *coordinator=[[NSFileCoordinator alloc] initWithFilePresenter:nil]; NSError *coordError=nil;
  [coordinator coordinateReadingItemAtURL:url options:0 error:&coordError byAccessor:^(NSURL *source){
  NSNumber *size=nil; [source getResourceValue:&size forKey:NSURLFileSizeKey error:&error];
  if(error) return;
- if(size.unsignedLongLongValue>2200000000ULL) {error=[NSError errorWithDomain:@"NextAI" code:1 userInfo:@{NSLocalizedDescriptionKey:@"For Test 2, choose a model smaller than 2.2 GB. Use the recommended Qwen Q4_K_M."}];return;}
+ if(size.unsignedLongLongValue>2200000000ULL) {error=[NSError errorWithDomain:@"NextAI" code:1 userInfo:@{NSLocalizedDescriptionKey:@"For Test 3, choose a model smaller than 2.2 GB. Use the recommended Qwen Q4_K_M."}];return;}
  NSFileHandle *h=[NSFileHandle fileHandleForReadingFromURL:source error:&error]; if(!h)return; NSData *magic=[h readDataUpToLength:4 error:&error]; [h closeFile];
  if(error || ![magic isEqual:[@"GGUF" dataUsingEncoding:NSUTF8StringEncoding]]) {error=[NSError errorWithDomain:@"NextAI" code:2 userInfo:@{NSLocalizedDescriptionKey:@"This is not a valid GGUF file. Check that the download finished."}];return;}
  relative=[NSString stringWithFormat:@"Models/%@-%@",NSUUID.UUID.UUIDString,source.lastPathComponent];
@@ -121,19 +125,20 @@
  if(error) [NSFileManager.defaultManager removeItemAtURL:dest error:nil]; else [dest setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
  }];
  if(scoped) [url stopAccessingSecurityScopedResource]; NSError *finalError=error ?: coordError;
- dispatch_async(dispatch_get_main_queue(), ^{self->_busy=NO;self->_send.enabled=YES;
+ dispatch_async(dispatch_get_main_queue(), ^{NextAIWorking=NO;self->_busy=NO;self->_send.enabled=YES;
  if(!finalError && relative) {self->_model=relative;[NSUserDefaults.standardUserDefaults setObject:relative forKey:@"model"];} [self refresh]; if(finalError)[self alert:finalError.localizedDescription];
  });
  }});
 }
 - (void)send {
  if(_busy){_cancel=true;_status.text=@"Stopping…";return;}
+ if(NextAIWorking){[self alert:@"Wait for image generation or model import to finish first."];return;}
  NSString *input=[_input.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet]; if(!input.length)return;
  if(!_model){[self alert:@"Import a model from Menu first."];return;}
  if(input.length>6000){[self alert:@"Please shorten the message for this first test."];return;}
  [_messages addObject:@{@"role":@"user",@"content":input}]; _input.text=@""; [self save];
  NSArray *history=[_messages copy]; [_messages addObject:@{@"role":@"assistant",@"content":@""}];
- _busy=YES;_cancel=false;_input.enabled=NO;[_send setTitle:@"Stop" forState:UIControlStateNormal];[self refresh];_status.text=@"Loading model on device…";
+ NextAIWorking=YES;_busy=YES;_cancel=false;UIApplication.sharedApplication.idleTimerDisabled=YES;_input.enabled=NO;[_send setTitle:@"Stop" forState:UIControlStateNormal];[self refresh];_status.text=@"Loading model on device…";
  NSString *path=[[self documents] stringByAppendingPathComponent:_model];
  dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0), ^{ @autoreleasepool {
  NSString *failure=nil; BOOL limit=NO;
@@ -151,7 +156,7 @@
  for(NSDictionary *m in history){roles.emplace_back([m[@"role"] UTF8String]);contents.emplace_back([m[@"content"] UTF8String]);}
  std::vector<llama_chat_message> chat;for(size_t i=0;i<roles.size();i++)chat.push_back({roles[i].c_str(),contents[i].c_str()});
  const char *tmpl=llama_model_chat_template(model.get(),nullptr);if(!tmpl)throw std::runtime_error("Model has no chat template. Import the recommended Qwen Instruct model.");
- int n=llama_chat_apply_template(tmpl,chat.data(),chat.size(),true,nullptr,0);if(n<=0)throw std::runtime_error("This model's chat template is not supported by Test 2.");
+ int n=llama_chat_apply_template(tmpl,chat.data(),chat.size(),true,nullptr,0);if(n<=0)throw std::runtime_error("This model's chat template is not supported by Test 3.");
  std::vector<char> prompt(n+1);llama_chat_apply_template(tmpl,chat.data(),chat.size(),true,prompt.data(),(int)prompt.size());
  const llama_vocab *vocab=llama_model_get_vocab(model.get());int needed=llama_tokenize(vocab,prompt.data(),n,nullptr,0,true,true);needed=needed<0?-needed:needed;
  if(needed<1 || needed>1664)throw std::runtime_error("Conversation exceeds the test model context. Start a New chat from Menu or shorten the message.");
@@ -160,19 +165,21 @@
  for(int offset=0;offset<count && !self->_cancel;offset+=128){int batchCount=std::min(128,count-offset);if(llama_decode(ctx.get(),llama_batch_get_one(tokens.data()+offset,batchCount)))throw std::runtime_error("Model evaluation failed. Try a smaller model.");}
  std::unique_ptr<llama_sampler,decltype(&llama_sampler_free)> sampler(llama_sampler_chain_init(llama_sampler_chain_default_params()),llama_sampler_free);
  llama_sampler_chain_add(sampler.get(),llama_sampler_init_top_k(40));llama_sampler_chain_add(sampler.get(),llama_sampler_init_top_p(0.9f,1));llama_sampler_chain_add(sampler.get(),llama_sampler_init_temp(0.7f));llama_sampler_chain_add(sampler.get(),llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
- std::string result;int generated=0;
+ std::string result;int generated=0;CFAbsoluteTime lastUpdate=0;NSString *latestText=@"";
  for(;generated<384 && !self->_cancel;generated++){
  llama_token token=llama_sampler_sample(sampler.get(),ctx.get(),-1);if(llama_vocab_is_eog(vocab,token))break;
  std::vector<char> piece(256);int bytes=llama_token_to_piece(vocab,token,piece.data(),(int)piece.size(),0,false);if(bytes<0){piece.resize(-bytes);bytes=llama_token_to_piece(vocab,token,piece.data(),(int)piece.size(),0,false);}if(bytes>0)result.append(piece.data(),bytes);
  NSString *text=[[NSString alloc] initWithBytes:result.data() length:result.size() encoding:NSUTF8StringEncoding];
- if(text)dispatch_async(dispatch_get_main_queue(), ^{self->_messages[self->_messages.count-1]=@{@"role":@"assistant",@"content":text};[self refresh];self->_status.text=@"Writing offline…";});
+ if(text)latestText=text;
+ if(text && (CFAbsoluteTimeGetCurrent()-lastUpdate>0.10)){lastUpdate=CFAbsoluteTimeGetCurrent();dispatch_async(dispatch_get_main_queue(), ^{self->_messages[self->_messages.count-1]=@{@"role":@"assistant",@"content":text};[self refresh];self->_status.text=@"Writing offline…";});}
  if(llama_decode(ctx.get(),llama_batch_get_one(&token,1)))throw std::runtime_error("Generation stopped because model evaluation failed.");
  }limit=generated==384;
+ if(latestText.length)dispatch_async(dispatch_get_main_queue(), ^{self->_messages[self->_messages.count-1]=@{@"role":@"assistant",@"content":latestText};[self refresh];});
  }catch(const std::exception &e){failure=[NSString stringWithUTF8String:e.what()];}
  dispatch_async(dispatch_get_main_queue(), ^{
- self->_busy=NO;self->_input.enabled=YES;[self->_send setTitle:@"Send" forState:UIControlStateNormal];
+ NextAIWorking=NO;UIApplication.sharedApplication.idleTimerDisabled=NO;self->_busy=NO;self->_input.enabled=YES;[self->_send setTitle:@"Send" forState:UIControlStateNormal];
  if(![self->_messages.lastObject[@"content"] length]) [self->_messages removeLastObject];
- [self refresh];[self save]; if(failure)[self alert:failure];else if(self->_cancel)self->_status.text=@"Stopped • chat saved";else if(limit)self->_status.text=@"Reply reached the Test 2 limit • chat saved";
+ [self refresh];[self save]; if(failure)[self alert:failure];else if(self->_cancel)self->_status.text=@"Stopped • chat saved";else if(limit)self->_status.text=@"Reply reached the Test 3 limit • chat saved";
  });
  }});
 }
@@ -182,7 +189,8 @@
 @end
 @implementation AppDelegate
 - (BOOL)application:(UIApplication *)app didFinishLaunchingWithOptions:(NSDictionary *)options {
- self.window=[[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];self.window.rootViewController=[[UINavigationController alloc] initWithRootViewController:[ChatController new]];[self.window makeKeyAndVisible];return YES;
+ self.window=[[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];UINavigationController *chat=[[UINavigationController alloc] initWithRootViewController:[ChatController new]];chat.tabBarItem=[[UITabBarItem alloc] initWithTitle:@"Chat" image:[UIImage systemImageNamed:@"bubble.left.and.bubble.right"] tag:0];UINavigationController *photos=[[UINavigationController alloc] initWithRootViewController:[PhotoController new]];photos.tabBarItem=[[UITabBarItem alloc] initWithTitle:@"Photos" image:[UIImage systemImageNamed:@"photo"] tag:1];UITabBarController *tabs=[UITabBarController new];tabs.viewControllers=@[chat,photos];self.window.rootViewController=tabs;[self.window makeKeyAndVisible];return YES;
 }
 @end
 int main(int argc,char **argv){@autoreleasepool{return UIApplicationMain(argc,argv,nil,NSStringFromClass(AppDelegate.class));}}
+
