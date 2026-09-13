@@ -101,6 +101,7 @@
  [a addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]]; a.popoverPresentationController.barButtonItem=self.navigationItem.rightBarButtonItem; [self presentViewController:a animated:YES completion:nil];
 }
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+ [controller dismissViewControllerAnimated:YES completion:nil];
  NSURL *url=urls.firstObject; if(!url) return;
  if(![url.pathExtension.lowercaseString isEqual:@"gguf"]) {[self alert:@"Select the downloaded .gguf model file."]; return;}
  _busy=YES; _send.enabled=NO; _status.text=@"Copying model… keep the app open.";
