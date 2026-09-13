@@ -17,7 +17,7 @@ target_compile_options(NextAI PRIVATE -fobjc-arc)
 add_library(NextPhoto SHARED IMPORTED)
 set_target_properties(NextPhoto PROPERTIES IMPORTED_LOCATION "${PHOTO_FRAMEWORK}/NextPhoto" FRAMEWORK TRUE)
 set_target_properties(NextAI PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks")
-target_link_libraries(NextAI PRIVATE NextPhoto "-framework Photos" llama "-framework UIKit" "-framework UniformTypeIdentifiers")
+target_link_libraries(NextAI PRIVATE NextPhoto "-framework Photos" llama "-framework UIKit" "-framework CoreGraphics" "-framework CoreFoundation" "-framework UniformTypeIdentifiers")
 set_target_properties(NextAI PROPERTIES
  MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
  XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "cc.nextsolution.nextai"
