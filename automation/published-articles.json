@@ -1,6 +1,29 @@
 {
   "entries": [
     {
+      "article_sha256": "38a32bb6fd6cbe507945cba3e723ef39b74267e5f4be5e7923e784a03827bf70",
+      "candidate_fingerprint": "28e4408d52ca261da50a475302a0de7d6188defa19501e0f033a6be66237990c",
+      "category": {
+        "id": "lock-screen",
+        "label": "Lock Screen"
+      },
+      "description": "Rena 1.0.1 is a Lock Screen tweak described as opening favorite applications from the lock screen for iOS 15. Review its architectures and dependencies before use.",
+      "href": "rena-tweak.html",
+      "image": "https://media.havoc.app/643976d545d40f4b50786439",
+      "media_credit": "Rena official package listing",
+      "media_source_url": "https://havoc.app/package/rena",
+      "modified_at": "2026-09-13T12:23:05+00:00",
+      "name": "Rena",
+      "package": "com.sugiuta.rena",
+      "published_at": "2026-09-13T12:23:05+00:00",
+      "selection_pool": "evergreen",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/rena",
+      "source_url": "https://havoc.app/",
+      "title": "Rena 1.0.1: Open Favorite Applications from the iOS 15 Lock Screen",
+      "version": "1.0.1"
+    },
+    {
       "article_sha256": "c57a95911686d5e82b8e4584fb2af481267249deea60316318b46e3b52e107e0",
       "candidate_fingerprint": "80864c0d7a70b3ea2bdb2032b3fab720d3e9121ef1202981e9b8f8624d5b554c",
       "category": {
@@ -1707,8 +1730,17 @@
       "published_at": "2026-09-13T12:19:40+00:00",
       "run_id": "34756502684",
       "version": "1.0.1"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "28e4408d52ca261da50a475302a0de7d6188defa19501e0f033a6be66237990c",
+      "href": "rena-tweak.html",
+      "package": "com.sugiuta.rena",
+      "published_at": "2026-09-13T12:23:05+00:00",
+      "run_id": "34756832476",
+      "version": "1.0.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-13T12:19:40+00:00"
+  "updated_at": "2026-09-13T12:23:05+00:00"
 }

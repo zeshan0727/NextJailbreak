@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Rena 1.0.1: Open Favorite Applications from the iOS 15 Lock Screen</title>
+      <link>https://nextjailbreak.com/rena-tweak.html</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/rena-tweak.html</guid>
+      <pubDate>Sun, 13 Sep 2026 12:23:05 GMT</pubDate>
+      <description>Rena 1.0.1 is a Lock Screen tweak described as opening favorite applications from the lock screen for iOS 15. Review its architectures and dependencies before use.</description>
+      <category>Lock Screen</category>
+    </item>
+    <item>
       <title>Uptime 1.0.1: A Control Center Module for Viewing Time Since Boot</title>
       <link>https://nextjailbreak.com/uptime-tweak.html</link>
       <guid isPermaLink="true">https://nextjailbreak.com/uptime-tweak.html</guid>
@@ -235,14 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-vs-dopamine-2.html</guid>
       <pubDate>Mon, 24 Aug 2026 15:33:22 GMT</pubDate>
       <description>Compare the documented Dopamine 3 and Dopamine 2 compatibility ranges by iOS version, architecture, and chip family, including the limits of arm64e, arm64, A12, and.</description>
-      <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>Sileo and Dopamine 3: Package Manager Role and Rootless Compatibility Checks</title>
-      <link>https://nextjailbreak.com/sileo-dopamine-3-jailbreak-guide.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/sileo-dopamine-3-jailbreak-guide.html</guid>
-      <pubDate>Sun, 23 Aug 2026 06:49:41 GMT</pubDate>
-      <description>Understand how Sileo relates to Dopamine 3, what the official compatibility ranges say, and why rootless tweak support must be checked.</description>
       <category>Jailbreak</category>
     </item>
   </channel>
