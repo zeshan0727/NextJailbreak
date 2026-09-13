@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-02T11:37:45Z",
+  "updatedAt": "2026-09-13T09:13:39Z",
   "files": [
     {
-      "id": "nextsigner-1.3.8",
-      "name": "Next Signer 1.3.8",
-      "fileName": "NextSigner-1.3.8.tipa",
+      "id": "nextsigner-1.3.9",
+      "name": "Next Signer 1.3.9",
+      "fileName": "NextSigner-1.3.9.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
-      "version": "1.3.8",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.3.8/NextSigner-1.3.8.tipa",
-      "sha256": "6e8464041750f346ee0980ae22431c76f559d3fabbbe18c768f7d49b649dcdfb",
-      "sizeBytes": 925202,
+      "version": "1.3.9",
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.3.9/NextSigner-1.3.9.tipa",
+      "sha256": "869b92c06190bbf5437dae4ae40d121952b5df140342eedc86f5aa4db818cc1e",
+      "sizeBytes": 1009491,
       "storage": "Cloudflare R2",
-      "notes": "Library tab, R2 cleanup controls, duplicate signing, custom app icons and dylib/DEB tweak injection."
+      "notes": "Sign-first workflow: saves signed IPA to device, manual TrollStore Install, manual Publish to Site, signed IPA sharing, and config backup/restore."
     },
     {
       "id": "aspire-maintenance-1.1.4-dashboard-test",
