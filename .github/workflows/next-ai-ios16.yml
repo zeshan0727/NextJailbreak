@@ -1,0 +1,48 @@
+name: Next AI TrollStore Test
+on:
+  pull_request:
+    paths:
+      - 'next-ai-ios16/**'
+      - '.github/workflows/next-ai-ios16.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned inference engine
+        run: git clone --depth 1 --branch b5046 https://github.com/ggml-org/llama.cpp.git next-ai-ios16/llama.cpp
+      - name: Configure iOS 16 build
+        run: |
+          cmake -S next-ai-ios16 -B next-ai-build -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
+      - name: Compile
+        run: cmake --build next-ai-build --config Release --target NextAI --parallel 3
+      - name: Package TrollStore app
+        shell: bash
+        run: |
+          set -euo pipefail
+          app=$(find next-ai-build -type d -name NextAI.app -print -quit)
+          test -n "$app"
+          cp next-ai-ios16/llama.cpp/LICENSE "$app/llama-LICENSE.txt"
+          codesign --force --sign - "$app"
+          codesign --verify --verbose "$app"
+          /usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$app/Info.plist"
+          xcrun vtool -show-build "$app/NextAI"
+          mkdir -p package/Payload
+          cp -R "$app" package/Payload/
+          cd package
+          zip -qry NextAI-Test1.tipa Payload
+          shasum -a 256 NextAI-Test1.tipa > SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAI-TrollStore-Test1
+          path: |
+            package/NextAI-Test1.tipa
+            package/SHA256.txt
+          if-no-files-found: error
