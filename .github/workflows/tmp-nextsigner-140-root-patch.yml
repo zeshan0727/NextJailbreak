@@ -1,0 +1,36 @@
+name: Temporary Next Signer 1.4.0 Root Patch
+
+on:
+  push:
+    branches:
+      - feature/nextsigner-1.4.0-local-signed-apps
+    paths:
+      - 'NextSigner/patch_140_root.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/nextsigner-1.4.0-local-signed-apps
+          fetch-depth: 0
+      - name: Patch root tabs
+        run: python3 NextSigner/patch_140_root.py
+      - name: Commit root patch
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add NextSigner/NextSigner/NextSignerRootView.swift
+          if ! git diff --cached --quiet; then
+            git commit -m 'Use local signing and Signed Apps tabs'
+            for n in 1 2 3; do
+              if git push origin HEAD:feature/nextsigner-1.4.0-local-signed-apps; then exit 0; fi
+              sleep 3
+            done
+            exit 1
+          fi
