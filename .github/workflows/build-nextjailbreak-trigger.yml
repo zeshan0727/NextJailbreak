@@ -28,8 +28,13 @@ jobs:
           mkdir -p "$APP" dist
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
 
+          # The app calls resume on the NSURLSessionDataTask returned by dataTaskWithRequest:.
+          # Keep this compatibility repair here so the test TIPA can build from the existing source.
+          sed -i '' 's/\[\[NSURLSession sharedSession\] dataTaskWithRequest:/[[[NSURLSession sharedSession] dataTaskWithRequest:/g' TriggerAppTheos/main.m
+
           xcrun --sdk iphoneos clang \
             -fobjc-arc \
+            -fblocks \
             -arch arm64 \
             -miphoneos-version-min=16.0 \
             -isysroot "$SDK" \
