@@ -18,7 +18,7 @@ concurrency:
 jobs:
   ai-publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - name: Check out production branch
         uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
             ai-manual-state-v1-
             tweak-feed-state-v1-
 
-      - name: Prepare editorial state and manual publication policy
+      - name: Prepare AI brief, editorial state and manual publication policy
         shell: bash
         run: |
           if [ ! -f automation/runtime-state/known-packages.json ]; then
@@ -55,44 +55,96 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
+
+          # Manual AI publication should not be blocked by the old boost interval.
+          # Global kill switch, daily limit, duplicate protection, source checks and
+          # deterministic quality checks remain active.
           src = Path('automation/site.json')
           data = json.loads(src.read_text(encoding='utf-8'))
-          # Manual AI publication should not be blocked by an old launch-boost
-          # interval. Daily publication limits, duplicate checks, quality gates,
-          # source verification and the global publishing kill switch remain.
           data['publishing']['boost_until'] = '2000-01-01T00:00:00+00:00'
           Path('automation/out').mkdir(parents=True, exist_ok=True)
           Path('automation/out/manual-site.json').write_text(
               json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8'
           )
+
+          # The structured schema was already strict, but the external 9/10 gate
+          # also measures section word depth. Give the AI explicit safe headroom so
+          # a technically valid article does not miss the gate by a few words.
+          draft = Path('automation/draft_pipeline.py')
+          text = draft.read_text(encoding='utf-8')
+          marker = '- Write clear English suitable for an international audience.\n'
+          extra = (
+              '- Write clear English suitable for an international audience.\n'
+              '- For the main article prose, use enough factual explanation to comfortably pass the high-value editorial gate without padding or repetition. Target at least 65 words in summary, 140 words combined across what_it_does, 85 words in compatibility_note, 210 words combined across installation_steps, 100 words combined across safety_notes, and 210 words combined across FAQ answers. Stay strictly inside the supplied facts.\n'
+          )
+          if marker not in text:
+              raise SystemExit('writer instruction marker not found')
+          text = text.replace(marker, extra, 1)
+          repair_marker = '- Keep the YouTube narration at 900-1,800 words, require authentic device footage, and never claim the tweak was tested.\n'
+          repair_extra = (
+              '- Keep the YouTube narration at 900-1,800 words, require authentic device footage, and never claim the tweak was tested.\n'
+              '- Preserve sufficient factual depth after repairs: at least 65 words in summary, 140 words combined across what_it_does, 85 words in compatibility_note, 210 words combined across installation_steps, 100 words combined across safety_notes, and 210 words combined across FAQ answers. Do not add unsupported filler.\n'
+          )
+          if repair_marker not in text:
+              raise SystemExit('repair instruction marker not found')
+          text = text.replace(repair_marker, repair_extra, 1)
+          draft.write_text(text, encoding='utf-8')
           PY
 
-      - name: AI writes and designs one article
+      - name: AI writes, verifies and quality-checks one article
         id: generate
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.6-luna
         shell: bash
         run: |
-          set +e
-          python3 -m automation.draft_pipeline \
-            --state automation/runtime-state/known-packages.json \
-            --published-audit automation/published-articles.json \
-            --new-pages-only \
-            --output automation/out/ai-manual-draft 2>&1 | tee automation/out/ai-manual-generation.log
-          status=${PIPESTATUS[0]}
-          set -e
-          if [ "$status" -eq 3 ]; then
-            echo "AI could not find an eligible new verified candidate on this attempt." >&2
-            exit 3
-          fi
-          exit "$status"
+          set -o pipefail
+          passed=false
+          for attempt in 1 2 3; do
+            echo "AI generation attempt $attempt of 3"
+            rm -rf automation/out/ai-manual-draft
+            set +e
+            python3 -m automation.draft_pipeline \
+              --state automation/runtime-state/known-packages.json \
+              --published-audit automation/published-articles.json \
+              --new-pages-only \
+              --output automation/out/ai-manual-draft 2>&1 | tee "automation/out/ai-manual-generation-attempt-${attempt}.log"
+            draft_status=${PIPESTATUS[0]}
+            set -e
+            if [ "$draft_status" -eq 3 ]; then
+              echo "AI could not find an eligible new verified candidate." >&2
+              exit 3
+            elif [ "$draft_status" -ne 0 ]; then
+              if [ "$attempt" -eq 3 ]; then exit "$draft_status"; fi
+              continue
+            fi
 
-      - name: Enforce article quality and source integrity
+            set +e
+            python3 -m automation.quality_gate \
+              --repository-root . \
+              --manifest automation/out/ai-manual-draft/manifest.json 2>&1 | tee "automation/out/ai-manual-quality-attempt-${attempt}.log"
+            quality_status=${PIPESTATUS[0]}
+            set -e
+            if [ "$quality_status" -eq 0 ]; then
+              passed=true
+              echo "AI draft passed the 9/10 quality gate on attempt $attempt."
+              break
+            fi
+            echo "Attempt $attempt missed the quality floor; AI will rewrite from the verified facts."
+          done
+          if [ "$passed" != "true" ]; then
+            echo "AI could not produce a 9/10-safe article after 3 attempts." >&2
+            exit 1
+          fi
+          echo "drafted=true" >> "$GITHUB_OUTPUT"
+
+      - name: Final article quality and source integrity check
         run: |
           python3 -m automation.quality_gate \
             --repository-root . \
             --manifest automation/out/ai-manual-draft/manifest.json
+          # Remove the run-local prompt enhancement so only website output is committed.
+          git checkout -- automation/draft_pipeline.py
 
       - name: Publish AI-created article into website files
         id: publication
@@ -119,9 +171,10 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
           echo "### AI article published" >> "$GITHUB_STEP_SUMMARY"
-          echo "- AI generation: **completed**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Writer: **OpenAI**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Quality gate: **passed**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Source verification: **passed**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GitHub role: **commit and deploy**" >> "$GITHUB_STEP_SUMMARY"
           echo "- Page: https://nextjailbreak.com/$TARGET_PATH" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Save editorial state
