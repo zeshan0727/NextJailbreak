@@ -1,0 +1,326 @@
+name: Next Signer - Sign Only
+
+on:
+  repository_dispatch:
+    types: [nextsigner_sign_only]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextsigner-sign-only
+  cancel-in-progress: false
+
+jobs:
+  sign-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REQUEST_ID: ${{ github.event.client_payload.request_id }}
+      STAGING_ASSET: ${{ github.event.client_payload.staging_asset }}
+      REQUESTED_NAME: ${{ github.event.client_payload.requested_name }}
+      REQUESTED_BUNDLE_ID: ${{ github.event.client_payload.requested_bundle_id }}
+      CUSTOM_ICON_ASSET: ${{ github.event.client_payload.custom_icon_asset }}
+      TWEAK_ASSETS_JSON: ${{ github.event.client_payload.tweak_assets_json }}
+      DUPLICATE_SIGNING: ${{ github.event.client_payload.duplicate_signing }}
+      INJECT_EXTENSIONS: ${{ github.event.client_payload.inject_extensions }}
+      WEAK_INJECTION: ${{ github.event.client_payload.weak_injection }}
+      ZSIGN_COMMIT: e803f870dc686e6161d00d9b22c425b8acdfacee
+      INBOX_TAG: nextsigner-inbox
+      P12_PASSWORD: ${{ secrets.NEXTSIGNER_P12_PASSWORD }}
+      R2_BUCKET: next-signer-apps
+      R2_PUBLIC_BASE: https://files.nextsolution.cc
+      R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: 'true'
+
+    steps:
+      - name: Check out helpers
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          sparse-checkout: |
+            .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Report request received
+        continue-on-error: true
+        run: bash .github/scripts/nextsigner-sign-only-status.sh running Received "GitHub received the sign-only request. Nothing will be added to the website catalog."
+
+      - name: Validate request and signing secrets
+        shell: bash
+        env:
+          P12_B64: ${{ secrets.NEXTSIGNER_P12_BASE64 }}
+          PROVISION_B64: ${{ secrets.NEXTSIGNER_MOBILEPROVISION_BASE64 }}
+        run: |
+          set -euo pipefail
+          test -n "$REQUEST_ID" || { echo 'request_id is required'; exit 1; }
+          test -n "$STAGING_ASSET" || { echo 'staging_asset is required'; exit 1; }
+          test -n "$REQUESTED_NAME" || { echo 'requested_name is required'; exit 1; }
+          test -n "$REQUESTED_BUNDLE_ID" || { echo 'requested_bundle_id is required'; exit 1; }
+          test -n "$P12_B64" || { echo 'NEXTSIGNER_P12_BASE64 is missing'; exit 1; }
+          test -n "$P12_PASSWORD" || { echo 'NEXTSIGNER_P12_PASSWORD is missing'; exit 1; }
+          test -n "$PROVISION_B64" || { echo 'NEXTSIGNER_MOBILEPROVISION_BASE64 is missing'; exit 1; }
+          test -n "$AWS_ACCESS_KEY_ID" || { echo 'CLOUDFLARE_R2_ACCESS_KEY_ID is missing'; exit 1; }
+          test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'CLOUDFLARE_R2_SECRET_ACCESS_KEY is missing'; exit 1; }
+          printf '%s' "${TWEAK_ASSETS_JSON:-[]}" | jq -e 'type == "array" and all(.[]; type == "string")' >/dev/null
+          case "${INJECT_EXTENSIONS:-false}" in true|false) ;; *) echo 'inject_extensions must be true/false'; exit 1;; esac
+          case "${WEAK_INJECTION:-false}" in true|false) ;; *) echo 'weak_injection must be true/false'; exit 1;; esac
+          printf '%s' "$P12_B64" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          printf '%s' "$PROVISION_B64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+          chmod 600 "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/profile.mobileprovision"
+
+      - name: Report validation
+        continue-on-error: true
+        run: bash .github/scripts/nextsigner-sign-only-status.sh running Validate "Signing certificate and request validated."
+
+      - name: Download staged files
+        shell: bash
+        run: |
+          set -euo pipefail
+          RELEASES_JSON="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100")"
+          RELEASE_ID="$(printf '%s' "$RELEASES_JSON" | jq -r --arg tag "$INBOX_TAG" '.[] | select(.tag_name==$tag) | .id' | head -n1)"
+          test -n "$RELEASE_ID" && test "$RELEASE_ID" != null || { echo 'Signing inbox release not found'; exit 1; }
+          ASSETS_JSON="$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?per_page=100")"
+
+          download_asset() {
+            local name="$1"
+            local destination="$2"
+            local id
+            id="$(printf '%s' "$ASSETS_JSON" | jq -r --arg name "$name" '.[] | select(.name==$name) | .id' | head -n1)"
+            test -n "$id" && test "$id" != null || { echo "Inbox asset not found: $name"; exit 1; }
+            gh api -H 'Accept: application/octet-stream' "repos/$GITHUB_REPOSITORY/releases/assets/$id" > "$destination"
+            test -s "$destination"
+          }
+
+          APP_ASSET_ID="$(printf '%s' "$ASSETS_JSON" | jq -r --arg name "$STAGING_ASSET" '.[] | select(.name==$name) | .id' | head -n1)"
+          test -n "$APP_ASSET_ID" && test "$APP_ASSET_ID" != null || { echo "Staged app not found: $STAGING_ASSET"; exit 1; }
+          gh api -H 'Accept: application/octet-stream' "repos/$GITHUB_REPOSITORY/releases/assets/$APP_ASSET_ID" > "$RUNNER_TEMP/input.ipa"
+          test -s "$RUNNER_TEMP/input.ipa"
+
+          mkdir -p "$RUNNER_TEMP/addons"
+          if [ -n "${CUSTOM_ICON_ASSET:-}" ]; then
+            download_asset "$CUSTOM_ICON_ASSET" "$RUNNER_TEMP/custom-icon-source"
+          fi
+          printf '%s' "${TWEAK_ASSETS_JSON:-[]}" | jq -r '.[]' | while IFS= read -r asset; do
+            [ -n "$asset" ] || continue
+            safe="$(printf '%s' "$asset" | tr '/\\' '__')"
+            download_asset "$asset" "$RUNNER_TEMP/addons/$safe"
+          done
+
+          echo "INBOX_RELEASE_ID=$RELEASE_ID" >> "$GITHUB_ENV"
+          echo "INBOX_ASSET_ID=$APP_ASSET_ID" >> "$GITHUB_ENV"
+
+      - name: Report download
+        continue-on-error: true
+        run: bash .github/scripts/nextsigner-sign-only-status.sh running Download "Staged IPA and customization files downloaded."
+
+      - name: Build pinned zsign
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y g++ pkg-config libssl-dev jq pngcrush dpkg
+          git clone --filter=blob:none https://github.com/zhlynn/zsign.git "$RUNNER_TEMP/zsign"
+          git -C "$RUNNER_TEMP/zsign" checkout "$ZSIGN_COMMIT"
+          make -C "$RUNNER_TEMP/zsign/build/linux" clean
+          make -C "$RUNNER_TEMP/zsign/build/linux" -j"$(nproc)"
+          "$RUNNER_TEMP/zsign/bin/zsign" --version
+
+      - name: Report signer ready
+        continue-on-error: true
+        run: bash .github/scripts/nextsigner-sign-only-status.sh running zsign "Signing engine is ready."
+
+      - name: Prepare custom icon
+        if: env.CUSTOM_ICON_ASSET != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --user --quiet pillow
+          python3 - <<'PY'
+          from PIL import Image, ImageOps
+          import os
+          source = os.path.join(os.environ['RUNNER_TEMP'], 'custom-icon-source')
+          target = os.path.join(os.environ['RUNNER_TEMP'], 'custom-icon.png')
+          with Image.open(source) as image:
+              image = ImageOps.exif_transpose(image).convert('RGBA')
+              width, height = image.size
+              side = min(width, height)
+              left = (width - side) // 2
+              top = (height - side) // 2
+              image = image.crop((left, top, left + side, top + side)).resize((1024, 1024), Image.Resampling.LANCZOS)
+              image.save(target, format='PNG', optimize=True)
+          PY
+          test -s "$RUNNER_TEMP/custom-icon.png"
+
+      - name: Prepare tweak dylibs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/inject-dylibs" "$RUNNER_TEMP/deb-extract"
+          attached_count="$(find "$RUNNER_TEMP/addons" -type f | wc -l | tr -d ' ')"
+          counter=0
+          while IFS= read -r -d '' addon; do
+            counter=$((counter + 1))
+            lower="$(printf '%s' "$addon" | tr '[:upper:]' '[:lower:]')"
+            if [[ "$lower" == *.dylib ]]; then
+              cp "$addon" "$RUNNER_TEMP/inject-dylibs/${counter}-$(basename "$addon")"
+            elif [[ "$lower" == *.deb ]]; then
+              target="$RUNNER_TEMP/deb-extract/$counter"
+              mkdir -p "$target"
+              dpkg-deb -x "$addon" "$target"
+              sub=0
+              while IFS= read -r -d '' dylib; do
+                sub=$((sub + 1))
+                cp "$dylib" "$RUNNER_TEMP/inject-dylibs/${counter}-${sub}-$(basename "$dylib")"
+              done < <(find "$target" -type f -iname '*.dylib' -print0)
+            else
+              echo "Unsupported tweak attachment: $addon"
+              exit 1
+            fi
+          done < <(find "$RUNNER_TEMP/addons" -type f -print0)
+
+          dylib_count="$(find "$RUNNER_TEMP/inject-dylibs" -type f -iname '*.dylib' | wc -l | tr -d ' ')"
+          if [ "$attached_count" -gt 0 ] && [ "$dylib_count" -eq 0 ]; then
+            echo 'Tweak attachments supplied but no injectable dylibs were found.'
+            exit 1
+          fi
+          echo "TWEAK_DYLIB_COUNT=$dylib_count" >> "$GITHUB_ENV"
+
+      - name: Report customization
+        continue-on-error: true
+        run: bash .github/scripts/nextsigner-sign-only-status.sh running Customize "Customization options prepared."
+
+      - name: Sign IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/metadata"
+          args=(
+            -f
+            -k "$RUNNER_TEMP/certificate.p12"
+            -p "$P12_PASSWORD"
+            -m "$RUNNER_TEMP/profile.mobileprovision"
+            -b "$REQUESTED_BUNDLE_ID"
+            -n "$REQUESTED_NAME"
+            -x "$RUNNER_TEMP/metadata"
+          )
+          if [ -s "$RUNNER_TEMP/custom-icon.png" ]; then
+            args+=( -I "$RUNNER_TEMP/custom-icon.png" )
+          fi
+          while IFS= read -r -d '' dylib; do
+            args+=( -l "$dylib" )
+          done < <(find "$RUNNER_TEMP/inject-dylibs" -type f -iname '*.dylib' -print0 | sort -z)
+          if [ "${TWEAK_DYLIB_COUNT:-0}" -gt 0 ] && [ "${INJECT_EXTENSIONS:-false}" = true ]; then
+            args+=( -P )
+          fi
+          if [ "${TWEAK_DYLIB_COUNT:-0}" -gt 0 ] && [ "${WEAK_INJECTION:-false}" = true ]; then
+            args+=( -w )
+          fi
+          args+=( -o "$RUNNER_TEMP/signed.ipa" "$RUNNER_TEMP/input.ipa" )
+          "$RUNNER_TEMP/zsign/bin/zsign" "${args[@]}"
+          test -s "$RUNNER_TEMP/signed.ipa"
+          unzip -t "$RUNNER_TEMP/signed.ipa" >/dev/null
+
+      - name: Report signed
+        continue-on-error: true
+        run: bash .github/scripts/nextsigner-sign-only-status.sh running Sign "IPA signed successfully. Reading app metadata."
+
+      - name: Read signed metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, plistlib, re, zipfile
+          ipa = os.path.join(os.environ['RUNNER_TEMP'], 'signed.ipa')
+          with zipfile.ZipFile(ipa) as z:
+              infos = [n for n in z.namelist() if re.fullmatch(r'Payload/[^/]+\.app/Info\.plist', n)]
+              if not infos:
+                  raise SystemExit('Main app Info.plist not found')
+              info = plistlib.loads(z.read(infos[0]))
+          name = str(info.get('CFBundleDisplayName') or info.get('CFBundleName') or os.environ['REQUESTED_NAME'])
+          bundle_id = str(info.get('CFBundleIdentifier') or os.environ['REQUESTED_BUNDLE_ID'])
+          version = str(info.get('CFBundleShortVersionString') or '1.0')
+          build = str(info.get('CFBundleVersion') or '1')
+          slug = re.sub(r'[^a-z0-9]+', '-', bundle_id.lower()).strip('-')[-70:] or 'signed-app'
+          version_slug = re.sub(r'[^A-Za-z0-9._-]+', '-', version).strip('-') or '1.0'
+          build_slug = re.sub(r'[^A-Za-z0-9._-]+', '-', build).strip('-') or '1'
+          filename = f'{slug}-{version_slug}-{build_slug}-signed.ipa'
+          staging_key = f'staging/nextsigner/{os.environ["REQUEST_ID"]}/{filename}'
+          values = {
+              'APP_NAME': name,
+              'APP_BUNDLE_ID': bundle_id,
+              'APP_VERSION': version,
+              'APP_BUILD': build,
+              'SIGNED_FILENAME': filename,
+              'STAGING_OBJECT_KEY': staging_key,
+          }
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+              for key, value in values.items():
+                  print(f'{key}={value}', file=f)
+          PY
+          echo "SIGNED_SHA256=$(sha256sum "$RUNNER_TEMP/signed.ipa" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "SIGNED_SIZE=$(stat -c '%s' "$RUNNER_TEMP/signed.ipa")" >> "$GITHUB_ENV"
+
+      - name: Report metadata
+        continue-on-error: true
+        run: bash .github/scripts/nextsigner-sign-only-status.sh running Metadata "Signed IPA metadata verified."
+
+      - name: Upload temporary signed IPA to R2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --user --quiet awscli
+          export PATH="$HOME/.local/bin:$PATH"
+          aws s3 cp \
+            "$RUNNER_TEMP/signed.ipa" \
+            "s3://$R2_BUCKET/$STAGING_OBJECT_KEY" \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            --content-type 'application/octet-stream' \
+            --cache-control 'private, max-age=300' \
+            --only-show-errors
+          echo "SIGNED_URL=$R2_PUBLIC_BASE/$STAGING_OBJECT_KEY" >> "$GITHUB_ENV"
+
+      - name: Report temporary upload
+        continue-on-error: true
+        run: bash .github/scripts/nextsigner-sign-only-status.sh running "Staging Upload" "Signed IPA uploaded to temporary storage for device download and installation."
+
+      - name: Verify temporary signed IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SIGNED_URL:-}" || { echo 'SIGNED_URL was not produced'; exit 1; }
+          curl --fail --silent --show-error --location --head \
+            --retry 8 --retry-delay 3 --retry-all-errors "$SIGNED_URL" >/dev/null
+
+      - name: Report success
+        shell: bash
+        run: bash .github/scripts/nextsigner-sign-only-status.sh success Ready "Signed IPA is ready. Downloading it to the iPhone now."
+
+      - name: Clean source staging assets
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          [ -n "${INBOX_RELEASE_ID:-}" ] || exit 0
+          ASSETS_JSON="$(gh api "repos/$GITHUB_REPOSITORY/releases/$INBOX_RELEASE_ID/assets?per_page=100" 2>/dev/null)" || exit 0
+          delete_named() {
+            local name="$1"
+            [ -n "$name" ] || return 0
+            printf '%s' "$ASSETS_JSON" | jq -r --arg name "$name" '.[] | select(.name==$name) | .id' | while read -r id; do
+              [ -n "$id" ] && gh api --method DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$id" >/dev/null 2>&1 || true
+            done
+          }
+          delete_named "$STAGING_ASSET"
+          delete_named "${CUSTOM_ICON_ASSET:-}"
+          printf '%s' "${TWEAK_ASSETS_JSON:-[]}" | jq -r '.[]' | while read -r name; do delete_named "$name"; done
+
+      - name: Report failure
+        if: failure()
+        continue-on-error: true
+        shell: bash
+        run: bash .github/scripts/nextsigner-sign-only-status.sh failed Failed "Signing failed. Open the GitHub run for details."
