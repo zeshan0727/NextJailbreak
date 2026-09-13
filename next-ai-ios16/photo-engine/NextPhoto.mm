@@ -16,18 +16,22 @@ static void logBridge(sd_log_level_t level,const char *text,void *user) {
 struct CallbackCleanup { ~CallbackCleanup(){sd_set_progress_callback(nullptr,nullptr);sd_set_log_callback(nullptr,nullptr);} };
 struct ImagesCleanup { sd_image_t *images=nullptr; ~ImagesCleanup(){if(images){free(images[0].data);free(images);}} };
 extern "C" __attribute__((visibility("default")))
-int NextPhotoGenerate(const char *model,const char *prompt,const char *negative,int size,int steps,int64_t seed,const char *destination,NextPhotoProgress progress,void *user,char *error,int errorCapacity) {
+int NextPhotoGenerate(const char *model,const char *prompt,const char *negative,int size,int steps,int turbo,int64_t seed,const char *destination,NextPhotoTiming *timing,NextPhotoProgress progress,void *user,char *error,int errorCapacity) {
  @autoreleasepool {
  try {
- if((size!=384 && size!=512) || steps<12 || steps>24)throw std::runtime_error("Unsupported image settings.");
+ if((size!=384 && size!=512) || (turbo ? (steps!=1 && steps!=2 && steps!=4) : (steps<12 || steps>24)))throw std::runtime_error("Unsupported image settings.");
+ CFAbsoluteTime loadStart=CFAbsoluteTimeGetCurrent();if(timing)*timing={0,0};
  ProgressState state{progress,user,{}};CallbackCleanup cleanup;
  sd_set_log_callback(logBridge,&state);sd_set_progress_callback(progressBridge,&state);
  if(progress)progress(0,steps,user);
- std::unique_ptr<sd_ctx_t,decltype(&free_sd_ctx)> ctx(new_sd_ctx(model,"","","","","","","","","","",true,true,true,4,SD_TYPE_COUNT,STD_DEFAULT_RNG,DEFAULT,true,true,true,false),free_sd_ctx);
- if(!ctx)throw std::runtime_error(state.error.empty()?"Could not load the image model. Select the complete SD 1.5 Q4_0 model.":state.error);
+ std::unique_ptr<sd_ctx_t,decltype(&free_sd_ctx)> ctx(new_sd_ctx(model,"","","","","","","","","","",true,true,true,4,SD_TYPE_COUNT,STD_DEFAULT_RNG,turbo?NEXTAI_TURBO:DEFAULT,true,true,true,false),free_sd_ctx);
+ if(!ctx)throw std::runtime_error(state.error.empty()?"Could not load the image model. Select the complete model matching the selected Standard or Turbo mode.":state.error);
+ if(timing)timing->loadSeconds=CFAbsoluteTimeGetCurrent()-loadStart;
+ CFAbsoluteTime renderStart=CFAbsoluteTimeGetCurrent();
  ImagesCleanup result;
- result.images=txt2img(ctx.get(),prompt,negative,-1,7.0f,3.5f,size,size,EULER_A,steps,seed,1,nullptr,0.0f,0.0f,false,"",nullptr,0,0.0f,0.0f,0.0f);
+ result.images=txt2img(ctx.get(),prompt,turbo?"":negative,-1,turbo?1.0f:7.0f,3.5f,size,size,turbo?EULER:EULER_A,steps,seed,1,nullptr,0.0f,0.0f,false,"",nullptr,0,0.0f,0.0f,0.0f);
  if(!result.images || !result.images[0].data)throw std::runtime_error(state.error.empty()?"No image was generated. Try 384 × 384 or restart the app to free memory.":state.error);
+ if(timing)timing->renderSeconds=CFAbsoluteTimeGetCurrent()-renderStart;
  const sd_image_t &im=result.images[0];
  if(im.channel!=3 || im.width!=size || im.height!=size)throw std::runtime_error("Image engine returned an unexpected pixel format.");
  NSData *pixels=[NSData dataWithBytes:im.data length:(NSUInteger)im.width*im.height*3];
@@ -43,3 +47,4 @@ int NextPhotoGenerate(const char *model,const char *prompt,const char *negative,
  }catch(const std::exception &e){if(error && errorCapacity>0)snprintf(error,errorCapacity,"%s",e.what());return 1;}
  }
 }
+
