@@ -1,0 +1,182 @@
+name: Next Signer - Install Only
+
+on:
+  repository_dispatch:
+    types: [nextsigner_install_only]
+
+permissions:
+  contents: write
+
+jobs:
+  install-only:
+    runs-on: ubuntu-latest
+    env:
+      REQUEST_ID: ${{ github.event.client_payload.request_id }}
+      STAGING_ASSET: ${{ github.event.client_payload.staging_asset }}
+      APP_NAME: ${{ github.event.client_payload.app_name }}
+      BUNDLE_ID: ${{ github.event.client_payload.bundle_id }}
+      VERSION: ${{ github.event.client_payload.version }}
+      BUILD_NUMBER: ${{ github.event.client_payload.build }}
+      INBOX_TAG: nextsigner-inbox
+      R2_BUCKET: next-signer-apps
+      R2_PUBLIC_BASE: https://files.nextsolution.cc
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_ENDPOINT_URL: https://4fe920e259870b0366118a17cc5727e5.r2.cloudflarestorage.com
+      AWS_DEFAULT_REGION: auto
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Validate request
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$REQUEST_ID"
+          test -n "$STAGING_ASSET"
+          test -n "$APP_NAME"
+          test -n "$BUNDLE_ID"
+
+      - name: Download temporarily staged signed IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          RELEASES="$(gh api "/repos/$GITHUB_REPOSITORY/releases?per_page=100")"
+          RELEASE_ID="$(printf '%s' "$RELEASES" | jq -r --arg tag "$INBOX_TAG" '.[] | select(.tag_name == $tag) | .id' | head -1)"
+          UPLOAD_URL="$(printf '%s' "$RELEASES" | jq -r --arg tag "$INBOX_TAG" '.[] | select(.tag_name == $tag) | .upload_url' | head -1 | sed 's/{.*//')"
+          test -n "$RELEASE_ID"
+          test -n "$UPLOAD_URL"
+          ASSETS="$(gh api "/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?per_page=100")"
+          ASSET_ID="$(printf '%s' "$ASSETS" | jq -r --arg name "$STAGING_ASSET" '.[] | select(.name == $name) | .id' | head -1)"
+          test -n "$ASSET_ID"
+          gh api -H 'Accept: application/octet-stream' "/repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID" > "$RUNNER_TEMP/app.ipa"
+          test -s "$RUNNER_TEMP/app.ipa"
+          echo "RELEASE_ID=$RELEASE_ID" >> "$GITHUB_ENV"
+          echo "UPLOAD_URL=$UPLOAD_URL" >> "$GITHUB_ENV"
+          echo "ASSET_ID=$ASSET_ID" >> "$GITHUB_ENV"
+
+      - name: Upload signed IPA to temporary R2 install path
+        shell: bash
+        run: |
+          set -euo pipefail
+          IPA_KEY="staging/nextsigner/install/$REQUEST_ID/app.ipa"
+          aws s3 cp "$RUNNER_TEMP/app.ipa" "s3://$R2_BUCKET/$IPA_KEY" \
+            --endpoint-url "$AWS_ENDPOINT_URL" \
+            --content-type 'application/octet-stream' \
+            --cache-control 'no-store'
+          echo "IPA_KEY=$IPA_KEY" >> "$GITHUB_ENV"
+          echo "IPA_URL=$R2_PUBLIC_BASE/$IPA_KEY" >> "$GITHUB_ENV"
+
+      - name: Create and upload Apple OTA manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          MANIFEST_KEY="staging/nextsigner/install/$REQUEST_ID/manifest.plist"
+          export MANIFEST_KEY
+          python3 - <<'PY'
+          import os, plistlib
+          version = os.environ.get('VERSION') or '1.0'
+          payload = {
+              'items': [{
+                  'assets': [{
+                      'kind': 'software-package',
+                      'url': os.environ['IPA_URL'],
+                  }],
+                  'metadata': {
+                      'bundle-identifier': os.environ['BUNDLE_ID'],
+                      'bundle-version': version,
+                      'kind': 'software',
+                      'title': os.environ['APP_NAME'],
+                  },
+              }]
+          }
+          with open(os.path.join(os.environ['RUNNER_TEMP'], 'manifest.plist'), 'wb') as f:
+              plistlib.dump(payload, f, fmt=plistlib.FMT_XML, sort_keys=False)
+          PY
+          aws s3 cp "$RUNNER_TEMP/manifest.plist" "s3://$R2_BUCKET/$MANIFEST_KEY" \
+            --endpoint-url "$AWS_ENDPOINT_URL" \
+            --content-type 'application/xml' \
+            --cache-control 'no-store'
+          echo "MANIFEST_KEY=$MANIFEST_KEY" >> "$GITHUB_ENV"
+          echo "MANIFEST_URL=$R2_PUBLIC_BASE/$MANIFEST_KEY" >> "$GITHUB_ENV"
+
+      - name: Verify temporary Apple install files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for try in 1 2 3 4 5; do
+            if curl -fsSI --max-time 20 "$IPA_URL" >/dev/null && curl -fsSI --max-time 20 "$MANIFEST_URL" >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo 'Temporary install files were uploaded but are not publicly reachable.' >&2
+          exit 1
+
+      - name: Report install ready
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS_NAME="status-install-$REQUEST_ID-$(date +%s%N).json"
+          RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          jq -n \
+            --arg request_id "$REQUEST_ID" \
+            --arg state success \
+            --arg stage Install \
+            --arg message 'Apple OTA installation is ready.' \
+            --arg run_url "$RUN_URL" \
+            --arg updated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg manifest_url "$MANIFEST_URL" \
+            --arg ipa_url "$IPA_URL" \
+            '{request_id:$request_id,state:$state,stage:$stage,message:$message,run_url:$run_url,updated_at:$updated_at,manifest_url:$manifest_url,ipa_url:$ipa_url}' \
+            > "$RUNNER_TEMP/status.json"
+          ENCODED="$(python3 - "$STATUS_NAME" <<'PY'
+          import sys, urllib.parse
+          print(urllib.parse.quote(sys.argv[1], safe=''))
+          PY
+          )"
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'Content-Type: application/json' \
+            --data-binary @"$RUNNER_TEMP/status.json" \
+            "${UPLOAD_URL}?name=${ENCODED}" >/dev/null
+
+      - name: Remove private inbox copy after install staging
+        if: success()
+        continue-on-error: true
+        shell: bash
+        run: |
+          gh api --method DELETE "/repos/$GITHUB_REPOSITORY/releases/assets/$ASSET_ID"
+
+      - name: Report install failure
+        if: failure()
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          RELEASES="$(gh api "/repos/$GITHUB_REPOSITORY/releases?per_page=100")"
+          UPLOAD_URL_FAIL="$(printf '%s' "$RELEASES" | jq -r --arg tag "$INBOX_TAG" '.[] | select(.tag_name == $tag) | .upload_url' | head -1 | sed 's/{.*//')"
+          test -n "$UPLOAD_URL_FAIL" || exit 0
+          STATUS_NAME="status-install-$REQUEST_ID-$(date +%s%N).json"
+          RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          jq -n \
+            --arg request_id "$REQUEST_ID" \
+            --arg state failed \
+            --arg stage Install \
+            --arg message 'Apple OTA installation staging failed. Open the GitHub run for details.' \
+            --arg run_url "$RUN_URL" \
+            --arg updated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{request_id:$request_id,state:$state,stage:$stage,message:$message,run_url:$run_url,updated_at:$updated_at,manifest_url:null,ipa_url:null}' \
+            > "$RUNNER_TEMP/status-failed.json"
+          ENCODED="$(python3 - "$STATUS_NAME" <<'PY'
+          import sys, urllib.parse
+          print(urllib.parse.quote(sys.argv[1], safe=''))
+          PY
+          )"
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'Content-Type: application/json' \
+            --data-binary @"$RUNNER_TEMP/status-failed.json" \
+            "${UPLOAD_URL_FAIL}?name=${ENCODED}" >/dev/null
