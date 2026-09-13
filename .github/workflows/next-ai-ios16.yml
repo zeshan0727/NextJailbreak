@@ -37,12 +37,12 @@ jobs:
           mkdir -p package/Payload
           cp -R "$app" package/Payload/
           cd package
-          zip -qry NextAI-Test1.tipa Payload
-          shasum -a 256 NextAI-Test1.tipa > SHA256.txt
+          zip -qry NextAI-Test2.tipa Payload
+          shasum -a 256 NextAI-Test2.tipa > SHA256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: NextAI-TrollStore-Test1
+          name: NextAI-TrollStore-Test2
           path: |
-            package/NextAI-Test1.tipa
+            package/NextAI-Test2.tipa
             package/SHA256.txt
           if-no-files-found: error
