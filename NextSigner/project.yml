@@ -20,8 +20,8 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
     SUPPORTS_MACCATALYST: "NO"
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "1.4.1"
-    CURRENT_PROJECT_VERSION: "24"
+    MARKETING_VERSION: "1.4.2"
+    CURRENT_PROJECT_VERSION: "25"
 targets:
   NextSigner:
     type: application
