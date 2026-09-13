@@ -73,8 +73,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RELEASE_ID="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$INBOX_TAG" --jq '.id')"
-          test -n "$RELEASE_ID" || { echo 'Signing inbox release not found'; exit 1; }
+          RELEASE_ID="$({
+            gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" |
+              jq -r --arg tag "$INBOX_TAG" --arg asset "$STAGING_ASSET" '
+                .[]
+                | select(.tag_name==$tag)
+                | select(any(.assets[]?; .name==$asset))
+                | .id
+              ' |
+              head -n1
+          })"
+          test -n "$RELEASE_ID" || { echo "Signing inbox release containing $STAGING_ASSET not found"; exit 1; }
           ASSETS_JSON="$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?per_page=100")"
           APP_ASSET_ID="$(printf '%s' "$ASSETS_JSON" | jq -r --arg name "$STAGING_ASSET" '.[] | select(.name==$name) | .id' | head -n1)"
           test -n "$APP_ASSET_ID" && test "$APP_ASSET_ID" != null || { echo "Staged app not found: $STAGING_ASSET"; exit 1; }
