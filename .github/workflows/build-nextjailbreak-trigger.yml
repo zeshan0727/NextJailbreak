@@ -1,0 +1,75 @@
+name: Build Next Jailbreak Trigger TIPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "TriggerApp/**"
+      - ".github/workflows/build-nextjailbreak-trigger.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build arm64 iOS app
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf build dist
+          mkdir -p build/Payload/NextJailbreakTrigger.app dist
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+
+          xcrun --sdk iphoneos swiftc \
+            TriggerApp/App.swift \
+            -target arm64-apple-ios16.0 \
+            -sdk "$SDK" \
+            -O \
+            -framework UIKit \
+            -framework Foundation \
+            -framework Security \
+            -o build/Payload/NextJailbreakTrigger.app/NextJailbreakTrigger
+
+          cp TriggerApp/Info.plist build/Payload/NextJailbreakTrigger.app/Info.plist
+          chmod +x build/Payload/NextJailbreakTrigger.app/NextJailbreakTrigger
+
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${GITHUB_RUN_NUMBER}" build/Payload/NextJailbreakTrigger.app/Info.plist
+          codesign --force --sign - --timestamp=none build/Payload/NextJailbreakTrigger.app
+
+          ditto -c -k --sequesterRsrc --keepParent build/Payload dist/NextJailbreakTrigger.tipa.tmp.zip
+          mv dist/NextJailbreakTrigger.tipa.tmp.zip dist/NextJailbreakTrigger.tipa
+
+          file build/Payload/NextJailbreakTrigger.app/NextJailbreakTrigger
+          codesign -dv --verbose=2 build/Payload/NextJailbreakTrigger.app 2>&1 | head -30
+          ls -lh dist/NextJailbreakTrigger.tipa
+
+      - name: Upload TIPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextJailbreakTrigger-TIPA
+          path: dist/NextJailbreakTrigger.tipa
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish public GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="nextjailbreak-trigger-v1.0.0"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/NextJailbreakTrigger.tipa --clobber
+          else
+            gh release create "$TAG" dist/NextJailbreakTrigger.tipa \
+              --target "$GITHUB_SHA" \
+              --title "Next Jailbreak Trigger v1.0.0" \
+              --notes "TrollStore TIPA for iPhone. Trigger Verified Tweak, Original-Source News, and Dopamine 3 publishers manually. GitHub token is entered on-device and stored in iOS Keychain; no token is embedded in the app or repository."
+          fi
