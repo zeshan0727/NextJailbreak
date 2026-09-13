@@ -64,6 +64,9 @@ jobs:
           xcrun nm -gU "$app/Frameworks/NextPhoto.framework/NextPhoto" > photo-symbols.txt
           grep '_NextPhotoGenerate' photo-symbols.txt
           if grep -E ' _ggml_| _llama_' photo-symbols.txt; then exit 1; fi
+          xcrun nm -a "$app/Frameworks/NextPhoto.framework/NextPhoto" > photo-all-symbols.txt
+          grep 'OBJC_CLASS_.*NextPhotoGGMLMetalClass' photo-all-symbols.txt
+          if grep 'OBJC_CLASS_.*_GGMLMetalClass' photo-all-symbols.txt; then exit 1; fi
           xcrun otool -L "$app/NextAI" > linked-libraries.txt
           grep '@rpath/NextPhoto.framework/NextPhoto' linked-libraries.txt
           mkdir -p package/Payload
