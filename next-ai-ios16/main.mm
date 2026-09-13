@@ -19,7 +19,7 @@ BOOL NextAIWorking=NO;
 - (NSString *)documents { return NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject; }
 - (NSString *)historyPath { return [[self documents] stringByAppendingPathComponent:@"chats.json"]; }
 - (void)viewDidLoad {
- [super viewDidLoad]; self.title=@"Next AI · Test 3"; self.view.backgroundColor=UIColor.systemBackgroundColor;
+ [super viewDidLoad]; self.title=@"Next AI · 0.3.0"; self.view.backgroundColor=UIColor.systemBackgroundColor;
  _cancel=false; _messages=[NSMutableArray new]; _archive=[NSMutableArray new]; _chatID=NSUUID.UUID.UUIDString;
  NSData *data=[NSData dataWithContentsOfFile:[self historyPath]];
  id saved=data ? [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil] : nil;
@@ -44,7 +44,7 @@ BOOL NextAIWorking=NO;
  NSMutableString *text=[NSMutableString new];
  for(NSDictionary *m in _messages) [text appendFormat:@"%@\n%@\n\n",[m[@"role"] isEqual:@"user"]?@"You":@"Next AI",m[@"content"]];
  BOOL follow=_output.contentSize.height<=_output.bounds.size.height || _output.contentOffset.y+_output.bounds.size.height>=_output.contentSize.height-100;
- _output.text=text.length?text:@"Welcome to Next AI\n\nYour model and conversations stay on this iPhone.\n\nMenu → Import model to get started.\n\nTest 3: short text conversations, 2,048-token context and up to 384 reply tokens. Long chats will ask you to start a new conversation.";
+ _output.text=text.length?text:@"Welcome to Next AI\n\nYour model and conversations stay on this iPhone.\n\nMenu → Import model to get started.\n\n0.3.0: short text conversations, 2,048-token context and up to 384 reply tokens. Long chats will ask you to start a new conversation.";
  if(text.length && follow) [_output scrollRangeToVisible:NSMakeRange(_output.text.length-1,1)];
 }
 - (void)alert:(NSString *)message { UIAlertController *a=[UIAlertController alertControllerWithTitle:@"Next AI" message:message preferredStyle:UIAlertControllerStyleAlert]; [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]]; [self presentViewController:a animated:YES completion:nil]; }
@@ -115,7 +115,7 @@ BOOL NextAIWorking=NO;
  [coordinator coordinateReadingItemAtURL:url options:0 error:&coordError byAccessor:^(NSURL *source){
  NSNumber *size=nil; [source getResourceValue:&size forKey:NSURLFileSizeKey error:&error];
  if(error) return;
- if(size.unsignedLongLongValue>2200000000ULL) {error=[NSError errorWithDomain:@"NextAI" code:1 userInfo:@{NSLocalizedDescriptionKey:@"For Test 3, choose a model smaller than 2.2 GB. Use the recommended Qwen Q4_K_M."}];return;}
+ if(size.unsignedLongLongValue>2200000000ULL) {error=[NSError errorWithDomain:@"NextAI" code:1 userInfo:@{NSLocalizedDescriptionKey:@"For 0.3.0, choose a model smaller than 2.2 GB. Use the recommended Qwen Q4_K_M."}];return;}
  NSFileHandle *h=[NSFileHandle fileHandleForReadingFromURL:source error:&error]; if(!h)return; NSData *magic=[h readDataUpToLength:4 error:&error]; [h closeFile];
  if(error || ![magic isEqual:[@"GGUF" dataUsingEncoding:NSUTF8StringEncoding]]) {error=[NSError errorWithDomain:@"NextAI" code:2 userInfo:@{NSLocalizedDescriptionKey:@"This is not a valid GGUF file. Check that the download finished."}];return;}
  relative=[NSString stringWithFormat:@"Models/%@-%@",NSUUID.UUID.UUIDString,source.lastPathComponent];
@@ -156,7 +156,7 @@ BOOL NextAIWorking=NO;
  for(NSDictionary *m in history){roles.emplace_back([m[@"role"] UTF8String]);contents.emplace_back([m[@"content"] UTF8String]);}
  std::vector<llama_chat_message> chat;for(size_t i=0;i<roles.size();i++)chat.push_back({roles[i].c_str(),contents[i].c_str()});
  const char *tmpl=llama_model_chat_template(model.get(),nullptr);if(!tmpl)throw std::runtime_error("Model has no chat template. Import the recommended Qwen Instruct model.");
- int n=llama_chat_apply_template(tmpl,chat.data(),chat.size(),true,nullptr,0);if(n<=0)throw std::runtime_error("This model's chat template is not supported by Test 3.");
+ int n=llama_chat_apply_template(tmpl,chat.data(),chat.size(),true,nullptr,0);if(n<=0)throw std::runtime_error("This model's chat template is not supported by 0.3.0.");
  std::vector<char> prompt(n+1);llama_chat_apply_template(tmpl,chat.data(),chat.size(),true,prompt.data(),(int)prompt.size());
  const llama_vocab *vocab=llama_model_get_vocab(model.get());int needed=llama_tokenize(vocab,prompt.data(),n,nullptr,0,true,true);needed=needed<0?-needed:needed;
  if(needed<1 || needed>1664)throw std::runtime_error("Conversation exceeds the test model context. Start a New chat from Menu or shorten the message.");
@@ -179,7 +179,7 @@ BOOL NextAIWorking=NO;
  dispatch_async(dispatch_get_main_queue(), ^{
  NextAIWorking=NO;UIApplication.sharedApplication.idleTimerDisabled=NO;self->_busy=NO;self->_input.enabled=YES;[self->_send setTitle:@"Send" forState:UIControlStateNormal];
  if(![self->_messages.lastObject[@"content"] length]) [self->_messages removeLastObject];
- [self refresh];[self save]; if(failure)[self alert:failure];else if(self->_cancel)self->_status.text=@"Stopped • chat saved";else if(limit)self->_status.text=@"Reply reached the Test 3 limit • chat saved";
+ [self refresh];[self save]; if(failure)[self alert:failure];else if(self->_cancel)self->_status.text=@"Stopped • chat saved";else if(limit)self->_status.text=@"Reply reached the 0.3.0 limit • chat saved";
  });
  }});
 }
@@ -193,4 +193,5 @@ BOOL NextAIWorking=NO;
 }
 @end
 int main(int argc,char **argv){@autoreleasepool{return UIApplicationMain(argc,argv,nil,NSStringFromClass(AppDelegate.class));}}
+
 
