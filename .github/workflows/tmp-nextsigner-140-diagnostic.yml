@@ -1,0 +1,50 @@
+name: Temporary Next Signer 1.4.0 Diagnostic
+
+on:
+  push:
+    branches:
+      - feature/nextsigner-1.4.0-local-signed-apps
+    paths:
+      - 'NextSigner/build-trigger-140diag.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/nextsigner-1.4.0-local-signed-apps
+      - name: Prepare Zsign
+        run: |
+          set -euo pipefail
+          rm -rf NextSigner/Vendor/Zsign-Package
+          git clone --depth 1 --branch package https://github.com/claration/Zsign-Package.git NextSigner/Vendor/Zsign-Package
+          python3 NextSigner/patch_zsign_local.py
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        working-directory: NextSigner
+        run: xcodegen generate
+      - name: Capture build diagnostics
+        working-directory: NextSigner
+        shell: bash
+        run: |
+          set +e
+          xcodebuild -project NextSigner.xcodeproj -scheme NextSigner -configuration Release -sdk iphoneos -derivedDataPath "$RUNNER_TEMP/NextSignerDerived" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build 2>&1 | tee "$RUNNER_TEMP/nextsigner-140-build.log"
+          STATUS=${PIPESTATUS[0]}
+          grep -E "(^|: )(error:|fatal error:)|SwiftCompile normal|CompileSwift" "$RUNNER_TEMP/nextsigner-140-build.log" > "$RUNNER_TEMP/nextsigner-140-errors.txt" || true
+          echo "xcodebuild_status=$STATUS" >> "$RUNNER_TEMP/nextsigner-140-errors.txt"
+          exit 0
+      - name: Upload diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextSigner-1.4.0-diagnostics
+          path: |
+            ${{ runner.temp }}/nextsigner-140-errors.txt
+            ${{ runner.temp }}/nextsigner-140-build.log
+          if-no-files-found: error
+          retention-days: 3
