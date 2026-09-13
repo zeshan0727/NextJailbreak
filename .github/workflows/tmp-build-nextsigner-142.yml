@@ -1,0 +1,130 @@
+name: Temporary Build Next Signer 1.4.2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'NextSigner/build-142-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - name: Checkout 1.4.2 feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/nextsigner-1.4.2-ota-install
+          fetch-depth: 0
+
+      - name: Apply and commit Apple OTA install UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 NextSigner/patch_142_ota_ui.py
+          if ! git diff --quiet -- NextSigner/NextSigner/NextSignerLocalViews.swift; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add NextSigner/NextSigner/NextSignerLocalViews.swift
+            git commit -m 'Use Apple OTA install from Signed Apps'
+            git push origin HEAD:feature/nextsigner-1.4.2-ota-install
+          fi
+
+      - name: Verify 1.4.2 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'MARKETING_VERSION: "1.4.2"' NextSigner/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "25"' NextSigner/project.yml
+          grep -q 'local.install(app, using: store)' NextSigner/NextSigner/NextSignerLocalViews.swift
+          grep -q 'itms-services://?action=download-manifest' NextSigner/NextSigner/LocalSigningController.swift
+          if grep -q 'apple-magnifier://install' NextSigner/NextSigner/NextSignerLocalViews.swift; then
+            echo 'Signed Apps UI still uses Magnifier scheme' >&2
+            exit 1
+          fi
+
+      - name: Prepare patched Zsign sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf NextSigner/Vendor/Zsign-Package
+          git clone --depth 1 --branch package https://github.com/claration/Zsign-Package.git NextSigner/Vendor/Zsign-Package
+          python3 - <<'PY'
+          from pathlib import Path
+          bridge = Path('NextSigner/Vendor/Zsign-Package/swift/zsign.mm')
+          s = bridge.read_text()
+          s = s.replace('void(^completionHandler)(BOOL success, NSError *error)', 'void(^completionHandler)(BOOL success)')
+          old_call = 'bundle.SignFolder(&zsa, strFolder, strBundleId, strBundleVersion, strDisplayName, arrDylibFiles, bForce, bWeakInject, bEnableCache, excludeprovion)'
+          new_call = 'bundle.SignFolder(&zsa, strFolder, strBundleId, strBundleVersion, strDisplayName, arrDylibFiles, arrDisDylibFiles, bForce, bWeakInject, bEnableCache, excludeprovion)'
+          if old_call not in s:
+              raise SystemExit('Expected stale SignFolder bridge call not found')
+          s = s.replace(old_call, new_call)
+          s = s.replace('completionHandler(bRet);', 'if (completionHandler) { completionHandler(bRet); }')
+          bridge.write_text(s)
+
+          bundle = Path('NextSigner/Vendor/Zsign-Package/src/bundle.cpp')
+          b = bundle.read_text()
+          old = '''if (!pSignAsset->m_strProvData.empty()) {
+\t\tif (bRemoveProvision) {
+\t\t\tif (!ZFile::WriteFileV(pSignAsset->m_strProvData, "%s/embedded.mobileprovision", m_strAppFolder.c_str())) { // embedded.mobileprovision'''
+          new = '''if (!pSignAsset->m_strProvData.empty()) {
+\t\tif (!bRemoveProvision) {
+\t\t\tif (!ZFile::WriteFileV(pSignAsset->m_strProvData, "%s/embedded.mobileprovision", m_strAppFolder.c_str())) { // embedded.mobileprovision'''
+          if old not in b:
+              raise SystemExit('Expected inverted embedded.mobileprovision condition not found')
+          bundle.write_text(b.replace(old, new, 1))
+          PY
+
+      - name: Generate icon
+        run: python3 NextSigner/generate_app_icon.py
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        working-directory: NextSigner
+        run: xcodegen generate
+
+      - name: Build unsigned iPhone app
+        working-directory: NextSigner
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project NextSigner.xcodeproj \
+            -scheme NextSigner \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath "$RUNNER_TEMP/NextSignerDerived" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package IPA and TIPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find "$RUNNER_TEMP/NextSignerDerived/Build/Products/Release-iphoneos" -maxdepth 1 -type d -name '*.app' | head -n1)"
+          test -n "$APP_PATH"
+          rm -rf "$RUNNER_TEMP/package"
+          mkdir -p "$RUNNER_TEMP/package/Payload"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/package/Payload/NextSigner.app"
+          cd "$RUNNER_TEMP/package"
+          /usr/bin/zip -qry "$RUNNER_TEMP/NextSigner-1.4.2.ipa" Payload
+          cp "$RUNNER_TEMP/NextSigner-1.4.2.ipa" "$RUNNER_TEMP/NextSigner-1.4.2.tipa"
+          unzip -t "$RUNNER_TEMP/NextSigner-1.4.2.ipa" >/dev/null
+          shasum -a 256 "$RUNNER_TEMP/NextSigner-1.4.2.ipa" "$RUNNER_TEMP/NextSigner-1.4.2.tipa"
+          stat -f '%N %z bytes' "$RUNNER_TEMP/NextSigner-1.4.2.ipa" "$RUNNER_TEMP/NextSigner-1.4.2.tipa"
+
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextSigner-1.4.2-Test
+          path: |
+            ${{ runner.temp }}/NextSigner-1.4.2.ipa
+            ${{ runner.temp }}/NextSigner-1.4.2.tipa
+          if-no-files-found: error
+          retention-days: 30
