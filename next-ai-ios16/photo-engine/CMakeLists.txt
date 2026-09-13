@@ -10,6 +10,8 @@ set(GGML_METAL_USE_BF16 OFF CACHE BOOL "" FORCE)
 set(GGML_OPENMP OFF CACHE BOOL "" FORCE)
 set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
 add_subdirectory(stable-diffusion.cpp)
+# Objective-C class names are process-global even when C symbols are hidden.
+target_compile_definitions(ggml-metal PRIVATE GGMLMetalClass=NextPhotoGGMLMetalClass)
 add_library(NextPhoto SHARED NextPhoto.mm)
 target_compile_options(NextPhoto PRIVATE -fobjc-arc)
 target_link_libraries(NextPhoto PRIVATE stable-diffusion "-framework UIKit" "-framework CoreGraphics" "-framework CoreFoundation")
