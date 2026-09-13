@@ -1,0 +1,64 @@
+name: Temporary Next Signer 1.3.9 Transfer Fix
+
+on:
+  push:
+    paths:
+      - '.github/triggers/nextsigner-139-transfer-fix.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TIPA_URL: https://files.nextsolution.cc/apps/tipa/NextSigner/1.3.9/NextSigner-1.3.9.tipa
+      TIPA_SHA256: 869b92c06190bbf5437dae4ae40d121952b5df140342eedc86f5aa4db818cc1e
+      TIPA_SIZE: '1009491'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Build updated Transfer manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          p = Path('transfer/index.json')
+          data = json.loads(p.read_text())
+          files = [x for x in data.get('files', []) if not str(x.get('id','')).startswith('nextsigner-')]
+          entry = {
+            'id': 'nextsigner-1.3.9',
+            'name': 'Next Signer 1.3.9',
+            'fileName': 'NextSigner-1.3.9.tipa',
+            'type': 'tipa',
+            'platform': 'TrollStore / iOS 16+',
+            'version': '1.3.9',
+            'url': os.environ['TIPA_URL'],
+            'sha256': os.environ['TIPA_SHA256'],
+            'sizeBytes': int(os.environ['TIPA_SIZE']),
+            'storage': 'Cloudflare R2',
+            'notes': 'Sign-first workflow: saves signed IPA to device, manual TrollStore Install, manual Publish to Site, signed IPA sharing, and config backup/restore.'
+          }
+          data['files'] = [entry] + files
+          data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+      - name: Update Transfer manifest through Contents API
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA="$(gh api "repos/$GITHUB_REPOSITORY/contents/transfer/index.json?ref=main" --jq '.sha')"
+          CONTENT="$(base64 < transfer/index.json | tr -d '\n')"
+          jq -n \
+            --arg message 'Publish Next Signer 1.3.9 through Cloudflare R2' \
+            --arg content "$CONTENT" \
+            --arg sha "$SHA" \
+            --arg branch main \
+            '{message:$message, content:$content, sha:$sha, branch:$branch}' > "$RUNNER_TEMP/payload.json"
+          gh api --method PUT "repos/$GITHUB_REPOSITORY/contents/transfer/index.json" --input "$RUNNER_TEMP/payload.json" >/dev/null
