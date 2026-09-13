@@ -4,11 +4,15 @@ import PhotosUI
 
 struct NextSignerRootView: View {
     @StateObject private var store = SignerStore()
+    @StateObject private var local = LocalSigningController()
 
     var body: some View {
         TabView {
-            NextSignerManualSignView(store: store)
+            NextSignerLocalSignView(store: store, local: local)
                 .tabItem { Label("Sign", systemImage: "signature") }
+
+            NextSignerSignedAppsView(store: store, local: local)
+                .tabItem { Label("Signed Apps", systemImage: "checkmark.seal.fill") }
 
             NextSignerLibraryView(store: store)
                 .tabItem { Label("Library", systemImage: "square.stack.3d.up.fill") }
@@ -16,10 +20,10 @@ struct NextSignerRootView: View {
             NextSignerActivityView(store: store)
                 .tabItem { Label("Activity", systemImage: "clock.arrow.circlepath") }
 
-            SigningProfileView(store: store)
-                .tabItem { Label("Profiles", systemImage: "checkmark.seal.fill") }
+            NextSignerLocalProfileView(local: local)
+                .tabItem { Label("Profiles", systemImage: "person.badge.key.fill") }
 
-            NextSignerSettingsPlusView(store: store)
+            NextSignerLocalSettingsView(store: store, local: local)
                 .tabItem { Label("Settings", systemImage: "gearshape") }
         }
         .tint(.accentColor)
