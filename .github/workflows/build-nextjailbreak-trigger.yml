@@ -28,9 +28,32 @@ jobs:
           mkdir -p "$APP" dist
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
 
-          # The app calls resume on the NSURLSessionDataTask returned by dataTaskWithRequest:.
-          # Keep this compatibility repair here so the test TIPA can build from the existing source.
-          sed -i '' 's/\[\[NSURLSession sharedSession\] dataTaskWithRequest:/[[[NSURLSession sharedSession] dataTaskWithRequest:/g' TriggerAppTheos/main.m
+          # Build the phone controller in AI-first mode. The iPhone only starts
+          # the server-side AI workflow; OpenAI writes/designs the article and
+          # GitHub is used afterward to commit/deploy the approved result.
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('TriggerAppTheos/main.m')
+          s = p.read_text(encoding='utf-8')
+          replacements = {
+              '@{ @"title": @"Verified Tweak Post", @"file": @"tweak-draft-generator.yml" },': '@{ @"title": @"AI Generate + Publish Now", @"file": @"ai-manual-publish.yml" },',
+              '@{ @"title": @"Original-Source News", @"file": @"ios-repo-original-source-news.yml" },': '@{ @"title": @"AI Original-Source News", @"file": @"ios-repo-original-source-news.yml" },',
+              '@{ @"title": @"Dopamine 3 Post", @"file": @"dopamine3-cluster-publisher.yml" }': '@{ @"title": @"AI Dopamine 3 Guide", @"file": @"dopamine3-cluster-publisher.yml" }',
+              'Ready. Save your GitHub token, then tap Post Now.': 'Ready. Save your GitHub token, then tap AI Generate + Publish Now.',
+              'Manual control for the Next Jailbreak article publishers. Your GitHub token stays on this iPhone in Keychain and is never written to the public repository.': 'AI publication controller for Next Jailbreak. The iPhone triggers AI generation first; after the article passes source and quality checks, GitHub commits and deploys it. Your GitHub token stays in this iPhone Keychain.',
+              '@"Publish now"': '@"AI publication"',
+              '@"POST NOW — Verified Tweak"': '@"AI GENERATE + PUBLISH NOW"',
+              'The manual trigger starts the same GitHub automation used by the site. Quality checks, duplicate protection, source verification, daily limits and publication-gap rules remain active, so a successful trigger may still safely produce a no-op when no eligible article is available.': 'AI writes the article first. GitHub does not author the article; it runs the AI workflow and then commits/deploys only an approved result. Duplicate protection, source verification, quality checks and daily limits remain active.',
+              'NextJailbreakTrigger/1.0': 'NextJailbreakTrigger/1.1',
+          }
+          for old, new in replacements.items():
+              if old not in s:
+                  raise SystemExit(f'missing expected app source text: {old}')
+              s = s.replace(old, new)
+          # Existing source has the NSURLSession task close-bracket typo fixed at build time.
+          s = s.replace('[[NSURLSession sharedSession] dataTaskWithRequest:', '[[[NSURLSession sharedSession] dataTaskWithRequest:')
+          p.write_text(s, encoding='utf-8')
+          PY
 
           xcrun --sdk iphoneos clang \
             -fobjc-arc \
@@ -47,7 +70,7 @@ jobs:
           cp TriggerAppTheos/Resources/Info.plist "$APP/Info.plist"
           chmod +x "$APP/NextJailbreakTrigger"
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${GITHUB_RUN_NUMBER}" "$APP/Info.plist"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.0" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.1.0" "$APP/Info.plist"
 
           codesign --force --sign - --timestamp=none "$APP"
 
@@ -60,7 +83,7 @@ jobs:
       - name: Upload TIPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextJailbreakTrigger-TIPA
+          name: NextJailbreakTrigger-AI-TIPA
           path: dist/NextJailbreakTrigger.tipa
           if-no-files-found: error
           retention-days: 30
@@ -71,12 +94,12 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          TAG="nextjailbreak-trigger-v1.0.0"
+          TAG="nextjailbreak-trigger-v1.1.0"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/NextJailbreakTrigger.tipa --clobber
           else
             gh release create "$TAG" dist/NextJailbreakTrigger.tipa \
               --target "$GITHUB_SHA" \
-              --title "Next Jailbreak Trigger v1.0.0" \
-              --notes "TrollStore TIPA for iPhone 14 Pro Max / iOS 16 testing. Triggers the verified tweak, original-source news, and Dopamine 3 publishers. GitHub token is entered on-device and stored in iOS Keychain."
+              --title "Next Jailbreak Trigger v1.1.0 AI Publisher" \
+              --notes "TrollStore TIPA for iPhone 14 Pro Max / iOS 16. Main button triggers AI Generate + Publish Now: OpenAI creates the article, quality/source guards validate it, and GitHub commits/deploys the approved page. GitHub token is stored locally in iOS Keychain."
           fi
