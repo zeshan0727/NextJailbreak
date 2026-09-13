@@ -69,15 +69,27 @@ enum LocalSignedAppsRepository {
     }
 
     static func register(_ result: SignedAppResult) throws -> LocalSignedApp {
-        try prepareFolderAndMigrateLegacy()
+        let fm = FileManager.default
         let safeName = result.ipaURL.lastPathComponent.replacingOccurrences(of: "/", with: "-")
         let destination = folderURL.appendingPathComponent(safeName)
 
+        // prepareFolderAndMigrateLegacy() may move the just-created IPA from the
+        // legacy output folder into Signed IPAs. Do not delete that migrated copy
+        // and then try to move a source file that no longer exists.
+        try prepareFolderAndMigrateLegacy()
+
         if result.ipaURL.standardizedFileURL != destination.standardizedFileURL {
-            if FileManager.default.fileExists(atPath: destination.path) {
-                try FileManager.default.removeItem(at: destination)
+            let sourceExists = fm.fileExists(atPath: result.ipaURL.path)
+            let destinationExists = fm.fileExists(atPath: destination.path)
+
+            if sourceExists {
+                if destinationExists {
+                    try fm.removeItem(at: destination)
+                }
+                try fm.moveItem(at: result.ipaURL, to: destination)
+            } else if !destinationExists {
+                throw CocoaError(.fileNoSuchFile)
             }
-            try FileManager.default.moveItem(at: result.ipaURL, to: destination)
         }
 
         let record = LocalSignedApp(
