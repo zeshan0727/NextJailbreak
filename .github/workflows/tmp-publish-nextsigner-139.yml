@@ -1,0 +1,139 @@
+name: Temporary Publish Next Signer 1.3.9
+
+on:
+  push:
+    paths:
+      - '.github/triggers/publish-nextsigner-139.txt'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: '1.3.9'
+      ARTIFACT_ID: '10314503796'
+      R2_BUCKET: next-signer-apps
+      R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
+      R2_PUBLIC_BASE: https://files.nextsolution.cc
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download verified artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > "$RUNNER_TEMP/artifact.zip"
+          mkdir -p "$RUNNER_TEMP/artifact"
+          unzip -q "$RUNNER_TEMP/artifact.zip" -d "$RUNNER_TEMP/artifact"
+          IPA="$(find "$RUNNER_TEMP/artifact" -type f -name "NextSigner-${VERSION}.ipa" | head -n1)"
+          TIPA="$(find "$RUNNER_TEMP/artifact" -type f -name "NextSigner-${VERSION}.tipa" | head -n1)"
+          test -n "$IPA" && test -s "$IPA"
+          test -n "$TIPA" && test -s "$TIPA"
+          cp "$IPA" "$RUNNER_TEMP/NextSigner-${VERSION}.ipa"
+          cp "$TIPA" "$RUNNER_TEMP/NextSigner-${VERSION}.tipa"
+
+      - name: Publish IPA and TIPA to R2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$AWS_ACCESS_KEY_ID"
+          test -n "$AWS_SECRET_ACCESS_KEY"
+          python3 -m pip install --user --quiet awscli
+          export PATH="$HOME/.local/bin:$PATH"
+
+          IPA="$RUNNER_TEMP/NextSigner-${VERSION}.ipa"
+          TIPA="$RUNNER_TEMP/NextSigner-${VERSION}.tipa"
+          IPA_KEY="apps/ipa/NextSigner/${VERSION}/NextSigner-${VERSION}.ipa"
+          TIPA_KEY="apps/tipa/NextSigner/${VERSION}/NextSigner-${VERSION}.tipa"
+
+          aws s3 cp "$IPA" "s3://$R2_BUCKET/$IPA_KEY" \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            --content-type 'application/octet-stream' \
+            --cache-control 'public, max-age=31536000, immutable' --only-show-errors
+          aws s3 cp "$TIPA" "s3://$R2_BUCKET/$TIPA_KEY" \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            --content-type 'application/octet-stream' \
+            --cache-control 'public, max-age=31536000, immutable' --only-show-errors
+
+          IPA_URL="$R2_PUBLIC_BASE/$IPA_KEY"
+          TIPA_URL="$R2_PUBLIC_BASE/$TIPA_KEY"
+          curl --fail --silent --show-error --location --head --retry 8 --retry-delay 3 --retry-all-errors "$IPA_URL" >/dev/null
+          curl --fail --silent --show-error --location --head --retry 8 --retry-delay 3 --retry-all-errors "$TIPA_URL" >/dev/null
+
+          echo "IPA_URL=$IPA_URL" >> "$GITHUB_ENV"
+          echo "TIPA_URL=$TIPA_URL" >> "$GITHUB_ENV"
+          echo "IPA_SHA256=$(sha256sum "$IPA" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "TIPA_SHA256=$(sha256sum "$TIPA" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "IPA_SIZE=$(stat -c '%s' "$IPA")" >> "$GITHUB_ENV"
+          echo "TIPA_SIZE=$(stat -c '%s' "$TIPA")" >> "$GITHUB_ENV"
+
+      - name: Update NS Transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          path = Path('transfer/index.json')
+          data = json.loads(path.read_text())
+          files = data.get('files', [])
+          files = [x for x in files if not str(x.get('id','')).startswith('nextsigner-')]
+          entry = {
+              'id': 'nextsigner-1.3.9',
+              'name': 'Next Signer 1.3.9',
+              'fileName': 'NextSigner-1.3.9.tipa',
+              'type': 'tipa',
+              'platform': 'TrollStore / iOS 16+',
+              'version': '1.3.9',
+              'url': os.environ['TIPA_URL'],
+              'sha256': os.environ['TIPA_SHA256'],
+              'sizeBytes': int(os.environ['TIPA_SIZE']),
+              'storage': 'Cloudflare R2',
+              'notes': 'Sign-first workflow: saves signed IPA to device, manual TrollStore Install, manual Publish to Site, signed IPA sharing, and config backup/restore.'
+          }
+          data['files'] = [entry] + files
+          data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          path.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+
+      - name: Commit Transfer metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish Next Signer 1.3.9 through Cloudflare R2'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - name: Release summary
+        shell: bash
+        run: |
+          {
+            echo '## Next Signer 1.3.9 published'
+            echo
+            echo "IPA: $IPA_URL"
+            echo "IPA SHA256: $IPA_SHA256"
+            echo "IPA size: $IPA_SIZE"
+            echo
+            echo "TIPA: $TIPA_URL"
+            echo "TIPA SHA256: $TIPA_SHA256"
+            echo "TIPA size: $TIPA_SIZE"
+          } >> "$GITHUB_STEP_SUMMARY"
