@@ -4,32 +4,20 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
-      - feature/nextsigner-1.0
-      - feature/nextsigner-local-signing
-      - feature/nextsigner-1.4.0-local-signed-apps
+      - feature/nextsigner-1.4.2-ota-install
     paths:
       - 'NextSigner/**'
       - '.github/workflows/build-nextsigner-tipa.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'NextSigner/**'
-      - '.github/workflows/build-nextsigner-tipa.yml'
-      - '.github/workflows/nextsigner-sign-publish.yml'
-      - '.github/workflows/nextsigner-library-manage.yml'
-      - '.github/workflows/nextsigner-sign-dispatch-bridge.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: nextsigner-build-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NEXTSIGNER_VERSION: '1.4.0'
+  NEXTSIGNER_VERSION: '1.4.2'
 
 jobs:
   build:
@@ -38,6 +26,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply Apple OTA install UI patch
+        run: |
+          set -euo pipefail
+          python3 NextSigner/patch_142_ota_ui.py
+          if ! git diff --quiet -- NextSigner/NextSigner/NextSignerLocalViews.swift; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add NextSigner/NextSigner/NextSignerLocalViews.swift
+            git commit -m 'Use Apple OTA install from Signed Apps'
+            git push origin HEAD:feature/nextsigner-1.4.2-ota-install
+          fi
+
+      - name: Verify 1.4.2 OTA source
+        run: |
+          set -euo pipefail
+          grep -q 'MARKETING_VERSION: "1.4.2"' NextSigner/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "25"' NextSigner/project.yml
+          grep -q 'local.install(app, using: store)' NextSigner/NextSigner/NextSignerLocalViews.swift
+          grep -q 'itms-services://?action=download-manifest' NextSigner/NextSigner/LocalSigningController.swift
+          if grep -q 'apple-magnifier://install' NextSigner/NextSigner/NextSignerLocalViews.swift; then
+            echo 'Signed Apps still uses the Magnifier/TrollStore URL scheme' >&2
+            exit 1
+          fi
 
       - name: Prepare patched Zsign sources
         run: |
@@ -92,12 +106,12 @@ jobs:
           unzip -t "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.tipa" >/dev/null
           shasum -a 256 "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.ipa" "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.tipa"
 
-      - name: Upload TIPA artifact
+      - name: Upload test artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextSigner-1.4.0-TIPA
+          name: NextSigner-1.4.2-Test
           path: |
-            ${{ runner.temp }}/NextSigner-1.4.0.tipa
-            ${{ runner.temp }}/NextSigner-1.4.0.ipa
+            ${{ runner.temp }}/NextSigner-1.4.2.tipa
+            ${{ runner.temp }}/NextSigner-1.4.2.ipa
           if-no-files-found: error
           retention-days: 30
