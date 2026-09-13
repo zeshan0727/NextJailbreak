@@ -6,9 +6,10 @@
 <key>CFBundleName</key><string>NextAI</string>
 <key>CFBundleDisplayName</key><string>Next AI</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.1.1</string>
-<key>CFBundleVersion</key><string>2</string>
+<key>CFBundleShortVersionString</key><string>0.2.0</string>
+<key>CFBundleVersion</key><string>3</string>
 <key>MinimumOSVersion</key><string>16.0</string>
+<key>NSPhotoLibraryAddUsageDescription</key><string>Save images you generate to your photo library when you tap Save to Photos.</string>
 <key>LSRequiresIPhoneOS</key><true/>
 <key>UILaunchScreen</key><dict/>
 <key>UIFileSharingEnabled</key><true/>
@@ -21,3 +22,4 @@
 <key>UTTypeTagSpecification</key><dict><key>public.filename-extension</key><array><string>gguf</string></array></dict>
 </dict></array>
 </dict></plist>
+
