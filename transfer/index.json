@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-13T11:34:12Z",
+  "updatedAt": "2026-09-13T12:28:34.487387Z",
   "files": [
+    {
+      "id": "next-ai-0.3.0",
+      "name": "Next AI 0.3.0 Turbo",
+      "fileName": "NextAI-0.3.0-Turbo.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "0.3.0",
+      "url": "https://github.com/zeshan0727/NextJailbreak/releases/download/next-ai-0.3.0/NextAI-0.3.0-Turbo.tipa",
+      "sha256": "b037c39b663e1b2c70c1e5f3a0267899a88f654d310cef52bc7e2a3377486b9b",
+      "sizeBytes": 2647221,
+      "storage": "GitHub Release fallback",
+      "notes": "Offline chat + photos. Fast SD-Turbo mode with 1/2/4 steps. Requires separate SD-Turbo GGUF download. Install over existing Next AI."
+    },
     {
       "id": "nextsigner-1.4.1",
       "name": "Next Signer 1.4.1",
