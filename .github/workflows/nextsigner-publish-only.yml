@@ -47,7 +47,7 @@ jobs:
       REQUEST_ID: ${{ inputs.request_id }}
       INBOX_TAG: nextsigner-inbox
       R2_BUCKET: next-signer-apps
-      R2_PUBLIC_BASE: https://files.nextjailbreak.com
+      R2_PUBLIC_BASE: https://files.nextsolution.cc
       R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
       AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
@@ -73,7 +73,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RELEASE_ID="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq --arg tag "$INBOX_TAG" '.[] | select(.tag_name==$tag) | .id' | head -n1)"
+          RELEASE_ID="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$INBOX_TAG" --jq '.id')"
           test -n "$RELEASE_ID" || { echo 'Signing inbox release not found'; exit 1; }
           ASSETS_JSON="$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?per_page=100")"
           APP_ASSET_ID="$(printf '%s' "$ASSETS_JSON" | jq -r --arg name "$STAGING_ASSET" '.[] | select(.name==$name) | .id' | head -n1)"
