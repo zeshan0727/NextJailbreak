@@ -1,0 +1,33 @@
+name: Temporary Replay Next Signer Publish bff6b7e9
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'NextSigner/replay-bff6b7e9.txt'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Replay corrected publish-only request
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run nextsigner-publish-only.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f request_id=bff6b7e9 \
+            -f staging_asset='1789299636-app-NJ-Signer-1-4-1-signed-1789299624.ipa' \
+            -f requested_name='NJ Signer' \
+            -f requested_bundle_id='com.nextsolution.Signer' \
+            -f custom_icon_asset='' \
+            -f tweak_assets_json='[]'
+          echo 'Publish-only replay dispatched.'
