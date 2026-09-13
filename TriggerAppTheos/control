@@ -1,0 +1,9 @@
+Package: com.nextjailbreak.trigger
+Name: Next Jailbreak Trigger
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: Manual control panel for Next Jailbreak article publishing automations.
+Maintainer: Zeeshan Barvi
+Author: Zeeshan Barvi
+Section: Applications
+Depends: firmware (>= 16.0)
