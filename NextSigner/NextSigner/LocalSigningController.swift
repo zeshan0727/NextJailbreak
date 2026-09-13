@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 @MainActor
 final class LocalSigningController: ObservableObject {
@@ -13,6 +14,9 @@ final class LocalSigningController: ObservableObject {
     @Published var signingMessage: String = ""
     @Published var signingError: String?
     @Published var signingSuccess: String?
+
+    @Published var installingID: UUID?
+    @Published var installMessage: String?
 
     @Published var publishingID: UUID?
     @Published var publishProgress: Double = 0
@@ -157,8 +161,8 @@ final class LocalSigningController: ObservableObject {
         }
     }
 
-    func publish(_ app: LocalSignedApp, using store: SignerStore) {
-        guard publishingID == nil else { return }
+    func install(_ app: LocalSignedApp, using store: SignerStore) {
+        guard installingID == nil, publishingID == nil, !isSigning else { return }
         guard FileManager.default.fileExists(atPath: app.ipaURL.path) else {
             publishError = "The signed IPA is missing from this device."
             refreshSignedApps()
@@ -170,7 +174,76 @@ final class LocalSigningController: ObservableObject {
         }
         let token = KeychainStore.load(account: "github-token") ?? store.token.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !token.isEmpty else {
-            publishError = "Save the GitHub PAT in Settings before publishing. Local signing and installation do not require it."
+            publishError = "Save the GitHub PAT in Settings before using Apple OTA Install. The PAT is used only to stage the already-signed IPA temporarily; it is not published to the site."
+            return
+        }
+
+        store.persistConfiguration()
+        installingID = app.id
+        installMessage = "Preparing Apple OTA installation…"
+        publishError = nil
+        publishMessage = nil
+
+        let service = AdHocInstallService(token: token, configuration: store.configuration)
+        Task {
+            do {
+                let result = try await service.prepareInstall(
+                    ipaURL: app.ipaURL,
+                    appName: app.appName,
+                    bundleID: app.bundleID,
+                    version: app.version,
+                    build: app.build,
+                    progress: { message in
+                        await MainActor.run {
+                            self.installMessage = message
+                        }
+                    }
+                )
+
+                let manifestString = result.manifestURL.absoluteString
+                let allowed = CharacterSet.urlQueryAllowed.subtracting(CharacterSet(charactersIn: "&=?+"))
+                let encoded = manifestString.addingPercentEncoding(withAllowedCharacters: allowed) ?? manifestString
+                guard let installURL = URL(string: "itms-services://?action=download-manifest&url=\(encoded)") else {
+                    throw NSError(
+                        domain: "NextSigner.AdHocInstall",
+                        code: 5206,
+                        userInfo: [NSLocalizedDescriptionKey: "Could not create the Apple OTA installation link."]
+                    )
+                }
+
+                installMessage = "Opening the iOS installation prompt…"
+                let opened = await withCheckedContinuation { continuation in
+                    UIApplication.shared.open(installURL, options: [:]) { success in
+                        continuation.resume(returning: success)
+                    }
+                }
+                if opened {
+                    publishMessage = "Apple installation request opened for \(app.appName). This was a temporary install staging only; the app was not published to your site."
+                } else {
+                    publishError = "iOS did not accept the OTA install link. Confirm this iPhone is registered in the provisioning profile and try again."
+                }
+            } catch {
+                publishError = error.localizedDescription
+            }
+            installingID = nil
+            installMessage = nil
+        }
+    }
+
+    func publish(_ app: LocalSignedApp, using store: SignerStore) {
+        guard publishingID == nil, installingID == nil else { return }
+        guard FileManager.default.fileExists(atPath: app.ipaURL.path) else {
+            publishError = "The signed IPA is missing from this device."
+            refreshSignedApps()
+            return
+        }
+        guard store.configuration.isValid else {
+            publishError = NextSignerError.invalidConfiguration.localizedDescription
+            return
+        }
+        let token = KeychainStore.load(account: "github-token") ?? store.token.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !token.isEmpty else {
+            publishError = "Save the GitHub PAT in Settings before publishing. Local signing does not require it."
             return
         }
 
@@ -204,12 +277,5 @@ final class LocalSigningController: ObservableObject {
             }
             publishingID = nil
         }
-    }
-
-    func trollStoreInstallURL(for app: LocalSignedApp) -> URL? {
-        let source = app.ipaURL.absoluteString
-        let allowed = CharacterSet.urlQueryAllowed.subtracting(CharacterSet(charactersIn: "&=?+"))
-        let encoded = source.addingPercentEncoding(withAllowedCharacters: allowed) ?? source
-        return URL(string: "apple-magnifier://install?url=\(encoded)")
     }
 }
