@@ -8,6 +8,11 @@ packages:
   Sodium:
     url: https://github.com/jedisct1/swift-sodium.git
     exactVersion: 0.11.0
+  Zsign:
+    path: Vendor/Zsign-Package
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation.git
+    from: 0.9.0
 settings:
   base:
     SWIFT_VERSION: "5.7"
@@ -15,8 +20,8 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
     SUPPORTS_MACCATALYST: "NO"
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "1.3.9"
-    CURRENT_PROJECT_VERSION: "22"
+    MARKETING_VERSION: "1.4.0"
+    CURRENT_PROJECT_VERSION: "23"
 targets:
   NextSigner:
     type: application
@@ -25,6 +30,10 @@ targets:
       - path: NextSigner
     dependencies:
       - package: Sodium
+      - package: Zsign
+        product: Zsign
+      - package: ZIPFoundation
+        product: ZIPFoundation
     preBuildScripts:
       - name: Generate Next Signer App Icon
         basedOnDependencyAnalysis: false
@@ -40,6 +49,7 @@ targets:
         INFOPLIST_KEY_UIFileSharingEnabled: "YES"
         INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: "YES"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        HEADER_SEARCH_PATHS: "$(inherited) $(SRCROOT)/Vendor/Zsign-Package/src $(SRCROOT)/Vendor/Zsign-Package/src/common $(SRCROOT)/Vendor/Zsign-Package/swift"
     scheme:
       shared: true
       gatherCoverageData: false
