@@ -1,1 +1,1 @@
-Publish verified Next Signer 1.4.0 to Cloudflare R2 and NS Transfer.
+Publish verified Next Signer 1.4.0 to NS Transfer using GitHub release fallback while the R2 custom hostname is unavailable.
