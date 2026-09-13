@@ -19,14 +19,14 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-13T10:43:19.141268+00:00",
+      "checked_at": "2026-09-13T11:30:33.428691+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-1-update/",
       "version": "6.1"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-09-13T10:43:19.141268+00:00",
+      "checked_at": "2026-09-13T11:30:33.428691+00:00",
       "package": "com.fouadraheb.watusi3",
       "status": "duplicate",
       "target_path": "watusi-3-for-whatsapp-1-3-23-update/",
@@ -39,14 +39,14 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.zqbb.hello.keyboard.ai/": {
-      "checked_at": "2026-09-13T10:43:19.141268+00:00",
+      "checked_at": "2026-09-13T11:30:33.428691+00:00",
       "package": "com.zqbb.hello.keyboard.ai",
       "status": "duplicate",
       "target_path": "hellokeyboardai-2-1-0-1-update/",
       "version": "2.1.0-1"
     },
     "https://www.ios-repo-updates.com/repository/majd-alfhaily/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-13T10:43:19.141268+00:00",
+      "checked_at": "2026-09-13T11:30:33.428691+00:00",
       "package": "me.alfhaily.rocket",
       "status": "duplicate",
       "target_path": "rocket-for-instagram-3-8-38-update/",
@@ -59,7 +59,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/yourepo/package/com.b4db1r3.swipeawaynowplaying/": {
-      "checked_at": "2026-09-13T10:43:19.141268+00:00",
+      "checked_at": "2026-09-13T11:30:33.428691+00:00",
       "package": "com.b4db1r3.swipeawaynowplaying",
       "status": "duplicate",
       "target_path": "please-stop-the-music-0-1-1-update/",
@@ -491,6 +491,12 @@
         "com.vbox: resolved source does not independently identify the discovered package",
         "com.witchan.ios-mcp: resolved source does not independently identify the discovered package"
       ],
+      "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "no-op",
+      "at": "2026-09-13T11:30:33.428691+00:00",
+      "failures": [],
       "reason": "no-high-quality-original-source-candidate"
     }
   ],
