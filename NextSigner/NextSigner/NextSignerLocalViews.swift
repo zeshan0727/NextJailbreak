@@ -356,6 +356,13 @@ struct NextSignerSignedAppsView: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
 
+            if local.installingID == app.id {
+                ProgressView()
+                Text(local.installMessage ?? "Preparing Apple OTA installation…")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             if local.publishingID == app.id {
                 ProgressView(value: local.publishProgress)
                 Text("Publishing signed IPA to site…")
@@ -365,14 +372,13 @@ struct NextSignerSignedAppsView: View {
 
             HStack(spacing: 8) {
                 Button {
-                    if let url = local.trollStoreInstallURL(for: app) {
-                        UIApplication.shared.open(url)
-                    }
+                    local.install(app, using: store)
                 } label: {
                     Label("Install", systemImage: "arrow.down.app.fill")
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.green)
+                .disabled(local.installingID != nil || local.publishingID != nil)
 
                 Button {
                     local.publish(app, using: store)
@@ -380,7 +386,7 @@ struct NextSignerSignedAppsView: View {
                     Label("Publish", systemImage: "paperplane.fill")
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(local.publishingID != nil)
+                .disabled(local.publishingID != nil || local.installingID != nil)
             }
 
             HStack(spacing: 8) {
@@ -397,10 +403,10 @@ struct NextSignerSignedAppsView: View {
                     Label("Delete", systemImage: "trash")
                 }
                 .buttonStyle(.bordered)
-                .disabled(local.publishingID == app.id)
+                .disabled(local.publishingID == app.id || local.installingID == app.id)
             }
 
-            Text("Install and Share use the local signed IPA. GitHub is contacted only if you press Publish.")
+            Text("Install uses Apple OTA Ad Hoc installation. The already-signed IPA is staged temporarily over HTTPS and is not added to your site. Publish remains a separate manual action.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
