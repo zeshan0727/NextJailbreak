@@ -7,8 +7,8 @@ struct NextSignerRootView: View {
 
     var body: some View {
         TabView {
-            NextSignerSignView(store: store)
-                .tabItem { Label("Publish", systemImage: "paperplane.fill") }
+            NextSignerManualSignView(store: store)
+                .tabItem { Label("Sign", systemImage: "signature") }
 
             NextSignerLibraryView(store: store)
                 .tabItem { Label("Library", systemImage: "square.stack.3d.up.fill") }
@@ -19,7 +19,7 @@ struct NextSignerRootView: View {
             SigningProfileView(store: store)
                 .tabItem { Label("Profiles", systemImage: "checkmark.seal.fill") }
 
-            NextSignerSettingsView(store: store)
+            NextSignerSettingsPlusView(store: store)
                 .tabItem { Label("Settings", systemImage: "gearshape") }
         }
         .tint(.accentColor)
