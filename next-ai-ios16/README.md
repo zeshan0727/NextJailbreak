@@ -1,10 +1,17 @@
-# Next AI 0.2.0 — Test 3: offline chat + photos
-Target: iPhone 14 Pro Max, iOS 16.0, TrollStore. Install NextAI-Test3.tipa over the existing Next AI. Do not uninstall first: app data is retained by an in-place update.
+# Next AI 0.3.0 — Turbo: offline chat + photos
+Target: iPhone 14 Pro Max, iOS 16.0, TrollStore. Install NextAI-0.3.0-Turbo.tipa over the existing Next AI. Do not uninstall first: app data is retained by an in-place update.
 
 ## Chat
 Existing Qwen model selection and chats are retained. Chat and photo workloads are serialized to control memory. Chat streaming UI updates are throttled; reading earlier messages no longer forces the screen to the bottom. Menu includes Copy last answer. File picker and direct folder model selection remain available.
 
-## Photo generation
+## Fast SD-Turbo
+Download the complete SD-Turbo Q4_0 model (about 2.19 GB):
+https://huggingface.co/gpustack/stable-diffusion-v2-1-turbo-GGUF/resolve/main/stable-diffusion-v2-1-turbo-Q4_0.gguf?download=true
+Model card: https://huggingface.co/gpustack/stable-diffusion-v2-1-turbo-GGUF
+
+Select Photos → Fast SD-Turbo, then import/select that model. Keep its original filename containing turbo. Start at 384×384 / 2 steps; use 1 step for the fastest preview or 4 for another quality option. Standard and Turbo model selections are stored separately. Turbo disables negative prompts, uses Euler with trailing timesteps, explicit epsilon prediction, and disables classifier-free guidance. Actual speed must be measured on the phone; model loading and decoding still take time. Results show total, load, and render seconds. 512×512 is also available.
+
+## Standard photo generation
 Download the complete SD 1.5 Q4_0 model (about 1.57 GB):
 https://huggingface.co/second-state/stable-diffusion-v1-5-GGUF/resolve/main/stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf?download=true
 Model card and license: https://huggingface.co/second-state/stable-diffusion-v1-5-GGUF
@@ -16,7 +23,7 @@ Start with 384×384 / 20 steps. 512×512 and 12/24 steps are optional. Write an 
 Images are saved as PNGs under Documents/Generated Images alongside prompt/settings JSON. The latest image reopens when the app launches. Models / Gallery lists the latest 20 images; all older images remain accessible in Files. Use Share to export or Save to Photos to grant add-only Photos access and save. Generated images are not uploaded anywhere.
 
 ## Validation and limits
-Build checks: native arm64 compilation for iOS 16, embedded framework linkage, isolated photo-engine symbols, and nested ad-hoc signatures. These do not establish on-device generation speed or memory stability. This is a device test build. Large models, SDXL/FLUX, image editing, and video are outside this version. Only the linked complete SD 1.5 GGUF is the recommended image model for testing.
+Build checks: native arm64 compilation for iOS 16, embedded framework linkage, isolated photo-engine symbols, and nested ad-hoc signatures. These do not establish on-device generation speed or memory stability. This is a device test build. Large models, SDXL/FLUX, image editing, and video are outside this version. Use the linked complete SD 1.5 or SD-Turbo GGUF in its matching mode.
 
 Test: launch after update; reopen a chat; generate one 384×384 image in airplane mode; export/save it; reopen it in gallery; return to chat and send a message. If iOS closes the app during generation, relaunch and report the resolution/step count used.
 
