@@ -1,0 +1,141 @@
+name: AI Generate + Publish Now
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "automation/ai-manual-trigger.json"
+      - ".github/workflows/ai-manual-publish.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextsolution-content-state
+  cancel-in-progress: false
+
+jobs:
+  ai-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out production branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Check OpenAI API
+        id: api
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "${OPENAI_API_KEY:-}" ]; then
+            echo "OPENAI_API_KEY is missing. AI article generation cannot run." >&2
+            exit 1
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
+      - name: Restore editorial state
+        uses: actions/cache/restore@v4
+        with:
+          path: automation/runtime-state
+          key: ai-manual-state-v1-${{ github.run_id }}
+          restore-keys: |
+            ai-manual-state-v1-
+            tweak-feed-state-v1-
+
+      - name: Prepare editorial state and manual publication policy
+        shell: bash
+        run: |
+          if [ ! -f automation/runtime-state/known-packages.json ]; then
+            mkdir -p automation/runtime-state
+            cp automation/state/known-packages.json automation/runtime-state/known-packages.json
+          fi
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          src = Path('automation/site.json')
+          data = json.loads(src.read_text(encoding='utf-8'))
+          # Manual AI publication should not be blocked by an old launch-boost
+          # interval. Daily publication limits, duplicate checks, quality gates,
+          # source verification and the global publishing kill switch remain.
+          data['publishing']['boost_until'] = '2000-01-01T00:00:00+00:00'
+          Path('automation/out').mkdir(parents=True, exist_ok=True)
+          Path('automation/out/manual-site.json').write_text(
+              json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8'
+          )
+          PY
+
+      - name: AI writes and designs one article
+        id: generate
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5.6-luna
+        shell: bash
+        run: |
+          set +e
+          python3 -m automation.draft_pipeline \
+            --state automation/runtime-state/known-packages.json \
+            --published-audit automation/published-articles.json \
+            --new-pages-only \
+            --output automation/out/ai-manual-draft 2>&1 | tee automation/out/ai-manual-generation.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -eq 3 ]; then
+            echo "AI could not find an eligible new verified candidate on this attempt." >&2
+            exit 3
+          fi
+          exit "$status"
+
+      - name: Enforce article quality and source integrity
+        run: |
+          python3 -m automation.quality_gate \
+            --repository-root . \
+            --manifest automation/out/ai-manual-draft/manifest.json
+
+      - name: Publish AI-created article into website files
+        id: publication
+        run: |
+          python3 -m automation.publisher publish \
+            --repository-root . \
+            --site automation/out/manual-site.json \
+            --manifest automation/out/ai-manual-draft/manifest.json \
+            --editorial-state automation/runtime-state/known-packages.json \
+            --run-id "$GITHUB_RUN_ID" \
+            --confirm-live \
+            --github-output "$GITHUB_OUTPUT" | tee automation/out/ai-manual-publication.log
+
+      - name: Commit finished AI article to GitHub Pages
+        if: steps.publication.outputs.published == 'true'
+        env:
+          TARGET_PATH: ${{ steps.publication.outputs.target_path }}
+          ARTICLE_TITLE: ${{ steps.publication.outputs.title }}
+        run: |
+          git config user.name "nextjailbreak-ai-publisher[bot]"
+          git config user.email "nextjailbreak-ai-publisher[bot]@users.noreply.github.com"
+          git add -- "$TARGET_PATH" index.html tutorials.html feed.xml sitemap.xml automation/published-articles.json
+          git commit -m "AI publish: $ARTICLE_TITLE"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "### AI article published" >> "$GITHUB_STEP_SUMMARY"
+          echo "- AI generation: **completed**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Quality gate: **passed**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Source verification: **passed**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Page: https://nextjailbreak.com/$TARGET_PATH" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save editorial state
+        if: steps.publication.outputs.published == 'true' || steps.publication.outputs.duplicate == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: automation/runtime-state
+          key: ai-manual-state-v1-${{ github.run_id }}
+
+      - name: Upload AI generation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-manual-publication-${{ github.run_number }}
+          path: automation/out/
+          if-no-files-found: ignore
+          retention-days: 14
