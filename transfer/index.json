@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-13T10:10:26Z",
+  "updatedAt": "2026-09-13T11:34:12Z",
   "files": [
     {
-      "id": "nextsigner-1.4.0",
-      "name": "Next Signer 1.4.0",
-      "fileName": "NextSigner-1.4.0.tipa",
+      "id": "nextsigner-1.4.1",
+      "name": "Next Signer 1.4.1",
+      "fileName": "NextSigner-1.4.1.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
-      "version": "1.4.0",
-      "url": "https://github.com/zeshan0727/NextJailbreak/releases/download/nextsigner-1.4.0/NextSigner-1.4.0.tipa",
-      "sha256": "9ed76575831ae9b2c62ab2e2dcde70a06955283a0bad0263dadb6d65bd380d9b",
-      "sizeBytes": 3279301,
+      "version": "1.4.1",
+      "url": "https://github.com/zeshan0727/NextJailbreak/releases/download/nextsigner-1.4.1/NextSigner-1.4.1.tipa",
+      "sha256": "693bd0bd59e74b56b81e9c3ca2ae3c40ce41ed72a0ee0e45b0916549f60aa0d8",
+      "sizeBytes": 3279798,
       "storage": "GitHub Release fallback",
-      "notes": "Adds true on-device IPA signing, persistent Signed Apps library, direct TrollStore install, Share/Delete controls, and manual Publish without re-signing."
+      "notes": "Fixes Signed Apps save failure after successful local signing. Keeps on-device signing, Signed Apps, Install, Publish, Share and Delete."
     },
     {
       "id": "aspire-maintenance-1.1.4-dashboard-test",
