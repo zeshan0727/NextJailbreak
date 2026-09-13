@@ -1,6 +1,29 @@
 {
   "entries": [
     {
+      "article_sha256": "c57a95911686d5e82b8e4584fb2af481267249deea60316318b46e3b52e107e0",
+      "candidate_fingerprint": "80864c0d7a70b3ea2bdb2032b3fab720d3e9121ef1202981e9b8f8624d5b554c",
+      "category": {
+        "id": "control-center",
+        "label": "Control Center"
+      },
+      "description": "Review Uptime 1.0.1, a Control Center module for viewing time since boot, including its listed architectures, dependencies, and verification steps.",
+      "href": "uptime-tweak.html",
+      "image": "https://media.havoc.app/6348d9cc253c8736eb8a5b0d",
+      "media_credit": "Uptime official package listing",
+      "media_source_url": "https://havoc.app/package/uptime",
+      "modified_at": "2026-09-13T12:19:40+00:00",
+      "name": "Uptime",
+      "package": "com.mtac.uptime",
+      "published_at": "2026-09-13T12:19:40+00:00",
+      "selection_pool": "evergreen",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/uptime",
+      "source_url": "https://havoc.app/",
+      "title": "Uptime 1.0.1: A Control Center Module for Viewing Time Since Boot",
+      "version": "1.0.1"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -1675,8 +1698,17 @@
       "published_at": "2026-09-11T20:39:00+00:00",
       "run_id": "34645280088",
       "version": "1.3.23"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "80864c0d7a70b3ea2bdb2032b3fab720d3e9121ef1202981e9b8f8624d5b554c",
+      "href": "uptime-tweak.html",
+      "package": "com.mtac.uptime",
+      "published_at": "2026-09-13T12:19:40+00:00",
+      "run_id": "34756502684",
+      "version": "1.0.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-11T20:39:00+00:00"
+  "updated_at": "2026-09-13T12:19:40+00:00"
 }

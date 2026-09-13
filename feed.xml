@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Uptime 1.0.1: A Control Center Module for Viewing Time Since Boot</title>
+      <link>https://nextjailbreak.com/uptime-tweak.html</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/uptime-tweak.html</guid>
+      <pubDate>Sun, 13 Sep 2026 12:19:40 GMT</pubDate>
+      <description>Review Uptime 1.0.1, a Control Center module for viewing time since boot, including its listed architectures, dependencies, and verification steps.</description>
+      <category>Control Center</category>
+    </item>
+    <item>
       <title>Watusi 3 for WhatsApp 1.3.23 Targets WhatsApp 26.36.X Compatibility</title>
       <link>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-23-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-23-update/</guid>
@@ -235,14 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/sileo-dopamine-3-jailbreak-guide.html</guid>
       <pubDate>Sun, 23 Aug 2026 06:49:41 GMT</pubDate>
       <description>Understand how Sileo relates to Dopamine 3, what the official compatibility ranges say, and why rootless tweak support must be checked.</description>
-      <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>DarkSword and Dopamine: What the Documented Connection Means</title>
-      <link>https://nextjailbreak.com/darksword-dopamine-3-jailbreak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/darksword-dopamine-3-jailbreak.html</guid>
-      <pubDate>Sat, 22 Aug 2026 06:48:41 GMT</pubDate>
-      <description>Learn what DarkSword is, how an official Dopamine 2.5 beta note connects it to Dopamine development, and where to find documented Dopamine 3.x compatibility details.</description>
       <category>Jailbreak</category>
     </item>
   </channel>
