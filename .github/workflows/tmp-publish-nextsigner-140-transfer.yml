@@ -21,13 +21,6 @@ jobs:
     env:
       VERSION: '1.4.0'
       ARTIFACT_ID: '10315234717'
-      R2_BUCKET: next-signer-apps
-      R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
-      R2_PUBLIC_BASE: https://files.nextjailbreak.com
-      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: auto
-      AWS_EC2_METADATA_DISABLED: 'true'
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout main for Transfer metadata
@@ -36,13 +29,6 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Validate credentials
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "$AWS_ACCESS_KEY_ID" || { echo 'CLOUDFLARE_R2_ACCESS_KEY_ID is missing'; exit 1; }
-          test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'CLOUDFLARE_R2_SECRET_ACCESS_KEY is missing'; exit 1; }
-
       - name: Download verified Next Signer artifact
         shell: bash
         run: |
@@ -50,44 +36,41 @@ jobs:
           gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > "$RUNNER_TEMP/nextsigner-artifact.zip"
           mkdir -p "$RUNNER_TEMP/nextsigner-artifact"
           unzip -q "$RUNNER_TEMP/nextsigner-artifact.zip" -d "$RUNNER_TEMP/nextsigner-artifact"
-          SRC="$(find "$RUNNER_TEMP/nextsigner-artifact" -type f -name "NextSigner-${VERSION}.tipa" | head -n1)"
-          test -n "$SRC" && test -s "$SRC" || { echo "NextSigner-${VERSION}.tipa not found in verified artifact"; exit 1; }
-          cp "$SRC" "$RUNNER_TEMP/NextSigner-${VERSION}.tipa"
+          TIPA="$(find "$RUNNER_TEMP/nextsigner-artifact" -type f -name "NextSigner-${VERSION}.tipa" | head -n1)"
+          IPA="$(find "$RUNNER_TEMP/nextsigner-artifact" -type f -name "NextSigner-${VERSION}.ipa" | head -n1)"
+          test -n "$TIPA" && test -s "$TIPA" || { echo "NextSigner-${VERSION}.tipa not found"; exit 1; }
+          test -n "$IPA" && test -s "$IPA" || { echo "NextSigner-${VERSION}.ipa not found"; exit 1; }
+          cp "$TIPA" "$RUNNER_TEMP/NextSigner-${VERSION}.tipa"
+          cp "$IPA" "$RUNNER_TEMP/NextSigner-${VERSION}.ipa"
           unzip -t "$RUNNER_TEMP/NextSigner-${VERSION}.tipa" >/dev/null
-
-      - name: Install AWS CLI
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 -m pip install --user --quiet awscli
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-      - name: Publish binary to Cloudflare R2
-        shell: bash
-        run: |
-          set -euo pipefail
-          export PATH="$HOME/.local/bin:$PATH"
-          SRC="$RUNNER_TEMP/NextSigner-${VERSION}.tipa"
-          OBJECT_KEY="apps/tipa/NextSigner/${VERSION}/NextSigner-${VERSION}.tipa"
-          PUBLIC_URL="$R2_PUBLIC_BASE/$OBJECT_KEY"
-          SHA256=$(sha256sum "$SRC" | awk '{print $1}')
-          SIZE_BYTES=$(stat -c '%s' "$SRC")
-
-          aws s3 cp "$SRC" "s3://$R2_BUCKET/$OBJECT_KEY" \
-            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
-            --content-type 'application/octet-stream' \
-            --cache-control 'public, max-age=31536000, immutable' \
-            --only-show-errors
-
-          curl --fail --silent --show-error --location --head \
-            --retry 10 --retry-delay 3 --retry-all-errors "$PUBLIC_URL" >/dev/null
-
-          echo "NEXTSIGNER_R2_URL=$PUBLIC_URL" >> "$GITHUB_ENV"
+          unzip -t "$RUNNER_TEMP/NextSigner-${VERSION}.ipa" >/dev/null
+          SHA256=$(sha256sum "$RUNNER_TEMP/NextSigner-${VERSION}.tipa" | awk '{print $1}')
+          SIZE_BYTES=$(stat -c '%s' "$RUNNER_TEMP/NextSigner-${VERSION}.tipa")
           echo "NEXTSIGNER_SHA256=$SHA256" >> "$GITHUB_ENV"
           echo "NEXTSIGNER_SIZE_BYTES=$SIZE_BYTES" >> "$GITHUB_ENV"
-          echo "Published $PUBLIC_URL"
-          echo "SHA256 $SHA256"
-          echo "SIZE $SIZE_BYTES"
+
+      - name: Publish GitHub release fallback
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="nextsigner-${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" \
+              "$RUNNER_TEMP/NextSigner-${VERSION}.tipa" \
+              "$RUNNER_TEMP/NextSigner-${VERSION}.ipa" \
+              --clobber
+          else
+            gh release create "$TAG" \
+              "$RUNNER_TEMP/NextSigner-${VERSION}.tipa" \
+              "$RUNNER_TEMP/NextSigner-${VERSION}.ipa" \
+              --target feature/nextsigner-1.4.0-local-signed-apps \
+              --title "Next Signer ${VERSION}" \
+              --notes "Test release: on-device signing plus Signed Apps library with Install, Publish, Share and Delete."
+          fi
+          PUBLIC_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/NextSigner-${VERSION}.tipa"
+          curl --fail --silent --show-error --location --head --retry 5 --retry-delay 2 "$PUBLIC_URL" >/dev/null
+          echo "NEXTSIGNER_PUBLIC_URL=$PUBLIC_URL" >> "$GITHUB_ENV"
+          echo "Published fallback $PUBLIC_URL"
 
       - name: Update Transfer manifest
         shell: bash
@@ -110,11 +93,11 @@ jobs:
               'type': 'tipa',
               'platform': 'TrollStore / iOS 16+',
               'version': version,
-              'url': os.environ['NEXTSIGNER_R2_URL'],
+              'url': os.environ['NEXTSIGNER_PUBLIC_URL'],
               'sha256': os.environ['NEXTSIGNER_SHA256'],
               'sizeBytes': int(os.environ['NEXTSIGNER_SIZE_BYTES']),
-              'storage': 'Cloudflare R2',
-              'notes': 'Adds true on-device IPA signing, persistent Signed Apps library, direct TrollStore install, Share/Delete controls, and manual Publish to GitHub/R2 without re-signing.'
+              'storage': 'GitHub Release fallback',
+              'notes': 'Adds true on-device IPA signing, persistent Signed Apps library, direct TrollStore install, Share/Delete controls, and manual Publish without re-signing.'
           }
           data['files'] = [entry] + files
           data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
@@ -132,7 +115,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No Transfer metadata changes to commit'
           else
-            git commit -m "Publish Next Signer ${VERSION} through Cloudflare R2"
+            git commit -m "Publish Next Signer ${VERSION} to NS Transfer"
             git pull --rebase origin main
             git push origin HEAD:main
           fi
