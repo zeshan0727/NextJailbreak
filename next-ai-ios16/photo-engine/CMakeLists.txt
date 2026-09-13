@@ -12,11 +12,12 @@ set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
 add_subdirectory(stable-diffusion.cpp)
 add_library(NextPhoto SHARED NextPhoto.mm)
 target_compile_options(NextPhoto PRIVATE -fobjc-arc)
-target_link_libraries(NextPhoto PRIVATE stable-diffusion "-framework UIKit")
+target_link_libraries(NextPhoto PRIVATE stable-diffusion "-framework UIKit" "-framework CoreGraphics" "-framework CoreFoundation")
 # Each engine uses its pinned GGML internally; expose only our bridge symbol.
 target_link_options(NextPhoto PRIVATE "-Wl,-exported_symbol,_NextPhotoGenerate")
 set_target_properties(NextPhoto PROPERTIES FRAMEWORK TRUE
  MACOSX_FRAMEWORK_IDENTIFIER "cc.nextsolution.nextai.photoengine"
  XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
+ XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "cc.nextsolution.nextai.photoengine"
  MACOSX_RPATH ON INSTALL_NAME_DIR "@rpath" BUILD_WITH_INSTALL_NAME_DIR TRUE
  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/framework")
