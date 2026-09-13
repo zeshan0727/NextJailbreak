@@ -7,42 +7,76 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: next-ai-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: macos-14
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch pinned inference engine
-        run: git clone --depth 1 --branch b5046 https://github.com/ggml-org/llama.cpp.git next-ai-ios16/llama.cpp
-      - name: Configure iOS 16 build
+      - name: Fetch pinned inference engines
         run: |
+          git clone --depth 1 --branch b5046 https://github.com/ggml-org/llama.cpp.git next-ai-ios16/llama.cpp
+          git init next-ai-ios16/photo-engine/stable-diffusion.cpp
+          git -C next-ai-ios16/photo-engine/stable-diffusion.cpp remote add origin https://github.com/leejet/stable-diffusion.cpp.git
+          git -C next-ai-ios16/photo-engine/stable-diffusion.cpp fetch --depth 1 origin 0d9d6659a7ebb7fc51902d6a96f2ea60bd0e82d6
+          git -C next-ai-ios16/photo-engine/stable-diffusion.cpp checkout --detach FETCH_HEAD
+          git -C next-ai-ios16/photo-engine/stable-diffusion.cpp submodule update --init --depth 1
+      - name: Build isolated photo framework
+        run: |
+          cmake -S next-ai-ios16/photo-engine -B photo-build -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
+          cmake --build photo-build --config Release --target NextPhoto --parallel 3
+      - name: Configure iOS 16 app
+        shell: bash
+        run: |
+          framework=$(find "$PWD/photo-build" -type d -name NextPhoto.framework -print -quit)
+          test -n "$framework"
           cmake -S next-ai-ios16 -B next-ai-build -G Xcode \
+            -DPHOTO_FRAMEWORK="$framework" \
             -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
             -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
             -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
       - name: Compile
         run: cmake --build next-ai-build --config Release --target NextAI --parallel 3
-      - name: Package TrollStore app
+      - name: Package and verify TrollStore app
         shell: bash
         run: |
           set -euo pipefail
           app=$(find next-ai-build -type d -name NextAI.app -print -quit)
+          framework=$(find photo-build -type d -name NextPhoto.framework -print -quit)
           test -n "$app"
+          test -n "$framework"
+          mkdir -p "$app/Frameworks"
+          cp -R "$framework" "$app/Frameworks/"
           cp next-ai-ios16/llama.cpp/LICENSE "$app/llama-LICENSE.txt"
+          cp next-ai-ios16/photo-engine/stable-diffusion.cpp/LICENSE "$app/stable-diffusion-LICENSE.txt"
+          cp next-ai-ios16/photo-engine/stable-diffusion.cpp/ggml/LICENSE "$app/photo-ggml-LICENSE.txt"
+          codesign --force --sign - "$app/Frameworks/NextPhoto.framework"
           codesign --force --sign - "$app"
-          codesign --verify --verbose "$app"
-          /usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$app/Info.plist"
+          codesign --verify --deep --strict --verbose "$app"
           xcrun vtool -show-build "$app/NextAI"
+          xcrun vtool -show-build "$app/Frameworks/NextPhoto.framework/NextPhoto"
+          xcrun nm -gU "$app/Frameworks/NextPhoto.framework/NextPhoto" > photo-symbols.txt
+          grep '_NextPhotoGenerate' photo-symbols.txt
+          if grep -E ' _ggml_| _llama_' photo-symbols.txt; then exit 1; fi
+          xcrun otool -L "$app/NextAI" > linked-libraries.txt
+          grep '@rpath/NextPhoto.framework/NextPhoto' linked-libraries.txt
           mkdir -p package/Payload
           cp -R "$app" package/Payload/
+          cp next-ai-ios16/README.md package/README.md
           cd package
-          zip -qry NextAI-Test2.tipa Payload
-          shasum -a 256 NextAI-Test2.tipa > SHA256.txt
+          zip -qry NextAI-Test3.tipa Payload
+          shasum -a 256 NextAI-Test3.tipa > SHA256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: NextAI-TrollStore-Test2
+          name: NextAI-TrollStore-Test3-Photos
           path: |
-            package/NextAI-Test2.tipa
+            package/NextAI-Test3.tipa
             package/SHA256.txt
+            package/README.md
           if-no-files-found: error
