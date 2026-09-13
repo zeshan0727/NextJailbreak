@@ -1,6 +1,26 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-ksign",
+      "name": "KSign",
+      "version": "1.2.1",
+      "build": "2",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.ksign",
+      "icon": "/install/icons/com-nextsolution-ksign-411e9d7d232a.png",
+      "manifest": "/install/com-nextsolution-ksign.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-ksign/1.2.1/com-nextsolution-ksign-1.2.1-2.ipa",
+      "sha256": "411e9d7d232a37447c096fd097ac72b650b389463539a882119dfca7b848c416",
+      "sizeBytes": 23475325,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false
+    },
+    {
       "id": "com-nextsolution-aspire",
       "name": "Aspire",
       "version": "1.1.8",
@@ -107,5 +127,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-09-08"
+  "updated": "2026-09-13"
 }
