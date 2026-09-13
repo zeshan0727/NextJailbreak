@@ -1,23 +1,23 @@
-# Next AI — iOS 16 / TrollStore Test 1
-Native UIKit offline text chat powered by llama.cpp b5046 (MIT).
+# Next AI 0.2.0 — Test 3: offline chat + photos
+Target: iPhone 14 Pro Max, iOS 16.0, TrollStore. Install NextAI-Test3.tipa over the existing Next AI. Do not uninstall first: app data is retained by an in-place update.
 
-Download the NextAI-TrollStore-Test1 artifact from the build's Actions page, unzip it, and open NextAI-Test1.tipa in TrollStore. No model is bundled.
+## Chat
+Existing Qwen model selection and chats are retained. Chat and photo workloads are serialized to control memory. Chat streaming UI updates are throttled; reading earlier messages no longer forces the screen to the bottom. Menu includes Copy last answer. File picker and direct folder model selection remain available.
 
-Recommended test model (Apache 2.0, official Qwen):
-https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf?download=true
+## Photo generation
+Download the complete SD 1.5 Q4_0 model (about 1.57 GB):
+https://huggingface.co/second-state/stable-diffusion-v1-5-GGUF/resolve/main/stable-diffusion-v1-5-pruned-emaonly-Q4_0.gguf?download=true
+Model card and license: https://huggingface.co/second-state/stable-diffusion-v1-5-GGUF
 
-Save the model to Files. Open Next AI → Menu → Import model. Keep the app open during copying and generation. First load may take time. Model imports are copied into the app's Documents/Models folder; keep at least 3 GB free before importing. Model and chats stay on device. No networking or telemetry code is included.
+Copy the downloaded .gguf into Files → On My iPhone → Next AI. Open the Photos tab → Models / Gallery → Use image model from Next AI folder. Choose SD 1.5, not Qwen. Import from Files is also available. Models remain separate; do not replace your chat model.
 
-Features: streaming chat, Stop, saved chats, new chat, deletion confirmation, copying conversations, GGUF validation, background cancellation. 2048 context tokens, maximum 384 output tokens. Oversized conversations show an explicit error rather than silently dropping history. Models over 2.2 GB are rejected for this first device test. Model switches occur through import; older copies can be removed through Files when the app is idle. Model template compatibility depends on llama.cpp b5046; newer architectures may not work.
+Start with 384×384 / 20 steps. 512×512 and 12/24 steps are optional. Write an English description for best results with this model. Negative prompt and seed are optional. Blank seed selects a random seed. Keep the app in the foreground; auto-lock is disabled during generation. This initial photo engine does not provide mid-generation cancellation. Model memory is released after each image, so loading happens for each generation.
 
-Device test checklist:
-1. Install and launch on iOS 16.0 through TrollStore.
-2. Import the recommended complete GGUF; send 'Say hello in one sentence'.
-3. Turn on airplane mode and send a follow-up.
-4. Tap Stop during a longer reply; send another message.
-5. Start a new chat, then reopen the old chat through Saved chats.
-6. Quit/relaunch and reopen a saved chat; verify model selection remains.
-7. Delete a chat and confirm it remains deleted after relaunch.
-8. Try a wrong file and a long prompt; confirm helpful errors.
+Images are saved as PNGs under Documents/Generated Images alongside prompt/settings JSON. The latest image reopens when the app launches. Models / Gallery lists the latest 20 images; all older images remain accessible in Files. Use Share to export or Save to Photos to grant add-only Photos access and save. Generated images are not uploaded anywhere.
 
-Builds use a macOS runner, CMake/Xcode, arm64 iPhoneOS 16.0 target and embedded Metal source. The app is ad-hoc signed for TrollStore. It does not request root, private entitlements, or filesystem access outside its container and user-selected files. On-device performance and memory stability require real hardware testing.
+## Validation and limits
+Build checks: native arm64 compilation for iOS 16, embedded framework linkage, isolated photo-engine symbols, and nested ad-hoc signatures. These do not establish on-device generation speed or memory stability. This is a device test build. Large models, SDXL/FLUX, image editing, and video are outside this version. Only the linked complete SD 1.5 GGUF is the recommended image model for testing.
+
+Test: launch after update; reopen a chat; generate one 384×384 image in airplane mode; export/save it; reopen it in gallery; return to chat and send a message. If iOS closes the app during generation, relaunch and report the resolution/step count used.
+
+Source engines: llama.cpp b5046 and stable-diffusion.cpp 0d9d6659a7ebb7fc51902d6a96f2ea60bd0e82d6 (MIT). The photo engine has its own isolated framework because its GGML version differs from the chat engine. Metal kernels are embedded; no external library download is needed on the phone.
