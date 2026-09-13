@@ -1,0 +1,41 @@
+name: Next Signer - Cleanup Signed Staging
+
+on:
+  repository_dispatch:
+    types: [nextsigner_cleanup_signed_staging]
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      OBJECT_KEY: ${{ github.event.client_payload.object_key }}
+      R2_BUCKET: next-signer-apps
+      R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: 'true'
+    steps:
+      - name: Validate staging key
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$OBJECT_KEY" in
+            staging/nextsigner/*) ;;
+            *) echo 'Refusing to delete a non-NextSigner staging object'; exit 1;;
+          esac
+
+      - name: Delete temporary R2 object
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --user --quiet awscli
+          export PATH="$HOME/.local/bin:$PATH"
+          aws s3 rm \
+            "s3://$R2_BUCKET/$OBJECT_KEY" \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            --only-show-errors
