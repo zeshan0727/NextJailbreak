@@ -1,0 +1,1 @@
+Update NS Transfer for Next Signer 1.3.9 through GitHub Contents API.
