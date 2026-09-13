@@ -24,6 +24,11 @@ jobs:
           git -C next-ai-ios16/photo-engine/stable-diffusion.cpp fetch --depth 1 origin 0d9d6659a7ebb7fc51902d6a96f2ea60bd0e82d6
           git -C next-ai-ios16/photo-engine/stable-diffusion.cpp checkout --detach FETCH_HEAD
           git -C next-ai-ios16/photo-engine/stable-diffusion.cpp submodule update --init --depth 1
+      - name: Validate and apply Turbo schedule
+        run: |
+          c++ -std=c++17 next-ai-ios16/photo-engine/test_turbo.cpp -o /tmp/test-turbo
+          /tmp/test-turbo
+          python3 next-ai-ios16/photo-engine/patch_turbo.py
       - name: Build isolated photo framework
         run: |
           cmake -S next-ai-ios16/photo-engine -B photo-build -G Xcode \
@@ -73,13 +78,62 @@ jobs:
           cp -R "$app" package/Payload/
           cp next-ai-ios16/README.md package/README.md
           cd package
-          zip -qry NextAI-Test3.tipa Payload
-          shasum -a 256 NextAI-Test3.tipa > SHA256.txt
+          zip -qry NextAI-0.3.0-Turbo.tipa Payload
+          shasum -a 256 NextAI-0.3.0-Turbo.tipa > SHA256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: NextAI-TrollStore-Test3-Photos
+          name: NextAI-0.3.0-Turbo
           path: |
-            package/NextAI-Test3.tipa
+            package/NextAI-0.3.0-Turbo.tipa
             package/SHA256.txt
             package/README.md
           if-no-files-found: error
+
+  publish:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: NextAI-0.3.0-Turbo
+      - name: Verify and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BUILD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sha256sum -c SHA256.txt
+          gh release create next-ai-0.3.0 NextAI-0.3.0-Turbo.tipa SHA256.txt --target "$BUILD_SHA" --title "Next AI 0.3.0 Turbo" --notes "Offline chat and photos for iOS 16 / TrollStore. Adds SD-Turbo 1/2/4-step mode, correct trailing schedule, and generation timings. Install over existing app to retain data. Device speed testing required."
+      - name: Publish NS Transfer catalog entry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import os, json, base64, hashlib, urllib.request, urllib.error, datetime
+          from pathlib import Path
+          name="NextAI-0.3.0-Turbo.tipa"
+          data=Path(name).read_bytes()
+          repo=os.environ["GITHUB_REPOSITORY"]
+          url=f"https://api.github.com/repos/{repo}/contents/transfer/index.json"
+          headers={"Authorization":"Bearer "+os.environ["GH_TOKEN"],"Accept":"application/vnd.github+json"}
+          for attempt in range(3):
+              with urllib.request.urlopen(urllib.request.Request(url+"?ref=main",headers=headers)) as r:
+                  current=json.load(r)
+              catalog=json.loads(base64.b64decode(current["content"]))
+              entry={"id":"next-ai-0.3.0","name":"Next AI 0.3.0 Turbo","fileName":name,"type":"tipa","platform":"TrollStore / iOS 16+","version":"0.3.0","url":f"https://github.com/{repo}/releases/download/next-ai-0.3.0/{name}","sha256":hashlib.sha256(data).hexdigest(),"sizeBytes":len(data),"storage":"GitHub Release fallback","notes":"Offline chat + photos. Fast SD-Turbo mode with 1/2/4 steps. Requires separate SD-Turbo GGUF download. Install over existing Next AI."}
+              catalog["files"]=[entry]+[x for x in catalog["files"] if x.get("id")!=entry["id"]]
+              catalog["updatedAt"]=datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00","Z")
+              payload={"message":"Publish Next AI 0.3.0 Turbo to NS Transfer","branch":"main","sha":current["sha"],"content":base64.b64encode((json.dumps(catalog,indent=2)+"\n").encode()).decode()}
+              try:
+                  with urllib.request.urlopen(urllib.request.Request(url,data=json.dumps(payload).encode(),headers=headers,method="PUT")) as r:
+                      result=json.load(r)
+                  print("Published catalog commit",result["commit"]["sha"])
+                  print("SHA256",entry["sha256"],"bytes",entry["sizeBytes"])
+                  break
+              except urllib.error.HTTPError as e:
+                  if e.code!=409 or attempt==2: raise
+          PY
