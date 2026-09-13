@@ -1,0 +1,88 @@
+name: Build Next Jailbreak Trigger TIPA Linux
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "TriggerAppTheos/**"
+      - ".github/workflows/build-nextjailbreak-trigger-linux.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextjailbreak-trigger-linux-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Theos iOS toolchain and SDK
+        shell: bash
+        env:
+          CI: "true"
+          THEOS: ${{ runner.temp }}/theos
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y bash curl sudo build-essential fakeroot rsync perl zip unzip git libxml2 libtinfo6 dpkg xz-utils
+          export THEOS="${THEOS}"
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          test -x "$THEOS/toolchain/linux/iphone/bin/clang"
+          test -d "$THEOS/sdks"
+          ls -la "$THEOS/sdks"
+
+      - name: Build native arm64 iOS app
+        shell: bash
+        env:
+          THEOS: ${{ runner.temp }}/theos
+        run: |
+          set -euo pipefail
+          export THEOS="${THEOS}"
+          rm -rf TriggerAppTheos/.theos TriggerAppTheos/packages dist stage Payload
+          make -C TriggerAppTheos clean package FINALPACKAGE=1
+          DEB="$(find TriggerAppTheos/packages -type f -name '*.deb' -print -quit)"
+          test -n "$DEB"
+          mkdir -p stage Payload dist
+          dpkg-deb -x "$DEB" stage
+          APP="stage/Applications/NextJailbreakTrigger.app"
+          test -d "$APP"
+          test -x "$APP/NextJailbreakTrigger"
+          file "$APP/NextJailbreakTrigger"
+          cp -a "$APP" Payload/
+          zip -qry dist/NextJailbreakTrigger.tipa Payload
+          test -s dist/NextJailbreakTrigger.tipa
+          sha256sum dist/NextJailbreakTrigger.tipa | tee dist/NextJailbreakTrigger.sha256
+          ls -lh dist/NextJailbreakTrigger.tipa
+
+      - name: Upload TIPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextJailbreakTrigger-TIPA-Linux
+          path: |
+            dist/NextJailbreakTrigger.tipa
+            dist/NextJailbreakTrigger.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="nextjailbreak-trigger-v1.0.0"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/NextJailbreakTrigger.tipa dist/NextJailbreakTrigger.sha256 --clobber
+          else
+            gh release create "$TAG" dist/NextJailbreakTrigger.tipa dist/NextJailbreakTrigger.sha256 \
+              --target "$GITHUB_SHA" \
+              --title "Next Jailbreak Trigger v1.0.0" \
+              --notes "TrollStore TIPA for iPhone 14 / iOS 16. Manually triggers the Verified Tweak, Original-Source News, and Dopamine 3 publishers. The GitHub token is entered on-device and stored in iOS Keychain; no token is embedded in the app or public repository."
+          fi
