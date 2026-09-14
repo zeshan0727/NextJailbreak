@@ -28,6 +28,7 @@ jobs:
       - name: Repair existing SEO and harden future publishers
         run: |
           python3 -m automation.seo_hardening
+          python3 -m automation.seo_jsonld_repair
           python3 automation/sync_editorial_indexes.py
 
       - name: Rebuild RSS from repaired publication metadata
@@ -43,8 +44,9 @@ jobs:
 
       - name: Validate SEO invariants
         run: |
-          python3 -m py_compile automation/seo_utils.py automation/seo_hardening.py automation/publisher.py automation/draft_pipeline.py automation/ios_repo_news.py automation/dopamine_cluster.py
+          python3 -m py_compile automation/seo_utils.py automation/seo_hardening.py automation/seo_jsonld_repair.py automation/publisher.py automation/draft_pipeline.py automation/ios_repo_news.py automation/dopamine_cluster.py
           python3 - <<'PY'
+          import html
           import json
           import re
           from pathlib import Path
@@ -58,7 +60,9 @@ jobs:
           if len(locs) != len(set(locs)):
               raise SystemExit('Duplicate sitemap URLs remain')
 
+          jsonld_re = re.compile(r'<script\s+type=["\']application/ld\+json["\']>(.*?)</script>', re.I|re.S)
           checked = 0
+          techarticle_checked = 0
           for entry in audit.get('entries', []):
               if not isinstance(entry, dict) or not entry.get('href'):
                   continue
@@ -75,6 +79,9 @@ jobs:
               desc = re.search(r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']+)', text, re.I)
               if not title or not desc:
                   raise SystemExit(f'Missing title/description: {page}')
+              visible_desc = html.unescape(desc.group(1)).strip()
+              if not visible_desc.endswith(('.', '!', '?')):
+                  raise SystemExit(f'Incomplete SEO description: {page}: {visible_desc}')
               if name and name.lower() not in title.group(1).lower():
                   raise SystemExit(f'Exact tweak/product name missing from SEO title: {page}')
               if version and str(entry.get('category', {}).get('id', '')).lower() != 'jailbreak' and version.lower() not in title.group(1).lower():
@@ -84,10 +91,26 @@ jobs:
               canonical = 'https://nextjailbreak.com/' + href
               if canonical not in locs:
                   raise SystemExit(f'Article absent from sitemap: {canonical}')
+
+              for raw in jsonld_re.findall(text):
+                  try:
+                      payload = json.loads(html.unescape(raw.strip()))
+                  except json.JSONDecodeError:
+                      continue
+                  nodes = payload.get('@graph', []) if isinstance(payload, dict) else []
+                  if isinstance(payload, dict) and payload.get('@type') == 'TechArticle':
+                      nodes = [payload] + (nodes if isinstance(nodes, list) else [])
+                  for node in nodes if isinstance(nodes, list) else []:
+                      if isinstance(node, dict) and node.get('@type') == 'TechArticle':
+                          techarticle_checked += 1
+                          if str(node.get('description', '')).strip() != visible_desc:
+                              raise SystemExit(f'TechArticle description mismatch: {page}')
               checked += 1
           if checked < 20:
               raise SystemExit(f'Unexpectedly low article validation count: {checked}')
-          print(f'Validated SEO for {checked} existing article pages; sitemap URLs are unique.')
+          if techarticle_checked < 20:
+              raise SystemExit(f'Unexpectedly low TechArticle validation count: {techarticle_checked}')
+          print(f'Validated SEO for {checked} existing article pages and {techarticle_checked} TechArticle blocks; sitemap URLs are unique.')
           PY
 
       - name: Commit repaired pages and future SEO rules
@@ -99,6 +122,6 @@ jobs:
             echo "No SEO changes required."
             exit 0
           fi
-          git commit -m "SEO: strengthen direct article indexing sitewide"
+          git commit -m "SEO: repair structured article metadata sitewide"
           git pull --rebase origin main
           git push origin HEAD:main
