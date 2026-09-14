@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-13T12:28:34.487387Z",
+  "updatedAt": "2026-09-14T06:03:01.359398Z",
   "files": [
+    {
+      "id": "next-ai-1.0.0",
+      "name": "Next AI 1.0",
+      "fileName": "NextAI-1.0.0.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.0",
+      "url": "https://github.com/zeshan0727/NextJailbreak/releases/download/next-ai-1.0.0/NextAI-1.0.0.ipa",
+      "sha256": "b3c0f7b2b102c509cc2e6c1015f33c545380dbbd55ec589fe0bcfada42014b7b",
+      "sizeBytes": 2873474,
+      "storage": "GitHub Release fallback",
+      "notes": "Polished offline chat and images. Optional saved memory, temporary chats, themes, share/retry and credits. Models downloaded separately. Install IPA with TrollStore over existing Next AI."
+    },
     {
       "id": "next-ai-0.3.0",
       "name": "Next AI 0.3.0 Turbo",
