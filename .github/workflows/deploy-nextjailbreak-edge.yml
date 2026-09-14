@@ -1,0 +1,130 @@
+name: Deploy Next Jailbreak repo and comments edge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-nextjailbreak-edge.yml"
+      - "cloudflare/nextjailbreak-edge/**"
+      - "repo-site/**"
+      - "assets/community-comments.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nextjailbreak-edge-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out production branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Check Cloudflare credentials
+        id: cloudflare
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "${TOKEN:-}" ] && [ -n "${ACCOUNT:-}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "### Cloudflare deployment needs one-time credentials" >> "$GITHUB_STEP_SUMMARY"
+            echo "Add repository secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID, then rerun this workflow." >> "$GITHUB_STEP_SUMMARY"
+            echo "The token needs Workers Scripts/Routes, D1 and DNS/custom-domain permissions for nextjailbreak.com." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Install Wrangler
+        if: steps.cloudflare.outputs.enabled == 'true'
+        run: npm install --global wrangler@latest
+
+      - name: Resolve or create comments database
+        if: steps.cloudflare.outputs.enabled == 'true'
+        id: db
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler d1 list --json > /tmp/d1.json
+          DB_ID=$(python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/d1.json'))
+          for item in data:
+              if item.get('name') == 'nextjailbreak-comments':
+                  print(item.get('uuid') or item.get('id') or '')
+                  break
+          PY
+          )
+          if [ -z "$DB_ID" ]; then
+            wrangler d1 create nextjailbreak-comments
+            wrangler d1 list --json > /tmp/d1.json
+            DB_ID=$(python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/d1.json'))
+          for item in data:
+              if item.get('name') == 'nextjailbreak-comments':
+                  print(item.get('uuid') or item.get('id') or '')
+                  break
+          PY
+            )
+          fi
+          test -n "$DB_ID"
+          echo "database_id=$DB_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Build deployment config
+        if: steps.cloudflare.outputs.enabled == 'true'
+        env:
+          DB_ID: ${{ steps.db.outputs.database_id }}
+        run: |
+          cat > cloudflare/nextjailbreak-edge/wrangler.deploy.toml <<EOF
+          name = "nextjailbreak-edge"
+          main = "worker.js"
+          compatibility_date = "2026-09-14"
+          workers_dev = false
+
+          routes = [
+            { pattern = "repo.nextjailbreak.com", custom_domain = true },
+            { pattern = "comments.nextjailbreak.com", custom_domain = true }
+          ]
+
+          [[d1_databases]]
+          binding = "COMMENTS"
+          database_name = "nextjailbreak-comments"
+          database_id = "$DB_ID"
+          EOF
+
+      - name: Apply comments database schema
+        if: steps.cloudflare.outputs.enabled == 'true'
+        working-directory: cloudflare/nextjailbreak-edge
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: wrangler d1 execute nextjailbreak-comments --remote --file=schema.sql --config=wrangler.deploy.toml --yes
+
+      - name: Deploy repo and comments worker
+        if: steps.cloudflare.outputs.enabled == 'true'
+        working-directory: cloudflare/nextjailbreak-edge
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: wrangler deploy --config=wrangler.deploy.toml
+
+      - name: Verify public endpoints
+        if: steps.cloudflare.outputs.enabled == 'true'
+        run: |
+          sleep 8
+          curl --fail --retry 5 --retry-delay 4 --max-time 20 https://repo.nextjailbreak.com/ | grep -q "Next Jailbreak Repo"
+          curl --fail --retry 5 --retry-delay 4 --max-time 20 https://repo.nextjailbreak.com/Release | grep -q "Origin: Next Jailbreak"
+          curl --fail --retry 5 --retry-delay 4 --max-time 20 "https://comments.nextjailbreak.com/api/comments?slug=%2Ftest%2F" | grep -q '"comments"'
+          echo "### Edge deployment verified" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Repo: https://repo.nextjailbreak.com/" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Package metadata: https://repo.nextjailbreak.com/Release" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Anonymous comments API: online" >> "$GITHUB_STEP_SUMMARY"
