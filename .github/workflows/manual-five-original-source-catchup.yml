@@ -12,60 +12,52 @@ permissions:
 
 concurrency:
   group: nextjailbreak-manual-five-catchup
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   catchup:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 55
     steps:
       - name: Check out production branch
         uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Check OpenAI API and helper syntax
+      - name: Check OpenAI API and helpers
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           test -n "${OPENAI_API_KEY:-}" || { echo "OPENAI_API_KEY missing" >&2; exit 1; }
           python3 -m py_compile automation/fresh_original_source.py automation/quarantine_stale_catchup.py automation/community_comments.py automation/community_comments_rollout.py
 
-      - name: Quarantine stale Sep-14 catch-up pages
+      - name: Repair stale batch and prepare fresh policy
+        shell: bash
         run: |
           python3 -m automation.quarantine_stale_catchup
           python3 automation/sync_editorial_indexes.py
-
-      - name: Prepare fresh exact-version discovery policy
-        shell: bash
-        run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
-
-          audit = json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
-          baseline = sorted({str(e.get('href')) for e in audit.get('entries', []) if isinstance(e, dict) and e.get('href')})
-          Path('/tmp/baseline-hrefs.json').write_text(json.dumps(baseline), encoding='utf-8')
-
-          path = Path('automation/ios_repo_news.json')
-          cfg = json.loads(path.read_text(encoding='utf-8'))
-          cfg['enabled'] = True
-          cfg['max_per_day'] = 12
-          cfg['minimum_site_gap_minutes'] = 0
-          cfg['max_candidate_attempts'] = 120
-          cfg['minimum_source_words'] = max(180, int(cfg.get('minimum_source_words', 180)))
-          cfg['minimum_article_words'] = max(900, int(cfg.get('minimum_article_words', 900)))
-          cfg['minimum_sections'] = max(5, int(cfg.get('minimum_sections', 5)))
-          cfg['quality_target'] = 9
-          cfg['require_original_source'] = True
-          cfg['require_unique_source_visual'] = True
-          cfg['skip_if_only_package_metadata'] = True
-          cfg['prefer_freshest'] = True
-          cfg['require_discovery_version_match'] = True
-          path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+          audit=json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
+          baseline=sorted({str(e.get('href')) for e in audit.get('entries',[]) if isinstance(e,dict) and e.get('href')})
+          Path('/tmp/baseline-hrefs.json').write_text(json.dumps(baseline),encoding='utf-8')
+          p=Path('automation/ios_repo_news.json')
+          cfg=json.loads(p.read_text(encoding='utf-8'))
+          cfg.update({
+            'enabled':True,'max_per_day':12,'minimum_site_gap_minutes':0,
+            'max_candidate_attempts':25,'quality_target':9,
+            'require_original_source':True,'require_unique_source_visual':True,
+            'skip_if_only_package_metadata':True,'prefer_freshest':True,
+            'require_discovery_version_match':True,
+          })
+          cfg['minimum_source_words']=max(180,int(cfg.get('minimum_source_words',180)))
+          cfg['minimum_article_words']=max(900,int(cfg.get('minimum_article_words',900)))
+          cfg['minimum_sections']=max(5,int(cfg.get('minimum_sections',5)))
+          p.write_text(json.dumps(cfg,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
           PY
 
-      - name: Discover, AI-write and validate five fresh articles
+      - name: Discover and AI-write five fresh exact-version articles
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.6-luna
@@ -74,109 +66,67 @@ jobs:
           set -uo pipefail
           mkdir -p /tmp/catchup-logs
           success_count=0
-
-          for attempt in $(seq 1 20); do
-            echo "===== Fresh catch-up discovery attempt $attempt ====="
+          for attempt in $(seq 1 15); do
+            echo "===== Fresh publication attempt $attempt ====="
             set +e
-            python3 -m automation.fresh_original_source \
-              --repository-root . \
-              --run-id "${GITHUB_RUN_ID}-${attempt}" \
-              --confirm-live 2>&1 | tee "/tmp/catchup-logs/attempt-${attempt}.log"
+            python3 -m automation.fresh_original_source --repository-root . --run-id "${GITHUB_RUN_ID}-${attempt}" --confirm-live 2>&1 | tee "/tmp/catchup-logs/attempt-${attempt}.log"
             status=${PIPESTATUS[0]}
             set -e
-
-            if [ "$status" -ne 0 ]; then
-              echo "Attempt $attempt returned status $status; continuing to the next exact-version candidate."
-              continue
-            fi
-
-            python3 -m automation.editorial_integrity
-
+            if [ "$status" -eq 0 ]; then python3 -m automation.editorial_integrity; fi
             success_count=$(python3 - <<'PY'
           import json
           from pathlib import Path
-          baseline = set(json.loads(Path('/tmp/baseline-hrefs.json').read_text(encoding='utf-8')))
-          audit = json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
-          current = {str(e.get('href')) for e in audit.get('entries', []) if isinstance(e, dict) and e.get('href')}
-          print(len(current - baseline))
+          baseline=set(json.loads(Path('/tmp/baseline-hrefs.json').read_text(encoding='utf-8')))
+          audit=json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
+          current={str(e.get('href')) for e in audit.get('entries',[]) if isinstance(e,dict) and e.get('href')}
+          print(len(current-baseline))
           PY
             )
-
-            echo "Validated new article count: $success_count / 5"
-            if [ "$success_count" -ge 5 ]; then
-              break
-            fi
+            echo "Validated fresh articles: $success_count / 5"
+            [ "$success_count" -ge 5 ] && break
           done
+          [ "$success_count" -ge 5 ] || { echo "Could not produce five fresh exact-version articles" >&2; exit 4; }
 
-          if [ "$success_count" -lt 5 ]; then
-            echo "Only $success_count independently validated fresh original-source article(s) were available." >&2
-            exit 4
-          fi
-
-      - name: Synchronize indexes, links, comments and social previews
+      - name: Synchronize site and social cards
         run: |
           python3 automation/sync_editorial_indexes.py
           python3 -m automation.editorial_integrity
           python3 automation/sync_editorial_indexes.py
           python3 -m automation.community_comments_rollout
 
-      - name: Restore production discovery configuration
+      - name: Restore normal discovery configuration
         if: always()
         run: git checkout -- automation/ios_repo_news.json
 
-      - name: Build and validate fresh catch-up summary
-        id: summary
+      - name: Validate five new pages
         shell: bash
         run: |
           python3 - <<'PY'
-          import json
-          import re
+          import json,re
           from pathlib import Path
-          baseline = set(json.loads(Path('/tmp/baseline-hrefs.json').read_text(encoding='utf-8')))
-          audit = json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
-          new = [e for e in audit.get('entries', []) if isinstance(e, dict) and e.get('href') and str(e.get('href')) not in baseline]
-          new.sort(key=lambda e: str(e.get('published_at', '')), reverse=False)
-          new = new[:5]
-          if len(new) != 5:
-              raise SystemExit(f'Expected 5 validated new entries, found {len(new)}')
-          for e in new:
-              target = Path(str(e['href']))
-              page = target / 'index.html' if str(e['href']).endswith('/') else target
-              text = page.read_text(encoding='utf-8')
-              if 'https://nextsolution.cc' in text or 'http://nextsolution.cc' in text:
-                  raise SystemExit(f'Old primary domain remains in article: {page}')
-              for required in (
-                  'https://nextjailbreak.com/',
-                  'name="twitter:card" content="summary_large_image"',
-                  'name="twitter:site" content="@nextjailbreak"',
-                  'property="og:image"',
-                  'property="og:image:secure_url"',
-                  'name="twitter:image"',
-              ):
-                  if required not in text:
-                      raise SystemExit(f'Missing social/canonical requirement {required}: {page}')
-          site_js = Path('assets/site-content.js').read_text(encoding='utf-8')
-          if not re.search(r'HOME_PAGE_SIZE\s*=\s*8\s*;', site_js):
-              raise SystemExit('Homepage is not configured for eight articles per page')
-          Path('/tmp/catchup-new.json').write_text(json.dumps(new, indent=2, ensure_ascii=False), encoding='utf-8')
-          with open(Path.cwd() / 'catchup-summary.md', 'w', encoding='utf-8') as out:
-              out.write('### Five fresh exact-version AI articles\n')
-              for i, e in enumerate(new, 1):
-                  out.write(f"{i}. [{e.get('title')}](https://nextjailbreak.com/{e.get('href')}) — {e.get('source_name')}\n")
-          print('\n'.join(f"{i}. {e.get('title')} -> https://nextjailbreak.com/{e.get('href')}" for i, e in enumerate(new, 1)))
+          baseline=set(json.loads(Path('/tmp/baseline-hrefs.json').read_text(encoding='utf-8')))
+          audit=json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
+          rows=[e for e in audit.get('entries',[]) if isinstance(e,dict) and e.get('href') and str(e.get('href')) not in baseline]
+          rows.sort(key=lambda e:str(e.get('published_at','')))
+          rows=rows[:5]
+          if len(rows)!=5: raise SystemExit(f'Expected 5 new entries, found {len(rows)}')
+          for e in rows:
+              page=Path(str(e['href']))/'index.html' if str(e['href']).endswith('/') else Path(str(e['href']))
+              text=page.read_text(encoding='utf-8')
+              if re.search(r'https?://(?:www\.)?nextsolution\.cc(?=[:/"\'\s<]|$)',text,re.I): raise SystemExit(f'Old site domain remains: {page}')
+              for required in ('https://nextjailbreak.com/','name="twitter:card" content="summary_large_image"','name="twitter:site" content="@nextjailbreak"','property="og:image"','property="og:image:secure_url"','name="twitter:image"'):
+                  if required not in text: raise SystemExit(f'Missing {required}: {page}')
+          if not re.search(r'HOME_PAGE_SIZE\s*=\s*8\s*;',Path('assets/site-content.js').read_text(encoding='utf-8')): raise SystemExit('Homepage not set to 8 articles')
+          Path('/tmp/catchup-new.json').write_text(json.dumps(rows,indent=2,ensure_ascii=False),encoding='utf-8')
+          print('\n'.join(f"{i}. {e.get('title')} -> https://nextjailbreak.com/{e.get('href')}" for i,e in enumerate(rows,1)))
           PY
-          cat catchup-summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Commit five finished fresh AI articles and repairs
+      - name: Commit five fresh articles and repairs
         run: |
-          rm -f catchup-summary.md
           git config user.name "nextjailbreak-ai-publisher[bot]"
           git config user.email "nextjailbreak-ai-publisher[bot]@users.noreply.github.com"
           git add -A
-          if git diff --cached --quiet; then
-            echo "No catch-up files changed." >&2
-            exit 1
-          fi
+          git diff --cached --quiet && { echo "No changes" >&2; exit 1; }
           git commit -m "AI catch-up: publish five fresh exact-version articles"
           git pull --rebase origin main
           git push origin HEAD:main
@@ -186,17 +136,15 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
-          rows = json.loads(Path('/tmp/catchup-new.json').read_text(encoding='utf-8'))
-          assert len(rows) == 5
+          rows=json.loads(Path('/tmp/catchup-new.json').read_text(encoding='utf-8'))
+          assert len(rows)==5
           for row in rows:
-              target = Path(str(row['href']))
-              page = target / 'index.html' if str(row['href']).endswith('/') else target
-              if not page.exists():
-                  raise SystemExit(f'Missing generated page: {page}')
-          print('All five fresh article pages are present in the committed working tree.')
+              p=Path(str(row['href']))/'index.html' if str(row['href']).endswith('/') else Path(str(row['href']))
+              assert p.exists(),p
+          print('All five fresh article pages verified.')
           PY
 
-      - name: Upload catch-up diagnostics
+      - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
