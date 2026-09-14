@@ -1,0 +1,14 @@
+name = "nextjailbreak-edge"
+main = "worker.js"
+compatibility_date = "2026-09-14"
+workers_dev = false
+
+routes = [
+  { pattern = "repo.nextjailbreak.com/*", zone_name = "nextjailbreak.com" },
+  { pattern = "comments.nextjailbreak.com/*", zone_name = "nextjailbreak.com" }
+]
+
+[[d1_databases]]
+binding = "COMMENTS"
+database_name = "nextjailbreak-comments"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
