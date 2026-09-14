@@ -77,9 +77,6 @@ def discover(config: dict[str, Any]) -> list[base.Candidate]:
     if config.get("prefer_freshest"):
         positions = _discovery_positions(config)
         candidates.sort(key=lambda item: (positions.get(item.discovery_url, 10**9), -item.rank, item.discovery_url))
-    # Warm version metadata so a candidate can never silently drift to another release.
-    for candidate in candidates[: max(20, int(config.get("max_candidate_attempts", 8)))]:
-        _discovery_version(candidate)
     return candidates
 
 
