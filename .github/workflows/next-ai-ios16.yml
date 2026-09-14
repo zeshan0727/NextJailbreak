@@ -1,0 +1,162 @@
+name: Next AI iOS Release
+on:
+  pull_request:
+    paths:
+      - 'next-ai-ios16/**'
+      - '.github/workflows/next-ai-ios16.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: next-ai-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch pinned inference engines
+        run: |
+          git clone --depth 1 --branch b5046 https://github.com/ggml-org/llama.cpp.git next-ai-ios16/llama.cpp
+          git init next-ai-ios16/photo-engine/stable-diffusion.cpp
+          git -C next-ai-ios16/photo-engine/stable-diffusion.cpp remote add origin https://github.com/leejet/stable-diffusion.cpp.git
+          git -C next-ai-ios16/photo-engine/stable-diffusion.cpp fetch --depth 1 origin 0d9d6659a7ebb7fc51902d6a96f2ea60bd0e82d6
+          git -C next-ai-ios16/photo-engine/stable-diffusion.cpp checkout --detach FETCH_HEAD
+          git -C next-ai-ios16/photo-engine/stable-diffusion.cpp submodule update --init --depth 1
+      - name: Validate and apply Turbo schedule
+        run: |
+          c++ -std=c++17 next-ai-ios16/photo-engine/test_turbo.cpp -o /tmp/test-turbo
+          /tmp/test-turbo
+          python3 next-ai-ios16/photo-engine/patch_turbo.py
+      - name: Build isolated photo framework
+        run: |
+          cmake -S next-ai-ios16/photo-engine -B photo-build -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
+          cmake --build photo-build --config Release --target NextPhoto --parallel 3
+      - name: Configure iOS 16 app
+        shell: bash
+        run: |
+          framework=$(find "$PWD/photo-build" -type d -name NextPhoto.framework -print -quit)
+          test -n "$framework"
+          cmake -S next-ai-ios16 -B next-ai-build -G Xcode \
+            -DPHOTO_FRAMEWORK="$framework" \
+            -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO
+      - name: Compile
+        run: cmake --build next-ai-build --config Release --target NextAI --parallel 3
+      - name: Package and verify TrollStore app
+        shell: bash
+        run: |
+          set -euo pipefail
+          app=$(find next-ai-build -type d -name NextAI.app -print -quit)
+          framework=$(find photo-build -type d -name NextPhoto.framework -print -quit)
+          test -n "$app"
+          test -n "$framework"
+          mkdir -p "$app/Frameworks"
+          cp -R "$framework" "$app/Frameworks/"
+          cp next-ai-ios16/llama.cpp/LICENSE "$app/llama-LICENSE.txt"
+          cp next-ai-ios16/photo-engine/stable-diffusion.cpp/LICENSE "$app/stable-diffusion-LICENSE.txt"
+          cp next-ai-ios16/photo-engine/stable-diffusion.cpp/ggml/LICENSE "$app/photo-ggml-LICENSE.txt"
+          python3 -m venv /tmp/nextai-assets
+          /tmp/nextai-assets/bin/pip -q install Pillow==11.3.0
+          /tmp/nextai-assets/bin/python next-ai-ios16/assets/make_icons.py "$app"
+          test -s "$app/AppIcon60@3x.png"
+          cp "$app/NextAI-Icon.png" next-ai-ios16/assets/NextAI-Icon.png
+          codesign --force --sign - "$app/Frameworks/NextPhoto.framework"
+          codesign --force --sign - "$app"
+          codesign --verify --deep --strict --verbose "$app"
+          xcrun vtool -show-build "$app/NextAI"
+          xcrun vtool -show-build "$app/Frameworks/NextPhoto.framework/NextPhoto"
+          xcrun nm -gU "$app/Frameworks/NextPhoto.framework/NextPhoto" > photo-symbols.txt
+          grep '_NextPhotoGenerate' photo-symbols.txt
+          if grep -E ' _ggml_| _llama_' photo-symbols.txt; then exit 1; fi
+          xcrun nm -a "$app/Frameworks/NextPhoto.framework/NextPhoto" > photo-all-symbols.txt
+          grep 'OBJC_CLASS_.*NextPhotoGGMLMetalClass' photo-all-symbols.txt
+          if grep 'OBJC_CLASS_.*_GGMLMetalClass' photo-all-symbols.txt; then exit 1; fi
+          xcrun otool -L "$app/NextAI" > linked-libraries.txt
+          grep '@rpath/NextPhoto.framework/NextPhoto' linked-libraries.txt
+          mkdir -p package/Payload
+          cp -R "$app" package/Payload/
+          cp next-ai-ios16/README.md package/README.md
+          cp next-ai-ios16/assets/NextAI-Icon.png package/NextAI-Icon.png
+          cd package
+          zip -qry NextAI-1.0.0.ipa Payload
+          shasum -a 256 NextAI-1.0.0.ipa > SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAI-1.0.0
+          path: |
+            package/NextAI-1.0.0.ipa
+            package/SHA256.txt
+            package/README.md
+            package/NextAI-Icon.png
+          if-no-files-found: error
+
+  publish:
+    needs: [build, ui_smoke]
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: NextAI-1.0.0
+      - name: Verify and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BUILD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          sha256sum -c SHA256.txt
+          gh release create next-ai-1.0.0 NextAI-1.0.0.ipa SHA256.txt NextAI-Icon.png --target "$BUILD_SHA" --title "Next AI 1.0" --notes "Next AI 1.0 for iOS 16+ / TrollStore. New copper/teal icon and interface, optional editable cross-chat memory, saved or temporary chats, themes, share/retry, prompt starters, image inspiration and credits. Models downloaded separately. Install over existing Next AI. Native build and package checks passed; verify on device before public promotion."
+      - name: Publish NS Transfer catalog entry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import os, json, base64, hashlib, urllib.request, urllib.error, datetime
+          from pathlib import Path
+          name="NextAI-1.0.0.ipa"
+          data=Path(name).read_bytes()
+          repo=os.environ["GITHUB_REPOSITORY"]
+          url=f"https://api.github.com/repos/{repo}/contents/transfer/index.json"
+          headers={"Authorization":"Bearer "+os.environ["GH_TOKEN"],"Accept":"application/vnd.github+json"}
+          for attempt in range(3):
+              with urllib.request.urlopen(urllib.request.Request(url+"?ref=main",headers=headers)) as r:
+                  current=json.load(r)
+              catalog=json.loads(base64.b64decode(current["content"]))
+              entry={"id":"next-ai-1.0.0","name":"Next AI 1.0","fileName":name,"type":"ipa","platform":"TrollStore / iOS 16+","version":"1.0.0","url":f"https://github.com/{repo}/releases/download/next-ai-1.0.0/{name}","sha256":hashlib.sha256(data).hexdigest(),"sizeBytes":len(data),"storage":"GitHub Release fallback","notes":"Polished offline chat and images. Optional saved memory, temporary chats, themes, share/retry and credits. Models downloaded separately. Install IPA with TrollStore over existing Next AI."}
+              catalog["files"]=[entry]+[x for x in catalog["files"] if x.get("id")!=entry["id"]]
+              catalog["updatedAt"]=datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00","Z")
+              payload={"message":"Publish Next AI 1.0 to NS Transfer","branch":"main","sha":current["sha"],"content":base64.b64encode((json.dumps(catalog,indent=2)+"\n").encode()).decode()}
+              try:
+                  with urllib.request.urlopen(urllib.request.Request(url,data=json.dumps(payload).encode(),headers=headers,method="PUT")) as r:
+                      result=json.load(r)
+                  print("Published catalog commit",result["commit"]["sha"])
+                  print("SHA256",entry["sha256"],"bytes",entry["sizeBytes"])
+                  break
+              except urllib.error.HTTPError as e:
+                  if e.code!=409 or attempt==2: raise
+          PY
+
+  ui_smoke:
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture UIKit screens
+        run: |
+          python3 -m venv /tmp/nextai-ui-assets
+          /tmp/nextai-ui-assets/bin/pip -q install Pillow==11.3.0
+          python3 next-ai-ios16/ui_smoke.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAI-1.0-UI-Preview
+          path: ui-smoke/*.png
+          if-no-files-found: error
