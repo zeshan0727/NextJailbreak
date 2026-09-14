@@ -38,7 +38,7 @@ jobs:
           from pathlib import Path
           import re
 
-          GA_ID = 'G-3JPKHN1068'
+          GA_ID = 'G-7GJ4N0HV92'
           START = '<!-- google-analytics-auto:start -->'
           END = '<!-- google-analytics-auto:end -->'
           BLOCK = f'''{START}
