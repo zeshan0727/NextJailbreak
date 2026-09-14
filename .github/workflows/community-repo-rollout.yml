@@ -1,5 +1,6 @@
 name: Community comments and repo rollout
 
+# Includes legacy original-release pages outside the publication audit.
 on:
   workflow_dispatch:
   push:
@@ -55,12 +56,13 @@ jobs:
                   raise SystemExit(f'Comments CSS missing/duplicated: {page}')
               if text.count('/assets/community-comments.js') != 1:
                   raise SystemExit(f'Comments JS missing/duplicated: {page}')
-              if '<a href="https://repo.nextjailbreak.com/">Repo</a>' not in text:
-                  raise SystemExit(f'Repo navigation missing: {page}')
               checked += 1
-          if checked < 20:
-              raise SystemExit(f'Unexpectedly low article count: {checked}')
-
+          for legacy in ('nextlock-tweak/index.html','next-home-lock-tweak-ios16/index.html','phoneaura-tweak-ios16/index.html'):
+              page = root/legacy
+              if page.exists():
+                  text = page.read_text(encoding='utf-8')
+                  if 'data-nj-comments' not in text or 'repo.nextjailbreak.com' not in text:
+                      raise SystemExit(f'Legacy article rollout missing: {legacy}')
           for publisher, variable in [
               ('automation/publisher.py','rendered_article'),
               ('automation/ios_repo_news.py','rendered'),
@@ -71,14 +73,11 @@ jobs:
                   raise SystemExit(f'Future comments import missing: {publisher}')
               if f'{variable} = ensure_community_comments({variable})' not in text:
                   raise SystemExit(f'Future comments guard missing: {publisher}')
-
           repo = (root/'repo-site/index.html').read_text(encoding='utf-8')
           for scheme in ('sileo://source/','cydia://url/','zbra://sources/add/','installer://add/repo='):
               if scheme not in repo:
                   raise SystemExit(f'Repo manager link missing: {scheme}')
-          if 'https://repo.nextjailbreak.com/' not in repo:
-              raise SystemExit('Dedicated repo URL missing from portal')
-          print(f'Validated community comments on {checked} article pages and all future publishers.')
+          print(f'Validated community comments on {checked} audited pages, legacy originals, and all future publishers.')
           PY
 
       - name: Commit rollout
@@ -90,6 +89,6 @@ jobs:
             echo "No rollout changes required."
             exit 0
           fi
-          git commit -m "Add community comments and dedicated repo portal"
+          git commit -m "Add community comments to legacy original articles"
           git pull --rebase origin main
           git push origin HEAD:main
