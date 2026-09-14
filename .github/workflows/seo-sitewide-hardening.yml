@@ -61,6 +61,7 @@ jobs:
               raise SystemExit('Duplicate sitemap URLs remain')
 
           jsonld_re = re.compile(r'<script\s+type=["\']application/ld\+json["\']>(.*?)</script>', re.I|re.S)
+          desc_re = re.compile(r'<meta\s+name=(["\'])description\1\s+content=(["\'])(.*?)\2\s*/?>', re.I|re.S)
           checked = 0
           techarticle_checked = 0
           for entry in audit.get('entries', []):
@@ -76,10 +77,10 @@ jobs:
               name = str(entry.get('name') or '').strip()
               version = str(entry.get('version') or '').strip()
               title = re.search(r'<title>(.*?)</title>', text, re.I|re.S)
-              desc = re.search(r'<meta\s+name=["\']description["\']\s+content=["\']([^"\']+)', text, re.I)
-              if not title or not desc:
-                  raise SystemExit(f'Missing title/description: {page}')
-              visible_desc = html.unescape(desc.group(1)).strip()
+              descriptions = desc_re.findall(text)
+              if not title or len(descriptions) != 1:
+                  raise SystemExit(f'Expected one title and one description: {page}; descriptions={len(descriptions)}')
+              visible_desc = html.unescape(descriptions[0][2]).strip()
               if not visible_desc.endswith(('.', '!', '?')):
                   raise SystemExit(f'Incomplete SEO description: {page}: {visible_desc}')
               if name and name.lower() not in title.group(1).lower():
@@ -122,6 +123,6 @@ jobs:
             echo "No SEO changes required."
             exit 0
           fi
-          git commit -m "SEO: repair structured article metadata sitewide"
+          git commit -m "SEO: normalize direct article indexing sitewide"
           git pull --rebase origin main
           git push origin HEAD:main
