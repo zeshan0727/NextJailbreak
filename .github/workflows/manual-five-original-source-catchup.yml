@@ -1,0 +1,179 @@
+name: Manual five-article AI catch-up
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/manual-five-original-source-catchup.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextjailbreak-manual-five-catchup
+  cancel-in-progress: false
+
+jobs:
+  catchup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Check out production branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Check OpenAI API
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          test -n "${OPENAI_API_KEY:-}" || { echo "OPENAI_API_KEY missing" >&2; exit 1; }
+
+      - name: Prepare catch-up discovery policy
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          audit = json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
+          baseline = sorted({str(e.get('href')) for e in audit.get('entries', []) if isinstance(e, dict) and e.get('href')})
+          Path('/tmp/baseline-hrefs.json').write_text(json.dumps(baseline), encoding='utf-8')
+
+          path = Path('automation/ios_repo_news.json')
+          cfg = json.loads(path.read_text(encoding='utf-8'))
+          cfg['enabled'] = True
+          cfg['max_per_day'] = 12
+          cfg['minimum_site_gap_minutes'] = 0
+          cfg['max_candidate_attempts'] = 80
+          cfg['minimum_source_words'] = max(180, int(cfg.get('minimum_source_words', 180)))
+          cfg['minimum_article_words'] = max(900, int(cfg.get('minimum_article_words', 900)))
+          cfg['minimum_sections'] = max(5, int(cfg.get('minimum_sections', 5)))
+          cfg['quality_target'] = 9
+          cfg['require_original_source'] = True
+          cfg['require_unique_source_visual'] = True
+          cfg['skip_if_only_package_metadata'] = True
+          path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+          PY
+
+      - name: Discover, AI-write and validate five missed articles
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5.6-luna
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p /tmp/catchup-logs
+          success_count=0
+
+          for attempt in $(seq 1 12); do
+            echo "===== Catch-up discovery attempt $attempt ====="
+            set +e
+            python3 -m automation.ios_repo_news_hardened \
+              --repository-root . \
+              --run-id "${GITHUB_RUN_ID}-${attempt}" \
+              --confirm-live 2>&1 | tee "/tmp/catchup-logs/attempt-${attempt}.log"
+            status=${PIPESTATUS[0]}
+            set -e
+
+            if [ "$status" -ne 0 ]; then
+              echo "Attempt $attempt returned status $status; continuing to the next verified candidate."
+              continue
+            fi
+
+            # Defense-in-depth: quarantine any version/metadata mismatch before it
+            # can count toward the five live articles.
+            python3 -m automation.editorial_integrity
+
+            success_count=$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+          baseline = set(json.loads(Path('/tmp/baseline-hrefs.json').read_text(encoding='utf-8')))
+          audit = json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
+          current = {str(e.get('href')) for e in audit.get('entries', []) if isinstance(e, dict) and e.get('href')}
+          print(len(current - baseline))
+          PY
+            )
+
+            echo "Validated new article count: $success_count / 5"
+            if [ "$success_count" -ge 5 ]; then
+              break
+            fi
+          done
+
+          if [ "$success_count" -lt 5 ]; then
+            echo "Only $success_count independently validated new original-source article(s) were available." >&2
+            exit 4
+          fi
+
+      - name: Synchronize homepage and editorial indexes
+        run: |
+          python3 automation/sync_editorial_indexes.py
+          python3 -m automation.editorial_integrity
+          python3 automation/sync_editorial_indexes.py
+
+      - name: Restore production discovery configuration
+        if: always()
+        run: git checkout -- automation/ios_repo_news.json
+
+      - name: Build catch-up summary
+        id: summary
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          baseline = set(json.loads(Path('/tmp/baseline-hrefs.json').read_text(encoding='utf-8')))
+          audit = json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
+          new = [e for e in audit.get('entries', []) if isinstance(e, dict) and e.get('href') and str(e.get('href')) not in baseline]
+          new.sort(key=lambda e: str(e.get('published_at', '')), reverse=False)
+          new = new[:5]
+          if len(new) != 5:
+              raise SystemExit(f'Expected 5 validated new entries, found {len(new)}')
+          Path('/tmp/catchup-new.json').write_text(json.dumps(new, indent=2, ensure_ascii=False), encoding='utf-8')
+          with open(Path.cwd() / 'catchup-summary.md', 'w', encoding='utf-8') as out:
+              out.write('### Five-article AI catch-up\n')
+              for i, e in enumerate(new, 1):
+                  out.write(f"{i}. [{e.get('title')}](https://nextjailbreak.com/{e.get('href')}) — {e.get('source_name')}\n")
+          print('\n'.join(f"{i}. {e.get('title')} -> https://nextjailbreak.com/{e.get('href')}" for i, e in enumerate(new, 1)))
+          PY
+          cat catchup-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit five finished AI articles
+        run: |
+          rm -f catchup-summary.md
+          git config user.name "nextjailbreak-ai-publisher[bot]"
+          git config user.email "nextjailbreak-ai-publisher[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No catch-up files changed." >&2
+            exit 1
+          fi
+          git commit -m "AI catch-up: publish five missed original-source articles"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Verify committed count
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows = json.loads(Path('/tmp/catchup-new.json').read_text(encoding='utf-8'))
+          assert len(rows) == 5
+          for row in rows:
+              target = Path(str(row['href']))
+              page = target / 'index.html' if str(row['href']).endswith('/') else target
+              if not page.exists():
+                  raise SystemExit(f'Missing generated page: {page}')
+          print('All five generated article pages are present in the committed working tree.')
+          PY
+
+      - name: Upload catch-up diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: five-article-catchup-${{ github.run_number }}
+          path: /tmp/catchup-logs/
+          if-no-files-found: ignore
+          retention-days: 14
