@@ -97,7 +97,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    needs: build
+    needs: [build, ui_smoke]
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
@@ -144,3 +144,19 @@ jobs:
               except urllib.error.HTTPError as e:
                   if e.code!=409 or attempt==2: raise
           PY
+
+  ui_smoke:
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture UIKit screens
+        run: |
+          python3 -m venv /tmp/nextai-ui-assets
+          /tmp/nextai-ui-assets/bin/pip -q install Pillow==11.3.0
+          python3 next-ai-ios16/ui_smoke.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextAI-1.0-UI-Preview
+          path: ui-smoke/*.png
+          if-no-files-found: error
