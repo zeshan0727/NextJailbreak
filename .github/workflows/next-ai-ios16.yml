@@ -1,4 +1,4 @@
-name: Next AI TrollStore Test
+name: Next AI iOS Release
 on:
   pull_request:
     paths:
@@ -61,6 +61,11 @@ jobs:
           cp next-ai-ios16/llama.cpp/LICENSE "$app/llama-LICENSE.txt"
           cp next-ai-ios16/photo-engine/stable-diffusion.cpp/LICENSE "$app/stable-diffusion-LICENSE.txt"
           cp next-ai-ios16/photo-engine/stable-diffusion.cpp/ggml/LICENSE "$app/photo-ggml-LICENSE.txt"
+          python3 -m venv /tmp/nextai-assets
+          /tmp/nextai-assets/bin/pip -q install Pillow==11.3.0
+          /tmp/nextai-assets/bin/python next-ai-ios16/assets/make_icons.py "$app"
+          test -s "$app/AppIcon60@3x.png"
+          cp "$app/NextAI-Icon.png" next-ai-ios16/assets/NextAI-Icon.png
           codesign --force --sign - "$app/Frameworks/NextPhoto.framework"
           codesign --force --sign - "$app"
           codesign --verify --deep --strict --verbose "$app"
@@ -77,16 +82,18 @@ jobs:
           mkdir -p package/Payload
           cp -R "$app" package/Payload/
           cp next-ai-ios16/README.md package/README.md
+          cp next-ai-ios16/assets/NextAI-Icon.png package/NextAI-Icon.png
           cd package
-          zip -qry NextAI-0.3.0-Turbo.tipa Payload
-          shasum -a 256 NextAI-0.3.0-Turbo.tipa > SHA256.txt
+          zip -qry NextAI-1.0.0.ipa Payload
+          shasum -a 256 NextAI-1.0.0.ipa > SHA256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: NextAI-0.3.0-Turbo
+          name: NextAI-1.0.0
           path: |
-            package/NextAI-0.3.0-Turbo.tipa
+            package/NextAI-1.0.0.ipa
             package/SHA256.txt
             package/README.md
+            package/NextAI-Icon.png
           if-no-files-found: error
 
   publish:
@@ -99,7 +106,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: NextAI-0.3.0-Turbo
+          name: NextAI-1.0.0
       - name: Verify and publish release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -107,7 +114,7 @@ jobs:
           BUILD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           sha256sum -c SHA256.txt
-          gh release create next-ai-0.3.0 NextAI-0.3.0-Turbo.tipa SHA256.txt --target "$BUILD_SHA" --title "Next AI 0.3.0 Turbo" --notes "Offline chat and photos for iOS 16 / TrollStore. Adds SD-Turbo 1/2/4-step mode, correct trailing schedule, and generation timings. Install over existing app to retain data. Device speed testing required."
+          gh release create next-ai-1.0.0 NextAI-1.0.0.ipa SHA256.txt NextAI-Icon.png --target "$BUILD_SHA" --title "Next AI 1.0" --notes "Next AI 1.0 for iOS 16+ / TrollStore. New copper/teal icon and interface, optional editable cross-chat memory, saved or temporary chats, themes, share/retry, prompt starters, image inspiration and credits. Models downloaded separately. Install over existing Next AI. Native build and package checks passed; verify on device before public promotion."
       - name: Publish NS Transfer catalog entry
         env:
           GH_TOKEN: ${{ github.token }}
@@ -115,7 +122,7 @@ jobs:
           python3 - <<'PY'
           import os, json, base64, hashlib, urllib.request, urllib.error, datetime
           from pathlib import Path
-          name="NextAI-0.3.0-Turbo.tipa"
+          name="NextAI-1.0.0.ipa"
           data=Path(name).read_bytes()
           repo=os.environ["GITHUB_REPOSITORY"]
           url=f"https://api.github.com/repos/{repo}/contents/transfer/index.json"
@@ -124,10 +131,10 @@ jobs:
               with urllib.request.urlopen(urllib.request.Request(url+"?ref=main",headers=headers)) as r:
                   current=json.load(r)
               catalog=json.loads(base64.b64decode(current["content"]))
-              entry={"id":"next-ai-0.3.0","name":"Next AI 0.3.0 Turbo","fileName":name,"type":"tipa","platform":"TrollStore / iOS 16+","version":"0.3.0","url":f"https://github.com/{repo}/releases/download/next-ai-0.3.0/{name}","sha256":hashlib.sha256(data).hexdigest(),"sizeBytes":len(data),"storage":"GitHub Release fallback","notes":"Offline chat + photos. Fast SD-Turbo mode with 1/2/4 steps. Requires separate SD-Turbo GGUF download. Install over existing Next AI."}
+              entry={"id":"next-ai-1.0.0","name":"Next AI 1.0","fileName":name,"type":"ipa","platform":"TrollStore / iOS 16+","version":"1.0.0","url":f"https://github.com/{repo}/releases/download/next-ai-1.0.0/{name}","sha256":hashlib.sha256(data).hexdigest(),"sizeBytes":len(data),"storage":"GitHub Release fallback","notes":"Polished offline chat and images. Optional saved memory, temporary chats, themes, share/retry and credits. Models downloaded separately. Install IPA with TrollStore over existing Next AI."}
               catalog["files"]=[entry]+[x for x in catalog["files"] if x.get("id")!=entry["id"]]
               catalog["updatedAt"]=datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00","Z")
-              payload={"message":"Publish Next AI 0.3.0 Turbo to NS Transfer","branch":"main","sha":current["sha"],"content":base64.b64encode((json.dumps(catalog,indent=2)+"\n").encode()).decode()}
+              payload={"message":"Publish Next AI 1.0 to NS Transfer","branch":"main","sha":current["sha"],"content":base64.b64encode((json.dumps(catalog,indent=2)+"\n").encode()).decode()}
               try:
                   with urllib.request.urlopen(urllib.request.Request(url,data=json.dumps(payload).encode(),headers=headers,method="PUT")) as r:
                       result=json.load(r)
