@@ -12,12 +12,12 @@ set(GGML_METAL ON CACHE BOOL "" FORCE)
 set(GGML_METAL_EMBED_LIBRARY ON CACHE BOOL "" FORCE)
 set(GGML_METAL_USE_BF16 OFF CACHE BOOL "" FORCE)
 add_subdirectory(llama.cpp)
-add_executable(NextAI MACOSX_BUNDLE main.mm PhotoController.mm)
+add_executable(NextAI MACOSX_BUNDLE main.mm PhotoController.mm SettingsController.mm)
 target_compile_options(NextAI PRIVATE -fobjc-arc)
 add_library(NextPhoto SHARED IMPORTED)
 set_target_properties(NextPhoto PROPERTIES IMPORTED_LOCATION "${PHOTO_FRAMEWORK}/NextPhoto" FRAMEWORK TRUE)
 set_target_properties(NextAI PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks")
-target_link_libraries(NextAI PRIVATE NextPhoto "-framework Photos" llama "-framework UIKit" "-framework CoreGraphics" "-framework CoreFoundation" "-framework UniformTypeIdentifiers")
+target_link_libraries(NextAI PRIVATE NextPhoto "-framework Photos" llama "-framework UIKit" "-framework UniformTypeIdentifiers")
 set_target_properties(NextAI PROPERTIES
  MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
  XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "cc.nextsolution.nextai"
