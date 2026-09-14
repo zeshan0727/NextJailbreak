@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#08131b">
+  <title>Next Jailbreak Repo | Sileo, Cydia, Zebra & Installer</title>
+  <meta name="description" content="Official Next Jailbreak package repository. Add repo.nextjailbreak.com to Sileo, Cydia, Zebra or Installer and browse all public Next Jailbreak tweaks.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://repo.nextjailbreak.com/">
+  <link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg">
+  <link rel="stylesheet" href="/repo-site/repo.css">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Next Jailbreak">
+  <meta property="og:url" content="https://repo.nextjailbreak.com/">
+  <meta property="og:title" content="Next Jailbreak Repo">
+  <meta property="og:description" content="Add the official Next Jailbreak repo to Sileo, Cydia, Zebra or Installer and browse every public package.">
+  <meta property="og:image" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Next Jailbreak Repo">
+  <meta name="twitter:description" content="Official package repository for Next Jailbreak tweaks and apps.">
+  <meta name="twitter:image" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Next Jailbreak Repo","url":"https://repo.nextjailbreak.com/","publisher":{"@type":"Organization","name":"Next Jailbreak","url":"https://nextjailbreak.com/"}}</script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="https://nextjailbreak.com/" aria-label="Next Jailbreak home"><img src="/assets/brand/next-jailbreak-mark.svg" alt="" width="44" height="44"><span><strong>Next</strong> Jailbreak</span></a>
+    <nav aria-label="Repository navigation"><a href="https://nextjailbreak.com/">Blog</a><a href="https://nextjailbreak.com/tutorials/">Tweaks</a><a href="/" aria-current="page">Repo</a></nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><i></i> Official package source</span>
+        <h1>Next Jailbreak Repo</h1>
+        <p>One official source for Next Jailbreak tweaks and apps. Add it once, refresh your package manager, and future package updates will appear from this repository.</p>
+        <div class="repo-url"><code id="repo-url">https://repo.nextjailbreak.com/</code><button type="button" id="copy-repo">Copy</button></div>
+        <p class="compat">Rootless <span>•</span> RootHide <span>•</span> iOS package repository</p>
+      </div>
+      <div class="hero-mark"><img src="/assets/brand/next-jailbreak-mark.svg" alt="Next Jailbreak logo" width="360" height="360"></div>
+    </section>
+
+    <section class="section managers" aria-labelledby="add-title">
+      <div class="section-head"><span class="eyebrow">One tap setup</span><h2 id="add-title">Add the repo</h2><p>Open this page on your jailbroken iPhone and tap your package manager.</p></div>
+      <div class="manager-grid">
+        <a class="manager sileo" href="sileo://source/https://repo.nextjailbreak.com/"><span class="manager-icon">S</span><span><strong>Sileo</strong><small>Add Source</small></span><b>›</b></a>
+        <a class="manager cydia" href="cydia://url/https://cydia.saurik.com/api/share#?source=https://repo.nextjailbreak.com/"><span class="manager-icon">C</span><span><strong>Cydia</strong><small>Add Source</small></span><b>›</b></a>
+        <a class="manager zebra" href="zbra://sources/add/https://repo.nextjailbreak.com/"><span class="manager-icon">Z</span><span><strong>Zebra</strong><small>Add Source</small></span><b>›</b></a>
+        <a class="manager installer" href="installer://add/repo=https://repo.nextjailbreak.com/"><span class="manager-icon">I</span><span><strong>Installer 5</strong><small>Add Source</small></span><b>›</b></a>
+      </div>
+    </section>
+
+    <section class="section packages" aria-labelledby="packages-title">
+      <div class="section-head package-heading"><div><span class="eyebrow">Live from Packages</span><h2 id="packages-title">Next Jailbreak packages</h2><p>This list is generated directly from the repository metadata, so new public packages can appear automatically after the repo is updated.</p></div><div class="package-tools"><label class="search"><span>Search</span><input id="package-search" type="search" placeholder="Find a tweak…" autocomplete="off"></label><div class="filters" role="group" aria-label="Package filters"><button class="active" data-filter="all">All</button><button data-filter="tweaks">Tweaks</button><button data-filter="applications">Apps</button></div></div></div>
+      <div class="repo-stats" id="repo-stats" aria-live="polite"></div>
+      <div class="package-grid" id="package-grid" aria-live="polite"><div class="loading">Loading packages…</div></div>
+    </section>
+
+    <section class="section info-grid">
+      <article><h2>Repository address</h2><p>Use <strong>https://repo.nextjailbreak.com/</strong> for new installations. Existing users of the older <strong>https://nextjailbreak.com/</strong> source can keep it during the transition, but new buttons point to the dedicated repo domain.</p></article>
+      <article><h2>Install safely</h2><p>Check the package architecture and iOS requirement before installation. Do not install rootless and RootHide variants of the same package at the same time unless the package specifically documents that setup.</p></article>
+    </section>
+  </main>
+
+  <footer><span>© 2026 Next Jailbreak</span><div><a href="https://nextjailbreak.com/">Main site</a><a href="https://nextjailbreak.com/privacy/">Privacy</a><a href="https://nextjailbreak.com/contact/">Contact</a></div></footer>
+  <script src="/repo-site/repo.js" defer></script>
+</body>
+</html>
