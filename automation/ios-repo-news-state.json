@@ -7,13 +7,13 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/bigboss/package/com.vbox/": {
-      "checked_at": "2026-09-13T10:43:19.141268+00:00",
+      "checked_at": "2026-09-14T09:15:03.897412+00:00",
       "package": "com.vbox",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/bigboss/package/com.witchan.ios-mcp/": {
-      "checked_at": "2026-09-13T10:43:19.141268+00:00",
+      "checked_at": "2026-09-14T09:15:03.897412+00:00",
       "package": "com.witchan.ios-mcp",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -25,7 +25,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/chariz/package/com.kernelrw.adytum/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.kernelrw.adytum",
       "status": "duplicate",
       "target_path": "adytum-1-0-update/",
@@ -38,60 +38,67 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/chariz/package/jp.dcsyhi.airaw/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "jp.dcsyhi.airaw",
       "status": "duplicate",
       "target_path": "airaw-1-5-1-update/",
       "version": "1.5.1"
     },
     "https://www.ios-repo-updates.com/repository/chariz/package/jp.dcsyhi.zetsu/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "jp.dcsyhi.zetsu",
       "status": "duplicate",
       "target_path": "zetsu-1-5-update/",
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-1-update/",
       "version": "6.1"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.fouadraheb.watusi3",
       "status": "duplicate",
-      "target_path": "watusi-3-for-whatsapp-1-3-23-update/",
-      "version": "1.3.23"
+      "target_path": "watusi-3-for-whatsapp-1-3-24-update/",
+      "version": "1.3.24"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.82flex.touchvis/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.82flex.touchvis",
       "status": "duplicate",
       "target_path": "touch-viz-2-4-update/",
       "version": "2.4"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.ahmad.asjtiktok/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.ahmad.asjtiktok",
       "status": "duplicate",
       "target_path": "asjtiktok-1-2-update/",
       "version": "1.2"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.ahmad.asjtube/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.ahmad.asjtube",
       "status": "duplicate",
       "target_path": "asjtube-1-2-1-update/",
       "version": "1.2.1"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.blacknoisy.prism/": {
-      "checked_at": "2026-09-14T06:18:23+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.blacknoisy.prism",
-      "status": "published",
+      "status": "duplicate",
       "target_path": "prism-1-0-0-2-update/",
       "version": "1.0.0-2"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.cemck.killxpro/": {
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
+      "package": "com.cemck.killxpro",
+      "status": "duplicate",
+      "target_path": "killx-pro-neo-3-0-update/",
+      "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.chloe.physpringboard/": {
       "checked_at": "2026-09-12T09:42:11.996855+00:00",
@@ -99,28 +106,74 @@
       "reason": "stale discovery rejected: candidate 1.9.14 is older than original-source version 1.9.23",
       "status": "failed"
     },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.emp0ry.appaegis/": {
+      "checked_at": "2026-09-14T09:17:03.202487+00:00",
+      "package": "com.emp0ry.appaegis",
+      "reason": "stale discovery rejected: candidate 1.0.0 is older than original-source version 1.0.1",
+      "status": "failed"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.emp0ry.appbadgeclear/": {
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
+      "package": "com.emp0ry.appbadgeclear",
+      "status": "duplicate",
+      "target_path": "appbadgeclear-1-1-1-update/",
+      "version": "1.1.1"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.emp0ry.freeformgrid/": {
+      "checked_at": "2026-09-14T09:22:24.244466+00:00",
+      "package": "com.emp0ry.freeformgrid",
+      "reason": "stale discovery rejected: candidate 1.0.2 is older than original-source version 1.0.4",
+      "status": "failed"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.ichitaso.killbackground13/": {
+      "checked_at": "2026-09-14T09:22:24.244466+00:00",
+      "package": "com.ichitaso.killbackground13",
+      "reason": "stale discovery rejected: candidate 1.1.3 is older than original-source version 1.1.4",
+      "status": "failed"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.jailbreaktweaker.lockglass17/": {
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
+      "package": "com.jailbreaktweaker.lockglass17",
+      "status": "duplicate",
+      "target_path": "lockglass-1-0-update/",
+      "version": "1.0"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.oakstheawesome.whatamess/": {
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
+      "package": "com.oakstheawesome.whatamess",
+      "status": "duplicate",
+      "target_path": "whatamess-1-0-1-update/",
+      "version": "1.0.1"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.sergy.replyactions/": {
+      "checked_at": "2026-09-14T09:26:07+00:00",
+      "package": "com.sergy.replyactions",
+      "status": "published",
+      "target_path": "replyactions-1-0-3-update/",
+      "version": "1.0.3"
+    },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.zqbb.hello.keyboard.ai/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.zqbb.hello.keyboard.ai",
       "status": "duplicate",
       "target_path": "hellokeyboardai-2-1-0-1-update/",
       "version": "2.1.0-1"
     },
     "https://www.ios-repo-updates.com/repository/majd-alfhaily/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "me.alfhaily.rocket",
       "status": "duplicate",
       "target_path": "rocket-for-instagram-3-8-38-update/",
       "version": "3.8.38"
     },
     "https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytlegacy/": {
-      "checked_at": "2026-09-13T10:43:19.141268+00:00",
+      "checked_at": "2026-09-14T09:13:18.565999+00:00",
       "package": "com.ps.ytlegacy",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/yourepo/package/com.b4db1r3.swipeawaynowplaying/": {
-      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "checked_at": "2026-09-14T09:26:07.020998+00:00",
       "package": "com.b4db1r3.swipeawaynowplaying",
       "status": "duplicate",
       "target_path": "please-stop-the-music-0-1-1-update/",
@@ -924,6 +977,316 @@
       "package": "com.blacknoisy.prism",
       "target_path": "prism-1-0-0-2-update/",
       "version": "1.0.0-2"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_07e00fdfe4e0332d016aa7baddac9887d0b18373e432ea246f",
+          "usage": {
+            "input_tokens": 28724,
+            "input_tokens_details": {
+              "cache_write_tokens": 28721,
+              "cached_tokens": 0
+            },
+            "output_tokens": 572,
+            "output_tokens_details": {
+              "reasoning_tokens": 453
+            },
+            "total_tokens": 29296
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0c53cd490e20405e016aa7bac1e8b487d0bc7fcfaecfbb6f4a",
+          "usage": {
+            "input_tokens": 26397,
+            "input_tokens_details": {
+              "cache_write_tokens": 26394,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2635,
+            "output_tokens_details": {
+              "reasoning_tokens": 92
+            },
+            "total_tokens": 29032
+          }
+        }
+      },
+      "at": "2026-09-14T09:13:18+00:00",
+      "package": "com.fouadraheb.watusi3",
+      "target_path": "watusi-3-for-whatsapp-1-3-24-update/",
+      "version": "1.3.24"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_006546461b86c9b4016aa7bb85fdc087d0a191bf1d25980d0f",
+          "usage": {
+            "input_tokens": 54343,
+            "input_tokens_details": {
+              "cache_write_tokens": 54340,
+              "cached_tokens": 0
+            },
+            "output_tokens": 329,
+            "output_tokens_details": {
+              "reasoning_tokens": 218
+            },
+            "total_tokens": 54672
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_05abe1c106c730ee016aa7bb6a62c487d0b051ec84f9df6d0a",
+          "usage": {
+            "input_tokens": 52371,
+            "input_tokens_details": {
+              "cache_write_tokens": 52368,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2298,
+            "output_tokens_details": {
+              "reasoning_tokens": 110
+            },
+            "total_tokens": 54669
+          }
+        }
+      },
+      "at": "2026-09-14T09:15:03+00:00",
+      "package": "com.cemck.killxpro",
+      "target_path": "killx-pro-neo-3-0-update/",
+      "version": "3.0"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0293f19d4bcea74c016aa7bbd835dc87d093b8e5965c3838ff",
+          "usage": {
+            "input_tokens": 50392,
+            "input_tokens_details": {
+              "cache_write_tokens": 50389,
+              "cached_tokens": 0
+            },
+            "output_tokens": 346,
+            "output_tokens_details": {
+              "reasoning_tokens": 249
+            },
+            "total_tokens": 50738
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_012c686d4ec9927a016aa7bbc2273887d0bc13ff82f42409cb",
+          "usage": {
+            "input_tokens": 48516,
+            "input_tokens_details": {
+              "cache_write_tokens": 48513,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2153,
+            "output_tokens_details": {
+              "reasoning_tokens": 74
+            },
+            "total_tokens": 50669
+          }
+        }
+      },
+      "at": "2026-09-14T09:17:03+00:00",
+      "package": "com.emp0ry.appbadgeclear",
+      "target_path": "appbadgeclear-1-1-1-update/",
+      "version": "1.1.1"
+    },
+    {
+      "action": "published",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_068ff6900159fa44016aa7bd081fe487d0ad91e383d1c0e90e",
+          "usage": {
+            "input_tokens": 55927,
+            "input_tokens_details": {
+              "cache_write_tokens": 55924,
+              "cached_tokens": 0
+            },
+            "output_tokens": 508,
+            "output_tokens_details": {
+              "reasoning_tokens": 297
+            },
+            "total_tokens": 56435
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0a21acf7a70df138016aa7bd0fb6fc87d0827ae02c3ae19526",
+          "usage": {
+            "input_tokens": 56103,
+            "input_tokens_details": {
+              "cache_write_tokens": 56100,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2243,
+            "output_tokens_details": {
+              "reasoning_tokens": 79
+            },
+            "total_tokens": 58346
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_02480e82d38f916b016aa7bd25ad2087d0978eb469a7f48b06",
+          "usage": {
+            "input_tokens": 56024,
+            "input_tokens_details": {
+              "cache_write_tokens": 56021,
+              "cached_tokens": 0
+            },
+            "output_tokens": 330,
+            "output_tokens_details": {
+              "reasoning_tokens": 202
+            },
+            "total_tokens": 56354
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_00294596d40b2bf6016aa7bcf1be0087d085c49ec1a62b7aff",
+          "usage": {
+            "input_tokens": 54049,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 54046
+            },
+            "output_tokens": 2163,
+            "output_tokens_details": {
+              "reasoning_tokens": 91
+            },
+            "total_tokens": 56212
+          }
+        }
+      },
+      "at": "2026-09-14T09:22:24+00:00",
+      "package": "com.jailbreaktweaker.lockglass17",
+      "target_path": "lockglass-1-0-update/",
+      "version": "1.0"
+    },
+    {
+      "action": "published",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_03cc975dcc926a63016aa7bd8317b487d0af4dd3e8a8c1a500",
+          "usage": {
+            "input_tokens": 26805,
+            "input_tokens_details": {
+              "cache_write_tokens": 26802,
+              "cached_tokens": 0
+            },
+            "output_tokens": 452,
+            "output_tokens_details": {
+              "reasoning_tokens": 338
+            },
+            "total_tokens": 27257
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_002409292aa10f52016aa7bd8906d087d0a50a2d86587b1743",
+          "usage": {
+            "input_tokens": 26886,
+            "input_tokens_details": {
+              "cache_write_tokens": 26883,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2879,
+            "output_tokens_details": {
+              "reasoning_tokens": 46
+            },
+            "total_tokens": 29765
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_03bdbe2ee743f259016aa7bda0c09c87d098991bdc3caacaa7",
+          "usage": {
+            "input_tokens": 27264,
+            "input_tokens_details": {
+              "cache_write_tokens": 27261,
+              "cached_tokens": 0
+            },
+            "output_tokens": 464,
+            "output_tokens_details": {
+              "reasoning_tokens": 338
+            },
+            "total_tokens": 27728
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0600d78c95c1c10b016aa7bd68e9f887d0aa1c87b26f4c5f06",
+          "usage": {
+            "input_tokens": 24620,
+            "input_tokens_details": {
+              "cache_write_tokens": 24617,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2463,
+            "output_tokens_details": {
+              "reasoning_tokens": 82
+            },
+            "total_tokens": 27083
+          }
+        }
+      },
+      "at": "2026-09-14T09:23:57+00:00",
+      "package": "com.oakstheawesome.whatamess",
+      "target_path": "whatamess-1-0-1-update/",
+      "version": "1.0.1"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_06695cad2455cb0a016aa7bded4f0487d0af8b67870d68e50b",
+          "usage": {
+            "input_tokens": 51851,
+            "input_tokens_details": {
+              "cache_write_tokens": 51848,
+              "cached_tokens": 0
+            },
+            "output_tokens": 420,
+            "output_tokens_details": {
+              "reasoning_tokens": 297
+            },
+            "total_tokens": 52271
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0a2461f985450c42016aa7bdd4b9c887d0909c77400e9b749d",
+          "usage": {
+            "input_tokens": 49653,
+            "input_tokens_details": {
+              "cache_write_tokens": 49650,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2490,
+            "output_tokens_details": {
+              "reasoning_tokens": 102
+            },
+            "total_tokens": 52143
+          }
+        }
+      },
+      "at": "2026-09-14T09:26:07+00:00",
+      "package": "com.sergy.replyactions",
+      "target_path": "replyactions-1-0-3-update/",
+      "version": "1.0.3"
     }
   ],
   "schema_version": 1

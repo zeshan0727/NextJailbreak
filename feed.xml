@@ -6,6 +6,46 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>ReplyActions 1.0.3 Adds Root Path Handling and Media Refactoring for Jailbroken iPhones</title>
+      <link>https://nextjailbreak.com/replyactions-1-0-3-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/replyactions-1-0-3-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 09:26:07 GMT</pubDate>
+      <description>ReplyActions 1.0.3 improves rootful and rootless path detection, updates its icon, refactors media handling, and enables automatic expansion by default.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>LockGlass: Glass-Style Lock Screen Customization With Version and Compatibility Caveats</title>
+      <link>https://nextjailbreak.com/lockglass-1-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/lockglass-1-0-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 09:22:24 GMT</pubDate>
+      <description>LockGlass customizes the Lock Screen with clock, calendar, weather and Control Center elements. The depiction lists version 1.4, while package metadata identifies 1.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>AppBadgeClear 1.1.1 Adds Smarter Notification Clearing for Rootless iOS 16 and 17 Jailbreaks</title>
+      <link>https://nextjailbreak.com/appbadgeclear-1-1-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/appbadgeclear-1-1-1-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 09:17:03 GMT</pubDate>
+      <description>AppBadgeClear 1.1.1 adds optional clearing of delivered notifications, stale-badge protection, timestamp-based detection, and compatibility improvements for rootless.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>KillX Pro Neo 3.0 launches as an app-switcher cleaner for iOS 15 through iOS 26</title>
+      <link>https://nextjailbreak.com/killx-pro-neo-3-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/killx-pro-neo-3-0-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 09:15:03 GMT</pubDate>
+      <description>KillX Pro Neo 3.0 is a new app-switcher cleaner for iOS 15 through iOS 26, with one-swipe app closing, music detection, app locking, animations, and haptic feedback.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>Watusi 3 v1.3.24 Adds WhatsApp 26.36.x Support and Fixes Three User-Facing Issues</title>
+      <link>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-24-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-24-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 09:13:18 GMT</pubDate>
+      <description>Watusi 3 for WhatsApp version 1.3.24 adds support for WhatsApp 26.36.x, fixes recurring notifications, status video splitting, and theme tinting on the new circular้.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>Prism combines screen capture, OCR, translation and pinned references in one iOS tweak</title>
       <link>https://nextjailbreak.com/prism-1-0-0-2-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/prism-1-0-0-2-update/</guid>
@@ -204,46 +244,6 @@
       <pubDate>Sat, 29 Aug 2026 03:16:26 GMT</pubDate>
       <description>Review the supplied release facts for Circle to Search 0.6.0, an iOS port listed for iphoneos-arm64 devices with MobileSubstrate and PreferenceLoader dependencies.</description>
       <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Dopamine 3 arm64 Support Range for A8–A11 Devices</title>
-      <link>https://nextjailbreak.com/dopamine-3-arm64-a8-a11-guide.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-arm64-a8-a11-guide.html</guid>
-      <pubDate>Fri, 28 Aug 2026 18:27:31 GMT</pubDate>
-      <description>Learn the documented Dopamine 3 arm64 support range for A8–A11 devices, including the supported iOS versions and how arm64 differs from arm64e.</description>
-      <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>Dopamine 3 Jailbreak: What Rootless Means and How to Check Tweak Compatibility</title>
-      <link>https://nextjailbreak.com/dopamine-3-rootless-jailbreak-explained.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-rootless-jailbreak-explained.html</guid>
-      <pubDate>Fri, 28 Aug 2026 00:11:18 GMT</pubDate>
-      <description>Learn what rootless means in Dopamine 3, how filesystem limits affect tweaks, and why compatibility and compilation checks matter before installation.</description>
-      <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>Stella 1.2: Package Details and Verification Guide</title>
-      <link>https://nextjailbreak.com/stella-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/stella-tweak.html</guid>
-      <pubDate>Thu, 27 Aug 2026 14:31:42 GMT</pubDate>
-      <description>Review the confirmed details for Stella 1.2, including its description, architectures, version history, and listed dependencies.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>AniTime 1.0.3: Animated Anime Characters as Clock Digits</title>
-      <link>https://nextjailbreak.com/anitime-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/anitime-tweak.html</guid>
-      <pubDate>Thu, 27 Aug 2026 03:29:31 GMT</pubDate>
-      <description>AniTime 1.0.3 is a package described as displaying animated anime characters as clock digits. Review its package details, architectures, dependency, and listed setup.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Dopamine 3 vs TrollStore: Jailbreak, IPA Installation, and Compatibility</title>
-      <link>https://nextjailbreak.com/dopamine-3-vs-trollstore.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-vs-trollstore.html</guid>
-      <pubDate>Wed, 26 Aug 2026 06:57:38 GMT</pubDate>
-      <description>Compare Dopamine 3 and TrollStore by purpose, rootless behavior, documented compatibility categories, and the limits of permanent IPA installation in TrollStore.</description>
-      <category>Jailbreak</category>
     </item>
   </channel>
 </rss>

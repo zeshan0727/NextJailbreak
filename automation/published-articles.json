@@ -5,6 +5,131 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "ReplyActions 1.0.3 improves rootful and rootless path detection, updates its icon, refactors media handling, and enables automatic expansion by default.",
+      "entry_type": "source-news",
+      "href": "replyactions-1-0-3-update/",
+      "image": "assets/articles/source-media/replyactions-1-0-3-update-bd36332e39.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/replyactions",
+      "modified_at": "2026-09-14T09:26:07+00:00",
+      "name": "ReplyActions",
+      "package": "com.sergy.replyactions",
+      "published_at": "2026-09-14T09:26:07+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/6a9bf34641cbeab3dd6e7229?w=3840&q=75",
+      "title": "ReplyActions 1.0.3 Adds Root Path Handling and Media Refactoring for Jailbroken iPhones",
+      "version": "1.0.3"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "LockGlass customizes the Lock Screen with clock, calendar, weather and Control Center elements. The depiction lists version 1.4, while package metadata identifies 1.",
+      "entry_type": "source-news",
+      "href": "lockglass-1-0-update/",
+      "image": "assets/articles/source-media/lockglass-1-0-update-7a138e3acb.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/lockglass",
+      "modified_at": "2026-09-14T09:22:24+00:00",
+      "name": "LockGlass",
+      "package": "com.jailbreaktweaker.lockglass17",
+      "published_at": "2026-09-14T09:22:24+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/6a7777b29e5377f2c511d323?w=3840&q=75",
+      "title": "LockGlass: Glass-Style Lock Screen Customization With Version and Compatibility Caveats",
+      "version": "1.0"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "AppBadgeClear 1.1.1 adds optional clearing of delivered notifications, stale-badge protection, timestamp-based detection, and compatibility improvements for rootless.",
+      "entry_type": "source-news",
+      "href": "appbadgeclear-1-1-1-update/",
+      "image": "assets/articles/source-media/appbadgeclear-1-1-1-update-86d50ab50e.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/appbadgeclear",
+      "modified_at": "2026-09-14T09:17:03+00:00",
+      "name": "AppBadgeClear",
+      "package": "com.emp0ry.appbadgeclear",
+      "published_at": "2026-09-14T09:17:03+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/6aa43218d0c440dd42b05f13?w=3840&q=75",
+      "title": "AppBadgeClear 1.1.1 Adds Smarter Notification Clearing for Rootless iOS 16 and 17 Jailbreaks",
+      "version": "1.1.1"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "KillX Pro Neo 3.0 is a new app-switcher cleaner for iOS 15 through iOS 26, with one-swipe app closing, music detection, app locking, animations, and haptic feedback.",
+      "entry_type": "source-news",
+      "href": "killx-pro-neo-3-0-update/",
+      "image": "assets/articles/source-media/killx-pro-neo-3-0-update-005bcce4b8.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/killxproneo",
+      "modified_at": "2026-09-14T09:15:03+00:00",
+      "name": "KillX Pro Neo",
+      "package": "com.cemck.killxpro",
+      "published_at": "2026-09-14T09:15:03+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/6a9755504c91ad8dbe8ebb21?w=3840&q=75",
+      "title": "KillX Pro Neo 3.0 launches as an app-switcher cleaner for iOS 15 through iOS 26",
+      "version": "3.0"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Watusi 3 for WhatsApp version 1.3.24 adds support for WhatsApp 26.36.x, fixes recurring notifications, status video splitting, and theme tinting on the new circular้.",
+      "entry_type": "source-news",
+      "href": "watusi-3-for-whatsapp-1-3-24-update/",
+      "image": "assets/articles/source-media/watusi-3-for-whatsapp-1-3-24-update-bd6e244e26.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/solutions/use-case",
+      "modified_at": "2026-09-14T09:13:18+00:00",
+      "name": "Watusi 3 for WhatsApp",
+      "package": "com.fouadraheb.watusi3",
+      "published_at": "2026-09-14T09:13:18+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://images.ctfassets.net/8aevphvgewt8/3IRsWf9VzrmgE90A1T3rDg/5e724967f97075c42ba660c63a227859/fdb535fdfac20d0b031ca1630e54229640674dd8b1ee1cfda23506c9d2380a32-1200x630.png",
+      "title": "Watusi 3 v1.3.24 Adds WhatsApp 26.36.x Support and Fixes Three User-Facing Issues",
+      "version": "1.3.24"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Prism is an iOS screen-content tool with freeform capture, annotation, OCR, QR recognition, translation, exports and an on-screen pinboard. Here is what the official.",
       "entry_type": "source-news",
       "href": "prism-1-0-0-2-update/",
@@ -1927,8 +2052,62 @@
       "published_at": "2026-09-14T06:18:23+00:00",
       "run_id": "34811983953-9",
       "version": "1.0.0-2"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "watusi-3-for-whatsapp-1-3-24-update/",
+      "package": "com.fouadraheb.watusi3",
+      "published_at": "2026-09-14T09:13:18+00:00",
+      "run_id": "34811983953-1",
+      "version": "1.3.24"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "killx-pro-neo-3-0-update/",
+      "package": "com.cemck.killxpro",
+      "published_at": "2026-09-14T09:15:03+00:00",
+      "run_id": "34811983953-2",
+      "version": "3.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "appbadgeclear-1-1-1-update/",
+      "package": "com.emp0ry.appbadgeclear",
+      "published_at": "2026-09-14T09:17:03+00:00",
+      "run_id": "34811983953-3",
+      "version": "1.1.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "lockglass-1-0-update/",
+      "package": "com.jailbreaktweaker.lockglass17",
+      "published_at": "2026-09-14T09:22:24+00:00",
+      "run_id": "34811983953-6",
+      "version": "1.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "whatamess-1-0-1-update/",
+      "package": "com.oakstheawesome.whatamess",
+      "published_at": "2026-09-14T09:23:57+00:00",
+      "run_id": "34811983953-7",
+      "version": "1.0.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "replyactions-1-0-3-update/",
+      "package": "com.sergy.replyactions",
+      "published_at": "2026-09-14T09:26:07+00:00",
+      "run_id": "34811983953-8",
+      "version": "1.0.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-14T06:18:23+00:00"
+  "updated_at": "2026-09-14T09:26:07+00:00"
 }
