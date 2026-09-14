@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Inject Next Jailbreak community comments and the repo navigation link into article HTML."""
+"""Inject Next Jailbreak community comments, canonical brand links and social-preview metadata."""
 
 from __future__ import annotations
 
+import html
 import re
 
 COMMENTS_CSS = '<link rel="stylesheet" href="/assets/community-comments.css">'
@@ -29,8 +30,63 @@ COMMENTS_HTML = '''
 '''
 
 
+def normalize_editorial_links(text: str) -> str:
+    """Move only the old primary site hostname to Next Jailbreak; keep files.nextsolution.cc intact."""
+    text = re.sub(
+        r'https?://(?:www\.)?nextsolution\.cc(?=[:/"\'\s<]|$)',
+        'https://nextjailbreak.com',
+        text,
+        flags=re.I,
+    )
+    return text
+
+
+def _meta_content(text: str, attr: str, key: str) -> str:
+    pattern = re.compile(
+        rf'<meta\s+{attr}=["\']{re.escape(key)}["\']\s+content=["\']([^"\']+)["\'][^>]*>',
+        re.I,
+    )
+    match = pattern.search(text)
+    return html.unescape(match.group(1)).strip() if match else ''
+
+
+def _title(text: str) -> str:
+    value = _meta_content(text, 'property', 'og:title') or _meta_content(text, 'name', 'twitter:title')
+    if value:
+        return value
+    match = re.search(r'<title>(.*?)</title>', text, re.I | re.S)
+    return html.unescape(re.sub(r'\s+', ' ', match.group(1))).strip() if match else 'Next Jailbreak'
+
+
+def _insert_head_tag(text: str, tag: str) -> str:
+    if '</head>' not in text.lower():
+        return text
+    return re.sub(r'</head>', f'  {tag}\n</head>', text, count=1, flags=re.I)
+
+
+def ensure_social_preview(text: str) -> str:
+    """Ensure article cards have the metadata X/Twitter and Open Graph crawlers expect."""
+    image = _meta_content(text, 'property', 'og:image') or _meta_content(text, 'name', 'twitter:image')
+    title = _title(text)
+    escaped_title = html.escape(title, quote=True)
+    if '<meta name="twitter:site"' not in text.lower():
+        text = _insert_head_tag(text, '<meta name="twitter:site" content="@nextjailbreak">')
+    if image:
+        escaped_image = html.escape(image, quote=True)
+        if '<meta property="og:image:secure_url"' not in text.lower():
+            text = _insert_head_tag(text, f'<meta property="og:image:secure_url" content="{escaped_image}">')
+        if '<meta property="og:image:alt"' not in text.lower():
+            text = _insert_head_tag(text, f'<meta property="og:image:alt" content="{escaped_title}">')
+        if '<meta name="twitter:image:alt"' not in text.lower():
+            text = _insert_head_tag(text, f'<meta name="twitter:image:alt" content="{escaped_title}">')
+        if image.lower().split('?', 1)[0].endswith('.png') and '<meta property="og:image:type"' not in text.lower():
+            text = _insert_head_tag(text, '<meta property="og:image:type" content="image/png">')
+        elif image.lower().split('?', 1)[0].endswith(('.jpg', '.jpeg')) and '<meta property="og:image:type"' not in text.lower():
+            text = _insert_head_tag(text, '<meta property="og:image:type" content="image/jpeg">')
+    return text
+
+
 def ensure_repo_nav(text: str) -> str:
-    # Replace legacy flat Repo tabs first even when another button already links to the new repo.
     text = re.sub(
         r'<a href="/repo/">Repo</a>',
         '<a href="https://repo.nextjailbreak.com/">Repo</a>',
@@ -52,9 +108,11 @@ def ensure_repo_nav(text: str) -> str:
 
 
 def ensure_community_comments(text: str) -> str:
-    """Return article HTML with one comments block, required assets, and Repo nav link."""
+    """Return article HTML with canonical brand links, social cards, comments and Repo navigation."""
     if not text or '</html>' not in text.lower():
         return text
+    text = normalize_editorial_links(text)
+    text = ensure_social_preview(text)
     text = ensure_repo_nav(text)
     if COMMENTS_CSS not in text and '</head>' in text.lower():
         text = re.sub(r'</head>', f'  {COMMENTS_CSS}\n</head>', text, count=1, flags=re.I)
