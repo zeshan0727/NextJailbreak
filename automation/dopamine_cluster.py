@@ -28,6 +28,7 @@ from automation.publisher import (
     load_audit,
 )
 from automation.schemas import VERDICT_SCHEMA
+from automation.seo_utils import seo_description, seo_title, semantic_jsonld, suspicious_generated_metadata
 
 
 ARTICLE_SCHEMA: dict[str, Any] = {
@@ -148,6 +149,8 @@ def validate_article(article: dict[str, Any], facts: dict[str, Any]) -> list[str
     meta = str(article.get("meta_description", ""))
     if not 110 <= len(meta) <= 165:
         issues.append("meta description must contain 110-165 characters")
+    if suspicious_generated_metadata(meta):
+        issues.append("meta description contains malformed or suspicious generated text")
     serialized = json.dumps(article, ensure_ascii=False)
     if re.search(r"https?://", serialized, re.I):
         issues.append("model fields must not contain URLs")
@@ -329,6 +332,12 @@ def render_article(article: dict[str, Any], topic: dict[str, Any], cluster: dict
     hero = "assets/articles/dopamine-3-ios-17-6-1-hero.jpg"
     hero_url = f"{base}/{hero}"
     date = now.date().isoformat()
+    seo_title_text = seo_title("Dopamine 3", "", site.get("site_name", "Next Jailbreak"), kind="iOS Jailbreak Guide")
+    seo_description_text = seo_description("Dopamine 3", "", kind="iOS jailbreak guide")
+    seo_semantic_jsonld = semantic_jsonld(
+        canonical=canonical, name="Dopamine 3", version="", site_url=base,
+        section_url=f"{base}/tutorials/#jailbreak-guides", section_name="Jailbreak guides",
+    )
     faq_entities = [
         {
             "@type": "Question",
@@ -343,7 +352,8 @@ def render_article(article: dict[str, Any], topic: dict[str, Any], cluster: dict
             {
                 "@type": "TechArticle",
                 "headline": article["title"],
-                "description": article["meta_description"],
+                "description": seo_description_text,
+                "alternativeHeadline": seo_title_text.split(" | ", 1)[0],
                 "datePublished": date,
                 "dateModified": date,
                 "author": {"@type": "Person", "name": site.get("author_name", "Next Jailbreak")},
@@ -387,8 +397,8 @@ def render_article(article: dict[str, Any], topic: dict[str, Any], cluster: dict
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f3f5f6">
-  <title>{esc(article['title'])} | Next Jailbreak</title>
-  <meta name="description" content="{esc(article['meta_description'])}">
+  <title>{esc(seo_title_text)}</title>
+  <meta name="description" content="{esc(seo_description_text)}">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="{esc(canonical)}">
   <link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml">
@@ -398,14 +408,15 @@ def render_article(article: dict[str, Any], topic: dict[str, Any], cluster: dict
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Next Jailbreak">
   <meta property="og:url" content="{esc(canonical)}">
-  <meta property="og:title" content="{esc(article['title'])}">
-  <meta property="og:description" content="{esc(article['meta_description'])}">
+  <meta property="og:title" content="{esc(seo_title_text)}">
+  <meta property="og:description" content="{esc(seo_description_text)}">
   <meta property="og:image" content="{esc(hero_url)}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{esc(article['title'])}">
-  <meta name="twitter:description" content="{esc(article['meta_description'])}">
+  <meta name="twitter:title" content="{esc(seo_title_text)}">
+  <meta name="twitter:description" content="{esc(seo_description_text)}">
   <meta name="twitter:image" content="{esc(hero_url)}">
   <script type="application/ld+json">{html.escape(json.dumps(structured, ensure_ascii=False), quote=False)}</script>
+  <script type="application/ld+json">{seo_semantic_jsonld}</script>
   {adsense}
 </head>
 <body>
@@ -492,7 +503,7 @@ def publish_cluster(*, repository_root: Path, now: datetime, run_id: str, github
         "name": "Dopamine 3",
         "version": "3.x",
         "title": article["title"],
-        "description": article["meta_description"],
+        "description": seo_description("Dopamine 3", "", kind="iOS jailbreak guide"),
         "href": target_path,
         "category": {"id": "jailbreak", "label": "Jailbreak"},
         "source_name": "Dopamine 3 official sources",

@@ -30,6 +30,7 @@ from zoneinfo import ZoneInfo
 from automation.openai_api import OpenAIAPIError, structured_response
 from automation.publisher import _render_feed, _update_sitemap, load_audit
 from automation.schemas import VERDICT_SCHEMA
+from automation.seo_utils import seo_description, seo_title, semantic_jsonld, suspicious_generated_metadata
 from automation.source_visuals import acquire_unique_source_visual
 
 
@@ -490,6 +491,8 @@ def validate_article(article: dict[str, Any], source: dict[str, Any], config: di
     meta = str(article.get("meta_description", ""))
     if not 110 <= len(meta) <= 165:
         issues.append("meta description must be 110-165 characters")
+    if suspicious_generated_metadata(meta):
+        issues.append("meta description contains malformed or suspicious generated text")
     prose: list[str] = [str(article.get("summary", ""))]
     prose.extend(str(v) for v in article.get("key_takeaways", []))
     sections = article.get("sections", [])
@@ -556,6 +559,12 @@ def _render_article(article: dict[str, Any], source: dict[str, Any], media: dict
     canonical = f"{base}/{target_path}"
     hero_url = f"{base}/{media['image']}"
     date = now.date().isoformat()
+    seo_title_text = seo_title(source["name"], source.get("version", ""), site.get("site_name", "Next Jailbreak"))
+    seo_description_text = seo_description(source["name"], source.get("version", ""))
+    seo_semantic_jsonld = semantic_jsonld(
+        canonical=canonical, name=source["name"], version=source.get("version", ""),
+        site_url=base, section_url=f"{base}/tutorials/", section_name="Tweaks",
+    )
     takeaways = "".join(f"<li>{esc(v)}</li>" for v in article["key_takeaways"])
     sections: list[str] = []
     for section in article["sections"]:
@@ -573,7 +582,7 @@ def _render_article(article: dict[str, Any], source: dict[str, Any], media: dict
     adsense_script = f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(client)}" crossorigin="anonymous"></script>' if client else ""
     structured = {
         "@context": "https://schema.org", "@type": "TechArticle",
-        "headline": article["title"], "description": article["meta_description"],
+        "headline": article["title"], "alternativeHeadline": seo_title_text.split(" | ", 1)[0], "description": seo_description_text,
         "datePublished": date, "dateModified": date,
         "author": {"@type": "Person", "name": site.get("author_name", "Next Jailbreak")},
         "publisher": {"@type": "Organization", "name": site.get("site_name", "Next Jailbreak"), "url": base},
@@ -585,8 +594,8 @@ def _render_article(article: dict[str, Any], source: dict[str, Any], media: dict
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f3f5f6">
-  <title>{esc(article['title'])} | Next Jailbreak</title>
-  <meta name="description" content="{esc(article['meta_description'])}">
+  <title>{esc(seo_title_text)}</title>
+  <meta name="description" content="{esc(seo_description_text)}">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="{esc(canonical)}">
   <link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml">
@@ -595,16 +604,17 @@ def _render_article(article: dict[str, Any], source: dict[str, Any], media: dict
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Next Jailbreak">
   <meta property="og:url" content="{esc(canonical)}">
-  <meta property="og:title" content="{esc(article['title'])}">
-  <meta property="og:description" content="{esc(article['meta_description'])}">
+  <meta property="og:title" content="{esc(seo_title_text)}">
+  <meta property="og:description" content="{esc(seo_description_text)}">
   <meta property="og:image" content="{esc(hero_url)}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{esc(article['title'])}">
-  <meta name="twitter:description" content="{esc(article['meta_description'])}">
+  <meta name="twitter:title" content="{esc(seo_title_text)}">
+  <meta name="twitter:description" content="{esc(seo_description_text)}">
   <meta name="twitter:image" content="{esc(hero_url)}">
   {adsense_meta}
   {adsense_script}
   <script type="application/ld+json">{json.dumps(structured, ensure_ascii=False)}</script>
+  <script type="application/ld+json">{seo_semantic_jsonld}</script>
 </head>
 <body>
   <div class="topline"><div class="topline-inner"><span>iPhone jailbreak guides, tweak reviews and practical fixes</span><span class="topline-status"><i aria-hidden="true"></i> Direct links to original sources</span></div></div>
@@ -806,7 +816,7 @@ def publish(*, repository_root: Path, now: datetime, run_id: str, github_output:
         "name": selected_source["name"],
         "version": version,
         "title": article["title"],
-        "description": article["meta_description"],
+        "description": seo_description(selected_source["name"], version),
         "href": target_path,
         "category": {"id": "system-utilities", "label": "System & Utilities"},
         "source_name": urlparse(selected_source["source_urls"][0]).netloc.removeprefix("www."),

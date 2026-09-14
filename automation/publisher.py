@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from automation.draft_pipeline import article_source_url, render_article, validate_article
 from automation.editorial import mark_candidate_drafted
+from automation.seo_utils import seo_description
 from automation.source_media import (
     SourceMediaError,
     is_safe_media_reference,
@@ -356,10 +357,15 @@ def _update_sitemap(
     if root.tag != f"{{{SITEMAP_NAMESPACE}}}urlset":
         raise PublishingError("sitemap root is not a standard urlset")
     existing: dict[str, ElementTree.Element] = {}
-    for node in root.findall(f"{{{SITEMAP_NAMESPACE}}}url"):
+    # Clean historical duplicate sitemap rows before adding or updating articles.
+    for node in list(root.findall(f"{{{SITEMAP_NAMESPACE}}}url")):
         location = node.find(f"{{{SITEMAP_NAMESPACE}}}loc")
         if location is not None and location.text:
-            existing[location.text] = node
+            canonical_location = location.text.strip()
+            if canonical_location in existing:
+                root.remove(node)
+                continue
+            existing[canonical_location] = node
     base_url = str(site["base_url"]).rstrip("/")
     for entry in entries:
         canonical = f"{base_url}/{entry['href']}"
@@ -486,7 +492,7 @@ def publish(
         "name": candidate["name"],
         "version": candidate["version"],
         "title": article["title"],
-        "description": article["meta_description"],
+        "description": seo_description(candidate["name"], candidate["version"]),
         "href": target_path,
         "category": category,
         "source_name": candidate["source_name"],

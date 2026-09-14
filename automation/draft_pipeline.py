@@ -26,6 +26,7 @@ from automation.editorial import (
 )
 from automation.openai_api import OpenAIAPIError, structured_response
 from automation.schemas import ARTICLE_SCHEMA, VERDICT_SCHEMA
+from automation.seo_utils import seo_description, seo_title, semantic_jsonld, suspicious_generated_metadata
 from automation.source_media import (
     SourceMediaError,
     load_source_media,
@@ -138,6 +139,8 @@ def validate_article(article: dict[str, Any], candidate: dict[str, Any]) -> Qual
     meta_description = str(article.get("meta_description", ""))
     if not 110 <= len(meta_description) <= 165:
         issues.append("meta_description must contain 110-165 characters")
+    if suspicious_generated_metadata(meta_description):
+        issues.append("meta_description contains malformed or suspicious generated text")
     youtube_title = str(article.get("youtube_title", ""))
     if len(youtube_title) > 100:
         issues.append("youtube_title exceeds 100 characters")
@@ -288,6 +291,12 @@ def render_article(
     author = display_author(candidate["author"])
     published = datetime.now(timezone.utc).date().isoformat()
     category = candidate["category"]
+    seo_title_text = seo_title(candidate["name"], candidate["version"], site["site_name"])
+    seo_description_text = seo_description(candidate["name"], candidate["version"])
+    seo_semantic_jsonld = semantic_jsonld(
+        canonical=canonical, name=candidate["name"], version=candidate["version"],
+        site_url=base_url, section_url=f"{base_url}/tutorials/", section_name="Tweaks",
+    )
     if media:
         hero = media["hero"]
         hero_src = _media_src(str(hero["url"]))
@@ -326,7 +335,8 @@ def render_article(
         "@context": "https://schema.org",
         "@type": "TechArticle",
         "headline": article["title"],
-        "description": article["meta_description"],
+        "description": seo_description_text,
+        "alternativeHeadline": seo_title_text.split(" | ", 1)[0],
         "datePublished": published,
         "dateModified": published,
         "author": {"@type": "Person", "name": site["author_name"], "url": site["author_url"]},
@@ -360,8 +370,8 @@ def render_article(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f3f5f6">
-  <title>{esc(article['title'])} | {esc(site['site_name'])}</title>
-  <meta name="description" content="{esc(article['meta_description'])}">
+  <title>{esc(seo_title_text)}</title>
+  <meta name="description" content="{esc(seo_description_text)}">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="{esc(canonical)}">
   <link rel="alternate" type="application/rss+xml" title="{esc(site['site_name'])} articles" href="/feed.xml">
@@ -372,15 +382,16 @@ def render_article(
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="{esc(site['site_name'])}">
   <meta property="og:url" content="{esc(canonical)}">
-  <meta property="og:title" content="{esc(article['title'])}">
-  <meta property="og:description" content="{esc(article['meta_description'])}">
+  <meta property="og:title" content="{esc(seo_title_text)}">
+  <meta property="og:description" content="{esc(seo_description_text)}">
   <meta property="og:image" content="{esc(image_url)}">
   <meta property="og:image:alt" content="{esc(image_alt)}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{esc(article['title'])}">
-  <meta name="twitter:description" content="{esc(article['meta_description'])}">
+  <meta name="twitter:title" content="{esc(seo_title_text)}">
+  <meta name="twitter:description" content="{esc(seo_description_text)}">
   <meta name="twitter:image" content="{esc(image_url)}">
   <script type="application/ld+json">{json_ld_text}</script>
+  <script type="application/ld+json">{seo_semantic_jsonld}</script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(site['adsense_client'])}" crossorigin="anonymous"></script>
 </head>
 <body>
