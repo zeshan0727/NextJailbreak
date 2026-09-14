@@ -27,7 +27,7 @@ jobs:
 
       - name: Repair existing SEO and harden future publishers
         run: |
-          python3 automation/seo_hardening.py
+          python3 -m automation.seo_hardening
           python3 automation/sync_editorial_indexes.py
 
       - name: Rebuild RSS from repaired publication metadata
