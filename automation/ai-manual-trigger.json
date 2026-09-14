@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "requested_at": "2026-09-14T06:00:10Z",
+  "requested_at": "2026-09-14T06:00:20Z",
   "reason": "Manual catch-up: publish next missed article",
-  "sequence": 3
+  "sequence": 4
 }
