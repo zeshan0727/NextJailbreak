@@ -32,7 +32,6 @@ COMMENTS_HTML = '''
 def ensure_repo_nav(text: str) -> str:
     if 'href="https://repo.nextjailbreak.com/"' in text:
         return text
-    # Current article templates use an unordered primary navigation list. Insert after Videos.
     patterns = [
         r'(<li><a href="/videos(?:\.html|/)?"[^>]*>Videos</a></li>)',
         r'(<li><a href="/videos/"[^>]*>Videos</a></li>)',
@@ -41,6 +40,16 @@ def ensure_repo_nav(text: str) -> str:
         updated, count = re.subn(pattern, r'\1' + REPO_LINK, text, count=1, flags=re.I)
         if count:
             return updated
+    # Older original-release pages use flat anchor navigation rather than <li> items.
+    updated, count = re.subn(
+        r'<a href="/repo/">Repo</a>',
+        '<a href="https://repo.nextjailbreak.com/">Repo</a>',
+        text,
+        count=1,
+        flags=re.I,
+    )
+    if count:
+        return updated
     return text
 
 
@@ -51,8 +60,14 @@ def ensure_community_comments(text: str) -> str:
     text = ensure_repo_nav(text)
     if COMMENTS_CSS not in text and '</head>' in text.lower():
         text = re.sub(r'</head>', f'  {COMMENTS_CSS}\n</head>', text, count=1, flags=re.I)
-    if COMMENTS_MARKER not in text and '</main>' in text.lower():
-        text = re.sub(r'</main>', COMMENTS_HTML + '\n</main>', text, count=1, flags=re.I)
+    if COMMENTS_MARKER not in text:
+        if '</main>' in text.lower():
+            text = re.sub(r'</main>', COMMENTS_HTML + '\n</main>', text, count=1, flags=re.I)
+        elif '</article>' in text.lower():
+            # Legacy original-release pages often have <article> directly inside a wrapper.
+            text = re.sub(r'</article>', '</article>\n' + COMMENTS_HTML, text, count=1, flags=re.I)
+        elif '</footer>' in text.lower():
+            text = re.sub(r'<footer', COMMENTS_HTML + '\n<footer', text, count=1, flags=re.I)
     if COMMENTS_JS not in text and '</body>' in text.lower():
         text = re.sub(r'</body>', f'  {COMMENTS_JS}\n</body>', text, count=1, flags=re.I)
     return text
