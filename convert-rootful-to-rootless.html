@@ -787,6 +787,7 @@
 <!-- legacy-route-noindex:start -->
   <meta name="robots" content="noindex,follow,max-image-preview:large">
   <!-- legacy-route-noindex:end -->
+  <link rel="stylesheet" href="/assets/community-comments.css">
 </head>
 <body>
 
@@ -840,6 +841,23 @@
       <span class="tag">#nextjailbreak</span>
     </div>
   </article>
+
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_START -->
+  <section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title">
+    <div class="nj-comments-head">
+      <div><h2 id="community-comments-title">Community comments</h2><p>Questions, setup notes and experiences from Next Jailbreak readers. Be respectful and do not post personal information.</p></div>
+      <span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span>
+    </div>
+    <form class="nj-comment-form" data-comment-form>
+      <label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label>
+      <label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      <label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful comment or ask a question…" required></textarea></label>
+      <div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div>
+    </form>
+    <div class="nj-comment-list" data-comment-list></div>
+  </section>
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_END -->
+
 
   <div class="blog-content">
     <div class="video-container">
@@ -1093,5 +1111,6 @@
 
   })();
 </script>
+  <script src="/assets/community-comments.js" defer></script>
 </body>
 </html>

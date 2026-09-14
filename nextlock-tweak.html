@@ -58,6 +58,7 @@
 <!-- legacy-route-noindex:start -->
   <meta name="robots" content="noindex,follow,max-image-preview:large">
   <!-- legacy-route-noindex:end -->
+  <link rel="stylesheet" href="/assets/community-comments.css">
 </head>
 <body>
 <div class="wrap">
@@ -72,8 +73,8 @@
         <p class="lead">NextLock is a complete Lock Screen customization tweak from Next Jailbreak. It lets you independently redesign the time and date, move them exactly where you want, add advanced shadows, choose from more than 30 icons, or use your own photo — including transparent PNG artwork that stays sticker-style without a square background.</p>
         <div class="buttons">
           <a class="btn primary" href="sileo://package/com.nextsolution.lockglyphtime">Open NextLock in Sileo</a>
-          <a class="btn green" href="sileo://source/https://nextjailbreak.com/">Add Next Jailbreak Repo</a>
-          <a class="btn" href="https://nextjailbreak.com">Repo: nextjailbreak.com</a>
+          <a class="btn green" href="sileo://source/https://repo.nextjailbreak.com/">Add Next Jailbreak Repo</a>
+          <a class="btn" href="https://repo.nextjailbreak.com/">Repo: repo.nextjailbreak.com</a>
         </div>
       </div>
     </header>
@@ -148,7 +149,7 @@
       <div class="step"><h3>Search for NextLock</h3><p>Refresh sources and search for <strong>NextLock</strong>. Sileo will select the compatible package architecture for your environment.</p></div>
       <div class="step"><h3>Install and apply</h3><p>Install the package, respring when requested, then open Settings → NextLock to start customizing your time, date and icon.</p></div>
       <div class="buttons">
-        <a class="btn primary" href="sileo://source/https://nextjailbreak.com/">Add Repo to Sileo</a>
+        <a class="btn primary" href="sileo://source/https://repo.nextjailbreak.com/">Add Repo to Sileo</a>
         <a class="btn" href="sileo://package/com.nextsolution.lockglyphtime">Open Package</a>
         <a class="btn" href="https://nextjailbreak.com/transfer/files/NextLock/1.1.4/NextLock_1.1.4_Rootless.deb">Rootless DEB</a>
         <a class="btn" href="https://nextjailbreak.com/transfer/files/NextLock/1.1.4/NextLock_1.1.4_RootHide.deb">RootHide DEB</a>
@@ -168,7 +169,25 @@
       <h3>Does NextLock support RootHide?</h3><p>Yes. Next Jailbreak publishes separate Rootless and RootHide builds.</p>
     </section>
   </article>
+
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_START -->
+  <section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title">
+    <div class="nj-comments-head">
+      <div><h2 id="community-comments-title">Community comments</h2><p>Questions, setup notes and experiences from Next Jailbreak readers. Be respectful and do not post personal information.</p></div>
+      <span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span>
+    </div>
+    <form class="nj-comment-form" data-comment-form>
+      <label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label>
+      <label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      <label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful comment or ask a question…" required></textarea></label>
+      <div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div>
+    </form>
+    <div class="nj-comment-list" data-comment-list></div>
+  </section>
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_END -->
+
   <div class="footer">NextLock © 2026 Next Jailbreak • <a href="https://nextjailbreak.com">nextjailbreak.com</a></div>
 </div>
+  <script src="/assets/community-comments.js" defer></script>
 </body>
 </html>

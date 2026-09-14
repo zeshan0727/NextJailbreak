@@ -79,6 +79,7 @@
   <meta property="og:image:secure_url" content="https://nextjailbreak.com/assets/next-home-lock/next-home-lock-hero.svg">
 <meta name="twitter:image:alt" content="Next Home Lock 1.0.5 — Double-Tap to Lock iOS 16 | Next Jailbreak">
   <meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324">
+  <link rel="stylesheet" href="/assets/community-comments.css">
 </head>
 <body>
   <header class="site-header">
@@ -104,7 +105,7 @@
         </div>
         <div class="actions">
           <a class="button primary" href="#downloads">Download Next Home Lock</a>
-          <a class="button secondary" href="sileo://source/https://nextjailbreak.com/">Add Next Jailbreak Repo</a>
+          <a class="button secondary" href="sileo://source/https://repo.nextjailbreak.com/">Add Next Jailbreak Repo</a>
         </div>
         <p class="notice"><strong>Jailbreak required.</strong> Compatibility depends on the device, iOS version and jailbreak environment. The artwork on this page is conceptual and may differ slightly from the real Settings interface.</p>
       </div>
@@ -154,8 +155,8 @@
       <h2>Downloads</h2>
       <p>Use Sileo for normal installation. Direct DEB downloads are provided for advanced users and troubleshooting.</p>
       <div class="download-grid">
-        <article class="download-card"><h3>Add Repo to Sileo</h3><p>Add the live Next Jailbreak source served by nextjailbreak.com.</p><a class="button primary" href="sileo://source/https://nextjailbreak.com/">Add Next Jailbreak Repo</a></article>
-        <article class="download-card"><h3>Open Repo Website</h3><p>View the repository directly in a browser.</p><a class="button secondary" href="https://nextjailbreak.com/">Open nextjailbreak.com</a></article>
+        <article class="download-card"><h3>Add Repo to Sileo</h3><p>Add the live Next Jailbreak source served by repo.nextjailbreak.com.</p><a class="button primary" href="sileo://source/https://repo.nextjailbreak.com/">Add Next Jailbreak Repo</a></article>
+        <article class="download-card"><h3>Open Repo Website</h3><p>View the repository directly in a browser.</p><a class="button secondary" href="https://nextjailbreak.com/">Open repo.nextjailbreak.com</a></article>
         <article class="download-card"><h3>RootHide 1.0.5</h3><p>For iphoneos-arm64e RootHide environments.</p><a class="button green" href="https://raw.githubusercontent.com/zeshan0727/NextJailbreak/main/debfiles/NextHomeLock_1.0.5_RootHide.deb">Download RootHide DEB</a></article>
         <article class="download-card"><h3>Rootless 1.0.5</h3><p>For standard iphoneos-arm64 rootless environments.</p><a class="button orange" href="https://raw.githubusercontent.com/zeshan0727/NextJailbreak/main/debfiles/NextHomeLock_1.0.5_Rootless.deb">Download Rootless DEB</a></article>
       </div>
@@ -209,7 +210,24 @@
         <details><summary>Where can I report a problem?</summary><p>Use the Next Jailbreak contact links or YouTube channel and include your iOS version, jailbreak type and installed package variant.</p></details>
       </div>
     </section>
-  </main>
+  
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_START -->
+  <section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title">
+    <div class="nj-comments-head">
+      <div><h2 id="community-comments-title">Community comments</h2><p>Questions, setup notes and experiences from Next Jailbreak readers. Be respectful and do not post personal information.</p></div>
+      <span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span>
+    </div>
+    <form class="nj-comment-form" data-comment-form>
+      <label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label>
+      <label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      <label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful comment or ask a question…" required></textarea></label>
+      <div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div>
+    </form>
+    <div class="nj-comment-list" data-comment-list></div>
+  </section>
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_END -->
+
+</main>
 
   <footer>
     <strong>Next Jailbreak</strong>
@@ -219,5 +237,6 @@
   </footer>
   <script defer src="/assets/adsterra.js?v=20260910-1" data-ns-monetag-loader="1"></script>
   <script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>
+  <script src="/assets/community-comments.js" defer></script>
 </body>
 </html>

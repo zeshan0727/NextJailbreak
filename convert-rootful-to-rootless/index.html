@@ -785,6 +785,7 @@
 <!-- google-analytics-auto:end -->
   <meta property="og:image:secure_url" content="https://res.cloudinary.com/dadcpknu5/image/upload/f_auto,q_auto,w_1200,h_630/v1761658813/WhatsApp_Image_2025-10-28_at_16.40.02_517ad2c4_xvuf5d.jpg">
   <meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324">
+  <link rel="stylesheet" href="/assets/community-comments.css">
 </head>
 <body>
 
@@ -838,6 +839,23 @@
       <span class="tag">#nextjailbreak</span>
     </div>
   </article>
+
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_START -->
+  <section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title">
+    <div class="nj-comments-head">
+      <div><h2 id="community-comments-title">Community comments</h2><p>Questions, setup notes and experiences from Next Jailbreak readers. Be respectful and do not post personal information.</p></div>
+      <span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span>
+    </div>
+    <form class="nj-comment-form" data-comment-form>
+      <label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label>
+      <label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      <label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful comment or ask a question…" required></textarea></label>
+      <div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div>
+    </form>
+    <div class="nj-comment-list" data-comment-list></div>
+  </section>
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_END -->
+
 
   <div class="blog-content">
     <div class="video-container">
@@ -1093,5 +1111,6 @@
 </script>
   <script defer src="/assets/adsterra.js?v=20260910-1" data-ns-monetag-loader="1"></script>
   <script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>
+  <script src="/assets/community-comments.js" defer></script>
 </body>
 </html>

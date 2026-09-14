@@ -635,6 +635,7 @@
 <!-- legacy-route-noindex:start -->
   <meta name="robots" content="noindex,follow,max-image-preview:large">
   <!-- legacy-route-noindex:end -->
+  <link rel="stylesheet" href="/assets/community-comments.css">
 </head>
 <body>
   <header class="site-header">
@@ -669,7 +670,7 @@
 
           <div class="hero-actions">
             <a class="button primary" href="#download">Download PhoneAura</a>
-            <a class="button secondary" href="sileo://source/https://nextjailbreak.com/">Add Next Jailbreak Repo</a>
+            <a class="button secondary" href="sileo://source/https://repo.nextjailbreak.com/">Add Next Jailbreak Repo</a>
           </div>
 
           <p class="notice">PhoneAura requires a jailbroken device. The concept artwork on this page matches the tweak’s design direction; small spacing or system-view differences can vary by device size and enabled settings.</p>
@@ -828,7 +829,7 @@
         <p>Install from the Next Jailbreak repository for easier upgrades, or download the matching DEB directly.</p>
 
         <div class="download-actions">
-          <a class="button primary" href="sileo://source/https://nextjailbreak.com/">Add Repo to Sileo</a>
+          <a class="button primary" href="sileo://source/https://repo.nextjailbreak.com/">Add Repo to Sileo</a>
           <a class="button secondary" href="https://nextjailbreak.com/" target="_blank" rel="noopener noreferrer">Open Repo Website</a>
         </div>
 
@@ -912,6 +913,24 @@
         <p>Published July 30, 2026 • Educational customization content for compatible jailbroken devices.</p>
       </footer>
     </article>
-  </main>
+  
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_START -->
+  <section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title">
+    <div class="nj-comments-head">
+      <div><h2 id="community-comments-title">Community comments</h2><p>Questions, setup notes and experiences from Next Jailbreak readers. Be respectful and do not post personal information.</p></div>
+      <span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span>
+    </div>
+    <form class="nj-comment-form" data-comment-form>
+      <label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label>
+      <label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      <label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful comment or ask a question…" required></textarea></label>
+      <div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div>
+    </form>
+    <div class="nj-comment-list" data-comment-list></div>
+  </section>
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_END -->
+
+</main>
+  <script src="/assets/community-comments.js" defer></script>
 </body>
 </html>
