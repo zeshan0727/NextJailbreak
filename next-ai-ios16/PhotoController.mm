@@ -1,4 +1,5 @@
 #import "PhotoController.h"
+#import "Brand.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <Photos/Photos.h>
 #include "photo-engine/NextPhoto.h"
@@ -23,34 +24,37 @@ static void photoProgress(int step,int total,void *user) {
  [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];[self presentViewController:a animated:YES completion:nil];
 }
 - (void)viewDidLoad {
- [super viewDidLoad];self.title=@"Create a photo";self.view.backgroundColor=UIColor.systemBackgroundColor;
+ [super viewDidLoad];self.title=@"Create";self.view.backgroundColor=NABackground();
  _turbo=[NSUserDefaults.standardUserDefaults boolForKey:@"photoTurbo"];
  _model=[NSUserDefaults.standardUserDefaults stringForKey:[self modelKey]];
  if(_model && ![NSFileManager.defaultManager fileExistsAtPath:[[self documents] stringByAppendingPathComponent:_model]])_model=nil;
  UIScrollView *scroll=[UIScrollView new];scroll.translatesAutoresizingMaskIntoConstraints=NO;[self.view addSubview:scroll];
  UIStackView *stack=[UIStackView new];stack.axis=UILayoutConstraintAxisVertical;stack.spacing=12;stack.translatesAutoresizingMaskIntoConstraints=NO;[scroll addSubview:stack];
  [NSLayoutConstraint activateConstraints:@[[scroll.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],[scroll.bottomAnchor constraintEqualToAnchor:self.view.keyboardLayoutGuide.topAnchor],[scroll.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],[scroll.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],[stack.topAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.topAnchor constant:16],[stack.bottomAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.bottomAnchor constant:-20],[stack.leadingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.leadingAnchor constant:16],[stack.trailingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.trailingAnchor constant:-16],[stack.widthAnchor constraintEqualToAnchor:scroll.frameLayoutGuide.widthAnchor constant:-32]]];
+ [stack addArrangedSubview:NAHeading(@"Imagine something new.",@"Turn a few words into an image. Entirely on device.")];
  _mode=[[UISegmentedControl alloc] initWithItems:@[@"Standard SD 1.5",@"Fast SD-Turbo"]];_mode.selectedSegmentIndex=_turbo?1:0;[_mode addTarget:self action:@selector(modeChanged) forControlEvents:UIControlEventValueChanged];[stack addArrangedSubview:_mode];
  _status=[UILabel new];_status.font=[UIFont systemFontOfSize:13];_status.numberOfLines=0;_status.textColor=UIColor.secondaryLabelColor;[stack addArrangedSubview:_status];
  UILabel *label=[UILabel new];label.text=@"Describe your image";label.font=[UIFont boldSystemFontOfSize:17];[stack addArrangedSubview:label];
- _prompt=[UITextView new];_prompt.font=[UIFont systemFontOfSize:16];_prompt.backgroundColor=UIColor.secondarySystemBackgroundColor;_prompt.layer.cornerRadius=10;
+ _prompt=[UITextView new];_prompt.font=[UIFont systemFontOfSize:16];_prompt.backgroundColor=UIColor.secondarySystemBackgroundColor;_prompt.layer.cornerRadius=18;_prompt.textContainerInset=UIEdgeInsetsMake(14,12,14,12);_prompt.accessibilityLabel=@"Image description";
  _prompt.text=[NSUserDefaults.standardUserDefaults stringForKey:@"photoPrompt"] ?: @"A realistic photograph of a golden retriever on a beach at sunset, soft natural light, detailed fur";
  [_prompt.heightAnchor constraintEqualToConstant:100].active=YES;[stack addArrangedSubview:_prompt];
+ UIButton *inspire=[UIButton buttonWithType:UIButtonTypeSystem];[inspire setTitle:@"✦  Inspire me" forState:UIControlStateNormal];[inspire addTarget:self action:@selector(inspire) forControlEvents:UIControlEventTouchUpInside];[stack addArrangedSubview:inspire];
  _negative=[UITextField new];_negative.borderStyle=UITextBorderStyleRoundedRect;_negative.placeholder=@"Avoid (optional)";_negative.text=@"blurry, distorted, low quality, watermark, text";[stack addArrangedSubview:_negative];
  _size=[[UISegmentedControl alloc] initWithItems:@[@"384 × 384",@"512 × 512"]];_size.selectedSegmentIndex=0;[stack addArrangedSubview:_size];
- _steps=[[UISegmentedControl alloc] initWithItems:_turbo?@[@"1 step",@"2 steps",@"4 steps"]:@[@"12 steps",@"20 steps",@"24 steps"]];_steps.selectedSegmentIndex=1;_negative.enabled=!_turbo;[stack addArrangedSubview:_steps];
+ _steps=[[UISegmentedControl alloc] initWithItems:_turbo?@[@"1 step",@"2 steps",@"4 steps"]:@[@"12 steps",@"20 steps",@"24 steps"]];_steps.selectedSegmentIndex=1;_negative.enabled=!_turbo;_negative.alpha=_turbo?0.4:1.0;[stack addArrangedSubview:_steps];
  _seed=[UITextField new];_seed.borderStyle=UITextBorderStyleRoundedRect;_seed.placeholder=@"Seed: leave blank for random";_seed.keyboardType=UIKeyboardTypeNumberPad;[stack addArrangedSubview:_seed];
- _generate=[UIButton buttonWithType:UIButtonTypeSystem];[_generate setTitle:@"Generate image" forState:UIControlStateNormal];_generate.titleLabel.font=[UIFont boldSystemFontOfSize:18];[_generate.heightAnchor constraintEqualToConstant:44].active=YES;[_generate addTarget:self action:@selector(generate) forControlEvents:UIControlEventTouchUpInside];[stack addArrangedSubview:_generate];
+ _generate=[UIButton buttonWithType:UIButtonTypeSystem];[_generate setTitle:@"Generate image" forState:UIControlStateNormal];_generate.titleLabel.font=[UIFont boldSystemFontOfSize:18];[_generate.heightAnchor constraintEqualToConstant:44].active=YES;[_generate addTarget:self action:@selector(generate) forControlEvents:UIControlEventTouchUpInside];NAButton(_generate,@"Generate image",@"sparkles");[stack addArrangedSubview:_generate];
  _progress=[UIProgressView new];[stack addArrangedSubview:_progress];
  _preview=[UIImageView new];_preview.contentMode=UIViewContentModeScaleAspectFit;_preview.backgroundColor=UIColor.secondarySystemBackgroundColor;_preview.layer.cornerRadius=12;_preview.clipsToBounds=YES;[_preview.heightAnchor constraintEqualToAnchor:_preview.widthAnchor].active=YES;[stack addArrangedSubview:_preview];
  UIButton *share=[UIButton buttonWithType:UIButtonTypeSystem];[share setTitle:@"Share / export image" forState:UIControlStateNormal];[share addTarget:self action:@selector(share) forControlEvents:UIControlEventTouchUpInside];[stack addArrangedSubview:share];
  UIButton *save=[UIButton buttonWithType:UIButtonTypeSystem];[save setTitle:@"Save to Photos" forState:UIControlStateNormal];[save addTarget:self action:@selector(saveToPhotos) forControlEvents:UIControlEventTouchUpInside];[stack addArrangedSubview:save];
- UILabel *hint=[UILabel new];hint.text=@"Offline • Keep Next AI open while generating. The model is released after each image. Images are also saved in Files → Next AI → Generated Images.";hint.font=[UIFont systemFontOfSize:12];hint.numberOfLines=0;hint.textColor=UIColor.secondaryLabelColor;[stack addArrangedSubview:hint];
- self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc] initWithTitle:@"Models / Gallery" style:UIBarButtonItemStylePlain target:self action:@selector(menu)];
+ UILabel *hint=[UILabel new];hint.text=@"Offline • Keep Next AI open while generating. Images are also saved in Files → Next AI → Generated Images.";hint.font=[UIFont systemFontOfSize:12];hint.numberOfLines=0;hint.textColor=UIColor.secondaryLabelColor;[stack addArrangedSubview:hint];
+ self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc] initWithTitle:@"Library" style:UIBarButtonItemStylePlain target:self action:@selector(menu)];
  NSString *last=[NSUserDefaults.standardUserDefaults stringForKey:@"lastPhoto"];
  if(last){_lastImage=[[self documents] stringByAppendingPathComponent:last];_preview.image=[UIImage imageWithContentsOfFile:_lastImage];}
  [self updateStatus];
 }
+- (void)inspire {if(NextAIWorking)return;NSArray *ideas=@[@"A tiny glass greenhouse on the moon, glowing plants, Earth in the sky, cinematic photograph",@"A quiet street in Doha at golden hour, warm architecture, realistic travel photograph",@"A golden retriever in a red scarf beside a mountain lake, morning mist, detailed natural photograph",@"A copper and teal futuristic city reflected in rain, cinematic lighting, atmospheric photography"];_prompt.text=ideas[arc4random_uniform((uint32_t)ideas.count)];}
 - (void)modeChanged {
  if(NextAIWorking){_mode.selectedSegmentIndex=_turbo?1:0;[self alert:@"Wait for the current operation to finish before switching modes."];return;}
  _turbo=_mode.selectedSegmentIndex==1;[NSUserDefaults.standardUserDefaults setBool:_turbo forKey:@"photoTurbo"];
@@ -59,7 +63,7 @@ static void photoProgress(int step,int total,void *user) {
  for(NSUInteger i=0;i<titles.count;i++)[_steps insertSegmentWithTitle:titles[i] atIndex:i animated:NO];_steps.selectedSegmentIndex=1;
  _negative.enabled=!_turbo;_negative.alpha=_turbo?0.4:1.0;[self updateStatus];
 }
-- (void)updateStatus {_status.text=_model ? [@"Photo model: " stringByAppendingString:_model.lastPathComponent] : (_turbo?@"Turbo mode: select SD-Turbo Q4_0. Uses 1–4 steps; negative prompts are disabled.":@"Standard mode: select SD 1.5 Q4_0 from Models / Gallery.");}
+- (void)updateStatus {_status.text=_model ? [@"On device · " stringByAppendingString:_model.lastPathComponent] : (_turbo?@"Turbo mode: select SD-Turbo Q4_0. Uses 1–4 steps; negative prompts are disabled.":@"Standard mode: select SD 1.5 Q4_0 from Library.");}
 - (void)progress:(int)step total:(int)total {
  _progress.progress=total>0?(float)step/total:0;
  _status.text=step==0?@"Loading image model… this may take a while.":[NSString stringWithFormat:@"Generating step %d of %d%@",step,total,step==total?@" • decoding image…":@""];
@@ -106,7 +110,7 @@ static void photoProgress(int step,int total,void *user) {
 }
 - (void)generate {
  if(NextAIWorking){[self alert:@"Wait for the current chat, import or image to finish."];return;}
- if(!_model){[self alert:(_turbo?@"Choose the SD-Turbo model from Models / Gallery first.":@"Choose the SD 1.5 model from Models / Gallery first.")];return;}
+ if(!_model){[self alert:(_turbo?@"Choose the SD-Turbo model from Library first.":@"Choose the SD 1.5 model from Library first.")];return;}
  NSString *prompt=[_prompt.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
  if(!prompt.length || prompt.length>2000){[self alert:@"Enter an image description of 1–2,000 characters."];return;}
  NSString *modelPath=[[self documents] stringByAppendingPathComponent:_model];NSError *error=nil;
