@@ -1,5 +1,6 @@
 name: Deploy Next Jailbreak repo and comments edge
 
+# Triggered after Cloudflare deployment credentials were added.
 on:
   workflow_dispatch:
   push:
