@@ -1,0 +1,115 @@
+name: Community comments and repo rollout
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/community-repo-rollout.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextjailbreak-community-rollout
+  cancel-in-progress: false
+
+jobs:
+  rollout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out production branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Apply comments and repo changes
+        run: |
+          python3 -m automation.community_comments_rollout
+
+      - name: Validate rollout
+        run: |
+          python3 -m py_compile automation/community_comments.py automation/community_comments_rollout.py automation/publisher.py automation/ios_repo_news.py automation/dopamine_cluster.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('.')
+          audit = json.loads((root/'automation/published-articles.json').read_text(encoding='utf-8'))
+          checked = 0
+          for entry in audit.get('entries', []):
+              if not isinstance(entry, dict) or not entry.get('href'):
+                  continue
+              href = str(entry['href']).lstrip('/')
+              page = root / href
+              if href.endswith('/'):
+                  page = page / 'index.html'
+              if not page.exists():
+                  continue
+              text = page.read_text(encoding='utf-8')
+              if text.count('data-nj-comments') != 1:
+                  raise SystemExit(f'Comments block missing/duplicated: {page}')
+              if text.count('/assets/community-comments.css') != 1:
+                  raise SystemExit(f'Comments CSS missing/duplicated: {page}')
+              if text.count('/assets/community-comments.js') != 1:
+                  raise SystemExit(f'Comments JS missing/duplicated: {page}')
+              if 'https://repo.nextjailbreak.com/' not in text:
+                  raise SystemExit(f'Repo navigation missing: {page}')
+              checked += 1
+          if checked < 20:
+              raise SystemExit(f'Unexpectedly low article count: {checked}')
+
+          for publisher, variable in [
+              ('automation/publisher.py','rendered_article'),
+              ('automation/ios_repo_news.py','rendered'),
+              ('automation/dopamine_cluster.py','rendered'),
+          ]:
+              text = (root/publisher).read_text(encoding='utf-8')
+              if 'from automation.community_comments import ensure_community_comments' not in text:
+                  raise SystemExit(f'Future comments import missing: {publisher}')
+              if f'{variable} = ensure_community_comments({variable})' not in text:
+                  raise SystemExit(f'Future comments guard missing: {publisher}')
+
+          repo = (root/'repo-site/index.html').read_text(encoding='utf-8')
+          for scheme in ('sileo://source/','cydia://url/','zbra://sources/add/','installer://add/repo='):
+              if scheme not in repo:
+                  raise SystemExit(f'Repo manager link missing: {scheme}')
+          if 'https://repo.nextjailbreak.com/' not in repo:
+              raise SystemExit('Dedicated repo URL missing from portal')
+          print(f'Validated community comments on {checked} article pages and all future publishers.')
+          PY
+
+      - name: Commit rollout
+        run: |
+          git config user.name "nextjailbreak-community[bot]"
+          git config user.email "nextjailbreak-community[bot]@users.noreply.github.com"
+          git add -- \
+            automation/community_comments.py \
+            automation/community_comments_rollout.py \
+            automation/publisher.py \
+            automation/ios_repo_news.py \
+            automation/dopamine_cluster.py \
+            assets/community-comments.css \
+            assets/community-comments.js \
+            repo-site \
+            repo/index.html \
+            index.html \
+            tutorials.html \
+            tutorials/index.html \
+            videos.html \
+            videos/index.html \
+            about.html \
+            about/index.html \
+            contact.html \
+            contact/index.html \
+            '*.html' \
+            */index.html
+          if git diff --cached --quiet; then
+            echo "No rollout changes required."
+            exit 0
+          fi
+          git commit -m "Add community comments and dedicated repo portal"
+          git pull --rebase origin main
+          git push origin HEAD:main
