@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 from xml.etree import ElementTree
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from automation.community_comments import ensure_community_comments
 from automation.draft_pipeline import article_source_url, render_article, validate_article
 from automation.editorial import mark_candidate_drafted
 from automation.seo_utils import seo_description
@@ -559,6 +560,7 @@ def publish(
         sitemap_path.read_text(encoding="utf-8"), entries, site
     )
 
+    rendered_article = ensure_community_comments(rendered_article)
     target.write_text(rendered_article, encoding="utf-8")
     index_path.write_text(next_index, encoding="utf-8")
     tutorials_path.write_text(next_tutorials, encoding="utf-8")

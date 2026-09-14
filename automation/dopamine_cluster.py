@@ -15,6 +15,7 @@ import sys
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from automation.community_comments import ensure_community_comments
 from automation.openai_api import OpenAIAPIError, structured_response
 from automation.publisher import (
     HOME_END,
@@ -560,6 +561,7 @@ def publish_cluster(*, repository_root: Path, now: datetime, run_id: str, github
     next_feed = _render_feed(entries, site)
     next_sitemap = _update_sitemap(sitemap_path.read_text(encoding="utf-8"), entries, site)
 
+    rendered = ensure_community_comments(rendered)
     target.write_text(rendered, encoding="utf-8")
     index_path.write_text(next_index, encoding="utf-8")
     tutorials_path.write_text(next_tutorials, encoding="utf-8")

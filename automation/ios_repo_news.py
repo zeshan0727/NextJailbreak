@@ -27,6 +27,7 @@ from urllib.parse import urljoin, urlparse, quote_plus
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
+from automation.community_comments import ensure_community_comments
 from automation.openai_api import OpenAIAPIError, structured_response
 from automation.publisher import _render_feed, _update_sitemap, load_audit
 from automation.schemas import VERDICT_SCHEMA
@@ -807,6 +808,7 @@ def publish(*, repository_root: Path, now: datetime, run_id: str, github_output:
     )
     rendered = _render_article(article, selected_source, media, site, now, target_path)
     target.parent.mkdir(parents=True, exist_ok=True)
+    rendered = ensure_community_comments(rendered)
     target.write_text(rendered, encoding="utf-8")
 
     published_at = now.astimezone(timezone.utc).replace(microsecond=0).isoformat()
