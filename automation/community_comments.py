@@ -30,7 +30,15 @@ COMMENTS_HTML = '''
 
 
 def ensure_repo_nav(text: str) -> str:
-    if 'href="https://repo.nextjailbreak.com/"' in text:
+    # Replace legacy flat Repo tabs first even when another button already links to the new repo.
+    text = re.sub(
+        r'<a href="/repo/">Repo</a>',
+        '<a href="https://repo.nextjailbreak.com/">Repo</a>',
+        text,
+        count=1,
+        flags=re.I,
+    )
+    if re.search(r'<a[^>]+href="https://repo\.nextjailbreak\.com/?"[^>]*>\s*Repo\s*</a>', text, re.I):
         return text
     patterns = [
         r'(<li><a href="/videos(?:\.html|/)?"[^>]*>Videos</a></li>)',
@@ -40,16 +48,6 @@ def ensure_repo_nav(text: str) -> str:
         updated, count = re.subn(pattern, r'\1' + REPO_LINK, text, count=1, flags=re.I)
         if count:
             return updated
-    # Older original-release pages use flat anchor navigation rather than <li> items.
-    updated, count = re.subn(
-        r'<a href="/repo/">Repo</a>',
-        '<a href="https://repo.nextjailbreak.com/">Repo</a>',
-        text,
-        count=1,
-        flags=re.I,
-    )
-    if count:
-        return updated
     return text
 
 
@@ -64,7 +62,6 @@ def ensure_community_comments(text: str) -> str:
         if '</main>' in text.lower():
             text = re.sub(r'</main>', COMMENTS_HTML + '\n</main>', text, count=1, flags=re.I)
         elif '</article>' in text.lower():
-            # Legacy original-release pages often have <article> directly inside a wrapper.
             text = re.sub(r'</article>', '</article>\n' + COMMENTS_HTML, text, count=1, flags=re.I)
         elif '</footer>' in text.lower():
             text = re.sub(r'<footer', COMMENTS_HTML + '\n<footer', text, count=1, flags=re.I)
