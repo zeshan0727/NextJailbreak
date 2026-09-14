@@ -25,22 +25,34 @@ def quarantine_page(href: str, replacement: str | None) -> None:
     if not page.exists():
         return
     text = page.read_text(encoding="utf-8")
-    text = re.sub(r'<meta\s+name=["\']robots["\']\s+content=["\'][^"\']*["\']\s*/?>', '<meta name="robots" content="noindex,nofollow">', text, count=1, flags=re.I)
+    text = re.sub(
+        r'<meta\s+name=["\']robots["\']\s+content=["\'][^"\']*["\']\s*/?>',
+        '<meta name="robots" content="noindex,nofollow">',
+        text,
+        count=1,
+        flags=re.I,
+    )
     if 'name="robots"' not in text.lower():
         text = text.replace('</head>', '  <meta name="robots" content="noindex,nofollow">\n</head>', 1)
     if replacement:
         canonical = f"https://nextjailbreak.com/{replacement}"
-        text = re.sub(r'<link\s+rel=["\']canonical["\']\s+href=["\'][^"\']+["\']\s*/?>', f'<link rel="canonical" href="{canonical}">', text, count=1, flags=re.I)
+        text = re.sub(
+            r'<link\s+rel=["\']canonical["\']\s+href=["\'][^"\']+["\']\s*/?>',
+            f'<link rel="canonical" href="{canonical}">',
+            text,
+            count=1,
+            flags=re.I,
+        )
     marker = 'NEXTJAILBREAK_STALE_VERSION_NOTICE'
     if marker not in text and '<main' in text.lower():
         notice = (
             '<!-- NEXTJAILBREAK_STALE_VERSION_NOTICE -->\n'
             '<div class="container" style="margin-top:18px;padding:14px 18px;border:1px solid #d9a441;border-radius:14px;background:#fff8e7">'
             '<strong>Archived version notice:</strong> This page was removed from Next Jailbreak listings after a source-version mismatch was detected. '
-            'Use the current original-source article or package information instead.'</n            'div>\n'
-        )
-        # avoid malformed concatenation from the literal above
-        notice = notice.replace("</'div>", "</div>")
+            'Use the current original-source article or package information instead.'</n        )
+        notice += 'div>\n'
+        # Build the closing tag separately so the source remains simple and unambiguous.
+        notice = notice.replace("instead.</div>", "instead.</div>")
         text = re.sub(r'(<main[^>]*>)', r'\1\n' + notice, text, count=1, flags=re.I)
     page.write_text(text, encoding="utf-8")
 
