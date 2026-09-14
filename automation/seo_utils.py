@@ -17,6 +17,8 @@ def _trim_words(value: str, limit: int) -> str:
     if len(text) <= limit:
         return text
     cut = text[: limit + 1].rsplit(" ", 1)[0].rstrip(" ,;:-–—")
+    if cut and cut[-1] not in ".!?":
+        cut += "."
     return cut or text[:limit].rstrip()
 
 
@@ -26,10 +28,9 @@ def seo_title(name: Any, version: Any = "", site_name: str = "Next Jailbreak", *
     if _compact(version) and "update" not in kind.lower():
         core = f"{core} Update"
     suffix = f" | {_compact(site_name) or 'Next Jailbreak'}"
-    # Keep the exact product/version intact. Shorten only the descriptive qualifier.
     if len(core + suffix) > 68:
         core = _compact(f"{product} Jailbreak Tweak") if "tweak" in kind.lower() else product
-    return _trim_words(core + suffix, 72)
+    return _trim_words(core + suffix, 72).rstrip(".")
 
 
 def seo_description(name: Any, version: Any = "", *, kind: str = "iOS jailbreak tweak") -> str:
@@ -37,12 +38,12 @@ def seo_description(name: Any, version: Any = "", *, kind: str = "iOS jailbreak 
     if "tweak" in kind.lower():
         text = (
             f"{product} iOS jailbreak tweak: verified features, compatibility, requirements "
-            "and latest release details from the original developer or repository source."
+            "and release details from the original developer source."
         )
     else:
         text = (
             f"{product}: verified compatibility, requirements, release details and practical "
-            "guidance based on the original project and developer sources."
+            "guidance based on official project sources."
         )
     return _trim_words(text, 158)
 
@@ -82,7 +83,6 @@ def suspicious_generated_metadata(value: Any) -> bool:
         return True
     if "�" in text or "\x00" in text:
         return True
-    # Generated English metadata should not end in a chopped token or an unrelated script fragment.
     if re.search(r"[-–—,:;]\s*$", text):
         return True
     if re.search(r"\b[A-Za-z][A-Za-z0-9]{2,}-[A-Za-z]{1,4}$", text):
