@@ -5,12 +5,22 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-import re
 
 from automation.community_comments import ensure_community_comments, ensure_repo_nav
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "automation" / "published-articles.json"
+
+NON_ARTICLE_ROOTS = {
+    ".github", "assets", "automation", "cloudflare", "debfiles", "depictions", "repo-site",
+    "AITradingDemo", "DailyLedger", "DailyTweaks", "Diagnostics", "ModuleGlassPreview",
+    "NextLedger.xcodeproj", "NextWebsiteApp",
+}
+NON_ARTICLE_NAMES = {
+    "index.html", "tutorials.html", "videos.html", "about.html", "contact.html", "privacy.html",
+    "terms.html", "repo.html", "applications.html", "404.html",
+}
+NON_ARTICLE_DIRS = {"tutorials", "videos", "about", "contact", "privacy", "terms", "repo", "applications"}
 
 
 def patch_future_publishers() -> list[str]:
@@ -42,21 +52,29 @@ def patch_future_publishers() -> list[str]:
 def replace_repo_deep_links(text: str) -> str:
     replacements = {
         "sileo://source/https://nextjailbreak.com/": "sileo://source/https://repo.nextjailbreak.com/",
+        "sileo://source/https://nextjailbreak.com": "sileo://source/https://repo.nextjailbreak.com/",
         "source=https://nextjailbreak.com/": "source=https://repo.nextjailbreak.com/",
+        "source=https://nextjailbreak.com": "source=https://repo.nextjailbreak.com/",
         "zbra://sources/add/https://nextjailbreak.com/": "zbra://sources/add/https://repo.nextjailbreak.com/",
         "installer://add/repo=https://nextjailbreak.com/": "installer://add/repo=https://repo.nextjailbreak.com/",
         "Repo: nextjailbreak.com": "Repo: repo.nextjailbreak.com",
+        "Add https://nextjailbreak.com/ to Sileo": "Add https://repo.nextjailbreak.com/ to Sileo",
+        "add https://nextjailbreak.com/ to Sileo": "add https://repo.nextjailbreak.com/ to Sileo",
+        "add https://nextjailbreak.com as a source": "add https://repo.nextjailbreak.com/ as a source",
+        "Add https://nextjailbreak.com as a source": "Add https://repo.nextjailbreak.com/ as a source",
+        "source served by nextjailbreak.com": "source served by repo.nextjailbreak.com",
+        "Open nextjailbreak.com": "Open repo.nextjailbreak.com",
+        'href="https://nextjailbreak.com">Repo: repo.nextjailbreak.com</a>': 'href="https://repo.nextjailbreak.com/">Repo: repo.nextjailbreak.com</a>',
     }
     for old, new in replacements.items():
         text = text.replace(old, new)
     return text
 
 
-def patch_existing_articles() -> tuple[int, int]:
+def resolve_audit_pages() -> tuple[set[Path], int]:
     audit = json.loads(AUDIT.read_text(encoding="utf-8"))
-    changed = 0
+    pages: set[Path] = set()
     missing = 0
-    seen: set[Path] = set()
     for entry in audit.get("entries", []):
         if not isinstance(entry, dict) or not entry.get("href"):
             continue
@@ -64,18 +82,54 @@ def patch_existing_articles() -> tuple[int, int]:
         page = ROOT / href
         if href.endswith("/"):
             page = page / "index.html"
-        if page in seen:
-            continue
-        seen.add(page)
-        if not page.exists():
+        if page.exists():
+            pages.add(page)
+        else:
             missing += 1
-            continue
+    return pages, missing
+
+
+def looks_like_article(path: Path) -> bool:
+    relative = path.relative_to(ROOT)
+    if not relative.parts:
+        return False
+    if relative.parts[0] in NON_ARTICLE_ROOTS:
+        return False
+    if len(relative.parts) == 1 and relative.name in NON_ARTICLE_NAMES:
+        return False
+    if relative.parts[0] in NON_ARTICLE_DIRS:
+        return False
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        return False
+    lower = text.lower()
+    if "<article" not in lower or "</html>" not in lower:
+        return False
+    # Exclude listing/catalog pages that use article cards rather than one editorial article.
+    if "latest articles" in lower and "news-feed" in lower:
+        return False
+    return True
+
+
+def all_article_pages() -> tuple[set[Path], int]:
+    pages, missing = resolve_audit_pages()
+    for page in ROOT.rglob("*.html"):
+        if looks_like_article(page):
+            pages.add(page)
+    return pages, missing
+
+
+def patch_existing_articles() -> tuple[int, int, int]:
+    pages, missing = all_article_pages()
+    changed = 0
+    for page in sorted(pages):
         text = page.read_text(encoding="utf-8")
         updated = ensure_community_comments(replace_repo_deep_links(text))
         if updated != text:
             page.write_text(updated, encoding="utf-8")
             changed += 1
-    return changed, missing
+    return changed, missing, len(pages)
 
 
 def patch_core_navigation() -> list[str]:
@@ -91,7 +145,6 @@ def patch_core_navigation() -> list[str]:
         text = path.read_text(encoding="utf-8")
         original = text
         text = ensure_repo_nav(text)
-        # A few legacy layouts do not use <li> navigation.
         if 'https://repo.nextjailbreak.com/' not in text:
             for marker in ('<a href="/videos/">Videos</a>', '<a href="/videos.html">Videos</a>'):
                 if marker in text:
@@ -116,7 +169,6 @@ def patch_legacy_repo_page() -> bool:
         installer = '          <a class="repo-button" href="installer://add/repo=https://repo.nextjailbreak.com/"><span class="repo-icon">I</span><span><b>Add to Installer 5</b><br><span class="small">Open the source in Installer</span></span><span>›</span></a>\n'
         if marker in text:
             text = text.replace(marker, installer + marker, 1)
-    # Point visitors to the dedicated portal while keeping the old page available during migration.
     if "Dedicated repo portal" not in text:
         needle = '<div class="actions"><a class="button primary" href="/tutorial-rootless-basics/">Read compatibility guide</a></div>'
         replacement = '<div class="actions"><a class="button primary" href="https://repo.nextjailbreak.com/">Dedicated repo portal</a><a class="button" href="/tutorial-rootless-basics/">Compatibility guide</a></div>'
@@ -129,12 +181,13 @@ def patch_legacy_repo_page() -> bool:
 
 def main() -> None:
     future = patch_future_publishers()
-    existing, missing = patch_existing_articles()
+    existing, missing, total = patch_existing_articles()
     core = patch_core_navigation()
     legacy_repo = patch_legacy_repo_page()
     result = {
+        "article_pages_detected": total,
         "existing_articles_updated": existing,
-        "missing_article_files": missing,
+        "missing_audit_article_files": missing,
         "future_publishers_updated": future,
         "core_navigation_updated": core,
         "legacy_repo_page_updated": legacy_repo,
