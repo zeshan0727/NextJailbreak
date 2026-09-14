@@ -24,19 +24,74 @@
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
     },
+    "https://www.ios-repo-updates.com/repository/chariz/package/com.kernelrw.adytum/": {
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "package": "com.kernelrw.adytum",
+      "status": "duplicate",
+      "target_path": "adytum-1-0-update/",
+      "version": "1.0"
+    },
+    "https://www.ios-repo-updates.com/repository/chariz/package/com.sensetechlab.duodash/": {
+      "checked_at": "2026-09-14T06:09:34.971653+00:00",
+      "package": "com.sensetechlab.duodash",
+      "reason": "stale discovery rejected: candidate 1.1.0 is older than original-source version 1.1.3",
+      "status": "failed"
+    },
+    "https://www.ios-repo-updates.com/repository/chariz/package/jp.dcsyhi.airaw/": {
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "package": "jp.dcsyhi.airaw",
+      "status": "duplicate",
+      "target_path": "airaw-1-5-1-update/",
+      "version": "1.5.1"
+    },
+    "https://www.ios-repo-updates.com/repository/chariz/package/jp.dcsyhi.zetsu/": {
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "package": "jp.dcsyhi.zetsu",
+      "status": "duplicate",
+      "target_path": "zetsu-1-5-update/",
+      "version": "1.5"
+    },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-13T20:28:56.643216+00:00",
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-1-update/",
       "version": "6.1"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-09-13T20:28:56.643216+00:00",
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
       "package": "com.fouadraheb.watusi3",
       "status": "duplicate",
       "target_path": "watusi-3-for-whatsapp-1-3-23-update/",
       "version": "1.3.23"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.82flex.touchvis/": {
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "package": "com.82flex.touchvis",
+      "status": "duplicate",
+      "target_path": "touch-viz-2-4-update/",
+      "version": "2.4"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.ahmad.asjtiktok/": {
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "package": "com.ahmad.asjtiktok",
+      "status": "duplicate",
+      "target_path": "asjtiktok-1-2-update/",
+      "version": "1.2"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.ahmad.asjtube/": {
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
+      "package": "com.ahmad.asjtube",
+      "status": "duplicate",
+      "target_path": "asjtube-1-2-1-update/",
+      "version": "1.2.1"
+    },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.blacknoisy.prism/": {
+      "checked_at": "2026-09-14T06:18:23+00:00",
+      "package": "com.blacknoisy.prism",
+      "status": "published",
+      "target_path": "prism-1-0-0-2-update/",
+      "version": "1.0.0-2"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.chloe.physpringboard/": {
       "checked_at": "2026-09-12T09:42:11.996855+00:00",
@@ -45,14 +100,14 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.zqbb.hello.keyboard.ai/": {
-      "checked_at": "2026-09-13T20:28:56.643216+00:00",
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
       "package": "com.zqbb.hello.keyboard.ai",
       "status": "duplicate",
       "target_path": "hellokeyboardai-2-1-0-1-update/",
       "version": "2.1.0-1"
     },
     "https://www.ios-repo-updates.com/repository/majd-alfhaily/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-13T20:28:56.643216+00:00",
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
       "package": "me.alfhaily.rocket",
       "status": "duplicate",
       "target_path": "rocket-for-instagram-3-8-38-update/",
@@ -65,7 +120,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/yourepo/package/com.b4db1r3.swipeawaynowplaying/": {
-      "checked_at": "2026-09-13T20:28:56.643216+00:00",
+      "checked_at": "2026-09-14T06:18:23.962004+00:00",
       "package": "com.b4db1r3.swipeawaynowplaying",
       "status": "duplicate",
       "target_path": "please-stop-the-music-0-1-1-update/",
@@ -518,6 +573,357 @@
       "at": "2026-09-13T20:28:56.643216+00:00",
       "failures": [],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0131bb30ab800960016aa78ee03f8487d18c58f92fbfc0680e",
+          "usage": {
+            "input_tokens": 22728,
+            "input_tokens_details": {
+              "cache_write_tokens": 22725,
+              "cached_tokens": 0
+            },
+            "output_tokens": 408,
+            "output_tokens_details": {
+              "reasoning_tokens": 302
+            },
+            "total_tokens": 23136
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_05c328294bccfcf8016aa78ecc59d487d1ad4e08fc8af4ff70",
+          "usage": {
+            "input_tokens": 20481,
+            "input_tokens_details": {
+              "cache_write_tokens": 20478,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2528,
+            "output_tokens_details": {
+              "reasoning_tokens": 76
+            },
+            "total_tokens": 23009
+          }
+        }
+      },
+      "at": "2026-09-14T06:05:26+00:00",
+      "package": "com.kernelrw.adytum",
+      "target_path": "adytum-1-0-update/",
+      "version": "1.0"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0c6b53d268a8249f016aa78fd9fc9887d1ad8ba9f7eb3d369b",
+          "usage": {
+            "input_tokens": 45121,
+            "input_tokens_details": {
+              "cache_write_tokens": 45118,
+              "cached_tokens": 0
+            },
+            "output_tokens": 447,
+            "output_tokens_details": {
+              "reasoning_tokens": 337
+            },
+            "total_tokens": 45568
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_001ec9953ee9bef7016aa78fc6a20c87d193f8ed8768b485e6",
+          "usage": {
+            "input_tokens": 42899,
+            "input_tokens_details": {
+              "cache_write_tokens": 42896,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2495,
+            "output_tokens_details": {
+              "reasoning_tokens": 73
+            },
+            "total_tokens": 45394
+          }
+        }
+      },
+      "at": "2026-09-14T06:09:34+00:00",
+      "package": "jp.dcsyhi.airaw",
+      "target_path": "airaw-1-5-1-update/",
+      "version": "1.5.1"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_00a5b31be940a1be016aa79023fc0c87d18eff60447464627a",
+          "usage": {
+            "input_tokens": 23659,
+            "input_tokens_details": {
+              "cache_write_tokens": 23656,
+              "cached_tokens": 0
+            },
+            "output_tokens": 394,
+            "output_tokens_details": {
+              "reasoning_tokens": 272
+            },
+            "total_tokens": 24053
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_08bf83b7160d5fef016aa79010398087d1833706570c9feb3b",
+          "usage": {
+            "input_tokens": 21656,
+            "input_tokens_details": {
+              "cache_write_tokens": 21653,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2297,
+            "output_tokens_details": {
+              "reasoning_tokens": 91
+            },
+            "total_tokens": 23953
+          }
+        }
+      },
+      "at": "2026-09-14T06:10:45+00:00",
+      "package": "jp.dcsyhi.zetsu",
+      "target_path": "zetsu-1-5-update/",
+      "version": "1.5"
+    },
+    {
+      "action": "published",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_04042009803b1a50016aa790914ea487d18ca91acf0398e292",
+          "usage": {
+            "input_tokens": 49528,
+            "input_tokens_details": {
+              "cache_write_tokens": 49525,
+              "cached_tokens": 0
+            },
+            "output_tokens": 582,
+            "output_tokens_details": {
+              "reasoning_tokens": 359
+            },
+            "total_tokens": 50110
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_08ea5661ba85b38c016aa79098cadc87d192b7cfca469f42aa",
+          "usage": {
+            "input_tokens": 49732,
+            "input_tokens_details": {
+              "cache_write_tokens": 49729,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2308,
+            "output_tokens_details": {
+              "reasoning_tokens": 80
+            },
+            "total_tokens": 52040
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_082bbd1a1c413cc9016aa790af18d887d18b8431e64a8e7171",
+          "usage": {
+            "input_tokens": 49617,
+            "input_tokens_details": {
+              "cache_write_tokens": 49614,
+              "cached_tokens": 0
+            },
+            "output_tokens": 300,
+            "output_tokens_details": {
+              "reasoning_tokens": 187
+            },
+            "total_tokens": 49917
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0e46a2f455f093ab016aa7907e847087d1a11be2a112fada85",
+          "usage": {
+            "input_tokens": 47569,
+            "input_tokens_details": {
+              "cache_write_tokens": 47566,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2257,
+            "output_tokens_details": {
+              "reasoning_tokens": 111
+            },
+            "total_tokens": 49826
+          }
+        }
+      },
+      "at": "2026-09-14T06:12:36+00:00",
+      "package": "com.82flex.touchvis",
+      "target_path": "touch-viz-2-4-update/",
+      "version": "2.4"
+    },
+    {
+      "action": "published",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0c2f1705a6fd8759016aa79140153087d189eb497aab75ab6b",
+          "usage": {
+            "input_tokens": 55537,
+            "input_tokens_details": {
+              "cache_write_tokens": 55534,
+              "cached_tokens": 0
+            },
+            "output_tokens": 515,
+            "output_tokens_details": {
+              "reasoning_tokens": 317
+            },
+            "total_tokens": 56052
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_03eda3b5b97a8db6016aa791464d9887d196cf3877d40dc6db",
+          "usage": {
+            "input_tokens": 55710,
+            "input_tokens_details": {
+              "cache_write_tokens": 55707,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2413,
+            "output_tokens_details": {
+              "reasoning_tokens": 66
+            },
+            "total_tokens": 58123
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_08c7ab586f6e9b48016aa7915baf5087d1bec3e7298aa9bfa6",
+          "usage": {
+            "input_tokens": 55617,
+            "input_tokens_details": {
+              "cache_write_tokens": 55614,
+              "cached_tokens": 0
+            },
+            "output_tokens": 423,
+            "output_tokens_details": {
+              "reasoning_tokens": 340
+            },
+            "total_tokens": 56040
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_042b83dcd1470d58016aa7912d7b7887d18434d688dcabb6d9",
+          "usage": {
+            "input_tokens": 53472,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 53469
+            },
+            "output_tokens": 2338,
+            "output_tokens_details": {
+              "reasoning_tokens": 65
+            },
+            "total_tokens": 55810
+          }
+        }
+      },
+      "at": "2026-09-14T06:15:45+00:00",
+      "package": "com.ahmad.asjtiktok",
+      "target_path": "asjtiktok-1-2-update/",
+      "version": "1.2"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_027377aa2768752c016aa791a8fa0887d1a3982210e9584902",
+          "usage": {
+            "input_tokens": 55520,
+            "input_tokens_details": {
+              "cache_write_tokens": 55517,
+              "cached_tokens": 0
+            },
+            "output_tokens": 423,
+            "output_tokens_details": {
+              "reasoning_tokens": 344
+            },
+            "total_tokens": 55943
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0e8745d7685b6091016aa7919585f887d1bd484f566248a11f",
+          "usage": {
+            "input_tokens": 53524,
+            "input_tokens_details": {
+              "cache_write_tokens": 53521,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2526,
+            "output_tokens_details": {
+              "reasoning_tokens": 99
+            },
+            "total_tokens": 56050
+          }
+        }
+      },
+      "at": "2026-09-14T06:17:07+00:00",
+      "package": "com.ahmad.asjtube",
+      "target_path": "asjtube-1-2-1-update/",
+      "version": "1.2.1"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0b967ae3e59a8389016aa791e20de887d1921df29fc4f49a59",
+          "usage": {
+            "input_tokens": 51123,
+            "input_tokens_details": {
+              "cache_write_tokens": 51120,
+              "cached_tokens": 0
+            },
+            "output_tokens": 352,
+            "output_tokens_details": {
+              "reasoning_tokens": 240
+            },
+            "total_tokens": 51475
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0f91f36de5afbfa9016aa791cf0f7887d1b42af0bb10163048",
+          "usage": {
+            "input_tokens": 49063,
+            "input_tokens_details": {
+              "cache_write_tokens": 49060,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2388,
+            "output_tokens_details": {
+              "reasoning_tokens": 120
+            },
+            "total_tokens": 51451
+          }
+        }
+      },
+      "at": "2026-09-14T06:18:23+00:00",
+      "package": "com.blacknoisy.prism",
+      "target_path": "prism-1-0-0-2-update/",
+      "version": "1.0.0-2"
     }
   ],
   "schema_version": 1

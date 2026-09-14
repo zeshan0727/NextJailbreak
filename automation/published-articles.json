@@ -1,6 +1,131 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Prism is an iOS screen-content tool with freeform capture, annotation, OCR, QR recognition, translation, exports and an on-screen pinboard. Here is what the official.",
+      "entry_type": "source-news",
+      "href": "prism-1-0-0-2-update/",
+      "image": "assets/articles/source-media/prism-1-0-0-2-update-145d5ac858.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/prism",
+      "modified_at": "2026-09-14T06:18:23+00:00",
+      "name": "Prism",
+      "package": "com.blacknoisy.prism",
+      "published_at": "2026-09-14T06:18:23+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/6a7834f49e5377f2c5170d12?w=3840&q=75",
+      "title": "Prism combines screen capture, OCR, translation and pinned references in one iOS tweak",
+      "version": "1.0.0-2"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "ASJTube 1.2.1 introduces broader YouTube-version compatibility, changes Picture in Picture behavior, fixes a high-quality playback error, and retains downloads, ad##.",
+      "entry_type": "source-news",
+      "href": "asjtube-1-2-1-update/",
+      "image": "assets/articles/source-media/asjtube-1-2-1-update-adc5fa6a4d.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/asjtube",
+      "modified_at": "2026-09-14T06:17:07+00:00",
+      "name": "ASJTube",
+      "package": "com.ahmad.asjtube",
+      "published_at": "2026-09-14T06:17:07+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/6a9b840341cbeab3dd6ba287?w=3840&q=75",
+      "title": "ASJTube 1.2.1 Adds YouTube Compatibility Claims and Fixes High-Quality Playback",
+      "version": "1.2.1"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "ASJTikTok 1.2 adds saved-story storage management, stricter story-view privacy, and broader content-country controls. The changelog says it was built against TikTok.",
+      "entry_type": "source-news",
+      "href": "asjtiktok-1-2-update/",
+      "image": "assets/articles/source-media/asjtiktok-1-2-update-be852a0d1d.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/asjtiktok",
+      "modified_at": "2026-09-14T06:15:45+00:00",
+      "name": "ASJTikTok",
+      "package": "com.ahmad.asjtiktok",
+      "published_at": "2026-09-14T06:15:45+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/6a8cd2b11daa073b7fd0cd8d?w=3840&q=75",
+      "title": "ASJTikTok 1.2 adds saved-story storage controls and expands TikTok customization",
+      "version": "1.2"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Touch-Viz 2.4 fixes the settings navigation bar and morph effect, while its official depiction lists version 4.1.1 and detailed jailbreak compatibility information.",
+      "entry_type": "source-news",
+      "href": "touch-viz-2-4-update/",
+      "image": "assets/articles/source-media/touch-viz-2-4-update-6d56a5f163.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/touchvis",
+      "modified_at": "2026-09-14T06:12:36+00:00",
+      "name": "Touch-Viz",
+      "package": "com.82flex.touchvis",
+      "published_at": "2026-09-14T06:12:36+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/66aba28af2a1d0fa1b533ce7?w=3840&q=75",
+      "title": "Touch-Viz 2.4 Fixes Settings Navigation and Morph Effects as Official Listings Show a Newer Version",
+      "version": "2.4"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Adytum 1.0 is an initial-release jailbreak tweak for iOS 15.0–17.7 that offers termination prevention, suspension prevention, fast freezing, logging, backups and app.",
+      "entry_type": "source-news",
+      "href": "adytum-1-0-update/",
+      "image": "assets/articles/source-media/adytum-1-0-update-976f430bd5.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/solutions/industry/nonprofits",
+      "modified_at": "2026-09-14T06:05:26+00:00",
+      "name": "Adytum",
+      "package": "com.kernelrw.adytum",
+      "published_at": "2026-09-14T06:05:26+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "repo.chariz.com",
+      "source_page_url": "https://repo.chariz.com/Packages",
+      "source_url": "https://repo.chariz.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://images.ctfassets.net/8aevphvgewt8/13gbPJohG1jk7UxCJrZnqi/c2fbea2d98cc16915aa763a8f3cc70bc/fdb535fdfac20d0b031ca1630e54229640674dd8b1ee1cfda23506c9d2380a32-1200x630.png",
+      "title": "Adytum 1.0 brings four-mode backgrounding controls to jailbroken iOS 15–17.7 devices",
+      "version": "1.0"
+    },
+    {
       "article_sha256": "38a32bb6fd6cbe507945cba3e723ef39b74267e5f4be5e7923e784a03827bf70",
       "candidate_fingerprint": "28e4408d52ca261da50a475302a0de7d6188defa19501e0f033a6be66237990c",
       "category": {
@@ -1739,8 +1864,71 @@
       "published_at": "2026-09-13T12:23:05+00:00",
       "run_id": "34756832476",
       "version": "1.0.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "adytum-1-0-update/",
+      "package": "com.kernelrw.adytum",
+      "published_at": "2026-09-14T06:05:26+00:00",
+      "run_id": "34811983953-1",
+      "version": "1.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "airaw-1-5-1-update/",
+      "package": "jp.dcsyhi.airaw",
+      "published_at": "2026-09-14T06:09:34+00:00",
+      "run_id": "34811983953-3",
+      "version": "1.5.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "zetsu-1-5-update/",
+      "package": "jp.dcsyhi.zetsu",
+      "published_at": "2026-09-14T06:10:45+00:00",
+      "run_id": "34811983953-4",
+      "version": "1.5"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "touch-viz-2-4-update/",
+      "package": "com.82flex.touchvis",
+      "published_at": "2026-09-14T06:12:36+00:00",
+      "run_id": "34811983953-5",
+      "version": "2.4"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "asjtiktok-1-2-update/",
+      "package": "com.ahmad.asjtiktok",
+      "published_at": "2026-09-14T06:15:45+00:00",
+      "run_id": "34811983953-7",
+      "version": "1.2"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "asjtube-1-2-1-update/",
+      "package": "com.ahmad.asjtube",
+      "published_at": "2026-09-14T06:17:07+00:00",
+      "run_id": "34811983953-8",
+      "version": "1.2.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "prism-1-0-0-2-update/",
+      "package": "com.blacknoisy.prism",
+      "published_at": "2026-09-14T06:18:23+00:00",
+      "run_id": "34811983953-9",
+      "version": "1.0.0-2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-13T12:23:05+00:00"
+  "updated_at": "2026-09-14T06:18:23+00:00"
 }

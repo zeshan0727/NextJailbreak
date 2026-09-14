@@ -6,6 +6,46 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Prism combines screen capture, OCR, translation and pinned references in one iOS tweak</title>
+      <link>https://nextjailbreak.com/prism-1-0-0-2-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/prism-1-0-0-2-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 06:18:23 GMT</pubDate>
+      <description>Prism is an iOS screen-content tool with freeform capture, annotation, OCR, QR recognition, translation, exports and an on-screen pinboard. Here is what the official.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>ASJTube 1.2.1 Adds YouTube Compatibility Claims and Fixes High-Quality Playback</title>
+      <link>https://nextjailbreak.com/asjtube-1-2-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/asjtube-1-2-1-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 06:17:07 GMT</pubDate>
+      <description>ASJTube 1.2.1 introduces broader YouTube-version compatibility, changes Picture in Picture behavior, fixes a high-quality playback error, and retains downloads, ad##.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>ASJTikTok 1.2 adds saved-story storage controls and expands TikTok customization</title>
+      <link>https://nextjailbreak.com/asjtiktok-1-2-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/asjtiktok-1-2-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 06:15:45 GMT</pubDate>
+      <description>ASJTikTok 1.2 adds saved-story storage management, stricter story-view privacy, and broader content-country controls. The changelog says it was built against TikTok.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>Touch-Viz 2.4 Fixes Settings Navigation and Morph Effects as Official Listings Show a Newer Version</title>
+      <link>https://nextjailbreak.com/touch-viz-2-4-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/touch-viz-2-4-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 06:12:36 GMT</pubDate>
+      <description>Touch-Viz 2.4 fixes the settings navigation bar and morph effect, while its official depiction lists version 4.1.1 and detailed jailbreak compatibility information.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>Adytum 1.0 brings four-mode backgrounding controls to jailbroken iOS 15–17.7 devices</title>
+      <link>https://nextjailbreak.com/adytum-1-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/adytum-1-0-update/</guid>
+      <pubDate>Mon, 14 Sep 2026 06:05:26 GMT</pubDate>
+      <description>Adytum 1.0 is an initial-release jailbreak tweak for iOS 15.0–17.7 that offers termination prevention, suspension prevention, fast freezing, logging, backups and app.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>Rena 1.0.1: Open Favorite Applications from the iOS 15 Lock Screen</title>
       <link>https://nextjailbreak.com/rena-tweak.html</link>
       <guid isPermaLink="true">https://nextjailbreak.com/rena-tweak.html</guid>
@@ -203,46 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-vs-trollstore.html</guid>
       <pubDate>Wed, 26 Aug 2026 06:57:38 GMT</pubDate>
       <description>Compare Dopamine 3 and TrollStore by purpose, rootless behavior, documented compatibility categories, and the limits of permanent IPA installation in TrollStore.</description>
-      <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>PhotosCore 1.1.0: Customize Apple Photos Layouts, Navigation, and Albums</title>
-      <link>https://nextjailbreak.com/photoscore-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/photoscore-tweak.html</guid>
-      <pubDate>Wed, 26 Aug 2026 06:12:23 GMT</pubDate>
-      <description>PhotosCore 1.1.0 lists viewing, thumbnail layout, Search, album, dark appearance, and iPad sidebar controls for Apple Photos.</description>
-      <category>Media</category>
-    </item>
-    <item>
-      <title>LockGlass 1.2: Lock Screen Customization Tweak for iphoneos-arm64</title>
-      <link>https://nextjailbreak.com/lockglass-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/lockglass-tweak.html</guid>
-      <pubDate>Wed, 26 Aug 2026 05:54:52 GMT</pubDate>
-      <description>Review LockGlass 1.2, a commercial Lock Screen tweak listed for iphoneos-arm64, including its documented purpose, firmware metadata, and dependency checks.</description>
-      <category>Lock Screen</category>
-    </item>
-    <item>
-      <title>Remove Widget Background 2.1.1: Home Screen Widget Background Removal</title>
-      <link>https://nextjailbreak.com/remove-widget-background-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/remove-widget-background-tweak.html</guid>
-      <pubDate>Tue, 25 Aug 2026 12:35:43 GMT</pubDate>
-      <description>Remove Widget Background 2.1.1 is a Home Screen tweak by 82flex. Review its listed function, architecture variants, firmware requirement, and dependencies.</description>
-      <category>Home Screen</category>
-    </item>
-    <item>
-      <title>Physpringboard 1.9.23: Configurable Physics for SpringBoard Icons</title>
-      <link>https://nextjailbreak.com/physpringboard-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/physpringboard-tweak.html</guid>
-      <pubDate>Tue, 25 Aug 2026 12:21:25 GMT</pubDate>
-      <description>Learn what Physpringboard 1.9.23 lists for rootless Dopamine, including configurable SpringBoard icon physics, architecture, dependencies, and installation checks.</description>
-      <category>Home Screen</category>
-    </item>
-    <item>
-      <title>Dopamine 3 vs Dopamine 2: Compatibility Ranges and What Changed</title>
-      <link>https://nextjailbreak.com/dopamine-3-vs-dopamine-2.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-vs-dopamine-2.html</guid>
-      <pubDate>Mon, 24 Aug 2026 15:33:22 GMT</pubDate>
-      <description>Compare the documented Dopamine 3 and Dopamine 2 compatibility ranges by iOS version, architecture, and chip family, including the limits of arm64e, arm64, A12, and.</description>
       <category>Jailbreak</category>
     </item>
   </channel>
