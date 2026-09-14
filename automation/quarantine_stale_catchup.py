@@ -49,10 +49,9 @@ def quarantine_page(href: str, replacement: str | None) -> None:
             '<!-- NEXTJAILBREAK_STALE_VERSION_NOTICE -->\n'
             '<div class="container" style="margin-top:18px;padding:14px 18px;border:1px solid #d9a441;border-radius:14px;background:#fff8e7">'
             '<strong>Archived version notice:</strong> This page was removed from Next Jailbreak listings after a source-version mismatch was detected. '
-            'Use the current original-source article or package information instead.'</n        )
-        notice += 'div>\n'
-        # Build the closing tag separately so the source remains simple and unambiguous.
-        notice = notice.replace("instead.</div>", "instead.</div>")
+            'Use the current original-source article or package information instead.'
+            '</div>\n'
+        )
         text = re.sub(r'(<main[^>]*>)', r'\1\n' + notice, text, count=1, flags=re.I)
     page.write_text(text, encoding="utf-8")
 
