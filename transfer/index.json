@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-15T11:24:20Z",
+  "updatedAt": "2026-09-15T11:42:09Z",
   "files": [
     {
-      "id": "livetouch-0.1.6-roothide-ellekit-fix",
-      "name": "LiveTouch 0.1.6 — RootHide ElleKit Fix",
-      "fileName": "LiveTouch-0.1.6-roothide-ellekit-fix.tipa",
+      "id": "livetouch-0.1.7-final-cleanup",
+      "name": "LiveTouch 0.1.7 — Final Cleanup",
+      "fileName": "LiveTouch-0.1.7-final-cleanup.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide iOS 15+",
-      "version": "0.1.6 (7)",
-      "url": "https://nextjailbreak.com/transfer/files/LiveTouch/0.1.6/LiveTouch-0.1.6-roothide-ellekit-fix.tipa",
-      "sha256": "037e15e8c45d0aa44eb97eb55d93c44752be53412245670ff5c676e555877db3",
-      "sizeBytes": 78194,
-      "notes": "Fixes RootHide wallpaper engine injection after successful apply. LiveTouch now prefers the active ElleKit usr/lib/TweakInject directory instead of the legacy MobileSubstrate directory, removes the stale legacy engine copy, installs a SpringBoard-filtered iOS 16 CoverSheet engine, and writes engine.log when SpringBoard actually loads the dylib. App/helper remain free of the RootHide launch-time libroothide dependency."
+      "version": "0.1.7 (8)",
+      "url": "https://nextjailbreak.com/transfer/files/LiveTouch/0.1.7/LiveTouch-0.1.7-final-cleanup.tipa",
+      "sha256": "d5b38d821373ec3b6603d9a9288350f4a1bdf51c61642465880c30cd27acc952",
+      "sizeBytes": 54779,
+      "notes": "Final cleanup-only build. Adds Uninstall LiveTouch Files and Respring to Finish Cleanup. Removes LiveTouchEngine dylib/plist from RootHide ElleKit and legacy tweak paths, deletes saved wallpaper data, preferences and engine log. This TIPA intentionally contains no LiveTouchEngine payload and cannot reinstall the wallpaper engine. After cleanup and one respring, delete LiveTouch from TrollStore."
     },
     {
       "id": "next-ai-1.0.0",
