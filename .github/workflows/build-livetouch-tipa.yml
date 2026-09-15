@@ -35,28 +35,32 @@ jobs:
           curl -L --fail -o /tmp/iPhoneOS16.5.sdk.tar.xz https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz
           tar -xJf /tmp/iPhoneOS16.5.sdk.tar.xz -C "$GITHUB_WORKSPACE/.theos-sdk/sdks"
 
-      - name: Build and validate LiveTouch 0.1.1
+      - name: Build and validate LiveTouch 0.1.2
         run: |
           cd ios/LiveTouchWallpaper
           THEOS="$GITHUB_WORKSPACE/.theos-sdk" ./build-fixed.sh
-          APP=build/LiveTouch-0.1.1-test.tipa
+          APP=build/LiveTouch-0.1.2-test.tipa
           unzip -tq "$APP" >/dev/null
           unzip -p "$APP" Payload/LiveTouch.app/Info.plist >/tmp/LiveTouch-Info.plist
+          unzip -p "$APP" Payload/LiveTouch.app/LiveTouch >/tmp/LiveTouch-main
           test -s /tmp/LiveTouch-Info.plist
+          test -s /tmp/LiveTouch-main
           plutil -lint /tmp/LiveTouch-Info.plist
           python3 - <<'PY'
           import plistlib
           with open('/tmp/LiveTouch-Info.plist','rb') as f: p=plistlib.load(f)
-          assert p['CFBundleShortVersionString']=='0.1.1'
-          assert p['CFBundleVersion']=='2'
+          assert p['CFBundleShortVersionString']=='0.1.2'
+          assert p['CFBundleVersion']=='3'
           assert p['TSRootBinaries']==['LiveTouchRootHelper']
           PY
+          strings /tmp/LiveTouch-main | grep -Fq -- '--root-helper'
+          strings /tmp/LiveTouch-main | grep -Fq 'Embedded root helper'
           unzip -l "$APP" | grep -F 'Payload/LiveTouch.app/LiveTouchRootHelper'
           ls -lh "$APP"
 
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
         with:
-          name: LiveTouch-0.1.1-test
-          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1.1-test.tipa
+          name: LiveTouch-0.1.2-test
+          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1.2-test.tipa
           if-no-files-found: error
