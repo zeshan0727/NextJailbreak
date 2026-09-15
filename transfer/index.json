@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-15T09:50:02Z",
+  "updatedAt": "2026-09-15T11:24:20Z",
   "files": [
     {
-      "id": "livetouch-0.1.5-roothide-launch-fix",
-      "name": "LiveTouch 0.1.5 — RootHide Launch Fix",
-      "fileName": "LiveTouch-0.1.5-roothide-launch-fix.tipa",
+      "id": "livetouch-0.1.6-roothide-ellekit-fix",
+      "name": "LiveTouch 0.1.6 — RootHide ElleKit Fix",
+      "fileName": "LiveTouch-0.1.6-roothide-ellekit-fix.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide iOS 15+",
-      "version": "0.1.5 (6)",
-      "url": "https://nextjailbreak.com/transfer/files/LiveTouch/0.1.5/LiveTouch-0.1.5-roothide-launch-fix.tipa",
-      "sha256": "21fa6890015c0cf32d563e8aaacc7c37e2a5008d21a7d5251062a0b7b2572f66",
-      "sizeBytes": 71613,
-      "notes": "Fixes the immediate DYLD crash on RootHide/TrollStore caused by @loader_path/.jbroot/usr/lib/libroothide.dylib. The TrollStore app and root helper no longer link libroothide at launch; instead they discover the active .jbroot-* directory directly and use it for tweak installation and RootHide tools. The SpringBoard engine remains RootHide-built. Tested by CI to ensure the main app and helper contain no libroothide loader dependency."
+      "version": "0.1.6 (7)",
+      "url": "https://nextjailbreak.com/transfer/files/LiveTouch/0.1.6/LiveTouch-0.1.6-roothide-ellekit-fix.tipa",
+      "sha256": "037e15e8c45d0aa44eb97eb55d93c44752be53412245670ff5c676e555877db3",
+      "sizeBytes": 78194,
+      "notes": "Fixes RootHide wallpaper engine injection after successful apply. LiveTouch now prefers the active ElleKit usr/lib/TweakInject directory instead of the legacy MobileSubstrate directory, removes the stale legacy engine copy, installs a SpringBoard-filtered iOS 16 CoverSheet engine, and writes engine.log when SpringBoard actually loads the dylib. App/helper remain free of the RootHide launch-time libroothide dependency."
     },
     {
       "id": "next-ai-1.0.0",
