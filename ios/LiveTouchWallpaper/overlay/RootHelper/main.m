@@ -22,9 +22,9 @@ static NSString *DiscoverJBRoot(void) {
             if (![name hasPrefix:@".jbroot-"]) continue;
             NSString *candidate = [parent stringByAppendingPathComponent:name];
             if (![fm fileExistsAtPath:[candidate stringByAppendingPathComponent:@"usr/lib/libroothide.dylib"]]) continue;
-            NSString *substrate = [candidate stringByAppendingPathComponent:@"Library/MobileSubstrate/DynamicLibraries"];
             NSString *inject = [candidate stringByAppendingPathComponent:@"usr/lib/TweakInject"];
-            if (!IsDir(substrate) && !IsDir(inject)) continue;
+            NSString *substrate = [candidate stringByAppendingPathComponent:@"Library/MobileSubstrate/DynamicLibraries"];
+            if (!IsDir(inject) && !IsDir(substrate)) continue;
             NSDictionary *attrs = [fm attributesOfItemAtPath:candidate error:nil];
             [matches addObject:@{ @"path":candidate, @"date":attrs[NSFileModificationDate] ?: [NSDate distantPast] }];
         }
@@ -43,7 +43,7 @@ static NSString *JBPath(NSString *logical) {
 }
 
 static NSString *TweakDir(void) {
-    for (NSString *logical in @[@"/Library/MobileSubstrate/DynamicLibraries", @"/usr/lib/TweakInject"]) {
+    for (NSString *logical in @[@"/usr/lib/TweakInject", @"/Library/MobileSubstrate/DynamicLibraries"]) {
         NSString *p = JBPath(logical);
         if (p.length && IsDir(p)) return p;
     }
@@ -73,21 +73,31 @@ static BOOL CopyReplace(NSString *src, NSString *dst, mode_t mode, uid_t uid, gi
     chmod(dst.fileSystemRepresentation, mode); chown(dst.fileSystemRepresentation, uid, gid); return YES;
 }
 
+static void RemoveLegacyEngineIfNeeded(NSString *activeDir) {
+    NSString *legacy = JBPath(@"/Library/MobileSubstrate/DynamicLibraries");
+    if (!legacy.length || [legacy isEqualToString:activeDir]) return;
+    NSFileManager *fm = NSFileManager.defaultManager;
+    [fm removeItemAtPath:[legacy stringByAppendingPathComponent:@"LiveTouchEngine.dylib"] error:nil];
+    [fm removeItemAtPath:[legacy stringByAppendingPathComponent:@"LiveTouchEngine.plist"] error:nil];
+}
+
 static int InstallEngine(void) {
     NSString *dir = TweakDir();
     NSString *root = DiscoverJBRoot();
     if (!dir.length) {
-        fprintf(stderr, "RootHide tweak directory not found. RootHide jbroot scan=%s\n", root.UTF8String ?: "unresolved");
+        fprintf(stderr, "RootHide injection directory not found. RootHide jbroot scan=%s\n", root.UTF8String ?: "unresolved");
         return 20;
     }
     NSString *bundle = BundleRoot();
     printf("RootHide jbroot: %s\n", root.UTF8String);
-    printf("RootHide tweak directory: %s\n", dir.UTF8String);
+    printf("RootHide active injection directory: %s\n", dir.UTF8String);
     if (!EnsureDir(dir, 0755, 0, 0)) return 2;
+    RemoveLegacyEngineIfNeeded(dir);
     BOOL a = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], 0755, 0, 0);
     BOOL b = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.plist"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.plist"], 0644, 0, 0);
     if (!EnsureDir(DataDir(), 0755, 501, 501)) return 3;
-    printf("Engine installed for RootHide.\n");
+    [[NSFileManager defaultManager] removeItemAtPath:[DataDir() stringByAppendingPathComponent:@"engine.log"] error:nil];
+    printf("Engine installed for RootHide/ElleKit.\n");
     return (a && b) ? 0 : 4;
 }
 
@@ -135,9 +145,11 @@ int main(int argc, char *argv[]) {
             NSString *dylib = dir.length ? [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"] : nil;
             BOOL installed = dylib.length && [[NSFileManager defaultManager] fileExistsAtPath:dylib];
             NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:PrefsPath()];
-            printf("Engine: %s | RootHide jbroot: %s | TweakDir: %s | Wallpaper: %s | Mode: %s\n",
+            NSString *engineLog = [NSString stringWithContentsOfFile:[DataDir() stringByAppendingPathComponent:@"engine.log"] encoding:NSUTF8StringEncoding error:nil];
+            printf("Engine: %s | RootHide jbroot: %s | InjectionDir: %s | Wallpaper: %s | Mode: %s | EngineLog: %s\n",
                    installed ? "installed" : "not installed", DiscoverJBRoot().UTF8String ?: "unresolved", dir.UTF8String ?: "not found",
-                   [prefs[@"videoPath"] fileSystemRepresentation] ?: "not set", [prefs[@"trigger"] UTF8String] ?: "tap");
+                   [prefs[@"videoPath"] fileSystemRepresentation] ?: "not set", [prefs[@"trigger"] UTF8String] ?: "tap",
+                   engineLog.length ? engineLog.UTF8String : "not loaded yet");
             return installed ? 0 : 1;
         }
         fprintf(stderr, "Unknown command.\n"); return 64;
