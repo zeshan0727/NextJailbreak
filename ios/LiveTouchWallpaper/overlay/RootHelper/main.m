@@ -2,7 +2,6 @@
 #import <sys/stat.h>
 #import <unistd.h>
 #import <spawn.h>
-#import <roothide.h>
 #include <string.h>
 
 static NSString *DataDir(void) { return @"/var/mobile/Library/LiveTouchWallpaper"; }
@@ -13,9 +12,39 @@ static BOOL IsDir(NSString *p) {
     return [[NSFileManager defaultManager] fileExistsAtPath:p isDirectory:&d] && d;
 }
 
+static NSString *DiscoverJBRoot(void) {
+    NSFileManager *fm = NSFileManager.defaultManager;
+    NSArray<NSString *> *parents = @[@"/private/var/containers/Bundle/Application", @"/var/containers/Bundle/Application"];
+    NSMutableArray<NSDictionary *> *matches = [NSMutableArray array];
+    for (NSString *parent in parents) {
+        NSArray<NSString *> *items = [fm contentsOfDirectoryAtPath:parent error:nil];
+        for (NSString *name in items ?: @[]) {
+            if (![name hasPrefix:@".jbroot-"]) continue;
+            NSString *candidate = [parent stringByAppendingPathComponent:name];
+            if (![fm fileExistsAtPath:[candidate stringByAppendingPathComponent:@"usr/lib/libroothide.dylib"]]) continue;
+            NSString *substrate = [candidate stringByAppendingPathComponent:@"Library/MobileSubstrate/DynamicLibraries"];
+            NSString *inject = [candidate stringByAppendingPathComponent:@"usr/lib/TweakInject"];
+            if (!IsDir(substrate) && !IsDir(inject)) continue;
+            NSDictionary *attrs = [fm attributesOfItemAtPath:candidate error:nil];
+            [matches addObject:@{ @"path":candidate, @"date":attrs[NSFileModificationDate] ?: [NSDate distantPast] }];
+        }
+        if (matches.count) break;
+    }
+    if (!matches.count) return nil;
+    [matches sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) { return [b[@"date"] compare:a[@"date"]]; }];
+    return matches.firstObject[@"path"];
+}
+
+static NSString *JBPath(NSString *logical) {
+    NSString *root = DiscoverJBRoot();
+    if (!root.length) return nil;
+    NSString *relative = [logical hasPrefix:@"/"] ? [logical substringFromIndex:1] : logical;
+    return relative.length ? [root stringByAppendingPathComponent:relative] : root;
+}
+
 static NSString *TweakDir(void) {
     for (NSString *logical in @[@"/Library/MobileSubstrate/DynamicLibraries", @"/usr/lib/TweakInject"]) {
-        NSString *p = jbroot(logical);
+        NSString *p = JBPath(logical);
         if (p.length && IsDir(p)) return p;
     }
     return nil;
@@ -46,11 +75,13 @@ static BOOL CopyReplace(NSString *src, NSString *dst, mode_t mode, uid_t uid, gi
 
 static int InstallEngine(void) {
     NSString *dir = TweakDir();
+    NSString *root = DiscoverJBRoot();
     if (!dir.length) {
-        fprintf(stderr, "RootHide tweak directory not found. jbroot(/)=%s\n", [jbroot(@"/") UTF8String]);
+        fprintf(stderr, "RootHide tweak directory not found. RootHide jbroot scan=%s\n", root.UTF8String ?: "unresolved");
         return 20;
     }
     NSString *bundle = BundleRoot();
+    printf("RootHide jbroot: %s\n", root.UTF8String);
     printf("RootHide tweak directory: %s\n", dir.UTF8String);
     if (!EnsureDir(dir, 0755, 0, 0)) return 2;
     BOOL a = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], 0755, 0, 0);
@@ -78,9 +109,9 @@ static int Apply(NSString *video, NSString *trigger, NSString *gravity, BOOL mut
 }
 
 static int Respring(void) {
-    NSString *killall = jbroot(@"/usr/bin/killall");
+    NSString *killall = JBPath(@"/usr/bin/killall");
     if (!killall.length || ![[NSFileManager defaultManager] isExecutableFileAtPath:killall]) {
-        fprintf(stderr, "RootHide killall not found.\n");
+        fprintf(stderr, "RootHide killall not found in detected jbroot.\n");
         return 8;
     }
     pid_t pid;
@@ -104,8 +135,8 @@ int main(int argc, char *argv[]) {
             NSString *dylib = dir.length ? [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"] : nil;
             BOOL installed = dylib.length && [[NSFileManager defaultManager] fileExistsAtPath:dylib];
             NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:PrefsPath()];
-            printf("Engine: %s | jbroot: %s | TweakDir: %s | Wallpaper: %s | Mode: %s\n",
-                   installed ? "installed" : "not installed", [jbroot(@"/") UTF8String], dir.UTF8String ?: "not found",
+            printf("Engine: %s | RootHide jbroot: %s | TweakDir: %s | Wallpaper: %s | Mode: %s\n",
+                   installed ? "installed" : "not installed", DiscoverJBRoot().UTF8String ?: "unresolved", dir.UTF8String ?: "not found",
                    [prefs[@"videoPath"] fileSystemRepresentation] ?: "not set", [prefs[@"trigger"] UTF8String] ?: "tap");
             return installed ? 0 : 1;
         }
