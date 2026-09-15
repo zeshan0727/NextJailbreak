@@ -1,0 +1,44 @@
+name: Build LiveTouch TIPA
+
+on:
+  push:
+    branches: ["livetouch-test"]
+    paths:
+      - "ios/LiveTouchWallpaper/source.tar.gz.b64"
+      - ".github/workflows/build-livetouch-tipa.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore LiveTouch source
+        run: |
+          mkdir -p ios/LiveTouchWallpaper
+          base64 --decode ios/LiveTouchWallpaper/source.tar.gz.b64 > /tmp/livetouch-source.tar.gz
+          tar -xzf /tmp/livetouch-source.tar.gz -C ios/LiveTouchWallpaper
+          chmod +x ios/LiveTouchWallpaper/build.sh
+
+      - name: Install Theos dependencies
+        run: |
+          brew install ldid xz
+          echo "THEOS=$GITHUB_WORKSPACE/.theos-sdk" >> "$GITHUB_ENV"
+          git clone --recursive --depth=1 https://github.com/theos/theos.git "$GITHUB_WORKSPACE/.theos-sdk"
+          mkdir -p "$GITHUB_WORKSPACE/.theos-sdk/sdks"
+          curl -L --fail -o /tmp/iPhoneOS16.5.sdk.tar.xz https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz
+          tar -xJf /tmp/iPhoneOS16.5.sdk.tar.xz -C "$GITHUB_WORKSPACE/.theos-sdk/sdks"
+
+      - name: Build LiveTouch
+        run: |
+          cd ios/LiveTouchWallpaper
+          THEOS="$GITHUB_WORKSPACE/.theos-sdk" ./build.sh
+          ls -lh build/LiveTouch-0.1-test.tipa
+
+      - name: Upload TIPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiveTouch-0.1-test
+          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1-test.tipa
+          if-no-files-found: error
