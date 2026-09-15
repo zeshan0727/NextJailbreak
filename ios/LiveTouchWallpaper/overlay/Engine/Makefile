@@ -7,7 +7,7 @@ include $(THEOS)/makefiles/common.mk
 LIBRARY_NAME = LiveTouchEngine
 LiveTouchEngine_FILES = LiveTouchEngine.m
 LiveTouchEngine_FRAMEWORKS = UIKit AVFoundation
-LiveTouchEngine_CFLAGS = -fobjc-arc
+LiveTouchEngine_CFLAGS = -fobjc-arc -Wno-error=deprecated-declarations
 LiveTouchEngine_INSTALL_PATH = /usr/local/lib
 
 include $(THEOS_MAKE_PATH)/library.mk
