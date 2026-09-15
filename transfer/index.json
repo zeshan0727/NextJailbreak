@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-15T08:52:34Z",
+  "updatedAt": "2026-09-15T09:01:28Z",
   "files": [
     {
-      "id": "livetouch-0.1-test",
-      "name": "LiveTouch 0.1 — Touch Live Wallpaper Test",
-      "fileName": "LiveTouch-0.1-test.tipa",
+      "id": "livetouch-0.1.1-root-helper-fix",
+      "name": "LiveTouch 0.1.1 — Root Helper Fix",
+      "fileName": "LiveTouch-0.1.1-test.tipa",
       "type": "tipa",
       "platform": "TrollStore / Jailbroken iOS 14+ (Dopamine Rootless first)",
-      "version": "0.1 (1)",
-      "url": "https://nextjailbreak.com/transfer/files/LiveTouch/0.1/LiveTouch-0.1-test.tipa",
-      "sha256": "fa21d9d9fe79560109d58604f2b0c072ff0ed1d8d316e44b448f54739517137f",
-      "sizeBytes": 42371,
-      "notes": "First device-test build. Import MP4/MOV, choose Tap or Press activation, Fill or Fit, apply the lock-screen live wallpaper engine and respring. Includes the LiveTouch app, root helper and SpringBoard engine. Dopamine/rootless-first; rootful tweak path is also detected."
+      "version": "0.1.1 (2)",
+      "url": "https://nextjailbreak.com/transfer/files/LiveTouch/0.1.1/LiveTouch-0.1.1-test.tipa",
+      "sha256": "0b0d3a874f79f8b7a4b03d4eab3b46cfb69b163782edb7e279a2e0fe9b9866ea",
+      "sizeBytes": 42403,
+      "notes": "Fixes POSIX spawn failed: 202 when installing the lock-screen engine by registering LiveTouchRootHelper through TrollStore TSRootBinaries. Includes app, root helper and SpringBoard engine. Delete the old 0.1 build from TrollStore and install this version fresh so TrollStore processes the root helper registration."
     },
     {
       "id": "next-ai-1.0.0",
