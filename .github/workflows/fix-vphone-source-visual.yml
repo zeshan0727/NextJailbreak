@@ -1,0 +1,85 @@
+name: Fix vphone original-source visual
+
+on:
+  push:
+    paths:
+      - ".github/workflows/fix-vphone-source-visual.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out site
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Replace generic artwork with original project media
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/articles/source-media
+          curl -L --fail --retry 3 \
+            "https://raw.githubusercontent.com/Lakr233/vphone-cli/main/docs/demo.jpeg" \
+            -o assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          image_path = Path("assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg")
+          data = image_path.read_bytes()
+          if len(data) < 12000 or not data.startswith(b"\xff\xd8\xff"):
+              raise SystemExit("Downloaded vphone source visual is not a valid JPEG")
+
+          old_abs = "https://nextjailbreak.com/assets/articles/editorial/vphone-cli-ios27-rc-hero.svg"
+          new_abs = "https://nextjailbreak.com/assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg"
+          old_local = "/assets/articles/editorial/vphone-cli-ios27-rc-hero.svg"
+          new_local = "/assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg"
+
+          for suffix in ("*.html", "*.xml", "*.json"):
+              for path in Path(".").rglob(suffix):
+                  try:
+                      text = path.read_text(encoding="utf-8")
+                  except UnicodeDecodeError:
+                      continue
+                  updated = text.replace(old_abs, new_abs).replace(old_local, new_local)
+                  if updated != text:
+                      path.write_text(updated, encoding="utf-8")
+
+          article = Path("vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/index.html")
+          text = article.read_text(encoding="utf-8")
+          text = text.replace(
+              '<meta property="og:image:type" content="image/svg+xml">',
+              '<meta property="og:image:type" content="image/jpeg">',
+          )
+          text = text.replace(
+              "Next Jailbreak original visual based on the project's September 10 firmware-catalog update and current README.",
+              "Original vphone-cli project demo image from the developer's GitHub repository (docs/demo.jpeg).",
+          )
+          generic_figure = '''<figure class="article-visual"><img src="/assets/articles/editorial/vphone-cli-virtual-vs-physical.svg" alt="Difference between a vphone-cli jailbroken VM and a physical iOS 27 jailbreak"><figcaption>The important distinction: vphone-cli modifies a virtual iPhone guest on an Apple Silicon Mac. It does not provide a physical-device iOS 27 jailbreak.</figcaption></figure>\n'''
+          text = text.replace(generic_figure, "")
+          article.write_text(text, encoding="utf-8")
+
+          if old_abs in article.read_text(encoding="utf-8") or old_local in article.read_text(encoding="utf-8"):
+              raise SystemExit("Generic hero reference remains in article")
+          PY
+
+      - name: Commit source-visual correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Next Jailbreak Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg \
+                  vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/index.html \
+                  index.html feed.xml 2>/dev/null || true
+          git add -u
+          if git diff --cached --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git commit -m "Use original vphone-cli project visual"
+          git push
