@@ -6,19 +6,35 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
-      <title>ReplyActions 1.0.3 Adds Root Path Handling and Media Refactoring for Jailbroken iPhones</title>
-      <link>https://nextjailbreak.com/replyactions-1-0-3-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/replyactions-1-0-3-update/</guid>
-      <pubDate>Mon, 14 Sep 2026 09:26:07 GMT</pubDate>
-      <description>ReplyActions 1.0.3 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <title>AlarmSearch 1.0 Adds Search to the Clock App’s Alarm List</title>
+      <link>https://nextjailbreak.com/alarmsearch-1-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/alarmsearch-1-0-update/</guid>
+      <pubDate>Tue, 15 Sep 2026 07:15:59 GMT</pubDate>
+      <description>AlarmSearch 1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
     </item>
     <item>
-      <title>LockGlass: Glass-Style Lock Screen Customization With Version and Compatibility Caveats</title>
-      <link>https://nextjailbreak.com/lockglass-1-0-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/lockglass-1-0-update/</guid>
-      <pubDate>Mon, 14 Sep 2026 09:22:24 GMT</pubDate>
-      <description>LockGlass 1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <title>NotificationTest 0.0.2 Adds Pull-to-Clear Support for iOS 18 Through 26.2</title>
+      <link>https://nextjailbreak.com/notificationtest-0-0-2-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/notificationtest-0-0-2-update/</guid>
+      <pubDate>Tue, 15 Sep 2026 07:14:57 GMT</pubDate>
+      <description>NotificationTest 0.0.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>AutoPower 1.3.0 adds automatic Low Power Mode triggers for iOS 18 devices</title>
+      <link>https://nextjailbreak.com/autopower-1-3-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/autopower-1-3-0-update/</guid>
+      <pubDate>Tue, 15 Sep 2026 07:13:37 GMT</pubDate>
+      <description>AutoPower 1.3.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>BottomControlX 1.0.1 adds stealth screenshots and broader lock-screen gesture behavior</title>
+      <link>https://nextjailbreak.com/bottomcontrolx-1-0-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/bottomcontrolx-1-0-1-update/</guid>
+      <pubDate>Tue, 15 Sep 2026 07:11:31 GMT</pubDate>
+      <description>BottomControlX 1.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
     </item>
     <item>
@@ -35,14 +51,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/killx-pro-neo-3-0-update/</guid>
       <pubDate>Mon, 14 Sep 2026 09:15:03 GMT</pubDate>
       <description>KillX Pro Neo 3.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Watusi 3 v1.3.24 Adds WhatsApp 26.36.x Support and Fixes Three User-Facing Issues</title>
-      <link>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-24-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-24-update/</guid>
-      <pubDate>Mon, 14 Sep 2026 09:13:18 GMT</pubDate>
-      <description>Watusi 3 for WhatsApp 1.3.24 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
     </item>
     <item>
@@ -235,14 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/setupmanager-tweak.html</guid>
       <pubDate>Sat, 29 Aug 2026 15:12:09 GMT</pubDate>
       <description>SetupManager 1.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Circle to Search 0.6.0 for iOS: Release Details and Installation Notes</title>
-      <link>https://nextjailbreak.com/circle-to-search-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/circle-to-search-tweak.html</guid>
-      <pubDate>Sat, 29 Aug 2026 03:16:26 GMT</pubDate>
-      <description>Circle to Search 0.6.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
     </item>
   </channel>
