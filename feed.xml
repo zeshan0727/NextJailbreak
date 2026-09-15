@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Nations 1.0: Lock-Screen Audio Spectrum Tweak Explained</title>
+      <link>https://nextjailbreak.com/nations-tweak.html</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/nations-tweak.html</guid>
+      <pubDate>Tue, 15 Sep 2026 18:58:46 GMT</pubDate>
+      <description>Nations 1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>Lock Screen</category>
+    </item>
+    <item>
       <title>vphone-cli Adds iOS 27 RC Support With a Full Jailbreak VM Mode on Apple Silicon</title>
       <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Sun, 30 Aug 2026 14:42:46 GMT</pubDate>
       <description>Bloom 1.4 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>Notifications</category>
-    </item>
-    <item>
-      <title>XXTouch Elite 5.4.6: Automation Tool Package Overview</title>
-      <link>https://nextjailbreak.com/xxtouch-elite-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/xxtouch-elite-tweak.html</guid>
-      <pubDate>Sun, 30 Aug 2026 03:54:14 GMT</pubDate>
-      <description>XXTouch Elite 5.4.6 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>Productivity</category>
     </item>
   </channel>
 </rss>

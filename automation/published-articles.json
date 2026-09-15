@@ -1,6 +1,29 @@
 {
   "entries": [
     {
+      "article_sha256": "57dc254c909d2c5096d1706a7f1fa36a07e8e352c6094a268a19159d78e8dc6b",
+      "candidate_fingerprint": "72eaf9cde1fdecd4655943e202771160f2809f5d67dc56a9dd72095ac347dd8d",
+      "category": {
+        "id": "lock-screen",
+        "label": "Lock Screen"
+      },
+      "description": "Nations 1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "nations-tweak.html",
+      "image": "https://media.havoc.app/695faab88f9981aa2da3de7a",
+      "media_credit": "Nations official package listing",
+      "media_source_url": "https://havoc.app/package/nations",
+      "modified_at": "2026-09-15T18:58:46+00:00",
+      "name": "Nations",
+      "package": "jp.uzra.nations",
+      "published_at": "2026-09-15T18:58:46+00:00",
+      "selection_pool": "evergreen",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/nations",
+      "source_url": "https://havoc.app/",
+      "title": "Nations 1.0: Lock-Screen Audio Spectrum Tweak Explained",
+      "version": "1.0"
+    },
+    {
       "category": {
         "id": "jailbreak",
         "label": "Jailbreak"
@@ -2227,8 +2250,17 @@
       "published_at": "2026-09-15T08:07:38+00:00",
       "run_id": "manual-test",
       "version": "24A435"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "72eaf9cde1fdecd4655943e202771160f2809f5d67dc56a9dd72095ac347dd8d",
+      "href": "nations-tweak.html",
+      "package": "jp.uzra.nations",
+      "published_at": "2026-09-15T18:58:46+00:00",
+      "run_id": "35010560349",
+      "version": "1.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-15T08:07:38+00:00"
+  "updated_at": "2026-09-15T18:58:46+00:00"
 }
