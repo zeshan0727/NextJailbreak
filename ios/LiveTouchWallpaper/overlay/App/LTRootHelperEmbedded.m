@@ -3,19 +3,74 @@
 #import <unistd.h>
 #import <signal.h>
 #import <spawn.h>
+#import <mach-o/dyld.h>
 #include <string.h>
 extern char **environ;
 
-static NSString *JBPrefix(void) {
-    return [[NSFileManager defaultManager] fileExistsAtPath:@"/var/jb"] ? @"/var/jb" : @"";
-}
-
-static NSString *TweakDir(void) {
-    return [JBPrefix() stringByAppendingString:@"/Library/MobileSubstrate/DynamicLibraries"];
-}
-
 static NSString *DataDir(void) { return @"/var/mobile/Library/LiveTouchWallpaper"; }
 static NSString *PrefsPath(void) { return @"/var/mobile/Library/Preferences/com.nextjailbreak.livetouch.plist"; }
+
+static BOOL LTIsDirectory(NSString *path) {
+    BOOL isDir = NO;
+    return [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] && isDir;
+}
+
+static NSString *LTDirectoryFromLoadedImage(NSString *imagePath) {
+    NSArray<NSString *> *markers = @[
+        @"/Library/MobileSubstrate/DynamicLibraries/",
+        @"/usr/lib/TweakInject/"
+    ];
+    for (NSString *marker in markers) {
+        NSRange r = [imagePath rangeOfString:marker options:NSCaseInsensitiveSearch];
+        if (r.location != NSNotFound) {
+            NSString *prefix = [imagePath substringToIndex:r.location];
+            NSString *dir = [prefix stringByAppendingString:[marker substringToIndex:marker.length - 1]];
+            if (dir.length && LTIsDirectory(dir)) return dir;
+        }
+    }
+    return nil;
+}
+
+static NSString *LTDiscoverTweakDir(void) {
+    NSFileManager *fm = NSFileManager.defaultManager;
+    NSArray<NSString *> *rootlessCandidates = @[
+        @"/var/jb/Library/MobileSubstrate/DynamicLibraries",
+        @"/var/jb/usr/lib/TweakInject"
+    ];
+    for (NSString *candidate in rootlessCandidates) {
+        if (LTIsDirectory(candidate)) return candidate;
+    }
+
+    uint32_t count = _dyld_image_count();
+    for (uint32_t i = 0; i < count; i++) {
+        const char *name = _dyld_get_image_name(i);
+        if (!name) continue;
+        NSString *image = [NSString stringWithUTF8String:name];
+        NSString *dir = LTDirectoryFromLoadedImage(image);
+        if (dir.length) return dir;
+    }
+
+    NSDirectoryEnumerator *en = [fm enumeratorAtURL:[NSURL fileURLWithPath:@"/private/preboot"]
+                         includingPropertiesForKeys:@[NSURLIsDirectoryKey]
+                                            options:(NSDirectoryEnumerationSkipsHiddenFiles | NSDirectoryEnumerationSkipsPackageDescendants)
+                                       errorHandler:^BOOL(NSURL *url, NSError *error) { return YES; }];
+    NSUInteger inspected = 0;
+    for (NSURL *url in en) {
+        if (++inspected > 12000) break;
+        NSString *p = url.path;
+        if ([p hasSuffix:@"/Library/MobileSubstrate/DynamicLibraries"] || [p hasSuffix:@"/usr/lib/TweakInject"]) {
+            if (LTIsDirectory(p)) return p;
+        }
+    }
+
+    NSString *rootful = @"/Library/MobileSubstrate/DynamicLibraries";
+    if (LTIsDirectory(rootful) && access(rootful.fileSystemRepresentation, W_OK) == 0) return rootful;
+    return nil;
+}
+
+static NSString *LTModeForTweakDir(NSString *dir) {
+    return [dir hasPrefix:@"/Library/"] ? @"rootful" : @"rootless";
+}
 
 static BOOL EnsureDir(NSString *path, mode_t mode, uid_t uid, gid_t gid) {
     NSError *e = nil;
@@ -42,12 +97,17 @@ static BOOL CopyReplace(NSString *src, NSString *dst, mode_t mode, uid_t uid, gi
 
 static int InstallEngine(void) {
     NSString *bundle = BundleRoot();
-    NSString *dir = TweakDir();
+    NSString *dir = LTDiscoverTweakDir();
+    if (!dir.length) {
+        fprintf(stderr, "Could not discover jailbreak tweak directory. /var/jb was unavailable and no rootless preboot tweak path was found. Refusing to write to the read-only rootful /Library path.\n");
+        return 20;
+    }
+    printf("Detected %s tweak directory: %s\n", LTModeForTweakDir(dir).UTF8String, dir.UTF8String);
     if (!EnsureDir(dir, 0755, 0, 0)) return 2;
     BOOL a = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], 0755, 0, 0);
     BOOL b = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.plist"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.plist"], 0644, 0, 0);
     if (!EnsureDir(DataDir(), 0755, 501, 501)) return 3;
-    printf("Engine installed (%s).\n", JBPrefix().length ? "rootless" : "rootful");
+    printf("Engine installed (%s).\n", LTModeForTweakDir(dir).UTF8String);
     return (a && b) ? 0 : 4;
 }
 
@@ -69,7 +129,18 @@ static int Apply(NSString *video, NSString *trigger, NSString *gravity, BOOL mut
 }
 
 static int Respring(void) {
-    NSArray<NSString *> *paths = @[[JBPrefix() stringByAppendingString:@"/usr/bin/killall"], @"/usr/bin/killall"];
+    NSMutableArray<NSString *> *paths = [NSMutableArray array];
+    NSString *dir = LTDiscoverTweakDir();
+    if (dir.length) {
+        NSRange libRange = [dir rangeOfString:@"/Library/MobileSubstrate/DynamicLibraries"];
+        NSRange injectRange = [dir rangeOfString:@"/usr/lib/TweakInject"];
+        NSString *prefix = nil;
+        if (libRange.location != NSNotFound) prefix = [dir substringToIndex:libRange.location];
+        else if (injectRange.location != NSNotFound) prefix = [dir substringToIndex:injectRange.location];
+        if (prefix.length) [paths addObject:[prefix stringByAppendingString:@"/usr/bin/killall"]];
+    }
+    [paths addObject:@"/var/jb/usr/bin/killall"];
+    [paths addObject:@"/usr/bin/killall"];
     for (NSString *p in paths) {
         if ([[NSFileManager defaultManager] isExecutableFileAtPath:p]) {
             pid_t pid; const char *argv[] = { p.fileSystemRepresentation, "-9", "SpringBoard", NULL };
@@ -89,10 +160,11 @@ int LTEmbeddedRootHelperMain(int argc, char *argv[]) {
         if ([cmd isEqualToString:@"apply"] && argc >= 7) return Apply([NSString stringWithUTF8String:argv[3]], [NSString stringWithUTF8String:argv[4]], [NSString stringWithUTF8String:argv[5]], atoi(argv[6]) != 0);
         if ([cmd isEqualToString:@"respring"]) return Respring();
         if ([cmd isEqualToString:@"status"]) {
-            NSString *dylib = [TweakDir() stringByAppendingPathComponent:@"LiveTouchEngine.dylib"];
-            BOOL installed = [[NSFileManager defaultManager] fileExistsAtPath:dylib];
+            NSString *dir = LTDiscoverTweakDir();
+            NSString *dylib = dir.length ? [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"] : nil;
+            BOOL installed = dylib.length && [[NSFileManager defaultManager] fileExistsAtPath:dylib];
             NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:PrefsPath()];
-            printf("Engine: %s | Wallpaper: %s | Mode: %s\n", installed ? "installed" : "not installed", [prefs[@"videoPath"] fileSystemRepresentation] ?: "not set", [prefs[@"trigger"] UTF8String] ?: "tap");
+            printf("Engine: %s | TweakDir: %s | Wallpaper: %s | Mode: %s\n", installed ? "installed" : "not installed", dir.UTF8String ?: "not found", [prefs[@"videoPath"] fileSystemRepresentation] ?: "not set", [prefs[@"trigger"] UTF8String] ?: "tap");
             return installed ? 0 : 1;
         }
         fprintf(stderr, "Unknown command.\n"); return 64;
