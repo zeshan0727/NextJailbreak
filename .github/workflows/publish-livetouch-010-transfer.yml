@@ -1,0 +1,112 @@
+name: Publish LiveTouch 0.1 Test to NS Transfer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-livetouch-010-transfer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ARTIFACT_ID: '10387983674'
+      DEST_DIR: transfer/files/LiveTouch/0.1
+      DEST_FILE: LiveTouch-0.1-test.tipa
+      APP_SHA: fa21d9d9fe79560109d58604f2b0c072ff0ed1d8d316e44b448f54739517137f
+      APP_SIZE: '42371'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download verified LiveTouch build artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/livetouch.zip
+          rm -rf /tmp/livetouch
+          mkdir -p /tmp/livetouch
+          unzip -q /tmp/livetouch.zip -d /tmp/livetouch
+          test -f "/tmp/livetouch/${DEST_FILE}"
+
+      - name: Verify exact TIPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="/tmp/livetouch/${DEST_FILE}"
+          test "$(sha256sum "$APP" | awk '{print $1}')" = "$APP_SHA"
+          test "$(stat -c%s "$APP")" = "$APP_SIZE"
+          unzip -tq "$APP" >/dev/null
+          python3 - "$APP" <<'PY'
+          import plistlib,sys,zipfile
+          with zipfile.ZipFile(sys.argv[1]) as z:
+              info='Payload/LiveTouch.app/Info.plist'
+              assert info in z.namelist()
+              p=plistlib.loads(z.read(info))
+              assert p['CFBundleIdentifier']=='com.nextjailbreak.livetouch'
+              assert p['CFBundleShortVersionString']=='0.1'
+              assert p['CFBundleVersion']=='1'
+              for required in (
+                  'Payload/LiveTouch.app/LiveTouch',
+                  'Payload/LiveTouch.app/LiveTouchRootHelper',
+                  'Payload/LiveTouch.app/LiveTouchEngine.dylib',
+                  'Payload/LiveTouch.app/LiveTouchEngine.plist',
+              ):
+                  assert required in z.namelist(), required
+          PY
+
+      - name: Publish file and update NS Transfer feed
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$DEST_DIR"
+          cp "/tmp/livetouch/${DEST_FILE}" "$DEST_DIR/$DEST_FILE"
+
+          python3 - <<'PY'
+          import json
+          from datetime import datetime,timezone
+          from pathlib import Path
+          p=Path('transfer/index.json')
+          data=json.loads(p.read_text())
+          item_id='livetouch-0.1-test'
+          data['files']=[x for x in data.get('files',[]) if x.get('id') != item_id]
+          item={
+            'id': item_id,
+            'name': 'LiveTouch 0.1 — Touch Live Wallpaper Test',
+            'fileName': 'LiveTouch-0.1-test.tipa',
+            'type': 'tipa',
+            'platform': 'TrollStore / Jailbroken iOS 14+ (Dopamine Rootless first)',
+            'version': '0.1 (1)',
+            'url': 'https://nextjailbreak.com/transfer/files/LiveTouch/0.1/LiveTouch-0.1-test.tipa',
+            'sha256': 'fa21d9d9fe79560109d58604f2b0c072ff0ed1d8d316e44b448f54739517137f',
+            'sizeBytes': 42371,
+            'notes': 'First device-test build. Import MP4/MOV, choose Tap or Press activation, Fill or Fit, apply the lock-screen live wallpaper engine and respring. Includes the LiveTouch app, root helper and SpringBoard engine. Dopamine/rootless-first; rootful tweak path is also detected.'
+          }
+          data['files'].insert(0,item)
+          data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+          PY
+
+          python3 -m json.tool transfer/index.json >/dev/null
+          grep -Fq 'livetouch-0.1-test' transfer/index.json
+
+      - name: Commit NS Transfer publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json "$DEST_DIR/$DEST_FILE"
+          git diff --cached --stat
+          git commit -m 'Publish LiveTouch 0.1 test to NS Transfer'
+          git push origin HEAD:main
