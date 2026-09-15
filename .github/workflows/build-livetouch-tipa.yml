@@ -35,6 +35,7 @@ jobs:
           grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/App/Makefile
           grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/Engine/Makefile
           grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/RootHelper/Makefile
+          grep -Fq -- '-Wno-error=deprecated-declarations' ios/LiveTouchWallpaper/App/Makefile
           grep -Fq '#import <roothide.h>' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
           grep -Fq 'jbroot(path)' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
           grep -Fq 'com.apple.private.security.storage.AppBundles' ios/LiveTouchWallpaper/App/entitlements.plist
