@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore source and apply RootHide overlay
+      - name: Restore source and apply final cleanup overlay
         run: |
           mkdir -p ios/LiveTouchWallpaper
           python3 - <<'PY'
@@ -26,23 +26,19 @@ jobs:
           PY
           tar -xzf /tmp/livetouch-source.tar.gz -C ios/LiveTouchWallpaper
           test -d ios/LiveTouchWallpaper/overlay/App
-          test -d ios/LiveTouchWallpaper/overlay/Engine
           test -d ios/LiveTouchWallpaper/overlay/RootHelper
           cp -f ios/LiveTouchWallpaper/overlay/App/* ios/LiveTouchWallpaper/App/
-          cp -f ios/LiveTouchWallpaper/overlay/Engine/* ios/LiveTouchWallpaper/Engine/
           cp -f ios/LiveTouchWallpaper/overlay/RootHelper/* ios/LiveTouchWallpaper/RootHelper/
           chmod +x ios/LiveTouchWallpaper/build-fixed.sh
-          ! grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/App/Makefile
-          grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/Engine/Makefile
-          ! grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/RootHelper/Makefile
-          grep -Fq '.jbroot-' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
+          grep -Fq 'Uninstall LiveTouch Files' ios/LiveTouchWallpaper/App/LTRootViewController.m
+          grep -Fq 'uninstall' ios/LiveTouchWallpaper/App/LTRootViewController.m
+          grep -Fq 'LiveTouch uninstall cleanup complete.' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
           grep -Fq '/usr/lib/TweakInject' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
-          grep -Fq 'CSCoverSheetViewController' ios/LiveTouchWallpaper/Engine/LiveTouchEngine.m
-          grep -Fq 'engine.log' ios/LiveTouchWallpaper/Engine/LiveTouchEngine.m
-          grep -Fq 'com.apple.springboard' ios/LiveTouchWallpaper/Engine/LiveTouchEngine.plist
-          grep -Fq 'com.apple.private.security.storage.AppBundles' ios/LiveTouchWallpaper/App/entitlements.plist
+          grep -Fq '/Library/MobileSubstrate/DynamicLibraries' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
+          grep -Fq '/var/mobile/Library/LiveTouchWallpaper' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
+          grep -Fq 'com.nextjailbreak.livetouch.plist' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
 
-      - name: Install RootHide Theos dependencies
+      - name: Install Theos dependencies
         run: |
           brew install ldid xz
           echo "THEOS=$GITHUB_WORKSPACE/.theos-roothide" >> "$GITHUB_ENV"
@@ -50,56 +46,48 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/.theos-roothide/sdks"
           curl -L --fail -o /tmp/iPhoneOS16.5.sdk.tar.xz https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz
           tar -xJf /tmp/iPhoneOS16.5.sdk.tar.xz -C "$GITHUB_WORKSPACE/.theos-roothide/sdks"
-          test -d "$GITHUB_WORKSPACE/.theos-roothide/mod/roothide" -o -d "$GITHUB_WORKSPACE/.theos-roothide/vendor/mod/roothide"
 
-      - name: Build and validate LiveTouch 0.1.6 RootHide ElleKit fix
+      - name: Build and validate LiveTouch 0.1.7 final cleanup
         run: |
           cd ios/LiveTouchWallpaper
           THEOS="$GITHUB_WORKSPACE/.theos-roothide" ./build-fixed.sh
-          APP=build/LiveTouch-0.1.6-roothide-ellekit-fix.tipa
+          APP=build/LiveTouch-0.1.7-final-cleanup.tipa
           unzip -tq "$APP" >/dev/null
+          unzip -l "$APP" | tee /tmp/livetouch-list.txt
+          ! grep -Fq 'LiveTouchEngine.dylib' /tmp/livetouch-list.txt
+          ! grep -Fq 'LiveTouchEngine.plist' /tmp/livetouch-list.txt
           unzip -p "$APP" Payload/LiveTouch.app/Info.plist >/tmp/LiveTouch-Info.plist
           unzip -p "$APP" Payload/LiveTouch.app/LiveTouch >/tmp/LiveTouch-main
-          unzip -p "$APP" Payload/LiveTouch.app/LiveTouchEngine.dylib >/tmp/LiveTouch-engine
           unzip -p "$APP" Payload/LiveTouch.app/LiveTouchRootHelper >/tmp/LiveTouch-helper
-          unzip -p "$APP" Payload/LiveTouch.app/LiveTouchEngine.plist >/tmp/LiveTouch-engine.plist
-          chmod +x /tmp/LiveTouch-main /tmp/LiveTouch-engine /tmp/LiveTouch-helper
+          chmod +x /tmp/LiveTouch-main /tmp/LiveTouch-helper
           plutil -lint /tmp/LiveTouch-Info.plist
-          plutil -lint /tmp/LiveTouch-engine.plist
           python3 - <<'PY'
           import plistlib
           with open('/tmp/LiveTouch-Info.plist','rb') as f: p=plistlib.load(f)
           assert p['CFBundleIdentifier']=='com.nextjailbreak.livetouch'
-          assert p['CFBundleShortVersionString']=='0.1.6'
-          assert p['CFBundleVersion']=='7'
+          assert p['CFBundleDisplayName']=='LiveTouch Cleanup'
+          assert p['CFBundleShortVersionString']=='0.1.7'
+          assert p['CFBundleVersion']=='8'
           assert p['TSRootBinaries']==['LiveTouchRootHelper']
-          with open('/tmp/LiveTouch-engine.plist','rb') as f: e=plistlib.load(f)
-          assert 'com.apple.springboard' in e['Filter']['Bundles']
           PY
           strings /tmp/LiveTouch-main | grep -Fq -- '--root-helper'
-          strings /tmp/LiveTouch-main | grep -Fq 'RootHide active injection directory:'
-          strings /tmp/LiveTouch-main | grep -Fq 'Engine installed for RootHide/ElleKit.'
-          strings /tmp/LiveTouch-helper | grep -Fq 'RootHide active injection directory:'
-          strings /tmp/LiveTouch-engine | grep -Fq 'LiveTouchEngine 0.1.6 loaded into'
-          strings /tmp/LiveTouch-engine | grep -Fq 'CSCoverSheetViewController'
-          strings /tmp/LiveTouch-engine | grep -Fq 'engine.log'
+          strings /tmp/LiveTouch-main | grep -Fq 'Uninstall LiveTouch Files'
+          strings /tmp/LiveTouch-main | grep -Fq 'LiveTouch uninstall cleanup complete.'
+          strings /tmp/LiveTouch-main | grep -Fq '/usr/lib/TweakInject'
+          strings /tmp/LiveTouch-main | grep -Fq '/Library/MobileSubstrate/DynamicLibraries'
+          strings /tmp/LiveTouch-main | grep -Fq '/var/mobile/Library/LiveTouchWallpaper'
+          strings /tmp/LiveTouch-main | grep -Fq 'com.nextjailbreak.livetouch.plist'
           ldid -e /tmp/LiveTouch-main >/tmp/LiveTouch-entitlements.plist
           grep -Fq 'platform-application' /tmp/LiveTouch-entitlements.plist
           grep -Fq 'com.apple.private.security.no-sandbox' /tmp/LiveTouch-entitlements.plist
-          echo '--- main links ---'
-          otool -L /tmp/LiveTouch-main
           ! otool -L /tmp/LiveTouch-main | grep -Fq 'libroothide.dylib'
-          echo '--- helper links ---'
-          otool -L /tmp/LiveTouch-helper
-          ! otool -L /tmp/LiveTouch-helper | grep -Fq 'libroothide.dylib'
-          echo '--- engine links ---'
-          otool -L /tmp/LiveTouch-engine
-          file /tmp/LiveTouch-main /tmp/LiveTouch-engine /tmp/LiveTouch-helper
+          file /tmp/LiveTouch-main /tmp/LiveTouch-helper
+          shasum -a 256 "$APP"
           ls -lh "$APP"
 
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
         with:
-          name: LiveTouch-0.1.6-roothide-ellekit-fix
-          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1.6-roothide-ellekit-fix.tipa
+          name: LiveTouch-0.1.7-final-cleanup
+          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1.7-final-cleanup.tipa
           if-no-files-found: error
