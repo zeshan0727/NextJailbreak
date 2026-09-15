@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <objc/runtime.h>
+#import <unistd.h>
 
 static NSString * const LTPrefsPath = @"/var/mobile/Library/Preferences/com.nextjailbreak.livetouch.plist";
 static NSString * const LTDataDir = @"/var/mobile/Library/LiveTouchWallpaper";
@@ -36,13 +37,8 @@ static void LTLog(NSString *format, ...) {
 
 @implementation LTWallpaperView
 
-+ (Class)layerClass {
-    return [AVPlayerLayer class];
-}
-
-- (AVPlayerLayer *)playerLayer {
-    return (AVPlayerLayer *)self.layer;
-}
++ (Class)layerClass { return [AVPlayerLayer class]; }
+- (AVPlayerLayer *)playerLayer { return (AVPlayerLayer *)self.layer; }
 
 - (void)dealloc {
     if (self.endObserver) [[NSNotificationCenter defaultCenter] removeObserver:self.endObserver];
@@ -56,8 +52,7 @@ static void LTLog(NSString *format, ...) {
         return;
     }
 
-    NSURL *url = [NSURL fileURLWithPath:videoPath];
-    AVPlayerItem *item = [AVPlayerItem playerItemWithURL:url];
+    AVPlayerItem *item = [AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:videoPath]];
     self.player = [AVPlayer playerWithPlayerItem:item];
     self.player.actionAtItemEnd = AVPlayerActionAtItemEndPause;
     self.player.muted = [prefs[@"mute"] boolValue];
@@ -117,14 +112,17 @@ static void LTLogSubviewClasses(UIView *view) {
     LTLog(@"CoverSheet root subviews: %@", [names componentsJoinedByString:@", "]);
 }
 
-static void LTTriggerGesture(UIGestureRecognizer *gesture) {
-    UIView *host = gesture.view;
-    UIViewController *controller = nil;
-    UIResponder *responder = host;
+static UIViewController *LTControllerForView(UIView *view) {
+    UIResponder *responder = view;
     while (responder) {
-        if ([responder isKindOfClass:UIViewController.class]) { controller = (UIViewController *)responder; break; }
+        if ([responder isKindOfClass:UIViewController.class]) return (UIViewController *)responder;
         responder = responder.nextResponder;
     }
+    return nil;
+}
+
+static void LTTriggerGesture(UIGestureRecognizer *gesture) {
+    UIViewController *controller = LTControllerForView(gesture.view);
     LTWallpaperView *wallpaper = controller ? objc_getAssociatedObject(controller, LTWallpaperKey) : nil;
     if (!wallpaper) return;
     if ([gesture isKindOfClass:UILongPressGestureRecognizer.class]) {
@@ -139,7 +137,12 @@ static void LTTriggerGesture(UIGestureRecognizer *gesture) {
 - (void)trigger:(UIGestureRecognizer *)gesture;
 @end
 @implementation LTGestureProxy
-+ (instancetype)shared { static LTGestureProxy *p; static dispatch_once_t once; dispatch_once(&once, ^{ p=[LTGestureProxy new]; }); return p; }
++ (instancetype)shared {
+    static LTGestureProxy *proxy;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ proxy = [LTGestureProxy new]; });
+    return proxy;
+}
 - (void)trigger:(UIGestureRecognizer *)gesture { LTTriggerGesture(gesture); }
 @end
 
@@ -150,6 +153,7 @@ static void LTInstallWallpaperOnController(UIViewController *controller) {
         LTLog(@"Preferences not enabled; skipping wallpaper");
         return;
     }
+
     NSString *videoPath = prefs[@"videoPath"];
     if (!videoPath.length || ![[NSFileManager defaultManager] fileExistsAtPath:videoPath]) {
         LTLog(@"Configured video missing at %@", videoPath ?: @"(nil)");
@@ -170,13 +174,11 @@ static void LTInstallWallpaperOnController(UIViewController *controller) {
     wallpaper.backgroundColor = UIColor.blackColor;
     [wallpaper configureWithPreferences:prefs];
 
-    // CoverSheet is transparent over the system wallpaper on iOS 16. Place our video
-    // at the rear of CoverSheet so clock/widgets/notifications remain above it.
     [root insertSubview:wallpaper atIndex:0];
     objc_setAssociatedObject(controller, LTWallpaperKey, wallpaper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     NSString *trigger = [prefs[@"trigger"] isKindOfClass:NSString.class] ? prefs[@"trigger"] : @"tap";
-    UIGestureRecognizer *gesture = nil;
+    UIGestureRecognizer *gesture;
     if ([trigger isEqualToString:@"press"]) {
         UILongPressGestureRecognizer *press = [[UILongPressGestureRecognizer alloc] initWithTarget:[LTGestureProxy shared] action:@selector(trigger:)];
         press.minimumPressDuration = 0.18;
@@ -204,9 +206,18 @@ static void LTViewDidAppearReplacement(id self, SEL _cmd, BOOL animated) {
 static BOOL LTHookControllerNamed(NSString *name) {
     Class cls = NSClassFromString(name);
     if (!cls) return NO;
-    Method method = class_getInstanceMethod(cls, @selector(viewDidAppear:));
+    SEL selector = @selector(viewDidAppear:);
+    Method method = class_getInstanceMethod(cls, selector);
     if (!method) return NO;
-    LTOriginalViewDidAppear = method_setImplementation(method, (IMP)LTViewDidAppearReplacement);
+
+    LTOriginalViewDidAppear = method_getImplementation(method);
+    const char *types = method_getTypeEncoding(method);
+    // If the method is inherited, add an override on the lock-screen class only.
+    // If it already exists on that class, replace just that implementation.
+    if (!class_addMethod(cls, selector, (IMP)LTViewDidAppearReplacement, types)) {
+        Method ownMethod = class_getInstanceMethod(cls, selector);
+        LTOriginalViewDidAppear = method_setImplementation(ownMethod, (IMP)LTViewDidAppearReplacement);
+    }
     LTHookedControllerClass = cls;
     LTLog(@"Hooked %@ viewDidAppear:", name);
     return YES;
@@ -223,9 +234,7 @@ static void LTFindAndAttachInController(UIViewController *controller) {
 
 static void LTAttachToExistingController(void) {
     UIApplication *app = UIApplication.sharedApplication;
-    for (UIWindow *window in app.windows) {
-        LTFindAndAttachInController(window.rootViewController);
-    }
+    for (UIWindow *window in app.windows) LTFindAndAttachInController(window.rootViewController);
 }
 
 static void LTTryInstallHooks(NSUInteger attempt) {
@@ -249,8 +258,6 @@ static void LTTryInstallHooks(NSUInteger attempt) {
 __attribute__((constructor)) static void LiveTouchEngineInit(void) {
     @autoreleasepool {
         LTLog(@"LiveTouchEngine 0.1.6 loaded into %@ pid=%d", NSProcessInfo.processInfo.processName, getpid());
-        dispatch_async(dispatch_get_main_queue(), ^{
-            LTTryInstallHooks(0);
-        });
+        dispatch_async(dispatch_get_main_queue(), ^{ LTTryInstallHooks(0); });
     }
 }
