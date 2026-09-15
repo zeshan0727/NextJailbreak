@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore LiveTouch source and apply 0.1.2 overlay
+      - name: Restore LiveTouch source and apply rootless-path overlay
         run: |
           mkdir -p ios/LiveTouchWallpaper
           python3 - <<'PY'
@@ -30,6 +30,8 @@ jobs:
           chmod +x ios/LiveTouchWallpaper/build-fixed.sh
           grep -Fq 'LTRootHelperEmbedded.m' ios/LiveTouchWallpaper/App/Makefile
           grep -Fq -- '--root-helper' ios/LiveTouchWallpaper/App/main.m
+          grep -Fq '/private/preboot' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
+          grep -Fq 'LTDiscoverTweakDir' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
 
       - name: Install Theos dependencies
         run: |
@@ -40,11 +42,11 @@ jobs:
           curl -L --fail -o /tmp/iPhoneOS16.5.sdk.tar.xz https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz
           tar -xJf /tmp/iPhoneOS16.5.sdk.tar.xz -C "$GITHUB_WORKSPACE/.theos-sdk/sdks"
 
-      - name: Build and validate LiveTouch 0.1.2
+      - name: Build and validate LiveTouch 0.1.3
         run: |
           cd ios/LiveTouchWallpaper
           THEOS="$GITHUB_WORKSPACE/.theos-sdk" ./build-fixed.sh
-          APP=build/LiveTouch-0.1.2-test.tipa
+          APP=build/LiveTouch-0.1.3-test.tipa
           unzip -tq "$APP" >/dev/null
           unzip -p "$APP" Payload/LiveTouch.app/Info.plist >/tmp/LiveTouch-Info.plist
           unzip -p "$APP" Payload/LiveTouch.app/LiveTouch >/tmp/LiveTouch-main
@@ -55,19 +57,20 @@ jobs:
           import plistlib
           with open('/tmp/LiveTouch-Info.plist','rb') as f: p=plistlib.load(f)
           assert p['CFBundleIdentifier']=='com.nextjailbreak.livetouch'
-          assert p['CFBundleShortVersionString']=='0.1.2'
-          assert p['CFBundleVersion']=='3'
+          assert p['CFBundleShortVersionString']=='0.1.3'
+          assert p['CFBundleVersion']=='4'
           assert p['TSRootBinaries']==['LiveTouchRootHelper']
           PY
           strings /tmp/LiveTouch-main | grep -Fq -- '--root-helper'
-          strings /tmp/LiveTouch-main | grep -Fq 'Embedded root helper'
-          strings /tmp/LiveTouch-main | grep -Fq 'persona=%d uid=%d gid=%d'
+          strings /tmp/LiveTouch-main | grep -Fq 'Detected %s tweak directory:'
+          strings /tmp/LiveTouch-main | grep -Fq '/private/preboot'
+          strings /tmp/LiveTouch-main | grep -Fq 'Refusing to write to the read-only rootful /Library path.'
           unzip -l "$APP" | grep -F 'Payload/LiveTouch.app/LiveTouchRootHelper'
           ls -lh "$APP"
 
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
         with:
-          name: LiveTouch-0.1.2-test
-          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1.2-test.tipa
+          name: LiveTouch-0.1.3-test
+          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1.3-test.tipa
           if-no-files-found: error
