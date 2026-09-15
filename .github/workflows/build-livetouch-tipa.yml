@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore LiveTouch source and apply rootless-path overlay
+      - name: Restore source and apply RootHide overlay
         run: |
           mkdir -p ios/LiveTouchWallpaper
           python3 - <<'PY'
@@ -26,51 +26,69 @@ jobs:
           PY
           tar -xzf /tmp/livetouch-source.tar.gz -C ios/LiveTouchWallpaper
           test -d ios/LiveTouchWallpaper/overlay/App
+          test -d ios/LiveTouchWallpaper/overlay/Engine
+          test -d ios/LiveTouchWallpaper/overlay/RootHelper
           cp -f ios/LiveTouchWallpaper/overlay/App/* ios/LiveTouchWallpaper/App/
+          cp -f ios/LiveTouchWallpaper/overlay/Engine/* ios/LiveTouchWallpaper/Engine/
+          cp -f ios/LiveTouchWallpaper/overlay/RootHelper/* ios/LiveTouchWallpaper/RootHelper/
           chmod +x ios/LiveTouchWallpaper/build-fixed.sh
-          grep -Fq 'LTRootHelperEmbedded.m' ios/LiveTouchWallpaper/App/Makefile
-          grep -Fq -- '--root-helper' ios/LiveTouchWallpaper/App/main.m
-          grep -Fq '/private/preboot' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
-          grep -Fq 'LTDiscoverTweakDir' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
+          grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/App/Makefile
+          grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/Engine/Makefile
+          grep -Fq 'THEOS_PACKAGE_SCHEME = roothide' ios/LiveTouchWallpaper/RootHelper/Makefile
+          grep -Fq '#import <roothide.h>' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
+          grep -Fq 'jbroot(path)' ios/LiveTouchWallpaper/App/LTRootHelperEmbedded.m
+          grep -Fq 'com.apple.private.security.storage.AppBundles' ios/LiveTouchWallpaper/App/entitlements.plist
 
-      - name: Install Theos dependencies
+      - name: Install RootHide Theos dependencies
         run: |
           brew install ldid xz
-          echo "THEOS=$GITHUB_WORKSPACE/.theos-sdk" >> "$GITHUB_ENV"
-          git clone --recursive --depth=1 https://github.com/theos/theos.git "$GITHUB_WORKSPACE/.theos-sdk"
-          mkdir -p "$GITHUB_WORKSPACE/.theos-sdk/sdks"
+          echo "THEOS=$GITHUB_WORKSPACE/.theos-roothide" >> "$GITHUB_ENV"
+          git clone --recursive --depth=1 https://github.com/roothide/theos.git "$GITHUB_WORKSPACE/.theos-roothide"
+          mkdir -p "$GITHUB_WORKSPACE/.theos-roothide/sdks"
           curl -L --fail -o /tmp/iPhoneOS16.5.sdk.tar.xz https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz
-          tar -xJf /tmp/iPhoneOS16.5.sdk.tar.xz -C "$GITHUB_WORKSPACE/.theos-sdk/sdks"
+          tar -xJf /tmp/iPhoneOS16.5.sdk.tar.xz -C "$GITHUB_WORKSPACE/.theos-roothide/sdks"
+          test -d "$GITHUB_WORKSPACE/.theos-roothide/mod/roothide" -o -d "$GITHUB_WORKSPACE/.theos-roothide/vendor/mod/roothide"
 
-      - name: Build and validate LiveTouch 0.1.3
+      - name: Build and validate LiveTouch 0.1.4 RootHide
         run: |
           cd ios/LiveTouchWallpaper
-          THEOS="$GITHUB_WORKSPACE/.theos-sdk" ./build-fixed.sh
-          APP=build/LiveTouch-0.1.3-test.tipa
+          THEOS="$GITHUB_WORKSPACE/.theos-roothide" ./build-fixed.sh
+          APP=build/LiveTouch-0.1.4-roothide-test.tipa
           unzip -tq "$APP" >/dev/null
           unzip -p "$APP" Payload/LiveTouch.app/Info.plist >/tmp/LiveTouch-Info.plist
           unzip -p "$APP" Payload/LiveTouch.app/LiveTouch >/tmp/LiveTouch-main
-          test -s /tmp/LiveTouch-Info.plist
-          test -s /tmp/LiveTouch-main
+          unzip -p "$APP" Payload/LiveTouch.app/LiveTouchEngine.dylib >/tmp/LiveTouch-engine
+          unzip -p "$APP" Payload/LiveTouch.app/LiveTouchRootHelper >/tmp/LiveTouch-helper
+          chmod +x /tmp/LiveTouch-main /tmp/LiveTouch-engine /tmp/LiveTouch-helper
           plutil -lint /tmp/LiveTouch-Info.plist
           python3 - <<'PY'
           import plistlib
           with open('/tmp/LiveTouch-Info.plist','rb') as f: p=plistlib.load(f)
           assert p['CFBundleIdentifier']=='com.nextjailbreak.livetouch'
-          assert p['CFBundleShortVersionString']=='0.1.3'
-          assert p['CFBundleVersion']=='4'
+          assert p['CFBundleShortVersionString']=='0.1.4'
+          assert p['CFBundleVersion']=='5'
           assert p['TSRootBinaries']==['LiveTouchRootHelper']
           PY
           strings /tmp/LiveTouch-main | grep -Fq -- '--root-helper'
-          strings /tmp/LiveTouch-main | grep -Fq 'Detected %s tweak directory:'
-          strings /tmp/LiveTouch-main | grep -Fq '/private/preboot'
-          strings /tmp/LiveTouch-main | grep -Fq 'Refusing to write to the read-only rootful /Library path.'
-          unzip -l "$APP" | grep -F 'Payload/LiveTouch.app/LiveTouchRootHelper'
+          strings /tmp/LiveTouch-main | grep -Fq 'RootHide jbroot:'
+          strings /tmp/LiveTouch-main | grep -Fq 'RootHide tweak directory:'
+          strings /tmp/LiveTouch-main | grep -Fq 'Engine installed for RootHide.'
+          strings /tmp/LiveTouch-helper | grep -Fq 'RootHide tweak directory:'
+          ldid -e /tmp/LiveTouch-main >/tmp/LiveTouch-entitlements.plist
+          grep -Fq 'platform-application' /tmp/LiveTouch-entitlements.plist
+          grep -Fq 'com.apple.private.security.no-sandbox' /tmp/LiveTouch-entitlements.plist
+          grep -Fq 'com.apple.private.security.storage.AppBundles' /tmp/LiveTouch-entitlements.plist
+          grep -Fq 'com.apple.private.security.storage.AppDataContainers' /tmp/LiveTouch-entitlements.plist
+          echo '--- main links ---'
+          otool -L /tmp/LiveTouch-main
+          echo '--- engine links ---'
+          otool -L /tmp/LiveTouch-engine
+          file /tmp/LiveTouch-main /tmp/LiveTouch-engine /tmp/LiveTouch-helper
           ls -lh "$APP"
 
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
         with:
-          name: LiveTouch-0.1.3-test
-          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1.3-test.tipa
+          name: LiveTouch-0.1.4-roothide-test
+          path: ios/LiveTouchWallpaper/build/LiveTouch-0.1.4-roothide-test.tipa
           if-no-files-found: error
