@@ -1,0 +1,179 @@
+name: Publish iOS 27 jailbreak status article
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-ios27-jailbreak-status.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextjailbreak-ios27-editorial
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out production site
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Build iOS 27 article and original visuals
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+          import html, json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from automation.publisher import _render_feed, _update_sitemap, load_audit
+
+          root = Path('.')
+          slug = 'ios-27-jailbreak-status-security-fixes-usbliter8'
+          href = f'{slug}/'
+          target = root / slug / 'index.html'
+          now = datetime.now(timezone.utc).replace(microsecond=0)
+          stamp = now.isoformat()
+          day = now.date().isoformat()
+          title = 'iOS 27 Jailbreak Status: 120+ Security Fixes, Kernel Bugs and the usbliter8 iPhone 11 Pro Demo'
+          description = 'iOS 27 shipped with more than 120 security fixes. Here is what the kernel and root bugs plus the usbliter8 iPhone 11 Pro beta jailbreak demo mean for jailbreak users.'
+          hero = 'assets/articles/editorial/ios-27-jailbreak-status-hero.svg'
+          patched = 'assets/articles/editorial/ios-27-security-fixes.svg'
+          status = 'assets/articles/editorial/ios-27-jailbreak-status.svg'
+
+          def write(path: str, text: str):
+              p = root / path
+              p.parent.mkdir(parents=True, exist_ok=True)
+              p.write_text(text, encoding='utf-8')
+
+          hero_svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+          <defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#06111f"/><stop offset="1" stop-color="#0a2342"/></linearGradient><linearGradient id="blue" x1="0" x2="1"><stop stop-color="#5aa7ff"/><stop offset="1" stop-color="#1b66ff"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+          <rect width="1600" height="900" fill="url(#bg)"/><circle cx="1370" cy="130" r="290" fill="#0f4fa6" opacity=".18"/><circle cx="1180" cy="760" r="360" fill="#0b62d9" opacity=".12"/>
+          <g opacity=".22" stroke="#6ab2ff"><path d="M640 115h400v380H640z" fill="none"/><path d="M680 185h250M680 235h190M680 285h220M680 335h150"/><path d="M1280 135l110 60v125c0 100-60 155-110 188-50-33-110-88-110-188V195z" fill="none" stroke-width="8"/></g>
+          <g transform="translate(1030 85)"><rect x="0" y="0" width="360" height="690" rx="62" fill="#060b13" stroke="#5aa7ff" stroke-width="5"/><rect x="18" y="18" width="324" height="654" rx="48" fill="#07162e"/><path d="M60 110c150 20 210 125 235 260-50-110-165-145-250-85 120 25 190 120 220 260-100-110-205-105-260-30 50-170 55-300 55-405z" fill="url(#blue)" opacity=".85"/><rect x="112" y="28" width="136" height="34" rx="17" fill="#02050a"/></g>
+          <g font-family="Arial, Helvetica, sans-serif"><text x="86" y="94" fill="#d8e8ff" font-size="34" font-weight="700">Next <tspan fill="#58a8ff">Jailbreak</tspan></text><text x="84" y="355" fill="#f6f9ff" font-size="122" font-weight="700">iOS <tspan fill="url(#blue)">27</tspan></text><text x="88" y="430" fill="#d7e5f8" font-size="50">Security Fixes &amp; Jailbreak Status</text><rect x="88" y="474" width="84" height="6" rx="3" fill="#5aa7ff"/><text x="88" y="545" fill="#9cb3d1" font-size="32">120+ fixes • kernel &amp; root bugs • usbliter8 research</text><text x="88" y="612" fill="#9cb3d1" font-size="28">No general public iOS 27 jailbreak for modern devices</text></g>
+          <g transform="translate(82 694)" font-family="Arial" font-size="23"><rect width="760" height="112" rx="24" fill="#0a1c33" stroke="#24568e"/><circle cx="60" cy="56" r="26" fill="#143e70"/><path d="M50 56l8 8 17-20" fill="none" stroke="#67b1ff" stroke-width="6"/><text x="108" y="48" fill="#dcecff">Research proof exists on iPhone 11 Pro / A13</text><text x="108" y="80" fill="#8fa9c7">Developer-only custom-firmware workflow, not a normal jailbreak release</text></g>
+          </svg>'''
+
+          patched_svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900"><defs><linearGradient id="b" x1="0" x2="1"><stop stop-color="#071426"/><stop offset="1" stop-color="#0b2443"/></linearGradient></defs><rect width="1600" height="900" fill="url(#b)"/><g font-family="Arial"><text x="92" y="130" fill="#f4f8ff" font-size="72" font-weight="700">Patched areas in iOS <tspan fill="#58a8ff">27</tspan></text><text x="94" y="182" fill="#9eb6d3" font-size="30">Security categories that matter to jailbreak research</text></g><g font-family="Arial" text-anchor="middle"><g transform="translate(90 280)"><rect width="330" height="330" rx="28" fill="#0a1b31" stroke="#2f6ba8" stroke-width="2"/><path d="M165 58l75 42v78c0 67-38 108-75 132-37-24-75-65-75-132v-78z" fill="none" stroke="#64b0ff" stroke-width="10"/><rect x="137" y="142" width="56" height="52" rx="8" fill="#64b0ff"/><path d="M148 142v-18c0-28 34-28 34 0v18" fill="none" stroke="#64b0ff" stroke-width="8"/><text x="165" y="286" fill="#eaf3ff" font-size="31">Root privileges</text></g><g transform="translate(455 280)"><rect width="330" height="330" rx="28" fill="#0a1b31" stroke="#2f6ba8" stroke-width="2"/><rect x="105" y="80" width="120" height="120" rx="18" fill="none" stroke="#64b0ff" stroke-width="10"/><g stroke="#64b0ff" stroke-width="8"><path d="M125 58v22M165 58v22M205 58v22M125 200v22M165 200v22M205 200v22M83 100h22M83 140h22M83 180h22M225 100h22M225 140h22M225 180h22"/></g><text x="165" y="286" fill="#eaf3ff" font-size="31">Kernel execution</text></g><g transform="translate(820 280)"><rect width="330" height="330" rx="28" fill="#0a1b31" stroke="#2f6ba8" stroke-width="2"/><g fill="none" stroke="#64b0ff" stroke-width="9"><rect x="85" y="85" width="160" height="45" rx="15"/><rect x="85" y="142" width="160" height="45" rx="15"/><rect x="85" y="199" width="160" height="45" rx="15"/></g><text x="165" y="286" fill="#eaf3ff" font-size="31">APFS memory write</text></g><g transform="translate(1185 280)"><rect width="330" height="330" rx="28" fill="#0a1b31" stroke="#2f6ba8" stroke-width="2"/><path d="M145 75l70 70-70 70V75m0 70l-50-45m50 45l-50 45" fill="none" stroke="#64b0ff" stroke-width="10" stroke-linejoin="round"/><path d="M230 108c24 24 24 50 0 74M260 86c42 42 42 76 0 118" fill="none" stroke="#64b0ff" stroke-width="9"/><text x="165" y="286" fill="#eaf3ff" font-size="31">Bluetooth RCE</text></g></g><text x="92" y="740" fill="#819ab7" font-family="Arial" font-size="25">These issues are listed as fixed in iOS 27 / related Apple security releases; patched bugs are not a jailbreak for iOS 27 final.</text></svg>'''
+
+          status_svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900"><defs><linearGradient id="b" x1="0" x2="1"><stop stop-color="#06111f"/><stop offset="1" stop-color="#0a2443"/></linearGradient></defs><rect width="1600" height="900" fill="url(#b)"/><g font-family="Arial"><text x="90" y="130" fill="#f4f8ff" font-size="70" font-weight="700">Current iOS 27 jailbreak status</text><text x="92" y="184" fill="#9eb6d3" font-size="30">What is confirmed today</text></g><g font-family="Arial"><g transform="translate(90 285)"><rect width="940" height="130" rx="26" fill="#0a1b31" stroke="#274e78"/><rect x="28" y="26" width="78" height="78" rx="16" fill="#3b1723"/><path d="M49 65h37v28H49zM56 65V52c0-22 23-22 23 0v13" fill="none" stroke="#ff6b7a" stroke-width="6"/><text x="145" y="78" fill="#f2f7ff" font-size="34">No general public iOS 27 jailbreak</text><rect x="720" y="36" width="184" height="56" rx="28" fill="#351824" stroke="#8e4050"/><text x="812" y="72" text-anchor="middle" fill="#ff7d89" font-size="21" letter-spacing="2">NOT AVAILABLE</text></g><g transform="translate(90 435)"><rect width="940" height="130" rx="26" fill="#0a1b31" stroke="#274e78"/><rect x="28" y="26" width="78" height="78" rx="16" fill="#3b1723"/><rect x="49" y="48" width="37" height="37" rx="6" fill="none" stroke="#ff6b7a" stroke-width="6"/><g stroke="#ff6b7a" stroke-width="5"><path d="M58 38v10M77 38v10M58 85v10M77 85v10M39 58h10M39 77h10M86 58h10M86 77h10"/></g><text x="145" y="78" fill="#f2f7ff" font-size="34">No public modern-device kernel exploit chain</text><rect x="720" y="36" width="184" height="56" rx="28" fill="#351824" stroke="#8e4050"/><text x="812" y="72" text-anchor="middle" fill="#ff7d89" font-size="21" letter-spacing="2">NOT AVAILABLE</text></g><g transform="translate(90 585)"><rect width="940" height="130" rx="26" fill="#0a1b31" stroke="#274e78"/><rect x="28" y="26" width="78" height="78" rx="16" fill="#123258"/><path d="M55 42h24M61 42v23l-17 28h46L73 65V42" fill="none" stroke="#69b5ff" stroke-width="6"/><text x="145" y="78" fill="#f2f7ff" font-size="34">A13 / iPhone 11 Pro research demo exists</text><rect x="720" y="36" width="184" height="56" rx="28" fill="#11375d" stroke="#2d6da8"/><text x="812" y="72" text-anchor="middle" fill="#72bbff" font-size="21" letter-spacing="2">RESEARCH ONLY</text></g></g><g transform="translate(1110 235)"><rect width="350" height="515" rx="55" fill="#050a11" stroke="#5aa7ff" stroke-width="5"/><rect x="17" y="17" width="316" height="481" rx="43" fill="#07162e"/><path d="M50 95c125 18 190 120 235 260-80-90-170-115-235-45 90 30 150 95 205 170-110-72-195-50-230 4 45-160 40-290 25-389z" fill="#2678e8" opacity=".72"/><rect x="106" y="28" width="138" height="32" rx="16" fill="#010307"/></g><text x="92" y="805" fill="#829bb8" font-family="Arial" font-size="24">Status can change as new exploit chains and jailbreak tools are disclosed.</text></svg>'''
+
+          write(hero, hero_svg)
+          write(patched, patched_svg)
+          write(status, status_svg)
+
+          if target.exists():
+              print('Article already exists; keeping existing page and refreshing indexes only.')
+          else:
+              target.parent.mkdir(parents=True, exist_ok=True)
+              esc = html.escape
+              body = f'''<!DOCTYPE html>
+          <html lang="en"><head>
+          <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f3f5f6">
+          <title>{esc(title)} | Next Jailbreak</title><meta name="description" content="{esc(description)}"><meta name="robots" content="index,follow,max-image-preview:large">
+          <link rel="canonical" href="https://nextjailbreak.com/{href}"><link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml"><link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/community-comments.css">
+          <meta property="og:type" content="article"><meta property="og:site_name" content="Next Jailbreak"><meta property="og:url" content="https://nextjailbreak.com/{href}"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}"><meta property="og:image" content="https://nextjailbreak.com/{hero}"><meta property="og:image:secure_url" content="https://nextjailbreak.com/{hero}"><meta property="og:image:type" content="image/svg+xml"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@nextjailbreak"><meta name="twitter:title" content="{esc(title)}"><meta name="twitter:description" content="{esc(description)}"><meta name="twitter:image" content="https://nextjailbreak.com/{hero}">
+          <script type="application/ld+json">{{"@context":"https://schema.org","@type":"TechArticle","headline":{json.dumps(title)},"description":{json.dumps(description)},"datePublished":"{day}","dateModified":"{day}","author":{{"@type":"Person","name":"Zeeshan Barvi"}},"publisher":{{"@type":"Organization","name":"Next Jailbreak","url":"https://nextjailbreak.com"}},"mainEntityOfPage":"https://nextjailbreak.com/{href}","image":"https://nextjailbreak.com/{hero}"}}</script>
+          <!-- google-analytics-auto:start --><script async src="https://www.googletagmanager.com/gtag/js?id=G-7GJ4N0HV92"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','G-7GJ4N0HV92');</script><!-- google-analytics-auto:end -->
+          <meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324"></head>
+          <body><div class="topline"><div class="topline-inner"><span>iPhone jailbreak guides, tweak reviews and practical fixes</span><span class="topline-status"><i aria-hidden="true"></i> Security research, clearly separated from jailbreak releases</span></div></div>
+          <header class="site-header"><div class="nav-shell"><a class="brand" href="/" aria-label="Next Jailbreak home"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><nav aria-label="Primary navigation"><ul class="nav-links"><li><a href="/">Blog</a></li><li><a href="/tutorials/#verified-articles">Tweaks</a></li><li><a href="/tutorials/#jailbreak-guides">Jailbreak</a></li><li><a href="/videos/">Videos</a></li><li><a href="https://repo.nextjailbreak.com/">Repo</a></li></ul></nav></div></header>
+          <main class="container article-main"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/tutorials/#jailbreak-guides">Jailbreak</a><span aria-hidden="true">/</span><span>iOS 27 status</span></nav><article>
+          <header class="article-hero"><span class="article-kicker">Jailbreak news · iOS 27 security research</span><h1>{esc(title)}</h1><p class="article-summary">Apple released iOS 27.0 build 24A437 on September 14, 2026. The release closes more than 120 security issues according to published security coverage, including bugs involving kernel memory, kernel privileges, root privileges and remote code execution. At the same time, an open-source research project has demonstrated a modified iOS 27 beta boot on an iPhone 11 Pro by using the usbliter8 SecureROM exploit. Those two facts are both important—but they do not mean there is a normal public jailbreak for iOS 27 final.</p></header>
+          <figure class="article-visual"><img src="/{hero}" alt="iOS 27 jailbreak status and security fixes" fetchpriority="high"><figcaption>Next Jailbreak original status visual: iOS 27 security fixes, jailbreak status and usbliter8 research context.</figcaption></figure>
+          <div class="article-layout"><div class="article-content">
+          <h2>iOS 27 final is now out</h2><p>Apple's developer release listing shows iOS 27.0 build 24A437 released on September 14, 2026. That matters for jailbreak tracking because the final public build gives researchers a stable target to compare against earlier betas, release candidates and the older iOS 26.x branch.</p><p>The security story is unusually large. Published analysis of Apple's disclosure counts more than 120 fixes in iOS 27 and iPadOS 27. The list spans privacy, memory safety, system services, APFS, Bluetooth and multiple kernel-related issues. For jailbreak research, the interesting entries are the ones that describe elevated privileges, kernel memory access or kernel-level code execution.</p>
+          <figure class="article-visual"><img src="/{patched}" alt="Security areas patched in iOS 27"><figcaption>Examples of security categories relevant to jailbreak research. These are patched issues, not a public iOS 27 exploit chain.</figcaption></figure>
+          <h2>The security bugs jailbreak researchers will notice</h2><p>One APFS issue, CVE-2026-84523, is described as an out-of-bounds write that could let an app terminate the system or write kernel memory. CVE-2026-84607 is a race condition whose impact includes arbitrary code execution with kernel privileges from a sandboxed app. Another disclosure, CVE-2026-43689, describes a permissions issue that could allow a malicious app to gain root privileges.</p><p>Those impact statements sound extremely jailbreak-relevant because kernel memory access, kernel execution and privilege escalation are common building blocks in exploit chains. But the key word is <strong>fixed</strong>: these vulnerabilities are part of the security material for releases that patch them. They should not be described as working jailbreak exploits against an updated iOS 27 final device unless a researcher later demonstrates that separately.</p><p>That distinction prevents a common mistake in jailbreak news. A security bulletin can reveal that a powerful bug existed without providing a usable public exploit, and even a working kernel primitive may still need sandbox escape, code-signing bypass, PAC/SPTM-era mitigation work, persistence and a reliable bootstrap before it becomes a jailbreak ordinary users can install.</p>
+          <h2>The more surprising development: iOS 27 beta booted with usbliter8</h2><p>There is, however, a genuine iOS 27 jailbreak-related research development. The public <strong>usbliter8-fun</strong> project documents a custom-firmware workflow for an iPhone 11 Pro running iOS 27 beta 2. It relies on <strong>usbliter8</strong>, a low-level SecureROM/BootROM exploit affecting A12 and A13-class hardware.</p><p>Because the vulnerability is in immutable boot code rather than the normal iOS software layer, it is fundamentally different from a kernel bug Apple can simply patch with an iOS update. The underlying usbliter8 research is described as a tethered SecureROM exploit for A12/A13 and related chips and requires physical access plus specialized hardware.</p><p>The iOS 27 demo is notable because it shows that an older A13 device can still be pushed outside Apple's normal boot chain even while running a new-generation operating system build. That is real jailbreak research progress. But it is not equivalent to Dopamine, palera1n or a normal consumer jailbreak release.</p>
+          <h2>Why the iPhone 11 Pro demo is not a normal public jailbreak</h2><p>The project's own warning is severe: the custom-firmware workflow is intended for spare development hardware and can break major device functions. The documentation warns about losing or breaking SEP-related functionality, passcode, Wi‑Fi, baseband behavior, Apple services and other normal device features. It also targets the iPhone 11 Pro specifically in the documented workflow.</p><p>That means the correct headline is not “iOS 27 is jailbroken for everyone.” A more accurate description is: <strong>a developer-oriented iOS 27 beta jailbreak-style boot has been demonstrated on specific A13 hardware using an unpatchable SecureROM exploit.</strong></p><p>For an everyday user on an iPhone 12, 13, 14, 15, 16, 17 or newer hardware, this research does not provide a usable jailbreak path. usbliter8 targets older A12/A13 silicon, not the modern chips in those devices.</p>
+          <figure class="article-visual"><img src="/{status}" alt="Current iOS 27 jailbreak status"><figcaption>Current status: no general public jailbreak for iOS 27 final, while A13 research continues through the usbliter8 path.</figcaption></figure>
+          <h2>So, is there an iOS 27 jailbreak?</h2><p><strong>For normal users: no general public iOS 27 jailbreak is available.</strong> There is no broadly released modern-device jailbreak tool that users can install across supported iOS 27 hardware.</p><p><strong>For security researchers on specific older hardware: there is meaningful progress.</strong> The iPhone 11 Pro / A13 usbliter8 work is a real demonstration of control below the normal iOS boot chain. It is tethered, hardware-dependent and highly experimental, but it is much more significant than a fake “one-click iOS 27 jailbreak” webpage.</p><p>This split is important. “Public jailbreak” and “research device can boot modified iOS” are different milestones. Next Jailbreak will keep them separated so users can understand what is actually usable and what is still laboratory-level research.</p>
+          <h2>What should jailbreak users do?</h2><p>If your priority is security, the safest choice is to install Apple's current security updates. If your priority is future jailbreak compatibility, the traditional jailbreak-community strategy is to avoid unnecessary firmware upgrades and remain on the lowest version that meets your needs—but that comes with the security tradeoff of keeping older vulnerabilities unpatched.</p><p>There is currently no evidence that updating to iOS 27 gives a normal user a better jailbreak opportunity. Likewise, staying on a particular version cannot guarantee that a future jailbreak will support it. Exploit availability, mitigations and developer interest determine that later.</p>
+          <h2>What we are watching next</h2><ul><li>Any public proof-of-concept that survives on iOS 27 final rather than only earlier betas.</li><li>Kernel read/write or code-execution research on A14 and newer devices.</li><li>SPTM and modern mitigation bypass research needed for newer iPhone generations.</li><li>Further work turning usbliter8 from boot-chain research into a cleaner developer jailbreak environment on A12/A13 hardware.</li><li>iOS 27.1 and later security notes, which can reveal what Apple changed after the initial 27.0 release.</li></ul>
+          <h2>Bottom line</h2><p>iOS 27 is an interesting jailbreak target for two separate reasons. First, Apple's release closes a large batch of vulnerabilities, including bugs with root and kernel-level impact that researchers will study through patch analysis. Second, the usbliter8 ecosystem has already shown that an iPhone 11 Pro can boot a heavily modified iOS 27 beta through an A13 SecureROM path.</p><p>Neither development gives modern iOS 27 users a normal jailbreak today. But the A13 demonstration is legitimate research progress, and the newly published security fixes give exploit developers a fresh map of areas Apple considered important enough to patch.</p>
+          <h2>Sources</h2><ul><li><a href="https://developer.apple.com/news/releases/?id=03312025e" rel="nofollow noopener noreferrer">Apple Developer — iOS 27.0 (24A437) release listing</a></li><li><a href="https://9to5mac.com/2026/09/14/heres-every-security-fix-included-in-ios-27-and-ipados-27/" rel="nofollow noopener noreferrer">9to5Mac — iOS 27 security-fix roundup based on Apple's disclosure</a></li><li><a href="https://github.com/34306/usbliter8-fun" rel="nofollow noopener noreferrer">GitHub — usbliter8-fun iOS 27 research project</a></li><li><a href="https://github.com/JoshAtticus/usbliter8" rel="nofollow noopener noreferrer">GitHub — public usbliter8 SecureROM exploit mirror/project</a></li></ul>
+          <div class="article-disclaimer"><strong>Important:</strong> this article reports security research and jailbreak status. It does not recommend running destructive custom-firmware workflows on a primary device.</div><p class="article-footnote">Next Jailbreak security research update · Published {day}</p>
+          </div><aside class="article-sidebar" aria-label="iOS 27 status"><h2>iOS 27 status</h2><p><strong>Final release:</strong> 24A437</p><p><strong>General public jailbreak:</strong> Not available</p><p><strong>A13 research:</strong> usbliter8-based iPhone 11 Pro demo exists</p><div class="button-stack"><a class="button button-primary" href="https://developer.apple.com/news/releases/?id=03312025e" rel="nofollow noopener noreferrer">Apple release listing</a><a class="button button-secondary" href="https://github.com/34306/usbliter8-fun" rel="nofollow noopener noreferrer">Research repository</a></div></aside></div>
+          </article></main><footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="brand" href="/"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><p>Jailbreak news, useful tweak information, practical guides, and original videos.</p></div><div class="footer-column"><strong>Read</strong><a href="/#latest">Latest articles</a><a href="/tutorials/#verified-articles">Tweaks</a><a href="/tutorials/#jailbreak-guides">Jailbreak</a></div><div class="footer-column"><strong>Legal</strong><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div><div class="footer-bottom"><div class="container"><span>© 2026 Next Jailbreak</span></div></div></footer><script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script></body></html>'''
+              target.write_text(body, encoding='utf-8')
+
+          audit_path = root / 'automation/published-articles.json'
+          audit = load_audit(audit_path)
+          existing = next((e for e in audit.get('entries', []) if isinstance(e, dict) and e.get('href') == href), None)
+          if not existing:
+              entry = {
+                  'entry_type': 'editorial-news',
+                  'package': 'editorial.ios27-jailbreak-status',
+                  'name': 'iOS 27 Jailbreak Status',
+                  'version': '27.0',
+                  'title': title,
+                  'description': description,
+                  'href': href,
+                  'category': {'id': 'jailbreak', 'label': 'Jailbreak'},
+                  'source_name': 'Apple + security research',
+                  'source_url': 'https://developer.apple.com/news/releases/?id=03312025e',
+                  'source_page_url': 'https://developer.apple.com/news/releases/?id=03312025e',
+                  'selection_pool': 'editorial-current-news',
+                  'image': hero,
+                  'published_at': stamp,
+                  'modified_at': stamp,
+                  'quality_target': 9,
+              }
+              audit['entries'].append(entry)
+              audit['events'].append({'published_at': stamp, 'action': 'create', 'package': entry['package'], 'version': entry['version'], 'href': href, 'channel': 'ios27-editorial', 'run_id': 'github-actions-ios27'})
+              audit['updated_at'] = stamp
+              audit['entries'].sort(key=lambda e: str(e.get('modified_at') or e.get('published_at') or ''), reverse=True)
+              audit_path.write_text(json.dumps(audit, indent=2, sort_keys=True, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          site = json.loads((root / 'automation/site.json').read_text(encoding='utf-8'))
+          (root / 'feed.xml').write_text(_render_feed(audit['entries'], site), encoding='utf-8')
+          sitemap = root / 'sitemap.xml'
+          sitemap.write_text(_update_sitemap(sitemap.read_text(encoding='utf-8'), audit['entries'], site), encoding='utf-8')
+          print('Prepared:', href)
+          PY
+          python3 automation/sync_editorial_indexes.py
+          python3 -m automation.community_comments_rollout
+
+      - name: Validate article and indexes
+        shell: bash
+        run: |
+          test -s ios-27-jailbreak-status-security-fixes-usbliter8/index.html
+          test -s assets/articles/editorial/ios-27-jailbreak-status-hero.svg
+          test -s assets/articles/editorial/ios-27-security-fixes.svg
+          test -s assets/articles/editorial/ios-27-jailbreak-status.svg
+          grep -q "iOS 27 Jailbreak Status" ios-27-jailbreak-status-security-fixes-usbliter8/index.html
+          grep -q "usbliter8" ios-27-jailbreak-status-security-fixes-usbliter8/index.html
+          grep -q "ios-27-jailbreak-status-security-fixes-usbliter8" index.html
+          grep -q "ios-27-jailbreak-status-security-fixes-usbliter8" tutorials.html
+          grep -q "ios-27-jailbreak-status-security-fixes-usbliter8" feed.xml
+          grep -q "ios-27-jailbreak-status-security-fixes-usbliter8" sitemap.xml
+          python3 - <<'PY'
+          from pathlib import Path
+          from automation.publisher import load_audit
+          audit = load_audit(Path('automation/published-articles.json'))
+          row = next(e for e in audit['entries'] if e.get('href') == 'ios-27-jailbreak-status-security-fixes-usbliter8/')
+          assert row['category']['id'] == 'jailbreak'
+          assert row['image'].endswith('.svg')
+          print('Validated:', row['title'])
+          PY
+
+      - name: Commit article
+        run: |
+          git config user.name "nextjailbreak-editorial[bot]"
+          git config user.email "nextjailbreak-editorial[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No new changes to commit."
+            exit 0
+          fi
+          git commit -m "Publish iOS 27 jailbreak status and usbliter8 research"
+          git pull --rebase origin main
+          git push origin HEAD:main
