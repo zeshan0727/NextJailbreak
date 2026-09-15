@@ -3,7 +3,6 @@
 #import <unistd.h>
 #import <signal.h>
 #import <spawn.h>
-#import <roothide.h>
 #include <string.h>
 extern char **environ;
 
@@ -15,9 +14,43 @@ static BOOL LTIsDirectory(NSString *path) {
     return [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] && isDir;
 }
 
+static NSString *LTDiscoverJBRoot(void) {
+    NSFileManager *fm = NSFileManager.defaultManager;
+    NSArray<NSString *> *parents = @[
+        @"/private/var/containers/Bundle/Application",
+        @"/var/containers/Bundle/Application"
+    ];
+    NSMutableArray<NSDictionary *> *matches = [NSMutableArray array];
+    for (NSString *parent in parents) {
+        NSError *listError = nil;
+        NSArray<NSString *> *items = [fm contentsOfDirectoryAtPath:parent error:&listError];
+        if (!items) continue;
+        for (NSString *name in items) {
+            if (![name hasPrefix:@".jbroot-"]) continue;
+            NSString *candidate = [parent stringByAppendingPathComponent:name];
+            NSString *marker = [candidate stringByAppendingPathComponent:@"usr/lib/libroothide.dylib"];
+            if (![fm fileExistsAtPath:marker]) continue;
+            NSString *substrate = [candidate stringByAppendingPathComponent:@"Library/MobileSubstrate/DynamicLibraries"];
+            NSString *inject = [candidate stringByAppendingPathComponent:@"usr/lib/TweakInject"];
+            if (!LTIsDirectory(substrate) && !LTIsDirectory(inject)) continue;
+            NSDictionary *attrs = [fm attributesOfItemAtPath:candidate error:nil];
+            NSDate *date = attrs[NSFileModificationDate] ?: [NSDate distantPast];
+            [matches addObject:@{ @"path": candidate, @"date": date }];
+        }
+        if (matches.count) break;
+    }
+    if (!matches.count) return nil;
+    [matches sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
+        return [b[@"date"] compare:a[@"date"]];
+    }];
+    return matches.firstObject[@"path"];
+}
+
 static NSString *LTJBPath(NSString *path) {
-    NSString *resolved = jbroot(path);
-    return resolved.length ? resolved : nil;
+    NSString *root = LTDiscoverJBRoot();
+    if (!root.length) return nil;
+    NSString *relative = [path hasPrefix:@"/"] ? [path substringFromIndex:1] : path;
+    return relative.length ? [root stringByAppendingPathComponent:relative] : root;
 }
 
 static NSString *LTDiscoverTweakDir(void) {
@@ -33,8 +66,8 @@ static NSString *LTDiscoverTweakDir(void) {
 }
 
 static NSString *LTRootHideRoot(void) {
-    NSString *probe = LTJBPath(@"/");
-    return probe.length ? probe : @"(unresolved)";
+    NSString *root = LTDiscoverJBRoot();
+    return root.length ? root : @"(unresolved)";
 }
 
 static BOOL EnsureDir(NSString *path, mode_t mode, uid_t uid, gid_t gid) {
@@ -65,7 +98,7 @@ static int InstallEngine(void) {
     NSString *dir = LTDiscoverTweakDir();
     NSString *jb = LTRootHideRoot();
     if (!dir.length) {
-        fprintf(stderr, "RootHide jbroot resolved to %s but no tweak injection directory was found. Expected jbroot(/Library/MobileSubstrate/DynamicLibraries) or jbroot(/usr/lib/TweakInject).\n", jb.UTF8String);
+        fprintf(stderr, "RootHide jbroot scan resolved to %s but no tweak injection directory was found. Expected Library/MobileSubstrate/DynamicLibraries or usr/lib/TweakInject inside the active .jbroot-* directory.\n", jb.UTF8String);
         return 20;
     }
     printf("RootHide jbroot: %s\n", jb.UTF8String);
@@ -105,7 +138,7 @@ static int Respring(void) {
         fprintf(stderr, "RootHide killall spawn failed: %d (%s) path=%s\n", rc, strerror(rc), killall.UTF8String);
         return rc;
     }
-    fprintf(stderr, "RootHide killall not found at jbroot(/usr/bin/killall). Respring from Bootstrap/Dopamine.\n");
+    fprintf(stderr, "RootHide killall not found in the detected jbroot. Respring from Bootstrap/Dopamine.\n");
     return 8;
 }
 
