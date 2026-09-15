@@ -5,6 +5,7 @@ on:
     branches: ["livetouch-test"]
     paths:
       - "ios/LiveTouchWallpaper/source.tar.gz.b64"
+      - "ios/LiveTouchWallpaper/build-fixed.sh"
       - ".github/workflows/build-livetouch-tipa.yml"
   workflow_dispatch:
 
@@ -23,7 +24,7 @@ jobs:
           pathlib.Path('/tmp/livetouch-source.tar.gz').write_bytes(base64.b64decode(src))
           PY
           tar -xzf /tmp/livetouch-source.tar.gz -C ios/LiveTouchWallpaper
-          chmod +x ios/LiveTouchWallpaper/build.sh
+          chmod +x ios/LiveTouchWallpaper/build-fixed.sh
 
       - name: Install Theos dependencies
         run: |
@@ -37,7 +38,11 @@ jobs:
       - name: Build LiveTouch
         run: |
           cd ios/LiveTouchWallpaper
-          THEOS="$GITHUB_WORKSPACE/.theos-sdk" ./build.sh
+          THEOS="$GITHUB_WORKSPACE/.theos-sdk" ./build-fixed.sh
+          unzip -l build/LiveTouch-0.1-test.tipa
+          unzip -p build/LiveTouch-0.1-test.tipa Payload/LiveTouch.app/Info.plist >/tmp/LiveTouch-Info.plist
+          test -s /tmp/LiveTouch-Info.plist
+          plutil -lint /tmp/LiveTouch-Info.plist
           ls -lh build/LiveTouch-0.1-test.tipa
 
       - name: Upload TIPA
