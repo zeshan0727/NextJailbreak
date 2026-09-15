@@ -1,0 +1,174 @@
+name: Test scheduled original article - vphone-cli iOS 27 RC
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-vphone-ios27-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextjailbreak-vphone-ios27-test
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out production site
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Build original article and visuals
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from automation.publisher import _render_feed, _update_sitemap, load_audit
+
+          root = Path('.')
+          slug = 'vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon'
+          href = f'{slug}/'
+          target = root / slug / 'index.html'
+          now = datetime.now(timezone.utc).replace(microsecond=0)
+          stamp = now.isoformat()
+          day = now.date().isoformat()
+          title = 'vphone-cli Adds iOS 27 RC Support With a Full Jailbreak VM Mode on Apple Silicon'
+          description = 'vphone-cli now supports iOS 27 RC build 24A435 and a jailbroken virtual-iPhone mode with Sileo and TrollStore on Apple Silicon Macs. Here is what it means.'
+          hero = 'assets/articles/editorial/vphone-cli-ios27-rc-hero.svg'
+          compare = 'assets/articles/editorial/vphone-cli-virtual-vs-physical.svg'
+
+          def write(path: str, text: str):
+              p = root / path
+              p.parent.mkdir(parents=True, exist_ok=True)
+              p.write_text(text, encoding='utf-8')
+
+          hero_svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+          <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#06111f"/><stop offset="1" stop-color="#0b2b50"/></linearGradient><linearGradient id="b" x1="0" x2="1"><stop stop-color="#6dc0ff"/><stop offset="1" stop-color="#2568ff"/></linearGradient></defs>
+          <rect width="1600" height="900" fill="url(#bg)"/><circle cx="1320" cy="150" r="340" fill="#155bb5" opacity=".16"/><circle cx="1190" cy="760" r="400" fill="#1383ff" opacity=".08"/>
+          <g font-family="Arial,Helvetica,sans-serif"><text x="82" y="90" fill="#e9f3ff" font-size="33" font-weight="700">Next <tspan fill="#5baaff">Jailbreak</tspan></text><text x="82" y="292" fill="#f7fbff" font-size="83" font-weight="700">vphone-cli + iOS <tspan fill="#5baaff">27 RC</tspan></text><text x="84" y="360" fill="#c4d7ee" font-size="42">A jailbroken virtual iPhone on Apple Silicon</text><rect x="84" y="402" width="90" height="6" rx="3" fill="#5baaff"/><text x="84" y="468" fill="#91abc9" font-size="29">Build 24A435 added to the firmware catalog • September 10, 2026</text><text x="84" y="522" fill="#91abc9" font-size="27">VM research environment — not a physical-iPhone jailbreak release</text></g>
+          <g transform="translate(925 118)"><rect width="555" height="620" rx="34" fill="#07111f" stroke="#326da9" stroke-width="4"/><rect x="30" y="38" width="495" height="355" rx="20" fill="#091a31"/><circle cx="54" cy="62" r="8" fill="#5baaff"/><circle cx="80" cy="62" r="8" fill="#315f91"/><circle cx="106" cy="62" r="8" fill="#315f91"/><g transform="translate(190 85)"><rect width="170" height="285" rx="30" fill="#03070d" stroke="#62b3ff" stroke-width="4"/><rect x="10" y="10" width="150" height="265" rx="24" fill="#0a2142"/><path d="M20 80c80 10 120 75 135 160-50-70-103-70-140-25 58 8 96 44 125 85-82-50-122-25-130-4 20-88 21-152 10-216z" fill="url(#b)" opacity=".9"/><rect x="54" y="20" width="62" height="16" rx="8" fill="#010307"/></g><g font-family="monospace" font-size="20" fill="#73baff"><text x="54" y="445">$ vphone-cli vm create ios27 -V jb</text><text x="54" y="482">firmware: iOS 27.0 RC (24A435)</text><text x="54" y="519">variant: jb • Sileo • TrollStore</text><text x="54" y="556">target: virtual iPhone</text></g></g>
+          <g transform="translate(84 654)" font-family="Arial"><rect width="720" height="124" rx="26" fill="#0a1c33" stroke="#245b94"/><circle cx="65" cy="62" r="28" fill="#123d6b"/><path d="M51 62l10 10 23-28" fill="none" stroke="#65b4ff" stroke-width="7"/><text x="118" y="54" fill="#eaf4ff" font-size="29">Original-source update</text><text x="118" y="88" fill="#91abc9" font-size="23">Firmware catalog + tested environment confirmed in the project repository</text></g>
+          </svg>'''
+
+          compare_svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900"><defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#06111f"/><stop offset="1" stop-color="#0a284a"/></linearGradient></defs><rect width="1600" height="900" fill="url(#bg)"/><g font-family="Arial,Helvetica,sans-serif"><text x="90" y="125" fill="#f4f8ff" font-size="68" font-weight="700">What vphone-cli does — and does not do</text><text x="92" y="180" fill="#9fb8d5" font-size="30">Keep virtual-iPhone jailbreak research separate from physical-device jailbreak status</text></g>
+          <g transform="translate(90 275)" font-family="Arial"><rect width="675" height="430" rx="30" fill="#0a1d35" stroke="#2e72b5" stroke-width="3"/><circle cx="82" cy="82" r="42" fill="#133f70"/><path d="M57 82h50M82 57v50" stroke="#67b8ff" stroke-width="8"/><text x="145" y="76" fill="#f2f7ff" font-size="38" font-weight="700">Virtual iPhone on Apple Silicon</text><text x="145" y="118" fill="#77bdff" font-size="25">SUPPORTED BY THE PROJECT</text><g fill="#d6e7fa" font-size="29"><text x="58" y="196">✓ iOS 27 RC build 24A435 catalog entry</text><text x="58" y="249">✓ “jb” firmware variant</text><text x="58" y="302">✓ Sileo + TrollStore in the guest VM</text><text x="58" y="355">✓ SSH / VNC and research tooling</text></g></g>
+          <g transform="translate(835 275)" font-family="Arial"><rect width="675" height="430" rx="30" fill="#111a28" stroke="#6d4451" stroke-width="3"/><circle cx="82" cy="82" r="42" fill="#471d2a"/><path d="M60 60l44 44M104 60l-44 44" stroke="#ff7887" stroke-width="8"/><text x="145" y="76" fill="#f2f7ff" font-size="38" font-weight="700">Physical iPhone on iOS 27</text><text x="145" y="118" fill="#ff8391" font-size="25">NOT PROVIDED BY THIS PROJECT</text><g fill="#d6e7fa" font-size="29"><text x="58" y="196">✕ Not an installable iPhone jailbreak app</text><text x="58" y="249">✕ Not a kernel exploit for iOS 27 final</text><text x="58" y="302">✕ Does not jailbreak your daily-use iPhone</text><text x="58" y="355">✕ Requires an Apple Silicon Mac host</text></g></g><text x="92" y="800" fill="#829bb8" font-family="Arial" font-size="25">Source: Lakr233/vphone-cli project README and September 10 firmware-catalog commit.</text></svg>'''
+
+          write(hero, hero_svg)
+          write(compare, compare_svg)
+
+          if not target.exists():
+              target.parent.mkdir(parents=True, exist_ok=True)
+              page = f'''<!DOCTYPE html>
+          <html lang="en"><head>
+          <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f3f5f6">
+          <title>{title} | Next Jailbreak</title><meta name="description" content="{description}"><meta name="robots" content="index,follow,max-image-preview:large">
+          <link rel="canonical" href="https://nextjailbreak.com/{href}"><link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml"><link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/community-comments.css">
+          <meta property="og:type" content="article"><meta property="og:site_name" content="Next Jailbreak"><meta property="og:url" content="https://nextjailbreak.com/{href}"><meta property="og:title" content="{title}"><meta property="og:description" content="{description}"><meta property="og:image" content="https://nextjailbreak.com/{hero}"><meta property="og:image:secure_url" content="https://nextjailbreak.com/{hero}"><meta property="og:image:type" content="image/svg+xml"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@nextjailbreak"><meta name="twitter:title" content="{title}"><meta name="twitter:description" content="{description}"><meta name="twitter:image" content="https://nextjailbreak.com/{hero}">
+          <script type="application/ld+json">{{"@context":"https://schema.org","@type":"TechArticle","headline":{json.dumps(title)},"description":{json.dumps(description)},"datePublished":"{day}","dateModified":"{day}","author":{{"@type":"Person","name":"Zeeshan Barvi"}},"publisher":{{"@type":"Organization","name":"Next Jailbreak","url":"https://nextjailbreak.com"}},"mainEntityOfPage":"https://nextjailbreak.com/{href}","image":"https://nextjailbreak.com/{hero}"}}</script>
+          <!-- google-analytics-auto:start --><script async src="https://www.googletagmanager.com/gtag/js?id=G-7GJ4N0HV92"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','G-7GJ4N0HV92');</script><!-- google-analytics-auto:end -->
+          <meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324"></head>
+          <body><div class="topline"><div class="topline-inner"><span>iPhone jailbreak guides, tweak reviews and practical fixes</span><span class="topline-status"><i aria-hidden="true"></i> Original-source jailbreak research</span></div></div>
+          <header class="site-header"><div class="nav-shell"><a class="brand" href="/" aria-label="Next Jailbreak home"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><nav aria-label="Primary navigation"><ul class="nav-links"><li><a href="/">Blog</a></li><li><a href="/tutorials/#verified-articles">Tweaks</a></li><li><a href="/tutorials/#jailbreak-guides">Jailbreak</a></li><li><a href="/videos/">Videos</a></li><li><a href="https://repo.nextjailbreak.com/">Repo</a></li></ul></nav></div></header>
+          <main class="container article-main"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/tutorials/#jailbreak-guides">Jailbreak</a><span aria-hidden="true">/</span><span>vphone-cli iOS 27 RC</span></nav><article>
+          <header class="article-hero"><span class="article-kicker">Fresh project update · September 10, 2026</span><h1>{title}</h1><p class="article-summary">The open-source vphone-cli project has added iOS 27.0 RC build 24A435 to its tested firmware catalog. More unusually, the same project includes a dedicated <strong>jb</strong> virtual-firmware variant that patches the guest boot chain and installs Sileo and TrollStore inside a virtual iPhone. It is one of the more interesting iOS 27 research developments this week—but it is a Mac-hosted virtual machine, not a jailbreak for a physical iPhone.</p></header>
+          <figure class="article-visual"><img src="/{hero}" alt="vphone-cli iOS 27 RC virtual iPhone jailbreak research" fetchpriority="high"><figcaption>Next Jailbreak original visual based on the project's September 10 firmware-catalog update and current README.</figcaption></figure>
+          <div class="article-layout"><div class="article-content">
+          <h2>What changed on September 10</h2><p>The newest firmware-focused vphone-cli commit adds two catalog pairings, including <strong>iOS 27.0 RC build 24A435</strong> for the iPhone17,3 firmware profile. The project pairs that image with cloudOS 26.4 and exposes it through its firmware-preparation picker, catalog command and JSON report. The project also added the same build to its Tested Environments table, where the iOS 27 RC pairing is shown as tested on a Mac16,6 host running macOS 26.6.1.</p><p>This is a meaningful update because vphone-cli is not just listing a download URL. Its purpose is to boot a virtual iPhone using Apple's Virtualization.framework and research-VM infrastructure, and the tested-environment entry indicates the project has taken the iOS 27 RC image through its virtualization workflow.</p>
+          <h2>Why this belongs in jailbreak news</h2><p>The project's current README documents five firmware-patching variants. The most relevant is named <strong>jb</strong>. According to the project, that mode applies 113 boot-chain patches and performs a 14-phase custom-firmware installation. The documented result includes automatic installation of <strong>Sileo</strong> and <strong>TrollStore</strong> on first boot.</p><p>That is a legitimate jailbreak-style environment: the guest operating system is modified beyond Apple's normal trust configuration, package-management tools are installed, and the project exposes SSH access to the running jailbroken VM. It is useful for tweak development, compatibility testing, reverse engineering and automated research without requiring the same kind of experimentation on a daily-use phone.</p>
+          <figure class="article-visual"><img src="/{compare}" alt="Difference between a vphone-cli jailbroken VM and a physical iOS 27 jailbreak"><figcaption>The important distinction: vphone-cli modifies a virtual iPhone guest on an Apple Silicon Mac. It does not provide a physical-device iOS 27 jailbreak.</figcaption></figure>
+          <h2>This is not an iOS 27 jailbreak for your physical iPhone</h2><p>The distinction matters enough to state plainly: <strong>vphone-cli does not mean an iPhone running iOS 27 final can now be jailbroken by installing an app or connecting it to a normal jailbreak utility.</strong> The project runs on an Apple Silicon Mac and creates a virtual iPhone through Apple's virtualization technology. Its patched firmware and jailbreak components exist inside that guest environment.</p><p>Nothing in the September 10 commit claims a new iOS 27 kernel exploit, sandbox escape or physical-device jailbreak chain. The update is specifically a firmware-catalog and tested-environment expansion for the VM project. Readers should therefore avoid treating screenshots of Sileo running under vphone-cli as proof that iOS 27 has been publicly jailbroken on modern iPhones.</p>
+          <h2>What the jailbreak VM actually includes</h2><p>The project's README describes a spectrum of patch modes. Its lighter variants preserve more of the normal iOS security model, while the regular and developer modes progressively bypass AMFI, SSV, Img4, TXM and debugging restrictions. The <strong>jb</strong> profile sits above those and is described by the project as its full-jailbreak option. An experimental profile adds further anti-VM-detection research patches.</p><p>The jailbroken guest can be reached over SSH, and the project also documents VNC access. That makes the VM more than a static boot demonstration: it is intended to be an interactive research and testing environment. vphone-cli additionally exposes a host control socket for automated screenshots, touches, swipes, hardware-key actions and clipboard control, which can support automated testing workflows.</p>
+          <h2>Requirements keep this firmly in the research category</h2><p>The host requirements are substantial. The project calls for an Apple Silicon Mac, macOS 15 or later, Xcode and an iOS SDK. It also requires host security relaxation for private virtualization entitlements. Those requirements alone make it very different from a consumer jailbreak utility.</p><p>The project is therefore best understood as a developer and security-research platform. It can help researchers inspect iOS behavior, test jailbreak packages and experiment with patched guest firmware while keeping the work inside a virtualized environment. For ordinary iPhone owners waiting for an iOS 27 jailbreak, it is interesting progress around the platform—but not a release they can use on their handset.</p>
+          <h2>Why iOS 27 RC support is useful now</h2><p>Apple released the iOS 27 generation this week, so an environment capable of working with the release-candidate firmware gives researchers a near-final baseline for comparison. Developers can use that environment to study compatibility changes and test how tooling behaves against the new operating-system generation without presenting the result as a physical-device exploit.</p><p>The exact build also matters. The commit adds <strong>24A435</strong>, which is the release-candidate build represented in the project's catalog. It should not be confused with a claim that every later iOS 27 build has been validated in the same configuration. Next Jailbreak will treat future firmware additions as separate updates when the project documents them.</p>
+          <h2>What this means for jailbreak users</h2><ul><li><strong>Researchers:</strong> vphone-cli now has a documented path for experimenting with the iOS 27 RC firmware in its virtual-iPhone environment.</li><li><strong>Tweak developers:</strong> the jb guest can provide Sileo/TrollStore-based testing without claiming support on a physical iOS 27 device.</li><li><strong>Everyday users:</strong> there is still no general public physical-device iOS 27 jailbreak implied by this project.</li><li><strong>News tracking:</strong> the next important milestone would be support for newer final builds, major patch changes, or an independent physical-device exploit chain.</li></ul>
+          <h2>Bottom line</h2><p>vphone-cli's September 10 update is exactly the kind of development that is easy to overstate. The impressive part is real: an open-source Apple Silicon project now catalogs and has tested iOS 27 RC, while its existing jailbreak VM mode can create a heavily patched guest with Sileo and TrollStore. That gives jailbreak developers and security researchers a powerful new iOS 27-era laboratory.</p><p>What it does <strong>not</strong> do is jailbreak the iPhone in your pocket. Keeping those two facts together makes the update more useful than either dismissing the project or presenting it as a consumer jailbreak release.</p>
+          <h2>Original sources</h2><ul><li><a href="https://github.com/Lakr233/vphone-cli/commit/9c23c8adcd4b362120988ab9d228b959bcc23ae3" rel="nofollow noopener noreferrer">vphone-cli — September 10 iOS 27 RC firmware-catalog commit</a></li><li><a href="https://github.com/Lakr233/vphone-cli" rel="nofollow noopener noreferrer">vphone-cli — project repository and current documentation</a></li></ul>
+          <div class="article-disclaimer"><strong>Status note:</strong> this article covers a virtualized research environment. It is not instructions or confirmation for jailbreaking a physical iPhone on iOS 27.</div><p class="article-footnote">Next Jailbreak original-source research update · Published {day}</p>
+          </div><aside class="article-sidebar" aria-label="vphone-cli status"><h2>At a glance</h2><p><strong>Fresh update:</strong> September 10, 2026</p><p><strong>Firmware:</strong> iOS 27.0 RC (24A435)</p><p><strong>Environment:</strong> Virtual iPhone on Apple Silicon</p><p><strong>JB guest:</strong> Sileo + TrollStore documented</p><p><strong>Physical iPhone jailbreak:</strong> No</p><div class="button-stack"><a class="button button-primary" href="https://github.com/Lakr233/vphone-cli/commit/9c23c8adcd4b362120988ab9d228b959bcc23ae3" rel="nofollow noopener noreferrer">Open original update</a><a class="button button-secondary" href="https://github.com/Lakr233/vphone-cli" rel="nofollow noopener noreferrer">Project repository</a></div></aside></div>
+          </article></main><footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="brand" href="/"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><p>Jailbreak news, useful tweak information, practical guides, and original videos.</p></div><div class="footer-column"><strong>Read</strong><a href="/#latest">Latest articles</a><a href="/tutorials/#verified-articles">Tweaks</a><a href="/tutorials/#jailbreak-guides">Jailbreak</a></div><div class="footer-column"><strong>Legal</strong><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div><div class="footer-bottom"><div class="container"><span>© 2026 Next Jailbreak</span></div></div></footer><script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script></body></html>'''
+              target.write_text(page, encoding='utf-8')
+
+          audit_path = root / 'automation/published-articles.json'
+          audit = load_audit(audit_path)
+          existing = next((e for e in audit.get('entries', []) if isinstance(e, dict) and e.get('href') == href), None)
+          if not existing:
+              entry = {
+                  'entry_type': 'editorial-news',
+                  'package': 'editorial.vphone-cli-ios27-rc',
+                  'name': 'vphone-cli iOS 27 RC',
+                  'version': '24A435',
+                  'title': title,
+                  'description': description,
+                  'href': href,
+                  'category': {'id': 'jailbreak', 'label': 'Jailbreak'},
+                  'source_name': 'Lakr233/vphone-cli',
+                  'source_url': 'https://github.com/Lakr233/vphone-cli/commit/9c23c8adcd4b362120988ab9d228b959bcc23ae3',
+                  'source_page_url': 'https://github.com/Lakr233/vphone-cli',
+                  'selection_pool': 'editorial-current-original-source',
+                  'image': hero,
+                  'published_at': stamp,
+                  'modified_at': stamp,
+                  'quality_target': 9,
+              }
+              audit['entries'].append(entry)
+              audit['events'].append({'published_at': stamp, 'action': 'create', 'package': entry['package'], 'version': entry['version'], 'href': href, 'channel': 'scheduled-quality-test', 'run_id': 'manual-test'})
+              audit['updated_at'] = stamp
+              audit['entries'].sort(key=lambda e: str(e.get('modified_at') or e.get('published_at') or ''), reverse=True)
+              audit_path.write_text(json.dumps(audit, indent=2, sort_keys=True, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          site = json.loads((root / 'automation/site.json').read_text(encoding='utf-8'))
+          (root / 'feed.xml').write_text(_render_feed(audit['entries'], site), encoding='utf-8')
+          sitemap = root / 'sitemap.xml'
+          sitemap.write_text(_update_sitemap(sitemap.read_text(encoding='utf-8'), audit['entries'], site), encoding='utf-8')
+          print('Prepared:', href)
+          PY
+          python3 automation/sync_editorial_indexes.py
+          python3 -m automation.community_comments_rollout
+
+      - name: Validate quality and publication files
+        shell: bash
+        run: |
+          test -s vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/index.html
+          test -s assets/articles/editorial/vphone-cli-ios27-rc-hero.svg
+          test -s assets/articles/editorial/vphone-cli-virtual-vs-physical.svg
+          grep -q "iOS 27.0 RC" vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/index.html
+          grep -q "not a jailbreak for a physical iPhone" vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/index.html
+          grep -q "9c23c8adcd4b362120988ab9d228b959bcc23ae3" vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/index.html
+          grep -q "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon" index.html
+          grep -q "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon" feed.xml
+          grep -q "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon" sitemap.xml
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          from automation.publisher import load_audit
+          p=Path('vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/index.html')
+          text=p.read_text(encoding='utf-8')
+          prose=re.sub(r'<[^>]+>',' ',text)
+          words=re.findall(r"\b[\w’'-]+\b",prose)
+          assert len(words) >= 1050, len(words)
+          audit=load_audit(Path('automation/published-articles.json'))
+          row=next(e for e in audit['entries'] if e.get('href')=='vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/')
+          assert row['category']['id']=='jailbreak'
+          assert row['quality_target']==9
+          print('Quality validation passed:',len(words),'page words')
+          PY
+
+      - name: Commit tested article
+        run: |
+          git config user.name "nextjailbreak-ai-publisher[bot]"
+          git config user.email "nextjailbreak-ai-publisher[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && { echo "No article changes to commit"; exit 0; }
+          git commit -m "Publish test: vphone-cli iOS 27 RC jailbreak VM article"
+          git pull --rebase origin main
+          git push origin HEAD:main
