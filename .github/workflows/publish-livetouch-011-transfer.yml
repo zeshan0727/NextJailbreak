@@ -1,4 +1,4 @@
-name: Publish LiveTouch 0.1.1 Root Helper Fix to NS Transfer
+name: Publish LiveTouch 0.1.2 Embedded Helper Fix to NS Transfer
 
 on:
   push:
@@ -16,34 +16,34 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      ARTIFACT_ID: '10388477634'
-      DEST_DIR: transfer/files/LiveTouch/0.1.1
-      DEST_FILE: LiveTouch-0.1.1-test.tipa
-      APP_SHA: 0b0d3a874f79f8b7a4b03d4eab3b46cfb69b163782edb7e279a2e0fe9b9866ea
-      APP_SIZE: '42403'
+      ARTIFACT_ID: '10389531814'
+      DEST_DIR: transfer/files/LiveTouch/0.1.2
+      DEST_FILE: LiveTouch-0.1.2-test.tipa
+      APP_SHA: 791c92369fb35d6b1a716102644f2871afb2f6ca327176df262b393668b9e5f5
+      APP_SIZE: '65604'
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Download verified LiveTouch 0.1.1 artifact
+      - name: Download verified LiveTouch 0.1.2 artifact
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/livetouch011.zip
-          rm -rf /tmp/livetouch011
-          mkdir -p /tmp/livetouch011
-          unzip -q /tmp/livetouch011.zip -d /tmp/livetouch011
-          test -f "/tmp/livetouch011/${DEST_FILE}"
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/livetouch012.zip
+          rm -rf /tmp/livetouch012
+          mkdir -p /tmp/livetouch012
+          unzip -q /tmp/livetouch012.zip -d /tmp/livetouch012
+          test -f "/tmp/livetouch012/${DEST_FILE}"
 
-      - name: Verify exact TIPA and TrollStore root helper registration
+      - name: Verify exact TIPA and embedded root helper
         shell: bash
         run: |
           set -euo pipefail
-          APP="/tmp/livetouch011/${DEST_FILE}"
+          APP="/tmp/livetouch012/${DEST_FILE}"
           test "$(sha256sum "$APP" | awk '{print $1}')" = "$APP_SHA"
           test "$(stat -c%s "$APP")" = "$APP_SIZE"
           unzip -tq "$APP" >/dev/null
@@ -51,27 +51,30 @@ jobs:
           import plistlib,sys,zipfile
           with zipfile.ZipFile(sys.argv[1]) as z:
               info='Payload/LiveTouch.app/Info.plist'
-              assert info in z.namelist()
               p=plistlib.loads(z.read(info))
               assert p['CFBundleIdentifier']=='com.nextjailbreak.livetouch'
-              assert p['CFBundleShortVersionString']=='0.1.1'
-              assert p['CFBundleVersion']=='2'
+              assert p['CFBundleShortVersionString']=='0.1.2'
+              assert p['CFBundleVersion']=='3'
               assert p['TSRootBinaries']==['LiveTouchRootHelper']
-              for required in (
+              required=(
                   'Payload/LiveTouch.app/LiveTouch',
                   'Payload/LiveTouch.app/LiveTouchRootHelper',
                   'Payload/LiveTouch.app/LiveTouchEngine.dylib',
                   'Payload/LiveTouch.app/LiveTouchEngine.plist',
-              ):
-                  assert required in z.namelist(), required
+              )
+              for path in required: assert path in z.namelist(), path
+              main=z.read('Payload/LiveTouch.app/LiveTouch')
+              assert b'--root-helper' in main
+              assert b'Embedded root helper' in main
+              assert b'persona=%d uid=%d gid=%d' in main
           PY
 
-      - name: Publish fixed file and replace broken NS Transfer entry
+      - name: Publish 0.1.2 and replace older LiveTouch entries
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$DEST_DIR"
-          cp "/tmp/livetouch011/${DEST_FILE}" "$DEST_DIR/$DEST_FILE"
+          cp "/tmp/livetouch012/${DEST_FILE}" "$DEST_DIR/$DEST_FILE"
 
           python3 - <<'PY'
           import json
@@ -79,19 +82,19 @@ jobs:
           from pathlib import Path
           p=Path('transfer/index.json')
           data=json.loads(p.read_text())
-          remove_ids={'livetouch-0.1-test','livetouch-0.1.1-root-helper-fix'}
-          data['files']=[x for x in data.get('files',[]) if x.get('id') not in remove_ids]
+          old={'livetouch-0.1-test','livetouch-0.1.1-root-helper-fix','livetouch-0.1.2-embedded-helper-fix'}
+          data['files']=[x for x in data.get('files',[]) if x.get('id') not in old]
           item={
-            'id':'livetouch-0.1.1-root-helper-fix',
-            'name':'LiveTouch 0.1.1 — Root Helper Fix',
-            'fileName':'LiveTouch-0.1.1-test.tipa',
+            'id':'livetouch-0.1.2-embedded-helper-fix',
+            'name':'LiveTouch 0.1.2 — Embedded Root Helper Fix',
+            'fileName':'LiveTouch-0.1.2-test.tipa',
             'type':'tipa',
             'platform':'TrollStore / Jailbroken iOS 14+ (Dopamine Rootless first)',
-            'version':'0.1.1 (2)',
-            'url':'https://nextjailbreak.com/transfer/files/LiveTouch/0.1.1/LiveTouch-0.1.1-test.tipa',
-            'sha256':'0b0d3a874f79f8b7a4b03d4eab3b46cfb69b163782edb7e279a2e0fe9b9866ea',
-            'sizeBytes':42403,
-            'notes':'Fixes POSIX spawn failed: 202 when installing the lock-screen engine by registering LiveTouchRootHelper through TrollStore TSRootBinaries. Includes app, root helper and SpringBoard engine. Delete the old 0.1 build from TrollStore and install this version fresh so TrollStore processes the root helper registration.'
+            'version':'0.1.2 (3)',
+            'url':'https://nextjailbreak.com/transfer/files/LiveTouch/0.1.2/LiveTouch-0.1.2-test.tipa',
+            'sha256':'791c92369fb35d6b1a716102644f2871afb2f6ca327176df262b393668b9e5f5',
+            'sizeBytes':65604,
+            'notes':'Persistent POSIX spawn 202 fix test. Root operations now launch the already-trusted LiveTouch main executable in hidden --root-helper mode with persona 99 and a NULL child environment, matching TrollStore spawnRoot behavior more closely. The separate root helper remains only as fallback/diagnostic. If spawning still fails, this build reports strerror plus persona/UID/GID setup results and both embedded/legacy helper diagnostics.'
           }
           data['files'].insert(0,item)
           data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -99,9 +102,9 @@ jobs:
           PY
 
           python3 -m json.tool transfer/index.json >/dev/null
-          grep -Fq 'livetouch-0.1.1-root-helper-fix' transfer/index.json
-          if grep -Fq '"id": "livetouch-0.1-test"' transfer/index.json; then
-            echo 'Broken LiveTouch 0.1 feed entry still present'
+          grep -Fq 'livetouch-0.1.2-embedded-helper-fix' transfer/index.json
+          if grep -Fq '"id": "livetouch-0.1.1-root-helper-fix"' transfer/index.json; then
+            echo 'Old LiveTouch 0.1.1 feed entry still present'
             exit 1
           fi
 
@@ -113,5 +116,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add transfer/index.json "$DEST_DIR/$DEST_FILE"
           git diff --cached --stat
-          git commit -m 'Publish LiveTouch 0.1.1 root helper fix to NS Transfer'
+          git commit -m 'Publish LiveTouch 0.1.2 embedded root helper fix to NS Transfer'
           git push origin HEAD:main
