@@ -1,4 +1,4 @@
-name: Publish LiveTouch 0.1.4 RootHide Native to NS Transfer
+name: Publish LiveTouch 0.1.5 RootHide Launch Fix to NS Transfer
 
 on:
   push:
@@ -16,34 +16,34 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      ARTIFACT_ID: '10389489961'
-      DEST_DIR: transfer/files/LiveTouch/0.1.4
-      DEST_FILE: LiveTouch-0.1.4-roothide-test.tipa
-      APP_SHA: 788eec95d7fba78e97edceb5385193ba8c818583633d377cdeec0c641e294022
-      APP_SIZE: '67220'
+      ARTIFACT_ID: '10390637693'
+      DEST_DIR: transfer/files/LiveTouch/0.1.5
+      DEST_FILE: LiveTouch-0.1.5-roothide-launch-fix.tipa
+      APP_SHA: 21fa6890015c0cf32d563e8aaacc7c37e2a5008d21a7d5251062a0b7b2572f66
+      APP_SIZE: '71613'
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Download verified LiveTouch 0.1.4 RootHide artifact
+      - name: Download verified LiveTouch 0.1.5 artifact
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/livetouch014.zip
-          rm -rf /tmp/livetouch014
-          mkdir -p /tmp/livetouch014
-          unzip -q /tmp/livetouch014.zip -d /tmp/livetouch014
-          test -f "/tmp/livetouch014/${DEST_FILE}"
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/livetouch015.zip
+          rm -rf /tmp/livetouch015
+          mkdir -p /tmp/livetouch015
+          unzip -q /tmp/livetouch015.zip -d /tmp/livetouch015
+          test -f "/tmp/livetouch015/${DEST_FILE}"
 
-      - name: Verify exact RootHide-native TIPA
+      - name: Verify exact RootHide launch-fix TIPA
         shell: bash
         run: |
           set -euo pipefail
-          APP="/tmp/livetouch014/${DEST_FILE}"
+          APP="/tmp/livetouch015/${DEST_FILE}"
           test "$(sha256sum "$APP" | awk '{print $1}')" = "$APP_SHA"
           test "$(stat -c%s "$APP")" = "$APP_SIZE"
           unzip -tq "$APP" >/dev/null
@@ -52,8 +52,8 @@ jobs:
           with zipfile.ZipFile(sys.argv[1]) as z:
               p=plistlib.loads(z.read('Payload/LiveTouch.app/Info.plist'))
               assert p['CFBundleIdentifier']=='com.nextjailbreak.livetouch'
-              assert p['CFBundleShortVersionString']=='0.1.4'
-              assert p['CFBundleVersion']=='5'
+              assert p['CFBundleShortVersionString']=='0.1.5'
+              assert p['CFBundleVersion']=='6'
               assert p['TSRootBinaries']==['LiveTouchRootHelper']
               required=(
                   'Payload/LiveTouch.app/LiveTouch',
@@ -65,18 +65,22 @@ jobs:
               main=z.read('Payload/LiveTouch.app/LiveTouch')
               helper=z.read('Payload/LiveTouch.app/LiveTouchRootHelper')
               assert b'--root-helper' in main
-              assert b'RootHide jbroot:' in main
+              assert b'RootHide jbroot scan' in main
               assert b'RootHide tweak directory:' in main
               assert b'Engine installed for RootHide.' in main
-              assert b'RootHide tweak directory:' in helper
+              assert b'RootHide jbroot scan' in helper
+              # Regression guard for the 0.1.4 dyld crash: the app bundle must
+              # not carry the literal RootHide loader path dependency string.
+              assert b'@loader_path/.jbroot/usr/lib/libroothide.dylib' not in main
+              assert b'@loader_path/.jbroot/usr/lib/libroothide.dylib' not in helper
           PY
 
-      - name: Publish 0.1.4 and replace older LiveTouch feed entries
+      - name: Publish 0.1.5 and replace older LiveTouch feed entries
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$DEST_DIR"
-          cp "/tmp/livetouch014/${DEST_FILE}" "$DEST_DIR/$DEST_FILE"
+          cp "/tmp/livetouch015/${DEST_FILE}" "$DEST_DIR/$DEST_FILE"
 
           python3 - <<'PY'
           import json
@@ -84,25 +88,18 @@ jobs:
           from pathlib import Path
           p=Path('transfer/index.json')
           data=json.loads(p.read_text())
-          old={
-            'livetouch-0.1-test',
-            'livetouch-0.1.1-root-helper-fix',
-            'livetouch-0.1.2-embedded-helper-fix',
-            'livetouch-0.1.3-rootless-path-fix',
-            'livetouch-0.1.4-roothide-native'
-          }
-          data['files']=[x for x in data.get('files',[]) if x.get('id') not in old]
+          data['files']=[x for x in data.get('files',[]) if not str(x.get('id','')).startswith('livetouch-')]
           item={
-            'id':'livetouch-0.1.4-roothide-native',
-            'name':'LiveTouch 0.1.4 — RootHide Native',
-            'fileName':'LiveTouch-0.1.4-roothide-test.tipa',
+            'id':'livetouch-0.1.5-roothide-launch-fix',
+            'name':'LiveTouch 0.1.5 — RootHide Launch Fix',
+            'fileName':'LiveTouch-0.1.5-roothide-launch-fix.tipa',
             'type':'tipa',
             'platform':'TrollStore / RootHide iOS 15+',
-            'version':'0.1.4 (5)',
-            'url':'https://nextjailbreak.com/transfer/files/LiveTouch/0.1.4/LiveTouch-0.1.4-roothide-test.tipa',
-            'sha256':'788eec95d7fba78e97edceb5385193ba8c818583633d377cdeec0c641e294022',
-            'sizeBytes':67220,
-            'notes':'RootHide-native test build. Compiled with the RootHide Theos scheme and uses the official jbroot() API to resolve the randomized jailbreak root instead of /var/jb or the read-only system /Library path. Includes embedded root-helper mode, RootHide-native fallback helper, and RootHide-built SpringBoard engine. Fixes the read-only /Library/MobileSubstrate/DynamicLibraries error seen on the previous build.'
+            'version':'0.1.5 (6)',
+            'url':'https://nextjailbreak.com/transfer/files/LiveTouch/0.1.5/LiveTouch-0.1.5-roothide-launch-fix.tipa',
+            'sha256':'21fa6890015c0cf32d563e8aaacc7c37e2a5008d21a7d5251062a0b7b2572f66',
+            'sizeBytes':71613,
+            'notes':'Fixes the immediate DYLD crash on RootHide/TrollStore caused by @loader_path/.jbroot/usr/lib/libroothide.dylib. The TrollStore app and root helper no longer link libroothide at launch; instead they discover the active .jbroot-* directory directly and use it for tweak installation and RootHide tools. The SpringBoard engine remains RootHide-built. Tested by CI to ensure the main app and helper contain no libroothide loader dependency.'
           }
           data['files'].insert(0,item)
           data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -110,7 +107,7 @@ jobs:
 
           live=[x for x in data['files'] if str(x.get('id','')).startswith('livetouch-')]
           assert len(live)==1, [x.get('id') for x in live]
-          assert live[0]['id']=='livetouch-0.1.4-roothide-native', live[0]
+          assert live[0]['id']=='livetouch-0.1.5-roothide-launch-fix', live[0]
           PY
 
           python3 -m json.tool transfer/index.json >/dev/null
@@ -123,5 +120,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add transfer/index.json "$DEST_DIR/$DEST_FILE"
           git diff --cached --stat
-          git commit -m 'Publish LiveTouch 0.1.4 RootHide native to NS Transfer'
+          git commit -m 'Publish LiveTouch 0.1.5 RootHide launch fix to NS Transfer'
           git push origin HEAD:main
