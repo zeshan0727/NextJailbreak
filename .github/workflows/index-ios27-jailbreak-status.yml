@@ -1,0 +1,92 @@
+name: Index iOS 27 jailbreak status article
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/index-ios27-jailbreak-status.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Add article to manifest and indexes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from automation.publisher import _render_feed, _update_sitemap, load_audit
+
+          root = Path('.')
+          href = 'ios-27-jailbreak-status-security-fixes-usbliter8/'
+          article = root / href / 'index.html'
+          assert article.exists(), article
+          audit_path = root / 'automation/published-articles.json'
+          audit = load_audit(audit_path)
+          stamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+          title = 'iOS 27 Jailbreak Status: 120+ Security Fixes, Kernel Bugs and the usbliter8 iPhone 11 Pro Demo'
+          description = 'iOS 27 shipped with more than 120 security fixes. Here is what the kernel and root bugs plus the usbliter8 iPhone 11 Pro beta jailbreak demo mean for jailbreak users.'
+          if not any(isinstance(e, dict) and e.get('href') == href for e in audit.get('entries', [])):
+              entry = {
+                  'entry_type': 'editorial-news',
+                  'package': 'editorial.ios27-jailbreak-status',
+                  'name': 'iOS 27 Jailbreak Status',
+                  'version': '27.0',
+                  'title': title,
+                  'description': description,
+                  'href': href,
+                  'category': {'id': 'jailbreak', 'label': 'Jailbreak'},
+                  'source_name': 'Apple + security research',
+                  'source_url': 'https://developer.apple.com/news/releases/?id=03312025e',
+                  'source_page_url': 'https://developer.apple.com/news/releases/?id=03312025e',
+                  'selection_pool': 'editorial-current-news',
+                  'image': 'assets/articles/editorial/ios-27-jailbreak-status-hero.svg',
+                  'published_at': stamp,
+                  'modified_at': stamp,
+                  'quality_target': 9,
+              }
+              audit['entries'].append(entry)
+              audit['events'].append({'published_at': stamp, 'action': 'create', 'package': entry['package'], 'version': entry['version'], 'href': href, 'channel': 'ios27-editorial', 'run_id': 'github-actions-ios27-index'})
+              audit['updated_at'] = stamp
+              audit['entries'].sort(key=lambda e: str(e.get('modified_at') or e.get('published_at') or ''), reverse=True)
+              audit_path.write_text(json.dumps(audit, indent=2, sort_keys=True, ensure_ascii=False) + '\n', encoding='utf-8')
+
+          site = json.loads((root / 'automation/site.json').read_text(encoding='utf-8'))
+          (root / 'feed.xml').write_text(_render_feed(audit['entries'], site), encoding='utf-8')
+          sitemap = root / 'sitemap.xml'
+          sitemap.write_text(_update_sitemap(sitemap.read_text(encoding='utf-8'), audit['entries'], site), encoding='utf-8')
+          PY
+          python3 automation/sync_editorial_indexes.py
+          python3 -m automation.community_comments_rollout
+
+      - name: Validate core publication files
+        shell: bash
+        run: |
+          test -s ios-27-jailbreak-status-security-fixes-usbliter8/index.html
+          grep -q "ios-27-jailbreak-status-security-fixes-usbliter8" index.html
+          grep -q "ios-27-jailbreak-status-security-fixes-usbliter8" sitemap.xml
+          grep -q "ios-27-jailbreak-status-security-fixes-usbliter8" automation/published-articles.json
+
+      - name: Commit indexed article
+        run: |
+          git config user.name "nextjailbreak-editorial[bot]"
+          git config user.email "nextjailbreak-editorial[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git commit -m "Index iOS 27 jailbreak status article"
+          git pull --rebase origin main
+          git push origin HEAD:main
