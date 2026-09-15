@@ -5,6 +5,7 @@ on:
     branches: ["livetouch-test"]
     paths:
       - "ios/LiveTouchWallpaper/source.tar.gz.b64"
+      - "ios/LiveTouchWallpaper/overlay/**"
       - "ios/LiveTouchWallpaper/build-fixed.sh"
       - ".github/workflows/build-livetouch-tipa.yml"
   workflow_dispatch:
@@ -15,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore LiveTouch source
+      - name: Restore LiveTouch source and apply 0.1.2 overlay
         run: |
           mkdir -p ios/LiveTouchWallpaper
           python3 - <<'PY'
@@ -24,7 +25,11 @@ jobs:
           pathlib.Path('/tmp/livetouch-source.tar.gz').write_bytes(base64.b64decode(src))
           PY
           tar -xzf /tmp/livetouch-source.tar.gz -C ios/LiveTouchWallpaper
+          test -d ios/LiveTouchWallpaper/overlay/App
+          cp -f ios/LiveTouchWallpaper/overlay/App/* ios/LiveTouchWallpaper/App/
           chmod +x ios/LiveTouchWallpaper/build-fixed.sh
+          grep -Fq 'LTRootHelperEmbedded.m' ios/LiveTouchWallpaper/App/Makefile
+          grep -Fq -- '--root-helper' ios/LiveTouchWallpaper/App/main.m
 
       - name: Install Theos dependencies
         run: |
@@ -49,12 +54,14 @@ jobs:
           python3 - <<'PY'
           import plistlib
           with open('/tmp/LiveTouch-Info.plist','rb') as f: p=plistlib.load(f)
+          assert p['CFBundleIdentifier']=='com.nextjailbreak.livetouch'
           assert p['CFBundleShortVersionString']=='0.1.2'
           assert p['CFBundleVersion']=='3'
           assert p['TSRootBinaries']==['LiveTouchRootHelper']
           PY
           strings /tmp/LiveTouch-main | grep -Fq -- '--root-helper'
           strings /tmp/LiveTouch-main | grep -Fq 'Embedded root helper'
+          strings /tmp/LiveTouch-main | grep -Fq 'persona=%d uid=%d gid=%d'
           unzip -l "$APP" | grep -F 'Payload/LiveTouch.app/LiveTouchRootHelper'
           ls -lh "$APP"
 
