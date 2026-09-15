@@ -22,20 +22,16 @@ static NSString *LTDiscoverJBRoot(void) {
     ];
     NSMutableArray<NSDictionary *> *matches = [NSMutableArray array];
     for (NSString *parent in parents) {
-        NSError *listError = nil;
-        NSArray<NSString *> *items = [fm contentsOfDirectoryAtPath:parent error:&listError];
-        if (!items) continue;
-        for (NSString *name in items) {
+        NSArray<NSString *> *items = [fm contentsOfDirectoryAtPath:parent error:nil];
+        for (NSString *name in items ?: @[]) {
             if (![name hasPrefix:@".jbroot-"]) continue;
             NSString *candidate = [parent stringByAppendingPathComponent:name];
-            NSString *marker = [candidate stringByAppendingPathComponent:@"usr/lib/libroothide.dylib"];
-            if (![fm fileExistsAtPath:marker]) continue;
-            NSString *substrate = [candidate stringByAppendingPathComponent:@"Library/MobileSubstrate/DynamicLibraries"];
+            if (![fm fileExistsAtPath:[candidate stringByAppendingPathComponent:@"usr/lib/libroothide.dylib"]]) continue;
             NSString *inject = [candidate stringByAppendingPathComponent:@"usr/lib/TweakInject"];
-            if (!LTIsDirectory(substrate) && !LTIsDirectory(inject)) continue;
+            NSString *substrate = [candidate stringByAppendingPathComponent:@"Library/MobileSubstrate/DynamicLibraries"];
+            if (!LTIsDirectory(inject) && !LTIsDirectory(substrate)) continue;
             NSDictionary *attrs = [fm attributesOfItemAtPath:candidate error:nil];
-            NSDate *date = attrs[NSFileModificationDate] ?: [NSDate distantPast];
-            [matches addObject:@{ @"path": candidate, @"date": date }];
+            [matches addObject:@{ @"path":candidate, @"date":attrs[NSFileModificationDate] ?: [NSDate distantPast] }];
         }
         if (matches.count) break;
     }
@@ -54,9 +50,10 @@ static NSString *LTJBPath(NSString *path) {
 }
 
 static NSString *LTDiscoverTweakDir(void) {
+    // RootHide + Dopamine uses ElleKit. Prefer the actual ElleKit injection directory.
     NSArray<NSString *> *logical = @[
-        @"/Library/MobileSubstrate/DynamicLibraries",
-        @"/usr/lib/TweakInject"
+        @"/usr/lib/TweakInject",
+        @"/Library/MobileSubstrate/DynamicLibraries"
     ];
     for (NSString *candidate in logical) {
         NSString *physical = LTJBPath(candidate);
@@ -93,21 +90,31 @@ static BOOL CopyReplace(NSString *src, NSString *dst, mode_t mode, uid_t uid, gi
     chmod(dst.fileSystemRepresentation, mode); chown(dst.fileSystemRepresentation, uid, gid); return YES;
 }
 
+static void RemoveLegacyEngineIfNeeded(NSString *activeDir) {
+    NSString *legacy = LTJBPath(@"/Library/MobileSubstrate/DynamicLibraries");
+    if (!legacy.length || [legacy isEqualToString:activeDir]) return;
+    NSFileManager *fm = NSFileManager.defaultManager;
+    [fm removeItemAtPath:[legacy stringByAppendingPathComponent:@"LiveTouchEngine.dylib"] error:nil];
+    [fm removeItemAtPath:[legacy stringByAppendingPathComponent:@"LiveTouchEngine.plist"] error:nil];
+}
+
 static int InstallEngine(void) {
     NSString *bundle = BundleRoot();
     NSString *dir = LTDiscoverTweakDir();
     NSString *jb = LTRootHideRoot();
     if (!dir.length) {
-        fprintf(stderr, "RootHide jbroot scan resolved to %s but no tweak injection directory was found. Expected Library/MobileSubstrate/DynamicLibraries or usr/lib/TweakInject inside the active .jbroot-* directory.\n", jb.UTF8String);
+        fprintf(stderr, "RootHide jbroot scan resolved to %s but no tweak injection directory was found. Expected usr/lib/TweakInject or Library/MobileSubstrate/DynamicLibraries inside the active .jbroot-* directory.\n", jb.UTF8String);
         return 20;
     }
     printf("RootHide jbroot: %s\n", jb.UTF8String);
-    printf("RootHide tweak directory: %s\n", dir.UTF8String);
+    printf("RootHide active injection directory: %s\n", dir.UTF8String);
     if (!EnsureDir(dir, 0755, 0, 0)) return 2;
+    RemoveLegacyEngineIfNeeded(dir);
     BOOL a = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], 0755, 0, 0);
     BOOL b = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.plist"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.plist"], 0644, 0, 0);
     if (!EnsureDir(DataDir(), 0755, 501, 501)) return 3;
-    printf("Engine installed for RootHide.\n");
+    [[NSFileManager defaultManager] removeItemAtPath:[DataDir() stringByAppendingPathComponent:@"engine.log"] error:nil];
+    printf("Engine installed for RootHide/ElleKit.\n");
     return (a && b) ? 0 : 4;
 }
 
@@ -155,12 +162,14 @@ int LTEmbeddedRootHelperMain(int argc, char *argv[]) {
             NSString *dylib = dir.length ? [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"] : nil;
             BOOL installed = dylib.length && [[NSFileManager defaultManager] fileExistsAtPath:dylib];
             NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:PrefsPath()];
-            printf("Engine: %s | RootHide jbroot: %s | TweakDir: %s | Wallpaper: %s | Mode: %s\n",
+            NSString *engineLog = [NSString stringWithContentsOfFile:[DataDir() stringByAppendingPathComponent:@"engine.log"] encoding:NSUTF8StringEncoding error:nil];
+            printf("Engine: %s | RootHide jbroot: %s | InjectionDir: %s | Wallpaper: %s | Mode: %s | EngineLog: %s\n",
                    installed ? "installed" : "not installed",
                    LTRootHideRoot().UTF8String,
                    dir.UTF8String ?: "not found",
                    [prefs[@"videoPath"] fileSystemRepresentation] ?: "not set",
-                   [prefs[@"trigger"] UTF8String] ?: "tap");
+                   [prefs[@"trigger"] UTF8String] ?: "tap",
+                   engineLog.length ? engineLog.UTF8String : "not loaded yet");
             return installed ? 0 : 1;
         }
         fprintf(stderr, "Unknown command.\n"); return 64;
