@@ -2,13 +2,13 @@
 set -euo pipefail
 : "${THEOS:?Set THEOS to your Theos directory}"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-OUT="LiveTouch-0.1.3-test.tipa"
+OUT="LiveTouch-0.1.4-roothide-test.tipa"
 rm -rf "$ROOT/build" "$ROOT/Payload"
 mkdir -p "$ROOT/build"
 
-make -C "$ROOT/App" clean all FINALPACKAGE=1
-make -C "$ROOT/RootHelper" clean all FINALPACKAGE=1
-make -C "$ROOT/Engine" clean all FINALPACKAGE=1
+make -C "$ROOT/App" clean all FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+make -C "$ROOT/RootHelper" clean all FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+make -C "$ROOT/Engine" clean all FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
 
 APP_EXE=$(find "$ROOT/App/.theos" -type f -path '*/LiveTouch.app/LiveTouch' -print0 | xargs -0 ls -S 2>/dev/null | head -1 || true)
 HELPER=$(find "$ROOT/RootHelper/.theos" -type f -name 'LiveTouchRootHelper' -print0 | xargs -0 ls -S 2>/dev/null | head -1 || true)
@@ -27,8 +27,8 @@ python3 - "$ROOT/Payload/LiveTouch.app/Info.plist" <<'PY'
 import plistlib,sys
 p=sys.argv[1]
 with open(p,'rb') as f: d=plistlib.load(f)
-d['CFBundleShortVersionString']='0.1.3'
-d['CFBundleVersion']='4'
+d['CFBundleShortVersionString']='0.1.4'
+d['CFBundleVersion']='5'
 d['TSRootBinaries']=['LiveTouchRootHelper']
 with open(p,'wb') as f: plistlib.dump(d,f,fmt=plistlib.FMT_XML,sort_keys=False)
 PY
@@ -43,9 +43,10 @@ test -f "$ROOT/Payload/LiveTouch.app/Info.plist"
 test -x "$ROOT/Payload/LiveTouch.app/LiveTouch"
 test -x "$ROOT/Payload/LiveTouch.app/LiveTouchRootHelper"
 strings "$ROOT/Payload/LiveTouch.app/LiveTouch" | grep -Fq -- '--root-helper'
-strings "$ROOT/Payload/LiveTouch.app/LiveTouch" | grep -Fq 'Detected %s tweak directory:'
-strings "$ROOT/Payload/LiveTouch.app/LiveTouch" | grep -Fq '/private/preboot'
-strings "$ROOT/Payload/LiveTouch.app/LiveTouch" | grep -Fq 'Refusing to write to the read-only rootful /Library path.'
+strings "$ROOT/Payload/LiveTouch.app/LiveTouch" | grep -Fq 'RootHide jbroot:'
+strings "$ROOT/Payload/LiveTouch.app/LiveTouch" | grep -Fq 'RootHide tweak directory:'
+strings "$ROOT/Payload/LiveTouch.app/LiveTouch" | grep -Fq 'Engine installed for RootHide.'
+strings "$ROOT/Payload/LiveTouch.app/LiveTouchRootHelper" | grep -Fq 'RootHide tweak directory:'
 
 cd "$ROOT"
 zip -qry "build/$OUT" Payload
