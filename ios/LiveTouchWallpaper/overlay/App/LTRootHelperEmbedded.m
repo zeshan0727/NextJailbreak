@@ -3,7 +3,7 @@
 #import <unistd.h>
 #import <signal.h>
 #import <spawn.h>
-#import <mach-o/dyld.h>
+#import <roothide.h>
 #include <string.h>
 extern char **environ;
 
@@ -15,61 +15,26 @@ static BOOL LTIsDirectory(NSString *path) {
     return [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] && isDir;
 }
 
-static NSString *LTDirectoryFromLoadedImage(NSString *imagePath) {
-    NSArray<NSString *> *markers = @[
-        @"/Library/MobileSubstrate/DynamicLibraries/",
-        @"/usr/lib/TweakInject/"
-    ];
-    for (NSString *marker in markers) {
-        NSRange r = [imagePath rangeOfString:marker options:NSCaseInsensitiveSearch];
-        if (r.location != NSNotFound) {
-            NSString *prefix = [imagePath substringToIndex:r.location];
-            NSString *dir = [prefix stringByAppendingString:[marker substringToIndex:marker.length - 1]];
-            if (dir.length && LTIsDirectory(dir)) return dir;
-        }
-    }
-    return nil;
+static NSString *LTJBPath(NSString *path) {
+    NSString *resolved = jbroot(path);
+    return resolved.length ? resolved : nil;
 }
 
 static NSString *LTDiscoverTweakDir(void) {
-    NSFileManager *fm = NSFileManager.defaultManager;
-    NSArray<NSString *> *rootlessCandidates = @[
-        @"/var/jb/Library/MobileSubstrate/DynamicLibraries",
-        @"/var/jb/usr/lib/TweakInject"
+    NSArray<NSString *> *logical = @[
+        @"/Library/MobileSubstrate/DynamicLibraries",
+        @"/usr/lib/TweakInject"
     ];
-    for (NSString *candidate in rootlessCandidates) {
-        if (LTIsDirectory(candidate)) return candidate;
+    for (NSString *candidate in logical) {
+        NSString *physical = LTJBPath(candidate);
+        if (physical.length && LTIsDirectory(physical)) return physical;
     }
-
-    uint32_t count = _dyld_image_count();
-    for (uint32_t i = 0; i < count; i++) {
-        const char *name = _dyld_get_image_name(i);
-        if (!name) continue;
-        NSString *image = [NSString stringWithUTF8String:name];
-        NSString *dir = LTDirectoryFromLoadedImage(image);
-        if (dir.length) return dir;
-    }
-
-    NSDirectoryEnumerator *en = [fm enumeratorAtURL:[NSURL fileURLWithPath:@"/private/preboot"]
-                         includingPropertiesForKeys:@[NSURLIsDirectoryKey]
-                                            options:(NSDirectoryEnumerationSkipsHiddenFiles | NSDirectoryEnumerationSkipsPackageDescendants)
-                                       errorHandler:^BOOL(NSURL *url, NSError *error) { return YES; }];
-    NSUInteger inspected = 0;
-    for (NSURL *url in en) {
-        if (++inspected > 12000) break;
-        NSString *p = url.path;
-        if ([p hasSuffix:@"/Library/MobileSubstrate/DynamicLibraries"] || [p hasSuffix:@"/usr/lib/TweakInject"]) {
-            if (LTIsDirectory(p)) return p;
-        }
-    }
-
-    NSString *rootful = @"/Library/MobileSubstrate/DynamicLibraries";
-    if (LTIsDirectory(rootful) && access(rootful.fileSystemRepresentation, W_OK) == 0) return rootful;
     return nil;
 }
 
-static NSString *LTModeForTweakDir(NSString *dir) {
-    return [dir hasPrefix:@"/Library/"] ? @"rootful" : @"rootless";
+static NSString *LTRootHideRoot(void) {
+    NSString *probe = LTJBPath(@"/");
+    return probe.length ? probe : @"(unresolved)";
 }
 
 static BOOL EnsureDir(NSString *path, mode_t mode, uid_t uid, gid_t gid) {
@@ -98,16 +63,18 @@ static BOOL CopyReplace(NSString *src, NSString *dst, mode_t mode, uid_t uid, gi
 static int InstallEngine(void) {
     NSString *bundle = BundleRoot();
     NSString *dir = LTDiscoverTweakDir();
+    NSString *jb = LTRootHideRoot();
     if (!dir.length) {
-        fprintf(stderr, "Could not discover jailbreak tweak directory. /var/jb was unavailable and no rootless preboot tweak path was found. Refusing to write to the read-only rootful /Library path.\n");
+        fprintf(stderr, "RootHide jbroot resolved to %s but no tweak injection directory was found. Expected jbroot(/Library/MobileSubstrate/DynamicLibraries) or jbroot(/usr/lib/TweakInject).\n", jb.UTF8String);
         return 20;
     }
-    printf("Detected %s tweak directory: %s\n", LTModeForTweakDir(dir).UTF8String, dir.UTF8String);
+    printf("RootHide jbroot: %s\n", jb.UTF8String);
+    printf("RootHide tweak directory: %s\n", dir.UTF8String);
     if (!EnsureDir(dir, 0755, 0, 0)) return 2;
     BOOL a = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], 0755, 0, 0);
     BOOL b = CopyReplace([bundle stringByAppendingPathComponent:@"LiveTouchEngine.plist"], [dir stringByAppendingPathComponent:@"LiveTouchEngine.plist"], 0644, 0, 0);
     if (!EnsureDir(DataDir(), 0755, 501, 501)) return 3;
-    printf("Engine installed (%s).\n", LTModeForTweakDir(dir).UTF8String);
+    printf("Engine installed for RootHide.\n");
     return (a && b) ? 0 : 4;
 }
 
@@ -129,26 +96,17 @@ static int Apply(NSString *video, NSString *trigger, NSString *gravity, BOOL mut
 }
 
 static int Respring(void) {
-    NSMutableArray<NSString *> *paths = [NSMutableArray array];
-    NSString *dir = LTDiscoverTweakDir();
-    if (dir.length) {
-        NSRange libRange = [dir rangeOfString:@"/Library/MobileSubstrate/DynamicLibraries"];
-        NSRange injectRange = [dir rangeOfString:@"/usr/lib/TweakInject"];
-        NSString *prefix = nil;
-        if (libRange.location != NSNotFound) prefix = [dir substringToIndex:libRange.location];
-        else if (injectRange.location != NSNotFound) prefix = [dir substringToIndex:injectRange.location];
-        if (prefix.length) [paths addObject:[prefix stringByAppendingString:@"/usr/bin/killall"]];
+    NSString *killall = LTJBPath(@"/usr/bin/killall");
+    if (killall.length && [[NSFileManager defaultManager] isExecutableFileAtPath:killall]) {
+        pid_t pid;
+        const char *argv[] = { killall.fileSystemRepresentation, "-9", "SpringBoard", NULL };
+        int rc = posix_spawn(&pid, killall.fileSystemRepresentation, NULL, NULL, (char * const *)argv, NULL);
+        if (rc == 0) { printf("RootHide respring requested.\n"); return 0; }
+        fprintf(stderr, "RootHide killall spawn failed: %d (%s) path=%s\n", rc, strerror(rc), killall.UTF8String);
+        return rc;
     }
-    [paths addObject:@"/var/jb/usr/bin/killall"];
-    [paths addObject:@"/usr/bin/killall"];
-    for (NSString *p in paths) {
-        if ([[NSFileManager defaultManager] isExecutableFileAtPath:p]) {
-            pid_t pid; const char *argv[] = { p.fileSystemRepresentation, "-9", "SpringBoard", NULL };
-            int rc = posix_spawn(&pid, p.fileSystemRepresentation, NULL, NULL, (char * const *)argv, environ);
-            if (rc == 0) { printf("Respring requested.\n"); return 0; }
-        }
-    }
-    fprintf(stderr, "killall not found. Respring from your jailbreak UI.\n"); return 8;
+    fprintf(stderr, "RootHide killall not found at jbroot(/usr/bin/killall). Respring from Bootstrap/Dopamine.\n");
+    return 8;
 }
 
 int LTEmbeddedRootHelperMain(int argc, char *argv[]) {
@@ -164,7 +122,12 @@ int LTEmbeddedRootHelperMain(int argc, char *argv[]) {
             NSString *dylib = dir.length ? [dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"] : nil;
             BOOL installed = dylib.length && [[NSFileManager defaultManager] fileExistsAtPath:dylib];
             NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:PrefsPath()];
-            printf("Engine: %s | TweakDir: %s | Wallpaper: %s | Mode: %s\n", installed ? "installed" : "not installed", dir.UTF8String ?: "not found", [prefs[@"videoPath"] fileSystemRepresentation] ?: "not set", [prefs[@"trigger"] UTF8String] ?: "tap");
+            printf("Engine: %s | RootHide jbroot: %s | TweakDir: %s | Wallpaper: %s | Mode: %s\n",
+                   installed ? "installed" : "not installed",
+                   LTRootHideRoot().UTF8String,
+                   dir.UTF8String ?: "not found",
+                   [prefs[@"videoPath"] fileSystemRepresentation] ?: "not set",
+                   [prefs[@"trigger"] UTF8String] ?: "tap");
             return installed ? 0 : 1;
         }
         fprintf(stderr, "Unknown command.\n"); return 64;
