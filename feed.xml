@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>iOS 27 Jailbreak Status: 120+ Security Fixes, Kernel Bugs and the usbliter8 iPhone 11 Pro Demo</title>
+      <link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid>
+      <pubDate>Tue, 15 Sep 2026 07:47:49 GMT</pubDate>
+      <description>iOS 27 shipped with more than 120 security fixes. Here is what the kernel and root bugs plus the usbliter8 iPhone 11 Pro beta jailbreak demo mean for jailbreak users.</description>
+      <category>Jailbreak</category>
+    </item>
+    <item>
       <title>AlarmSearch 1.0 Adds Search to the Clock App’s Alarm List</title>
       <link>https://nextjailbreak.com/alarmsearch-1-0-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/alarmsearch-1-0-update/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Sat, 29 Aug 2026 18:06:15 GMT</pubDate>
       <description>Dopamine 3: verified compatibility, requirements, release details and practical guidance based on official project sources.</description>
       <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>SetupManager 1.2: Import and Export Your Own Setups</title>
-      <link>https://nextjailbreak.com/setupmanager-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/setupmanager-tweak.html</guid>
-      <pubDate>Sat, 29 Aug 2026 15:12:09 GMT</pubDate>
-      <description>SetupManager 1.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
     </item>
   </channel>
 </rss>

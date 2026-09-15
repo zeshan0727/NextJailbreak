@@ -2,6 +2,27 @@
   "entries": [
     {
       "category": {
+        "id": "jailbreak",
+        "label": "Jailbreak"
+      },
+      "description": "iOS 27 shipped with more than 120 security fixes. Here is what the kernel and root bugs plus the usbliter8 iPhone 11 Pro beta jailbreak demo mean for jailbreak users.",
+      "entry_type": "editorial-news",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "image": "assets/articles/editorial/ios-27-jailbreak-status-hero.svg",
+      "modified_at": "2026-09-15T07:47:49+00:00",
+      "name": "iOS 27 Jailbreak Status",
+      "package": "editorial.ios27-jailbreak-status",
+      "published_at": "2026-09-15T07:47:49+00:00",
+      "quality_target": 9,
+      "selection_pool": "editorial-current-news",
+      "source_name": "Apple + security research",
+      "source_page_url": "https://developer.apple.com/news/releases/?id=03312025e",
+      "source_url": "https://developer.apple.com/news/releases/?id=03312025e",
+      "title": "iOS 27 Jailbreak Status: 120+ Security Fixes, Kernel Bugs and the usbliter8 iPhone 11 Pro Demo",
+      "version": "27.0"
+    },
+    {
+      "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
       },
@@ -2167,8 +2188,17 @@
       "published_at": "2026-09-15T07:15:59+00:00",
       "run_id": "34940439505-com.icraze.alarmsearch-1",
       "version": "1.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios27-editorial",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "package": "editorial.ios27-jailbreak-status",
+      "published_at": "2026-09-15T07:47:49+00:00",
+      "run_id": "github-actions-ios27-index",
+      "version": "27.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-15T07:15:59+00:00"
+  "updated_at": "2026-09-15T07:47:49+00:00"
 }
