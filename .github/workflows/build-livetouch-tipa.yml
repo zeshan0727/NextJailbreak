@@ -17,7 +17,11 @@ jobs:
       - name: Restore LiveTouch source
         run: |
           mkdir -p ios/LiveTouchWallpaper
-          base64 --decode ios/LiveTouchWallpaper/source.tar.gz.b64 > /tmp/livetouch-source.tar.gz
+          python3 - <<'PY'
+          import base64, pathlib
+          src = pathlib.Path('ios/LiveTouchWallpaper/source.tar.gz.b64').read_text().strip()
+          pathlib.Path('/tmp/livetouch-source.tar.gz').write_bytes(base64.b64decode(src))
+          PY
           tar -xzf /tmp/livetouch-source.tar.gz -C ios/LiveTouchWallpaper
           chmod +x ios/LiveTouchWallpaper/build.sh
 
