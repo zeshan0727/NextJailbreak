@@ -107,14 +107,13 @@ jobs:
           data['files'].insert(0,item)
           data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
           p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+
+          live=[x for x in data['files'] if str(x.get('id','')).startswith('livetouch-')]
+          assert len(live)==1, [x.get('id') for x in live]
+          assert live[0]['id']=='livetouch-0.1.4-roothide-native', live[0]
           PY
 
           python3 -m json.tool transfer/index.json >/dev/null
-          grep -Fq 'livetouch-0.1.4-roothide-native' transfer/index.json
-          if grep -Eq '"id": "livetouch-0\.1(\.1|\.2|\.3)?' transfer/index.json; then
-            echo 'An older LiveTouch feed entry is still present'
-            exit 1
-          fi
 
       - name: Commit NS Transfer publication
         shell: bash
