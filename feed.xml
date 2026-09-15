@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>vphone-cli Adds iOS 27 RC Support With a Full Jailbreak VM Mode on Apple Silicon</title>
+      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
+      <pubDate>Tue, 15 Sep 2026 08:07:38 GMT</pubDate>
+      <description>vphone-cli now supports iOS 27 RC build 24A435 and a jailbroken virtual-iPhone mode with Sileo and TrollStore on Apple Silicon Macs. Here is what it means.</description>
+      <category>Jailbreak</category>
+    </item>
+    <item>
       <title>iOS 27 Jailbreak Status: 120+ Security Fixes, Kernel Bugs and the usbliter8 iPhone 11 Pro Demo</title>
       <link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Sun, 30 Aug 2026 03:54:14 GMT</pubDate>
       <description>XXTouch Elite 5.4.6 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>Productivity</category>
-    </item>
-    <item>
-      <title>Dopamine 3 Jailbreak: Official Project Pages and Compatibility Guide</title>
-      <link>https://nextjailbreak.com/dopamine-3-official-download-guide.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-official-download-guide.html</guid>
-      <pubDate>Sat, 29 Aug 2026 18:06:15 GMT</pubDate>
-      <description>Dopamine 3: verified compatibility, requirements, release details and practical guidance based on official project sources.</description>
-      <category>Jailbreak</category>
     </item>
   </channel>
 </rss>

@@ -5,6 +5,27 @@
         "id": "jailbreak",
         "label": "Jailbreak"
       },
+      "description": "vphone-cli now supports iOS 27 RC build 24A435 and a jailbroken virtual-iPhone mode with Sileo and TrollStore on Apple Silicon Macs. Here is what it means.",
+      "entry_type": "editorial-news",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "image": "assets/articles/editorial/vphone-cli-ios27-rc-hero.svg",
+      "modified_at": "2026-09-15T08:07:38+00:00",
+      "name": "vphone-cli iOS 27 RC",
+      "package": "editorial.vphone-cli-ios27-rc",
+      "published_at": "2026-09-15T08:07:38+00:00",
+      "quality_target": 9,
+      "selection_pool": "editorial-current-original-source",
+      "source_name": "Lakr233/vphone-cli",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli",
+      "source_url": "https://github.com/Lakr233/vphone-cli/commit/9c23c8adcd4b362120988ab9d228b959bcc23ae3",
+      "title": "vphone-cli Adds iOS 27 RC Support With a Full Jailbreak VM Mode on Apple Silicon",
+      "version": "24A435"
+    },
+    {
+      "category": {
+        "id": "jailbreak",
+        "label": "Jailbreak"
+      },
       "description": "iOS 27 shipped with more than 120 security fixes. Here is what the kernel and root bugs plus the usbliter8 iPhone 11 Pro beta jailbreak demo mean for jailbreak users.",
       "entry_type": "editorial-news",
       "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
@@ -2197,8 +2218,17 @@
       "published_at": "2026-09-15T07:47:49+00:00",
       "run_id": "github-actions-ios27-index",
       "version": "27.0"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-quality-test",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "package": "editorial.vphone-cli-ios27-rc",
+      "published_at": "2026-09-15T08:07:38+00:00",
+      "run_id": "manual-test",
+      "version": "24A435"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-15T07:47:49+00:00"
+  "updated_at": "2026-09-15T08:07:38+00:00"
 }
