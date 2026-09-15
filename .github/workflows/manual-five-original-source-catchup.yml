@@ -1,4 +1,4 @@
-name: Manual five-article AI catch-up
+name: Manual four-article AI catch-up
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: nextjailbreak-manual-five-catchup
+  group: nextjailbreak-manual-four-catchup
   cancel-in-progress: true
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
           p.write_text(json.dumps(cfg,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
           PY
 
-      - name: Discover and AI-write five fresh exact-version articles
+      - name: Discover and AI-write four fresh exact-version articles
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.6-luna
@@ -82,10 +82,10 @@ jobs:
           print(len(current-baseline))
           PY
             )
-            echo "Validated fresh articles: $success_count / 5"
-            [ "$success_count" -ge 5 ] && break
+            echo "Validated fresh articles: $success_count / 4"
+            [ "$success_count" -ge 4 ] && break
           done
-          [ "$success_count" -ge 5 ] || { echo "Could not produce five fresh exact-version articles" >&2; exit 4; }
+          [ "$success_count" -ge 4 ] || { echo "Could not produce four fresh exact-version articles" >&2; exit 4; }
 
       - name: Synchronize site and social cards
         run: |
@@ -98,7 +98,7 @@ jobs:
         if: always()
         run: git checkout -- automation/ios_repo_news.json
 
-      - name: Validate five new pages
+      - name: Validate four new pages
         shell: bash
         run: |
           python3 - <<'PY'
@@ -108,8 +108,8 @@ jobs:
           audit=json.loads(Path('automation/published-articles.json').read_text(encoding='utf-8'))
           rows=[e for e in audit.get('entries',[]) if isinstance(e,dict) and e.get('href') and str(e.get('href')) not in baseline]
           rows.sort(key=lambda e:str(e.get('published_at','')))
-          rows=rows[:5]
-          if len(rows)!=5: raise SystemExit(f'Expected 5 new entries, found {len(rows)}')
+          rows=rows[:4]
+          if len(rows)!=4: raise SystemExit(f'Expected 4 new entries, found {len(rows)}')
           for e in rows:
               page=Path(str(e['href']))/'index.html' if str(e['href']).endswith('/') else Path(str(e['href']))
               text=page.read_text(encoding='utf-8')
@@ -121,13 +121,13 @@ jobs:
           print('\n'.join(f"{i}. {e.get('title')} -> https://nextjailbreak.com/{e.get('href')}" for i,e in enumerate(rows,1)))
           PY
 
-      - name: Commit five fresh articles and repairs
+      - name: Commit four fresh articles and repairs
         run: |
           git config user.name "nextjailbreak-ai-publisher[bot]"
           git config user.email "nextjailbreak-ai-publisher[bot]@users.noreply.github.com"
           git add -A
           git diff --cached --quiet && { echo "No changes" >&2; exit 1; }
-          git commit -m "AI catch-up: publish five fresh exact-version articles"
+          git commit -m "AI catch-up: publish four fresh exact-version articles"
           git pull --rebase origin main
           git push origin HEAD:main
 
@@ -137,20 +137,20 @@ jobs:
           import json
           from pathlib import Path
           rows=json.loads(Path('/tmp/catchup-new.json').read_text(encoding='utf-8'))
-          assert len(rows)==5
+          assert len(rows)==4
           for row in rows:
               p=Path(str(row['href']))/'index.html' if str(row['href']).endswith('/') else Path(str(row['href']))
               assert p.exists(),p
-          print('All five fresh article pages verified.')
+          print('All four fresh article pages verified.')
           PY
 
       - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: five-fresh-article-catchup-${{ github.run_number }}
+          name: four-fresh-article-catchup-${{ github.run_number }}
           path: /tmp/catchup-logs/
           if-no-files-found: ignore
           retention-days: 14
 
-# Manual latest-five trigger: 2026-09-15T09:19+03:00
+# Manual latest-four trigger: 2026-09-15T09:47+03:00
