@@ -50,7 +50,6 @@ static NSString *LTJBPath(NSString *path) {
 }
 
 static NSString *LTDiscoverTweakDir(void) {
-    // RootHide + Dopamine uses ElleKit. Prefer the actual ElleKit injection directory.
     NSArray<NSString *> *logical = @[
         @"/usr/lib/TweakInject",
         @"/Library/MobileSubstrate/DynamicLibraries"
@@ -135,6 +134,64 @@ static int Apply(NSString *video, NSString *trigger, NSString *gravity, BOOL mut
     return 0;
 }
 
+static BOOL LTRemovePath(NSString *path, NSMutableArray<NSString *> *removed, NSMutableArray<NSString *> *failed) {
+    if (!path.length) return YES;
+    NSFileManager *fm = NSFileManager.defaultManager;
+    if (![fm fileExistsAtPath:path]) return YES;
+    NSError *error = nil;
+    if ([fm removeItemAtPath:path error:&error]) {
+        [removed addObject:path];
+        return YES;
+    }
+    [failed addObject:[NSString stringWithFormat:@"%@ (%@)", path, error.localizedDescription ?: @"unknown error"]];
+    return NO;
+}
+
+static int UninstallLiveTouch(void) {
+    NSMutableArray<NSString *> *removed = [NSMutableArray array];
+    NSMutableArray<NSString *> *failed = [NSMutableArray array];
+    NSString *root = LTDiscoverJBRoot();
+
+    NSMutableArray<NSString *> *dirs = [NSMutableArray array];
+    if (root.length) {
+        [dirs addObject:[root stringByAppendingPathComponent:@"usr/lib/TweakInject"]];
+        [dirs addObject:[root stringByAppendingPathComponent:@"Library/MobileSubstrate/DynamicLibraries"]];
+    }
+    [dirs addObjectsFromArray:@[
+        @"/var/jb/usr/lib/TweakInject",
+        @"/var/jb/Library/MobileSubstrate/DynamicLibraries",
+        @"/usr/lib/TweakInject",
+        @"/Library/MobileSubstrate/DynamicLibraries"
+    ]];
+
+    NSMutableSet<NSString *> *seen = [NSMutableSet set];
+    for (NSString *dir in dirs) {
+        if (!dir.length || [seen containsObject:dir]) continue;
+        [seen addObject:dir];
+        LTRemovePath([dir stringByAppendingPathComponent:@"LiveTouchEngine.dylib"], removed, failed);
+        LTRemovePath([dir stringByAppendingPathComponent:@"LiveTouchEngine.plist"], removed, failed);
+    }
+
+    LTRemovePath(PrefsPath(), removed, failed);
+    LTRemovePath(DataDir(), removed, failed);
+
+    printf("LiveTouch uninstall cleanup complete.\n");
+    if (root.length) printf("RootHide jbroot: %s\n", root.UTF8String);
+    if (removed.count) {
+        printf("Removed %lu item(s):\n", (unsigned long)removed.count);
+        for (NSString *path in removed) printf("- %s\n", path.UTF8String);
+    } else {
+        printf("No LiveTouch installed files were found; system is already clean.\n");
+    }
+    if (failed.count) {
+        fprintf(stderr, "Could not remove %lu item(s):\n", (unsigned long)failed.count);
+        for (NSString *line in failed) fprintf(stderr, "- %s\n", line.UTF8String);
+        return 30;
+    }
+    printf("Respring once to unload any previously injected engine, then delete LiveTouch from TrollStore.\n");
+    return 0;
+}
+
 static int Respring(void) {
     NSString *killall = LTJBPath(@"/usr/bin/killall");
     if (killall.length && [[NSFileManager defaultManager] isExecutableFileAtPath:killall]) {
@@ -156,6 +213,7 @@ int LTEmbeddedRootHelperMain(int argc, char *argv[]) {
         NSString *cmd = [NSString stringWithUTF8String:argv[2]];
         if ([cmd isEqualToString:@"install-engine"]) return InstallEngine();
         if ([cmd isEqualToString:@"apply"] && argc >= 7) return Apply([NSString stringWithUTF8String:argv[3]], [NSString stringWithUTF8String:argv[4]], [NSString stringWithUTF8String:argv[5]], atoi(argv[6]) != 0);
+        if ([cmd isEqualToString:@"uninstall"]) return UninstallLiveTouch();
         if ([cmd isEqualToString:@"respring"]) return Respring();
         if ([cmd isEqualToString:@"status"]) {
             NSString *dir = LTDiscoverTweakDir();
