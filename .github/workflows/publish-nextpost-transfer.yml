@@ -1,7 +1,7 @@
 name: Publish Next Post to Transfer
 
 # 1.0.13 restores the 1.0.11 automatic post flow and adds manual selection from Remaining.
-# Trigger publication after verified build artifact is committed.
+# Verified build is present; trigger Transfer publication for 1.0.13.
 on:
   workflow_dispatch:
   push:
