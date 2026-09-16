@@ -8,10 +8,10 @@ options:
 packages:
   LevelPlay:
     url: https://github.com/ironsource-mobile/LevelPlay-Swift-Package
-    branch: main
+    revision: 3093cf731af059a3819ef62c4c0dafe34e8e2d28
   UnityAdsAdapter:
     url: https://github.com/ironsource-mobile/LevelPlay-UnityAds-Adapter-Swift-Package
-    branch: main
+    revision: 995e0289b3cd587da6cb4c1c4e418e204bae8bb8
 
 settings:
   base:
