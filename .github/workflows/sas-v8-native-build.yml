@@ -30,8 +30,46 @@ jobs:
           "SAS_SOURCE=$($root.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           Write-Host "Source root: $($root.FullName)"
 
+      - name: Patch WinUI project metadata
+        shell: pwsh
+        run: |
+          $p = Join-Path $env:SAS_SOURCE "StoryAutomationStudio.vcxproj"
+          [xml]$xml = Get-Content $p -Raw
+          $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
+          $ns.AddNamespace("m", "http://schemas.microsoft.com/developer/msbuild/2003")
+          $g = $xml.SelectSingleNode("/m:Project/m:PropertyGroup[@Label='Globals']", $ns)
+          function Set-Prop([string]$name,[string]$value) {
+            $n = $g.SelectSingleNode("m:$name", $ns)
+            if (-not $n) { $n = $xml.CreateElement($name, $xml.DocumentElement.NamespaceURI); [void]$g.AppendChild($n) }
+            $n.InnerText = $value
+          }
+          Set-Prop "CppWinRTOptimized" "true"
+          Set-Prop "CppWinRTRootNamespaceAutoMerge" "true"
+          Set-Prop "MinimalCoreWin" "true"
+          Set-Prop "TargetName" "`$(RootNamespace)"
+          Set-Prop "DefaultLanguage" "en-US"
+          Set-Prop "MinimumVisualStudioVersion" "16.0"
+          Set-Prop "WindowsTargetPlatformVersion" "10.0"
+          Set-Prop "WindowsTargetPlatformMinVersion" "10.0.17763.0"
+          Set-Prop "UseWinUI" "true"
+          Set-Prop "EnableMsixTooling" "true"
+          Set-Prop "WindowsAppSDKSelfContained" "true"
+          Set-Prop "AppxPackage" "false"
+          Set-Prop "WindowsPackageType" "None"
+          Set-Prop "TargetFrameworks" "UAP,Version=v10.0"
+          $cfgs = $xml.SelectNodes("/m:Project/m:PropertyGroup[@Label='Configuration']", $ns)
+          foreach ($cfg in $cfgs) {
+            $d = $cfg.SelectSingleNode("m:DesktopCompatible", $ns)
+            if (-not $d) { $d = $xml.CreateElement("DesktopCompatible", $xml.DocumentElement.NamespaceURI); [void]$cfg.AppendChild($d) }
+            $d.InnerText = "true"
+          }
+          $xml.Save($p)
+          Write-Host (Get-Content $p -Raw)
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
 
       - name: Build native WinUI app
         shell: pwsh
