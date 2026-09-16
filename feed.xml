@@ -5,8 +5,70 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
-
-    <item><title>iOS 26.7 Fixes Kernel Memory-Corruption Bug CVE-2026-43684 — What Jailbreak Users Should Know</title><link>https://nextjailbreak.com/ios-26-7-kernel-memory-corruption-cve-2026-43684/</link><guid isPermaLink="true">https://nextjailbreak.com/ios-26-7-kernel-memory-corruption-cve-2026-43684/</guid><pubDate>Wed, 16 Sep 2026 01:58:00 GMT</pubDate><description>Apple’s iOS 26.7 security notes disclose CVE-2026-43684, a kernel memory-corruption issue reachable by an app. Here is what the patch means—and what it does not mean—for jailbreak research.</description><category>Jailbreak</category></item>
+    <item>
+      <title>SideInstaller 1.0.0 brings PC-free SideStore and LiveContainer setup to iPhone</title>
+      <link>https://nextjailbreak.com/sideinstaller-1-0-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/sideinstaller-1-0-0-update/</guid>
+      <pubDate>Wed, 16 Sep 2026 07:03:40 GMT</pubDate>
+      <description>SideInstaller 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>Apollo Reborn adds silent Gallery View playback and strengthens crash handling</title>
+      <link>https://nextjailbreak.com/apollo-reborn-3-7-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/apollo-reborn-3-7-1-update/</guid>
+      <pubDate>Wed, 16 Sep 2026 07:03:39 GMT</pubDate>
+      <description>Apollo Reborn 3.7.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>Watusi 3 v1.3.24 updates WhatsApp 26.36.74 support with refreshed install packages</title>
+      <link>https://nextjailbreak.com/watusi-3-1-3-24-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-1-3-24-update/</guid>
+      <pubDate>Wed, 16 Sep 2026 07:03:38 GMT</pubDate>
+      <description>Watusi 3 1.3.24 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>Crescendo 1.1.1 improves volume-slider handling across iOS 16–26</title>
+      <link>https://nextjailbreak.com/crescendo-1-1-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/crescendo-1-1-1-update/</guid>
+      <pubDate>Wed, 16 Sep 2026 07:03:37 GMT</pubDate>
+      <description>Crescendo 1.1.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>NextUp 3 version 1.2 adds SoundCloud support and improves Apple Music playlist handling</title>
+      <link>https://nextjailbreak.com/nextup-3-1-2-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/nextup-3-1-2-update/</guid>
+      <pubDate>Wed, 16 Sep 2026 07:03:36 GMT</pubDate>
+      <description>NextUp 3 1.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>YTVideoOverlay 2.3.8 fixes missing bottom buttons in YouTube’s video overlay</title>
+      <link>https://nextjailbreak.com/ytvideooverlay-2-3-8-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/ytvideooverlay-2-3-8-update/</guid>
+      <pubDate>Wed, 16 Sep 2026 07:03:35 GMT</pubDate>
+      <description>YTVideoOverlay 2.3.8 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>ShowVolumeControl 1.0.0 Adds a Persistent Volume Control to iOS 16 Media Controls</title>
+      <link>https://nextjailbreak.com/showvolumecontrol-1-0-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/showvolumecontrol-1-0-0-update/</guid>
+      <pubDate>Wed, 16 Sep 2026 07:03:34 GMT</pubDate>
+      <description>ShowVolumeControl 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
+      <title>Rocket for Instagram 4.18.0 adds sticker copying, Stories tray controls and link-sharing privacy</title>
+      <link>https://nextjailbreak.com/rocket-for-instagram-4-18-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/rocket-for-instagram-4-18-0-update/</guid>
+      <pubDate>Wed, 16 Sep 2026 07:03:33 GMT</pubDate>
+      <description>Rocket for Instagram 4.18.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
     <item>
       <title>Nations 1.0: Lock-Screen Audio Spectrum Tweak Explained</title>
       <link>https://nextjailbreak.com/nations-tweak.html</link>
@@ -182,70 +244,6 @@
       <pubDate>Wed, 02 Sep 2026 12:55:04 GMT</pubDate>
       <description>Regram for Instagram 6.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>HelloKeyboardAI 2.1.0-1: Documented AI Triggers, Dependencies, and Version Caveats</title>
-      <link>https://nextjailbreak.com/hellokeyboardai-2-1-0-1-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/hellokeyboardai-2-1-0-1-update/</guid>
-      <pubDate>Tue, 01 Sep 2026 19:45:43 GMT</pubDate>
-      <description>HelloKeyboardAI 2.1.0-1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Regram for Instagram 6.0.1 Fixes Instagram 443.1 Issues and Repairs Reels, DMs, and iOS 14/15 Menus</title>
-      <link>https://nextjailbreak.com/regram-for-instagram-6-0-1-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/regram-for-instagram-6-0-1-update/</guid>
-      <pubDate>Tue, 01 Sep 2026 13:38:03 GMT</pubDate>
-      <description>Regram for Instagram 6.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Watusi 3 1.3.22 Fixes WhatsApp 26.32.x Compatibility Issues</title>
-      <link>https://nextjailbreak.com/watusi-3-1-3-22-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-1-3-22-update/</guid>
-      <pubDate>Mon, 31 Aug 2026 13:20:03 GMT</pubDate>
-      <description>Watusi 3 1.3.22 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>Tweaks</category>
-    </item>
-    <item>
-      <title>Rocket for Instagram 4.14.3: Recommended Bug-Fix Update</title>
-      <link>https://nextjailbreak.com/rocket-instagram-4-14-3-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/rocket-instagram-4-14-3-update/</guid>
-      <pubDate>Mon, 31 Aug 2026 12:21:46 GMT</pubDate>
-      <description>Rocket for Instagram 4.14.3 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>Tweaks</category>
-    </item>
-    <item>
-      <title>YouPiP 1.12.14 Updates YouTube Picture-in-Picture Handling</title>
-      <link>https://nextjailbreak.com/youpip-1-12-14-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/youpip-1-12-14-update/</guid>
-      <pubDate>Mon, 31 Aug 2026 11:17:14 GMT</pubDate>
-      <description>YouPiP 1.12.14 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Polyfills 2.32.0 Adds More Modern Web APIs to Older iOS</title>
-      <link>https://nextjailbreak.com/polyfills-2-32-0-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/polyfills-2-32-0-update/</guid>
-      <pubDate>Mon, 31 Aug 2026 09:54:27 GMT</pubDate>
-      <description>Polyfills 2.32.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Prism 1.2.0-2: Capture, Annotate, and Pin On-Screen Content</title>
-      <link>https://nextjailbreak.com/prism-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/prism-tweak.html</guid>
-      <pubDate>Mon, 31 Aug 2026 03:56:49 GMT</pubDate>
-      <description>Prism 1.2.0-2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Bloom 1.4: Animated Notifications Package Overview</title>
-      <link>https://nextjailbreak.com/bloom-tweak.html</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/bloom-tweak.html</guid>
-      <pubDate>Sun, 30 Aug 2026 14:42:46 GMT</pubDate>
-      <description>Bloom 1.4 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>Notifications</category>
     </item>
   </channel>
 </rss>

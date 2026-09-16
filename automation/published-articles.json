@@ -1,6 +1,206 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "SideInstaller 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "sideinstaller-1-0-0-update/",
+      "image": "assets/articles/source-media/sideinstaller-1-0-0-update-a7c72590e4.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FrizzleM/SideInstaller",
+      "modified_at": "2026-09-16T07:03:40+00:00",
+      "name": "SideInstaller",
+      "package": "sideinstaller",
+      "published_at": "2026-09-16T07:03:40+00:00",
+      "quality_target": 9,
+      "selection_pool": "manual-verified-original-source-batch",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/FrizzleM/SideInstaller",
+      "source_url": "https://github.com/FrizzleM/SideInstaller",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/8fa5b4ee8fe01ca884d36e933b8a7cf2abf6797e2ca9e20a2b53c99911f67fb5/FrizzleM/SideInstaller",
+      "title": "SideInstaller 1.0.0 brings PC-free SideStore and LiveContainer setup to iPhone",
+      "version": "1.0.0"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Apollo Reborn 3.7.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "apollo-reborn-3-7-1-update/",
+      "image": "assets/articles/source-media/apollo-reborn-3-7-1-update-6986cd8064.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/Apollo-Reborn/Apollo-Reborn",
+      "modified_at": "2026-09-16T07:03:39+00:00",
+      "name": "Apollo Reborn",
+      "package": "apollo-reborn",
+      "published_at": "2026-09-16T07:03:39+00:00",
+      "quality_target": 9,
+      "selection_pool": "manual-verified-original-source-batch",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/Apollo-Reborn/Apollo-Reborn",
+      "source_url": "https://github.com/Apollo-Reborn/Apollo-Reborn",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/ca6ef624ea53f9e0e9d20aa780069f9d065fe1874ef5eeaaa476760bd38f79c6/Apollo-Reborn/Apollo-Reborn",
+      "title": "Apollo Reborn adds silent Gallery View playback and strengthens crash handling",
+      "version": "3.7.1"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Watusi 3 1.3.24 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "watusi-3-1-3-24-update/",
+      "image": "assets/articles/source-media/watusi-3-1-3-24-update-516c8aa8a9.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Watusi-for-WhatsApp/commit/101f8424e22a068979cd2db99b5389d53e131c8b",
+      "modified_at": "2026-09-16T07:03:38+00:00",
+      "name": "Watusi 3",
+      "package": "com.fouadraheb.watusi3",
+      "published_at": "2026-09-16T07:03:38+00:00",
+      "quality_target": 9,
+      "selection_pool": "manual-verified-original-source-batch",
+      "source_name": "tweaks.fouadraheb.com",
+      "source_page_url": "https://tweaks.fouadraheb.com/apps/watusi3",
+      "source_url": "https://tweaks.fouadraheb.com/apps/watusi3",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/1721e3b7541bf2723a0c8b421d3eb6dd4e40af0f2a7c53c06879e2ff337cf27d/FouadRaheb/Watusi-for-WhatsApp/commit/101f8424e22a068979cd2db99b5389d53e131c8b",
+      "title": "Watusi 3 v1.3.24 updates WhatsApp 26.36.74 support with refreshed install packages",
+      "version": "1.3.24"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Crescendo 1.1.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "crescendo-1-1-1-update/",
+      "image": "assets/articles/source-media/crescendo-1-1-1-update-71cd2fe76c.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/Yves000/Crescendo/commit/33c60a69d76454c268709b381ad987832403e534",
+      "modified_at": "2026-09-16T07:03:37+00:00",
+      "name": "Crescendo",
+      "package": "com.yves.crescendo",
+      "published_at": "2026-09-16T07:03:37+00:00",
+      "quality_target": 9,
+      "selection_pool": "manual-verified-original-source-batch",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/Yves000/Crescendo",
+      "source_url": "https://github.com/Yves000/Crescendo",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/042b9563d085721994e696c12e2e2851d7d74d7467deefae7a280e2ce0ebcb54/Yves000/Crescendo/commit/33c60a69d76454c268709b381ad987832403e534",
+      "title": "Crescendo 1.1.1 improves volume-slider handling across iOS 16–26",
+      "version": "1.1.1"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "NextUp 3 1.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "nextup-3-1-2-update/",
+      "image": "assets/articles/source-media/nextup-3-1-2-update-93fdc21d25.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/Yves000/NextUp3",
+      "modified_at": "2026-09-16T07:03:36+00:00",
+      "name": "NextUp 3",
+      "package": "com.yves.nextup3",
+      "published_at": "2026-09-16T07:03:36+00:00",
+      "quality_target": 9,
+      "selection_pool": "manual-verified-original-source-batch",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/Yves000/NextUp3",
+      "source_url": "https://github.com/Yves000/NextUp3",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/6f37bc2607dfa84de4d424775a25e9113aa8b9fafd0afbe5ace869ca02bb8b0e/Yves000/NextUp3",
+      "title": "NextUp 3 version 1.2 adds SoundCloud support and improves Apple Music playlist handling",
+      "version": "1.2"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "YTVideoOverlay 2.3.8 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "ytvideooverlay-2-3-8-update/",
+      "image": "assets/articles/source-media/ytvideooverlay-2-3-8-update-161886fd56.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/PoomSmart/YTVideoOverlay/commit/53b66ad20486fcd6c92b434e60250ac2aecf305d",
+      "modified_at": "2026-09-16T07:03:35+00:00",
+      "name": "YTVideoOverlay",
+      "package": "com.ps.ytvideooverlay",
+      "published_at": "2026-09-16T07:03:35+00:00",
+      "quality_target": 9,
+      "selection_pool": "manual-verified-original-source-batch",
+      "source_name": "poomsmart.github.io",
+      "source_page_url": "https://poomsmart.github.io/repo/depictions/ytvideooverlay.html",
+      "source_url": "https://poomsmart.github.io/repo/depictions/ytvideooverlay.html",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/5a110dffc81e2effbdc6afd01b1c9b5a70519c919db21ccc41595b453dcc8000/PoomSmart/YTVideoOverlay/commit/53b66ad20486fcd6c92b434e60250ac2aecf305d",
+      "title": "YTVideoOverlay 2.3.8 fixes missing bottom buttons in YouTube’s video overlay",
+      "version": "2.3.8"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "ShowVolumeControl 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "showvolumecontrol-1-0-0-update/",
+      "image": "assets/articles/source-media/showvolumecontrol-1-0-0-update-b22f3a80c6.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/ichitaso/ShowVolumeControls/commit/15d573b9fa83650bcfce0cf762eb45d928008d63",
+      "modified_at": "2026-09-16T07:03:34+00:00",
+      "name": "ShowVolumeControl",
+      "package": "com.ichitaso.showvolume",
+      "published_at": "2026-09-16T07:03:34+00:00",
+      "quality_target": 9,
+      "selection_pool": "manual-verified-original-source-batch",
+      "source_name": "cydia.ichitaso.com",
+      "source_page_url": "https://cydia.ichitaso.com/depiction/showvolume.html",
+      "source_url": "https://cydia.ichitaso.com/depiction/showvolume.html",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/13f23b46dc3f72639368fa7e3136d44a8b3020e21bfb8c2da77b51ee1645c520/ichitaso/ShowVolumeControls/commit/15d573b9fa83650bcfce0cf762eb45d928008d63",
+      "title": "ShowVolumeControl 1.0.0 Adds a Persistent Volume Control to iOS 16 Media Controls",
+      "version": "1.0.0"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Rocket for Instagram 4.18.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "rocket-for-instagram-4-18-0-update/",
+      "image": "assets/articles/source-media/rocket-for-instagram-4-18-0-update-e3aa43068d.webp",
+      "media_credit": "Source visual from apt.getrocketapp.io",
+      "media_source_url": "https://apt.getrocketapp.io/",
+      "modified_at": "2026-09-16T07:03:33+00:00",
+      "name": "Rocket for Instagram",
+      "package": "me.alfhaily.rocket",
+      "published_at": "2026-09-16T07:03:33+00:00",
+      "quality_target": 9,
+      "selection_pool": "manual-verified-original-source-batch",
+      "source_name": "apt.getrocketapp.io",
+      "source_page_url": "https://apt.getrocketapp.io/",
+      "source_url": "https://apt.getrocketapp.io/",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://cdn.getrocketapp.io/metadata/screenshots/01-post-action-menu.webp",
+      "title": "Rocket for Instagram 4.18.0 adds sticker copying, Stories tray controls and link-sharing privacy",
+      "version": "4.18.0"
+    },
+    {
       "article_sha256": "57dc254c909d2c5096d1706a7f1fa36a07e8e352c6094a268a19159d78e8dc6b",
       "candidate_fingerprint": "72eaf9cde1fdecd4655943e202771160f2809f5d67dc56a9dd72095ac347dd8d",
       "category": {
@@ -2259,8 +2459,472 @@
       "published_at": "2026-09-15T18:58:46+00:00",
       "run_id": "35010560349",
       "version": "1.0"
+    },
+    {
+      "action": "create",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d1c2402f6c99baa016aaa3f5accc087d290f5816a173e7741",
+          "usage": {
+            "input_tokens": 8734,
+            "input_tokens_details": {
+              "cache_write_tokens": 8731,
+              "cached_tokens": 0
+            },
+            "output_tokens": 446,
+            "output_tokens_details": {
+              "reasoning_tokens": 326
+            },
+            "total_tokens": 9180
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0c45ee4ae9a796de016aaa3f5ff14087d2b84d4afa2e09f485",
+          "usage": {
+            "input_tokens": 8803,
+            "input_tokens_details": {
+              "cache_write_tokens": 8800,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2347,
+            "output_tokens_details": {
+              "reasoning_tokens": 55
+            },
+            "total_tokens": 11150
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_09a9fe817d0fa2b7016aaa3f74df1887d28ce3e38ce3e35e84",
+          "usage": {
+            "input_tokens": 8992,
+            "input_tokens_details": {
+              "cache_write_tokens": 8989,
+              "cached_tokens": 0
+            },
+            "output_tokens": 275,
+            "output_tokens_details": {
+              "reasoning_tokens": 177
+            },
+            "total_tokens": 9267
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0889ec6a3462f868016aaa3f46b4fc87d29a6b39b45eae3e7f",
+          "usage": {
+            "input_tokens": 6903,
+            "input_tokens_details": {
+              "cache_write_tokens": 6900,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2108,
+            "output_tokens_details": {
+              "reasoning_tokens": 71
+            },
+            "total_tokens": 9011
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "rocket-for-instagram-4-18-0-update/",
+      "package": "me.alfhaily.rocket",
+      "published_at": "2026-09-16T07:03:33+00:00",
+      "version": "4.18.0"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0f4ecc3c3eb84160016aaa3f90a8ac87d2881d327a69876554",
+          "usage": {
+            "input_tokens": 17938,
+            "input_tokens_details": {
+              "cache_write_tokens": 17935,
+              "cached_tokens": 0
+            },
+            "output_tokens": 430,
+            "output_tokens_details": {
+              "reasoning_tokens": 335
+            },
+            "total_tokens": 18368
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0f06aa0fbe8c5238016aaa3f7b3b2c87d2ba01f77f969b92e1",
+          "usage": {
+            "input_tokens": 16174,
+            "input_tokens_details": {
+              "cache_write_tokens": 16171,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2055,
+            "output_tokens_details": {
+              "reasoning_tokens": 60
+            },
+            "total_tokens": 18229
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "showvolumecontrol-1-0-0-update/",
+      "package": "com.ichitaso.showvolume",
+      "published_at": "2026-09-16T07:03:34+00:00",
+      "version": "1.0.0"
+    },
+    {
+      "action": "create",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d97b7ff897df22a016aaa3fac5b9087d2a1223178e6d77ffe",
+          "usage": {
+            "input_tokens": 20700,
+            "input_tokens_details": {
+              "cache_write_tokens": 20697,
+              "cached_tokens": 0
+            },
+            "output_tokens": 706,
+            "output_tokens_details": {
+              "reasoning_tokens": 516
+            },
+            "total_tokens": 21406
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0b5adde6e1d6cdc5016aaa3fb42cec87d2ab3414d750da6c56",
+          "usage": {
+            "input_tokens": 20870,
+            "input_tokens_details": {
+              "cache_write_tokens": 20867,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2316,
+            "output_tokens_details": {
+              "reasoning_tokens": 36
+            },
+            "total_tokens": 23186
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0c9caa7e43e3c912016aaa3fc86ec087d2b98a18311f2daa73",
+          "usage": {
+            "input_tokens": 21143,
+            "input_tokens_details": {
+              "cache_write_tokens": 21140,
+              "cached_tokens": 0
+            },
+            "output_tokens": 371,
+            "output_tokens_details": {
+              "reasoning_tokens": 230
+            },
+            "total_tokens": 21514
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_05066808eb146ec1016aaa3f996fc087d2b6b53c043e9e2179",
+          "usage": {
+            "input_tokens": 19075,
+            "input_tokens_details": {
+              "cache_write_tokens": 19072,
+              "cached_tokens": 0
+            },
+            "output_tokens": 1887,
+            "output_tokens_details": {
+              "reasoning_tokens": 47
+            },
+            "total_tokens": 20962
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "ytvideooverlay-2-3-8-update/",
+      "package": "com.ps.ytvideooverlay",
+      "published_at": "2026-09-16T07:03:35+00:00",
+      "version": "2.3.8"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d8a759bf03f77fe016aaa3fe9afac87d29929a1d20052a4c5",
+          "usage": {
+            "input_tokens": 22205,
+            "input_tokens_details": {
+              "cache_write_tokens": 22202,
+              "cached_tokens": 0
+            },
+            "output_tokens": 278,
+            "output_tokens_details": {
+              "reasoning_tokens": 176
+            },
+            "total_tokens": 22483
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0a28eca2edb545b2016aaa3fd21e1487d28beefc935ffa4dfc",
+          "usage": {
+            "input_tokens": 19996,
+            "input_tokens_details": {
+              "cache_write_tokens": 19993,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2479,
+            "output_tokens_details": {
+              "reasoning_tokens": 55
+            },
+            "total_tokens": 22475
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "nextup-3-1-2-update/",
+      "package": "com.yves.nextup3",
+      "published_at": "2026-09-16T07:03:36+00:00",
+      "version": "1.2"
+    },
+    {
+      "action": "create",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_04aa84445605840f016aaa40061b6887d2b34ab11c0cf07bde",
+          "usage": {
+            "input_tokens": 22839,
+            "input_tokens_details": {
+              "cache_write_tokens": 22836,
+              "cached_tokens": 0
+            },
+            "output_tokens": 536,
+            "output_tokens_details": {
+              "reasoning_tokens": 361
+            },
+            "total_tokens": 23375
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_09067a408a3fae73016aaa400ca10c87d2baa389660b867e01",
+          "usage": {
+            "input_tokens": 23001,
+            "input_tokens_details": {
+              "cache_write_tokens": 22998,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2552,
+            "output_tokens_details": {
+              "reasoning_tokens": 49
+            },
+            "total_tokens": 25553
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0256e39d09b1292e016aaa401f934887d2883e2d2798370865",
+          "usage": {
+            "input_tokens": 23032,
+            "input_tokens_details": {
+              "cache_write_tokens": 23029,
+              "cached_tokens": 0
+            },
+            "output_tokens": 367,
+            "output_tokens_details": {
+              "reasoning_tokens": 266
+            },
+            "total_tokens": 23399
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_08bcde337ac08b5e016aaa3ff0795487d2817d25d321bc0126",
+          "usage": {
+            "input_tokens": 20739,
+            "input_tokens_details": {
+              "cache_write_tokens": 20736,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2382,
+            "output_tokens_details": {
+              "reasoning_tokens": 65
+            },
+            "total_tokens": 23121
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "crescendo-1-1-1-update/",
+      "package": "com.yves.crescendo",
+      "published_at": "2026-09-16T07:03:37+00:00",
+      "version": "1.1.1"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_09d108db4ea08d72016aaa403f52a887d28c191364bc2e549a",
+          "usage": {
+            "input_tokens": 25838,
+            "input_tokens_details": {
+              "cache_write_tokens": 25835,
+              "cached_tokens": 0
+            },
+            "output_tokens": 450,
+            "output_tokens_details": {
+              "reasoning_tokens": 332
+            },
+            "total_tokens": 26288
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_03079c76ac76e303016aaa402a451887d2b4dacedf0f69cb75",
+          "usage": {
+            "input_tokens": 23777,
+            "input_tokens_details": {
+              "cache_write_tokens": 23774,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2322,
+            "output_tokens_details": {
+              "reasoning_tokens": 42
+            },
+            "total_tokens": 26099
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "watusi-3-1-3-24-update/",
+      "package": "com.fouadraheb.watusi3",
+      "published_at": "2026-09-16T07:03:38+00:00",
+      "version": "1.3.24"
+    },
+    {
+      "action": "create",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_01733f2842c1deed016aaa406030f487d2acb64eeb65934529",
+          "usage": {
+            "input_tokens": 21036,
+            "input_tokens_details": {
+              "cache_write_tokens": 21033,
+              "cached_tokens": 0
+            },
+            "output_tokens": 489,
+            "output_tokens_details": {
+              "reasoning_tokens": 208
+            },
+            "total_tokens": 21525
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0bdbaaf4b4ad2d1c016aaa40659f6c87d296e79c6912df26ee",
+          "usage": {
+            "input_tokens": 21282,
+            "input_tokens_details": {
+              "cache_write_tokens": 21279,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2247,
+            "output_tokens_details": {
+              "reasoning_tokens": 42
+            },
+            "total_tokens": 23529
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0af60ff4a45435aa016aaa4079b1f087d2814a291eca8452fe",
+          "usage": {
+            "input_tokens": 21235,
+            "input_tokens_details": {
+              "cache_write_tokens": 21232,
+              "cached_tokens": 0
+            },
+            "output_tokens": 294,
+            "output_tokens_details": {
+              "reasoning_tokens": 189
+            },
+            "total_tokens": 21529
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d13809e8fa38ae0016aaa404c6bf487d2882a57674e1e4d48",
+          "usage": {
+            "input_tokens": 19239,
+            "input_tokens_details": {
+              "cache_write_tokens": 19236,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2095,
+            "output_tokens_details": {
+              "reasoning_tokens": 79
+            },
+            "total_tokens": 21334
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "apollo-reborn-3-7-1-update/",
+      "package": "apollo-reborn",
+      "published_at": "2026-09-16T07:03:39+00:00",
+      "version": "3.7.1"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0c1353cb07ac02aa016aaa409a372887d2a482f54ad6ca6e47",
+          "usage": {
+            "input_tokens": 21724,
+            "input_tokens_details": {
+              "cache_write_tokens": 21721,
+              "cached_tokens": 0
+            },
+            "output_tokens": 438,
+            "output_tokens_details": {
+              "reasoning_tokens": 351
+            },
+            "total_tokens": 22162
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_08d46bee2da89669016aaa40862b6087d28157fb71313e5154",
+          "usage": {
+            "input_tokens": 19856,
+            "input_tokens_details": {
+              "cache_write_tokens": 19853,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2133,
+            "output_tokens_details": {
+              "reasoning_tokens": 58
+            },
+            "total_tokens": 21989
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "sideinstaller-1-0-0-update/",
+      "package": "sideinstaller",
+      "published_at": "2026-09-16T07:03:40+00:00",
+      "version": "1.0.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-15T18:58:46+00:00"
+  "updated_at": "2026-09-16T07:09:19+00:00"
 }

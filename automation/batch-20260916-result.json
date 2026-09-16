@@ -1,0 +1,69 @@
+{
+  "updated_at": "2026-09-16T07:09:19+00:00",
+  "results": [
+    {
+      "name": "Rocket for Instagram",
+      "version": "4.18.0",
+      "status": "published",
+      "href": "rocket-for-instagram-4-18-0-update/",
+      "image": "assets/articles/source-media/rocket-for-instagram-4-18-0-update-e3aa43068d.webp",
+      "media_source_url": "https://apt.getrocketapp.io/"
+    },
+    {
+      "name": "ShowVolumeControl",
+      "version": "1.0.0",
+      "status": "published",
+      "href": "showvolumecontrol-1-0-0-update/",
+      "image": "assets/articles/source-media/showvolumecontrol-1-0-0-update-b22f3a80c6.png",
+      "media_source_url": "https://github.com/ichitaso/ShowVolumeControls/commit/15d573b9fa83650bcfce0cf762eb45d928008d63"
+    },
+    {
+      "name": "YTVideoOverlay",
+      "version": "2.3.8",
+      "status": "published",
+      "href": "ytvideooverlay-2-3-8-update/",
+      "image": "assets/articles/source-media/ytvideooverlay-2-3-8-update-161886fd56.png",
+      "media_source_url": "https://github.com/PoomSmart/YTVideoOverlay/commit/53b66ad20486fcd6c92b434e60250ac2aecf305d"
+    },
+    {
+      "name": "NextUp 3",
+      "version": "1.2",
+      "status": "published",
+      "href": "nextup-3-1-2-update/",
+      "image": "assets/articles/source-media/nextup-3-1-2-update-93fdc21d25.png",
+      "media_source_url": "https://github.com/Yves000/NextUp3"
+    },
+    {
+      "name": "Crescendo",
+      "version": "1.1.1",
+      "status": "published",
+      "href": "crescendo-1-1-1-update/",
+      "image": "assets/articles/source-media/crescendo-1-1-1-update-71cd2fe76c.png",
+      "media_source_url": "https://github.com/Yves000/Crescendo/commit/33c60a69d76454c268709b381ad987832403e534"
+    },
+    {
+      "name": "Watusi 3",
+      "version": "1.3.24",
+      "status": "published",
+      "href": "watusi-3-1-3-24-update/",
+      "image": "assets/articles/source-media/watusi-3-1-3-24-update-516c8aa8a9.png",
+      "media_source_url": "https://github.com/FouadRaheb/Watusi-for-WhatsApp/commit/101f8424e22a068979cd2db99b5389d53e131c8b"
+    },
+    {
+      "name": "Apollo Reborn",
+      "version": "3.7.1",
+      "status": "published",
+      "href": "apollo-reborn-3-7-1-update/",
+      "image": "assets/articles/source-media/apollo-reborn-3-7-1-update-6986cd8064.png",
+      "media_source_url": "https://github.com/Apollo-Reborn/Apollo-Reborn"
+    },
+    {
+      "name": "SideInstaller",
+      "version": "1.0.0",
+      "status": "published",
+      "href": "sideinstaller-1-0-0-update/",
+      "image": "assets/articles/source-media/sideinstaller-1-0-0-update-a7c72590e4.png",
+      "media_source_url": "https://github.com/FrizzleM/SideInstaller"
+    }
+  ]
+}
