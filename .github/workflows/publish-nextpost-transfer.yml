@@ -1,12 +1,12 @@
 name: Publish Next Post to Transfer
 
-# 1.0.11 original X commentary + article refresh — publication trigger
+# 1.0.12 protected remaining queue + user-written X take
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'applications/NextPost-1.0.11-Original-Content-Refresh.tipa'
+      - 'applications/NextPost-1.0.12-Protected-Queue-Your-Take.tipa'
       - '.github/workflows/publish-nextpost-transfer.yml'
 
 permissions:
@@ -29,9 +29,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SRC='applications/NextPost-1.0.11-Original-Content-Refresh.tipa'
-          DEST_DIR='transfer/files/NextPost/1.0.11'
-          DEST="$DEST_DIR/NextPost-1.0.11-Original-Content-Refresh.tipa"
+          SRC='applications/NextPost-1.0.12-Protected-Queue-Your-Take.tipa'
+          DEST_DIR='transfer/files/NextPost/1.0.12'
+          DEST="$DEST_DIR/NextPost-1.0.12-Protected-Queue-Your-Take.tipa"
           INDEX='transfer/index.json'
 
           test -s "$SRC"
@@ -51,19 +51,19 @@ jobs:
           index_path = Path('transfer/index.json')
           data = json.loads(index_path.read_text())
           files = data.get('files', [])
-          entry_id = 'nextpost-1.0.11-original-content-refresh'
+          entry_id = 'nextpost-1.0.12-protected-queue-your-take'
           files = [item for item in files if item.get('id') != entry_id]
           entry = {
               'id': entry_id,
-              'name': 'Next Post 1.0.11 — Original Content + Refresh',
-              'fileName': 'NextPost-1.0.11-Original-Content-Refresh.tipa',
+              'name': 'Next Post 1.0.12 — Protected Queue + Your Take',
+              'fileName': 'NextPost-1.0.12-Protected-Queue-Your-Take.tipa',
               'type': 'tipa',
               'platform': 'TrollStore / iOS 16+',
-              'version': '1.0.11 (11)',
-              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.11/NextPost-1.0.11-Original-Content-Refresh.tipa',
+              'version': '1.0.12 (12)',
+              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.12/NextPost-1.0.12-Protected-Queue-Your-Take.tipa',
               'sha256': os.environ['SHA256'],
               'sizeBytes': int(os.environ['SIZE']),
-              'notes': 'Updates Next Post for X original-content posting. Generated posts now use X-specific Next Jailbreak editorial framing instead of reusing the article meta description, while keeping the Next Jailbreak article URL and X preview card. Adds Refresh Articles with cache bypass and new-article detection; newly published site articles are added to Remaining without resetting used-history or the current cycle. Manual Open in X flow remains unchanged.'
+              'notes': 'Fixes Remaining/history migration using domain-independent article IDs and an explicit protected queue. Refresh only adds genuinely new articles. Selecting an article no longer consumes it; it is consumed only when Open in X is tapped. Adds a mandatory user-written Your Take field with verified article context, while preserving the Next Jailbreak link/card and focused hashtags.'
           }
           data['files'] = [entry] + files
           data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
@@ -71,7 +71,7 @@ jobs:
           PY
 
           python3 -m json.tool "$INDEX" >/dev/null
-          grep -q 'nextpost-1.0.11-original-content-refresh' "$INDEX"
+          grep -q 'nextpost-1.0.12-protected-queue-your-take' "$INDEX"
           grep -q "$SHA256" "$INDEX"
           test "$(sha256sum "$DEST" | awk '{print $1}')" = "$SHA256"
 
@@ -81,7 +81,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add transfer/files/NextPost/1.0.11/NextPost-1.0.11-Original-Content-Refresh.tipa transfer/index.json
-          git commit -m 'Publish Next Post 1.0.11 to Transfer' || true
+          git add transfer/files/NextPost/1.0.12/NextPost-1.0.12-Protected-Queue-Your-Take.tipa transfer/index.json
+          git commit -m 'Publish Next Post 1.0.12 to Transfer' || true
           git pull --rebase origin main
           git push origin HEAD:main
