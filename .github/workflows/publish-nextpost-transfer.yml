@@ -1,6 +1,7 @@
 name: Publish Next Post to Transfer
 
 # 1.0.12 protected remaining queue + user-written X take
+# Trigger publication after verified build artifact is committed.
 on:
   workflow_dispatch:
   push:
