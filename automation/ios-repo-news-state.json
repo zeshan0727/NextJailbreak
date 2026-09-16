@@ -18,6 +18,12 @@
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
     },
+    "https://www.ios-repo-updates.com/repository/bigboss/package/me.alfhaily.rocket/": {
+      "checked_at": "2026-09-16T06:10:09.583518+00:00",
+      "package": "me.alfhaily.rocket",
+      "reason": "resolved source does not independently identify the discovered package",
+      "status": "failed"
+    },
     "https://www.ios-repo-updates.com/repository/bigboss/package/me.liuming.apphider/": {
       "checked_at": "2026-09-01T19:45:43.990554+00:00",
       "package": "me.liuming.apphider",
@@ -187,8 +193,14 @@
       "target_path": "alarmsearch-1-0-update/",
       "version": "1.0"
     },
+    "https://www.ios-repo-updates.com/repository/iospackix/package/me.alfhaily.rocket/": {
+      "checked_at": "2026-09-16T06:10:09.583518+00:00",
+      "package": "me.alfhaily.rocket",
+      "reason": "stale discovery rejected: candidate 3.4.4 is older than original-source version 3.4.5",
+      "status": "failed"
+    },
     "https://www.ios-repo-updates.com/repository/majd-alfhaily/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-14T21:37:23.320014+00:00",
+      "checked_at": "2026-09-16T06:10:09.583518+00:00",
       "package": "me.alfhaily.rocket",
       "status": "duplicate",
       "target_path": "rocket-for-instagram-3-8-38-update/",
@@ -1519,6 +1531,15 @@
       "package": "com.icraze.alarmsearch",
       "target_path": "alarmsearch-1-0-update/",
       "version": "1.0"
+    },
+    {
+      "action": "no-op",
+      "at": "2026-09-16T06:10:09.583518+00:00",
+      "failures": [
+        "me.alfhaily.rocket: resolved source does not independently identify the discovered package",
+        "me.alfhaily.rocket: stale discovery rejected: candidate 3.4.4 is older than original-source version 3.4.5"
+      ],
+      "reason": "no-high-quality-original-source-candidate"
     }
   ],
   "schema_version": 1
