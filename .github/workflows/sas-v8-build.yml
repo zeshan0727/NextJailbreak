@@ -1,0 +1,121 @@
+name: Build Story Automation Studio v8
+
+on:
+  push:
+    branches:
+      - sas-v8-temp-build-final
+    paths:
+      - 'sas-v8-build/**'
+      - '.github/workflows/sas-v8-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout temporary branch
+        uses: actions/checkout@v4
+
+      - name: Reconstruct v8 source archive
+        shell: pwsh
+        run: |
+          $parts = Get-ChildItem -Path 'sas-v8-build' -Filter 'source.part*' | Sort-Object Name
+          if ($parts.Count -ne 5) { throw "Expected 5 source chunks, found $($parts.Count)" }
+          $b64 = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
+          $bytes = [Convert]::FromBase64String($b64)
+          [IO.File]::WriteAllBytes((Join-Path $PWD 'sas-v8-build\source.zip'), $bytes)
+          Expand-Archive -Path 'sas-v8-build\source.zip' -DestinationPath 'sas-v8-build\srcpkg' -Force
+          $sln = Get-ChildItem 'sas-v8-build\srcpkg' -Recurse -Filter 'StoryAutomationStudio.sln' | Select-Object -First 1
+          if (-not $sln) { throw 'StoryAutomationStudio.sln not found after extraction.' }
+          "SAS_SOLUTION=$($sln.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "SAS_ROOT=$($sln.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Solution: $($sln.FullName)"
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore and build native WinUI app
+        shell: pwsh
+        run: |
+          msbuild "$env:SAS_SOLUTION" /restore /m /p:Configuration=Release /p:Platform=x64 /p:RestoreIgnoreFailedSources=true
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Collect native application files
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem $env:SAS_ROOT -Recurse -Filter 'StoryAutomationStudio.exe' | Where-Object { $_.FullName -match 'Release' } | Sort-Object Length -Descending | Select-Object -First 1
+          if (-not $exe) { throw 'StoryAutomationStudio.exe was not produced.' }
+          Write-Host "EXE: $($exe.FullName)"
+          $pkg = Join-Path $PWD 'sas-v8-build\package'
+          New-Item -ItemType Directory -Force -Path $pkg | Out-Null
+          Copy-Item -Path (Join-Path $exe.Directory.FullName '*') -Destination $pkg -Recurse -Force
+          if (-not (Test-Path (Join-Path $pkg 'StoryAutomationStudio.exe'))) { throw 'Packaged EXE missing.' }
+          Get-ChildItem $pkg | Select-Object Name,Length
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build Setup.exe
+        shell: pwsh
+        run: |
+          $iss = @'
+          [Setup]
+          AppId={{D9186FA3-29AA-4D9B-951E-1FCB3762C800}
+          AppName=Story Automation Studio
+          AppVersion=8.0.0
+          AppPublisher=Next Solution
+          DefaultDirName={localappdata}\Programs\Story Automation Studio
+          DefaultGroupName=Story Automation Studio
+          DisableProgramGroupPage=yes
+          OutputDir=output
+          OutputBaseFilename=StoryAutomationStudio_Setup_v8.0.0
+          Compression=lzma2
+          SolidCompression=yes
+          WizardStyle=modern
+          PrivilegesRequired=lowest
+          ArchitecturesAllowed=x64compatible
+          ArchitecturesInstallIn64BitMode=x64compatible
+          UninstallDisplayName=Story Automation Studio 8.0
+          CloseApplications=yes
+          RestartApplications=no
+
+          [Tasks]
+          Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"
+
+          [Files]
+          Source: "package\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+          [Icons]
+          Name: "{group}\Story Automation Studio"; Filename: "{app}\StoryAutomationStudio.exe"
+          Name: "{autodesktop}\Story Automation Studio"; Filename: "{app}\StoryAutomationStudio.exe"; Tasks: desktopicon
+
+          [Run]
+          Filename: "{app}\StoryAutomationStudio.exe"; Description: "Launch Story Automation Studio"; Flags: nowait postinstall skipifsilent
+          '@
+          Set-Content -Path 'sas-v8-build\installer.iss' -Value $iss -Encoding UTF8
+          Push-Location 'sas-v8-build'
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' 'installer.iss'
+          $code = $LASTEXITCODE
+          Pop-Location
+          if ($code -ne 0) { exit $code }
+          if (-not (Test-Path 'sas-v8-build\output\StoryAutomationStudio_Setup_v8.0.0.exe')) { throw 'Setup.exe missing.' }
+
+      - name: Create portable package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path 'sas-v8-build\package\*' -DestinationPath 'sas-v8-build\output\StoryAutomationStudio_v8.0_Portable.zip' -Force
+
+      - name: Upload v8 build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StoryAutomationStudio-v8.0-Windows
+          path: sas-v8-build/output/*
+          if-no-files-found: error
+          retention-days: 3
