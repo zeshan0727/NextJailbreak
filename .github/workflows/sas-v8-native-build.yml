@@ -1,0 +1,116 @@
+name: SAS v8 Native Windows Build
+
+on:
+  push:
+    branches:
+      - sas-v8-temp-build-final
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconstruct source archive
+        shell: pwsh
+        run: |
+          $parts = 0..4 | ForEach-Object { "sas-v8-build/source.part{0:D2}" -f $_ }
+          $b64 = ($parts | ForEach-Object { Get-Content $_ -Raw }) -join ''
+          [IO.File]::WriteAllBytes("sas-v8-build/source.zip", [Convert]::FromBase64String($b64))
+          New-Item -ItemType Directory -Force -Path "sas-v8-src" | Out-Null
+          Expand-Archive -Path "sas-v8-build/source.zip" -DestinationPath "sas-v8-src" -Force
+          $root = Get-ChildItem "sas-v8-src" -Directory | Select-Object -First 1
+          if (-not $root) { throw "Source root not found" }
+          "SAS_SOURCE=$($root.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Source root: $($root.FullName)"
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build native WinUI app
+        shell: pwsh
+        run: |
+          Push-Location $env:SAS_SOURCE
+          msbuild StoryAutomationStudio.sln /restore /m /p:Configuration=Release /p:Platform=x64 /p:WindowsAppSDKSelfContained=true /p:AppxPackageSigningEnabled=false
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Pop-Location
+
+      - name: Locate build output
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem $env:SAS_SOURCE -Recurse -Filter "StoryAutomationStudio.exe" -File | Where-Object { $_.FullName -match 'Release' } | Select-Object -First 1
+          if (-not $exe) { throw "StoryAutomationStudio.exe not found" }
+          $outDir = $exe.Directory.FullName
+          "SAS_OUT=$outDir" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Native output: $outDir"
+          Get-ChildItem $outDir | Select-Object Name,Length
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y --no-progress
+
+      - name: Build Setup.exe
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:GITHUB_WORKSPACE\installer-out" | Out-Null
+          $src = $env:SAS_OUT.Replace('\','\\')
+          $out = "$env:GITHUB_WORKSPACE\installer-out".Replace('\','\\')
+          $iss = @"
+          [Setup]
+          AppId={{D2DD6B49-8C5F-4B63-B581-ED90E5E08780}
+          AppName=Story Automation Studio 8.0
+          AppVersion=8.0.0
+          AppPublisher=Next Solution
+          DefaultDirName={localappdata}\Programs\Story Automation Studio 8
+          DefaultGroupName=Story Automation Studio 8
+          OutputDir=$out
+          OutputBaseFilename=StoryAutomationStudio_Setup_v8.0
+          Compression=lzma2
+          SolidCompression=yes
+          PrivilegesRequired=lowest
+          ArchitecturesAllowed=x64compatible
+          ArchitecturesInstallIn64BitMode=x64compatible
+          UninstallDisplayIcon={app}\StoryAutomationStudio.exe
+          WizardStyle=modern
+          CloseApplications=yes
+          RestartApplications=no
+
+          [Files]
+          Source: "$src\\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+          [Icons]
+          Name: "{group}\Story Automation Studio 8"; Filename: "{app}\StoryAutomationStudio.exe"
+          Name: "{autodesktop}\Story Automation Studio 8"; Filename: "{app}\StoryAutomationStudio.exe"
+
+          [Run]
+          Filename: "{app}\StoryAutomationStudio.exe"; Description: "Launch Story Automation Studio 8"; Flags: nowait postinstall skipifsilent
+          "@
+          $issPath = "$env:GITHUB_WORKSPACE\sas-v8-installer.iss"
+          Set-Content -Path $issPath -Value $iss -Encoding UTF8
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" $issPath
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem "$env:GITHUB_WORKSPACE\installer-out"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StoryAutomationStudio-v8-Setup
+          path: installer-out/StoryAutomationStudio_Setup_v8.0.exe
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload native build for diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: StoryAutomationStudio-v8-native-output
+          path: |
+            ${{ env.SAS_OUT }}
+          if-no-files-found: ignore
+          retention-days: 3
