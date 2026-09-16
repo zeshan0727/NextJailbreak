@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'automation/publish_verified_batch_20260916.py'
+      - 'automation/publish_verified_batch_20260916_v2.py'
       - '.github/workflows/publish-verified-batch-20260916.yml'
 
 permissions:
@@ -27,7 +28,7 @@ jobs:
 
       - name: Validate batch publisher
         run: |
-          python3 -m py_compile automation/publish_verified_batch_20260916.py automation/ios_repo_news.py automation/source_visuals.py
+          python3 -m py_compile automation/publish_verified_batch_20260916.py automation/publish_verified_batch_20260916_v2.py automation/ios_repo_news.py automation/source_visuals.py
           python3 -m unittest automation.tests.test_source_visuals -v
 
       - name: Check publishing secret
@@ -41,7 +42,8 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.6-luna
         run: |
-          python3 -m automation.publish_verified_batch_20260916 | tee batch-20260916.log
+          set -o pipefail
+          python3 -m automation.publish_verified_batch_20260916_v2 | tee batch-20260916.log
 
       - name: Synchronize public editorial indexes
         run: |
