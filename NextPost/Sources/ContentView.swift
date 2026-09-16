@@ -20,6 +20,7 @@ struct ContentView: View {
                 VStack(spacing: 18) {
                     header
                     stats
+                    refreshButton
                     generateButton
                     resultBox
                     actionButtons
@@ -61,7 +62,7 @@ struct ContentView: View {
                 Text("Next Post")
                     .font(.system(size: 30, weight: .bold, design: .rounded))
 
-                Text("Next Jailbreak → X post generator")
+                Text("Original X commentary → Next Jailbreak")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -101,6 +102,50 @@ struct ContentView: View {
             .frame(width: 1, height: 44)
     }
 
+    private var refreshButton: some View {
+        VStack(spacing: 8) {
+            Button {
+                Task {
+                    await store.refreshStats(manual: true)
+                }
+            } label: {
+                HStack(spacing: 9) {
+                    if store.isRefreshing {
+                        ProgressView()
+                            .tint(.white)
+                    } else {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    Text(store.isRefreshing ? "Refreshing Articles…" : "Refresh Articles")
+                        .fontWeight(.semibold)
+                    Spacer()
+                    if !store.isRefreshing {
+                        Image(systemName: "newspaper")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.horizontal, 15)
+                .padding(.vertical, 12)
+                .background(Color.white.opacity(0.065))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.white.opacity(0.10), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(store.isLoading || store.isRefreshing)
+
+            if !store.refreshResult.isEmpty {
+                Text(store.refreshResult)
+                    .font(.caption)
+                    .foregroundStyle(store.refreshResult.contains("new article") ? Color.green : Color.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 4)
+            }
+        }
+    }
+
     private var generateButton: some View {
         Button {
             Task {
@@ -130,7 +175,7 @@ struct ContentView: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
         }
-        .disabled(store.isLoading)
+        .disabled(store.isLoading || store.isRefreshing)
         .opacity(store.isLoading ? 0.78 : 1)
     }
 
@@ -159,7 +204,7 @@ struct ContentView: View {
                         .foregroundStyle(.blue)
                     Text("Tap Generate Next Post")
                         .font(.headline)
-                    Text("A random article will be turned into an X-ready post with description, link and optimized hashtags.")
+                    Text("Next Post adds original editorial framing for X, then keeps your article link, X preview card and focused hashtags.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -255,7 +300,7 @@ struct ContentView: View {
         VStack(spacing: 7) {
             HStack(spacing: 6) {
                 Circle()
-                    .fill(store.statusText.contains("Connected") ? Color.green : Color.blue)
+                    .fill(store.statusText.contains("Connected") || store.statusText.contains("Refreshed") ? Color.green : Color.blue)
                     .frame(width: 7, height: 7)
 
                 Text(store.statusText)
