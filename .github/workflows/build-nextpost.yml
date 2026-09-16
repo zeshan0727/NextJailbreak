@@ -1,6 +1,6 @@
 name: Build Next Post TIPA
 
-# 1.0.11 original X commentary + article refresh
+# 1.0.12 protected remaining queue + user-written X take
 on:
   workflow_dispatch:
   pull_request:
@@ -70,11 +70,11 @@ jobs:
           rm -rf Payload
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextPost-1.0.11-Original-Content-Refresh.tipa
-          shasum -a 256 NextPost-1.0.11-Original-Content-Refresh.tipa > NextPost-1.0.11-Original-Content-Refresh.sha256
+          ditto -c -k --sequesterRsrc --keepParent Payload NextPost-1.0.12-Protected-Queue-Your-Take.tipa
+          shasum -a 256 NextPost-1.0.12-Protected-Queue-Your-Take.tipa > NextPost-1.0.12-Protected-Queue-Your-Take.sha256
 
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.0.11"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "11"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.0.12"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "12"
           /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$APP_PATH/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist"
           test -f "$APP_PATH/PrivacyInfo.xcprivacy"
@@ -83,10 +83,10 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextPost-1.0.11-Original-Content-Refresh
+          name: NextPost-1.0.12-Protected-Queue-Your-Take
           path: |
-            NextPost-1.0.11-Original-Content-Refresh.tipa
-            NextPost-1.0.11-Original-Content-Refresh.sha256
+            NextPost-1.0.12-Protected-Queue-Your-Take.tipa
+            NextPost-1.0.12-Protected-Queue-Your-Take.sha256
           if-no-files-found: error
 
       - name: Publish TIPA to repository
@@ -94,38 +94,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           RELEASE_DIR="$RUNNER_TEMP/nextpost-release"
           mkdir -p "$RELEASE_DIR"
-          cp NextPost-1.0.11-Original-Content-Refresh.tipa "$RELEASE_DIR/"
-          cp NextPost-1.0.11-Original-Content-Refresh.sha256 "$RELEASE_DIR/"
+          cp NextPost-1.0.12-Protected-Queue-Your-Take.tipa "$RELEASE_DIR/"
+          cp NextPost-1.0.12-Protected-Queue-Your-Take.sha256 "$RELEASE_DIR/"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           for attempt in 1 2 3 4 5; do
-            echo "Publish attempt ${attempt}/5"
             git fetch origin main
             git reset --hard origin/main
-
             mkdir -p applications
-            cp "$RELEASE_DIR/NextPost-1.0.11-Original-Content-Refresh.tipa" applications/
-            cp "$RELEASE_DIR/NextPost-1.0.11-Original-Content-Refresh.sha256" applications/
-            git add applications/NextPost-1.0.11-Original-Content-Refresh.tipa applications/NextPost-1.0.11-Original-Content-Refresh.sha256
-
-            if git diff --cached --quiet; then
-              echo "Next Post 1.0.11 build is already published."
-              exit 0
-            fi
-
-            git commit -m "Publish Next Post 1.0.11 original content refresh TIPA"
-            if git push origin HEAD:main; then
-              echo "Published Next Post 1.0.11 successfully."
-              exit 0
-            fi
-
+            cp "$RELEASE_DIR/NextPost-1.0.12-Protected-Queue-Your-Take.tipa" applications/
+            cp "$RELEASE_DIR/NextPost-1.0.12-Protected-Queue-Your-Take.sha256" applications/
+            git add applications/NextPost-1.0.12-Protected-Queue-Your-Take.tipa applications/NextPost-1.0.12-Protected-Queue-Your-Take.sha256
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m "Publish Next Post 1.0.12 protected queue TIPA"
+            if git push origin HEAD:main; then exit 0; fi
             sleep $((attempt * 3))
           done
-
-          echo "Failed to publish after 5 attempts."
           exit 1
