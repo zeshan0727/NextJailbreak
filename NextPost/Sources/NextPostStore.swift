@@ -5,6 +5,8 @@ import UIKit
 final class NextPostStore: ObservableObject {
     @Published var generatedPost = ""
     @Published var selectedArticle: PublishedArticle?
+    @Published var userTake = "" { didSet { rebuildPost() } }
+    @Published var verifiedContext = ""
     @Published var isLoading = false
     @Published var isRefreshing = false
     @Published var statusText = "Ready"
@@ -15,45 +17,48 @@ final class NextPostStore: ObservableObject {
     @Published var generatedCount = 0
     @Published var cycleNumber = 1
     @Published var copied = false
+    @Published var historyProtected = false
 
     private let service = ArticleService()
     private let composer = PostComposer()
     private let defaults = UserDefaults.standard
 
-    private var usedLinks = Set<String>()
-    private var knownLinks = Set<String>()
-    private var lastArticleLink: String?
+    private var pendingIDs = Set<String>()
+    private var knownIDs = Set<String>()
+    private var lastArticleID: String?
+    private var queueInitialized = false
 
     private enum Key {
-        static let usedLinks = "NextPost.usedLinks"
-        static let knownLinks = "NextPost.knownLinks"
+        static let pendingIDs = "NextPost.pendingArticleIDs.v12"
+        static let knownIDs = "NextPost.knownArticleIDs.v12"
+        static let queueInitialized = "NextPost.queueInitialized.v12"
+        static let migrationVersion = "NextPost.migrationVersion"
+        static let legacyUsedLinks = "NextPost.usedLinks"
+        static let legacyKnownLinks = "NextPost.knownLinks"
         static let lastArticleLink = "NextPost.lastArticleLink"
+        static let lastArticleID = "NextPost.lastArticleID.v12"
         static let generatedCount = "NextPost.generatedCount"
         static let cycleNumber = "NextPost.cycleNumber"
-        static let generatedPost = "NextPost.generatedPost"
         static let selectedTitle = "NextPost.selectedTitle"
         static let selectedURL = "NextPost.selectedURL"
     }
 
     init() {
-        usedLinks = Set(defaults.stringArray(forKey: Key.usedLinks) ?? [])
-        knownLinks = Set(defaults.stringArray(forKey: Key.knownLinks) ?? [])
-        lastArticleLink = defaults.string(forKey: Key.lastArticleLink)
+        pendingIDs = Set(defaults.stringArray(forKey: Key.pendingIDs) ?? [])
+        knownIDs = Set(defaults.stringArray(forKey: Key.knownIDs) ?? [])
+        queueInitialized = defaults.bool(forKey: Key.queueInitialized)
+        lastArticleID = defaults.string(forKey: Key.lastArticleID)
+            ?? defaults.string(forKey: Key.lastArticleLink).map(PublishedArticle.canonicalID(from:))
         generatedCount = defaults.integer(forKey: Key.generatedCount)
         cycleNumber = max(1, defaults.integer(forKey: Key.cycleNumber))
-        generatedPost = defaults.string(forKey: Key.generatedPost) ?? ""
 
-        if let title = defaults.string(forKey: Key.selectedTitle),
-           let url = defaults.string(forKey: Key.selectedURL) {
-            selectedArticle = PublishedArticle(
-                name: title,
-                title: title,
-                description: "",
-                href: url,
-                version: nil,
-                category: .empty
-            )
+        if let title = defaults.string(forKey: Key.selectedTitle), let url = defaults.string(forKey: Key.selectedURL) {
+            selectedArticle = PublishedArticle(name: title, title: title, description: "", href: url, version: nil, category: .empty)
         }
+    }
+
+    var canOpenInX: Bool {
+        selectedArticle != nil && userTake.trimmingCharacters(in: .whitespacesAndNewlines).count >= PostComposer.minimumUserTakeCharacters && !generatedPost.isEmpty
     }
 
     func refreshStats(manual: Bool = false) async {
@@ -62,37 +67,37 @@ final class NextPostStore: ObservableObject {
             isRefreshing = true
             refreshResult = "Checking for new articles…"
         }
-        defer {
-            if manual { isRefreshing = false }
-        }
+        defer { if manual { isRefreshing = false } }
 
         do {
             let articles = try await service.fetchArticles(forceRefresh: manual)
-            let currentLinks = Set(articles.map { $0.cleanURL.absoluteString })
-            let newLinks = knownLinks.isEmpty ? Set<String>() : currentLinks.subtracting(knownLinks)
+            guard !articles.isEmpty else { throw ArticleServiceError.noArticles }
+            let currentIDs = Set(articles.map(\.canonicalID))
 
-            reconcileUsedLinks(with: articles)
+            migrateIfNeeded(currentIDs: currentIDs)
+
+            let newIDs = knownIDs.isEmpty ? Set<String>() : currentIDs.subtracting(knownIDs)
+            pendingIDs.formIntersection(currentIDs)
+            pendingIDs.formUnion(newIDs)
+            knownIDs = currentIDs
             totalArticles = articles.count
-            remainingThisCycle = max(0, articles.count - usedLinks.count)
-            knownLinks = currentLinks
-            defaults.set(Array(knownLinks), forKey: Key.knownLinks)
+            remainingThisCycle = pendingIDs.count
+            persistQueue()
 
             if manual {
-                if newLinks.isEmpty {
+                if historyProtected {
+                    refreshResult = "History protected — unrecoverable old queue was not reset to all articles"
+                } else if newIDs.isEmpty {
                     refreshResult = "Up to date — no new articles"
-                    statusText = "Refreshed from nextjailbreak.com"
                 } else {
-                    refreshResult = "\(newLinks.count) new article\(newLinks.count == 1 ? "" : "s") added to Remaining"
-                    statusText = "Refreshed — \(newLinks.count) new"
+                    refreshResult = "\(newIDs.count) new article\(newIDs.count == 1 ? "" : "s") added to Remaining"
                 }
+                statusText = "Refreshed from nextjailbreak.com"
             } else {
-                statusText = articles.isEmpty ? "No articles found" : "Connected to nextjailbreak.com"
+                statusText = historyProtected ? "Connected — history protection active" : "Connected to nextjailbreak.com"
             }
         } catch {
-            if manual {
-                refreshResult = "Refresh failed"
-                errorMessage = error.localizedDescription
-            }
+            if manual { refreshResult = "Refresh failed"; errorMessage = error.localizedDescription }
             statusText = "Could not refresh articles"
         }
     }
@@ -103,51 +108,37 @@ final class NextPostStore: ObservableObject {
         errorMessage = nil
         copied = false
         statusText = "Fetching latest articles…"
-
         defer { isLoading = false }
 
         do {
             let articles = try await service.fetchArticles(forceRefresh: true)
             guard !articles.isEmpty else { throw ArticleServiceError.noArticles }
+            let currentIDs = Set(articles.map(\.canonicalID))
+            migrateIfNeeded(currentIDs: currentIDs)
 
-            reconcileUsedLinks(with: articles)
+            let newIDs = knownIDs.isEmpty ? Set<String>() : currentIDs.subtracting(knownIDs)
+            pendingIDs.formIntersection(currentIDs)
+            pendingIDs.formUnion(newIDs)
+            knownIDs = currentIDs
             totalArticles = articles.count
-            knownLinks.formUnion(articles.map { $0.cleanURL.absoluteString })
-            defaults.set(Array(knownLinks), forKey: Key.knownLinks)
 
-            var candidates = articles.filter { !usedLinks.contains($0.cleanURL.absoluteString) }
-
-            if candidates.isEmpty {
-                usedLinks.removeAll()
+            if pendingIDs.isEmpty {
+                pendingIDs = currentIDs
+                if let lastArticleID, pendingIDs.count > 1 { pendingIDs.remove(lastArticleID) }
                 cycleNumber += 1
-                defaults.set(cycleNumber, forKey: Key.cycleNumber)
-
-                if articles.count > 1, let lastArticleLink {
-                    candidates = articles.filter { $0.cleanURL.absoluteString != lastArticleLink }
-                } else {
-                    candidates = articles
-                }
             }
 
-            guard let article = candidates.randomElement() else {
-                throw ArticleServiceError.noArticles
-            }
+            let candidates = articles.filter { pendingIDs.contains($0.canonicalID) }
+            guard let article = candidates.randomElement() else { throw ArticleServiceError.noArticles }
 
-            let post = composer.compose(for: article, variation: generatedCount + 1)
-            let link = article.cleanURL.absoluteString
-
-            usedLinks.insert(link)
-            lastArticleLink = link
-            generatedCount += 1
-            generatedPost = post
             selectedArticle = article
-            remainingThisCycle = max(0, articles.count - usedLinks.count)
-            statusText = remainingThisCycle == 0
-                ? "All articles used — next tap starts a fresh cycle"
-                : "\(remainingThisCycle) article\(remainingThisCycle == 1 ? "" : "s") left before repeats"
-
-            persist()
-            AdsManager.shared.recordSuccessfulGeneration()
+            verifiedContext = composer.context(for: article)
+            userTake = ""
+            generatedPost = ""
+            remainingThisCycle = pendingIDs.count
+            statusText = "Write your take, then open in X"
+            persistSelection()
+            persistQueue()
         } catch {
             errorMessage = error.localizedDescription
             statusText = "Generation failed"
@@ -158,29 +149,30 @@ final class NextPostStore: ObservableObject {
         guard !generatedPost.isEmpty else { return }
         UIPasteboard.general.string = generatedPost
         copied = true
-
         Task {
             try? await Task.sleep(nanoseconds: 1_300_000_000)
-            if !Task.isCancelled {
-                copied = false
-            }
+            if !Task.isCancelled { copied = false }
         }
     }
 
     func openInX() {
-        guard !generatedPost.isEmpty else { return }
-
-        guard let article = selectedArticle else {
-            openXWebIntent(text: generatedPost, url: nil)
+        guard canOpenInX, let article = selectedArticle else {
+            errorMessage = "Write at least \(PostComposer.minimumUserTakeCharacters) characters in Your Take before opening X."
             return
         }
 
         let shareURL = article.socialShareURL
         let linkedLine = "🔗 \(shareURL.absoluteString)\n"
-        let textOnly = generatedPost
-            .replacingOccurrences(of: linkedLine, with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let textOnly = generatedPost.replacingOccurrences(of: linkedLine, with: "").trimmingCharacters(in: .whitespacesAndNewlines)
 
+        // Consume the article only when the user deliberately proceeds to X.
+        pendingIDs.remove(article.canonicalID)
+        lastArticleID = article.canonicalID
+        generatedCount += 1
+        remainingThisCycle = pendingIDs.count
+        persistQueue()
+        persistSelection()
+        AdsManager.shared.recordSuccessfulGeneration()
         openXWebIntent(text: textOnly, url: shareURL)
     }
 
@@ -189,33 +181,58 @@ final class NextPostStore: ObservableObject {
         UIApplication.shared.open(url)
     }
 
+    private func rebuildPost() {
+        guard let article = selectedArticle else { generatedPost = ""; return }
+        let take = userTake.trimmingCharacters(in: .whitespacesAndNewlines)
+        generatedPost = take.isEmpty ? "" : composer.compose(for: article, userTake: take)
+    }
+
+    private func migrateIfNeeded(currentIDs: Set<String>) {
+        guard !queueInitialized else { return }
+
+        let legacyUsed = Set((defaults.stringArray(forKey: Key.legacyUsedLinks) ?? []).map(PublishedArticle.canonicalID(from:)))
+        let legacyKnown = Set((defaults.stringArray(forKey: Key.legacyKnownLinks) ?? []).map(PublishedArticle.canonicalID(from:)))
+
+        if !legacyUsed.isEmpty {
+            pendingIDs = currentIDs.subtracting(legacyUsed.intersection(currentIDs))
+            knownIDs = legacyKnown.isEmpty ? currentIDs : legacyKnown.intersection(currentIDs)
+            historyProtected = false
+        } else if generatedCount > 0 {
+            // 1.0.11 could erase legacy used URLs during the domain migration. Do not
+            // silently repopulate the queue with every old article and cause reposts.
+            pendingIDs = []
+            knownIDs = currentIDs
+            historyProtected = true
+        } else {
+            pendingIDs = currentIDs
+            knownIDs = currentIDs
+            historyProtected = false
+        }
+
+        queueInitialized = true
+        defaults.set(12, forKey: Key.migrationVersion)
+        persistQueue()
+    }
+
     private func openXWebIntent(text: String, url: URL?) {
         var components = URLComponents(string: "https://twitter.com/intent/tweet")
         var items = [URLQueryItem(name: "text", value: text)]
-        if let url {
-            items.append(URLQueryItem(name: "url", value: url.absoluteString))
-        }
+        if let url { items.append(URLQueryItem(name: "url", value: url.absoluteString)) }
         components?.queryItems = items
         guard let intentURL = components?.url else { return }
         UIApplication.shared.open(intentURL)
     }
 
-    private func reconcileUsedLinks(with articles: [PublishedArticle]) {
-        let currentLinks = Set(articles.map { $0.cleanURL.absoluteString })
-        let cleaned = usedLinks.intersection(currentLinks)
-        if cleaned != usedLinks {
-            usedLinks = cleaned
-            defaults.set(Array(usedLinks), forKey: Key.usedLinks)
-        }
-    }
-
-    private func persist() {
-        defaults.set(Array(usedLinks), forKey: Key.usedLinks)
-        defaults.set(Array(knownLinks), forKey: Key.knownLinks)
-        defaults.set(lastArticleLink, forKey: Key.lastArticleLink)
+    private func persistQueue() {
+        defaults.set(Array(pendingIDs), forKey: Key.pendingIDs)
+        defaults.set(Array(knownIDs), forKey: Key.knownIDs)
+        defaults.set(queueInitialized, forKey: Key.queueInitialized)
+        defaults.set(lastArticleID, forKey: Key.lastArticleID)
         defaults.set(generatedCount, forKey: Key.generatedCount)
         defaults.set(cycleNumber, forKey: Key.cycleNumber)
-        defaults.set(generatedPost, forKey: Key.generatedPost)
+    }
+
+    private func persistSelection() {
         defaults.set(selectedArticle?.title, forKey: Key.selectedTitle)
         defaults.set(selectedArticle?.publishedURL.absoluteString, forKey: Key.selectedURL)
     }
