@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 import json
-import os
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -35,8 +34,8 @@ AUDIT_PATH = ROOT / "automation/published-articles.json"
 
 TARGETS = [
     {
-        "name": "Rocket for Instagram", "version": "4.18.0", "package_id": "rocket-for-instagram",
-        "description": "All-in-one Instagram tweak with downloading, privacy and customization features.",
+        "name": "Rocket for Instagram", "version": "4.18.0", "package_id": "me.alfhaily.rocket",
+        "description": "All-in-one tweak for Instagram.",
         "urls": [
             "https://apt.getrocketapp.io/",
             "https://apt.getrocketapp.io/changelogs/4EYOXC",
@@ -65,8 +64,14 @@ TARGETS = [
     },
     {
         "name": "NextUp 3", "version": "1.2", "package_id": "com.yves.nextup3",
-        "description": "Upcoming-track information and controls for supported now-playing interfaces.",
+        "description": "Adds an Up Next row that shows the next track and its artwork in supported now-playing interfaces.",
         "urls": ["https://havoc.app/package/nextup3"],
+        "scope_note": (
+            "SOURCE-SCOPE NOTE DERIVED FROM THE OFFICIAL HAVOC LISTING: The listing description documents an "
+            "Up Next row showing the next track and its artwork. Do not describe a generic or broader control set. "
+            "The listing title/feature wording refers to seeing and skipping what is next; keep any skip claim tied "
+            "to that exact wording and do not expand it into undocumented controls."
+        ),
     },
     {
         "name": "HALO2", "version": "1.0.1", "package_id": "jp.uzra.halo2",
@@ -117,10 +122,11 @@ def build_source(target: dict) -> dict:
         if _words(text) >= 12:
             material.append(f"ORIGINAL SOURCE PAGE {url}:\n{text[:24000]}")
 
+    if target.get("scope_note"):
+        material.append(str(target["scope_note"]))
     source_text = "\n\n".join(material)
     if _words(source_text) < 40:
         raise ValueError(f"{target['name']}: original source material is too thin")
-    # Exact release identity must be present somewhere in first-party evidence.
     if target["version"].lower() not in source_text.lower():
         raise ValueError(f"{target['name']}: exact version {target['version']} not found in original source material")
     return {
@@ -131,6 +137,17 @@ def build_source(target: dict) -> dict:
         "source_urls": list(dict.fromkeys(source_urls)),
         "source_text": source_text[:65000],
     }
+
+
+def generate_strict(source: dict):
+    errors: list[str] = []
+    for attempt in range(1, 4):
+        try:
+            return generate_article(source, SITE, CONFIG)
+        except ValueError as exc:
+            errors.append(f"attempt {attempt}: {exc}")
+            print(f"QUALITY RETRY {source['name']} {source['version']} attempt {attempt}: {exc}", flush=True)
+    raise ValueError(f"{source['name']} {source['version']} failed strict gate after 3 independent drafts: " + " | ".join(errors))
 
 
 def main() -> int:
@@ -150,7 +167,7 @@ def main() -> int:
             results.append({"name": source["name"], "version": source["version"], "status": "duplicate", "href": target_path})
             continue
 
-        article, api_meta = generate_article(source, SITE, CONFIG)
+        article, api_meta = generate_strict(source)
         media = acquire_unique_source_visual(
             source_urls=source["source_urls"], slug=slug, repository_root=ROOT
         )
@@ -207,9 +224,7 @@ def main() -> int:
 
     published = sum(1 for item in results if item["status"] == "published")
     print(json.dumps({"published": published, "results": results}, ensure_ascii=False))
-    if published + sum(1 for item in results if item["status"] == "duplicate") != len(TARGETS):
-        return 2
-    return 0
+    return 0 if len(results) == len(TARGETS) else 2
 
 
 if __name__ == "__main__":
