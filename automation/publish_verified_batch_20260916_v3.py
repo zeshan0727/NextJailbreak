@@ -17,6 +17,15 @@ for target in batch.TARGETS:
             ],
             "github": [("Yves000", "Crescendo")],
         })
+    elif target.get("name") == "Watusi 3":
+        target["urls"] = [
+            "https://tweaks.fouadraheb.com/apps/watusi3",
+            "https://github.com/FouadRaheb/Watusi-for-WhatsApp",
+            "https://github.com/FouadRaheb/Watusi-for-WhatsApp/blob/master/README.md",
+            "https://github.com/FouadRaheb/Watusi-for-WhatsApp/tree/master/images",
+        ]
+        target["github"] = [("FouadRaheb", "Watusi-for-WhatsApp")]
+        target["description"] = "Watusi 3 for WhatsApp, with official developer documentation for version 1.3.24 and first-party project imagery."
 
 if __name__ == "__main__":
     raise SystemExit(batch.main())
