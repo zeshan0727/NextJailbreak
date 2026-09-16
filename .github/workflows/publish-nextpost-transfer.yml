@@ -1,6 +1,6 @@
 name: Publish Next Post to Transfer
 
-# 1.0.11 original X commentary + article refresh
+# 1.0.11 original X commentary + article refresh — publication trigger
 on:
   workflow_dispatch:
   push:
