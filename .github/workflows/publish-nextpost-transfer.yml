@@ -1,13 +1,13 @@
 name: Publish Next Post to Transfer
 
-# 1.0.12 protected remaining queue + user-written X take
+# 1.0.13 restores the 1.0.11 automatic post flow and adds manual selection from Remaining.
 # Trigger publication after verified build artifact is committed.
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'applications/NextPost-1.0.12-Protected-Queue-Your-Take.tipa'
+      - 'applications/NextPost-1.0.13-Selectable-Remaining.tipa'
       - '.github/workflows/publish-nextpost-transfer.yml'
 
 permissions:
@@ -30,9 +30,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SRC='applications/NextPost-1.0.12-Protected-Queue-Your-Take.tipa'
-          DEST_DIR='transfer/files/NextPost/1.0.12'
-          DEST="$DEST_DIR/NextPost-1.0.12-Protected-Queue-Your-Take.tipa"
+          SRC='applications/NextPost-1.0.13-Selectable-Remaining.tipa'
+          DEST_DIR='transfer/files/NextPost/1.0.13'
+          DEST="$DEST_DIR/NextPost-1.0.13-Selectable-Remaining.tipa"
           INDEX='transfer/index.json'
 
           test -s "$SRC"
@@ -52,19 +52,19 @@ jobs:
           index_path = Path('transfer/index.json')
           data = json.loads(index_path.read_text())
           files = data.get('files', [])
-          entry_id = 'nextpost-1.0.12-protected-queue-your-take'
+          entry_id = 'nextpost-1.0.13-selectable-remaining'
           files = [item for item in files if item.get('id') != entry_id]
           entry = {
               'id': entry_id,
-              'name': 'Next Post 1.0.12 — Protected Queue + Your Take',
-              'fileName': 'NextPost-1.0.12-Protected-Queue-Your-Take.tipa',
+              'name': 'Next Post 1.0.13 — Selectable Remaining',
+              'fileName': 'NextPost-1.0.13-Selectable-Remaining.tipa',
               'type': 'tipa',
               'platform': 'TrollStore / iOS 16+',
-              'version': '1.0.12 (12)',
-              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.12/NextPost-1.0.12-Protected-Queue-Your-Take.tipa',
+              'version': '1.0.13 (13)',
+              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.13/NextPost-1.0.13-Selectable-Remaining.tipa',
               'sha256': os.environ['SHA256'],
               'sizeBytes': int(os.environ['SIZE']),
-              'notes': 'Fixes Remaining/history migration using domain-independent article IDs and an explicit protected queue. Refresh only adds genuinely new articles. Selecting an article no longer consumes it; it is consumed only when Open in X is tapped. Adds a mandatory user-written Your Take field with verified article context, while preserving the Next Jailbreak link/card and focused hashtags.'
+              'notes': 'Restores the complete 1.0.11 automatic X post generation flow and removes the 1.0.12 Your Take/protected-queue behavior. Remaining now opens a searchable list of unused articles; select any article and Generate creates the full post automatically, marks it used, and updates Remaining. Random Generate, Refresh Articles, Copy Text, Open in X, preview card and focused hashtags remain as in 1.0.11.'
           }
           data['files'] = [entry] + files
           data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
@@ -72,7 +72,7 @@ jobs:
           PY
 
           python3 -m json.tool "$INDEX" >/dev/null
-          grep -q 'nextpost-1.0.12-protected-queue-your-take' "$INDEX"
+          grep -q 'nextpost-1.0.13-selectable-remaining' "$INDEX"
           grep -q "$SHA256" "$INDEX"
           test "$(sha256sum "$DEST" | awk '{print $1}')" = "$SHA256"
 
@@ -82,7 +82,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add transfer/files/NextPost/1.0.12/NextPost-1.0.12-Protected-Queue-Your-Take.tipa transfer/index.json
-          git commit -m 'Publish Next Post 1.0.12 to Transfer' || true
+          git add transfer/files/NextPost/1.0.13/NextPost-1.0.13-Selectable-Remaining.tipa transfer/index.json
+          git commit -m 'Publish Next Post 1.0.13 to Transfer' || true
           git pull --rebase origin main
           git push origin HEAD:main
