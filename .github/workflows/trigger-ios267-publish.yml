@@ -13,3 +13,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run publish-ios267-kernel-security-news.yml --repo ${{ github.repository }} --ref main
+# trigger 2026-09-16
