@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "enabled": true,
-  "discovery_url": "https://www.ios-repo-updates.com/news/",
+  "discovery_url": "https://www.ios-repo-updates.com/search/?s=Rocket+for+Instagram",
   "discovery_only": true,
   "timezone": "Asia/Qatar",
   "windows_local": ["09:00", "21:00"],
-  "max_per_day": 2,
-  "minimum_site_gap_minutes": 90,
-  "max_candidate_attempts": 8,
+  "max_per_day": 8,
+  "minimum_site_gap_minutes": 0,
+  "max_candidate_attempts": 4,
   "minimum_source_words": 180,
   "minimum_article_words": 900,
   "minimum_sections": 5,
@@ -42,5 +42,6 @@
   "blocked_public_source_hosts": ["ios-repo-updates.com", "www.ios-repo-updates.com"],
   "require_original_source": true,
   "require_unique_source_visual": true,
-  "skip_if_only_package_metadata": true
+  "skip_if_only_package_metadata": true,
+  "manual_batch": "2026-09-16-rocket-4.18.0"
 }
