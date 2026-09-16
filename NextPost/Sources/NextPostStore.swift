@@ -32,6 +32,7 @@ final class NextPostStore: ObservableObject {
         static let pendingIDs = "NextPost.pendingArticleIDs.v12"
         static let knownIDs = "NextPost.knownArticleIDs.v12"
         static let queueInitialized = "NextPost.queueInitialized.v12"
+        static let historyProtected = "NextPost.historyProtected.v12"
         static let migrationVersion = "NextPost.migrationVersion"
         static let legacyUsedLinks = "NextPost.usedLinks"
         static let legacyKnownLinks = "NextPost.knownLinks"
@@ -47,6 +48,7 @@ final class NextPostStore: ObservableObject {
         pendingIDs = Set(defaults.stringArray(forKey: Key.pendingIDs) ?? [])
         knownIDs = Set(defaults.stringArray(forKey: Key.knownIDs) ?? [])
         queueInitialized = defaults.bool(forKey: Key.queueInitialized)
+        historyProtected = defaults.bool(forKey: Key.historyProtected)
         lastArticleID = defaults.string(forKey: Key.lastArticleID)
             ?? defaults.string(forKey: Key.lastArticleLink).map(PublishedArticle.canonicalID(from:))
         generatedCount = defaults.integer(forKey: Key.generatedCount)
@@ -85,8 +87,8 @@ final class NextPostStore: ObservableObject {
             persistQueue()
 
             if manual {
-                if historyProtected {
-                    refreshResult = "History protected — unrecoverable old queue was not reset to all articles"
+                if historyProtected && newIDs.isEmpty {
+                    refreshResult = "History protected — old repeats blocked; new articles will be added here"
                 } else if newIDs.isEmpty {
                     refreshResult = "Up to date — no new articles"
                 } else {
@@ -94,7 +96,7 @@ final class NextPostStore: ObservableObject {
                 }
                 statusText = "Refreshed from nextjailbreak.com"
             } else {
-                statusText = historyProtected ? "Connected — history protection active" : "Connected to nextjailbreak.com"
+                statusText = historyProtected ? "Connected — old repeats blocked" : "Connected to nextjailbreak.com"
             }
         } catch {
             if manual { refreshResult = "Refresh failed"; errorMessage = error.localizedDescription }
@@ -123,6 +125,14 @@ final class NextPostStore: ObservableObject {
             totalArticles = articles.count
 
             if pendingIDs.isEmpty {
+                if historyProtected {
+                    remainingThisCycle = 0
+                    statusText = "Waiting for new articles — old repeats blocked"
+                    refreshResult = "Your exact old remaining queue was erased by 1.0.11, so 1.0.12 will not repeat old articles. Refresh will add only newly published articles."
+                    persistQueue()
+                    return
+                }
+
                 pendingIDs = currentIDs
                 if let lastArticleID, pendingIDs.count > 1 { pendingIDs.remove(lastArticleID) }
                 cycleNumber += 1
@@ -165,7 +175,6 @@ final class NextPostStore: ObservableObject {
         let linkedLine = "🔗 \(shareURL.absoluteString)\n"
         let textOnly = generatedPost.replacingOccurrences(of: linkedLine, with: "").trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Consume the article only when the user deliberately proceeds to X.
         pendingIDs.remove(article.canonicalID)
         lastArticleID = article.canonicalID
         generatedCount += 1
@@ -198,8 +207,6 @@ final class NextPostStore: ObservableObject {
             knownIDs = legacyKnown.isEmpty ? currentIDs : legacyKnown.intersection(currentIDs)
             historyProtected = false
         } else if generatedCount > 0 {
-            // 1.0.11 could erase legacy used URLs during the domain migration. Do not
-            // silently repopulate the queue with every old article and cause reposts.
             pendingIDs = []
             knownIDs = currentIDs
             historyProtected = true
@@ -227,6 +234,7 @@ final class NextPostStore: ObservableObject {
         defaults.set(Array(pendingIDs), forKey: Key.pendingIDs)
         defaults.set(Array(knownIDs), forKey: Key.knownIDs)
         defaults.set(queueInitialized, forKey: Key.queueInitialized)
+        defaults.set(historyProtected, forKey: Key.historyProtected)
         defaults.set(lastArticleID, forKey: Key.lastArticleID)
         defaults.set(generatedCount, forKey: Key.generatedCount)
         defaults.set(cycleNumber, forKey: Key.cycleNumber)
