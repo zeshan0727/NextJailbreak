@@ -1,6 +1,6 @@
 name: Build Next Post TIPA
 
-# 1.0.10 article topic preview fix publication trigger
+# 1.0.11 original X commentary + article refresh
 on:
   workflow_dispatch:
   pull_request:
@@ -70,25 +70,23 @@ jobs:
           rm -rf Payload
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextPost-1.0.10-Article-Topic-Preview-Fix.tipa
-          shasum -a 256 NextPost-1.0.10-Article-Topic-Preview-Fix.tipa > NextPost-1.0.10-Article-Topic-Preview-Fix.sha256
+          ditto -c -k --sequesterRsrc --keepParent Payload NextPost-1.0.11-Original-Content-Refresh.tipa
+          shasum -a 256 NextPost-1.0.11-Original-Content-Refresh.tipa > NextPost-1.0.11-Original-Content-Refresh.sha256
 
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.0.11"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "11"
           /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$APP_PATH/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist"
-          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_PATH/Info.plist"
-          /usr/libexec/PlistBuddy -c "Print :SKAdNetworkItems:0:SKAdNetworkIdentifier" "$APP_PATH/Info.plist"
-          /usr/libexec/PlistBuddy -c "Print :SKAdNetworkItems:1:SKAdNetworkIdentifier" "$APP_PATH/Info.plist"
           test -f "$APP_PATH/PrivacyInfo.xcprivacy"
-          find "$APP_PATH" -iname '*UnityAds*' -o -iname '*IronSource*'
           file "$APP_PATH/Next Post"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextPost-1.0.10-Article-Topic-Preview-Fix
+          name: NextPost-1.0.11-Original-Content-Refresh
           path: |
-            NextPost-1.0.10-Article-Topic-Preview-Fix.tipa
-            NextPost-1.0.10-Article-Topic-Preview-Fix.sha256
+            NextPost-1.0.11-Original-Content-Refresh.tipa
+            NextPost-1.0.11-Original-Content-Refresh.sha256
           if-no-files-found: error
 
       - name: Publish TIPA to repository
@@ -99,8 +97,8 @@ jobs:
 
           RELEASE_DIR="$RUNNER_TEMP/nextpost-release"
           mkdir -p "$RELEASE_DIR"
-          cp NextPost-1.0.10-Article-Topic-Preview-Fix.tipa "$RELEASE_DIR/"
-          cp NextPost-1.0.10-Article-Topic-Preview-Fix.sha256 "$RELEASE_DIR/"
+          cp NextPost-1.0.11-Original-Content-Refresh.tipa "$RELEASE_DIR/"
+          cp NextPost-1.0.11-Original-Content-Refresh.sha256 "$RELEASE_DIR/"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -111,18 +109,18 @@ jobs:
             git reset --hard origin/main
 
             mkdir -p applications
-            cp "$RELEASE_DIR/NextPost-1.0.10-Article-Topic-Preview-Fix.tipa" applications/
-            cp "$RELEASE_DIR/NextPost-1.0.10-Article-Topic-Preview-Fix.sha256" applications/
-            git add applications/NextPost-1.0.10-Article-Topic-Preview-Fix.tipa applications/NextPost-1.0.10-Article-Topic-Preview-Fix.sha256
+            cp "$RELEASE_DIR/NextPost-1.0.11-Original-Content-Refresh.tipa" applications/
+            cp "$RELEASE_DIR/NextPost-1.0.11-Original-Content-Refresh.sha256" applications/
+            git add applications/NextPost-1.0.11-Original-Content-Refresh.tipa applications/NextPost-1.0.11-Original-Content-Refresh.sha256
 
             if git diff --cached --quiet; then
-              echo "Next Post 1.0.10 article topic preview fix build is already published."
+              echo "Next Post 1.0.11 build is already published."
               exit 0
             fi
 
-            git commit -m "Publish Next Post 1.0.10 article topic preview fix TIPA"
+            git commit -m "Publish Next Post 1.0.11 original content refresh TIPA"
             if git push origin HEAD:main; then
-              echo "Published Next Post 1.0.10 successfully."
+              echo "Published Next Post 1.0.11 successfully."
               exit 0
             fi
 
