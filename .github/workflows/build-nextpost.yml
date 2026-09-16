@@ -1,6 +1,6 @@
 name: Build Next Post TIPA
 
-# 1.0.12 protected remaining queue + user-written X take
+# 1.0.13 restores the 1.0.11 automatic post flow and adds manual selection from Remaining.
 on:
   workflow_dispatch:
   pull_request:
@@ -70,11 +70,11 @@ jobs:
           rm -rf Payload
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextPost-1.0.12-Protected-Queue-Your-Take.tipa
-          shasum -a 256 NextPost-1.0.12-Protected-Queue-Your-Take.tipa > NextPost-1.0.12-Protected-Queue-Your-Take.sha256
+          ditto -c -k --sequesterRsrc --keepParent Payload NextPost-1.0.13-Selectable-Remaining.tipa
+          shasum -a 256 NextPost-1.0.13-Selectable-Remaining.tipa > NextPost-1.0.13-Selectable-Remaining.sha256
 
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.0.12"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "12"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.0.13"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "13"
           /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$APP_PATH/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist"
           test -f "$APP_PATH/PrivacyInfo.xcprivacy"
@@ -83,10 +83,10 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextPost-1.0.12-Protected-Queue-Your-Take
+          name: NextPost-1.0.13-Selectable-Remaining
           path: |
-            NextPost-1.0.12-Protected-Queue-Your-Take.tipa
-            NextPost-1.0.12-Protected-Queue-Your-Take.sha256
+            NextPost-1.0.13-Selectable-Remaining.tipa
+            NextPost-1.0.13-Selectable-Remaining.sha256
           if-no-files-found: error
 
       - name: Publish TIPA to repository
@@ -96,8 +96,8 @@ jobs:
           set -euo pipefail
           RELEASE_DIR="$RUNNER_TEMP/nextpost-release"
           mkdir -p "$RELEASE_DIR"
-          cp NextPost-1.0.12-Protected-Queue-Your-Take.tipa "$RELEASE_DIR/"
-          cp NextPost-1.0.12-Protected-Queue-Your-Take.sha256 "$RELEASE_DIR/"
+          cp NextPost-1.0.13-Selectable-Remaining.tipa "$RELEASE_DIR/"
+          cp NextPost-1.0.13-Selectable-Remaining.sha256 "$RELEASE_DIR/"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -106,11 +106,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             mkdir -p applications
-            cp "$RELEASE_DIR/NextPost-1.0.12-Protected-Queue-Your-Take.tipa" applications/
-            cp "$RELEASE_DIR/NextPost-1.0.12-Protected-Queue-Your-Take.sha256" applications/
-            git add applications/NextPost-1.0.12-Protected-Queue-Your-Take.tipa applications/NextPost-1.0.12-Protected-Queue-Your-Take.sha256
+            cp "$RELEASE_DIR/NextPost-1.0.13-Selectable-Remaining.tipa" applications/
+            cp "$RELEASE_DIR/NextPost-1.0.13-Selectable-Remaining.sha256" applications/
+            git add applications/NextPost-1.0.13-Selectable-Remaining.tipa applications/NextPost-1.0.13-Selectable-Remaining.sha256
             if git diff --cached --quiet; then exit 0; fi
-            git commit -m "Publish Next Post 1.0.12 protected queue TIPA"
+            git commit -m "Publish Next Post 1.0.13 selectable Remaining TIPA"
             if git push origin HEAD:main; then exit 0; fi
             sleep $((attempt * 3))
           done
