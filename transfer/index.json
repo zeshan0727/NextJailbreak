@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-16T08:07:54Z",
+  "updatedAt": "2026-09-16T08:28:18Z",
   "files": [
+    {
+      "id": "nextpost-1.0.12-protected-queue-your-take",
+      "name": "Next Post 1.0.12 \u2014 Protected Queue + Your Take",
+      "fileName": "NextPost-1.0.12-Protected-Queue-Your-Take.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.12 (12)",
+      "url": "https://nextjailbreak.com/transfer/files/NextPost/1.0.12/NextPost-1.0.12-Protected-Queue-Your-Take.tipa",
+      "sha256": "4f9b37816c5f230b6fd7334dc50ca2d7ad9ffecc1f30fea11174bd1e86de9042",
+      "sizeBytes": 5654452,
+      "notes": "Fixes Remaining/history migration using domain-independent article IDs and an explicit protected queue. Refresh only adds genuinely new articles. Selecting an article no longer consumes it; it is consumed only when Open in X is tapped. Adds a mandatory user-written Your Take field with verified article context, while preserving the Next Jailbreak link/card and focused hashtags."
+    },
     {
       "id": "nextpost-1.0.11-original-content-refresh",
       "name": "Next Post 1.0.11 \u2014 Original Content + Refresh",
