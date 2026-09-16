@@ -17,72 +17,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reconstruct source archive
-        shell: pwsh
-        run: |
-          $parts = 0..4 | ForEach-Object { "sas-v8-build/source.part{0:D2}" -f $_ }
-          $b64 = ($parts | ForEach-Object { Get-Content $_ -Raw }) -join ''
-          [IO.File]::WriteAllBytes("sas-v8-build/source.zip", [Convert]::FromBase64String($b64))
-          New-Item -ItemType Directory -Force -Path "sas-v8-src" | Out-Null
-          Expand-Archive -Path "sas-v8-build/source.zip" -DestinationPath "sas-v8-src" -Force
-          $root = Get-ChildItem "sas-v8-src" -Directory | Select-Object -First 1
-          if (-not $root) { throw "Source root not found" }
-          "SAS_SOURCE=$($root.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          Write-Host "Source root: $($root.FullName)"
-
-      - name: Patch WinUI project metadata
-        shell: pwsh
-        run: |
-          $p = Join-Path $env:SAS_SOURCE "StoryAutomationStudio.vcxproj"
-          [xml]$xml = Get-Content $p -Raw
-          $ns = New-Object System.Xml.XmlNamespaceManager($xml.NameTable)
-          $ns.AddNamespace("m", "http://schemas.microsoft.com/developer/msbuild/2003")
-          $g = $xml.SelectSingleNode("/m:Project/m:PropertyGroup[@Label='Globals']", $ns)
-          function Set-Prop([string]$name,[string]$value) {
-            $n = $g.SelectSingleNode("m:$name", $ns)
-            if (-not $n) { $n = $xml.CreateElement($name, $xml.DocumentElement.NamespaceURI); [void]$g.AppendChild($n) }
-            $n.InnerText = $value
-          }
-          Set-Prop "CppWinRTOptimized" "true"
-          Set-Prop "CppWinRTRootNamespaceAutoMerge" "true"
-          Set-Prop "MinimalCoreWin" "true"
-          Set-Prop "TargetName" "`$(RootNamespace)"
-          Set-Prop "DefaultLanguage" "en-US"
-          Set-Prop "MinimumVisualStudioVersion" "16.0"
-          Set-Prop "WindowsTargetPlatformVersion" "10.0"
-          Set-Prop "WindowsTargetPlatformMinVersion" "10.0.17763.0"
-          Set-Prop "UseWinUI" "true"
-          Set-Prop "EnableMsixTooling" "true"
-          Set-Prop "WindowsAppSDKSelfContained" "true"
-          Set-Prop "AppxPackage" "false"
-          Set-Prop "WindowsPackageType" "None"
-          Set-Prop "TargetFrameworks" "UAP,Version=v10.0"
-          $cfgs = $xml.SelectNodes("/m:Project/m:PropertyGroup[@Label='Configuration']", $ns)
-          foreach ($cfg in $cfgs) {
-            $d = $cfg.SelectSingleNode("m:DesktopCompatible", $ns)
-            if (-not $d) { $d = $xml.CreateElement("DesktopCompatible", $xml.DocumentElement.NamespaceURI); [void]$cfg.AppendChild($d) }
-            $d.InnerText = "true"
-          }
-          $xml.Save($p)
-          Write-Host (Get-Content $p -Raw)
-
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
         with:
           msbuild-architecture: x64
 
+      - name: Restore native WinUI packages
+        shell: pwsh
+        run: |
+          Push-Location "$env:GITHUB_WORKSPACE\sas-v8-native"
+          nuget restore StoryAutomationStudio.sln -PackagesDirectory packages -NonInteractive
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Pop-Location
+
       - name: Build native WinUI app
         shell: pwsh
         run: |
-          Push-Location $env:SAS_SOURCE
-          msbuild StoryAutomationStudio.sln /restore /m /p:Configuration=Release /p:Platform=x64 /p:WindowsAppSDKSelfContained=true /p:AppxPackageSigningEnabled=false
+          Push-Location "$env:GITHUB_WORKSPACE\sas-v8-native"
+          msbuild StoryAutomationStudio.sln /m /p:Configuration=Release /p:Platform=x64 /p:WindowsAppSDKSelfContained=true
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Pop-Location
 
       - name: Locate build output
         shell: pwsh
         run: |
-          $exe = Get-ChildItem $env:SAS_SOURCE -Recurse -Filter "StoryAutomationStudio.exe" -File | Where-Object { $_.FullName -match 'Release' } | Select-Object -First 1
+          $exe = Get-ChildItem "$env:GITHUB_WORKSPACE\sas-v8-native" -Recurse -Filter "StoryAutomationStudio.exe" -File | Where-Object { $_.FullName -match 'Release' } | Select-Object -First 1
           if (-not $exe) { throw "StoryAutomationStudio.exe not found" }
           $outDir = $exe.Directory.FullName
           "SAS_OUT=$outDir" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
@@ -133,7 +92,6 @@ jobs:
           Set-Content -Path $issPath -Value $iss -Encoding UTF8
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" $issPath
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          Get-ChildItem "$env:GITHUB_WORKSPACE\installer-out"
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
@@ -148,7 +106,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: StoryAutomationStudio-v8-native-output
-          path: |
-            ${{ env.SAS_OUT }}
+          path: sas-v8-native/x64/Release/
           if-no-files-found: ignore
           retention-days: 3
