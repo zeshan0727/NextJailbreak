@@ -6,7 +6,9 @@ final class NextPostStore: ObservableObject {
     @Published var generatedPost = ""
     @Published var selectedArticle: PublishedArticle?
     @Published var isLoading = false
+    @Published var isRefreshing = false
     @Published var statusText = "Ready"
+    @Published var refreshResult = ""
     @Published var errorMessage: String?
     @Published var totalArticles = 0
     @Published var remainingThisCycle = 0
@@ -19,10 +21,12 @@ final class NextPostStore: ObservableObject {
     private let defaults = UserDefaults.standard
 
     private var usedLinks = Set<String>()
+    private var knownLinks = Set<String>()
     private var lastArticleLink: String?
 
     private enum Key {
         static let usedLinks = "NextPost.usedLinks"
+        static let knownLinks = "NextPost.knownLinks"
         static let lastArticleLink = "NextPost.lastArticleLink"
         static let generatedCount = "NextPost.generatedCount"
         static let cycleNumber = "NextPost.cycleNumber"
@@ -33,6 +37,7 @@ final class NextPostStore: ObservableObject {
 
     init() {
         usedLinks = Set(defaults.stringArray(forKey: Key.usedLinks) ?? [])
+        knownLinks = Set(defaults.stringArray(forKey: Key.knownLinks) ?? [])
         lastArticleLink = defaults.string(forKey: Key.lastArticleLink)
         generatedCount = defaults.integer(forKey: Key.generatedCount)
         cycleNumber = max(1, defaults.integer(forKey: Key.cycleNumber))
@@ -51,14 +56,43 @@ final class NextPostStore: ObservableObject {
         }
     }
 
-    func refreshStats() async {
+    func refreshStats(manual: Bool = false) async {
+        if manual {
+            guard !isRefreshing else { return }
+            isRefreshing = true
+            refreshResult = "Checking for new articles…"
+        }
+        defer {
+            if manual { isRefreshing = false }
+        }
+
         do {
-            let articles = try await service.fetchArticles()
+            let articles = try await service.fetchArticles(forceRefresh: manual)
+            let currentLinks = Set(articles.map { $0.cleanURL.absoluteString })
+            let newLinks = knownLinks.isEmpty ? Set<String>() : currentLinks.subtracting(knownLinks)
+
             reconcileUsedLinks(with: articles)
             totalArticles = articles.count
             remainingThisCycle = max(0, articles.count - usedLinks.count)
-            statusText = articles.isEmpty ? "No articles found" : "Connected to nextjailbreak.com"
+            knownLinks = currentLinks
+            defaults.set(Array(knownLinks), forKey: Key.knownLinks)
+
+            if manual {
+                if newLinks.isEmpty {
+                    refreshResult = "Up to date — no new articles"
+                    statusText = "Refreshed from nextjailbreak.com"
+                } else {
+                    refreshResult = "\(newLinks.count) new article\(newLinks.count == 1 ? "" : "s") added to Remaining"
+                    statusText = "Refreshed — \(newLinks.count) new"
+                }
+            } else {
+                statusText = articles.isEmpty ? "No articles found" : "Connected to nextjailbreak.com"
+            }
         } catch {
+            if manual {
+                refreshResult = "Refresh failed"
+                errorMessage = error.localizedDescription
+            }
             statusText = "Could not refresh articles"
         }
     }
@@ -73,11 +107,13 @@ final class NextPostStore: ObservableObject {
         defer { isLoading = false }
 
         do {
-            let articles = try await service.fetchArticles()
+            let articles = try await service.fetchArticles(forceRefresh: true)
             guard !articles.isEmpty else { throw ArticleServiceError.noArticles }
 
             reconcileUsedLinks(with: articles)
             totalArticles = articles.count
+            knownLinks.formUnion(articles.map { $0.cleanURL.absoluteString })
+            defaults.set(Array(knownLinks), forKey: Key.knownLinks)
 
             var candidates = articles.filter { !usedLinks.contains($0.cleanURL.absoluteString) }
 
@@ -97,7 +133,7 @@ final class NextPostStore: ObservableObject {
                 throw ArticleServiceError.noArticles
             }
 
-            let post = composer.compose(for: article)
+            let post = composer.compose(for: article, variation: generatedCount + 1)
             let link = article.cleanURL.absoluteString
 
             usedLinks.insert(link)
@@ -134,10 +170,6 @@ final class NextPostStore: ObservableObject {
     func openInX() {
         guard !generatedPost.isEmpty else { return }
 
-        // Give X the article URL as an explicit Web Intent URL parameter rather
-        // than burying it only inside pre-filled text. That lets X recognize
-        // the link as the card target and avoids deep-link query parsing from
-        // splitting article URLs that themselves contain UTM parameters.
         guard let article = selectedArticle else {
             openXWebIntent(text: generatedPost, url: nil)
             return
@@ -179,6 +211,7 @@ final class NextPostStore: ObservableObject {
 
     private func persist() {
         defaults.set(Array(usedLinks), forKey: Key.usedLinks)
+        defaults.set(Array(knownLinks), forKey: Key.knownLinks)
         defaults.set(lastArticleLink, forKey: Key.lastArticleLink)
         defaults.set(generatedCount, forKey: Key.generatedCount)
         defaults.set(cycleNumber, forKey: Key.cycleNumber)
