@@ -20,20 +20,29 @@ jobs:
       - name: Checkout temporary branch
         uses: actions/checkout@v4
 
-      - name: Reconstruct v8 source archive
+      - name: Reconstruct and normalize v8 source
         shell: pwsh
         run: |
           $parts = Get-ChildItem -Path 'sas-v8-build' -Filter 'source.part*' | Sort-Object Name
           if ($parts.Count -ne 5) { throw "Expected 5 source chunks, found $($parts.Count)" }
           $b64 = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
-          $bytes = [Convert]::FromBase64String($b64)
-          [IO.File]::WriteAllBytes((Join-Path $PWD 'sas-v8-build\source.zip'), $bytes)
+          [IO.File]::WriteAllBytes((Join-Path $PWD 'sas-v8-build\source.zip'), [Convert]::FromBase64String($b64))
           Expand-Archive -Path 'sas-v8-build\source.zip' -DestinationPath 'sas-v8-build\srcpkg' -Force
           $sln = Get-ChildItem 'sas-v8-build\srcpkg' -Recurse -Filter 'StoryAutomationStudio.sln' | Select-Object -First 1
           if (-not $sln) { throw 'StoryAutomationStudio.sln not found after extraction.' }
+          $proj = Get-ChildItem $sln.Directory.FullName -Filter 'StoryAutomationStudio.vcxproj' | Select-Object -First 1
+          if (-not $proj) { throw 'StoryAutomationStudio.vcxproj not found.' }
+          $xml = Get-Content $proj.FullName -Raw
+          $xml = $xml -replace '<ApplicationType>Windows Store</ApplicationType>\s*', ''
+          $xml = $xml -replace '<ApplicationTypeRevision>10\.0</ApplicationTypeRevision>\s*', ''
+          if ($xml -notmatch '<UseWinUI>true</UseWinUI>') {
+            $xml = $xml -replace '<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>', '<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>`r`n    <UseWinUI>true</UseWinUI>'
+          }
+          Set-Content -Path $proj.FullName -Value $xml -Encoding UTF8
           "SAS_SOLUTION=$($sln.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "SAS_ROOT=$($sln.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Host "Solution: $($sln.FullName)"
+          Write-Host "Normalized project: $($proj.FullName)"
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -49,7 +58,6 @@ jobs:
         run: |
           $exe = Get-ChildItem $env:SAS_ROOT -Recurse -Filter 'StoryAutomationStudio.exe' | Where-Object { $_.FullName -match 'Release' } | Sort-Object Length -Descending | Select-Object -First 1
           if (-not $exe) { throw 'StoryAutomationStudio.exe was not produced.' }
-          Write-Host "EXE: $($exe.FullName)"
           $pkg = Join-Path $PWD 'sas-v8-build\package'
           New-Item -ItemType Directory -Force -Path $pkg | Out-Null
           Copy-Item -Path (Join-Path $exe.Directory.FullName '*') -Destination $pkg -Recurse -Force
