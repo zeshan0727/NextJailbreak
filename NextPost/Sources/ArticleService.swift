@@ -18,12 +18,16 @@ struct ArticleService {
     private let manifestURL = URL(string: "https://nextjailbreak.com/automation/published-articles.json")!
     private let feedURL = URL(string: "https://nextjailbreak.com/feed.xml")!
 
-    func fetchArticles() async throws -> [PublishedArticle] {
+    func fetchArticles(forceRefresh: Bool = false) async throws -> [PublishedArticle] {
         do {
-            var request = URLRequest(url: manifestURL)
-            request.cachePolicy = .reloadIgnoringLocalCacheData
+            var request = URLRequest(url: requestURL(manifestURL, forceRefresh: forceRefresh))
+            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             request.timeoutInterval = 15
             request.setValue("application/json", forHTTPHeaderField: "Accept")
+            if forceRefresh {
+                request.setValue("no-cache, no-store, max-age=0", forHTTPHeaderField: "Cache-Control")
+                request.setValue("no-cache", forHTTPHeaderField: "Pragma")
+            }
 
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
@@ -37,14 +41,18 @@ struct ArticleService {
             // Fall back to the public RSS feed if the automation manifest is unavailable.
         }
 
-        return try await fetchFeedArticles()
+        return try await fetchFeedArticles(forceRefresh: forceRefresh)
     }
 
-    private func fetchFeedArticles() async throws -> [PublishedArticle] {
-        var request = URLRequest(url: feedURL)
-        request.cachePolicy = .reloadIgnoringLocalCacheData
+    private func fetchFeedArticles(forceRefresh: Bool) async throws -> [PublishedArticle] {
+        var request = URLRequest(url: requestURL(feedURL, forceRefresh: forceRefresh))
+        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         request.timeoutInterval = 15
         request.setValue("application/rss+xml, application/xml, text/xml", forHTTPHeaderField: "Accept")
+        if forceRefresh {
+            request.setValue("no-cache, no-store, max-age=0", forHTTPHeaderField: "Cache-Control")
+            request.setValue("no-cache", forHTTPHeaderField: "Pragma")
+        }
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
@@ -61,6 +69,19 @@ struct ArticleService {
         let articles = unique(delegate.articles)
         guard !articles.isEmpty else { throw ArticleServiceError.noArticles }
         return articles
+    }
+
+    private func requestURL(_ baseURL: URL, forceRefresh: Bool) -> URL {
+        guard forceRefresh,
+              var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+            return baseURL
+        }
+
+        var items = components.queryItems ?? []
+        items.removeAll { $0.name == "nextpost_refresh" }
+        items.append(URLQueryItem(name: "nextpost_refresh", value: String(Int(Date().timeIntervalSince1970))))
+        components.queryItems = items
+        return components.url ?? baseURL
     }
 
     private func unique(_ articles: [PublishedArticle]) -> [PublishedArticle] {
