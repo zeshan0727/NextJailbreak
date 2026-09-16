@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-16T08:28:18Z",
+  "updatedAt": "2026-09-16T08:47:21Z",
   "files": [
+    {
+      "id": "nextpost-1.0.13-selectable-remaining",
+      "name": "Next Post 1.0.13 \u2014 Selectable Remaining",
+      "fileName": "NextPost-1.0.13-Selectable-Remaining.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.13 (13)",
+      "url": "https://nextjailbreak.com/transfer/files/NextPost/1.0.13/NextPost-1.0.13-Selectable-Remaining.tipa",
+      "sha256": "11638ff579a6f61df58c20ae46719261bb3ca2e33ef70d34891214d2858848d1",
+      "sizeBytes": 5687702,
+      "notes": "Restores the complete 1.0.11 automatic X post generation flow and removes the 1.0.12 Your Take/protected-queue behavior. Remaining now opens a searchable list of unused articles; select any article and Generate creates the full post automatically, marks it used, and updates Remaining. Random Generate, Refresh Articles, Copy Text, Open in X, preview card and focused hashtags remain as in 1.0.11."
+    },
     {
       "id": "nextpost-1.0.12-protected-queue-your-take",
       "name": "Next Post 1.0.12 \u2014 Protected Queue + Your Take",
