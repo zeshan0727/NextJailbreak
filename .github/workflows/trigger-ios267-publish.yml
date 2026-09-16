@@ -1,0 +1,15 @@
+name: Trigger iOS 26.7 publication
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/trigger-ios267-publish.yml"]
+permissions:
+  actions: write
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish-ios267-kernel-security-news.yml --repo ${{ github.repository }} --ref main
