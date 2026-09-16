@@ -16,3 +16,5 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+
+using FontWeight = winrt::Windows::UI::Text::FontWeight;
