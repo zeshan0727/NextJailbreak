@@ -36,7 +36,9 @@ jobs:
           $xml = $xml -replace '<ApplicationType>Windows Store</ApplicationType>\s*', ''
           $xml = $xml -replace '<ApplicationTypeRevision>10\.0</ApplicationTypeRevision>\s*', ''
           if ($xml -notmatch '<UseWinUI>true</UseWinUI>') {
-            $xml = $xml -replace '<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>', '<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>`r`n    <UseWinUI>true</UseWinUI>'
+            $needle = '<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>'
+            $replacement = $needle + [Environment]::NewLine + '    <UseWinUI>true</UseWinUI>'
+            $xml = $xml.Replace($needle, $replacement)
           }
           Set-Content -Path $proj.FullName -Value $xml -Encoding UTF8
           "SAS_SOLUTION=$($sln.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
