@@ -1,12 +1,12 @@
 name: Publish Next Post to Transfer
 
-# 1.0.9 X preview fix publication trigger
+# 1.0.11 original X commentary + article refresh
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'applications/NextPost-1.0.9-X-Preview-Fix.tipa'
+      - 'applications/NextPost-1.0.11-Original-Content-Refresh.tipa'
       - '.github/workflows/publish-nextpost-transfer.yml'
 
 permissions:
@@ -29,9 +29,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SRC='applications/NextPost-1.0.9-X-Preview-Fix.tipa'
-          DEST_DIR='transfer/files/NextPost/1.0.9'
-          DEST="$DEST_DIR/NextPost-1.0.9-X-Preview-Fix.tipa"
+          SRC='applications/NextPost-1.0.11-Original-Content-Refresh.tipa'
+          DEST_DIR='transfer/files/NextPost/1.0.11'
+          DEST="$DEST_DIR/NextPost-1.0.11-Original-Content-Refresh.tipa"
           INDEX='transfer/index.json'
 
           test -s "$SRC"
@@ -40,7 +40,8 @@ jobs:
           cp "$SRC" "$DEST"
 
           SHA256=$(sha256sum "$DEST" | awk '{print $1}')
-          export SHA256
+          SIZE=$(stat -c%s "$DEST")
+          export SHA256 SIZE
 
           python3 - <<'PY'
           import json, os
@@ -50,18 +51,19 @@ jobs:
           index_path = Path('transfer/index.json')
           data = json.loads(index_path.read_text())
           files = data.get('files', [])
-          entry_id = 'nextpost-1.0.9-x-preview-fix'
+          entry_id = 'nextpost-1.0.11-original-content-refresh'
           files = [item for item in files if item.get('id') != entry_id]
           entry = {
               'id': entry_id,
-              'name': 'Next Post 1.0.9 X Preview Fix',
-              'fileName': 'NextPost-1.0.9-X-Preview-Fix.tipa',
+              'name': 'Next Post 1.0.11 — Original Content + Refresh',
+              'fileName': 'NextPost-1.0.11-Original-Content-Refresh.tipa',
               'type': 'tipa',
               'platform': 'TrollStore / iOS 16+',
-              'version': '1.0.9',
-              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.9/NextPost-1.0.9-X-Preview-Fix.tipa',
+              'version': '1.0.11 (11)',
+              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.11/NextPost-1.0.11-Original-Content-Refresh.tipa',
               'sha256': os.environ['SHA256'],
-              'notes': 'Fixes missing X post link previews. Next Post now shares the exact published article URL (.html when that is the live route) instead of forcing a clean route that may not exist yet, and passes the article URL separately to the X web intent so it is recognized as the card target. Keeps LevelPlay + Unity Ads mediation support from 1.0.8.'
+              'sizeBytes': int(os.environ['SIZE']),
+              'notes': 'Updates Next Post for X original-content posting. Generated posts now use X-specific Next Jailbreak editorial framing instead of reusing the article meta description, while keeping the Next Jailbreak article URL and X preview card. Adds Refresh Articles with cache bypass and new-article detection; newly published site articles are added to Remaining without resetting used-history or the current cycle. Manual Open in X flow remains unchanged.'
           }
           data['files'] = [entry] + files
           data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
@@ -69,7 +71,7 @@ jobs:
           PY
 
           python3 -m json.tool "$INDEX" >/dev/null
-          grep -q 'nextpost-1.0.9-x-preview-fix' "$INDEX"
+          grep -q 'nextpost-1.0.11-original-content-refresh' "$INDEX"
           grep -q "$SHA256" "$INDEX"
           test "$(sha256sum "$DEST" | awk '{print $1}')" = "$SHA256"
 
@@ -79,7 +81,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add transfer/files/NextPost/1.0.9/NextPost-1.0.9-X-Preview-Fix.tipa transfer/index.json
-          git commit -m 'Publish Next Post 1.0.9 X preview fix to Transfer' || true
+          git add transfer/files/NextPost/1.0.11/NextPost-1.0.11-Original-Content-Refresh.tipa transfer/index.json
+          git commit -m 'Publish Next Post 1.0.11 to Transfer' || true
           git pull --rebase origin main
           git push origin HEAD:main
