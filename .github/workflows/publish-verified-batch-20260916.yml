@@ -1,19 +1,17 @@
-name: Publish verified 2026-09-16 article batch
+name: Publish verified original-source article
 
 on:
   push:
     branches: [main]
     paths:
-      - 'automation/publish_verified_batch_20260916.py'
-      - 'automation/publish_verified_batch_20260916_v2.py'
-      - 'automation/publish_verified_batch_20260916_v3.py'
+      - 'automation/publish_cyanide_160_20260917.py'
       - '.github/workflows/publish-verified-batch-20260916.yml'
 
 permissions:
   contents: write
 
 concurrency:
-  group: nextjailbreak-verified-batch-20260916
+  group: nextjailbreak-verified-original-source
   cancel-in-progress: false
 
 jobs:
@@ -21,71 +19,55 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
-      - name: Check out production branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 1
-
-      - name: Validate batch publisher
+      - name: Validate publisher
         run: |
-          python3 -m py_compile automation/publish_verified_batch_20260916.py automation/publish_verified_batch_20260916_v2.py automation/publish_verified_batch_20260916_v3.py automation/ios_repo_news.py automation/source_visuals.py
+          python3 -m py_compile automation/publish_cyanide_160_20260917.py automation/publish_verified_batch_20260916.py automation/ios_repo_news.py automation/source_visuals.py
           python3 -m unittest automation.tests.test_source_visuals -v
-
-      - name: Check publishing secret
-        run: |
-          test -n "${OPENAI_API_KEY:-}" || { echo 'OPENAI_API_KEY is not configured'; exit 1; }
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-      - name: Generate and verify all eight articles
+      - name: Generate verified Cyanide 1.6.0 article
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: gpt-5.6-luna
         run: |
+          test -n "${OPENAI_API_KEY:-}"
           set -o pipefail
-          python3 -m automation.publish_verified_batch_20260916_v3 | tee batch-20260916.log
-
+          python3 -m automation.publish_cyanide_160_20260917 | tee cyanide-160.log
       - name: Synchronize public editorial indexes
-        run: |
-          python3 automation/sync_editorial_indexes.py
-
-      - name: Validate generated pages
+        run: python3 automation/sync_editorial_indexes.py
+      - name: Validate generated page
         run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
-          result = json.loads(Path('automation/batch-20260916-result.json').read_text())
-          assert len(result['results']) == 8, result
-          for item in result['results']:
-              assert item['status'] in {'published', 'duplicate'}, item
-              page = Path(item['href']) / 'index.html'
-              assert page.exists(), page
-              text = page.read_text(encoding='utf-8')
-              assert '<link rel="canonical"' in text
-              assert 'application/ld+json' in text
-              assert 'og:image' in text
-              assert 'Open original source' in text
-          print('Validated', len(result['results']), 'article pages')
+          result=json.loads(Path('automation/batch-20260916-result.json').read_text())
+          assert len(result['results']) == 1, result
+          item=result['results'][0]
+          assert item['name']=='Cyanide' and item['version']=='1.6.0', item
+          assert item['status'] in {'published','duplicate'}, item
+          page=Path(item['href'])/'index.html'
+          assert page.exists(), page
+          text=page.read_text(encoding='utf-8')
+          for needle in ['<link rel="canonical"','application/ld+json','og:image','Open original source']:
+              assert needle in text, needle
+          print(item)
           PY
-
-      - name: Commit approved batch
+      - name: Commit approved article
         run: |
           git config user.name "nextsolution-publisher[bot]"
           git config user.email "nextsolution-publisher[bot]@users.noreply.github.com"
           git add -A
-          if git diff --cached --quiet; then
-            echo 'No publication changes to commit.'
-            exit 0
-          fi
-          git commit -m "Publish eight verified iOS and jailbreak articles"
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Publish Cyanide 1.6.0 original-source article"
+          git pull --rebase origin main
           git push origin HEAD:main
-
-      - name: Upload batch log
+      - name: Upload log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: verified-batch-20260916-${{ github.run_number }}
-          path: batch-20260916.log
+          name: cyanide-160-${{ github.run_number }}
+          path: cyanide-160.log
           if-no-files-found: ignore
           retention-days: 14
