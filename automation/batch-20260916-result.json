@@ -1,13 +1,11 @@
 {
-  "updated_at": "2026-09-17T14:04:23+00:00",
+  "updated_at": "2026-09-17T14:04:48+00:00",
   "results": [
     {
       "name": "Cyanide",
       "version": "1.6.0",
-      "status": "published",
-      "href": "cyanide-1-6-0-update/",
-      "image": "assets/articles/source-media/cyanide-1-6-0-update-750f436685.png",
-      "media_source_url": "https://github.com/kolbicz/Cyanide/commit/ca4958f9f5398770398302f00a3234f7181b5931"
+      "status": "duplicate",
+      "href": "cyanide-1-6-0-update/"
     }
   ]
 }
