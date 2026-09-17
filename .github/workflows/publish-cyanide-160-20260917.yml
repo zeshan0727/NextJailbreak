@@ -1,5 +1,5 @@
 name: Publish verified Cyanide 1.6.0 article
-
+# Trigger verified publication after workflow registration.
 on:
   push:
     branches: [main]
