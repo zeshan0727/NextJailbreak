@@ -106,6 +106,13 @@
       "target_path": "killx-pro-neo-3-0-update/",
       "version": "3.0"
     },
+    "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
+      "checked_at": "2026-09-18T20:35:19+00:00",
+      "package": "com.cercube.ios",
+      "status": "published",
+      "target_path": "cercube-for-youtube-6-1-3-update/",
+      "version": "6.1.3"
+    },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.chloe.physpringboard/": {
       "checked_at": "2026-09-12T09:42:11.996855+00:00",
       "package": "com.chloe.physpringboard",
@@ -1579,6 +1586,47 @@
       "at": "2026-09-17T21:03:52.688694+00:00",
       "failures": [],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_070fd83085ea1a2c016aada0a24e9887d0baa2f5b1b60ad42f",
+          "usage": {
+            "input_tokens": 10364,
+            "input_tokens_details": {
+              "cache_write_tokens": 10361,
+              "cached_tokens": 0
+            },
+            "output_tokens": 364,
+            "output_tokens_details": {
+              "reasoning_tokens": 237
+            },
+            "total_tokens": 10728
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_099fc0cc30e43173016aada08c6f0887d09028119b7c116417",
+          "usage": {
+            "input_tokens": 8172,
+            "input_tokens_details": {
+              "cache_write_tokens": 8169,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2467,
+            "output_tokens_details": {
+              "reasoning_tokens": 84
+            },
+            "total_tokens": 10639
+          }
+        }
+      },
+      "at": "2026-09-18T20:35:19+00:00",
+      "package": "com.cercube.ios",
+      "target_path": "cercube-for-youtube-6-1-3-update/",
+      "version": "6.1.3"
     }
   ],
   "schema_version": 1

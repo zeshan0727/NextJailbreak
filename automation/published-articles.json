@@ -5,6 +5,31 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "Cercube for YouTube 6.1.3 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "cercube-for-youtube-6-1-3-update/",
+      "image": "assets/articles/source-media/cercube-for-youtube-6-1-3-update-886bac0f8d.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/depiction/cercube",
+      "modified_at": "2026-09-18T20:35:19+00:00",
+      "name": "Cercube for YouTube",
+      "package": "com.cercube.ios",
+      "published_at": "2026-09-18T20:35:19+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/Packages",
+      "source_url": "https://havoc.app/Packages",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://media.havoc.app/6aa7fe56c5f858aab80558be?w=3840&q=75",
+      "title": "Cercube for YouTube 6.1.3 adds dislike counts, sponsor skipping, and iOS 15–16 support",
+      "version": "6.1.3"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Cyanide 1.6.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "cyanide-1-6-0-update/",
@@ -3022,8 +3047,17 @@
       "package": "cyanide",
       "published_at": "2026-09-17T14:03:10+00:00",
       "version": "1.6.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "cercube-for-youtube-6-1-3-update/",
+      "package": "com.cercube.ios",
+      "published_at": "2026-09-18T20:35:19+00:00",
+      "run_id": "35392214592",
+      "version": "6.1.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-17T14:04:48+00:00"
+  "updated_at": "2026-09-18T20:35:19+00:00"
 }
