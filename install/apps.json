@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-uyou",
+      "name": "Youtube Downloader",
+      "version": "20.10.4",
+      "build": "20.10.4",
+      "platform": "iPhone",
+      "minimumOS": "iOS 15.0+",
+      "bundleId": "com.nextsolution.Uyou",
+      "icon": "/install/icons/com-nextsolution-uyou-4c87d7a9d803.png",
+      "manifest": "/install/com-nextsolution-uyou.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-uyou/20.10.4/com-nextsolution-uyou-20.10.4-20.10.4.ipa",
+      "sha256": "4c87d7a9d80303514a1e1fc1b665b6fe601040edbb3eb37be7cb87631ac809f3",
+      "sizeBytes": 126493633,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-signer",
       "name": "NJ Signer",
       "version": "1.4.2",
@@ -148,5 +169,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-09-13"
+  "updated": "2026-09-19"
 }
