@@ -1,11 +1,13 @@
 {
-  "updated_at": "2026-09-17T14:04:48+00:00",
+  "updated_at": "2026-09-19T08:01:11+00:00",
   "results": [
     {
-      "name": "Cyanide",
-      "version": "1.6.0",
-      "status": "duplicate",
-      "href": "cyanide-1-6-0-update/"
+      "name": "SCMusicPlus",
+      "version": "24.9.1",
+      "status": "published",
+      "href": "scmusicplus-24-9-1-update/",
+      "image": "assets/articles/source-media/scmusicplus-24-9-1-update-8849649eaa.png",
+      "media_source_url": "https://github.com/Rov3r/scmusicplus"
     }
   ]
 }
