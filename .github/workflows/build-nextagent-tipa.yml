@@ -8,6 +8,8 @@ on:
       - "projects/NextAgent/source.b64.part-*"
       - "projects/NextAgent/v0.2-managed-agent.patch.part-*"
       - "projects/NextAgent/v0.2.1-credential-persistence.patch"
+      - "projects/NextAgent/v0.3-root-daemon.patch"
+      - "projects/NextAgent/daemon/**"
       - ".github/workflows/build-nextagent-tipa.yml"
 
 permissions:
@@ -19,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore v0.1 source baseline
+      - name: Restore source baseline
         run: |
           set -euo pipefail
           rm -rf /tmp/nextagent-src /tmp/nextagent.zip
@@ -28,11 +30,13 @@ jobs:
           unzip -q /tmp/nextagent.zip -d /tmp/nextagent-src
           test -f /tmp/nextagent-src/NextAgent_v0.1.0/project.yml
 
-      - name: Apply baseline compiler fix
+      - name: Apply prior updates
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
+          set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          p = Path("/tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NextAgent.swift")
+          p = Path("NextAgent/NextAgent.swift")
           s = p.read_text()
           old = """        var uts = utsname(); uname(&uts)
                   let machine = withUnsafePointer(to: &uts.machine) { p in
@@ -48,37 +52,24 @@ jobs:
           if old in s:
               p.write_text(s.replace(old, new, 1))
           PY
-
-      - name: Apply v0.2 managed Astra agent update
-        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
-        run: |
-          set -euo pipefail
           cat "$GITHUB_WORKSPACE"/projects/NextAgent/v0.2-managed-agent.patch.part-* > /tmp/nextagent-v02.patch
           patch -p0 < /tmp/nextagent-v02.patch
           python3 - <<'PY'
           from pathlib import Path
-          p = Path("project.yml")
-          s = p.read_text()
-          s = s.replace("MARKETING_VERSION: 0.1.0", "MARKETING_VERSION: 0.2.0")
-          s = s.replace("CURRENT_PROJECT_VERSION: 1", "CURRENT_PROJECT_VERSION: 2")
+          p=Path("project.yml")
+          s=p.read_text().replace("MARKETING_VERSION: 0.1.0","MARKETING_VERSION: 0.2.0").replace("CURRENT_PROJECT_VERSION: 1","CURRENT_PROJECT_VERSION: 2")
           p.write_text(s)
           PY
-          grep -q 'agent_a8bca3810e67406a8076559d2ba2e10f1379810a596e4d3082' NextAgent/NextAgent.swift
-          grep -q 'gpt-6-astra' NextAgent/NextAgent.swift
-          grep -q 'MARKETING_VERSION: 0.2.0' project.yml
-
-      - name: Apply v0.2.1 API key persistence fix
-        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
-        run: |
-          set -euo pipefail
           patch -p0 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.2.1-credential-persistence.patch"
-          grep -q 'CredentialStore.loadAPIKey' NextAgent/NextAgent.swift
-          grep -q 'MARKETING_VERSION: 0.2.1' project.yml
+          patch -p0 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.3-root-daemon.patch"
+          grep -q 'MARKETING_VERSION: 0.3.0' project.yml
+          grep -q 'RootDaemonClient' NextAgent/NextAgent.swift
+          grep -q 'gpt-6-astra' NextAgent/NextAgent.swift
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
+      - name: Install build tools
+        run: brew install xcodegen dpkg
 
-      - name: Generate project
+      - name: Generate app project
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: xcodegen generate
 
@@ -86,18 +77,18 @@ jobs:
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -o pipefail
-          xcodebuild \
-            -project NextAgent.xcodeproj \
-            -scheme NextAgent \
-            -configuration Release \
-            -sdk iphoneos \
-            -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            clean build 2>&1 | tee /tmp/nextagent-xcodebuild.log
+          xcodebuild             -project NextAgent.xcodeproj             -scheme NextAgent             -configuration Release             -sdk iphoneos             -derivedDataPath build             CODE_SIGNING_ALLOWED=NO             CODE_SIGNING_REQUIRED=NO             CODE_SIGN_IDENTITY=""             clean build 2>&1 | tee /tmp/nextagent-xcodebuild-v030.log
 
-      - name: Package TrollStore TIPA and source
+      - name: Build root daemon arm64
+        run: |
+          set -euo pipefail
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          xcrun --sdk iphoneos clang             -arch arm64             -isysroot "$SDK"             -miphoneos-version-min=16.0             -Os -Wall -Wextra             "$GITHUB_WORKSPACE/projects/NextAgent/daemon/nextagentd.c"             -o /tmp/nextagentd
+          /usr/bin/codesign --force --sign -             --entitlements "$GITHUB_WORKSPACE/projects/NextAgent/daemon/nextagentd.entitlements"             /tmp/nextagentd
+          file /tmp/nextagentd
+          /usr/bin/codesign -d --entitlements :- /tmp/nextagentd > /tmp/nextagentd-entitlements.plist 2>&1 || true
+
+      - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -euo pipefail
@@ -108,33 +99,135 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.1.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.1.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.1.sha256"
-          cp /tmp/nextagent-xcodebuild.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.2.1.log"
-          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/embedded-entitlements-v0.2.1.plist" 2>&1 || true
-          rm -rf build package NextAgent.xcodeproj
-          cd ..
-          mv NextAgent_v0.1.0 NextAgent_v0.2.1
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.2.1-source.zip" NextAgent_v0.2.1
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.1.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.0.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.0.sha256"
+          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.3.0.log"
+          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.3.0.plist" 2>&1 || true
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.0.tipa"
 
-      - name: Upload test build
+      - name: Package rootless daemon DEB
+        run: |
+          set -euo pipefail
+          P=/tmp/pkg-rootless
+          rm -rf "$P"
+          mkdir -p "$P/DEBIAN" "$P/var/jb/usr/local/libexec" "$P/var/jb/Library/LaunchDaemons"
+          cp /tmp/nextagentd "$P/var/jb/usr/local/libexec/nextagentd"
+          cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.rootless.plist "$P/var/jb/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
+          chmod 0755 "$P/var/jb/usr/local/libexec/nextagentd"
+          cat > "$P/DEBIAN/control" <<'EOF'
+          Package: uk.zeshanbarvi.nextagentd
+          Name: Next Agent Root Helper
+          Version: 0.3.0
+          Architecture: iphoneos-arm64
+          Section: Utilities
+          Priority: optional
+          Maintainer: Next Jailbreak
+          Author: Next Jailbreak
+          Description: Privileged root helper for Next Agent 0.3.0 (rootless /var/jb jailbreaks).
+          EOF
+          cat > "$P/DEBIAN/postinst" <<'EOF'
+          #!/bin/sh
+          set -e
+          BIN=/var/jb/usr/local/libexec/nextagentd
+          PLIST=/var/jb/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist
+          chmod 755 "$BIN" || true
+          chown root:wheel "$BIN" "$PLIST" 2>/dev/null || true
+          mkdir -p /var/mobile/Library/NextAgent
+          chown mobile:mobile /var/mobile/Library/NextAgent 2>/dev/null || true
+          chmod 700 /var/mobile/Library/NextAgent 2>/dev/null || true
+          if command -v ldid >/dev/null 2>&1; then ldid -S "$BIN" >/dev/null 2>&1 || true; fi
+          launchctl bootout system/uk.zeshanbarvi.nextagentd >/dev/null 2>&1 || true
+          launchctl bootstrap system "$PLIST" >/dev/null 2>&1 || launchctl load "$PLIST" >/dev/null 2>&1 || true
+          exit 0
+          EOF
+          cat > "$P/DEBIAN/prerm" <<'EOF'
+          #!/bin/sh
+          launchctl bootout system/uk.zeshanbarvi.nextagentd >/dev/null 2>&1 || true
+          launchctl unload /var/jb/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist >/dev/null 2>&1 || true
+          exit 0
+          EOF
+          chmod 0755 "$P/DEBIAN/postinst" "$P/DEBIAN/prerm"
+          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb"
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256"
+
+      - name: Package rootful daemon DEB
+        run: |
+          set -euo pipefail
+          P=/tmp/pkg-rootful
+          rm -rf "$P"
+          mkdir -p "$P/DEBIAN" "$P/usr/local/libexec" "$P/Library/LaunchDaemons"
+          cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
+          cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.rootful.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
+          chmod 0755 "$P/usr/local/libexec/nextagentd"
+          cat > "$P/DEBIAN/control" <<'EOF'
+          Package: uk.zeshanbarvi.nextagentd.rootful
+          Name: Next Agent Root Helper (Rootful)
+          Version: 0.3.0
+          Architecture: iphoneos-arm
+          Section: Utilities
+          Priority: optional
+          Maintainer: Next Jailbreak
+          Author: Next Jailbreak
+          Description: Privileged root helper for Next Agent 0.3.0 (legacy/rootful jailbreaks).
+          EOF
+          cat > "$P/DEBIAN/postinst" <<'EOF'
+          #!/bin/sh
+          set -e
+          BIN=/usr/local/libexec/nextagentd
+          PLIST=/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist
+          chmod 755 "$BIN" || true
+          chown root:wheel "$BIN" "$PLIST" 2>/dev/null || true
+          mkdir -p /var/mobile/Library/NextAgent
+          chown mobile:mobile /var/mobile/Library/NextAgent 2>/dev/null || true
+          chmod 700 /var/mobile/Library/NextAgent 2>/dev/null || true
+          if command -v ldid >/dev/null 2>&1; then ldid -S "$BIN" >/dev/null 2>&1 || true; fi
+          launchctl bootout system/uk.zeshanbarvi.nextagentd >/dev/null 2>&1 || true
+          launchctl bootstrap system "$PLIST" >/dev/null 2>&1 || launchctl load "$PLIST" >/dev/null 2>&1 || true
+          exit 0
+          EOF
+          cat > "$P/DEBIAN/prerm" <<'EOF'
+          #!/bin/sh
+          launchctl bootout system/uk.zeshanbarvi.nextagentd >/dev/null 2>&1 || true
+          launchctl unload /Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist >/dev/null 2>&1 || true
+          exit 0
+          EOF
+          chmod 0755 "$P/DEBIAN/postinst" "$P/DEBIAN/prerm"
+          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb"
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256"
+
+      - name: Package v0.3 source
+        working-directory: /tmp/nextagent-src
+        run: |
+          set -euo pipefail
+          rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
+          mv NextAgent_v0.1.0 NextAgent_v0.3.0
+          mkdir -p NextAgent_v0.3.0/RootHelperSource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.3.0/RootHelperSource/
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.3.0-source.zip" NextAgent_v0.3.0
+          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.3.0.plist"
+
+      - name: Upload v0.3 test build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.2.1-Astra-Key-Persistence
+          name: NextAgent-0.3.0-Astra-Root-Daemon
           path: |
-            projects/NextAgent/build-output/NextAgent-0.2.1.tipa
-            projects/NextAgent/build-output/NextAgent-0.2.1.sha256
-            projects/NextAgent/build-output/NextAgent-v0.2.1-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.2.1.log
-            projects/NextAgent/build-output/embedded-entitlements-v0.2.1.plist
+            projects/NextAgent/build-output/NextAgent-0.3.0.tipa
+            projects/NextAgent/build-output/NextAgent-0.3.0.sha256
+            projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb
+            projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256
+            projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb
+            projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256
+            projects/NextAgent/build-output/NextAgent-v0.3.0-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.3.0.log
+            projects/NextAgent/build-output/app-entitlements-v0.3.0.plist
+            projects/NextAgent/build-output/daemon-entitlements-v0.3.0.plist
 
-      - name: Publish test build
+      - name: Publish v0.3 test build
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.2.1 API key persistence fix [skip ci]"
+          git commit -m "Build Next Agent 0.3.0 root daemon [skip ci]"
           git push
