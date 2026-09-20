@@ -1357,13 +1357,13 @@ jobs:
           set -euo pipefail
           P=/tmp/pkg-roothide
           rm -rf "$P"
-          mkdir -p "$P/DEBIAN" "$P/usr/local/libexec" "$P/Library/LaunchDaemons" "$P/Library/MobileSubstrate/DynamicLibraries"
+          mkdir -p "$P/DEBIAN" "$P/usr/local/libexec" "$P/Library/LaunchDaemons" "$P/usr/lib/TweakInject"
           cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
           cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.roothide.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
-          cp /tmp/NextAgentOverlay.dylib "$P/Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.dylib"
-          cp projects/NextAgent/v0.7.3/Overlay/NextAgentOverlay.plist "$P/Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.plist"
-          chmod 0755 "$P/Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.dylib"
-          chmod 0644 "$P/Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.plist"
+          cp /tmp/NextAgentOverlay.dylib "$P/usr/lib/TweakInject/NextAgentOverlay.dylib"
+          cp projects/NextAgent/v0.7.3/Overlay/NextAgentOverlay.plist "$P/usr/lib/TweakInject/NextAgentOverlay.plist"
+          chmod 0755 "$P/usr/lib/TweakInject/NextAgentOverlay.dylib"
+          chmod 0644 "$P/usr/lib/TweakInject/NextAgentOverlay.plist"
           mkdir -p "$P/usr/local/share/nextagent"
           cp /tmp/nextagentd-v073.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
           chmod 0755 "$P/usr/local/libexec/nextagentd"
@@ -1386,7 +1386,7 @@ jobs:
           ENT=/usr/local/share/nextagent/nextagentd.entitlements
           REALDIR=/rootfs/var/mobile/Library/NextAgent
           chmod 755 "$BIN" || true
-          chown root:wheel "$BIN" "$PLIST" "$ENT" /Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.dylib /Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.plist 2>/dev/null || true
+          chown root:wheel "$BIN" "$PLIST" "$ENT" /usr/lib/TweakInject/NextAgentOverlay.dylib /usr/lib/TweakInject/NextAgentOverlay.plist 2>/dev/null || true
           mkdir -p "$REALDIR" 2>/dev/null || true
           chown mobile:mobile "$REALDIR" 2>/dev/null || true
           chmod 700 "$REALDIR" 2>/dev/null || true
