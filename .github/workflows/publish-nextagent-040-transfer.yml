@@ -1,0 +1,133 @@
+name: Publish Next Agent 0.4.0 to NS Transfer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-nextagent-040-transfer.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download verified Next Agent v0.4.0 artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_ID: "10604138584"
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/nextagent040
+          curl -fL             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip"             -o /tmp/nextagent040/artifact.zip
+          unzip -q /tmp/nextagent040/artifact.zip -d /tmp/nextagent040/unpacked
+          find /tmp/nextagent040/unpacked -maxdepth 3 -type f -print
+          TIPA="$(find /tmp/nextagent040/unpacked -type f -name 'NextAgent-0.4.0.tipa' -print -quit)"
+          DEB="$(find /tmp/nextagent040/unpacked -type f -name 'NextAgentDaemon-0.4.0-roothide.deb' -print -quit)"
+          test -n "$TIPA" && test -s "$TIPA"
+          test -n "$DEB" && test -s "$DEB"
+          echo "TIPA=$TIPA" >> "$GITHUB_ENV"
+          echo "DEB=$DEB" >> "$GITHUB_ENV"
+
+      - name: Publish binaries into Transfer storage
+        run: |
+          set -euo pipefail
+          DEST_DIR="transfer/files/NextAgent/0.4.0"
+          mkdir -p "$DEST_DIR"
+          cp "$TIPA" "$DEST_DIR/NextAgent-0.4.0.tipa"
+          cp "$DEB" "$DEST_DIR/NextAgentDaemon-0.4.0-RootHide.deb"
+          echo "TIPA_SHA=$(sha256sum "$DEST_DIR/NextAgent-0.4.0.tipa" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "DEB_SHA=$(sha256sum "$DEST_DIR/NextAgentDaemon-0.4.0-RootHide.deb" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "TIPA_SIZE=$(stat -c %s "$DEST_DIR/NextAgent-0.4.0.tipa")" >> "$GITHUB_ENV"
+          echo "DEB_SIZE=$(stat -c %s "$DEST_DIR/NextAgentDaemon-0.4.0-RootHide.deb")" >> "$GITHUB_ENV"
+
+      - name: Update NS Transfer index
+        env:
+          TIPA_SHA: ${{ env.TIPA_SHA }}
+          DEB_SHA: ${{ env.DEB_SHA }}
+          TIPA_SIZE: ${{ env.TIPA_SIZE }}
+          DEB_SIZE: ${{ env.DEB_SIZE }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          p = Path("transfer/index.json")
+          data = json.loads(p.read_text())
+
+          # Keep one current Next Agent app entry and one matching RootHide helper entry.
+          remove_ids = {
+              "next-agent-0.4.0-roothide",
+              "next-agent-daemon-0.4.0-roothide",
+          }
+          files = [
+              x for x in data.get("files", [])
+              if x.get("id") not in remove_ids
+              and not str(x.get("id", "")).startswith("next-agent-current")
+              and not str(x.get("id", "")).startswith("next-agent-daemon-current")
+          ]
+
+          tipa = {
+              "id": "next-agent-current-0.4.0-roothide",
+              "name": "Next Agent 0.4.0 — RootHide Background",
+              "fileName": "NextAgent-0.4.0.tipa",
+              "type": "tipa",
+              "platform": "TrollStore / RootHide / iOS 16+",
+              "version": "0.4.0 (6)",
+              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.4.0/NextAgent-0.4.0.tipa",
+              "sha256": os.environ["TIPA_SHA"],
+              "sizeBytes": int(os.environ["TIPA_SIZE"]),
+              "notes": "GPT-6 Astra managed iPhone agent. Adds active-turn background continuation, transient-network retry/resume, multi-app open sequencing, copy/paste response controls, compact phone formatting, and RootHide daemon integration."
+          }
+
+          deb = {
+              "id": "next-agent-daemon-current-0.4.0-roothide",
+              "name": "Next Agent Daemon 0.4.0 — RootHide",
+              "fileName": "NextAgentDaemon-0.4.0-RootHide.deb",
+              "type": "deb",
+              "platform": "RootHide / iphoneos-arm64e",
+              "version": "0.4.0",
+              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.4.0/NextAgentDaemon-0.4.0-RootHide.deb",
+              "sha256": os.environ["DEB_SHA"],
+              "sizeBytes": int(os.environ["DEB_SIZE"]),
+              "notes": "RootHide privileged helper for Next Agent 0.4.0. Native root process enumeration via sysctl and storage diagnostics via statfs; authenticated localhost IPC retained."
+          }
+
+          data["files"] = [tipa, deb] + files
+          data["updatedAt"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+          p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+          grep -Fq 'next-agent-current-0.4.0-roothide' transfer/index.json
+          grep -Fq 'next-agent-daemon-current-0.4.0-roothide' transfer/index.json
+
+      - name: Verify exact published binaries
+        run: |
+          set -euo pipefail
+          test "$(sha256sum transfer/files/NextAgent/0.4.0/NextAgent-0.4.0.tipa | awk '{print $1}')" = "$TIPA_SHA"
+          test "$(sha256sum transfer/files/NextAgent/0.4.0/NextAgentDaemon-0.4.0-RootHide.deb | awk '{print $1}')" = "$DEB_SHA"
+
+      - name: Commit NS Transfer publication
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add transfer/files/NextAgent/0.4.0 transfer/index.json
+          git diff --cached --stat
+          if git diff --cached --quiet; then
+            echo "NS Transfer is already current."
+            exit 0
+          fi
+          git commit -m "Publish Next Agent 0.4.0 to NS Transfer"
+          git pull --rebase origin main
+          git push origin HEAD:main
