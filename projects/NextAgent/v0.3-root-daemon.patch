@@ -150,7 +150,7 @@
 +        let token = rawToken.trimmingCharacters(in: .whitespacesAndNewlines)
 +        guard token.count == 64 else { return ToolResult(success: false, output: "Root helper token is invalid") }
 +
-+        let fd = Darwin.socket(AF_INET, Int32(SOCK_STREAM.rawValue), 0)
++        let fd = Darwin.socket(AF_INET, SOCK_STREAM, 0)
 +        guard fd >= 0 else { return ToolResult(success: false, output: "socket failed: \(String(cString: strerror(errno)))") }
 +        defer { Darwin.close(fd) }
 +
