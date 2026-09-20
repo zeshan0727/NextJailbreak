@@ -688,7 +688,7 @@ jobs:
 
                   let result = await tools.localSelfTest(allowSensitive: sensitiveActions)
                   recordTool("local_self_test", result)
-                  messages.append(ChatMessage(role: "assistant", text: "Local tool self-test (bypasses Astra):\n\n\\(result.output)"))
+                  messages.append(ChatMessage(role: "assistant", text: "Local tool self-test (bypasses Astra):\\\\n\\\\n\\(result.output)"))
                   status = result.success ? "Local self-test complete" : "Local self-test found failures"
               }
 
