@@ -1,0 +1,140 @@
+--- NextAgent/NextAgent.swift
++++ NextAgent/NextAgent.swift
+@@ -118,9 +118,14 @@
+             messages.append(ChatMessage(role: "assistant", text: reply))
+             status = "Ready"
+         } catch {
+-            messages.append(ChatMessage(role: "assistant", text: "Error: \(error.localizedDescription)"))
+-            status = "Failed"
++            if backgroundContinuation && client.hasPendingTurn {
++                status = "Turn paused — will resume automatically"
++                backgroundState = "Pending"
++            } else {
++                messages.append(ChatMessage(role: "assistant", text: "Error: \(error.localizedDescription)"))
++                status = "Failed"
++            }
+         }
+     }
+ 
+@@ -129,6 +134,15 @@
++    func handleBecameActive() async {
++        guard backgroundContinuation else { return }
++        for _ in 0..<20 {
++            if !client.hasPendingTurn { backgroundState = "Idle"; return }
++            if !busy { await resumePendingTurnIfNeeded(); return }
++            try? await Task.sleep(nanoseconds: 500_000_000)
++        }
++    }
++
+     func resumePendingTurnIfNeeded() async {
+         guard backgroundContinuation, !busy, client.hasPendingTurn, !sessionId.isEmpty else { return }
+         busy = true
+@@ -188,6 +202,14 @@
+     let tools: DeviceToolRegistry
+     private let base = URL(string: "https://api.openai.com/v1/agents/")!
+     private let savedAgentId = "agent_a8bca3810e67406a8076559d2ba2e10f1379810a596e4d3082"
++    private lazy var urlSession: URLSession = {
++        let config = URLSessionConfiguration.default
++        config.waitsForConnectivity = true
++        config.timeoutIntervalForRequest = 120
++        config.timeoutIntervalForResource = 300
++        return URLSession(configuration: config)
++    }()
+ 
+     init(state: AppState, tools: DeviceToolRegistry) {
+         self.state = state
+@@ -317,13 +339,27 @@
+         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+         req.setValue("agents=v1", forHTTPHeaderField: "OpenAI-Beta")
+         if let body { req.httpBody = try JSONSerialization.data(withJSONObject: body) }
+-        let (data, response) = try await URLSession.shared.data(for: req)
+-        guard let http = response as? HTTPURLResponse else { throw NSError(domain: "NextAgent", code: 0) }
+-        guard (200..<300).contains(http.statusCode) else {
+-            let text = String(data: data, encoding: .utf8) ?? "HTTP \(http.statusCode)"
+-            throw NSError(domain: "NextAgent", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: text])
++        var lastError: Error?
++        for attempt in 0..<4 {
++            do {
++                let (data, response) = try await urlSession.data(for: req)
++                guard let http = response as? HTTPURLResponse else { throw NSError(domain: "NextAgent", code: 0) }
++                guard (200..<300).contains(http.statusCode) else {
++                    let text = String(data: data, encoding: .utf8) ?? "HTTP \(http.statusCode)"
++                    throw NSError(domain: "NextAgent", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: text])
++                }
++                return data
++            } catch let e as URLError where [.networkConnectionLost, .timedOut, .notConnectedToInternet, .cannotConnectToHost, .cannotFindHost, .dnsLookupFailed].contains(e.code) {
++                lastError = e
++                if attempt < 3 {
++                    try? await Task.sleep(nanoseconds: UInt64(500_000_000 * (attempt + 1)))
++                    continue
++                }
++            } catch {
++                throw error
++            }
+         }
+-        return data
++        throw lastError ?? URLError(.networkConnectionLost)
+     }
+ 
+@@ -359,6 +395,7 @@
+     Potentially disruptive tools may be disabled by the user. If a tool reports that sensitive actions are disabled, explain that the user can enable them in Settings and do not try to bypass the control.
+     Prefer read-only inspection before changing device state.
++    When the user asks to open two or more apps, always use open_apps_sequence once with the complete bundle-ID list instead of repeated open_app calls. This prevents foreground app switching from interrupting the managed-agent turn.
+     For user-visible answers in this iPhone app, use short headings and bullets. Avoid Markdown tables and fenced code blocks unless the user explicitly asks for them because the phone display is narrow.
+     """
+ 
+@@ -372,7 +409,8 @@
+         tool("list_installed_apps", "List installed iOS applications with display name and bundle identifier.", [:]),
+         tool("open_url", "Open an http/https or iOS URL scheme on the phone.", ["url": str("URL to open")], required: ["url"]),
+-        tool("open_app", "Open an installed app by bundle identifier using LaunchServices when available.", ["bundle_id": str("Bundle identifier")], required: ["bundle_id"]),
++        tool("open_app", "Open one installed app by bundle identifier using LaunchServices when available.", ["bundle_id": str("Bundle identifier")], required: ["bundle_id"]),
++        tool("open_apps_sequence", "Open multiple installed apps in one background-safe sequence. Always use this for requests involving two or more apps.", ["bundle_ids": ["type": "array", "items": ["type": "string"], "minItems": 2, "maxItems": 10, "description": "Bundle identifiers in opening order"], "delay_seconds": num("Delay between launches, 0.5 to 5 seconds")], required: ["bundle_ids"]),
+         tool("clipboard_get", "Read the current general pasteboard text.", [:]),
+         tool("clipboard_set", "Replace the general pasteboard text.", ["text": str("Text to put on the clipboard")], required: ["text"]),
+@@ -415,6 +453,7 @@
+         case "list_installed_apps": return listApps()
+         case "open_url": return openURL(arguments)
+         case "open_app": return openApp(arguments)
++        case "open_apps_sequence": return await openAppsSequence(arguments)
+         case "clipboard_get": return ToolResult(success: true, output: UIPasteboard.general.string ?? "")
+         case "clipboard_set":
+@@ -516,6 +555,23 @@
+         return ToolResult(success: true, output: "Launch request sent for \(bid)")
+     }
+ 
++    @MainActor
++    private func openAppsSequence(_ args: [String: Any]) async -> ToolResult {
++        guard let bundleIDs = args["bundle_ids"] as? [String], bundleIDs.count >= 2, bundleIDs.count <= 10 else { return badArgs() }
++        let delay = max(0.5, min(5.0, (args["delay_seconds"] as? NSNumber)?.doubleValue ?? 1.5))
++        var opened: [String] = []
++        var failures: [String] = []
++        for (index, bid) in bundleIDs.enumerated() {
++            let result = openApp(["bundle_id": bid])
++            if result.success { opened.append(bid) } else { failures.append("\(bid): \(result.output)") }
++            if index < bundleIDs.count - 1 {
++                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
++            }
++        }
++        let payload: [String: Any] = ["requested": bundleIDs, "opened": opened, "failures": failures, "delay_seconds": delay]
++        return jsonResult(payload, success: failures.isEmpty)
++    }
++
+     private func openURL(_ args: [String: Any]) -> ToolResult {
+         guard let s = args["url"] as? String, let url = URL(string: s) else { return badArgs() }
+@@ -1001,7 +1057,9 @@
+         .tint(.primary)
+         .onChange(of: scenePhase) { phase in
+             if phase == .active {
+-                Task { await state.resumePendingTurnIfNeeded() }
++                Task { await state.handleBecameActive() }
++            } else if phase == .background && state.busy {
++                state.backgroundState = "Background"
+             }
+         }
+     }
+@@ -1160,7 +1218,7 @@
+                     Toggle("Continue active turns in background", isOn: $state.backgroundContinuation)
+                         .onChange(of: state.backgroundContinuation) { v in UserDefaults.standard.set(v, forKey: "nextagent.backgroundContinuation") }
+-                    Text("Background continuation protects an active turn when you switch apps and automatically resumes a durable managed-agent session when Next Agent becomes active again. iOS can still suspend the UI process after its background execution window.")
++                    Text("Background continuation protects active turns during app switching, retries transient network interruptions, and automatically resumes the durable managed-agent session when Next Agent becomes active again. Multi-app requests use one local sequence so the first launch does not break the remaining actions.")
+                         .font(.caption).foregroundStyle(.secondary)
