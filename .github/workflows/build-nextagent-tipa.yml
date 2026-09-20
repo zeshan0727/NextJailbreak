@@ -171,7 +171,163 @@ jobs:
           PY
           grep -q 'MARKETING_VERSION: 0.3.1' project.yml
           patch -p0 --fuzz=3 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.4-background-ui.patch"
-          patch -p0 --fuzz=3 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.4-appswitch-resilience.patch"
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("NextAgent/NextAgent.swift")
+          s = p.read_text()
+
+          old = '''        } catch {
+                      messages.append(ChatMessage(role: "assistant", text: "Error: \\(error.localizedDescription)"))
+                      status = "Failed"
+                  }
+              }
+
+              func resumePendingTurnIfNeeded() async {
+          '''
+          new = '''        } catch {
+                      if backgroundContinuation && client.hasPendingTurn {
+                          status = "Turn paused — will resume automatically"
+                          backgroundState = "Pending"
+                      } else {
+                          messages.append(ChatMessage(role: "assistant", text: "Error: \\(error.localizedDescription)"))
+                          status = "Failed"
+                      }
+                  }
+              }
+
+              func handleBecameActive() async {
+                  guard backgroundContinuation else { return }
+                  for _ in 0..<20 {
+                      if !client.hasPendingTurn { backgroundState = "Idle"; return }
+                      if !busy { await resumePendingTurnIfNeeded(); return }
+                      try? await Task.sleep(nanoseconds: 500_000_000)
+                  }
+              }
+
+              func resumePendingTurnIfNeeded() async {
+          '''
+          if old not in s:
+              raise SystemExit("v0.4 send/resume marker not found")
+          s = s.replace(old, new, 1)
+
+          old = '''    private let base = URL(string: "https://api.openai.com/v1/agents/")!
+              private let savedAgentId = "agent_a8bca3810e67406a8076559d2ba2e10f1379810a596e4d3082"
+
+              init(state: AppState, tools: DeviceToolRegistry) {
+          '''
+          new = '''    private let base = URL(string: "https://api.openai.com/v1/agents/")!
+              private let savedAgentId = "agent_a8bca3810e67406a8076559d2ba2e10f1379810a596e4d3082"
+              private lazy var urlSession: URLSession = {
+                  let config = URLSessionConfiguration.default
+                  config.waitsForConnectivity = true
+                  config.timeoutIntervalForRequest = 120
+                  config.timeoutIntervalForResource = 300
+                  return URLSession(configuration: config)
+              }()
+
+              init(state: AppState, tools: DeviceToolRegistry) {
+          '''
+          if old not in s:
+              raise SystemExit("v0.4 client marker not found")
+          s = s.replace(old, new, 1)
+
+          old = '''        let (data, response) = try await URLSession.shared.data(for: req)
+              guard let http = response as? HTTPURLResponse else { throw NSError(domain: "NextAgent", code: 0) }
+              guard (200..<300).contains(http.statusCode) else {
+                  let text = String(data: data, encoding: .utf8) ?? "HTTP \\(http.statusCode)"
+                  throw NSError(domain: "NextAgent", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: text])
+              }
+              return data
+          '''
+          new = '''        var lastError: Error?
+              for attempt in 0..<4 {
+                  do {
+                      let (data, response) = try await urlSession.data(for: req)
+                      guard let http = response as? HTTPURLResponse else { throw NSError(domain: "NextAgent", code: 0) }
+                      guard (200..<300).contains(http.statusCode) else {
+                          let text = String(data: data, encoding: .utf8) ?? "HTTP \\(http.statusCode)"
+                          throw NSError(domain: "NextAgent", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: text])
+                      }
+                      return data
+                  } catch let e as URLError where [.networkConnectionLost, .timedOut, .notConnectedToInternet, .cannotConnectToHost, .cannotFindHost, .dnsLookupFailed].contains(e.code) {
+                      lastError = e
+                      if attempt < 3 {
+                          try? await Task.sleep(nanoseconds: UInt64(500_000_000 * (attempt + 1)))
+                          continue
+                      }
+                  } catch {
+                      throw error
+                  }
+              }
+              throw lastError ?? URLError(.networkConnectionLost)
+          '''
+          if old not in s:
+              raise SystemExit("v0.4 requestData marker not found")
+          s = s.replace(old, new, 1)
+
+          s = s.replace(
+              '    For user-visible answers in this iPhone app, use short headings and bullets. Avoid Markdown tables and fenced code blocks unless the user explicitly asks for them because the phone display is narrow.\n',
+              '    When the user asks to open two or more apps, always use open_apps_sequence once with the complete bundle-ID list instead of repeated open_app calls. This prevents foreground app switching from interrupting the managed-agent turn.\n    For user-visible answers in this iPhone app, use short headings and bullets. Avoid Markdown tables and fenced code blocks unless the user explicitly asks for them because the phone display is narrow.\n',
+              1
+          )
+
+          old = '        tool("open_app", "Open an installed app by bundle identifier using LaunchServices when available.", ["bundle_id": str("Bundle identifier")], required: ["bundle_id"]),\n'
+          new = '        tool("open_app", "Open one installed app by bundle identifier using LaunchServices when available.", ["bundle_id": str("Bundle identifier")], required: ["bundle_id"]),\n        tool("open_apps_sequence", "Open multiple installed apps in one background-safe sequence. Always use this for requests involving two or more apps.", ["bundle_ids": ["type": "array", "items": ["type": "string"], "minItems": 2, "maxItems": 10, "description": "Bundle identifiers in opening order"], "delay_seconds": num("Delay between launches, 0.5 to 5 seconds")], required: ["bundle_ids"]),\n'
+          if old not in s:
+              raise SystemExit("v0.4 open_app schema marker not found")
+          s = s.replace(old, new, 1)
+
+          old = '        case "open_app": return openApp(arguments)\n'
+          new = '        case "open_app": return openApp(arguments)\n        case "open_apps_sequence": return await openAppsSequence(arguments)\n'
+          s = s.replace(old, new, 1)
+
+          marker = '''    private func openURL(_ args: [String: Any]) -> ToolResult {
+          '''
+          insert = '''    @MainActor
+              private func openAppsSequence(_ args: [String: Any]) async -> ToolResult {
+                  guard let bundleIDs = args["bundle_ids"] as? [String], bundleIDs.count >= 2, bundleIDs.count <= 10 else { return badArgs() }
+                  let delay = max(0.5, min(5.0, (args["delay_seconds"] as? NSNumber)?.doubleValue ?? 1.5))
+                  var opened: [String] = []
+                  var failures: [String] = []
+                  for (index, bid) in bundleIDs.enumerated() {
+                      let result = openApp(["bundle_id": bid])
+                      if result.success { opened.append(bid) } else { failures.append("\\(bid): \\(result.output)") }
+                      if index < bundleIDs.count - 1 {
+                          try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                      }
+                  }
+                  let payload: [String: Any] = ["requested": bundleIDs, "opened": opened, "failures": failures, "delay_seconds": delay]
+                  return jsonResult(payload, success: failures.isEmpty)
+              }
+
+              private func openURL(_ args: [String: Any]) -> ToolResult {
+          '''
+          if marker not in s:
+              raise SystemExit("v0.4 openURL marker not found")
+          s = s.replace(marker, insert, 1)
+
+          old = '''            if phase == .active {
+                          Task { await state.resumePendingTurnIfNeeded() }
+                      }
+          '''
+          new = '''            if phase == .active {
+                          Task { await state.handleBecameActive() }
+                      } else if phase == .background && state.busy {
+                          state.backgroundState = "Background"
+                      }
+          '''
+          if old not in s:
+              raise SystemExit("v0.4 scene phase marker not found")
+          s = s.replace(old, new, 1)
+
+          s = s.replace(
+              '                    Text("Background continuation protects an active turn when you switch apps and automatically resumes a durable managed-agent session when Next Agent becomes active again. iOS can still suspend the UI process after its background execution window.")',
+              '                    Text("Background continuation protects active turns during app switching, retries transient network interruptions, and automatically resumes the durable managed-agent session when Next Agent becomes active again. Multi-app requests use one local sequence so the first launch does not break the remaining actions.")',
+              1
+          )
+
+          p.write_text(s)
+          PY
           grep -q 'MARKETING_VERSION: 0.4.0' project.yml
           grep -q 'open_apps_sequence' NextAgent/NextAgent.swift
           grep -q 'RootDaemonClient' NextAgent/NextAgent.swift
