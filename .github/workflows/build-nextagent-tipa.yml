@@ -162,13 +162,13 @@ jobs:
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.3.0
+          Version: 0.3.1
           Architecture: iphoneos-arm64e
           Section: Utilities
           Priority: optional
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper for Next Agent 0.3.0, packaged for RootHide randomized jbroot.
+          Description: Privileged root helper for Next Agent 0.3.1, packaged for RootHide randomized jbroot.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
