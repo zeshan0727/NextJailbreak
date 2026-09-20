@@ -296,8 +296,8 @@ struct ModernAgentView: View {
             }
 
             HStack(spacing: 10) {
-                actionTile("Device", "cpu", NATheme.cyan) {
-                    run("Give me a compact device and RootHide status summary. Do not modify anything.")
+                actionTile("Self Test", "checkmark.shield.fill", NATheme.green) {
+                    Task { await state.runLocalSelfTest() }
                 }
                 actionTile("Processes", "waveform.path.ecg", NATheme.pink) {
                     run("Show running processes as root and identify launchd, SpringBoard, backboardd and nextagentd.")
@@ -415,23 +415,38 @@ struct ModernAgentView: View {
                     .background(NATheme.panel, in: RoundedRectangle(cornerRadius: 19, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 19, style: .continuous).stroke(NATheme.stroke))
 
-                Button {
-                    Task { await state.send() }
-                } label: {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 40, height: 40)
-                        .background(
-                            Circle().fill(
-                                state.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state.busy
-                                    ? AnyShapeStyle(Color.gray.opacity(0.35))
-                                    : AnyShapeStyle(NATheme.accent)
+                if state.busy {
+                    Button {
+                        state.forceStop()
+                    } label: {
+                        Image(systemName: "stop.fill")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 40, height: 40)
+                            .background(NATheme.pink, in: Circle())
+                            .shadow(color: NATheme.pink.opacity(0.35), radius: 8)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Force stop active task")
+                } else {
+                    Button {
+                        Task { await state.send() }
+                    } label: {
+                        Image(systemName: "arrow.up")
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 40, height: 40)
+                            .background(
+                                Circle().fill(
+                                    state.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                        ? AnyShapeStyle(Color.gray.opacity(0.35))
+                                        : AnyShapeStyle(NATheme.accent)
+                                )
                             )
-                        )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(state.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
-                .buttonStyle(.plain)
-                .disabled(state.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state.busy)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 9)
