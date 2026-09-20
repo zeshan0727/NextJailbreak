@@ -6,6 +6,7 @@
 
 #include <sys/time.h>
 #include <limits.h>
+#include <strings.h>
 
 static char *na_run_argv_capture(const char *path, char *const argv[], int *exit_code) {
     int pipefd[2];
