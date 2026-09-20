@@ -1,0 +1,99 @@
+--- NextAgent/NextAgent.swift
++++ NextAgent/NextAgent.swift
+@@ -38,7 +38,7 @@
+ @MainActor
+ final class AppState: ObservableObject {
+     @Published var messages: [ChatMessage] = [
+-        ChatMessage(role: "assistant", text: "Next Agent 0.3.0 is ready with your GPT-6 Astra managed agent and optional root helper daemon. Open Settings, save the dedicated OpenAI project API key, verify the agent, then start giving me phone tasks.")
++        ChatMessage(role: "assistant", text: "Next Agent 0.3.1 is ready with your GPT-6 Astra managed agent and RootHide root helper. Open Settings, save the dedicated OpenAI project API key, verify the agent, then start giving me phone tasks.")
+@@
+ enum RootDaemonClient {
+     private static let host = "127.0.0.1"
+     private static let port: UInt16 = 37589
+-    private static let tokenPath = "/var/mobile/Library/NextAgent/daemon.token"
++    private static let tokenPaths = [
++        "/var/mobile/Library/NextAgent/daemon.token",
++        "/private/var/mobile/Library/NextAgent/daemon.token"
++    ]
+ 
+     static func request(action: String, argument: String = "") -> ToolResult {
+         guard action.range(of: "^[a-z_]+$", options: .regularExpression) != nil else {
+             return ToolResult(success: false, output: "Invalid daemon action")
+         }
+-        guard let rawToken = try? String(contentsOfFile: tokenPath, encoding: .utf8) else {
+-            return ToolResult(success: false, output: "Root helper token is unavailable. Install the matching NextAgentDaemon 0.3.0 package and ensure nextagentd is loaded.")
+-        }
++        let tokenLoad = loadToken()
++        guard let rawToken = tokenLoad.token else {
++            return ToolResult(success: false, output: "Root helper token is unavailable. " + tokenLoad.detail)
++        }
+         let token = rawToken.trimmingCharacters(in: .whitespacesAndNewlines)
+         guard token.count == 64 else { return ToolResult(success: false, output: "Root helper token is invalid") }
+@@
+         return ToolResult(success: parts[0] == "OK", output: output)
+     }
++
++    private static func loadToken() -> (token: String?, detail: String) {
++        var diagnostics: [String] = []
++        for path in tokenPaths {
++            errno = 0
++            let fd = Darwin.open(path, O_RDONLY)
++            if fd < 0 {
++                diagnostics.append("\(path): open failed errno=\(errno) (\(String(cString: strerror(errno))))")
++                continue
++            }
++            defer { Darwin.close(fd) }
++
++            var buffer = [UInt8](repeating: 0, count: 128)
++            errno = 0
++            let n = Darwin.read(fd, &buffer, buffer.count - 1)
++            if n <= 0 {
++                diagnostics.append("\(path): read failed errno=\(errno) (\(String(cString: strerror(errno))))")
++                continue
++            }
++            let data = Data(buffer.prefix(Int(n)))
++            guard let text = String(data: data, encoding: .utf8) else {
++                diagnostics.append("\(path): token was not UTF-8")
++                continue
++            }
++            let token = text.trimmingCharacters(in: .whitespacesAndNewlines)
++            if token.count == 64 {
++                return (token, "read from \(path)")
++            }
++            diagnostics.append("\(path): unexpected token length \(token.count)")
++        }
++        return (nil, diagnostics.joined(separator: " | "))
++    }
+--- NextAgent/NextAgent.entitlements
++++ NextAgent/NextAgent.entitlements
+@@ -1,10 +1,22 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+ <plist version="1.0">
+ <dict>
++    <key>platform-application</key>
++    <true/>
++    <key>com.apple.private.security.no-sandbox</key>
++    <true/>
+     <key>com.apple.private.security.no-container</key>
+     <true/>
+     <key>com.apple.private.security.container-required</key>
+     <false/>
++    <key>com.apple.private.security.storage.AppBundles</key>
++    <true/>
++    <key>com.apple.private.security.storage.AppDataContainers</key>
++    <true/>
++    <key>com.apple.private.security.storage.MobileDocuments</key>
++    <true/>
+ </dict>
+ </plist>
+--- project.yml
++++ project.yml
+@@ -25,8 +25,8 @@
+       base:
+         PRODUCT_BUNDLE_IDENTIFIER: uk.zeshanbarvi.nextagent
+         PRODUCT_NAME: Next Agent
+-        MARKETING_VERSION: 0.3.0
+-        CURRENT_PROJECT_VERSION: 4
++        MARKETING_VERSION: 0.3.1
++        CURRENT_PROJECT_VERSION: 5
