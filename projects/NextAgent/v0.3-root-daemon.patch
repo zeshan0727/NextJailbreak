@@ -129,10 +129,11 @@
          return jsonResult(info)
      }
  
-@@ -556,6 +588,112 @@
+@@ -556,6 +588,113 @@
      private func sensitiveOff() -> ToolResult { ToolResult(success: false, output: "Sensitive actions are disabled in Next Agent Settings") }
  }
  
++
 +// MARK: - Privileged helper client
 +
 +enum RootDaemonClient {
@@ -242,7 +243,7 @@
  // MARK: - Shell
  
  enum ShellRunner {
-@@ -799,11 +937,13 @@
+@@ -799,11 +938,13 @@
                  Section("Runtime") {
                      LabeledContent("UID", value: "\(getuid())")
                      LabeledContent("EUID", value: "\(geteuid())")
@@ -257,7 +258,7 @@
                      Text("* requires Sensitive actions in Settings").font(.caption).foregroundStyle(.secondary)
                  }
                  Section("Tool log") {
-@@ -845,14 +985,14 @@
+@@ -845,14 +986,14 @@
                  Section("Device Control") {
                      Toggle("Allow sensitive actions", isOn: $state.sensitiveActions)
                          .onChange(of: state.sensitiveActions) { v in UserDefaults.standard.set(v, forKey: "nextagent.sensitiveActions") }
