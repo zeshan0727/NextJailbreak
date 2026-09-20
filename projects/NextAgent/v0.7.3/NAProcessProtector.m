@@ -1,11 +1,15 @@
 #import <Foundation/Foundation.h>
 #import <dlfcn.h>
 #import <objc/message.h>
-#import <libproc.h>
 #import <signal.h>
 #import <errno.h>
 #import <unistd.h>
 #import <string.h>
+
+#ifndef PROC_PIDPATHINFO_MAXSIZE
+#define PROC_PIDPATHINFO_MAXSIZE 4096
+#endif
+extern int proc_pidpath(int pid, void *buffer, uint32_t buffersize);
 #import "NAProcessProtector.h"
 
 extern int memorystatus_control(uint32_t command, int32_t pid, uint32_t flags, void *buffer, size_t buffer_size);
