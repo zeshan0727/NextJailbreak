@@ -1,0 +1,86 @@
+name: Build Next Agent TIPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "projects/NextAgent/source.b64.part-*"
+      - ".github/workflows/build-nextagent-tipa.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore source
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/nextagent-src /tmp/nextagent.zip
+          mkdir -p /tmp/nextagent-src
+          cat projects/NextAgent/source.b64.part-* | base64 --decode > /tmp/nextagent.zip
+          unzip -q /tmp/nextagent.zip -d /tmp/nextagent-src
+          test -f /tmp/nextagent-src/NextAgent_v0.1.0/project.yml
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: xcodegen generate
+
+      - name: Build unsigned app
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project NextAgent.xcodeproj \
+            -scheme NextAgent \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            clean build 2>&1 | tee /tmp/nextagent-xcodebuild.log
+
+      - name: Package TrollStore TIPA
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          APP="build/Build/Products/Release-iphoneos/Next Agent.app"
+          test -d "$APP"
+          /usr/bin/codesign --force --sign - --entitlements NextAgent/NextAgent.entitlements "$APP"
+          rm -rf package
+          mkdir -p package/Payload
+          cp -R "$APP" package/Payload/
+          mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.1.0.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.1.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.1.0.sha256"
+          cp /tmp/nextagent-xcodebuild.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild.log"
+          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/embedded-entitlements.plist" 2>&1 || true
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.1.0.tipa"
+
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextAgent-0.1.0-TrollStore
+          path: |
+            projects/NextAgent/build-output/NextAgent-0.1.0.tipa
+            projects/NextAgent/build-output/NextAgent-0.1.0.sha256
+            projects/NextAgent/build-output/xcodebuild.log
+            projects/NextAgent/build-output/embedded-entitlements.plist
+
+      - name: Publish test build
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f projects/NextAgent/build-output/
+          git diff --cached --quiet && exit 0
+          git commit -m "Build Next Agent 0.1.0 TIPA [skip ci]"
+          git push
