@@ -7,7 +7,7 @@
 #import <signal.h>
 #import <unistd.h>
 #import <mach/mach.h>
-#import <IOSurface/IOSurface.h>
+#import <IOSurface/IOSurfaceRef.h>
 #import <CoreVideo/CoreVideo.h>
 
 static NSString * const NAProgressPath = @"/var/mobile/Library/NextAgent/progress.json";
