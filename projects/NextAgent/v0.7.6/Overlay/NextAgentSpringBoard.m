@@ -1,0 +1,941 @@
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <QuartzCore/QuartzCore.h>
+#import <notify.h>
+#import <objc/message.h>
+#import <dlfcn.h>
+#import <signal.h>
+#import <unistd.h>
+#import <mach/mach.h>
+#import <IOSurface/IOSurfaceRef.h>
+#import <CoreVideo/CoreVideo.h>
+
+static NSString * const NAProgressPath = @"/var/mobile/Library/NextAgent/progress.json";
+static NSString * const NAOverlayStatusPath = @"/var/mobile/Library/NextAgent/overlay.status.json";
+static NSString * const NAScreenRequestPath = @"/var/mobile/Library/NextAgent/screen.request.json";
+static NSString * const NAScreenResponsePath = @"/var/mobile/Library/NextAgent/screen.response.json";
+static NSString * const NACaptureDirectory = @"/var/mobile/Library/NextAgent/Captures";
+static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
+
+static const char *NAProgressNotification = "uk.zeshanbarvi.nextagent.progress.changed";
+static const char *NAScreenRequestNotification = "uk.zeshanbarvi.nextagent.screen.capture.request";
+static const char *NAScreenDoneNotification = "uk.zeshanbarvi.nextagent.screen.capture.done";
+
+typedef void (*NACARenderServerRenderDisplay)(mach_port_t, CFStringRef, IOSurfaceRef, int32_t, int32_t);
+typedef UIImage * NS_RETURNS_RETAINED (*NAUICreateScreenUIImage)(void);
+
+static id NARBSAssertion = nil;
+static id NABKSAssertion = nil;
+static pid_t NAProtectedPID = 0;
+static NSString *NAProtectionMethod = @"none";
+static NSString *NAProtectionDetail = @"not acquired";
+
+static BOOL NAObjectValid(id assertion) {
+    if (!assertion) return NO;
+    SEL valid = NSSelectorFromString(@"valid");
+    if ([assertion respondsToSelector:valid]) {
+        return ((BOOL (*)(id, SEL))objc_msgSend)(assertion, valid);
+    }
+    SEL isValid = NSSelectorFromString(@"isValid");
+    if ([assertion respondsToSelector:isValid]) {
+        return ((BOOL (*)(id, SEL))objc_msgSend)(assertion, isValid);
+    }
+    return YES;
+}
+
+static void NAReleaseProtection(void) {
+    for (id assertion in @[NARBSAssertion ?: NSNull.null, NABKSAssertion ?: NSNull.null]) {
+        if (assertion == (id)NSNull.null) continue;
+        SEL invalidate = NSSelectorFromString(@"invalidate");
+        if ([assertion respondsToSelector:invalidate]) {
+            ((void (*)(id, SEL))objc_msgSend)(assertion, invalidate);
+        }
+    }
+    NARBSAssertion = nil;
+    NABKSAssertion = nil;
+    NAProtectedPID = 0;
+    NAProtectionMethod = @"none";
+    NAProtectionDetail = @"released";
+}
+
+static BOOL NAAcquireRBSProtection(pid_t pid) {
+    void *handle = dlopen(
+        "/System/Library/PrivateFrameworks/RunningBoardServices.framework/RunningBoardServices",
+        RTLD_NOW | RTLD_GLOBAL
+    );
+    if (!handle) {
+        NAProtectionDetail = @"RunningBoardServices unavailable";
+        return NO;
+    }
+
+    Class targetClass = NSClassFromString(@"RBSTarget");
+    Class legacyClass = NSClassFromString(@"RBSLegacyAttribute");
+    Class assertionClass = NSClassFromString(@"RBSAssertion");
+    if (!targetClass || !legacyClass || !assertionClass) {
+        NAProtectionDetail = @"RBS classes unavailable";
+        return NO;
+    }
+
+    id target = nil;
+    SEL targetWithPid = NSSelectorFromString(@"targetWithPid:");
+    if ([targetClass respondsToSelector:targetWithPid]) {
+        target = ((id (*)(id, SEL, int))objc_msgSend)((id)targetClass, targetWithPid, pid);
+    }
+    if (!target) {
+        NAProtectionDetail = @"RBSTarget could not be created";
+        return NO;
+    }
+
+    // Same legacy assertion flags used by established jailbreak backgrounders:
+    // prevent suspend, prevent task throttle, foreground resource priority and UI throttle.
+    const unsigned int flags = (1u << 0) | (1u << 1) | (1u << 3) | (1u << 5);
+    SEL attrSel = NSSelectorFromString(@"attributeWithReason:flags:");
+    if (![legacyClass respondsToSelector:attrSel]) {
+        NAProtectionDetail = @"RBSLegacyAttribute selector unavailable";
+        return NO;
+    }
+    typedef id (*AttrFn)(id, SEL, unsigned int, unsigned int);
+    id legacy = ((AttrFn)objc_msgSend)((id)legacyClass, attrSel, 7u, flags);
+    if (!legacy) {
+        NAProtectionDetail = @"RBSLegacyAttribute creation failed";
+        return NO;
+    }
+
+    NSMutableArray *attributes = [NSMutableArray arrayWithObject:legacy];
+
+    Class socketGrantClass = NSClassFromString(@"RBSAppNapPreventBackgroundSocketsGrant");
+    if (socketGrantClass && [socketGrantClass respondsToSelector:@selector(grant)]) {
+        id grant = ((id (*)(id, SEL))objc_msgSend)((id)socketGrantClass, @selector(grant));
+        if (grant) [attributes addObject:grant];
+    }
+
+    id assertionObject = ((id (*)(id, SEL))objc_msgSend)((id)assertionClass, @selector(alloc));
+    SEL initSel = NSSelectorFromString(@"initWithExplanation:target:attributes:");
+    if (!assertionObject || ![assertionObject respondsToSelector:initSel]) {
+        NAProtectionDetail = @"RBSAssertion initializer unavailable";
+        return NO;
+    }
+
+    typedef id (*InitFn)(id, SEL, id, id, id);
+    id assertion = ((InitFn)objc_msgSend)(
+        assertionObject,
+        initSel,
+        @"Next Agent active automation",
+        target,
+        attributes
+    );
+    if (!assertion) {
+        NAProtectionDetail = @"RBSAssertion creation failed";
+        return NO;
+    }
+
+    NSError *error = nil;
+    BOOL acquired = NO;
+    SEL acquireSel = NSSelectorFromString(@"acquireWithError:");
+    if ([assertion respondsToSelector:acquireSel]) {
+        typedef BOOL (*AcquireFn)(id, SEL, NSError **);
+        acquired = ((AcquireFn)objc_msgSend)(assertion, acquireSel, &error);
+    } else {
+        SEL acquire = NSSelectorFromString(@"acquire");
+        if ([assertion respondsToSelector:acquire]) {
+            acquired = ((BOOL (*)(id, SEL))objc_msgSend)(assertion, acquire);
+        }
+    }
+
+    if (!acquired || !NAObjectValid(assertion)) {
+        SEL invalidate = NSSelectorFromString(@"invalidate");
+        if ([assertion respondsToSelector:invalidate]) {
+            ((void (*)(id, SEL))objc_msgSend)(assertion, invalidate);
+        }
+        NAProtectionDetail = error.localizedDescription ?: @"RBS assertion was not valid";
+        return NO;
+    }
+
+    NARBSAssertion = assertion;
+    NAProtectedPID = pid;
+    NAProtectionMethod = @"RBSAssertion";
+    NAProtectionDetail = @"SpringBoard-held RBS assertion active";
+    return YES;
+}
+
+static BOOL NAAcquireBKSFallback(pid_t pid) {
+    void *handle = dlopen(
+        "/System/Library/PrivateFrameworks/AssertionServices.framework/AssertionServices",
+        RTLD_NOW | RTLD_GLOBAL
+    );
+    if (!handle) {
+        NAProtectionDetail = @"AssertionServices unavailable";
+        return NO;
+    }
+
+    Class cls = NSClassFromString(@"BKSProcessAssertion");
+    if (!cls) {
+        NAProtectionDetail = @"BKSProcessAssertion unavailable";
+        return NO;
+    }
+
+    const unsigned int flags = (1u << 0) | (1u << 1) | (1u << 3) | (1u << 5);
+    id object = ((id (*)(id, SEL))objc_msgSend)((id)cls, @selector(alloc));
+    if (!object) return NO;
+
+    id assertion = nil;
+    SEL six = NSSelectorFromString(@"initWithPID:flags:reason:name:withHandler:acquire:");
+    if ([object respondsToSelector:six]) {
+        typedef id (*Fn)(id, SEL, int, unsigned int, unsigned int, id, id, BOOL);
+        assertion = ((Fn)objc_msgSend)(
+            object, six, pid, flags, 10005u,
+            @"NextAgentSpringBoardFallback", nil, YES
+        );
+    }
+
+    if (!assertion || !NAObjectValid(assertion)) {
+        NAProtectionDetail = @"BKS fallback could not be acquired";
+        return NO;
+    }
+
+    NABKSAssertion = assertion;
+    NAProtectedPID = pid;
+    NAProtectionMethod = @"BKSProcessAssertion";
+    NAProtectionDetail = @"SpringBoard-held BKS fallback active";
+    return YES;
+}
+
+static BOOL NAEnsureProcessProtection(pid_t pid) {
+    if (pid <= 1 || kill(pid, 0) != 0) {
+        NAReleaseProtection();
+        return NO;
+    }
+
+    if (NAProtectedPID == pid &&
+        ((NARBSAssertion && NAObjectValid(NARBSAssertion)) ||
+         (NABKSAssertion && NAObjectValid(NABKSAssertion)))) {
+        return YES;
+    }
+
+    NAReleaseProtection();
+    if (NAAcquireRBSProtection(pid)) return YES;
+    return NAAcquireBKSFallback(pid);
+}
+
+static void NAEnsureDirectory(NSString *path) {
+    [[NSFileManager defaultManager] createDirectoryAtPath:path
+                              withIntermediateDirectories:YES
+                                               attributes:@{NSFilePosixPermissions:@0755}
+                                                    error:nil];
+}
+
+static BOOL NAWriteJSON(NSDictionary *dictionary, NSString *path) {
+    if (!dictionary || !path) return NO;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:nil];
+    if (!data) return NO;
+    NSString *dir = [path stringByDeletingLastPathComponent];
+    NAEnsureDirectory(dir);
+    return [data writeToFile:path options:NSDataWritingAtomic error:nil];
+}
+
+static NSDictionary *NAReadJSON(NSString *path) {
+    NSData *data = [NSData dataWithContentsOfFile:path options:0 error:nil];
+    if (!data.length) return nil;
+    id value = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    return [value isKindOfClass:NSDictionary.class] ? value : nil;
+}
+
+@interface NAPassThroughWindow : UIWindow
+@end
+
+@implementation NAPassThroughWindow
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
+    return NO;
+}
+- (BOOL)canBecomeKeyWindow {
+    return NO;
+}
+@end
+
+@interface NAProgressOverlay : NSObject
+@property(nonatomic,strong) NAPassThroughWindow *window;
+@property(nonatomic,strong) UIView *pill;
+@property(nonatomic,strong) UILabel *iconLabel;
+@property(nonatomic,strong) UILabel *titleLabel;
+@property(nonatomic,strong) UIActivityIndicatorView *spinner;
+@property(nonatomic,strong) UIView *track;
+@property(nonatomic,strong) UIView *fill;
+@property(nonatomic,strong) NSLayoutConstraint *fillWidth;
+@property(nonatomic,strong) NSTimer *pollTimer;
+@property(nonatomic,assign) BOOL visible;
+@property(nonatomic,copy) NSString *lastCaptureSource;
++ (instancetype)shared;
+- (void)refresh;
+- (void)captureRequested;
+@end
+
+@implementation NAProgressOverlay
+
++ (instancetype)shared {
+    static NAProgressOverlay *value;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ value = [NAProgressOverlay new]; });
+    return value;
+}
+
+- (UIWindowScene *)preferredWindowScene {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *fallback = nil;
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if (![scene isKindOfClass:UIWindowScene.class]) continue;
+            UIWindowScene *windowScene = (UIWindowScene *)scene;
+            if (!fallback) fallback = windowScene;
+            if (scene.activationState == UISceneActivationStateForegroundActive) {
+                return windowScene;
+            }
+        }
+        return fallback;
+    }
+    return nil;
+}
+
+- (void)ensureUI {
+    if (self.window) return;
+
+    UIScreen *screen = UIScreen.mainScreen;
+
+    // IMPORTANT: this window belongs to SpringBoard itself, not to the
+    // SpringBoard home-screen UIWindowScene. A scene-bound window can vanish
+    // from the compositor when another application becomes foreground.
+    // A process-level SpringBoard window at a system-high level remains
+    // available while Notes/Settings/etc. are frontmost.
+    NAPassThroughWindow *window = [[NAPassThroughWindow alloc] initWithFrame:screen.bounds];
+    window.screen = screen;
+    window.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    window.windowLevel = 10000.0;
+
+    SEL secureSelector = NSSelectorFromString(@"_setSecure:");
+    if ([window respondsToSelector:secureSelector]) {
+        ((void (*)(id, SEL, BOOL))objc_msgSend)(window, secureSelector, YES);
+    }
+    window.backgroundColor = UIColor.clearColor;
+    window.opaque = NO;
+    window.userInteractionEnabled = NO;
+    window.hidden = YES;
+
+    UIViewController *controller = [UIViewController new];
+    controller.view.backgroundColor = UIColor.clearColor;
+    controller.view.userInteractionEnabled = NO;
+    window.rootViewController = controller;
+
+    UIView *pill = [UIView new];
+    pill.translatesAutoresizingMaskIntoConstraints = NO;
+    pill.backgroundColor = [UIColor colorWithWhite:0.035 alpha:0.94];
+    pill.layer.cornerRadius = 18.0;
+    pill.layer.masksToBounds = YES;
+    pill.layer.borderWidth = 0.75;
+    pill.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.16].CGColor;
+    pill.layer.shadowColor = [UIColor colorWithRed:0.1 green:0.78 blue:1 alpha:1].CGColor;
+    pill.layer.shadowOpacity = 0.30;
+    pill.layer.shadowRadius = 10.0;
+    pill.layer.shadowOffset = CGSizeZero;
+    [controller.view addSubview:pill];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [pill.centerXAnchor constraintEqualToAnchor:controller.view.centerXAnchor],
+        [pill.topAnchor constraintEqualToAnchor:controller.view.safeAreaLayoutGuide.topAnchor constant:4.0],
+        [pill.widthAnchor constraintLessThanOrEqualToConstant:220.0],
+        [pill.widthAnchor constraintGreaterThanOrEqualToConstant:170.0],
+        [pill.heightAnchor constraintEqualToConstant:36.0]
+    ]];
+
+    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
+    spinner.translatesAutoresizingMaskIntoConstraints = NO;
+    spinner.transform = CGAffineTransformMakeScale(0.70, 0.70);
+    spinner.color = [UIColor colorWithRed:0.20 green:0.88 blue:1.0 alpha:1.0];
+    [pill addSubview:spinner];
+
+    UILabel *icon = [UILabel new];
+    icon.translatesAutoresizingMaskIntoConstraints = NO;
+    icon.font = [UIFont systemFontOfSize:15 weight:UIFontWeightBold];
+    icon.textAlignment = NSTextAlignmentCenter;
+    icon.textColor = [UIColor colorWithRed:0.26 green:0.96 blue:0.64 alpha:1.0];
+    icon.hidden = YES;
+    [pill addSubview:icon];
+
+    UILabel *title = [UILabel new];
+    title.translatesAutoresizingMaskIntoConstraints = NO;
+    title.font = [UIFont systemFontOfSize:11.8 weight:UIFontWeightSemibold];
+    title.textColor = UIColor.whiteColor;
+    title.lineBreakMode = NSLineBreakByTruncatingTail;
+    title.textAlignment = NSTextAlignmentCenter;
+    [pill addSubview:title];
+
+    UIView *track = [UIView new];
+    track.translatesAutoresizingMaskIntoConstraints = NO;
+    track.backgroundColor = [UIColor colorWithWhite:1 alpha:0.10];
+    track.layer.cornerRadius = 1.0;
+    [pill addSubview:track];
+
+    UIView *fill = [UIView new];
+    fill.translatesAutoresizingMaskIntoConstraints = NO;
+    fill.backgroundColor = [UIColor colorWithRed:0.17 green:0.83 blue:1 alpha:1.0];
+    fill.layer.cornerRadius = 1.0;
+    [track addSubview:fill];
+
+    NSLayoutConstraint *fillWidth = [fill.widthAnchor constraintEqualToConstant:2.0];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [spinner.leadingAnchor constraintEqualToAnchor:pill.leadingAnchor constant:10.0],
+        [spinner.centerYAnchor constraintEqualToAnchor:pill.centerYAnchor constant:-1.0],
+        [spinner.widthAnchor constraintEqualToConstant:18.0],
+        [spinner.heightAnchor constraintEqualToConstant:18.0],
+
+        [icon.leadingAnchor constraintEqualToAnchor:pill.leadingAnchor constant:10.0],
+        [icon.centerYAnchor constraintEqualToAnchor:pill.centerYAnchor constant:-1.0],
+        [icon.widthAnchor constraintEqualToConstant:18.0],
+        [icon.heightAnchor constraintEqualToConstant:18.0],
+
+        [title.leadingAnchor constraintEqualToAnchor:pill.leadingAnchor constant:33.0],
+        [title.trailingAnchor constraintEqualToAnchor:pill.trailingAnchor constant:-10.0],
+        [title.centerYAnchor constraintEqualToAnchor:pill.centerYAnchor constant:-2.0],
+
+        [track.leadingAnchor constraintEqualToAnchor:pill.leadingAnchor constant:12.0],
+        [track.trailingAnchor constraintEqualToAnchor:pill.trailingAnchor constant:-12.0],
+        [track.bottomAnchor constraintEqualToAnchor:pill.bottomAnchor constant:-4.0],
+        [track.heightAnchor constraintEqualToConstant:2.0],
+
+        [fill.leadingAnchor constraintEqualToAnchor:track.leadingAnchor],
+        [fill.topAnchor constraintEqualToAnchor:track.topAnchor],
+        [fill.bottomAnchor constraintEqualToAnchor:track.bottomAnchor],
+        fillWidth
+    ]];
+
+    self.window = window;
+    self.pill = pill;
+    self.spinner = spinner;
+    self.iconLabel = icon;
+    self.titleLabel = title;
+    self.track = track;
+    self.fill = fill;
+    self.fillWidth = fillWidth;
+
+    [controller.view layoutIfNeeded];
+    [self writeOverlayStatus];
+}
+
+- (void)writeOverlayStatus {
+    NSDictionary *state = @{
+        @"loaded": @YES,
+        @"overlay_generation": @"0.7.6",
+        @"pid": @(getpid()),
+        @"bundle": NSBundle.mainBundle.bundleIdentifier ?: @"",
+        @"window_ready": @(self.window != nil),
+        @"window_level": @(self.window ? self.window.windowLevel : 0.0),
+        @"visible": @(self.visible),
+        @"protected_pid": @(NAProtectedPID),
+        @"assertion_valid": @((NARBSAssertion && NAObjectValid(NARBSAssertion)) ||
+                              (NABKSAssertion && NAObjectValid(NABKSAssertion))),
+        @"protection_method": NAProtectionMethod ?: @"none",
+        @"protection_detail": NAProtectionDetail ?: @"",
+        @"last_capture_source": self.lastCaptureSource ?: @"",
+        @"updated_at": @([[NSDate date] timeIntervalSince1970])
+    };
+    NAWriteJSON(state, NAOverlayStatusPath);
+}
+
+- (void)setProgress:(CGFloat)value animated:(BOOL)animated {
+    [self ensureUI];
+    CGFloat clamped = MAX(0.02, MIN(1.0, value));
+    [self.pill layoutIfNeeded];
+    CGFloat width = MAX(2.0, self.pill.bounds.size.width - 24.0);
+    self.fillWidth.constant = width * clamped;
+    if (animated) {
+        [UIView animateWithDuration:0.22 animations:^{
+            [self.pill layoutIfNeeded];
+        }];
+    } else {
+        [self.pill layoutIfNeeded];
+    }
+}
+
+- (void)show {
+    [self ensureUI];
+    self.window.hidden = NO;
+    self.window.alpha = 1.0;
+    self.pill.hidden = NO;
+    self.visible = YES;
+    [self writeOverlayStatus];
+}
+
+- (void)hide {
+    if (!self.window) return;
+    self.window.hidden = YES;
+    self.visible = NO;
+    [self writeOverlayStatus];
+}
+
+- (void)startPermanentPolling {
+    if (self.pollTimer) return;
+    self.pollTimer = [NSTimer scheduledTimerWithTimeInterval:0.40
+                                                     target:self
+                                                   selector:@selector(refresh)
+                                                   userInfo:nil
+                                                    repeats:YES];
+}
+
+- (void)returnToNextAgent {
+    Class workspaceClass = NSClassFromString(@"LSApplicationWorkspace");
+    if (!workspaceClass) return;
+    id workspace = ((id (*)(id, SEL))objc_msgSend)((id)workspaceClass, NSSelectorFromString(@"defaultWorkspace"));
+    SEL open = NSSelectorFromString(@"openApplicationWithBundleID:");
+    if (workspace && [workspace respondsToSelector:open]) {
+        ((BOOL (*)(id, SEL, id))objc_msgSend)(workspace, open, NABundleID);
+    }
+}
+
+- (UIImage *)bitmapImageFromCGImage:(CGImageRef)cgImage {
+    if (!cgImage) return nil;
+    size_t width = CGImageGetWidth(cgImage);
+    size_t height = CGImageGetHeight(cgImage);
+    if (width < 2 || height < 2) return nil;
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    if (!colorSpace) return nil;
+
+    CGContextRef context = CGBitmapContextCreate(
+        NULL, width, height, 8, width * 4, colorSpace,
+        kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little
+    );
+    CGColorSpaceRelease(colorSpace);
+    if (!context) return nil;
+
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage);
+    CGImageRef copy = CGBitmapContextCreateImage(context);
+    CGContextRelease(context);
+    if (!copy) return nil;
+
+    UIImage *image = [UIImage imageWithCGImage:copy scale:UIScreen.mainScreen.scale orientation:UIImageOrientationUp];
+    CGImageRelease(copy);
+    return image;
+}
+
+- (NSDictionary *)analyzePixels:(const uint8_t *)bytes
+                        bytesPerRow:(size_t)bytesPerRow
+                              width:(size_t)width
+                             height:(size_t)height
+                      renderChanged:(BOOL)renderChanged {
+    if (!bytes || width < 8 || height < 8) {
+        return @{
+            @"valid": @NO,
+            @"render_changed": @(renderChanged),
+            @"samples": @0,
+            @"dynamic_range": @0,
+            @"chroma_samples": @0
+        };
+    }
+
+    const size_t columns = 18;
+    const size_t rows = 30;
+    NSUInteger samples = 0;
+    NSUInteger chromaSamples = 0;
+    NSUInteger blackSamples = 0;
+    NSUInteger whiteSamples = 0;
+    uint8_t minLuma = 255;
+    uint8_t maxLuma = 0;
+
+    for (size_t gy = 0; gy < rows; gy++) {
+        size_t y = MIN(height - 1, ((gy * 2 + 1) * height) / (rows * 2));
+        const uint8_t *row = bytes + y * bytesPerRow;
+        for (size_t gx = 0; gx < columns; gx++) {
+            size_t x = MIN(width - 1, ((gx * 2 + 1) * width) / (columns * 2));
+            const uint8_t *p = row + x * 4;
+            uint8_t b = p[0];
+            uint8_t g = p[1];
+            uint8_t r = p[2];
+            uint8_t high = MAX(r, MAX(g, b));
+            uint8_t low = MIN(r, MIN(g, b));
+            uint8_t luma = (uint8_t)(((uint32_t)77 * r + (uint32_t)150 * g + (uint32_t)29 * b) >> 8);
+
+            minLuma = MIN(minLuma, luma);
+            maxLuma = MAX(maxLuma, luma);
+            if ((NSUInteger)(high - low) >= 10) chromaSamples++;
+            if (luma <= 6) blackSamples++;
+            if (luma >= 249) whiteSamples++;
+            samples++;
+        }
+    }
+
+    NSUInteger dynamicRange = (NSUInteger)(maxLuma - minLuma);
+    double blackRatio = samples ? (double)blackSamples / (double)samples : 1.0;
+    double whiteRatio = samples ? (double)whiteSamples / (double)samples : 1.0;
+
+    BOOL valid = renderChanged &&
+        samples > 0 &&
+        dynamicRange >= 10 &&
+        blackRatio < 0.985 &&
+        whiteRatio < 0.985;
+
+    return @{
+        @"valid": @(valid),
+        @"render_changed": @(renderChanged),
+        @"samples": @(samples),
+        @"luma_min": @(minLuma),
+        @"luma_max": @(maxLuma),
+        @"dynamic_range": @(dynamicRange),
+        @"chroma_samples": @(chromaSamples),
+        @"black_ratio": @(blackRatio),
+        @"white_ratio": @(whiteRatio)
+    };
+}
+
+- (UIImage *)imageFromPixelBuffer:(CVPixelBufferRef)pixelBuffer {
+    if (!pixelBuffer) return nil;
+    IOSurfaceRef surface = CVPixelBufferGetIOSurface(pixelBuffer);
+    if (!surface) return nil;
+
+    if (IOSurfaceLock(surface, kIOSurfaceLockReadOnly, NULL) != KERN_SUCCESS) {
+        return nil;
+    }
+
+    const uint8_t *src = (const uint8_t *)IOSurfaceGetBaseAddress(surface);
+    size_t srcBPR = IOSurfaceGetBytesPerRow(surface);
+    size_t width = IOSurfaceGetWidth(surface);
+    size_t height = IOSurfaceGetHeight(surface);
+    UIImage *image = nil;
+
+    if (src && width > 1 && height > 1) {
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        CGContextRef context = colorSpace ? CGBitmapContextCreate(
+            NULL,
+            width,
+            height,
+            8,
+            width * 4u,
+            colorSpace,
+            kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little
+        ) : NULL;
+        if (colorSpace) CGColorSpaceRelease(colorSpace);
+
+        if (context) {
+            uint8_t *dst = (uint8_t *)CGBitmapContextGetData(context);
+            size_t dstBPR = CGBitmapContextGetBytesPerRow(context);
+            if (dst) {
+                size_t rowBytes = MIN(width * 4u, srcBPR);
+                for (size_t y = 0; y < height; y++) {
+                    memcpy(dst + y * dstBPR, src + y * srcBPR, rowBytes);
+                }
+                CGImageRef cg = CGBitmapContextCreateImage(context);
+                if (cg) {
+                    CGFloat scale = UIScreen.mainScreen.scale > 0.0 ? UIScreen.mainScreen.scale : 1.0;
+                    image = [UIImage imageWithCGImage:cg scale:scale orientation:UIImageOrientationUp];
+                    CGImageRelease(cg);
+                }
+            }
+            CGContextRelease(context);
+        }
+    }
+
+    IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, NULL);
+    return image;
+}
+
+- (UIImage *)captureDisplayWithSource:(NSString **)sourceOut
+                              quality:(NSDictionary **)qualityOut {
+    void *qc = dlopen(
+        "/System/Library/Frameworks/QuartzCore.framework/QuartzCore",
+        RTLD_NOW | RTLD_LOCAL
+    );
+    NACARenderServerRenderDisplay renderDisplay = (NACARenderServerRenderDisplay)dlsym(
+        qc ?: RTLD_DEFAULT,
+        "CARenderServerRenderDisplay"
+    );
+
+    if (renderDisplay) {
+        UIScreen *screen = UIScreen.mainScreen;
+        CGRect nativeBounds = screen.nativeBounds;
+        size_t width = (size_t)llround(CGRectGetWidth(nativeBounds));
+        size_t height = (size_t)llround(CGRectGetHeight(nativeBounds));
+
+        if (width < 320 || height < 640) {
+            CGFloat scale = screen.scale > 0.0 ? screen.scale : 1.0;
+            width = (size_t)llround(CGRectGetWidth(screen.bounds) * scale);
+            height = (size_t)llround(CGRectGetHeight(screen.bounds) * scale);
+        }
+
+        NSDictionary *attributes = @{
+            (__bridge NSString *)kCVPixelBufferIOSurfacePropertiesKey: @{},
+            (__bridge NSString *)kCVPixelBufferMetalCompatibilityKey: @YES,
+            (__bridge NSString *)kCVPixelBufferBytesPerRowAlignmentKey: @64
+        };
+
+        CVPixelBufferRef pixelBuffer = NULL;
+        CVReturn cvResult = CVPixelBufferCreate(
+            kCFAllocatorDefault,
+            width,
+            height,
+            kCVPixelFormatType_32BGRA,
+            (__bridge CFDictionaryRef)attributes,
+            &pixelBuffer
+        );
+
+        IOSurfaceRef surface = pixelBuffer ? CVPixelBufferGetIOSurface(pixelBuffer) : NULL;
+        if (cvResult == kCVReturnSuccess && surface) {
+            BOOL prepared = NO;
+            if (IOSurfaceLock(surface, 0, NULL) == KERN_SUCCESS) {
+                void *base = IOSurfaceGetBaseAddress(surface);
+                size_t allocSize = IOSurfaceGetAllocSize(surface);
+                if (base && allocSize) {
+                    memset(base, 0xA5, allocSize);
+                    prepared = YES;
+                }
+                IOSurfaceUnlock(surface, 0, NULL);
+            }
+
+            if (prepared && IOSurfaceLock(surface, 0, NULL) == KERN_SUCCESS) {
+                renderDisplay(MACH_PORT_NULL, CFSTR("LCD"), surface, 0, 0);
+                IOSurfaceUnlock(surface, 0, NULL);
+            }
+
+            BOOL renderChanged = NO;
+            NSDictionary *quality = nil;
+            if (IOSurfaceLock(surface, kIOSurfaceLockReadOnly, NULL) == KERN_SUCCESS) {
+                const uint8_t *bytes = (const uint8_t *)IOSurfaceGetBaseAddress(surface);
+                size_t length = IOSurfaceGetAllocSize(surface);
+                for (size_t offset = 0; bytes && offset < length; offset += 4096) {
+                    if (bytes[offset] != 0xA5) {
+                        renderChanged = YES;
+                        break;
+                    }
+                }
+                quality = [self analyzePixels:bytes
+                                 bytesPerRow:IOSurfaceGetBytesPerRow(surface)
+                                       width:IOSurfaceGetWidth(surface)
+                                      height:IOSurfaceGetHeight(surface)
+                               renderChanged:renderChanged];
+                IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, NULL);
+            }
+
+            if (qualityOut) *qualityOut = quality ?: @{};
+            if ([quality[@"valid"] boolValue]) {
+                UIImage *image = [self imageFromPixelBuffer:pixelBuffer];
+                if (image) {
+                    if (sourceOut) *sourceOut = @"render_server_cvbuffer";
+                    CVPixelBufferRelease(pixelBuffer);
+                    if (qc) dlclose(qc);
+                    return image;
+                }
+            }
+        }
+
+        if (pixelBuffer) CVPixelBufferRelease(pixelBuffer);
+    }
+
+    // SpringBoard UIKit fallback. Validate that this fallback is not a blank
+    // surface before declaring success.
+    NAUICreateScreenUIImage uiCapture = (NAUICreateScreenUIImage)dlsym(
+        RTLD_DEFAULT,
+        "_UICreateScreenUIImage"
+    );
+    if (uiCapture) {
+        UIImage *image = uiCapture();
+        if (image && image.CGImage &&
+            CGImageGetWidth(image.CGImage) >= 2 &&
+            CGImageGetHeight(image.CGImage) >= 2) {
+            size_t width = CGImageGetWidth(image.CGImage);
+            size_t height = CGImageGetHeight(image.CGImage);
+            CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+            CGContextRef ctx = cs ? CGBitmapContextCreate(
+                NULL, width, height, 8, width * 4u, cs,
+                kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little
+            ) : NULL;
+            if (cs) CGColorSpaceRelease(cs);
+            if (ctx) {
+                CGContextDrawImage(ctx, CGRectMake(0, 0, width, height), image.CGImage);
+                const uint8_t *bytes = (const uint8_t *)CGBitmapContextGetData(ctx);
+                NSDictionary *quality = [self analyzePixels:bytes
+                                               bytesPerRow:CGBitmapContextGetBytesPerRow(ctx)
+                                                     width:width
+                                                    height:height
+                                             renderChanged:YES];
+                CGContextRelease(ctx);
+                if (qualityOut) *qualityOut = quality ?: @{};
+                if ([quality[@"valid"] boolValue]) {
+                    if (sourceOut) *sourceOut = @"springboard_uicreate_validated";
+                    if (qc) dlclose(qc);
+                    return image;
+                }
+            }
+        }
+    }
+
+    if (qc) dlclose(qc);
+    if (sourceOut) *sourceOut = @"unavailable";
+    return nil;
+}
+
+- (void)captureRequested {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSDictionary *request = NAReadJSON(NAScreenRequestPath);
+        NSString *requestID = [request[@"request_id"] isKindOfClass:NSString.class] ? request[@"request_id"] : @"";
+        if (!requestID.length) return;
+
+        BOOL wasVisible = self.visible;
+        if (wasVisible) {
+            self.pill.hidden = YES;
+            [self.window layoutIfNeeded];
+        }
+
+        notify_post("uk.zeshanbarvi.nextagent.capture.begin");
+        usleep(80 * 1000);
+
+        NSString *source = nil;
+        NSDictionary *quality = nil;
+        UIImage *image = [self captureDisplayWithSource:&source quality:&quality];
+
+        notify_post("uk.zeshanbarvi.nextagent.capture.end");
+
+        if (wasVisible) {
+            self.pill.hidden = NO;
+        }
+
+        NSMutableDictionary *response = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"request_id": requestID,
+            @"success": @(image != nil),
+            @"source": source ?: @"unavailable",
+            @"quality": quality ?: @{},
+            @"timestamp": @([[NSDate date] timeIntervalSince1970])
+        }];
+
+        if (image) {
+            NAEnsureDirectory(NACaptureDirectory);
+            NSString *safeID = [[requestID componentsSeparatedByCharactersInSet:
+                [[NSCharacterSet alphanumericCharacterSet] invertedSet]] componentsJoinedByString:@"-"];
+            NSString *path = [NACaptureDirectory stringByAppendingPathComponent:
+                [NSString stringWithFormat:@"screen-%@.png", safeID]];
+            NSData *png = UIImagePNGRepresentation(image);
+            BOOL written = png.length && [png writeToFile:path options:NSDataWritingAtomic error:nil];
+            if (written) {
+                response[@"path"] = path;
+                response[@"bytes"] = @(png.length);
+                response[@"pixel_width"] = @(lrint(image.size.width * image.scale));
+                response[@"pixel_height"] = @(lrint(image.size.height * image.scale));
+                response[@"point_width"] = @(image.size.width);
+                response[@"point_height"] = @(image.size.height);
+                self.lastCaptureSource = source ?: @"unknown";
+            } else {
+                response[@"success"] = @NO;
+                response[@"error"] = @"capture could not be saved";
+            }
+        } else {
+            response[@"error"] = @"SpringBoard display capture returned no image";
+        }
+
+        NAWriteJSON(response, NAScreenResponsePath);
+        [self writeOverlayStatus];
+        notify_post(NAScreenDoneNotification);
+    });
+}
+
+- (void)refresh {
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{ [self refresh]; });
+        return;
+    }
+
+    NSDictionary *state = NAReadJSON(NAProgressPath);
+    NSString *mode = [state[@"state"] isKindOfClass:NSString.class] ? state[@"state"] : @"idle";
+    NSString *message = [state[@"message"] isKindOfClass:NSString.class] ? state[@"message"] : @"";
+    CGFloat progress = [state[@"progress"] respondsToSelector:@selector(doubleValue)] ? [state[@"progress"] doubleValue] : 0;
+    BOOL returnToApp = [state[@"return_to_app"] boolValue];
+    pid_t agentPID = [state[@"pid"] respondsToSelector:@selector(intValue)] ? [state[@"pid"] intValue] : 0;
+
+    if (!state || [mode isEqualToString:@"idle"]) {
+        NAReleaseProtection();
+        [self hide];
+        [self writeOverlayStatus];
+        return;
+    }
+
+    [self show];
+    self.titleLabel.text = message.length ? message : @"Next Agent working";
+
+    if ([mode isEqualToString:@"working"]) {
+        NAEnsureProcessProtection(agentPID);
+        self.spinner.hidden = NO;
+        self.iconLabel.hidden = YES;
+        [self.spinner startAnimating];
+        self.fill.backgroundColor = [UIColor colorWithRed:0.17 green:0.83 blue:1 alpha:1.0];
+        [self setProgress:MAX(0.05, progress) animated:YES];
+        [self writeOverlayStatus];
+        return;
+    }
+
+    [self.spinner stopAnimating];
+    self.spinner.hidden = YES;
+    self.iconLabel.hidden = NO;
+
+    if ([mode isEqualToString:@"complete"]) {
+        NAReleaseProtection();
+        self.iconLabel.text = @"✓";
+        self.iconLabel.textColor = [UIColor colorWithRed:0.26 green:0.96 blue:0.64 alpha:1.0];
+        self.fill.backgroundColor = self.iconLabel.textColor;
+        self.titleLabel.text = message.length ? message : @"Complete";
+        [self setProgress:1.0 animated:YES];
+
+        if (returnToApp) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self returnToNextAgent];
+            });
+        }
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self hide];
+        });
+        [self writeOverlayStatus];
+        return;
+    }
+
+    NAReleaseProtection();
+    self.iconLabel.text = [mode isEqualToString:@"stopped"] ? @"■" : @"!";
+    self.iconLabel.textColor = [UIColor colorWithRed:1.0 green:0.38 blue:0.47 alpha:1.0];
+    self.fill.backgroundColor = self.iconLabel.textColor;
+    self.titleLabel.text = message.length ? message : ([mode isEqualToString:@"stopped"] ? @"Stopped" : @"Action failed");
+    [self setProgress:1.0 animated:YES];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self hide];
+    });
+    [self writeOverlayStatus];
+}
+
+@end
+
+__attribute__((constructor))
+static void NAOverlayInit(void) {
+    @autoreleasepool {
+        NSString *bundle = NSBundle.mainBundle.bundleIdentifier;
+        if (![bundle isEqualToString:@"com.apple.springboard"]) return;
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NAProgressOverlay *overlay = [NAProgressOverlay shared];
+            [overlay ensureUI];
+            [overlay startPermanentPolling];
+            [overlay writeOverlayStatus];
+            [overlay refresh];
+
+            int progressToken = 0;
+            notify_register_dispatch(
+                NAProgressNotification,
+                &progressToken,
+                dispatch_get_main_queue(),
+                ^(__unused int token) {
+                    [[NAProgressOverlay shared] refresh];
+                }
+            );
+
+            int captureToken = 0;
+            notify_register_dispatch(
+                NAScreenRequestNotification,
+                &captureToken,
+                dispatch_get_main_queue(),
+                ^(__unused int token) {
+                    [[NAProgressOverlay shared] captureRequested];
+                }
+            );
+        });
+    }
+}
