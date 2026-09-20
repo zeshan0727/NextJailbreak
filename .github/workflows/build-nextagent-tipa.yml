@@ -61,7 +61,7 @@ jobs:
           p.write_text(s)
           PY
           patch -p0 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.2.1-credential-persistence.patch"
-          git apply -p0 --recount --unsafe-paths "$GITHUB_WORKSPACE/projects/NextAgent/v0.3-root-daemon.patch"
+          patch -p0 --fuzz=3 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.3-root-daemon.patch"
           grep -q 'MARKETING_VERSION: 0.3.0' project.yml
           grep -q 'RootDaemonClient' NextAgent/NextAgent.swift
           grep -q 'gpt-6-astra' NextAgent/NextAgent.swift
