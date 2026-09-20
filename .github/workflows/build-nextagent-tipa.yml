@@ -7,6 +7,7 @@ on:
     paths:
       - "projects/NextAgent/source.b64.part-*"
       - "projects/NextAgent/v0.2-managed-agent.patch.part-*"
+      - "projects/NextAgent/v0.2.1-credential-persistence.patch"
       - ".github/workflows/build-nextagent-tipa.yml"
 
 permissions:
@@ -66,6 +67,14 @@ jobs:
           grep -q 'gpt-6-astra' NextAgent/NextAgent.swift
           grep -q 'MARKETING_VERSION: 0.2.0' project.yml
 
+      - name: Apply v0.2.1 API key persistence fix
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          patch -p0 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.2.1-credential-persistence.patch"
+          grep -q 'CredentialStore.loadAPIKey' NextAgent/NextAgent.swift
+          grep -q 'MARKETING_VERSION: 0.2.1' project.yml
+
       - name: Install XcodeGen
         run: brew install xcodegen
 
@@ -99,26 +108,26 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.0.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.0.sha256"
-          cp /tmp/nextagent-xcodebuild.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.2.0.log"
-          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/embedded-entitlements-v0.2.0.plist" 2>&1 || true
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.1.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.1.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.1.sha256"
+          cp /tmp/nextagent-xcodebuild.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.2.1.log"
+          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/embedded-entitlements-v0.2.1.plist" 2>&1 || true
           rm -rf build package NextAgent.xcodeproj
           cd ..
-          mv NextAgent_v0.1.0 NextAgent_v0.2.0
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.2.0-source.zip" NextAgent_v0.2.0
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.0.tipa"
+          mv NextAgent_v0.1.0 NextAgent_v0.2.1
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.2.1-source.zip" NextAgent_v0.2.1
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.1.tipa"
 
       - name: Upload test build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.2.0-Astra-Managed-Agent
+          name: NextAgent-0.2.1-Astra-Key-Persistence
           path: |
-            projects/NextAgent/build-output/NextAgent-0.2.0.tipa
-            projects/NextAgent/build-output/NextAgent-0.2.0.sha256
-            projects/NextAgent/build-output/NextAgent-v0.2.0-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.2.0.log
-            projects/NextAgent/build-output/embedded-entitlements-v0.2.0.plist
+            projects/NextAgent/build-output/NextAgent-0.2.1.tipa
+            projects/NextAgent/build-output/NextAgent-0.2.1.sha256
+            projects/NextAgent/build-output/NextAgent-v0.2.1-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.2.1.log
+            projects/NextAgent/build-output/embedded-entitlements-v0.2.1.plist
 
       - name: Publish test build
         run: |
@@ -127,5 +136,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.2.0 Astra Managed Agent [skip ci]"
+          git commit -m "Build Next Agent 0.2.1 API key persistence fix [skip ci]"
           git push
