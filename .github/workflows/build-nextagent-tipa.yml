@@ -1338,7 +1338,7 @@ jobs:
             -o /tmp/NextAgentForegroundHUD.dylib
           ldid -S /tmp/NextAgentForegroundHUD.dylib
           file /tmp/NextAgentForegroundHUD.dylib | grep -q arm64e
-          strings -a /tmp/NextAgentForegroundHUD.dylib | grep -q 'Next Agent • Working'
+          strings -a /tmp/NextAgentForegroundHUD.dylib | grep -q 'uk.zeshanbarvi.nextagent.hud.state'
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
