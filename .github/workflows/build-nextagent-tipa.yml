@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "projects/NextAgent/source.b64.part-*"
+      - "projects/NextAgent/v0.2-managed-agent.patch.part-*"
       - ".github/workflows/build-nextagent-tipa.yml"
 
 permissions:
@@ -17,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore source
+      - name: Restore v0.1 source baseline
         run: |
           set -euo pipefail
           rm -rf /tmp/nextagent-src /tmp/nextagent.zip
@@ -26,7 +27,7 @@ jobs:
           unzip -q /tmp/nextagent.zip -d /tmp/nextagent-src
           test -f /tmp/nextagent-src/NextAgent_v0.1.0/project.yml
 
-      - name: Apply v0.1.0 compiler fix
+      - name: Apply baseline compiler fix
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -43,10 +44,27 @@ jobs:
                       p.withMemoryRebound(to: CChar.self, capacity: machineCapacity) { String(cString: $0) }
                   }
           """
-          if old not in s:
-              raise SystemExit("Expected uname source block not found")
-          p.write_text(s.replace(old, new, 1))
+          if old in s:
+              p.write_text(s.replace(old, new, 1))
           PY
+
+      - name: Apply v0.2 managed Astra agent update
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          cat "$GITHUB_WORKSPACE"/projects/NextAgent/v0.2-managed-agent.patch.part-* > /tmp/nextagent-v02.patch
+          patch -p0 < /tmp/nextagent-v02.patch
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("project.yml")
+          s = p.read_text()
+          s = s.replace("MARKETING_VERSION: 0.1.0", "MARKETING_VERSION: 0.2.0")
+          s = s.replace("CURRENT_PROJECT_VERSION: 1", "CURRENT_PROJECT_VERSION: 2")
+          p.write_text(s)
+          PY
+          grep -q 'agent_a8bca3810e67406a8076559d2ba2e10f1379810a596e4d3082' NextAgent/NextAgent.swift
+          grep -q 'gpt-6-astra' NextAgent/NextAgent.swift
+          grep -q 'MARKETING_VERSION: 0.2.0' project.yml
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -70,7 +88,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             clean build 2>&1 | tee /tmp/nextagent-xcodebuild.log
 
-      - name: Package TrollStore TIPA
+      - name: Package TrollStore TIPA and source
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -euo pipefail
@@ -81,21 +99,26 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.1.0.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.1.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.1.0.sha256"
-          cp /tmp/nextagent-xcodebuild.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild.log"
-          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/embedded-entitlements.plist" 2>&1 || true
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.1.0.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.0.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.0.sha256"
+          cp /tmp/nextagent-xcodebuild.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.2.0.log"
+          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/embedded-entitlements-v0.2.0.plist" 2>&1 || true
+          rm -rf build package NextAgent.xcodeproj
+          cd ..
+          mv NextAgent_v0.1.0 NextAgent_v0.2.0
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.2.0-source.zip" NextAgent_v0.2.0
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.2.0.tipa"
 
       - name: Upload test build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.1.0-TrollStore
+          name: NextAgent-0.2.0-Astra-Managed-Agent
           path: |
-            projects/NextAgent/build-output/NextAgent-0.1.0.tipa
-            projects/NextAgent/build-output/NextAgent-0.1.0.sha256
-            projects/NextAgent/build-output/xcodebuild.log
-            projects/NextAgent/build-output/embedded-entitlements.plist
+            projects/NextAgent/build-output/NextAgent-0.2.0.tipa
+            projects/NextAgent/build-output/NextAgent-0.2.0.sha256
+            projects/NextAgent/build-output/NextAgent-v0.2.0-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.2.0.log
+            projects/NextAgent/build-output/embedded-entitlements-v0.2.0.plist
 
       - name: Publish test build
         run: |
@@ -104,5 +127,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.1.0 TIPA [skip ci]"
+          git commit -m "Build Next Agent 0.2.0 Astra Managed Agent [skip ci]"
           git push
