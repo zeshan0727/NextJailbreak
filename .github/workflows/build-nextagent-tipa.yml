@@ -230,7 +230,8 @@ jobs:
           APP="build/Build/Products/Release-iphoneos/Next Agent.app"
           test -d "$APP"
           EXEC="$APP/Next Agent"
-          ldid -SNextAgent/NextAgent.entitlements "$EXEC"
+          ldid -r "$EXEC" >/dev/null 2>&1 || true
+          ldid -P -SNextAgent/NextAgent.entitlements "$EXEC"
           ldid -e "$EXEC" > /tmp/nextagent-final-entitlements.plist
           cat /tmp/nextagent-final-entitlements.plist
           grep -q 'platform-application' /tmp/nextagent-final-entitlements.plist
