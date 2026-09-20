@@ -1305,14 +1305,13 @@ jobs:
           s = s[:start] + helpers + s[end:]
 
           # Tell the progress HUD what tool is about to run, before foreground switching.
-          import re
-          pattern = r'(for action in actions \\{\\n)([ \\t]*)(let result = await tools\\.execute\\(action\\.name, arguments: action\\.arguments, allowSensitive: state\\.sensitiveActions\\)\\n[ \\t]*state\\.recordTool\\(action\\.name, result\\))'
-          def add_progress(match):
-              indent = match.group(2)
-              return match.group(1) + indent + 'state.toolStarted(action.name, arguments: action.arguments)\\n' + indent + match.group(3)
-          s, count = re.subn(pattern, add_progress, s, count=1)
-          if count != 1:
+          needle = 'let result = await tools.execute(action.name, arguments: action.arguments, allowSensitive: state.sensitiveActions)'
+          pos = s.find(needle)
+          if pos < 0:
               raise SystemExit("v0.7.3 tool execution anchor missing")
+          line_start = s.rfind('\\n', 0, pos) + 1
+          indent = s[line_start:pos]
+          s = s[:line_start] + indent + 'state.toolStarted(action.name, arguments: action.arguments)\\n' + s[line_start:]
 
           s = s.replace('"client_version": "0.7.2"', '"client_version": "0.7.3"')
 
