@@ -26,6 +26,28 @@ jobs:
           unzip -q /tmp/nextagent.zip -d /tmp/nextagent-src
           test -f /tmp/nextagent-src/NextAgent_v0.1.0/project.yml
 
+      - name: Apply v0.1.0 compiler fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("/tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NextAgent.swift")
+          s = p.read_text()
+          old = """        var uts = utsname(); uname(&uts)
+                  let machine = withUnsafePointer(to: &uts.machine) { p in
+                      p.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: uts.machine)) { String(cString: $0) }
+                  }
+          """
+          new = """        var uts = utsname(); uname(&uts)
+                  let machineCapacity = MemoryLayout.size(ofValue: uts.machine)
+                  let machine = withUnsafePointer(to: &uts.machine) { p in
+                      p.withMemoryRebound(to: CChar.self, capacity: machineCapacity) { String(cString: $0) }
+                  }
+          """
+          if old not in s:
+              raise SystemExit("Expected uname source block not found")
+          p.write_text(s.replace(old, new, 1))
+          PY
+
       - name: Install XcodeGen
         run: brew install xcodegen
 
