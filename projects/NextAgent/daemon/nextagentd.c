@@ -19,12 +19,50 @@
 #include <time.h>
 #include <unistd.h>
 
-#define NEXTAGENTD_VERSION "0.3.0"
+#define NEXTAGENTD_VERSION "0.3.1"
 #define LISTEN_PORT 37589
 #define MAX_LINE 65536
 #define MAX_OUTPUT 524288
-#define TOKEN_DIR "/var/mobile/Library/NextAgent"
-#define TOKEN_PATH TOKEN_DIR "/daemon.token"
+#define TOKEN_RELATIVE_DIR "/var/mobile/Library/NextAgent"
+#define TOKEN_NAME "daemon.token"
+
+static bool roothide_mode(void) {
+    struct stat st;
+    return stat("/rootfs", &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+static void token_locations(char dir[4096], char path[4096]) {
+    const char *prefix = roothide_mode() ? "/rootfs" : "";
+    snprintf(dir, 4096, "%s%s", prefix, TOKEN_RELATIVE_DIR);
+    snprintf(path, 4096, "%s/%s", dir, TOKEN_NAME);
+}
+
+static const char *strip_rootfs_prefix(const char *p) {
+    if (p && strncmp(p, "/rootfs/", 8) == 0) return p + 7;
+    return p;
+}
+
+static const char *resolve_rootfs_path(const char *p, char out[4096]) {
+    if (!p) return p;
+    if (!roothide_mode() || strncmp(p, "/rootfs/", 8) == 0 || strcmp(p, "/rootfs") == 0) return p;
+
+    static const char *rootfsPrefixes[] = {
+        "/var/", "/private/", "/System/", "/Applications/", "/User/", "/Users/", "/Developer/"
+    };
+    for (size_t i = 0; i < sizeof(rootfsPrefixes)/sizeof(rootfsPrefixes[0]); i++) {
+        size_t n = strlen(rootfsPrefixes[i]);
+        if (strncmp(p, rootfsPrefixes[i], n) == 0) {
+            snprintf(out, 4096, "/rootfs%s", p);
+            return out;
+        }
+    }
+    if (!strcmp(p, "/var") || !strcmp(p, "/private") || !strcmp(p, "/System") ||
+        !strcmp(p, "/Applications") || !strcmp(p, "/User") || !strcmp(p, "/Users")) {
+        snprintf(out, 4096, "/rootfs%s", p);
+        return out;
+    }
+    return p;
+}
 
 static void logmsg(const char *fmt, ...) {
     va_list ap;
@@ -61,12 +99,11 @@ static int random_bytes(unsigned char *buf, size_t n) {
 }
 
 static int ensure_token(char out[65]) {
-    if (ensure_dir("/var/mobile/Library", 0755, 501, 501) != 0 && errno != EEXIST) {
-        // Usually already exists; do not fail solely on ownership restrictions.
-    }
-    if (ensure_dir(TOKEN_DIR, 0700, 501, 501) != 0) return -1;
+    char tokenDir[4096], tokenPath[4096];
+    token_locations(tokenDir, tokenPath);
+    if (ensure_dir(tokenDir, 0700, 501, 501) != 0) return -1;
 
-    FILE *f = fopen(TOKEN_PATH, "r");
+    FILE *f = fopen(tokenPath, "r");
     if (f) {
         char buf[96] = {0};
         if (fgets(buf, sizeof(buf), f)) {
@@ -75,8 +112,8 @@ static int ensure_token(char out[65]) {
             buf[len] = 0;
             if (len == 64) {
                 memcpy(out, buf, 65);
-                chmod(TOKEN_PATH, 0600);
-                chown(TOKEN_PATH, 501, 501);
+                chmod(tokenPath, 0600);
+                chown(tokenPath, 501, 501);
                 return 0;
             }
         } else fclose(f);
@@ -90,16 +127,17 @@ static int ensure_token(char out[65]) {
         out[i*2+1] = hex[rnd[i] & 0xf];
     }
     out[64] = 0;
-    f = fopen(TOKEN_PATH, "w");
+    f = fopen(tokenPath, "w");
     if (!f) return -1;
     fprintf(f, "%s\n", out);
     fclose(f);
-    chmod(TOKEN_PATH, 0600);
-    chown(TOKEN_PATH, 501, 501);
+    chmod(tokenPath, 0600);
+    chown(tokenPath, 501, 501);
     return 0;
 }
 
 static bool sensitive_path(const char *p) {
+    p = strip_rootfs_prefix(p);
     static const char *blocked[] = {
         "/var/Keychains", "/private/var/Keychains",
         "/var/mobile/Library/Keychains", "/private/var/mobile/Library/Keychains",
@@ -169,25 +207,28 @@ static char *json_escape(const char *s) {
 }
 
 static char *action_ping(void) {
-    char buf[512];
-    snprintf(buf, sizeof(buf), "{\"version\":\"%s\",\"pid\":%d,\"uid\":%d,\"euid\":%d,\"root\":%s}",
-             NEXTAGENTD_VERSION, getpid(), getuid(), geteuid(), geteuid() == 0 ? "true" : "false");
+    char buf[768];
+    snprintf(buf, sizeof(buf), "{\"version\":\"%s\",\"pid\":%d,\"uid\":%d,\"euid\":%d,\"root\":%s,\"roothide\":%s,\"token_on_rootfs\":%s}",
+             NEXTAGENTD_VERSION, getpid(), getuid(), geteuid(), geteuid() == 0 ? "true" : "false",
+             roothide_mode() ? "true" : "false", roothide_mode() ? "true" : "false");
     return strdup(buf);
 }
 
 static char *action_jailbreak(void) {
     const char *paths[] = {
-        "/var/jb", "/private/preboot", "/Applications",
-        "/var/jb/usr/bin/dpkg", "/usr/bin/dpkg",
-        "/var/jb/usr/bin/apt", "/usr/bin/apt",
-        "/var/jb/Applications/Sileo.app", "/Applications/Sileo.app",
-        "/var/jb/Applications/Zebra.app", "/Applications/Zebra.app",
-        "/var/jb/usr/lib/libellekit.dylib", "/var/jb/usr/lib/libsubstitute.dylib"
+        "/rootfs/private/preboot", "/rootfs/Applications",
+        "/private/preboot", "/Applications",
+        "/usr/bin/dpkg", "/usr/bin/apt", "/usr/bin/jbroot", "/usr/bin/rootfs",
+        "/Applications/Sileo.app", "/Applications/Zebra.app",
+        "/usr/lib/libellekit.dylib", "/usr/lib/libsubstitute.dylib",
+        "/var/jb", "/var/jb/usr/bin/dpkg", "/var/jb/usr/bin/apt"
     };
     char *out = calloc(1, 8192);
     if (!out) return strdup("memory error");
     strcat(out, "{\"daemon_root\":");
     strcat(out, geteuid() == 0 ? "true" : "false");
+    strcat(out, ",\"roothide\":");
+    strcat(out, roothide_mode() ? "true" : "false");
     strcat(out, ",\"present_paths\":[");
     bool first = true;
     for (size_t i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
@@ -204,19 +245,22 @@ static char *action_jailbreak(void) {
 
 static char *action_list(const char *path, int *ok) {
     if (!sane_path(path)) { *ok = 0; return strdup("path is blocked or invalid"); }
-    DIR *d = opendir(path);
+    char resolvedBuf[4096];
+    const char *resolved = resolve_rootfs_path(path, resolvedBuf);
+    if (!sane_path(resolved)) { *ok = 0; return strdup("resolved path is blocked or invalid"); }
+    DIR *d = opendir(resolved);
     if (!d) { *ok = 0; return strdup(strerror(errno)); }
     size_t cap = 65536, used = 0;
     char *out = malloc(cap);
     if (!out) { closedir(d); *ok = 0; return strdup("memory error"); }
-    used += snprintf(out + used, cap - used, "{\"path\":\"%s\",\"items\":[", path);
+    used += snprintf(out + used, cap - used, "{\"path\":\"%s\",\"resolved\":\"%s\",\"items\":[", path, resolved);
     struct dirent *ent;
     int count = 0;
     bool first = true;
     while ((ent = readdir(d)) != NULL && count < 1000) {
         if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) continue;
         char full[4096];
-        snprintf(full, sizeof(full), "%s/%s", path, ent->d_name);
+        snprintf(full, sizeof(full), "%s/%s", resolved, ent->d_name);
         struct stat st;
         memset(&st, 0, sizeof(st));
         lstat(full, &st);
@@ -239,7 +283,10 @@ static char *action_list(const char *path, int *ok) {
 
 static char *action_read(const char *path, int *ok) {
     if (!sane_path(path)) { *ok = 0; return strdup("path is blocked or invalid"); }
-    int fd = open(path, O_RDONLY);
+    char resolvedBuf[4096];
+    const char *resolved = resolve_rootfs_path(path, resolvedBuf);
+    if (!sane_path(resolved)) { *ok = 0; return strdup("resolved path is blocked or invalid"); }
+    int fd = open(resolved, O_RDONLY);
     if (fd < 0) { *ok = 0; return strdup(strerror(errno)); }
     struct stat st;
     if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) { close(fd); *ok = 0; return strdup("not a regular file"); }
@@ -392,7 +439,9 @@ int main(void) {
     }
     char token[65] = {0};
     if (ensure_token(token) != 0) {
-        logmsg("failed to create/read token at %s: %s", TOKEN_PATH, strerror(errno));
+        char tokenDir[4096], tokenPath[4096];
+        token_locations(tokenDir, tokenPath);
+        logmsg("failed to create/read token at %s: %s", tokenPath, strerror(errno));
         return 78;
     }
 
