@@ -12,6 +12,7 @@ on:
       - "projects/NextAgent/v0.3.1-app-root-access.patch"
       - "projects/NextAgent/v0.4-background-ui.patch"
       - "projects/NextAgent/v0.4-appswitch-resilience.patch"
+      - "projects/NextAgent/v0.5/**"
       - "projects/NextAgent/daemon/**"
       - ".github/workflows/build-nextagent-tipa.yml"
 
@@ -330,6 +331,112 @@ jobs:
           grep -q 'RootDaemonClient' NextAgent/NextAgent.swift
           grep -q 'gpt-6-astra' NextAgent/NextAgent.swift
 
+      - name: Apply v0.5 production app
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.5/BackgroundKeepAlive.swift" NextAgent/BackgroundKeepAlive.swift
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.5/V05Tools.swift" NextAgent/V05Tools.swift
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.5/ModernUI.swift" NextAgent/ModernUI.swift
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib
+
+          swift = Path("NextAgent/NextAgent.swift")
+          s = swift.read_text()
+
+          s = s.replace(
+              'Next Agent 0.4.0 is ready. Background turn continuation, copy/paste controls, resilient app-switch actions, and RootHide-native diagnostics are enabled.',
+              'Next Agent 0.5.0 Production is ready with the modern control center, extended background automation and RootHide interaction tools.'
+          )
+          s = s.replace('"client_version": "0.4.0"', '"client_version": "0.5.0"')
+
+          old = '    static let toolSchemas: [[String: Any]] = ['
+          if old not in s:
+              raise SystemExit("v0.5 tool schema marker missing")
+          s = s.replace(old, '    static let baseToolSchemas: [[String: Any]] = [', 1)
+
+          helper_marker = '    private static func tool(_ name: String, _ description: String, _ props: [String: Any], required: [String] = []) -> [String: Any] {'
+          if helper_marker not in s:
+              raise SystemExit("v0.5 tool helper marker missing")
+          s = s.replace(
+              helper_marker,
+              '    static var toolSchemas: [[String: Any]] { baseToolSchemas + V05ToolSchemas.extra }\n\n' + helper_marker,
+              1
+          )
+
+          old_default = '        default: return ToolResult(success: false, output: "Unknown tool: \\(name)")'
+          new_default = '''        default:
+                      if let v05 = await executeV05(name, arguments: arguments, allowSensitive: allowSensitive) {
+                          return v05
+                      }
+                      return ToolResult(success: false, output: "Unknown tool: \\(name)")'''
+          if old_default not in s:
+              raise SystemExit("v0.5 execute default marker missing")
+          s = s.replace(old_default, new_default, 1)
+
+          old_root = 'WindowGroup { RootView().environmentObject(state) }'
+          if old_root not in s:
+              raise SystemExit("v0.5 root view marker missing")
+          s = s.replace(old_root, 'WindowGroup { ModernRootView().environmentObject(state) }', 1)
+
+          old_bg = '''        backgroundState = "Protected"
+                  backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "NextAgentTurn") { [weak self] in'''
+          new_bg = '''        let extended = BackgroundKeepAlive.shared.start()
+                  backgroundState = extended ? "Extended background" : "Protected"
+                  backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "NextAgentTurn") { [weak self] in'''
+          if old_bg not in s:
+              raise SystemExit("v0.5 background start marker missing")
+          s = s.replace(old_bg, new_bg, 1)
+
+          old_end = '''    private func endBackgroundTurn() {
+                  if backgroundTask != .invalid {'''
+          new_end = '''    private func endBackgroundTurn() {
+                  BackgroundKeepAlive.shared.stop()
+                  if backgroundTask != .invalid {'''
+          if old_end not in s:
+              raise SystemExit("v0.5 background end marker missing")
+          s = s.replace(old_end, new_end, 1)
+
+          instructions_marker = '    When the user asks to open two or more apps, always use open_apps_sequence once with the complete bundle-ID list instead of repeated open_app calls. This prevents foreground app switching from interrupting the managed-agent turn.\n'
+          production_instructions = '''    When a task needs taps, swipes, typing or key presses, prefer ui_automation so the complete local sequence can continue while another app is foregrounded. Use normalized coordinates only after obtaining or reasoning from current screen dimensions/state. Never use type_text for passwords, passcodes, authentication tokens, banking/payment credentials or private keys. Do not tap purchase, payment, send, authentication, delete, install/remove or other consequential controls unless the user explicitly authorized that exact action in the current request.\n'''
+          if instructions_marker in s:
+              s = s.replace(instructions_marker, instructions_marker + production_instructions, 1)
+
+          swift.write_text(s)
+
+          project = Path("project.yml")
+          y = project.read_text()
+          y = y.replace("MARKETING_VERSION: 0.4.0", "MARKETING_VERSION: 0.5.0")
+          y = y.replace("CURRENT_PROJECT_VERSION: 6", "CURRENT_PROJECT_VERSION: 7")
+          if "ASSETCATALOG_COMPILER_APPICON_NAME" not in y:
+              y = y.replace(
+                  "        ENABLE_USER_SCRIPT_SANDBOXING: NO\n",
+                  "        ENABLE_USER_SCRIPT_SANDBOXING: NO\n        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon\n"
+              )
+          project.write_text(y)
+
+          plist_path = Path("NextAgent/Info.plist")
+          data = plistlib.loads(plist_path.read_bytes())
+          data["CFBundleShortVersionString"] = "0.5.0"
+          data["CFBundleVersion"] = "7"
+          data["CFBundleDisplayName"] = "Next Agent"
+          modes = data.get("UIBackgroundModes", [])
+          if "audio" not in modes:
+              modes.append("audio")
+          data["UIBackgroundModes"] = modes
+          plist_path.write_bytes(plistlib.dumps(data))
+
+          assert "ModernRootView" in swift.read_text()
+          assert "baseToolSchemas" in swift.read_text()
+          assert "0.5.0" in project.read_text()
+          PY
+
+          grep -q 'ModernRootView' NextAgent/NextAgent.swift
+          grep -q 'executeV05' NextAgent/NextAgent.swift
+          grep -q 'MARKETING_VERSION: 0.5.0' project.yml
+
       - name: Force and verify TrollStore app entitlements
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
@@ -361,7 +468,41 @@ jobs:
           grep -q 'no-sandbox' NextAgent/NextAgent.entitlements
 
       - name: Install build tools
-        run: brew install xcodegen dpkg ldid-procursus
+        run: brew install xcodegen dpkg ldid-procursus librsvg
+
+      - name: Generate v0.5 app icon assets
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          ICON_DIR="NextAgent/Assets.xcassets/AppIcon.appiconset"
+          mkdir -p "$ICON_DIR"
+          rsvg-convert -w 1024 -h 1024 "$GITHUB_WORKSPACE/projects/NextAgent/v0.5/AppIcon.svg" > "$ICON_DIR/AppIcon-1024.png"
+          sips -z 40 40 "$ICON_DIR/AppIcon-1024.png" --out "$ICON_DIR/Icon-20@2x.png" >/dev/null
+          sips -z 60 60 "$ICON_DIR/AppIcon-1024.png" --out "$ICON_DIR/Icon-20@3x.png" >/dev/null
+          sips -z 58 58 "$ICON_DIR/AppIcon-1024.png" --out "$ICON_DIR/Icon-29@2x.png" >/dev/null
+          sips -z 87 87 "$ICON_DIR/AppIcon-1024.png" --out "$ICON_DIR/Icon-29@3x.png" >/dev/null
+          sips -z 80 80 "$ICON_DIR/AppIcon-1024.png" --out "$ICON_DIR/Icon-40@2x.png" >/dev/null
+          sips -z 120 120 "$ICON_DIR/AppIcon-1024.png" --out "$ICON_DIR/Icon-40@3x.png" >/dev/null
+          sips -z 120 120 "$ICON_DIR/AppIcon-1024.png" --out "$ICON_DIR/Icon-60@2x.png" >/dev/null
+          sips -z 180 180 "$ICON_DIR/AppIcon-1024.png" --out "$ICON_DIR/Icon-60@3x.png" >/dev/null
+          cat > "$ICON_DIR/Contents.json" <<'EOF'
+          {
+            "images": [
+              {"idiom":"iphone","size":"20x20","scale":"2x","filename":"Icon-20@2x.png"},
+              {"idiom":"iphone","size":"20x20","scale":"3x","filename":"Icon-20@3x.png"},
+              {"idiom":"iphone","size":"29x29","scale":"2x","filename":"Icon-29@2x.png"},
+              {"idiom":"iphone","size":"29x29","scale":"3x","filename":"Icon-29@3x.png"},
+              {"idiom":"iphone","size":"40x40","scale":"2x","filename":"Icon-40@2x.png"},
+              {"idiom":"iphone","size":"40x40","scale":"3x","filename":"Icon-40@3x.png"},
+              {"idiom":"iphone","size":"60x60","scale":"2x","filename":"Icon-60@2x.png"},
+              {"idiom":"iphone","size":"60x60","scale":"3x","filename":"Icon-60@3x.png"},
+              {"idiom":"ios-marketing","size":"1024x1024","scale":"1x","filename":"AppIcon-1024.png"}
+            ],
+            "info": {"author":"xcode","version":1}
+          }
+          EOF
+          test -s "$ICON_DIR/AppIcon-1024.png"
+          /usr/bin/plutil -lint NextAgent/Info.plist
 
       - name: Generate app project
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -403,14 +544,64 @@ jobs:
           set -o pipefail
           xcodebuild             -project NextAgent.xcodeproj             -scheme NextAgent             -configuration Release             -sdk iphoneos             -derivedDataPath build             CODE_SIGNING_ALLOWED=NO             CODE_SIGNING_REQUIRED=NO             CODE_SIGN_IDENTITY=""             clean build 2>&1 | tee /tmp/nextagent-xcodebuild-v030.log
 
-      - name: Build root daemon arm64
+      - name: Build v0.5 RootHide daemon arm64
         run: |
           set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source = Path("projects/NextAgent/daemon/nextagentd.c").read_text()
+          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.5.0"', 1)
+          marker = 'static char *action_ping(void) {'
+          if marker not in source:
+              raise SystemExit("daemon action_ping marker missing")
+          source = source.replace(marker, '#include "hid_v05.inc"\n\n' + marker, 1)
+
+          route = '    else if (!strcmp(action, "storage")) out = action_storage(&ok_i);\n'
+          extra = '''    else if (!strcmp(action, "storage")) out = action_storage(&ok_i);
+              else if (!strcmp(action, "hid_status")) out = action_hid_status(&ok_i);
+              else if (!strcmp(action, "tap")) out = action_tap_v05(arg, &ok_i, false);
+              else if (!strcmp(action, "double_tap")) out = action_tap_v05(arg, &ok_i, true);
+              else if (!strcmp(action, "long_press")) out = action_long_press_v05(arg, &ok_i);
+              else if (!strcmp(action, "swipe")) out = action_swipe_v05(arg, &ok_i);
+              else if (!strcmp(action, "key")) out = action_key_v05(arg, &ok_i);
+              else if (!strcmp(action, "paste")) out = action_paste_v05(&ok_i);
+              else if (!strcmp(action, "packages")) out = action_packages_v05(&ok_i);
+          '''
+          if route not in source:
+              raise SystemExit("daemon route marker missing")
+          source = source.replace(route, extra, 1)
+          Path("/tmp/nextagentd-v05.c").write_text(source)
+          PY
+
+          cat > /tmp/nextagentd-v05.entitlements <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+          <key>platform-application</key><true/>
+          <key>com.apple.private.security.no-sandbox</key><true/>
+          <key>com.apple.private.security.no-container</key><true/>
+          <key>com.apple.private.security.storage.AppBundles</key><true/>
+          <key>com.apple.private.security.storage.AppDataContainers</key><true/>
+          <key>com.apple.hid.system.server-access</key><true/>
+          <key>com.apple.private.hid.client.event-dispatch</key><true/>
+          </dict></plist>
+          EOF
+
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
-          xcrun --sdk iphoneos clang             -arch arm64             -isysroot "$SDK"             -miphoneos-version-min=16.0             -Os -Wall -Wextra             "$GITHUB_WORKSPACE/projects/NextAgent/daemon/nextagentd.c"             -o /tmp/nextagentd
-          /usr/bin/codesign --force --sign -             --entitlements "$GITHUB_WORKSPACE/projects/NextAgent/daemon/nextagentd.entitlements"             /tmp/nextagentd
+          xcrun --sdk iphoneos clang \
+            -arch arm64 \
+            -isysroot "$SDK" \
+            -miphoneos-version-min=16.0 \
+            -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.5" \
+            -Os -Wall -Wextra \
+            /tmp/nextagentd-v05.c \
+            -framework CoreFoundation \
+            -o /tmp/nextagentd
+          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v05.entitlements /tmp/nextagentd
           file /tmp/nextagentd
           /usr/bin/codesign -d --entitlements :- /tmp/nextagentd > /tmp/nextagentd-entitlements.plist 2>&1 || true
+          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v05.entitlements
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -437,11 +628,11 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.4.0.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.4.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.4.0.sha256"
-          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.4.0.log"
-          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.4.0.plist"
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.4.0.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.5.0.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.5.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.5.0.sha256"
+          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.5.0.log"
+          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.5.0.plist"
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.5.0.tipa"
 
       - name: Package rootless daemon DEB
         run: |
@@ -497,7 +688,7 @@ jobs:
           cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
           cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.roothide.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
           mkdir -p "$P/usr/local/share/nextagent"
-          cp projects/NextAgent/daemon/nextagentd.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
+          cp /tmp/nextagentd-v05.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
           chmod 0755 "$P/usr/local/libexec/nextagentd"
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
@@ -508,7 +699,7 @@ jobs:
           Priority: optional
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper for Next Agent 0.4.0, packaged for RootHide randomized jbroot.
+          Description: Privileged root helper for Next Agent 0.5.0 with HID interaction tools, packaged for RootHide randomized jbroot.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
@@ -540,8 +731,8 @@ jobs:
           exit 0
           EOF
           chmod 0755 "$P/DEBIAN/postinst" "$P/DEBIAN/prerm"
-          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.4.0-roothide.deb"
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.4.0-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.4.0-roothide.sha256"
+          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.deb"
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.sha256"
 
       - name: Package rootful daemon DEB
         run: |
@@ -593,28 +784,28 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
-          mv NextAgent_v0.1.0 NextAgent_v0.4.0
-          mkdir -p NextAgent_v0.4.0/RootHelperSource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.4.0/RootHelperSource/
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.4.0-source.zip" NextAgent_v0.4.0
+          mv NextAgent_v0.1.0 NextAgent_v0.5.0
+          mkdir -p NextAgent_v0.5.0/RootHelperSource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.5.0/RootHelperSource/\n          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.5.0/RootHelperSource/\n          cp /tmp/nextagentd-v05.c NextAgent_v0.5.0/RootHelperSource/nextagentd-v0.5.0.c\n          cp /tmp/nextagentd-v05.entitlements NextAgent_v0.5.0/RootHelperSource/nextagentd-v0.5.0.entitlements
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.5.0-source.zip" NextAgent_v0.5.0
           cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.3.0.plist"
 
       - name: Upload v0.3 test build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.4.0-Background-RootHide
+          name: NextAgent-0.5.0-Production-RootHide
           path: |
-            projects/NextAgent/build-output/NextAgent-0.4.0.tipa
-            projects/NextAgent/build-output/NextAgent-0.4.0.sha256
+            projects/NextAgent/build-output/NextAgent-0.5.0.tipa
+            projects/NextAgent/build-output/NextAgent-0.5.0.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256
-            projects/NextAgent/build-output/NextAgentDaemon-0.4.0-roothide.deb
-            projects/NextAgent/build-output/NextAgentDaemon-0.4.0-roothide.sha256
+            projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.deb
+            projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256
-            projects/NextAgent/build-output/NextAgent-v0.4.0-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.4.0.log
-            projects/NextAgent/build-output/app-entitlements-v0.4.0.plist
+            projects/NextAgent/build-output/NextAgent-v0.5.0-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.5.0.log
+            projects/NextAgent/build-output/app-entitlements-v0.5.0.plist
             projects/NextAgent/build-output/daemon-entitlements-v0.3.0.plist
 
       - name: Publish v0.3 test build
@@ -624,5 +815,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.4.0 background and RootHide diagnostics [skip ci]"
+          git commit -m "Build Next Agent 0.5.0 production UI and interaction tools [skip ci]"
           git push
