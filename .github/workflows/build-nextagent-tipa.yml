@@ -294,7 +294,7 @@ jobs:
                       }
                   }
                   let payload: [String: Any] = ["requested": bundleIDs, "opened": opened, "failures": failures, "delay_seconds": delay]
-                  return jsonResult(payload, success: failures.isEmpty)
+                  return jsonResult(payload)
               }
 
               private func openURL(_ args: [String: Any]) -> ToolResult {
