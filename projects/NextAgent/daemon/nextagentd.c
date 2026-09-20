@@ -14,13 +14,15 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/sysctl.h>
+#include <sys/mount.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 #include <mach-o/dyld.h>
 
-#define NEXTAGENTD_VERSION "0.3.4"
+#define NEXTAGENTD_VERSION "0.4.0"
 #define LISTEN_PORT 37589
 #define MAX_LINE 65536
 #define MAX_OUTPUT 524288
@@ -346,10 +348,65 @@ static char *action_read(const char *path, int *ok) {
 }
 
 static char *action_ps(int *ok) {
-    int code = 0;
-    char *r = run_fixed("PATH=/var/jb/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin ps -axo pid,user,comm | head -n 350 2>&1", &code);
-    *ok = (code == 0);
-    return r;
+    int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
+    size_t bytes = 0;
+    if (sysctl(mib, 4, NULL, &bytes, NULL, 0) != 0 || bytes == 0) {
+        *ok = 0;
+        return strdup(strerror(errno));
+    }
+    struct kinfo_proc *procs = malloc(bytes);
+    if (!procs) { *ok = 0; return strdup("out of memory"); }
+    if (sysctl(mib, 4, procs, &bytes, NULL, 0) != 0) {
+        int e = errno;
+        free(procs);
+        *ok = 0;
+        return strdup(strerror(e));
+    }
+
+    size_t count = bytes / sizeof(struct kinfo_proc);
+    size_t cap = MAX_OUTPUT + 1;
+    char *out = calloc(1, cap);
+    if (!out) { free(procs); *ok = 0; return strdup("out of memory"); }
+    size_t used = 0;
+    used += snprintf(out + used, cap - used, "PID\tUID\tCOMMAND\n");
+    for (size_t i = 0; i < count && used + 128 < cap; i++) {
+        struct kinfo_proc *kp = &procs[i];
+        pid_t pid = kp->kp_proc.p_pid;
+        if (pid <= 0) continue;
+        uid_t uid = kp->kp_eproc.e_ucred.cr_uid;
+        const char *comm = kp->kp_proc.p_comm;
+        used += snprintf(out + used, cap - used, "%d\t%u\t%s\n", pid, uid, comm);
+    }
+    free(procs);
+    *ok = 1;
+    return out;
+}
+
+static char *action_storage(int *ok) {
+    const char *paths[] = { "/", "/var", "/var/mobile" };
+    char *out = calloc(1, 4096);
+    if (!out) { *ok = 0; return strdup("out of memory"); }
+    size_t used = 0;
+    used += snprintf(out + used, 4096 - used, "{\"filesystems\":[");
+    bool first = true;
+    for (size_t i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
+        struct statfs st;
+        if (statfs(paths[i], &st) != 0) continue;
+        unsigned long long total = (unsigned long long)st.f_blocks * (unsigned long long)st.f_bsize;
+        unsigned long long freeb = (unsigned long long)st.f_bavail * (unsigned long long)st.f_bsize;
+        if (!first) used += snprintf(out + used, 4096 - used, ",");
+        used += snprintf(out + used, 4096 - used,
+                         "{\"path\":\"%s\",\"total_bytes\":%llu,\"free_bytes\":%llu,\"fs\":\"%s\"}",
+                         paths[i], total, freeb, st.f_fstypename);
+        first = false;
+    }
+    used += snprintf(out + used, 4096 - used, "]}");
+    *ok = !first;
+    if (first) {
+        free(out);
+        return strdup("statfs failed for all requested paths");
+    }
+    return out;
 }
 
 static char *action_uicache(int *ok) {
@@ -450,6 +507,7 @@ static void handle_client(int fd, const char *token) {
     if (!strcmp(action, "ping")) out = action_ping();
     else if (!strcmp(action, "jailbreak_info")) out = action_jailbreak();
     else if (!strcmp(action, "ps")) out = action_ps(&ok_i);
+    else if (!strcmp(action, "storage")) out = action_storage(&ok_i);
     else if (!strcmp(action, "list")) { out = action_list(arg, &ok_i); }
     else if (!strcmp(action, "read")) { out = action_read(arg, &ok_i); }
     else if (!strcmp(action, "uicache")) { out = action_uicache(&ok_i); }
