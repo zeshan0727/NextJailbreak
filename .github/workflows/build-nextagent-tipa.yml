@@ -868,7 +868,7 @@ jobs:
           replacement = '''    private func beginBackgroundTurnIfNeeded() {
                   guard backgroundContinuation else { return }
 
-                  let pinned = NABackgroundAssertionController.sharedController().start()
+                  let pinned = NABackgroundAssertionController.shared().start()
                   let extended = BackgroundKeepAlive.shared.start()
 
                   if pinned {
@@ -889,7 +889,7 @@ jobs:
                               // the agent turn actually finishes or the user presses Force Stop.
                               self.endUIKitBackgroundTaskOnly()
 
-                              if NABackgroundAssertionController.sharedController().isValid {
+                              if NABackgroundAssertionController.shared().isValid {
                                   self.backgroundState = "Pinned background"
                               } else if BackgroundKeepAlive.shared.active {
                                   self.backgroundState = "Extended background"
@@ -911,7 +911,7 @@ jobs:
               private func endBackgroundTurn() {
                   endUIKitBackgroundTaskOnly()
                   BackgroundKeepAlive.shared.stop()
-                  NABackgroundAssertionController.sharedController().stop()
+                  NABackgroundAssertionController.shared().stop()
                   if !client.hasPendingTurn {
                       backgroundState = "Idle"
                   }
@@ -950,7 +950,7 @@ jobs:
                   status = "Running local tool self-test…"
                   defer { busy = false }
 
-                  let backgroundController = NABackgroundAssertionController.sharedController()
+                  let backgroundController = NABackgroundAssertionController.shared()
                   let pinned = backgroundController.start()
                   let backgroundStatus = backgroundController.status
                   backgroundController.stop()
