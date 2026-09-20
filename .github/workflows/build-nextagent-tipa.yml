@@ -1270,6 +1270,7 @@ jobs:
             -framework UIKit \
             -framework Foundation \
             -framework QuartzCore \
+            -framework CoreGraphics \
             -o /tmp/NextAgentOverlay.dylib
           ldid -S /tmp/NextAgentOverlay.dylib
           file /tmp/NextAgentOverlay.dylib | grep -q arm64e
