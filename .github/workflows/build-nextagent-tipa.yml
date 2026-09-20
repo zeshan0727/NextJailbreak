@@ -1507,8 +1507,8 @@ jobs:
           mkdir -p NextAgent_v0.7.5/OverlaySource
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.5/Overlay/* NextAgent_v0.7.5/OverlaySource/
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.5/
-          cp /tmp/nextagentd-v075.c NextAgent_v0.7.5/RootHelperSource/nextagentd-v0.7.4.c
-          cp /tmp/nextagentd-v075.entitlements NextAgent_v0.7.5/RootHelperSource/nextagentd-v0.7.4.entitlements
+          cp /tmp/nextagentd-v075.c NextAgent_v0.7.5/RootHelperSource/nextagentd-v0.7.5.c
+          cp /tmp/nextagentd-v075.entitlements NextAgent_v0.7.5/RootHelperSource/nextagentd-v0.7.5.entitlements
           /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.5-source.zip" NextAgent_v0.7.5
           cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.5.plist"
 
