@@ -13,6 +13,7 @@ on:
       - "projects/NextAgent/v0.4-background-ui.patch"
       - "projects/NextAgent/v0.4-appswitch-resilience.patch"
       - "projects/NextAgent/v0.5/**"
+      - "projects/NextAgent/v0.7/**"
       - "projects/NextAgent/daemon/**"
       - ".github/workflows/build-nextagent-tipa.yml"
 
@@ -437,6 +438,124 @@ jobs:
           grep -q 'executeV05' NextAgent/NextAgent.swift
           grep -q 'MARKETING_VERSION: 0.5.0' project.yml
 
+      - name: Apply v0.7 complete v6 + v7 toolset
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7/ScreenVision.swift" NextAgent/ScreenVision.swift
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7/AutomationStore.swift" NextAgent/AutomationStore.swift
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7/V07Tools.swift" NextAgent/V07Tools.swift
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7/V07UI.swift" NextAgent/V07UI.swift
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt" NextAgent/THIRD_PARTY_NOTICES.txt
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib
+
+          swift = Path("NextAgent/NextAgent.swift")
+          s = swift.read_text()
+
+          s = s.replace(
+              'Next Agent 0.5.0 Production is ready with the modern control center, extended background automation and RootHide interaction tools.',
+              'Next Agent 0.7.0 Full Toolset is ready with screen vision, saved automations, RootHide package/service/file control and battery diagnostics.'
+          )
+          s = s.replace('"client_version": "0.5.0"', '"client_version": "0.7.0"')
+
+          old = '    static var toolSchemas: [[String: Any]] { baseToolSchemas + V05ToolSchemas.extra }'
+          new = '    static var toolSchemas: [[String: Any]] { baseToolSchemas + V05ToolSchemas.extra + V07ToolSchemas.extra }'
+          if old not in s:
+              raise SystemExit("v0.7 toolSchemas marker missing")
+          s = s.replace(old, new, 1)
+
+          old = '''    func execute(_ name: String, arguments: [String: Any], allowSensitive: Bool) async -> ToolResult {
+                  switch name {'''
+          new = '''    func execute(_ name: String, arguments: [String: Any], allowSensitive: Bool) async -> ToolResult {
+                  AutomationRecorder.shared.record(tool: name, arguments: arguments)
+                  switch name {'''
+          if old not in s:
+              raise SystemExit("v0.7 execute marker missing")
+          s = s.replace(old, new, 1)
+
+          old = '''        default:
+                      if let v05 = await executeV05(name, arguments: arguments, allowSensitive: allowSensitive) {
+                          return v05
+                      }
+                      return ToolResult(success: false, output: "Unknown tool: \\(name)")'''
+          new = '''        default:
+                      if let v07 = await executeV07(name, arguments: arguments, allowSensitive: allowSensitive) {
+                          return v07
+                      }
+                      if let v05 = await executeV05(name, arguments: arguments, allowSensitive: allowSensitive) {
+                          return v05
+                      }
+                      return ToolResult(success: false, output: "Unknown tool: \\(name)")'''
+          if old not in s:
+              raise SystemExit("v0.7 execute default marker missing")
+          s = s.replace(old, new, 1)
+
+          instruction_anchor = '    When a task needs taps, swipes, typing or key presses, prefer ui_automation so the complete local sequence can continue while another app is foregrounded. Use normalized coordinates only after obtaining or reasoning from current screen dimensions/state. Never use type_text for passwords, passcodes, authentication tokens, banking/payment credentials or private keys. Do not tap purchase, payment, send, authentication, delete, install/remove or other consequential controls unless the user explicitly authorized that exact action in the current request.\n'
+          extra = '''    For visual interaction, prefer describe_screen or OCR/find_text before guessing coordinates, and use tap_text when a unique visible label is available. Saved automations are for reusable UI-control flows only; do not store secrets or credentials in them. Package install/remove, root delete/write, service changes, ldrestart, userspace reboot, lock/power, and other consequential actions require explicit current-request authorization for the exact action. Battery diagnostic tools are read-only; do not infer that one raw capacity ratio exactly equals the Settings battery-health percentage unless the returned data establishes that.\n'''
+          if instruction_anchor in s:
+              s = s.replace(instruction_anchor, instruction_anchor + extra, 1)
+
+          swift.write_text(s)
+
+          ui = Path("NextAgent/ModernUI.swift")
+          u = ui.read_text()
+          tab_anchor = '''                ModernToolsView()
+                              .tabItem { Label("Tools", systemImage: "wrench.and.screwdriver.fill") }
+          '''
+          tab_new = '''                ModernToolsView()
+                              .tabItem { Label("Tools", systemImage: "wrench.and.screwdriver.fill") }
+                          ModernAutomationsView()
+                              .tabItem { Label("Automations", systemImage: "point.3.connected.trianglepath.dotted") }
+          '''
+          if tab_anchor not in u:
+              raise SystemExit("v0.7 tab marker missing")
+          u = u.replace(tab_anchor, tab_new, 1)
+
+          tool_anchor = '''        .init(title: "System", subtitle: "Root helper & services", icon: "gearshape.2.fill", color: NATheme.green, prompt: "Check root helper health and summarize available system-control tools. Do not modify anything.")
+          '''
+          tool_new = '''        .init(title: "Screen Vision", subtitle: "Capture, OCR & tap text", icon: "viewfinder", color: NATheme.cyan, prompt: "Describe the current screen using screen vision and OCR. Do not tap anything."),
+                  .init(title: "Battery Lab", subtitle: "Live IOKit & battery plists", icon: "battery.100percent", color: NATheme.green, prompt: "Read live battery properties and summarize the available battery diagnostics. Do not modify anything."),
+                  .init(title: "Packages", subtitle: "Install/remove RootHide DEBs", icon: "shippingbox.and.arrow.backward.fill", color: NATheme.orange, prompt: "Show installed bootstrap packages and explain the package management tools. Do not install or remove anything."),
+                  .init(title: "Services", subtitle: "Inspect & manage launchd", icon: "server.rack", color: NATheme.violet, prompt: "Summarize the launchd service tools. Do not start, stop or restart anything."),
+                  .init(title: "System", subtitle: "Root helper & services", icon: "gearshape.2.fill", color: NATheme.green, prompt: "Check root helper health and summarize available system-control tools. Do not modify anything.")
+          '''
+          if tool_anchor in u:
+              u = u.replace(tool_anchor, tool_new, 1)
+
+          u = u.replace("Production 0.5.0 • RootHide • GPT-6 Astra", "Full Toolset 0.7.0 • RootHide • GPT-6 Astra")
+          ui.write_text(u)
+
+          project = Path("project.yml")
+          y = project.read_text()
+          y = y.replace("MARKETING_VERSION: 0.5.0", "MARKETING_VERSION: 0.7.0")
+          y = y.replace("CURRENT_PROJECT_VERSION: 7", "CURRENT_PROJECT_VERSION: 8")
+          project.write_text(y)
+
+          plist_path = Path("NextAgent/Info.plist")
+          data = plistlib.loads(plist_path.read_bytes())
+          data["CFBundleShortVersionString"] = "0.7.0"
+          data["CFBundleVersion"] = "8"
+          data["CFBundleDisplayName"] = "Next Agent"
+          modes = data.get("UIBackgroundModes", [])
+          if "audio" not in modes:
+              modes.append("audio")
+          data["UIBackgroundModes"] = modes
+          plist_path.write_bytes(plistlib.dumps(data))
+
+          assert "V07ToolSchemas.extra" in swift.read_text()
+          assert "executeV07" in swift.read_text()
+          assert "ModernAutomationsView" in ui.read_text()
+          assert "MARKETING_VERSION: 0.7.0" in project.read_text()
+          PY
+
+          grep -q 'V07ToolSchemas.extra' NextAgent/NextAgent.swift
+          grep -q 'executeV07' NextAgent/NextAgent.swift
+          grep -q 'ModernAutomationsView' NextAgent/ModernUI.swift
+          grep -q 'MARKETING_VERSION: 0.7.0' project.yml
+
       - name: Force and verify TrollStore app entitlements
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
@@ -508,7 +627,7 @@ jobs:
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: xcodegen generate
 
-      - name: Restore v0.5 product metadata after XcodeGen
+      - name: Restore v0.7 product metadata after XcodeGen
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -euo pipefail
@@ -518,15 +637,15 @@ jobs:
 
           p = Path("NextAgent/Info.plist")
           d = plistlib.loads(p.read_bytes())
-          d["CFBundleShortVersionString"] = "0.5.0"
-          d["CFBundleVersion"] = "7"
+          d["CFBundleShortVersionString"] = "0.7.0"
+          d["CFBundleVersion"] = "8"
           d["CFBundleDisplayName"] = "Next Agent"
           d["UIBackgroundModes"] = ["audio"]
           p.write_bytes(plistlib.dumps(d))
           PY
           /usr/bin/plutil -lint NextAgent/Info.plist
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.5.0'
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '7'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.0'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '8'
           /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes:0' NextAgent/Info.plist | grep -qx 'audio'
 
       - name: Restore TrollStore entitlements after XcodeGen
@@ -565,18 +684,20 @@ jobs:
           set -o pipefail
           xcodebuild             -project NextAgent.xcodeproj             -scheme NextAgent             -configuration Release             -sdk iphoneos             -derivedDataPath build             CODE_SIGNING_ALLOWED=NO             CODE_SIGNING_REQUIRED=NO             CODE_SIGN_IDENTITY=""             clean build 2>&1 | tee /tmp/nextagent-xcodebuild-v030.log
 
-      - name: Build v0.5 RootHide daemon arm64
+      - name: Build v0.7 RootHide daemon arm64
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
 
           source = Path("projects/NextAgent/daemon/nextagentd.c").read_text()
-          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.5.0"', 1)
+          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.0"', 1)
+
           marker = 'static char *action_ping(void) {'
           if marker not in source:
               raise SystemExit("daemon action_ping marker missing")
-          source = source.replace(marker, '#include "hid_v05.inc"\n\n' + marker, 1)
+          includes = '#include "hid_v05.inc"\n#include "system_v07.inc"\n#include "NABatteryDiagnostics.h"\n\n'
+          source = source.replace(marker, includes + marker, 1)
 
           route = '    else if (!strcmp(action, "storage")) out = action_storage(&ok_i);\n'
           extra = '''    else if (!strcmp(action, "storage")) out = action_storage(&ok_i);
@@ -588,14 +709,35 @@ jobs:
               else if (!strcmp(action, "key")) out = action_key_v05(arg, &ok_i);
               else if (!strcmp(action, "paste")) out = action_paste_v05(&ok_i);
               else if (!strcmp(action, "packages")) out = action_packages_v05(&ok_i);
+              else if (!strcmp(action, "button")) out = action_button_v07(arg, &ok_i);
+              else if (!strcmp(action, "package_install")) out = action_package_install_v07(arg, &ok_i);
+              else if (!strcmp(action, "package_remove")) out = action_package_remove_v07(arg, &ok_i);
+              else if (!strcmp(action, "ldrestart")) out = action_ldrestart_v07(&ok_i);
+              else if (!strcmp(action, "userspace_reboot")) out = action_userspace_reboot_v07(&ok_i);
+              else if (!strcmp(action, "service_list")) out = action_service_list_v07(&ok_i);
+              else if (!strcmp(action, "service_status")) out = na_launchctl_domain_action("status", arg, false, &ok_i);
+              else if (!strcmp(action, "service_start")) out = na_launchctl_domain_action("start", arg, false, &ok_i);
+              else if (!strcmp(action, "service_restart")) out = na_launchctl_domain_action("restart", arg, false, &ok_i);
+              else if (!strcmp(action, "service_stop")) out = na_launchctl_domain_action("stop", arg, false, &ok_i);
+              else if (!strcmp(action, "root_stat")) out = action_root_stat_v07(arg, &ok_i);
+              else if (!strcmp(action, "root_search")) out = action_root_search_v07(arg, &ok_i);
+              else if (!strcmp(action, "root_mkdir")) out = action_root_mkdir_v07(arg, &ok_i);
+              else if (!strcmp(action, "root_copy")) out = na_two_path_action("cp", arg, true, &ok_i);
+              else if (!strcmp(action, "root_move")) out = na_two_path_action("mv", arg, false, &ok_i);
+              else if (!strcmp(action, "root_delete")) out = action_root_delete_v07(arg, &ok_i);
+              else if (!strcmp(action, "root_write_text")) out = action_root_write_v07(arg, &ok_i);
+              else if (!strcmp(action, "archive_zip")) out = action_archive_v07(arg, false, &ok_i);
+              else if (!strcmp(action, "archive_unzip")) out = action_archive_v07(arg, true, &ok_i);
+              else if (!strcmp(action, "battery_properties")) out = NABatteryPropertiesJSON(&ok_i);
+              else if (!strcmp(action, "read_battery_plist")) out = NAReadBatteryPlistJSON(arg, &ok_i);
           '''
           if route not in source:
               raise SystemExit("daemon route marker missing")
           source = source.replace(route, extra, 1)
-          Path("/tmp/nextagentd-v05.c").write_text(source)
+          Path("/tmp/nextagentd-v07.c").write_text(source)
           PY
 
-          cat > /tmp/nextagentd-v05.entitlements <<'EOF'
+          cat > /tmp/nextagentd-v07.entitlements <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
@@ -610,19 +752,41 @@ jobs:
           EOF
 
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+
           xcrun --sdk iphoneos clang \
             -arch arm64 \
             -isysroot "$SDK" \
             -miphoneos-version-min=16.0 \
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.5" \
+            -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7" \
             -Os -Wall -Wextra \
-            /tmp/nextagentd-v05.c \
+            -c /tmp/nextagentd-v07.c \
+            -o /tmp/nextagentd-main.o
+
+          xcrun --sdk iphoneos clang \
+            -arch arm64 \
+            -isysroot "$SDK" \
+            -miphoneos-version-min=16.0 \
+            -fobjc-arc \
+            -Os -Wall -Wextra \
+            -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7" \
+            -c "$GITHUB_WORKSPACE/projects/NextAgent/v0.7/NABatteryDiagnostics.m" \
+            -o /tmp/nextagentd-battery.o
+
+          xcrun --sdk iphoneos clang \
+            -arch arm64 \
+            -isysroot "$SDK" \
+            -miphoneos-version-min=16.0 \
+            /tmp/nextagentd-main.o \
+            /tmp/nextagentd-battery.o \
+            -framework Foundation \
             -framework CoreFoundation \
             -o /tmp/nextagentd
-          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v05.entitlements /tmp/nextagentd
+
+          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v07.entitlements /tmp/nextagentd
           file /tmp/nextagentd
           /usr/bin/codesign -d --entitlements :- /tmp/nextagentd > /tmp/nextagentd-entitlements.plist 2>&1 || true
-          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v05.entitlements
+          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v07.entitlements
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -649,11 +813,11 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.5.0.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.5.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.5.0.sha256"
-          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.5.0.log"
-          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.5.0.plist"
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.5.0.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.0.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.0.sha256"
+          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.0.log"
+          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.0.plist"
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.0.tipa"
 
       - name: Package rootless daemon DEB
         run: |
@@ -709,18 +873,18 @@ jobs:
           cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
           cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.roothide.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
           mkdir -p "$P/usr/local/share/nextagent"
-          cp /tmp/nextagentd-v05.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
+          cp /tmp/nextagentd-v07.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
           chmod 0755 "$P/usr/local/libexec/nextagentd"
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.5.0
+          Version: 0.7.0
           Architecture: iphoneos-arm64e
           Section: Utilities
           Priority: optional
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper for Next Agent 0.5.0 with HID interaction tools, packaged for RootHide randomized jbroot.
+          Description: Privileged root helper for Next Agent 0.7.0 full toolset with HID, package/service/file control and battery diagnostics for RootHide.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
@@ -752,8 +916,8 @@ jobs:
           exit 0
           EOF
           chmod 0755 "$P/DEBIAN/postinst" "$P/DEBIAN/prerm"
-          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.deb"
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.sha256"
+          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.0-roothide.deb"
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.0-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.0-roothide.sha256"
 
       - name: Package rootful daemon DEB
         run: |
@@ -800,44 +964,48 @@ jobs:
           dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb"
           shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256"
 
-      - name: Package v0.5 source
+      - name: Package v0.7 source
         working-directory: /tmp/nextagent-src
         run: |
           set -euo pipefail
           rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
-          mv NextAgent_v0.1.0 NextAgent_v0.5.0
-          mkdir -p NextAgent_v0.5.0/RootHelperSource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.5.0/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.5.0/RootHelperSource/
-          cp /tmp/nextagentd-v05.c NextAgent_v0.5.0/RootHelperSource/nextagentd-v0.5.0.c
-          cp /tmp/nextagentd-v05.entitlements NextAgent_v0.5.0/RootHelperSource/nextagentd-v0.5.0.entitlements
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.5.0-source.zip" NextAgent_v0.5.0
-          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.5.0.plist"
+          mv NextAgent_v0.1.0 NextAgent_v0.7.0
+          mkdir -p NextAgent_v0.7.0/RootHelperSource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.0/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.0/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.0/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.0/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.0/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.0/
+          cp /tmp/nextagentd-v07.c NextAgent_v0.7.0/RootHelperSource/nextagentd-v0.7.0.c
+          cp /tmp/nextagentd-v07.entitlements NextAgent_v0.7.0/RootHelperSource/nextagentd-v0.7.0.entitlements
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.0-source.zip" NextAgent_v0.7.0
+          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.0.plist"
 
-      - name: Upload v0.5 production build
+      - name: Upload v0.7 full toolset build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.5.0-Production-RootHide
+          name: NextAgent-0.7.0-Full-Toolset-RootHide
           path: |
-            projects/NextAgent/build-output/NextAgent-0.5.0.tipa
-            projects/NextAgent/build-output/NextAgent-0.5.0.sha256
+            projects/NextAgent/build-output/NextAgent-0.7.0.tipa
+            projects/NextAgent/build-output/NextAgent-0.7.0.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256
-            projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.deb
-            projects/NextAgent/build-output/NextAgentDaemon-0.5.0-roothide.sha256
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.0-roothide.deb
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.0-roothide.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256
-            projects/NextAgent/build-output/NextAgent-v0.5.0-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.5.0.log
-            projects/NextAgent/build-output/app-entitlements-v0.5.0.plist
-            projects/NextAgent/build-output/daemon-entitlements-v0.5.0.plist
+            projects/NextAgent/build-output/NextAgent-v0.7.0-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.7.0.log
+            projects/NextAgent/build-output/app-entitlements-v0.7.0.plist
+            projects/NextAgent/build-output/daemon-entitlements-v0.7.0.plist
 
-      - name: Publish v0.5 production build
+      - name: Publish v0.7 full toolset build
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.5.0 production UI and interaction tools [skip ci]"
+          git commit -m "Build Next Agent 0.7.0 full v6+v7 toolset [skip ci]"
           git push
