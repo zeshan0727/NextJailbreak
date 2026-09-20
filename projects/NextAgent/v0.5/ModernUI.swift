@@ -62,7 +62,12 @@ struct NANextMark: View {
 }
 
 struct NAGlassCard<Content: View>: View {
-    @ViewBuilder let content: Content
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
     var body: some View {
         content
             .padding(16)
@@ -417,7 +422,13 @@ struct ModernAgentView: View {
                         .font(.system(size: 17, weight: .bold))
                         .foregroundStyle(.white)
                         .frame(width: 40, height: 40)
-                        .background(state.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state.busy ? Color.gray.opacity(0.35) : AnyShapeStyle(NATheme.accent), in: Circle())
+                        .background(
+                            Circle().fill(
+                                state.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state.busy
+                                    ? AnyShapeStyle(Color.gray.opacity(0.35))
+                                    : AnyShapeStyle(NATheme.accent)
+                            )
+                        )
                 }
                 .buttonStyle(.plain)
                 .disabled(state.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state.busy)
