@@ -9,6 +9,7 @@ on:
       - "projects/NextAgent/v0.2-managed-agent.patch.part-*"
       - "projects/NextAgent/v0.2.1-credential-persistence.patch"
       - "projects/NextAgent/v0.3-root-daemon.patch"
+      - "projects/NextAgent/v0.3.1-app-root-access.patch"
       - "projects/NextAgent/daemon/**"
       - ".github/workflows/build-nextagent-tipa.yml"
 
@@ -62,7 +63,8 @@ jobs:
           PY
           patch -p0 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.2.1-credential-persistence.patch"
           patch -p0 --fuzz=3 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.3-root-daemon.patch"
-          grep -q 'MARKETING_VERSION: 0.3.0' project.yml
+          patch -p0 --fuzz=3 < "$GITHUB_WORKSPACE/projects/NextAgent/v0.3.1-app-root-access.patch"
+          grep -q 'MARKETING_VERSION: 0.3.1' project.yml
           grep -q 'RootDaemonClient' NextAgent/NextAgent.swift
           grep -q 'gpt-6-astra' NextAgent/NextAgent.swift
 
@@ -99,11 +101,11 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.0.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.0.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.0.sha256"
-          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.3.0.log"
-          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.3.0.plist" 2>&1 || true
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.0.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.1.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.1.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.1.sha256"
+          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.3.1.log"
+          /usr/bin/codesign -d --entitlements :- "$APP" > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.3.1.plist" 2>&1 || true
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.3.1.tipa"
 
       - name: Package rootless daemon DEB
         run: |
@@ -255,28 +257,28 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
-          mv NextAgent_v0.1.0 NextAgent_v0.3.0
-          mkdir -p NextAgent_v0.3.0/RootHelperSource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.3.0/RootHelperSource/
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.3.0-source.zip" NextAgent_v0.3.0
+          mv NextAgent_v0.1.0 NextAgent_v0.3.1
+          mkdir -p NextAgent_v0.3.1/RootHelperSource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.3.1/RootHelperSource/
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.3.1-source.zip" NextAgent_v0.3.1
           cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.3.0.plist"
 
       - name: Upload v0.3 test build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.3.0-Astra-Root-Daemon
+          name: NextAgent-0.3.1-Astra-RootHide-App-Fix
           path: |
-            projects/NextAgent/build-output/NextAgent-0.3.0.tipa
-            projects/NextAgent/build-output/NextAgent-0.3.0.sha256
+            projects/NextAgent/build-output/NextAgent-0.3.1.tipa
+            projects/NextAgent/build-output/NextAgent-0.3.1.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.4-roothide.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.4-roothide.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256
-            projects/NextAgent/build-output/NextAgent-v0.3.0-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.3.0.log
-            projects/NextAgent/build-output/app-entitlements-v0.3.0.plist
+            projects/NextAgent/build-output/NextAgent-v0.3.1-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.3.1.log
+            projects/NextAgent/build-output/app-entitlements-v0.3.1.plist
             projects/NextAgent/build-output/daemon-entitlements-v0.3.0.plist
 
       - name: Publish v0.3 test build
@@ -286,5 +288,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.3.0 root daemon [skip ci]"
+          git commit -m "Build Next Agent 0.3.1 RootHide app access fix [skip ci]"
           git push
