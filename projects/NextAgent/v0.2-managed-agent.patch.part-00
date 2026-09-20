@@ -1,0 +1,196 @@
+--- NextAgent/NextAgent.swift
++++ NextAgent/NextAgent.swift
+@@ -38,21 +38,21 @@
+ @MainActor
+ final class AppState: ObservableObject {
+     @Published var messages: [ChatMessage] = [
+-        ChatMessage(role: "assistant", text: "Next Agent 0.1.0 is ready. Open Settings, save a dedicated OpenAI project API key, then start giving me phone tasks.")
++        ChatMessage(role: "assistant", text: "Next Agent 0.2.0 is ready with your GPT-6 Astra managed agent. Open Settings, save the dedicated OpenAI project API key, verify the agent, then start giving me phone tasks.")
+     ]
+     @Published var input = ""
+     @Published var busy = false
+     @Published var status = "Not configured"
+-    @Published var agentId = "Responses API"
+-    @Published var sessionId = UserDefaults.standard.string(forKey: "nextagent.previousResponseId") ?? ""
+-    @Published var model = UserDefaults.standard.string(forKey: "nextagent.model") ?? "gpt-5.6-sol"
++    @Published var agentId = "agent_a8bca3810e67406a8076559d2ba2e10f1379810a596e4d3082"
++    @Published var sessionId = UserDefaults.standard.string(forKey: "nextagent.managedSessionId") ?? ""
++    @Published var model = "gpt-6-astra"
+     @Published var sensitiveActions = UserDefaults.standard.bool(forKey: "nextagent.sensitiveActions")
+     @Published var apiKeyDraft = KeychainStore.load("openai_api_key") ?? ""
+     @Published var lastTool = "None"
+     @Published var toolLog: [String] = []
+ 
+     private let tools = DeviceToolRegistry()
+-    private lazy var client = OpenAIResponsesClient(state: self, tools: tools)
++    private lazy var client = OpenAIManagedAgentsClient(state: self, tools: tools)
+ 
+     func saveSettings() {
+         if apiKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+@@ -60,7 +60,6 @@
+         } else {
+             KeychainStore.save(apiKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines), key: "openai_api_key")
+         }
+-        UserDefaults.standard.set(model, forKey: "nextagent.model")
+         UserDefaults.standard.set(sensitiveActions, forKey: "nextagent.sensitiveActions")
+         status = "Settings saved"
+     }
+@@ -83,8 +82,8 @@
+ 
+     func resetConversation() {
+         sessionId = ""
+-        UserDefaults.standard.removeObject(forKey: "nextagent.previousResponseId")
+-        messages = [ChatMessage(role: "assistant", text: "Conversation reset. Device tools and settings are unchanged.")]
++        UserDefaults.standard.removeObject(forKey: "nextagent.managedSessionId")
++        messages = [ChatMessage(role: "assistant", text: "Managed-agent session reset. Device tools and settings are unchanged.")]
+         status = "Conversation reset"
+     }
+ 
+@@ -118,12 +117,13 @@
+     }
+ }
+ 
+-// MARK: - OpenAI Responses API
++// MARK: - OpenAI Managed Agents API
+ 
+-final class OpenAIResponsesClient {
++final class OpenAIManagedAgentsClient {
+     weak var state: AppState?
+     let tools: DeviceToolRegistry
+-    private let endpoint = URL(string: "https://api.openai.com/v1/responses")!
++    private let base = URL(string: "https://api.openai.com/v1/agents/")!
++    private let savedAgentId = "agent_a8bca3810e67406a8076559d2ba2e10f1379810a596e4d3082"
+ 
+     init(state: AppState, tools: DeviceToolRegistry) {
+         self.state = state
+@@ -142,119 +142,182 @@
+     @MainActor
+     func validateConnection() async throws {
+         guard let state else { throw NSError(domain: "NextAgent", code: 1) }
+-        let body: [String: Any] = [
+-            "model": state.model,
+-            "instructions": "Reply with exactly READY.",
+-            "input": "Connection test. Do not call tools.",
+-            "tool_choice": "none",
+-            "max_output_tokens": 16,
+-            "store": false
+-        ]
+-        _ = try await request(body)
++        let agent = try await requestJSON(method: "GET", path: "/\(savedAgentId)")
++        guard (agent["id"] as? String) == savedAgentId else {
++            throw apiShape("Saved managed agent was not returned", agent)
++        }
++        let model = agent["model"] as? String ?? "unknown"
++        guard model == "gpt-6-astra" else {
++            throw NSError(domain: "NextAgent", code: 409, userInfo: [NSLocalizedDescriptionKey: "Managed agent currently uses \(model), expected gpt-6-astra"])
++        }
++        state.agentId = savedAgentId
++        state.model = model
+     }
+ 
+     @MainActor
+     func runUserMessage(_ message: String) async throws -> String {
+         guard let state else { throw NSError(domain: "NextAgent", code: 2) }
+-        var input: Any = message
+-        var previousId: String? = state.sessionId.isEmpty ? nil : state.sessionId
+ 
+-        for _ in 0..<16 {
+-            var body: [String: Any] = [
+-                "model": state.model,
+-                "instructions": DeviceToolRegistry.agentInstructions,
+-                "input": input,
+-                "tools": DeviceToolRegistry.toolSchemas,
+-                "tool_choice": "auto",
+-                "parallel_tool_calls": false,
+-                "reasoning": ["effort": "medium"],
+-                "text": ["verbosity": "low"],
+-                "store": true
+-            ]
+-            if let previousId, !previousId.isEmpty { body["previous_response_id"] = previousId }
++        let baselineAssistantId: String?
++        if state.sessionId.isEmpty {
++            baselineAssistantId = nil
++            let created = try await createSession(initialMessage: message)
++            guard let id = created["id"] as? String, !id.isEmpty else {
++                throw apiShape("Managed session response had no session id", created)
++            }
++            state.sessionId = id
++            UserDefaults.standard.set(id, forKey: "nextagent.managedSessionId")
++        } else {
++            baselineAssistantId = try await latestAssistantMessage(sessionId: state.sessionId)?.id
++            try await sendUserMessage(sessionId: state.sessionId, text: message)
++        }
+ 
+-            let response = try await request(body)
+-            guard let responseId = response["id"] as? String else {
+-                throw apiShape("Missing response id", response)
++        return try await driveSession(sessionId: state.sessionId, baselineAssistantId: baselineAssistantId)
++    }
++
++    private func createSession(initialMessage: String) async throws -> [String: Any] {
++        let body: [String: Any] = [
++            "agent_id": savedAgentId,
++            "agent": ["tools": DeviceToolRegistry.toolSchemas],
++            "environment": ["type": "none"],
++            "input": initialMessage,
++            "metadata": ["client": "NextAgent-iPhone", "client_version": "0.2.0"],
++            "stream": false
++        ]
++        return try await requestJSON(method: "POST", path: "/sessions", body: body)
++    }
++
++    private func sendUserMessage(sessionId: String, text: String) async throws {
++        let body: [String: Any] = [
++            "events": [[
++                "type": "agent.session.input.message",
++                "input": [[
++                    "role": "user",
++                    "content": [["type": "input_text", "text": text]]
++                ]]
++            ]]
++        ]
++        _ = try await requestData(method: "POST", path: "/sessions/\(sessionId)/events", body: body)
++    }
++
++    @MainActor
++    private func driveSession(sessionId: String, baselineAssistantId: String?) async throws -> String {
++        guard let state else { throw NSError(domain: "NextAgent", code: 3) }
++        for _ in 0..<240 {
++            try Task.checkCancellation()
++            let session = try await requestJSON(method: "GET", path: "/sessions/\(sessionId)")
++            let status = session["status"] as? String ?? "unknown"
++
++            if status == "failed" {
++                let reason = (session["error"] as? String) ?? "Managed agent session failed"
++                throw NSError(domain: "NextAgent", code: 500, userInfo: [NSLocalizedDescriptionKey: reason])
+             }
+-            previousId = responseId
+-            state.sessionId = responseId
+-            UserDefaults.standard.set(responseId, forKey: "nextagent.previousResponseId")
+-
+-            let calls = parseFunctionCalls(response)
+-            if calls.isEmpty {
+-                let text = extractAssistantText(response)
+-                if !text.isEmpty { return text }
+-                throw apiShape("Response contained no assistant text", response)
++
++            if status == "requires_action" {
++                let actions = parseRequiredActions(session)
++                guard !actions.isEmpty else {
++                    throw apiShape("Session requires action but supplied no supported function calls", session)
++                }
++                var events: [[String: Any]] = []
++                for action in actions {
++                    let result = await tools.execute(action.name, arguments: action.arguments, allowSensitive: state.sensitiveActions)
++                    state.recordTool(action.name, result)
++                    var event: [String: Any] = [
++                        "type": "agent.session.input.tool_result",
++                        "turn_id": action.turnId,
++                        "call_id": action.callId,
++                        "success": result.success
++                    ]
++                    if result.success { event["output"] = result.output }
++                    else { event["error"] = result.output }
++                    events.append(event)
++                }
++                _ = try await requestDa
