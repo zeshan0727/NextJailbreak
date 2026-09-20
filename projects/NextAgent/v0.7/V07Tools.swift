@@ -241,7 +241,7 @@ extension DeviceToolRegistry {
             guard allowSensitive else { return v07SensitiveOff() }
             return RootDaemonClient.request(action: "swipe", argument: "0.500000,0.010000,0.500000,0.620000,0.450")
         case "open_app_by_name":
-            return v07OpenAppByName(arguments)
+            return await v07OpenAppByName(arguments)
 
         case "battery_properties":
             return RootDaemonClient.request(action: "battery_properties")
