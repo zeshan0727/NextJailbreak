@@ -1,0 +1,302 @@
+--- NextAgent/NextAgent.swift
++++ NextAgent/NextAgent.swift
+@@ -38,7 +38,7 @@
+ @MainActor
+ final class AppState: ObservableObject {
+     @Published var messages: [ChatMessage] = [
+-        ChatMessage(role: "assistant", text: "Next Agent 0.2.1 is ready with your GPT-6 Astra managed agent. Open Settings, save the dedicated OpenAI project API key, verify the agent, then start giving me phone tasks.")
++        ChatMessage(role: "assistant", text: "Next Agent 0.3.0 is ready with your GPT-6 Astra managed agent and optional root helper daemon. Open Settings, save the dedicated OpenAI project API key, verify the agent, then start giving me phone tasks.")
+     ]
+     @Published var input = ""
+     @Published var busy = false
+@@ -50,6 +50,7 @@
+     @Published var apiKeyDraft = CredentialStore.loadAPIKey() ?? ""
+     @Published var lastTool = "None"
+     @Published var toolLog: [String] = []
++    @Published var rootHelperStatus = "Not checked"
+ 
+     private let tools = DeviceToolRegistry()
+     private lazy var client = OpenAIManagedAgentsClient(state: self, tools: tools)
+@@ -119,6 +120,11 @@
+         }
+     }
+ 
++    func checkRootHelper() {
++        let result = RootDaemonClient.request(action: "ping")
++        rootHelperStatus = result.success ? "Connected: \(result.output)" : "Unavailable: \(result.output)"
++    }
++
+     func recordTool(_ name: String, _ result: ToolResult) {
+         lastTool = name
+         let stamp = ISO8601DateFormatter().string(from: Date())
+@@ -191,7 +197,7 @@
+             "agent": ["tools": DeviceToolRegistry.toolSchemas],
+             "environment": ["type": "none"],
+             "input": initialMessage,
+-            "metadata": ["client": "NextAgent-iPhone", "client_version": "0.2.0"],
++            "metadata": ["client": "NextAgent-iPhone", "client_version": "0.3.0"],
+             "stream": false
+         ]
+         return try await requestJSON(method: "POST", path: "/sessions", body: body)
+@@ -343,12 +349,17 @@
+     Use tools only when needed and report actual tool results; never claim an action succeeded if a tool did not report success.
+     Do not attempt to access passwords, Keychain contents, authentication tokens, financial apps/data, microphone, camera, private messages, or hidden credential stores.
+     Do not invent arbitrary shell commands. Use only the provided tools.
++    A separately installed nextagentd root helper may provide privileged filesystem/process/system tools. Its protocol is allow-listed and blocks credential stores and private communications data.
+     Potentially disruptive tools may be disabled by the user. If a tool reports that sensitive actions are disabled, explain that the user can enable them in Settings and do not try to bypass the control.
+     Prefer read-only inspection before changing device state.
+     """
+ 
+     static let toolSchemas: [[String: Any]] = [
+-        tool("device_info", "Get device, OS, jailbreak/root and filesystem status.", [:]),
++        tool("device_info", "Get device, OS, jailbreak/root, root-helper and filesystem status.", [:]),
++        tool("root_helper_status", "Check whether the separately installed nextagentd privileged helper is connected and actually running as root.", [:]),
++        tool("jailbreak_diagnostics", "Inspect jailbreak/bootstrap paths using the root helper when installed. Read-only.", [:]),
++        tool("root_list_files", "List a root-visible directory through nextagentd. Credential stores and private communications roots are blocked by the daemon.", ["path": str("Absolute directory path")], required: ["path"]),
++        tool("root_read_text_file", "Read a root-visible UTF-8 text file through nextagentd, up to 256 KB. Credential stores and private communications roots are blocked.", ["path": str("Absolute text file path")], required: ["path"]),
+         tool("list_installed_apps", "List installed iOS applications with display name and bundle identifier.", [:]),
+         tool("open_url", "Open an http/https or iOS URL scheme on the phone.", ["url": str("URL to open")], required: ["url"]),
+         tool("open_app", "Open an installed app by bundle identifier using LaunchServices when available.", ["bundle_id": str("Bundle identifier")], required: ["bundle_id"]),
+@@ -389,6 +400,14 @@
+     func execute(_ name: String, arguments: [String: Any], allowSensitive: Bool) async -> ToolResult {
+         switch name {
+         case "device_info": return deviceInfo()
++        case "root_helper_status": return RootDaemonClient.request(action: "ping")
++        case "jailbreak_diagnostics": return RootDaemonClient.request(action: "jailbreak_info")
++        case "root_list_files":
++            guard let path = arguments["path"] as? String else { return badArgs() }
++            return RootDaemonClient.request(action: "list", argument: path)
++        case "root_read_text_file":
++            guard let path = arguments["path"] as? String else { return badArgs() }
++            return RootDaemonClient.request(action: "read", argument: path)
+         case "list_installed_apps": return listApps()
+         case "open_url": return openURL(arguments)
+         case "open_app": return openApp(arguments)
+@@ -402,7 +421,9 @@
+         case "write_text_file":
+             guard allowSensitive else { return sensitiveOff() }
+             return writeText(arguments)
+-        case "process_list": return ShellRunner.runPreset("ps -axo pid,user,comm | head -n 250")
++        case "process_list":
++            let privileged = RootDaemonClient.request(action: "ps")
++            return privileged.success ? privileged : ShellRunner.runPreset("ps -axo pid,user,comm | head -n 250")
+         case "network_interfaces": return ShellRunner.runPreset("ifconfig 2>/dev/null || ip addr 2>/dev/null")
+         case "device_storage": return ShellRunner.runPreset("df -h / /var /var/mobile 2>/dev/null | uniq")
+         case "get_brightness": return ToolResult(success: true, output: String(format: "%.3f", UIScreen.main.brightness))
+@@ -412,15 +433,18 @@
+         case "take_screenshot": return screenshot()
+         case "refresh_icon_cache":
+             guard allowSensitive else { return sensitiveOff() }
+-            return ShellRunner.runRootPreset("uicache -a 2>&1")
++            let daemon = RootDaemonClient.request(action: "uicache")
++            return daemon.success ? daemon : ShellRunner.runRootPreset("uicache -a 2>&1")
+         case "respring":
+             guard allowSensitive else { return sensitiveOff() }
+-            return ShellRunner.runRootPreset("(command -v sbreload >/dev/null && sbreload) || killall SpringBoard")
++            let daemon = RootDaemonClient.request(action: "respring")
++            return daemon.success ? daemon : ShellRunner.runRootPreset("(command -v sbreload >/dev/null && sbreload) || killall SpringBoard")
+         case "terminate_process":
+             guard allowSensitive else { return sensitiveOff() }
+-            guard let pid = (arguments["pid"] as? NSNumber)?.intValue, pid > 1 else { return badArgs() }
+-            return ShellRunner.runRootPreset("kill -TERM \(pid)")
++            guard let pid = (arguments["pid"] as? NSNumber)?.intValue, pid > 20 else { return badArgs() }
++            let daemon = RootDaemonClient.request(action: "kill", argument: String(pid))
++            return daemon.success ? daemon : ShellRunner.runRootPreset("kill -TERM \(pid)")
+         default: return ToolResult(success: false, output: "Unknown tool: \(name)")
+         }
+     }
+@@ -437,7 +461,7 @@
+         }
+         let roots = ["/var/jb", "/Applications", "/private/preboot"]
+         let present = roots.filter { FileManager.default.fileExists(atPath: $0) }
+-        let info: [String: Any] = [
++        var info: [String: Any] = [
+             "name": UIDevice.current.name,
+             "model": UIDevice.current.model,
+             "machine": machine,
+@@ -449,6 +473,14 @@
+             "jailbreak_paths": present,
+             "bundle": Bundle.main.bundleIdentifier ?? ""
+         ]
++        let daemon = RootDaemonClient.request(action: "ping")
++        if daemon.success,
++           let data = daemon.output.data(using: .utf8),
++           let obj = try? JSONSerialization.jsonObject(with: data) {
++            info["root_helper"] = obj
++        } else {
++            info["root_helper"] = ["connected": false, "detail": daemon.output]
++        }
+         return jsonResult(info)
+     }
+@@ -564,6 +596,136 @@
+     private func sensitiveOff() -> ToolResult { ToolResult(success: false, output: "Sensitive actions are disabled in Next Agent Settings") }
+ }
+ 
++// MARK: - Privileged helper client
++
++enum RootDaemonClient {
++    private static let host = "127.0.0.1"
++    private static let port: UInt16 = 37589
++    private static let tokenPath = "/var/mobile/Library/NextAgent/daemon.token"
++
++    static func request(action: String, argument: String = "") -> ToolResult {
++        guard action.range(of: "^[a-z_]+$", options: .regularExpression) != nil else {
++            return ToolResult(success: false, output: "Invalid daemon action")
++        }
++        guard let rawToken = try? String(contentsOfFile: tokenPath, encoding: .utf8) else {
++            return ToolResult(success: false, output: "Root helper token is unavailable. Install the matching NextAgentDaemon 0.3.0 package and ensure nextagentd is loaded.")
++        }
++        let token = rawToken.trimmingCharacters(in: .whitespacesAndNewlines)
++        guard token.count == 64 else { return ToolResult(success: false, output: "Root helper token is invalid") }
++
++        let fd = Darwin.socket(AF_INET, Int32(SOCK_STREAM.rawValue), 0)
++        guard fd >= 0 else { return ToolResult(success: false, output: "socket failed: \(String(cString: strerror(errno)))") }
++        defer { Darwin.close(fd) }
++
++        var tv = timeval(tv_sec: 3, tv_usec: 0)
++        _ = withUnsafePointer(to: &tv) { p in
++            Darwin.setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, p, socklen_t(MemoryLayout<timeval>.size))
++        }
++        _ = withUnsafePointer(to: &tv) { p in
++            Darwin.setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, p, socklen_t(MemoryLayout<timeval>.size))
++        }
++
++        var addr = sockaddr_in()
++        addr.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
++        addr.sin_family = sa_family_t(AF_INET)
++        addr.sin_port = in_port_t(port.bigEndian)
++        let ipResult = host.withCString { inet_pton(AF_INET, $0, &addr.sin_addr) }
++        guard ipResult == 1 else { return ToolResult(success: false, output: "inet_pton failed") }
++        let connected = withUnsafePointer(to: &addr) { p in
++            p.withMemoryRebound(to: sockaddr.self, capacity: 1) {
++                Darwin.connect(fd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
++            }
++        }
++        guard connected == 0 else {
++            return ToolResult(success: false, output: "Root helper is not listening on 127.0.0.1:\(port): \(String(cString: strerror(errno)))")
++        }
++
++        let encoded = Data(argument.utf8).base64EncodedString()
++        let line = "NAGENT1 \(token) \(action) \(encoded.isEmpty ? "-" : encoded)\n"
++        guard writeAll(fd: fd, data: Data(line.utf8)) else {
++            return ToolResult(success: false, output: "Failed to send request to root helper")
++        }
++        guard let header = readLine(fd: fd, max: 128) else {
++            return ToolResult(success: false, output: "Root helper did not return a response header")
++        }
++        let parts = header.split(separator: " ", maxSplits: 1).map(String.init)
++        guard parts.count == 2, let count = Int(parts[1]), count >= 0, count <= 524_288 else {
++            return ToolResult(success: false, output: "Malformed root helper response")
++        }
++        guard let data = readExact(fd: fd, count: count) else {
++            return ToolResult(success: false, output: "Incomplete root helper response")
++        }
++        let output = String(data: data, encoding: .utf8) ?? "[non-UTF8 daemon output]"
++        return ToolResult(success: parts[0] == "OK", output: output)
++    }
++
++    private static func writeAll(fd: Int32, data: Data) -> Bool {
++        var sent = 0
++        return data.withUnsafeBytes { raw in
++            guard let base = raw.baseAddress else { return false }
++            while sent < data.count {
++                let n = Darwin.write(fd, base.advanced(by: sent), data.count - sent)
++                if n <= 0 { return false }
++                sent += n
++            }
++            return true
++        }
++    }
++
++    private static func readLine(fd: Int32, max: Int) -> String? {
++        var bytes: [UInt8] = []
++        bytes.reserveCapacity(min(max, 128))
++        while bytes.count < max {
++            var byte: UInt8 = 0
++            let n = Darwin.read(fd, &byte, 1)
++            if n <= 0 { return nil }
++            if byte == 10 { break }
++            bytes.append(byte)
++        }
++        return String(bytes: bytes, encoding: .utf8)
++    }
++
++    private static func readExact(fd: Int32, count: Int) -> Data? {
++        if count == 0 { return Data() }
++        var data = Data(count: count)
++        var readCount = 0
++        let ok = data.withUnsafeMutableBytes { raw -> Bool in
++            guard let base = raw.baseAddress else { return false }
++            while readCount < count {
++                let n = Darwin.read(fd, base.advanced(by: readCount), count - readCount)
++                if n <= 0 { return false }
++                readCount += n
++            }
++            return true
++        }
++        return ok ? data : nil
++    }
++}
++
+ // MARK: - Shell
+ 
+ enum ShellRunner {
+@@ -765,11 +927,13 @@
+                 Section("Runtime") {
+                     LabeledContent("UID", value: "\(getuid())")
+                     LabeledContent("EUID", value: "\(geteuid())")
++                    LabeledContent("Root helper", value: state.rootHelperStatus)
++                    Button("Test Root Helper") { state.checkRootHelper() }
+                     LabeledContent("Sensitive actions", value: state.sensitiveActions ? "Enabled" : "Disabled")
+                     LabeledContent("Last tool", value: state.lastTool)
+                 }
+                 Section("Available to the agent") {
+-                    ForEach(["Device info", "Installed apps", "Open app / URL", "Clipboard", "User files", "Processes", "Network interfaces", "Storage", "Brightness", "Screenshot attempt", "uicache*", "Respring*", "Terminate process*"], id: \.self) { Text($0) }
++                    ForEach(["Device info", "Root helper status", "Root jailbreak diagnostics", "Root file listing / text reads", "Installed apps", "Open app / URL", "Clipboard", "User files", "Processes", "Network interfaces", "Storage", "Brightness", "Screenshot attempt", "uicache*", "Respring*", "Terminate process*"], id: \.self) { Text($0) }
+                     Text("* requires Sensitive actions in Settings").font(.caption).foregroundStyle(.secondary)
+                 }
+                 Section("Tool log") {
+@@ -845,14 +1009,14 @@
+                 Section("Device Control") {
+                     Toggle("Allow sensitive actions", isOn: $state.sensitiveActions)
+                         .onChange(of: state.sensitiveActions) { v in UserDefaults.standard.set(v, forKey: "nextagent.sensitiveActions") }
+-                    Text("When off, file writes, uicache, respring and process termination are blocked even if the agent requests them.")
++                    Text("When off, file writes, uicache, respring and process termination are blocked even if the agent requests them. Root read-only inspection remains available when nextagentd is installed.")
+                         .font(.caption).foregroundStyle(.secondary)
+                 }
+ 
+                 Section("Security") {
+                     Text("The test build stores the API key in the iOS Keychain and never commits it into the app. A jailbroken/rooted device can still be compromised by other privileged software; use a dedicated OpenAI project key with a spending limit and rotate it if the phone is lost or untrusted.")
+                         .font(.caption)
+-                    Text("Next Agent intentionally has no tools for reading Keychain credentials, passwords, authentication tokens, microphone, camera, private messages, or arbitrary model-generated shell commands.")
++                    Text("Next Agent intentionally has no tools for reading Keychain credentials, passwords, authentication tokens, microphone, camera, private messages, or arbitrary model-generated shell commands. The v0.3 root daemon also blocks credential/keychain and private communications paths server-side.")
+                         .font(.caption)
+                 }
+             }.navigationTitle("Settings")
+--- NextAgent/NextAgent.entitlements
++++ NextAgent/NextAgent.entitlements
+@@ -1,5 +1,10 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+ <plist version="1.0">
+-<dict/>
++<dict>
++    <key>com.apple.private.security.no-container</key>
++    <true/>
++    <key>com.apple.private.security.container-required</key>
++    <false/>
++</dict>
+ </plist>
+--- project.yml
++++ project.yml
+@@ -25,8 +25,8 @@
+       base:
+         PRODUCT_BUNDLE_IDENTIFIER: uk.zeshanbarvi.nextagent
+         PRODUCT_NAME: Next Agent
+-        MARKETING_VERSION: 0.2.1
+-        CURRENT_PROJECT_VERSION: 3
++        MARKETING_VERSION: 0.3.0
++        CURRENT_PROJECT_VERSION: 4
+         TARGETED_DEVICE_FAMILY: 1
+         SUPPORTS_MACCATALYST: NO
+         ENABLE_USER_SCRIPT_SANDBOXING: NO
