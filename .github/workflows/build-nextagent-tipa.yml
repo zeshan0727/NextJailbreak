@@ -508,6 +508,27 @@ jobs:
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: xcodegen generate
 
+      - name: Restore v0.5 product metadata after XcodeGen
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib
+
+          p = Path("NextAgent/Info.plist")
+          d = plistlib.loads(p.read_bytes())
+          d["CFBundleShortVersionString"] = "0.5.0"
+          d["CFBundleVersion"] = "7"
+          d["CFBundleDisplayName"] = "Next Agent"
+          d["UIBackgroundModes"] = ["audio"]
+          p.write_bytes(plistlib.dumps(d))
+          PY
+          /usr/bin/plutil -lint NextAgent/Info.plist
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.5.0'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '7'
+          /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes:0' NextAgent/Info.plist | grep -qx 'audio'
+
       - name: Restore TrollStore entitlements after XcodeGen
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
@@ -693,7 +714,7 @@ jobs:
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.4.0
+          Version: 0.5.0
           Architecture: iphoneos-arm64e
           Section: Utilities
           Priority: optional
