@@ -15,6 +15,7 @@ on:
       - "projects/NextAgent/v0.5/**"
       - "projects/NextAgent/v0.7/**"
       - "projects/NextAgent/v0.7.1/**"
+      - "projects/NextAgent/v0.7.2/**"
       - "projects/NextAgent/daemon/**"
       - ".github/workflows/build-nextagent-tipa.yml"
 
@@ -819,8 +820,8 @@ jobs:
 
           plist_path = Path("NextAgent/Info.plist")
           d = plistlib.loads(plist_path.read_bytes())
-          d["CFBundleShortVersionString"] = "0.7.1"
-          d["CFBundleVersion"] = "9"
+          d["CFBundleShortVersionString"] = "0.7.2"
+          d["CFBundleVersion"] = "10"
           plist_path.write_bytes(plistlib.dumps(d))
 
           assert "V071ToolSchemas.grouped" in p.read_text()
@@ -833,6 +834,168 @@ jobs:
           grep -q 'func forceStop()' NextAgent/NextAgent.swift
           grep -q 'func runLocalSelfTest()' NextAgent/NextAgent.swift
           grep -q 'MARKETING_VERSION: 0.7.1' project.yml
+
+      - name: Apply v0.7.2 jailbreak-native background pin
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.2/NABackgroundAssertion.h" NextAgent/NABackgroundAssertion.h
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.2/NABackgroundAssertion.m" NextAgent/NABackgroundAssertion.m
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.2/NextAgent-Bridging-Header.h" NextAgent/NextAgent-Bridging-Header.h
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib
+
+          p = Path("NextAgent/NextAgent.swift")
+          s = p.read_text()
+
+          s = s.replace(
+              'Next Agent 0.7.1 is ready with the reliable grouped tool router, local self-test, and Force Stop control.',
+              'Next Agent 0.7.2 is ready with jailbreak-native background pinning for multi-app automation.'
+          )
+
+          s = s.replace(
+              'private static let currentToolSchemaVersion = "0.7.1-router1"',
+              'private static let currentToolSchemaVersion = "0.7.2-bgpin1"'
+          )
+
+          start = s.find('    private func beginBackgroundTurnIfNeeded() {')
+          end = s.find('    func checkRootHelper()', start)
+          if start < 0 or end < 0:
+              raise SystemExit("v0.7.2 background block bounds missing")
+
+          replacement = '''    private func beginBackgroundTurnIfNeeded() {
+                  guard backgroundContinuation else { return }
+
+                  let pinned = NABackgroundAssertionController.sharedController().start()
+                  let extended = BackgroundKeepAlive.shared.start()
+
+                  if pinned {
+                      backgroundState = "Pinned background"
+                  } else if extended {
+                      backgroundState = "Extended background"
+                  } else {
+                      backgroundState = "Protected"
+                  }
+
+                  if backgroundTask == .invalid {
+                      backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "NextAgentTurn") { [weak self] in
+                          Task { @MainActor in
+                              guard let self else { return }
+
+                              // The ordinary UIKit assertion has expired. End only that assertion.
+                              // Keep the jailbreak-native BKS assertion and audio fallback alive until
+                              // the agent turn actually finishes or the user presses Force Stop.
+                              self.endUIKitBackgroundTaskOnly()
+
+                              if NABackgroundAssertionController.sharedController().isValid {
+                                  self.backgroundState = "Pinned background"
+                              } else if BackgroundKeepAlive.shared.active {
+                                  self.backgroundState = "Extended background"
+                              } else {
+                                  self.backgroundState = "Background protection lost"
+                              }
+                          }
+                      }
+                  }
+              }
+
+              private func endUIKitBackgroundTaskOnly() {
+                  if backgroundTask != .invalid {
+                      UIApplication.shared.endBackgroundTask(backgroundTask)
+                      backgroundTask = .invalid
+                  }
+              }
+
+              private func endBackgroundTurn() {
+                  endUIKitBackgroundTaskOnly()
+                  BackgroundKeepAlive.shared.stop()
+                  NABackgroundAssertionController.sharedController().stop()
+                  if !client.hasPendingTurn {
+                      backgroundState = "Idle"
+                  }
+              }
+
+          '''
+          s = s[:start] + replacement + s[end:]
+
+          # Strengthen the model instructions for tasks like:
+          # open Notes -> create note -> type story.
+          anchor = '''              Use tools when the request requires phone interaction. Report only actual tool results and never claim success without a successful result.
+          '''
+          extra = '''              Use tools when the request requires phone interaction. Report only actual tool results and never claim success without a successful result.
+              Opening an app is NOT completion when the user asked to do something inside that app. After opening the target app, continue the same turn with phone_screen and phone_input until every requested step is completed or a tool returns a real failure. For example, "open Notes, create a note, and type text" must continue after Notes launches: inspect the Notes screen, locate/create the note, focus the editor, type the requested text, then verify the visible result before reporting success.
+          '''
+          if anchor not in s:
+              raise SystemExit("v0.7.2 agent instruction anchor missing")
+          s = s.replace(anchor, extra, 1)
+
+          s = s.replace('"client_version": "0.7.1"', '"client_version": "0.7.2"')
+
+          # Include the native process-assertion result in direct self-test output.
+          old = '''              func runLocalSelfTest() async {
+                  guard !busy else { return }
+                  busy = true
+                  status = "Running local tool self-test…"
+                  defer { busy = false }
+
+                  let result = await tools.localSelfTest(allowSensitive: sensitiveActions)
+                  recordTool("local_self_test", result)
+                  messages.append(ChatMessage(role: "assistant", text: "Local tool self-test (bypasses Astra):\\n\\n\\(result.output)"))
+                  status = result.success ? "Local self-test complete" : "Local self-test found failures"
+              }
+          '''
+          if old in s:
+              new = '''              func runLocalSelfTest() async {
+                  guard !busy else { return }
+                  busy = true
+                  status = "Running local tool self-test…"
+                  defer { busy = false }
+
+                  let backgroundController = NABackgroundAssertionController.sharedController()
+                  let pinned = backgroundController.start()
+                  let backgroundStatus = backgroundController.status
+                  backgroundController.stop()
+
+                  let result = await tools.localSelfTest(allowSensitive: sensitiveActions)
+                  recordTool("local_self_test", result)
+                  messages.append(ChatMessage(
+                      role: "assistant",
+                      text: "Background pin: \\(pinned ? "PASS" : "FAIL") — \\(backgroundStatus)\\n\\nLocal tool self-test (bypasses Astra):\\n\\n\\(result.output)"
+                  ))
+                  status = result.success && pinned ? "Local self-test complete" : "Local self-test found failures"
+              }
+          '''
+              s = s.replace(old, new, 1)
+
+          p.write_text(s)
+
+          project = Path("project.yml")
+          y = project.read_text()
+          y = y.replace("MARKETING_VERSION: 0.7.1", "MARKETING_VERSION: 0.7.2")
+          y = y.replace("CURRENT_PROJECT_VERSION: 9", "CURRENT_PROJECT_VERSION: 10")
+          if "SWIFT_OBJC_BRIDGING_HEADER" not in y:
+              y = y.replace(
+                  "        ENABLE_USER_SCRIPT_SANDBOXING: NO\n",
+                  "        ENABLE_USER_SCRIPT_SANDBOXING: NO\n        SWIFT_OBJC_BRIDGING_HEADER: NextAgent/NextAgent-Bridging-Header.h\n"
+              )
+          project.write_text(y)
+
+          plist_path = Path("NextAgent/Info.plist")
+          d = plistlib.loads(plist_path.read_bytes())
+          d["CFBundleShortVersionString"] = "0.7.2"
+          d["CFBundleVersion"] = "10"
+          plist_path.write_bytes(plistlib.dumps(d))
+
+          assert "NABackgroundAssertionController" in p.read_text()
+          assert "0.7.2-bgpin1" in p.read_text()
+          assert "SWIFT_OBJC_BRIDGING_HEADER" in project.read_text()
+          PY
+
+          grep -q 'NABackgroundAssertionController' NextAgent/NextAgent.swift
+          grep -q 'SWIFT_OBJC_BRIDGING_HEADER' project.yml
+          grep -q 'MARKETING_VERSION: 0.7.2' project.yml
 
       - name: Force and verify TrollStore app entitlements
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -905,7 +1068,7 @@ jobs:
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: xcodegen generate
 
-      - name: Restore v0.7.1 product metadata after XcodeGen
+      - name: Restore v0.7.2 product metadata after XcodeGen
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -euo pipefail
@@ -915,15 +1078,15 @@ jobs:
 
           p = Path("NextAgent/Info.plist")
           d = plistlib.loads(p.read_bytes())
-          d["CFBundleShortVersionString"] = "0.7.1"
-          d["CFBundleVersion"] = "9"
+          d["CFBundleShortVersionString"] = "0.7.2"
+          d["CFBundleVersion"] = "10"
           d["CFBundleDisplayName"] = "Next Agent"
           d["UIBackgroundModes"] = ["audio"]
           p.write_bytes(plistlib.dumps(d))
           PY
           /usr/bin/plutil -lint NextAgent/Info.plist
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.1'
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '9'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.2'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '10'
           /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes:0' NextAgent/Info.plist | grep -qx 'audio'
 
       - name: Restore TrollStore entitlements after XcodeGen
@@ -969,7 +1132,7 @@ jobs:
           from pathlib import Path
 
           source = Path("projects/NextAgent/daemon/nextagentd.c").read_text()
-          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.1"', 1)
+          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.2"', 1)
 
           marker = 'static char *action_ping(void) {'
           if marker not in source:
@@ -1012,10 +1175,10 @@ jobs:
           if route not in source:
               raise SystemExit("daemon route marker missing")
           source = source.replace(route, extra, 1)
-          Path("/tmp/nextagentd-v071.c").write_text(source)
+          Path("/tmp/nextagentd-v072.c").write_text(source)
           PY
 
-          cat > /tmp/nextagentd-v071.entitlements <<'EOF'
+          cat > /tmp/nextagentd-v072.entitlements <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
@@ -1038,7 +1201,7 @@ jobs:
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.5" \
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7" \
             -Os -Wall -Wextra \
-            -c /tmp/nextagentd-v071.c \
+            -c /tmp/nextagentd-v072.c \
             -o /tmp/nextagentd-main.o
 
           xcrun --sdk iphoneos clang \
@@ -1061,10 +1224,10 @@ jobs:
             -framework CoreFoundation \
             -o /tmp/nextagentd
 
-          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v071.entitlements /tmp/nextagentd
+          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v072.entitlements /tmp/nextagentd
           file /tmp/nextagentd
           /usr/bin/codesign -d --entitlements :- /tmp/nextagentd > /tmp/nextagentd-entitlements.plist 2>&1 || true
-          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v071.entitlements
+          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v072.entitlements
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -1091,11 +1254,11 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.1.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.1.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.1.sha256"
-          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.1.log"
-          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.1.plist"
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.1.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.2.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.2.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.2.sha256"
+          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.2.log"
+          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.2.plist"
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.2.tipa"
 
       - name: Package rootless daemon DEB
         run: |
@@ -1151,18 +1314,18 @@ jobs:
           cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
           cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.roothide.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
           mkdir -p "$P/usr/local/share/nextagent"
-          cp /tmp/nextagentd-v071.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
+          cp /tmp/nextagentd-v072.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
           chmod 0755 "$P/usr/local/libexec/nextagentd"
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.7.1
+          Version: 0.7.2
           Architecture: iphoneos-arm64e
           Section: Utilities
           Priority: optional
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper for Next Agent 0.7.1 reliable router build with HID, package/service/file control and battery diagnostics for RootHide.
+          Description: Privileged root helper for Next Agent 0.7.2 background-pinning build with HID, package/service/file control and battery diagnostics for RootHide.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
@@ -1194,8 +1357,8 @@ jobs:
           exit 0
           EOF
           chmod 0755 "$P/DEBIAN/postinst" "$P/DEBIAN/prerm"
-          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.1-roothide.deb"
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.1-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.1-roothide.sha256"
+          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.deb"
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.sha256"
 
       - name: Package rootful daemon DEB
         run: |
@@ -1247,43 +1410,43 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
-          mv NextAgent_v0.1.0 NextAgent_v0.7.1
-          mkdir -p NextAgent_v0.7.1/RootHelperSource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.1/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.1/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.1/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.1/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.1/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.1/
-          cp /tmp/nextagentd-v071.c NextAgent_v0.7.1/RootHelperSource/nextagentd-v0.7.1.c
-          cp /tmp/nextagentd-v071.entitlements NextAgent_v0.7.1/RootHelperSource/nextagentd-v0.7.1.entitlements
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.1-source.zip" NextAgent_v0.7.1
-          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.1.plist"
+          mv NextAgent_v0.1.0 NextAgent_v0.7.2
+          mkdir -p NextAgent_v0.7.2/RootHelperSource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.2/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.2/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.2/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.2/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.2/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.2/
+          cp /tmp/nextagentd-v072.c NextAgent_v0.7.2/RootHelperSource/nextagentd-v0.7.2.c
+          cp /tmp/nextagentd-v072.entitlements NextAgent_v0.7.2/RootHelperSource/nextagentd-v0.7.2.entitlements
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.2-source.zip" NextAgent_v0.7.2
+          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.2.plist"
 
-      - name: Upload v0.7.1 reliable tool build
+      - name: Upload v0.7.2 background-pinned build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.7.1-Reliable-Tools-RootHide
+          name: NextAgent-0.7.2-Background-Pinned-RootHide
           path: |
-            projects/NextAgent/build-output/NextAgent-0.7.1.tipa
-            projects/NextAgent/build-output/NextAgent-0.7.1.sha256
+            projects/NextAgent/build-output/NextAgent-0.7.2.tipa
+            projects/NextAgent/build-output/NextAgent-0.7.2.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256
-            projects/NextAgent/build-output/NextAgentDaemon-0.7.1-roothide.deb
-            projects/NextAgent/build-output/NextAgentDaemon-0.7.1-roothide.sha256
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.deb
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256
-            projects/NextAgent/build-output/NextAgent-v0.7.1-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.7.1.log
-            projects/NextAgent/build-output/app-entitlements-v0.7.1.plist
-            projects/NextAgent/build-output/daemon-entitlements-v0.7.1.plist
+            projects/NextAgent/build-output/NextAgent-v0.7.2-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.7.2.log
+            projects/NextAgent/build-output/app-entitlements-v0.7.2.plist
+            projects/NextAgent/build-output/daemon-entitlements-v0.7.2.plist
 
-      - name: Publish v0.7.1 reliable tool build
+      - name: Publish v0.7.2 background-pinned build
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.7.1 reliable tool router + force stop [skip ci]"
+          git commit -m "Build Next Agent 0.7.2 jailbreak-native background pin [skip ci]"
           git push
