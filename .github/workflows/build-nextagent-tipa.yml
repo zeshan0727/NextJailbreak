@@ -779,18 +779,21 @@ jobs:
           dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb"
           shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256"
 
-      - name: Package v0.3 source
+      - name: Package v0.5 source
         working-directory: /tmp/nextagent-src
         run: |
           set -euo pipefail
           rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
           mv NextAgent_v0.1.0 NextAgent_v0.5.0
           mkdir -p NextAgent_v0.5.0/RootHelperSource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.5.0/RootHelperSource/\n          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.5.0/RootHelperSource/\n          cp /tmp/nextagentd-v05.c NextAgent_v0.5.0/RootHelperSource/nextagentd-v0.5.0.c\n          cp /tmp/nextagentd-v05.entitlements NextAgent_v0.5.0/RootHelperSource/nextagentd-v0.5.0.entitlements
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.5.0/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.5.0/RootHelperSource/
+          cp /tmp/nextagentd-v05.c NextAgent_v0.5.0/RootHelperSource/nextagentd-v0.5.0.c
+          cp /tmp/nextagentd-v05.entitlements NextAgent_v0.5.0/RootHelperSource/nextagentd-v0.5.0.entitlements
           /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.5.0-source.zip" NextAgent_v0.5.0
-          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.3.0.plist"
+          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.5.0.plist"
 
-      - name: Upload v0.3 test build
+      - name: Upload v0.5 production build
         uses: actions/upload-artifact@v4
         with:
           name: NextAgent-0.5.0-Production-RootHide
@@ -806,9 +809,9 @@ jobs:
             projects/NextAgent/build-output/NextAgent-v0.5.0-source.zip
             projects/NextAgent/build-output/xcodebuild-v0.5.0.log
             projects/NextAgent/build-output/app-entitlements-v0.5.0.plist
-            projects/NextAgent/build-output/daemon-entitlements-v0.3.0.plist
+            projects/NextAgent/build-output/daemon-entitlements-v0.5.0.plist
 
-      - name: Publish v0.3 test build
+      - name: Publish v0.5 production build
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
