@@ -19,7 +19,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define NEXTAGENTD_VERSION "0.3.2"
+#define NEXTAGENTD_VERSION "0.3.3"
 #define LISTEN_PORT 37589
 #define MAX_LINE 65536
 #define MAX_OUTPUT 524288
@@ -433,8 +433,27 @@ static void handle_client(int fd, const char *token) {
 
 int main(void) {
     signal(SIGPIPE, SIG_IGN);
-    if (geteuid() != 0) {
-        logmsg("refusing to start without root; euid=%d", geteuid());
+
+    /*
+     * RootHide launchd proxies third-party LaunchDaemons into the foreground
+     * user domain. RootHide/Dopamine permits a trusted platform binary in the
+     * jailbreak environment to elevate itself with setuid(0)/setgid(0).
+     * Never continue unless the kernel confirms the resulting IDs are root.
+     */
+    if (geteuid() != 0 || getegid() != 0) {
+        uid_t beforeUid = geteuid();
+        gid_t beforeGid = getegid();
+        errno = 0;
+        int ur = setuid(0);
+        int userErr = errno;
+        errno = 0;
+        int gr = setgid(0);
+        int groupErr = errno;
+        logmsg("RootHide elevation attempt: before euid=%d egid=%d setuid=%d(errno=%d) setgid=%d(errno=%d) after euid=%d egid=%d",
+               beforeUid, beforeGid, ur, userErr, gr, groupErr, geteuid(), getegid());
+    }
+    if (geteuid() != 0 || getegid() != 0) {
+        logmsg("root elevation unavailable; euid=%d egid=%d", geteuid(), getegid());
         return 77;
     }
     char token[65] = {0};
