@@ -169,8 +169,8 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
 - (void)show {
     [self ensureUI];
     self.window.hidden = NO;
+    self.window.alpha = 1.0;
     self.visible = YES;
-    [self.window makeKeyAndVisible];
 }
 
 - (void)hide {
