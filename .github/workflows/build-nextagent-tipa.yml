@@ -231,14 +231,14 @@ jobs:
               raise SystemExit("v0.4 client marker not found")
           s = s.replace(old, new, 1)
 
-          old = '''        let (data, response) = try await URLSession.shared.data(for: req)
-              guard let http = response as? HTTPURLResponse else { throw NSError(domain: "NextAgent", code: 0) }
-              guard (200..<300).contains(http.statusCode) else {
-                  let text = String(data: data, encoding: .utf8) ?? "HTTP \\(http.statusCode)"
-                  throw NSError(domain: "NextAgent", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: text])
-              }
-              return data
-          '''
+          start = s.find('        let (data, response) = try await URLSession.shared.data(for: req)')
+          if start < 0:
+              raise SystemExit("v0.4 requestData start marker not found")
+          end_marker = '        return data'
+          end = s.find(end_marker, start)
+          if end < 0:
+              raise SystemExit("v0.4 requestData end marker not found")
+          end += len(end_marker)
           new = '''        var lastError: Error?
               for attempt in 0..<4 {
                   do {
@@ -259,11 +259,8 @@ jobs:
                       throw error
                   }
               }
-              throw lastError ?? URLError(.networkConnectionLost)
-          '''
-          if old not in s:
-              raise SystemExit("v0.4 requestData marker not found")
-          s = s.replace(old, new, 1)
+              throw lastError ?? URLError(.networkConnectionLost)'''
+          s = s[:start] + new + s[end:]
 
           s = s.replace(
               '    For user-visible answers in this iPhone app, use short headings and bullets. Avoid Markdown tables and fenced code blocks unless the user explicitly asks for them because the phone display is narrow.\n',
