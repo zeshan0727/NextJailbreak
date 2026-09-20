@@ -94,6 +94,11 @@ static CFStringRef const NABridgeServiceName =
     } timeout:4.0];
 }
 
++ (NSDictionary *)openSplitWorkspaceWithSecondaryBundleID:(NSString *)secondary {
+    return [self openSplitWorkspaceWithPrimaryBundleID:@"uk.zeshanbarvi.nextagent"
+                                     secondaryBundleID:secondary];
+}
+
 + (NSDictionary *)splitWorkspaceStatus {
     return [self request:@{@"action": @"split_status"} timeout:2.0];
 }
