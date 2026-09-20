@@ -16,6 +16,7 @@ on:
       - "projects/NextAgent/v0.7/**"
       - "projects/NextAgent/v0.7.1/**"
       - "projects/NextAgent/v0.7.2/**"
+      - "projects/NextAgent/v0.7.3/**"
       - "projects/NextAgent/daemon/**"
       - ".github/workflows/build-nextagent-tipa.yml"
 
@@ -820,8 +821,8 @@ jobs:
 
           plist_path = Path("NextAgent/Info.plist")
           d = plistlib.loads(plist_path.read_bytes())
-          d["CFBundleShortVersionString"] = "0.7.2"
-          d["CFBundleVersion"] = "10"
+          d["CFBundleShortVersionString"] = "0.7.3"
+          d["CFBundleVersion"] = "11"
           plist_path.write_bytes(plistlib.dumps(d))
 
           assert "V071ToolSchemas.grouped" in p.read_text()
@@ -981,8 +982,8 @@ jobs:
 
           plist_path = Path("NextAgent/Info.plist")
           d = plistlib.loads(plist_path.read_bytes())
-          d["CFBundleShortVersionString"] = "0.7.2"
-          d["CFBundleVersion"] = "10"
+          d["CFBundleShortVersionString"] = "0.7.3"
+          d["CFBundleVersion"] = "11"
           plist_path.write_bytes(plistlib.dumps(d))
 
           assert "NABackgroundAssertionController" in p.read_text()
@@ -993,6 +994,353 @@ jobs:
           grep -q 'NABackgroundAssertionController' NextAgent/NextAgent.swift
           grep -q 'SWIFT_OBJC_BRIDGING_HEADER' project.yml
           grep -q 'MARKETING_VERSION: 0.7.2' project.yml
+
+      - name: Apply v0.7.3 daemon-held background protection and floating progress
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib
+
+          p = Path("NextAgent/NextAgent.swift")
+          s = p.read_text()
+
+          s = s.replace(
+              'Next Agent 0.7.2 is ready with jailbreak-native background pinning for multi-app automation.',
+              'Next Agent 0.7.3 is ready with daemon-held background protection and floating SpringBoard progress.'
+          )
+          s = s.replace(
+              'private static let currentToolSchemaVersion = "0.7.2-bgpin1"',
+              'private static let currentToolSchemaVersion = "0.7.3-daemonpin1"'
+          )
+
+          prop_anchor = '    private var activeTurnID: UUID?\n'
+          if prop_anchor not in s:
+              raise SystemExit("v0.7.3 AppState property anchor missing")
+          if 'private var activeReturnToApp' not in s:
+              s = s.replace(
+                  prop_anchor,
+                  prop_anchor +
+                  '    private var activeReturnToApp = false\n'
+                  '    private var progressStepCount = 0\n',
+                  1
+              )
+
+          # Replace send() with progress-aware, daemon-protected execution.
+          start = s.find('    func send() async {')
+          end = s.find('    func forceStop()', start)
+          if start < 0 or end < 0:
+              raise SystemExit("v0.7.3 send bounds missing")
+          send_block = '''    func send() async {
+                  let text = input.trimmingCharacters(in: .whitespacesAndNewlines)
+                  guard !text.isEmpty, !busy else { return }
+                  guard CredentialStore.loadAPIKey() != nil else {
+                      status = "API key missing"
+                      return
+                  }
+
+                  input = ""
+                  messages.append(ChatMessage(role: "user", text: text))
+                  busy = true
+                  status = "Agent working…"
+                  activeReturnToApp = shouldReturnToNextAgent(for: text)
+                  progressStepCount = 0
+                  publishProgress(state: "working", message: "Planning task…", progress: 0.05, returnToApp: activeReturnToApp)
+                  beginBackgroundTurnIfNeeded()
+
+                  let turnID = UUID()
+                  let turnTask = Task<String, Error> { [client] in
+                      try await client.runUserMessage(text)
+                  }
+                  activeTurnID = turnID
+                  activeTurnTask = turnTask
+
+                  defer {
+                      if activeTurnID == turnID {
+                          activeTurnTask = nil
+                          activeTurnID = nil
+                          busy = false
+                          endBackgroundTurn()
+                      }
+                  }
+
+                  do {
+                      let reply = try await turnTask.value
+                      guard activeTurnID == turnID else { return }
+                      messages.append(ChatMessage(role: "assistant", text: reply))
+                      status = "Ready"
+                      publishProgress(state: "complete", message: "Task complete", progress: 1.0, returnToApp: activeReturnToApp)
+                  } catch is CancellationError {
+                      if activeTurnID == turnID {
+                          status = "Stopped"
+                          publishProgress(state: "stopped", message: "Task stopped", progress: 1.0, returnToApp: false)
+                      }
+                  } catch {
+                      guard activeTurnID == turnID else { return }
+                      if backgroundContinuation && client.hasPendingTurn {
+                          status = "Turn paused — will resume automatically"
+                          backgroundState = "Pending"
+                          publishProgress(state: "working", message: "Waiting to resume…", progress: min(0.90, currentProgressEstimate()), returnToApp: activeReturnToApp)
+                      } else {
+                          messages.append(ChatMessage(role: "assistant", text: "Error: \\(error.localizedDescription)"))
+                          status = "Failed"
+                          publishProgress(state: "failed", message: "Task failed", progress: 1.0, returnToApp: true)
+                      }
+                  }
+              }
+
+          '''
+          s = s[:start] + send_block + s[end:]
+
+          # Replace force stop.
+          start = s.find('    func forceStop() {')
+          end = s.find('    func runLocalSelfTest() async {', start)
+          if start < 0 or end < 0:
+              raise SystemExit("v0.7.3 force stop bounds missing")
+          force_block = '''    func forceStop() {
+                  activeTurnTask?.cancel()
+                  activeTurnTask = nil
+                  activeTurnID = nil
+                  busy = false
+                  status = "Force stopped — next command will start a fresh session"
+                  backgroundState = "Idle"
+                  publishProgress(state: "stopped", message: "Force stopped", progress: 1.0, returnToApp: false)
+                  endBackgroundTurn()
+
+                  sessionId = ""
+                  let defaults = UserDefaults.standard
+                  defaults.removeObject(forKey: "nextagent.managedSessionId")
+                  defaults.removeObject(forKey: "nextagent.pendingTurn")
+                  defaults.removeObject(forKey: "nextagent.pendingBaselineAssistantId")
+
+                  messages.append(ChatMessage(role: "assistant", text: "Active task force-stopped. The next command will use a fresh tool session."))
+              }
+
+          '''
+          s = s[:start] + force_block + s[end:]
+
+          # Replace local self-test so daemon protection is directly verified.
+          start = s.find('    func runLocalSelfTest() async {')
+          end = s.find('    func handleBecameActive() async {', start)
+          if start < 0 or end < 0:
+              raise SystemExit("v0.7.3 self test bounds missing")
+          test_block = '''    func runLocalSelfTest() async {
+                  guard !busy else { return }
+                  busy = true
+                  status = "Running local tool self-test…"
+                  defer { busy = false }
+
+                  let pid = String(getpid())
+                  let protect = RootDaemonClient.request(action: "protect_pid", argument: pid)
+                  let protectStatus = RootDaemonClient.request(action: "protection_status")
+                  _ = RootDaemonClient.request(action: "unprotect_pid", argument: pid)
+
+                  let result = await tools.localSelfTest(allowSensitive: sensitiveActions)
+                  recordTool("local_self_test", result)
+                  messages.append(ChatMessage(
+                      role: "assistant",
+                      text: "Daemon background protector: \\(protect.success ? "PASS" : "FAIL")\\n\\(protectStatus.output)\\n\\nLocal tool self-test (bypasses Astra):\\n\\n\\(result.output)"
+                  ))
+                  status = result.success && protect.success ? "Local self-test complete" : "Local self-test found failures"
+              }
+
+          '''
+          s = s[:start] + test_block + s[end:]
+
+          # Replace background lifecycle. The root daemon owns the primary assertion and
+          # jetsam priority; app-side BKS/audio/UIKit mechanisms remain as fallbacks.
+          start = s.find('    private func beginBackgroundTurnIfNeeded() {')
+          end = s.find('    func checkRootHelper()', start)
+          if start < 0 or end < 0:
+              raise SystemExit("v0.7.3 background bounds missing")
+          bg_block = '''    private func beginBackgroundTurnIfNeeded() {
+                  guard backgroundContinuation else { return }
+
+                  let pid = String(getpid())
+                  let daemonPinned = RootDaemonClient.request(action: "protect_pid", argument: pid)
+                  let localPinned = NABackgroundAssertionController.shared().start()
+                  let extended = BackgroundKeepAlive.shared.start()
+
+                  if daemonPinned.success {
+                      backgroundState = "Daemon pinned"
+                  } else if localPinned {
+                      backgroundState = "Pinned background"
+                  } else if extended {
+                      backgroundState = "Extended background"
+                  } else {
+                      backgroundState = "Protected"
+                  }
+
+                  if backgroundTask == .invalid {
+                      backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "NextAgentTurn") { [weak self] in
+                          Task { @MainActor in
+                              guard let self else { return }
+                              self.endUIKitBackgroundTaskOnly()
+
+                              let daemonStatus = RootDaemonClient.request(action: "protection_status")
+                              if daemonStatus.success {
+                                  self.backgroundState = "Daemon pinned"
+                              } else if NABackgroundAssertionController.shared().isValid {
+                                  self.backgroundState = "Pinned background"
+                              } else if BackgroundKeepAlive.shared.active {
+                                  self.backgroundState = "Extended background"
+                              } else {
+                                  self.backgroundState = "Background protection lost"
+                              }
+                          }
+                      }
+                  }
+              }
+
+              private func endUIKitBackgroundTaskOnly() {
+                  if backgroundTask != .invalid {
+                      UIApplication.shared.endBackgroundTask(backgroundTask)
+                      backgroundTask = .invalid
+                  }
+              }
+
+              private func endBackgroundTurn() {
+                  endUIKitBackgroundTaskOnly()
+                  _ = RootDaemonClient.request(action: "unprotect_pid", argument: String(getpid()))
+                  BackgroundKeepAlive.shared.stop()
+                  NABackgroundAssertionController.shared().stop()
+                  if !client.hasPendingTurn {
+                      backgroundState = "Idle"
+                  }
+              }
+
+          '''
+          s = s[:start] + bg_block + s[end:]
+
+          # Replace recordTool with progress helpers.
+          start = s.find('    func recordTool(_ name: String, _ result: ToolResult) {')
+          end = s.find('\n}\n\n// MARK: - OpenAI Managed Agents API', start)
+          if start < 0 or end < 0:
+              raise SystemExit("v0.7.3 recordTool bounds missing")
+          helpers = '''    func toolStarted(_ name: String, arguments: [String: Any]) {
+                  progressStepCount += 1
+                  let label = progressLabel(for: name, arguments: arguments)
+                  publishProgress(
+                      state: "working",
+                      message: label,
+                      progress: currentProgressEstimate(),
+                      returnToApp: activeReturnToApp
+                  )
+              }
+
+              func recordTool(_ name: String, _ result: ToolResult) {
+                  lastTool = name
+                  let stamp = ISO8601DateFormatter().string(from: Date())
+                  toolLog.insert("\\(stamp)  \\(name)  \\(result.success ? "OK" : "FAIL")  \\(result.output.prefix(180))", at: 0)
+                  if toolLog.count > 100 { toolLog.removeLast(toolLog.count - 100) }
+
+                  let label = progressLabel(for: name, arguments: [:])
+                  publishProgress(
+                      state: "working",
+                      message: result.success ? "\\(label) ✓" : "\\(label) — retrying",
+                      progress: min(0.92, currentProgressEstimate() + 0.025),
+                      returnToApp: activeReturnToApp
+                  )
+              }
+
+              private func currentProgressEstimate() -> Double {
+                  min(0.90, 0.10 + Double(progressStepCount) * 0.085)
+              }
+
+              private func publishProgress(state progressState: String, message: String, progress: Double, returnToApp: Bool) {
+                  let payload: [String: Any] = [
+                      "state": progressState,
+                      "message": String(message.prefix(90)),
+                      "progress": max(0, min(1, progress)),
+                      "return_to_app": returnToApp,
+                      "updated_at": ISO8601DateFormatter().string(from: Date())
+                  ]
+                  guard JSONSerialization.isValidJSONObject(payload),
+                        let data = try? JSONSerialization.data(withJSONObject: payload),
+                        let text = String(data: data, encoding: .utf8) else { return }
+                  _ = RootDaemonClient.request(action: "progress", argument: text)
+              }
+
+              private func progressLabel(for name: String, arguments: [String: Any]) -> String {
+                  switch name {
+                  case "phone_apps":
+                      if let action = arguments["action"] as? String, action.hasPrefix("open") { return "Opening app…" }
+                      return "Checking apps…"
+                  case "phone_screen": return "Reading screen…"
+                  case "phone_input":
+                      if (arguments["action"] as? String) == "type_text" { return "Typing…" }
+                      return "Interacting…"
+                  case "phone_files": return "Working with files…"
+                  case "phone_packages": return "Managing package…"
+                  case "phone_services": return "Running system action…"
+                  case "phone_automation": return "Running automation…"
+                  case "phone_status": return "Checking device…"
+                  case "phone_clipboard": return "Updating clipboard…"
+                  case "phone_display": return "Updating display…"
+                  default: return "Agent working…"
+                  }
+              }
+
+              private func shouldReturnToNextAgent(for text: String) -> Bool {
+                  let lower = text.lowercased()
+                  if lower.contains("return to next agent") || lower.contains("come back to next agent") || lower.contains("return to the app") {
+                      return true
+                  }
+                  if lower.contains("stay in ") || lower.contains("leave me in ") || lower.contains("do not return") || lower.contains("don't return") {
+                      return false
+                  }
+
+                  let externalActions = [
+                      "open ", "launch ", "tap ", "press ", "swipe ", "type ",
+                      "write ", "create ", "send ", "set ", "change ", "install ",
+                      "remove ", "delete ", "play ", "pause ", "lock ", "respring"
+                  ]
+                  if externalActions.contains(where: { lower.contains($0) }) {
+                      return false
+                  }
+                  return true
+              }
+          '''
+          s = s[:start] + helpers + s[end:]
+
+          # Tell the progress HUD what tool is about to run, before foreground switching.
+          old = '''                for action in actions {
+                      let result = await tools.execute(action.name, arguments: action.arguments, allowSensitive: state.sensitiveActions)
+                      state.recordTool(action.name, result)
+          '''
+          new = '''                for action in actions {
+                      state.toolStarted(action.name, arguments: action.arguments)
+                      let result = await tools.execute(action.name, arguments: action.arguments, allowSensitive: state.sensitiveActions)
+                      state.recordTool(action.name, result)
+          '''
+          if old not in s:
+              raise SystemExit("v0.7.3 tool execution anchor missing")
+          s = s.replace(old, new, 1)
+
+          s = s.replace('"client_version": "0.7.2"', '"client_version": "0.7.3"')
+
+          p.write_text(s)
+
+          project = Path("project.yml")
+          y = project.read_text().replace("MARKETING_VERSION: 0.7.2", "MARKETING_VERSION: 0.7.3").replace("CURRENT_PROJECT_VERSION: 10", "CURRENT_PROJECT_VERSION: 11")
+          project.write_text(y)
+
+          plist_path = Path("NextAgent/Info.plist")
+          d = plistlib.loads(plist_path.read_bytes())
+          d["CFBundleShortVersionString"] = "0.7.3"
+          d["CFBundleVersion"] = "11"
+          plist_path.write_bytes(plistlib.dumps(d))
+
+          assert "protect_pid" in p.read_text()
+          assert "publishProgress" in p.read_text()
+          assert "toolStarted" in p.read_text()
+          assert "0.7.3-daemonpin1" in p.read_text()
+          PY
+
+          grep -q 'protect_pid' NextAgent/NextAgent.swift
+          grep -q 'publishProgress' NextAgent/NextAgent.swift
+          grep -q 'MARKETING_VERSION: 0.7.3' project.yml
 
       - name: Force and verify TrollStore app entitlements
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -1065,7 +1413,7 @@ jobs:
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: xcodegen generate
 
-      - name: Restore v0.7.2 product metadata after XcodeGen
+      - name: Restore v0.7.3 product metadata after XcodeGen
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -euo pipefail
@@ -1075,15 +1423,15 @@ jobs:
 
           p = Path("NextAgent/Info.plist")
           d = plistlib.loads(p.read_bytes())
-          d["CFBundleShortVersionString"] = "0.7.2"
-          d["CFBundleVersion"] = "10"
+          d["CFBundleShortVersionString"] = "0.7.3"
+          d["CFBundleVersion"] = "11"
           d["CFBundleDisplayName"] = "Next Agent"
           d["UIBackgroundModes"] = ["audio"]
           p.write_bytes(plistlib.dumps(d))
           PY
           /usr/bin/plutil -lint NextAgent/Info.plist
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.2'
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '10'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.3'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '11'
           /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes:0' NextAgent/Info.plist | grep -qx 'audio'
 
       - name: Restore TrollStore entitlements after XcodeGen
@@ -1129,12 +1477,12 @@ jobs:
           from pathlib import Path
 
           source = Path("projects/NextAgent/daemon/nextagentd.c").read_text()
-          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.2"', 1)
+          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.3"', 1)
 
           marker = 'static char *action_ping(void) {'
           if marker not in source:
               raise SystemExit("daemon action_ping marker missing")
-          includes = '#include "hid_v05.inc"\n#include "system_v07.inc"\n#include "NABatteryDiagnostics.h"\n\n'
+          includes = '#include "hid_v05.inc"\n#include "system_v07.inc"\n#include "system_v073.inc"\n#include "NABatteryDiagnostics.h"\n#include "NAProcessProtector.h"\n\n'
           source = source.replace(marker, includes + marker, 1)
 
           route = '    else if (!strcmp(action, "storage")) out = action_storage(&ok_i);\n'
@@ -1168,14 +1516,19 @@ jobs:
               else if (!strcmp(action, "archive_unzip")) out = action_archive_v07(arg, true, &ok_i);
               else if (!strcmp(action, "battery_properties")) out = NABatteryPropertiesJSON(&ok_i);
               else if (!strcmp(action, "read_battery_plist")) out = NAReadBatteryPlistJSON(arg, &ok_i);
+              else if (!strcmp(action, "protect_pid")) out = NAProtectProcessJSON((pid_t)atoi(arg), &ok_i);
+              else if (!strcmp(action, "unprotect_pid")) out = NAUnprotectProcessJSON((pid_t)atoi(arg), &ok_i);
+              else if (!strcmp(action, "protection_status")) out = NAProtectionStatusJSON(&ok_i);
+              else if (!strcmp(action, "progress")) out = action_progress_v073(arg, &ok_i);
+              else if (!strcmp(action, "progress_clear")) out = action_progress_clear_v073(&ok_i);
           '''
           if route not in source:
               raise SystemExit("daemon route marker missing")
           source = source.replace(route, extra, 1)
-          Path("/tmp/nextagentd-v072.c").write_text(source)
+          Path("/tmp/nextagentd-v073.c").write_text(source)
           PY
 
-          cat > /tmp/nextagentd-v072.entitlements <<'EOF'
+          cat > /tmp/nextagentd-v073.entitlements <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
@@ -1197,8 +1550,9 @@ jobs:
             -miphoneos-version-min=16.0 \
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.5" \
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7" \
+            -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.3" \
             -Os -Wall -Wextra \
-            -c /tmp/nextagentd-v072.c \
+            -c /tmp/nextagentd-v073.c \
             -o /tmp/nextagentd-main.o
 
           xcrun --sdk iphoneos clang \
@@ -1215,16 +1569,47 @@ jobs:
             -arch arm64 \
             -isysroot "$SDK" \
             -miphoneos-version-min=16.0 \
+            -fobjc-arc \
+            -Os -Wall -Wextra \
+            -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.3" \
+            -c "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.3/NAProcessProtector.m" \
+            -o /tmp/nextagentd-protector.o
+
+          xcrun --sdk iphoneos clang \
+            -arch arm64 \
+            -isysroot "$SDK" \
+            -miphoneos-version-min=16.0 \
             /tmp/nextagentd-main.o \
             /tmp/nextagentd-battery.o \
+            /tmp/nextagentd-protector.o \
             -framework Foundation \
             -framework CoreFoundation \
             -o /tmp/nextagentd
 
-          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v072.entitlements /tmp/nextagentd
+          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v073.entitlements /tmp/nextagentd
           file /tmp/nextagentd
           /usr/bin/codesign -d --entitlements :- /tmp/nextagentd > /tmp/nextagentd-entitlements.plist 2>&1 || true
-          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v072.entitlements
+          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v073.entitlements
+
+      - name: Build v0.7.3 SpringBoard progress overlay
+        run: |
+          set -euo pipefail
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          xcrun --sdk iphoneos clang \
+            -arch arm64e \
+            -isysroot "$SDK" \
+            -miphoneos-version-min=16.0 \
+            -fobjc-arc \
+            -dynamiclib \
+            -Os -Wall -Wextra \
+            "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.3/Overlay/NextAgentOverlay.m" \
+            -framework UIKit \
+            -framework Foundation \
+            -framework QuartzCore \
+            -o /tmp/NextAgentOverlay.dylib
+          ldid -S /tmp/NextAgentOverlay.dylib
+          file /tmp/NextAgentOverlay.dylib | grep -q arm64e
+          strings -a /tmp/NextAgentOverlay.dylib | grep -q 'uk.zeshanbarvi.nextagent.progress.changed'
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -1251,11 +1636,11 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.2.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.2.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.2.sha256"
-          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.2.log"
-          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.2.plist"
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.2.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.3.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.3.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.3.sha256"
+          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.3.log"
+          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.3.plist"
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.3.tipa"
 
       - name: Package rootless daemon DEB
         run: |
@@ -1307,22 +1692,26 @@ jobs:
           set -euo pipefail
           P=/tmp/pkg-roothide
           rm -rf "$P"
-          mkdir -p "$P/DEBIAN" "$P/usr/local/libexec" "$P/Library/LaunchDaemons"
+          mkdir -p "$P/DEBIAN" "$P/usr/local/libexec" "$P/Library/LaunchDaemons" "$P/Library/MobileSubstrate/DynamicLibraries"
           cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
           cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.roothide.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
+          cp /tmp/NextAgentOverlay.dylib "$P/Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.dylib"
+          cp projects/NextAgent/v0.7.3/Overlay/NextAgentOverlay.plist "$P/Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.plist"
+          chmod 0755 "$P/Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.dylib"
+          chmod 0644 "$P/Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.plist"
           mkdir -p "$P/usr/local/share/nextagent"
-          cp /tmp/nextagentd-v072.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
+          cp /tmp/nextagentd-v073.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
           chmod 0755 "$P/usr/local/libexec/nextagentd"
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.7.2
+          Version: 0.7.3
           Architecture: iphoneos-arm64e
           Section: Utilities
           Priority: optional
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper for Next Agent 0.7.2 background-pinning build with HID, package/service/file control and battery diagnostics for RootHide.
+          Description: Privileged root helper for Next Agent 0.7.3 with daemon-held background protection, floating SpringBoard progress, HID and system tools for RootHide.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
@@ -1332,7 +1721,7 @@ jobs:
           ENT=/usr/local/share/nextagent/nextagentd.entitlements
           REALDIR=/rootfs/var/mobile/Library/NextAgent
           chmod 755 "$BIN" || true
-          chown root:wheel "$BIN" "$PLIST" "$ENT" 2>/dev/null || true
+          chown root:wheel "$BIN" "$PLIST" "$ENT" /Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.dylib /Library/MobileSubstrate/DynamicLibraries/NextAgentOverlay.plist 2>/dev/null || true
           mkdir -p "$REALDIR" 2>/dev/null || true
           chown mobile:mobile "$REALDIR" 2>/dev/null || true
           chmod 700 "$REALDIR" 2>/dev/null || true
@@ -1354,8 +1743,8 @@ jobs:
           exit 0
           EOF
           chmod 0755 "$P/DEBIAN/postinst" "$P/DEBIAN/prerm"
-          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.deb"
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.sha256"
+          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.3-roothide.deb"
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.3-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.3-roothide.sha256"
 
       - name: Package rootful daemon DEB
         run: |
@@ -1407,43 +1796,48 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
-          mv NextAgent_v0.1.0 NextAgent_v0.7.2
-          mkdir -p NextAgent_v0.7.2/RootHelperSource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.2/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.2/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.2/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.2/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.2/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.2/
-          cp /tmp/nextagentd-v072.c NextAgent_v0.7.2/RootHelperSource/nextagentd-v0.7.2.c
-          cp /tmp/nextagentd-v072.entitlements NextAgent_v0.7.2/RootHelperSource/nextagentd-v0.7.2.entitlements
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.2-source.zip" NextAgent_v0.7.2
-          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.2.plist"
+          mv NextAgent_v0.1.0 NextAgent_v0.7.3
+          mkdir -p NextAgent_v0.7.3/RootHelperSource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.3/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.3/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.3/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.3/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.3/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/system_v073.inc NextAgent_v0.7.3/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.h NextAgent_v0.7.3/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.m NextAgent_v0.7.3/RootHelperSource/
+          mkdir -p NextAgent_v0.7.3/OverlaySource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/Overlay/* NextAgent_v0.7.3/OverlaySource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.3/
+          cp /tmp/nextagentd-v073.c NextAgent_v0.7.3/RootHelperSource/nextagentd-v0.7.3.c
+          cp /tmp/nextagentd-v073.entitlements NextAgent_v0.7.3/RootHelperSource/nextagentd-v0.7.3.entitlements
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.3-source.zip" NextAgent_v0.7.3
+          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.3.plist"
 
-      - name: Upload v0.7.2 background-pinned build
+      - name: Upload v0.7.3 daemon-pinned overlay build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.7.2-Background-Pinned-RootHide
+          name: NextAgent-0.7.3-Daemon-Pinned-Overlay-RootHide
           path: |
-            projects/NextAgent/build-output/NextAgent-0.7.2.tipa
-            projects/NextAgent/build-output/NextAgent-0.7.2.sha256
+            projects/NextAgent/build-output/NextAgent-0.7.3.tipa
+            projects/NextAgent/build-output/NextAgent-0.7.3.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256
-            projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.deb
-            projects/NextAgent/build-output/NextAgentDaemon-0.7.2-roothide.sha256
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.3-roothide.deb
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.3-roothide.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256
-            projects/NextAgent/build-output/NextAgent-v0.7.2-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.7.2.log
-            projects/NextAgent/build-output/app-entitlements-v0.7.2.plist
-            projects/NextAgent/build-output/daemon-entitlements-v0.7.2.plist
+            projects/NextAgent/build-output/NextAgent-v0.7.3-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.7.3.log
+            projects/NextAgent/build-output/app-entitlements-v0.7.3.plist
+            projects/NextAgent/build-output/daemon-entitlements-v0.7.3.plist
 
-      - name: Publish v0.7.2 background-pinned build
+      - name: Publish v0.7.3 daemon-pinned overlay build
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.7.2 jailbreak-native background pin [skip ci]"
+          git commit -m "Build Next Agent 0.7.3 daemon-pinned background + overlay [skip ci]"
           git push
