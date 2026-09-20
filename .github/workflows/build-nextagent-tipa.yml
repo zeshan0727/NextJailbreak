@@ -922,11 +922,8 @@ jobs:
 
           # Strengthen the model instructions for tasks like:
           # open Notes -> create note -> type story.
-          anchor = '''              Use tools when the request requires phone interaction. Report only actual tool results and never claim success without a successful result.
-          '''
-          extra = '''              Use tools when the request requires phone interaction. Report only actual tool results and never claim success without a successful result.
-              Opening an app is NOT completion when the user asked to do something inside that app. After opening the target app, continue the same turn with phone_screen and phone_input until every requested step is completed or a tool returns a real failure. For example, "open Notes, create a note, and type text" must continue after Notes launches: inspect the Notes screen, locate/create the note, focus the editor, type the requested text, then verify the visible result before reporting success.
-          '''
+          anchor = 'Use tools when the request requires phone interaction. Report only actual tool results and never claim success without a successful result.'
+          extra = anchor + '\n              Opening an app is NOT completion when the user asked to do something inside that app. After opening the target app, continue the same turn with phone_screen and phone_input until every requested step is completed or a tool returns a real failure. For example, "open Notes, create a note, and type text" must continue after Notes launches: inspect the Notes screen, locate/create the note, focus the editor, type the requested text, then verify the visible result before reporting success.'
           if anchor not in s:
               raise SystemExit("v0.7.2 agent instruction anchor missing")
           s = s.replace(anchor, extra, 1)
