@@ -1334,6 +1334,7 @@ jobs:
             "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.6/Overlay/NextAgentForegroundHUD.m" \
             -framework UIKit \
             -framework Foundation \
+            -framework CoreGraphics \
             -o /tmp/NextAgentForegroundHUD.dylib
           ldid -S /tmp/NextAgentForegroundHUD.dylib
           file /tmp/NextAgentForegroundHUD.dylib | grep -q arm64e
