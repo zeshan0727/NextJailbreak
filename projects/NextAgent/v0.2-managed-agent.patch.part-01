@@ -1,0 +1,152 @@
+ta(method: "POST", path: "/sessions/\(sessionId)/events", body: ["events": events])
++                continue
+             }
+ 
+-            var outputs: [[String: Any]] = []
+-            for call in calls {
+-                let result = await tools.execute(call.name, arguments: call.arguments, allowSensitive: state.sensitiveActions)
+-                state.recordTool(call.name, result)
+-                let payload = result.success ? result.output : "ERROR: \(result.output)"
+-                outputs.append([
+-                    "type": "function_call_output",
+-                    "call_id": call.callId,
+-                    "output": payload
+-                ])
++            if status == "idle" {
++                if let latest = try await latestAssistantMessage(sessionId: sessionId),
++                   latest.id != baselineAssistantId,
++                   !latest.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
++                    return latest.text
++                }
+             }
+-            input = outputs
+-        }
+ 
+-        throw NSError(domain: "NextAgent", code: 408, userInfo: [NSLocalizedDescriptionKey: "Agent exceeded the local tool-call limit"])
++            try await Task.sleep(nanoseconds: 500_000_000)
++        }
++        throw NSError(domain: "NextAgent", code: 408, userInfo: [NSLocalizedDescriptionKey: "Managed agent session timed out"])
+     }
+ 
+-    private func parseFunctionCalls(_ response: [String: Any]) -> [(callId: String, name: String, arguments: [String: Any])] {
+-        guard let output = response["output"] as? [[String: Any]] else { return [] }
+-        return output.compactMap { item in
++    private func parseRequiredActions(_ session: [String: Any]) -> [RequiredAction] {
++        let raw = session["required_actions"] as? [[String: Any]] ?? []
++        return raw.compactMap { item in
+             guard (item["type"] as? String) == "function_call",
++                  let turnId = item["turn_id"] as? String,
+                   let callId = item["call_id"] as? String,
+                   let name = item["name"] as? String else { return nil }
+-            var args: [String: Any] = [:]
+-            if let raw = item["arguments"] as? String,
+-               let data = raw.data(using: .utf8),
+-               let obj = try? JSONSerialization.jsonObject(with: data),
+-               let dict = obj as? [String: Any] {
+-                args = dict
+-            } else if let dict = item["arguments"] as? [String: Any] {
+-                args = dict
++            let arguments: [String: Any]
++            if let dict = item["arguments"] as? [String: Any] {
++                arguments = dict
++            } else if let rawString = item["arguments"] as? String,
++                      let data = rawString.data(using: .utf8),
++                      let obj = try? JSONSerialization.jsonObject(with: data),
++                      let dict = obj as? [String: Any] {
++                arguments = dict
++            } else {
++                arguments = [:]
+             }
+-            return (callId, name, args)
++            return RequiredAction(turnId: turnId, callId: callId, name: name, arguments: arguments)
+         }
+     }
+ 
+-    private func extractAssistantText(_ response: [String: Any]) -> String {
+-        guard let output = response["output"] as? [[String: Any]] else { return "" }
+-        var chunks: [String] = []
+-        for item in output where (item["type"] as? String) == "message" && (item["role"] as? String) == "assistant" {
++    private func latestAssistantMessage(sessionId: String) async throws -> (id: String, text: String)? {
++        let json = try await requestJSON(method: "GET", path: "/sessions/\(sessionId)/items?limit=50&order=desc")
++        let items = json["data"] as? [[String: Any]] ?? []
++        for item in items {
++            guard (item["type"] as? String) == "message",
++                  (item["role"] as? String) == "assistant" else { continue }
++            let id = item["id"] as? String ?? UUID().uuidString
+             let content = item["content"] as? [[String: Any]] ?? []
+-            for part in content where (part["type"] as? String) == "output_text" {
+-                if let text = part["text"] as? String, !text.isEmpty { chunks.append(text) }
+-            }
++            let text = content.compactMap { part -> String? in
++                guard (part["type"] as? String) == "output_text" else { return nil }
++                return part["text"] as? String
++            }.joined(separator: "\n")
++            if !text.isEmpty { return (id, text) }
++        }
++        return nil
++    }
++
++    private func requestJSON(method: String, path: String, body: [String: Any]? = nil) async throws -> [String: Any] {
++        let data = try await requestData(method: method, path: path, body: body)
++        guard !data.isEmpty else { return [:] }
++        let obj = try JSONSerialization.jsonObject(with: data)
++        guard let json = obj as? [String: Any] else {
++            throw NSError(domain: "NextAgent", code: 422, userInfo: [NSLocalizedDescriptionKey: "Unexpected OpenAI managed-agent response"])
+         }
+-        return chunks.joined(separator: "\n")
++        return json
+     }
+ 
+-    private func request(_ body: [String: Any]) async throws -> [String: Any] {
++    private func requestData(method: String, path: String, body: [String: Any]? = nil) async throws -> Data {
+         let key = try apiKey
+-        var req = URLRequest(url: endpoint)
+-        req.httpMethod = "POST"
++        let relativePath = path.hasPrefix("/") ? String(path.dropFirst()) : path
++        guard let url = URL(string: relativePath, relativeTo: base) else {
++            throw NSError(domain: "NextAgent", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid Agents API URL"])
++        }
++        var req = URLRequest(url: url)
++        req.httpMethod = method
+         req.timeoutInterval = 120
+         req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
++        req.setValue("agents=v1", forHTTPHeaderField: "OpenAI-Beta")
++        if let body { req.httpBody = try JSONSerialization.data(withJSONObject: body) }
+         let (data, response) = try await URLSession.shared.data(for: req)
+         guard let http = response as? HTTPURLResponse else { throw NSError(domain: "NextAgent", code: 0) }
+         guard (200..<300).contains(http.statusCode) else {
+             let text = String(data: data, encoding: .utf8) ?? "HTTP \(http.statusCode)"
+             throw NSError(domain: "NextAgent", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: text])
+         }
+-        let obj = try JSONSerialization.jsonObject(with: data)
+-        guard let json = obj as? [String: Any] else {
+-            throw NSError(domain: "NextAgent", code: 422, userInfo: [NSLocalizedDescriptionKey: "Unexpected OpenAI response"])
+-        }
+-        return json
++        return data
+     }
+ 
+     private func apiShape(_ message: String, _ json: [String: Any]) -> NSError {
+@@ -682,15 +745,16 @@
+                         SecureField("API key", text: $state.apiKeyDraft).textInputAutocapitalization(.never).autocorrectionDisabled()
+                     }
+                     Toggle("Show key", isOn: $revealKey)
+-                    TextField("Model", text: $state.model).textInputAutocapitalization(.never).autocorrectionDisabled()
++                    LabeledContent("Model", value: state.model)
++                    Text("Model and reasoning are controlled by the saved managed-agent definition.").font(.caption).foregroundStyle(.secondary)
+                     Button("Save Settings") { state.saveSettings() }
+                 }
+ 
+                 Section("OpenAI Connection") {
+-                    Text(state.agentId.isEmpty ? "Responses API" : state.agentId).font(.caption.monospaced()).textSelection(.enabled)
+-                    Button(state.busy ? "Working…" : "Test OpenAI Connection") { Task { state.saveSettings(); await state.createOrRepairAgent() } }.disabled(state.busy)
++                    LabeledContent("Managed Agent", value: state.agentId).font(.caption.monospaced()).textSelection(.enabled)
++                    Button(state.busy ? "Working…" : "Verify Managed Agent") { Task { state.saveSettings(); await state.createOrRepairAgent() } }.disabled(state.busy)
+                     if !state.sessionId.isEmpty {
+-                        Text("Previous response: \(state.sessionId)").font(.caption2.monospaced()).textSelection(.enabled)
++                        Text("Managed session: \(state.sessionId)").font(.caption2.monospaced()).textSelection(.enabled)
+                         Button("Reset Conversation") { state.resetConversation() }
+                     }
+                 }
