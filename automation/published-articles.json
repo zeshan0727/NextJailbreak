@@ -1,6 +1,29 @@
 {
   "entries": [
     {
+      "article_sha256": "dabc2b76c60d0b9ca80b738f9a31954190b8b0491d12e5c6f0cc6200775ef611",
+      "candidate_fingerprint": "de4f9cd4a7c689edcc435eabba67667bc626d8b6de239361cd1c785b2abfe70b",
+      "category": {
+        "id": "productivity",
+        "label": "Productivity"
+      },
+      "description": "CatScript Lite 1.5.5 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "catscript-lite-tweak.html",
+      "image": "https://media.havoc.app/67825881e809aedc216dbe9f",
+      "media_credit": "CatScript Lite official package listing",
+      "media_source_url": "https://havoc.app/package/catscriptlite",
+      "modified_at": "2026-09-20T20:48:50+00:00",
+      "name": "CatScript Lite",
+      "package": "app.catscript.lite",
+      "published_at": "2026-09-20T20:48:50+00:00",
+      "selection_pool": "evergreen",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/catscriptlite",
+      "source_url": "https://havoc.app/",
+      "title": "CatScript Lite 1.5.5: iOS Automation Framework Package Overview",
+      "version": "1.5.5"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -3123,8 +3146,17 @@
       "package": "scmusicplus",
       "published_at": "2026-09-19T08:00:46+00:00",
       "version": "24.9.1"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "de4f9cd4a7c689edcc435eabba67667bc626d8b6de239361cd1c785b2abfe70b",
+      "href": "catscript-lite-tweak.html",
+      "package": "app.catscript.lite",
+      "published_at": "2026-09-20T20:48:50+00:00",
+      "run_id": "35536401617",
+      "version": "1.5.5"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-19T08:01:11+00:00"
+  "updated_at": "2026-09-20T20:48:50+00:00"
 }
