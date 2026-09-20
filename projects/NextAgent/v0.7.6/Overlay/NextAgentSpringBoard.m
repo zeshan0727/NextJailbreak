@@ -20,9 +20,42 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
 static const char *NAProgressNotification = "uk.zeshanbarvi.nextagent.progress.changed";
 static const char *NAScreenRequestNotification = "uk.zeshanbarvi.nextagent.screen.capture.request";
 static const char *NAScreenDoneNotification = "uk.zeshanbarvi.nextagent.screen.capture.done";
+static const char *NAHUDStateNotification = "uk.zeshanbarvi.nextagent.hud.state";
+static int NAHUDStateToken = -1;
 
 typedef void (*NACARenderServerRenderDisplay)(mach_port_t, CFStringRef, IOSurfaceRef, int32_t, int32_t);
 typedef UIImage * NS_RETURNS_RETAINED (*NAUICreateScreenUIImage)(void);
+
+static uint64_t NAHUDPackedState(NSString *mode, NSString *message, CGFloat progress) {
+    uint64_t modeCode = 0;
+    if ([mode isEqualToString:@"working"]) modeCode = 1;
+    else if ([mode isEqualToString:@"complete"]) modeCode = 2;
+    else if ([mode isEqualToString:@"failed"]) modeCode = 3;
+    else if ([mode isEqualToString:@"stopped"]) modeCode = 4;
+
+    NSString *lower = message.lowercaseString ?: @"";
+    uint64_t detailCode = 0;
+    if ([lower containsString:@"opening"]) detailCode = 1;
+    else if ([lower containsString:@"reading"] || [lower containsString:@"screen"]) detailCode = 2;
+    else if ([lower containsString:@"typing"]) detailCode = 3;
+    else if ([lower containsString:@"tap"] || [lower containsString:@"interact"]) detailCode = 4;
+    else if ([lower containsString:@"planning"]) detailCode = 5;
+    else if ([lower containsString:@"resum"] || [lower containsString:@"waiting"]) detailCode = 6;
+    else if ([lower containsString:@"checking"]) detailCode = 7;
+
+    uint64_t progressCode = (uint64_t)llround(MAX(0.0, MIN(1.0, progress)) * 1000.0);
+    return (modeCode << 56) | (detailCode << 48) | progressCode;
+}
+
+static void NABroadcastHUDState(NSString *mode, NSString *message, CGFloat progress) {
+    if (NAHUDStateToken < 0) {
+        notify_register_check(NAHUDStateNotification, &NAHUDStateToken);
+    }
+    if (NAHUDStateToken >= 0) {
+        notify_set_state(NAHUDStateToken, NAHUDPackedState(mode, message, progress));
+    }
+    notify_post(NAHUDStateNotification);
+}
 
 static id NARBSAssertion = nil;
 static id NABKSAssertion = nil;
@@ -845,6 +878,8 @@ static NSDictionary *NAReadJSON(NSString *path) {
     BOOL returnToApp = [state[@"return_to_app"] boolValue];
     pid_t agentPID = [state[@"pid"] respondsToSelector:@selector(intValue)] ? [state[@"pid"] intValue] : 0;
 
+    NABroadcastHUDState(state ? mode : @"idle", message, progress);
+
     if (!state || [mode isEqualToString:@"idle"]) {
         NAReleaseProtection();
         [self hide];
@@ -911,6 +946,9 @@ static void NAOverlayInit(void) {
         if (![bundle isEqualToString:@"com.apple.springboard"]) return;
 
         dispatch_async(dispatch_get_main_queue(), ^{
+            if (NAHUDStateToken < 0) {
+                notify_register_check(NAHUDStateNotification, &NAHUDStateToken);
+            }
             NAProgressOverlay *overlay = [NAProgressOverlay shared];
             [overlay ensureUI];
             [overlay startPermanentPolling];
