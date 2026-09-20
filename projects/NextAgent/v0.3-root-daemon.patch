@@ -83,7 +83,7 @@
          case "network_interfaces": return ShellRunner.runPreset("ifconfig 2>/dev/null || ip addr 2>/dev/null")
          case "device_storage": return ShellRunner.runPreset("df -h / /var /var/mobile 2>/dev/null | uniq")
          case "get_brightness": return ToolResult(success: true, output: String(format: "%.3f", UIScreen.main.brightness))
-@@ -412,15 +433,18 @@
+@@ -413,14 +434,17 @@
          case "take_screenshot": return screenshot()
          case "refresh_icon_cache":
              guard allowSensitive else { return sensitiveOff() }
@@ -105,7 +105,7 @@
          default: return ToolResult(success: false, output: "Unknown tool: \(name)")
          }
      }
-@@ -437,7 +461,7 @@
+@@ -433,7 +457,7 @@
          }
          let roots = ["/var/jb", "/Applications", "/private/preboot"]
          let present = roots.filter { FileManager.default.fileExists(atPath: $0) }
@@ -114,7 +114,7 @@
              "name": UIDevice.current.name,
              "model": UIDevice.current.model,
              "machine": machine,
-@@ -449,6 +473,14 @@
+@@ -444,6 +468,14 @@
              "jailbreak_paths": present,
              "bundle": Bundle.main.bundleIdentifier ?? ""
          ]
@@ -128,7 +128,8 @@
 +        }
          return jsonResult(info)
      }
-@@ -564,6 +596,136 @@
+ 
+@@ -556,6 +588,112 @@
      private func sensitiveOff() -> ToolResult { ToolResult(success: false, output: "Sensitive actions are disabled in Next Agent Settings") }
  }
  
@@ -241,7 +242,7 @@
  // MARK: - Shell
  
  enum ShellRunner {
-@@ -765,11 +927,13 @@
+@@ -799,11 +937,13 @@
                  Section("Runtime") {
                      LabeledContent("UID", value: "\(getuid())")
                      LabeledContent("EUID", value: "\(geteuid())")
@@ -256,7 +257,7 @@
                      Text("* requires Sensitive actions in Settings").font(.caption).foregroundStyle(.secondary)
                  }
                  Section("Tool log") {
-@@ -845,14 +1009,14 @@
+@@ -845,14 +985,14 @@
                  Section("Device Control") {
                      Toggle("Allow sensitive actions", isOn: $state.sensitiveActions)
                          .onChange(of: state.sensitiveActions) { v in UserDefaults.standard.set(v, forKey: "nextagent.sensitiveActions") }
