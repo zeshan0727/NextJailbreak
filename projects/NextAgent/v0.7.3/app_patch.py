@@ -291,6 +291,7 @@ helpers = '''    func toolStarted(_ name: String, arguments: [String: Any]) {
             "message": String(message.prefix(90)),
             "progress": max(0, min(1, progress)),
             "return_to_app": returnToApp,
+            "pid": Int(getpid()),
             "updated_at": ISO8601DateFormatter().string(from: Date())
         ]
         guard JSONSerialization.isValidJSONObject(payload),
