@@ -19,7 +19,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define NEXTAGENTD_VERSION "0.3.1"
+#define NEXTAGENTD_VERSION "0.3.2"
 #define LISTEN_PORT 37589
 #define MAX_LINE 65536
 #define MAX_OUTPUT 524288
