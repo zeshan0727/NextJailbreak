@@ -3,10 +3,104 @@
 #import <notify.h>
 #import <objc/message.h>
 #import <QuartzCore/QuartzCore.h>
+#import <signal.h>
+#import <unistd.h>
+#import <dlfcn.h>
 
 static NSString * const NAProgressPath = @"/var/mobile/Library/NextAgent/progress.json";
 static const char *NAProgressNotification = "uk.zeshanbarvi.nextagent.progress.changed";
 static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
+
+static id NAProcessAssertion = nil;
+static pid_t NAProcessAssertionPID = 0;
+
+static BOOL NAAssertionValid(id assertion) {
+    if (!assertion) return NO;
+    SEL valid = NSSelectorFromString(@"valid");
+    if ([assertion respondsToSelector:valid]) {
+        return ((BOOL (*)(id, SEL))objc_msgSend)(assertion, valid);
+    }
+    return YES;
+}
+
+static void NAReleaseProcessAssertion(void) {
+    if (NAProcessAssertion) {
+        SEL invalidate = NSSelectorFromString(@"invalidate");
+        if ([NAProcessAssertion respondsToSelector:invalidate]) {
+            ((void (*)(id, SEL))objc_msgSend)(NAProcessAssertion, invalidate);
+        }
+    }
+    NAProcessAssertion = nil;
+    NAProcessAssertionPID = 0;
+}
+
+static BOOL NAEnsureProcessAssertion(pid_t pid) {
+    if (pid <= 1 || kill(pid, 0) != 0) {
+        NAReleaseProcessAssertion();
+        return NO;
+    }
+
+    if (NAProcessAssertionPID == pid && NAAssertionValid(NAProcessAssertion)) {
+        return YES;
+    }
+
+    NAReleaseProcessAssertion();
+
+    void *handle = dlopen(
+        "/System/Library/PrivateFrameworks/AssertionServices.framework/AssertionServices",
+        RTLD_NOW | RTLD_GLOBAL
+    );
+    if (!handle) return NO;
+
+    Class cls = NSClassFromString(@"BKSProcessAssertion");
+    if (!cls) return NO;
+
+    const unsigned int flags =
+        (1u << 0) | // prevent suspend
+        (1u << 1) | // prevent CPU throttle-down
+        (1u << 2) | // allow idle sleep
+        (1u << 3);  // foreground resource priority
+
+    id object = ((id (*)(id, SEL))objc_msgSend)((id)cls, @selector(alloc));
+    if (!object) return NO;
+
+    id assertion = nil;
+    SEL six = NSSelectorFromString(@"initWithPID:flags:reason:name:withHandler:acquire:");
+    if ([object respondsToSelector:six]) {
+        typedef id (*Fn)(id, SEL, int, unsigned int, unsigned int, id, id, BOOL);
+        assertion = ((Fn)objc_msgSend)(
+            object, six, pid, flags, 7,
+            @"NextAgentSpringBoardActiveTurn", nil, YES
+        );
+    } else {
+        SEL five = NSSelectorFromString(@"initWithPID:flags:reason:name:withHandler:");
+        if ([object respondsToSelector:five]) {
+            typedef id (*Fn)(id, SEL, int, unsigned int, unsigned int, id, id);
+            assertion = ((Fn)objc_msgSend)(
+                object, five, pid, flags, 7,
+                @"NextAgentSpringBoardActiveTurn", nil
+            );
+            SEL acquire = NSSelectorFromString(@"acquire");
+            if (assertion && [assertion respondsToSelector:acquire]) {
+                ((BOOL (*)(id, SEL))objc_msgSend)(assertion, acquire);
+            }
+        }
+    }
+
+    if (!assertion || !NAAssertionValid(assertion)) {
+        if (assertion) {
+            SEL invalidate = NSSelectorFromString(@"invalidate");
+            if ([assertion respondsToSelector:invalidate]) {
+                ((void (*)(id, SEL))objc_msgSend)(assertion, invalidate);
+            }
+        }
+        return NO;
+    }
+
+    NAProcessAssertion = assertion;
+    NAProcessAssertionPID = pid;
+    return YES;
+}
 
 @interface NAPassThroughWindow : UIWindow
 @end
@@ -44,10 +138,18 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
     if (self.window) return;
 
     CGRect screen = UIScreen.mainScreen.bounds;
-    CGFloat width = MIN(246.0, screen.size.width - 44.0);
-    CGFloat y = 51.0;
+    CGFloat width = MIN(208.0, screen.size.width - 52.0);
+    CGFloat y = 54.0;
 
-    NAPassThroughWindow *window = [[NAPassThroughWindow alloc] initWithFrame:CGRectMake((screen.size.width-width)/2.0, y, width, 38.0)];
+    NAPassThroughWindow *window = [[NAPassThroughWindow alloc] initWithFrame:CGRectMake((screen.size.width-width)/2.0, y, width, 34.0)];
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if ([scene isKindOfClass:UIWindowScene.class]) {
+                window.windowScene = (UIWindowScene *)scene;
+                break;
+            }
+        }
+    }
     window.windowLevel = UIWindowLevelAlert + 1100.0;
     window.backgroundColor = UIColor.clearColor;
     window.hidden = YES;
@@ -60,7 +162,7 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
     UIView *pill = [UIView new];
     pill.translatesAutoresizingMaskIntoConstraints = NO;
     pill.backgroundColor = [UIColor colorWithWhite:0.06 alpha:0.92];
-    pill.layer.cornerRadius = 18.0;
+    pill.layer.cornerRadius = 16.0;
     pill.layer.masksToBounds = YES;
     pill.layer.borderWidth = 0.5;
     pill.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.14].CGColor;
@@ -89,7 +191,7 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
 
     UILabel *title = [UILabel new];
     title.translatesAutoresizingMaskIntoConstraints = NO;
-    title.font = [UIFont systemFontOfSize:12.5 weight:UIFontWeightSemibold];
+    title.font = [UIFont systemFontOfSize:11.8 weight:UIFontWeightSemibold];
     title.textColor = UIColor.whiteColor;
     title.lineBreakMode = NSLineBreakByTruncatingTail;
     [pill addSubview:title];
@@ -205,8 +307,10 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
         NSString *message = [state[@"message"] isKindOfClass:NSString.class] ? state[@"message"] : @"";
         CGFloat progress = [state[@"progress"] respondsToSelector:@selector(doubleValue)] ? [state[@"progress"] doubleValue] : 0;
         BOOL returnToApp = [state[@"return_to_app"] boolValue];
+        pid_t agentPID = [state[@"pid"] respondsToSelector:@selector(intValue)] ? [state[@"pid"] intValue] : 0;
 
         if ([mode isEqualToString:@"idle"] || !state) {
+            NAReleaseProcessAssertion();
             [self hide];
             return;
         }
@@ -215,6 +319,7 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
         self.titleLabel.text = message.length ? message : @"Next Agent working";
 
         if ([mode isEqualToString:@"working"]) {
+            NAEnsureProcessAssertion(agentPID);
             self.spinner.hidden = NO;
             self.iconLabel.hidden = YES;
             [self.spinner startAnimating];
@@ -229,6 +334,7 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
         self.iconLabel.hidden = NO;
 
         if ([mode isEqualToString:@"complete"]) {
+            NAReleaseProcessAssertion();
             self.iconLabel.text = @"✓";
             self.iconLabel.textColor = [UIColor colorWithRed:0.25 green:0.95 blue:0.64 alpha:1.0];
             self.fill.backgroundColor = self.iconLabel.textColor;
@@ -240,12 +346,13 @@ static NSString * const NABundleID = @"uk.zeshanbarvi.nextagent";
                     [self returnToNextAgent];
                 });
             }
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self hide];
             });
             return;
         }
 
+        NAReleaseProcessAssertion();
         self.iconLabel.text = [mode isEqualToString:@"stopped"] ? @"■" : @"!";
         self.iconLabel.textColor = [UIColor colorWithRed:1.0 green:0.39 blue:0.47 alpha:1.0];
         self.fill.backgroundColor = self.iconLabel.textColor;
