@@ -1,0 +1,325 @@
+--- NextAgent/NextAgent.swift
++++ NextAgent/NextAgent.swift
+@@ -38,7 +38,7 @@
+ @MainActor
+ final class AppState: ObservableObject {
+     @Published var messages: [ChatMessage] = [
+-        ChatMessage(role: "assistant", text: "Next Agent 0.3.1 is ready with your GPT-6 Astra managed agent and RootHide root helper. Open Settings, save the dedicated OpenAI project API key, verify the agent, then start giving me phone tasks.")
++        ChatMessage(role: "assistant", text: "Next Agent 0.4.0 is ready. Background turn continuation, improved response controls, and RootHide-native process/storage diagnostics are enabled.")
+     ]
+     @Published var input = ""
+     @Published var busy = false
+@@ -51,6 +51,10 @@
+     @Published var lastTool = "None"
+     @Published var toolLog: [String] = []
+     @Published var rootHelperStatus = "Not checked"
++    @Published var backgroundContinuation = UserDefaults.standard.object(forKey: "nextagent.backgroundContinuation") == nil ? true : UserDefaults.standard.bool(forKey: "nextagent.backgroundContinuation")
++    @Published var backgroundState = "Idle"
++
++    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+ 
+     private let tools = DeviceToolRegistry()
+     private lazy var client = OpenAIManagedAgentsClient(state: self, tools: tools)
+@@ -72,6 +76,7 @@
+             }
+         }
+         UserDefaults.standard.set(sensitiveActions, forKey: "nextagent.sensitiveActions")
++        UserDefaults.standard.set(backgroundContinuation, forKey: "nextagent.backgroundContinuation")
+         UserDefaults.standard.synchronize()
+     }
+ 
+@@ -109,7 +114,11 @@
+         messages.append(ChatMessage(role: "user", text: text))
+         busy = true
+         status = "Agent working…"
+-        defer { busy = false }
++        beginBackgroundTurnIfNeeded()
++        defer {
++            busy = false
++            endBackgroundTurn()
++        }
+         do {
+             let reply = try await client.runUserMessage(text)
+             messages.append(ChatMessage(role: "assistant", text: reply))
+@@ -120,6 +129,44 @@
+         }
+     }
+ 
++    func resumePendingTurnIfNeeded() async {
++        guard backgroundContinuation, !busy, client.hasPendingTurn, !sessionId.isEmpty else { return }
++        busy = true
++        status = "Resuming background turn…"
++        beginBackgroundTurnIfNeeded()
++        defer {
++            busy = false
++            endBackgroundTurn()
++        }
++        do {
++            let reply = try await client.resumePendingTurn()
++            messages.append(ChatMessage(role: "assistant", text: reply))
++            status = "Ready"
++        } catch {
++            status = "Background turn pending"
++        }
++    }
++
++    private func beginBackgroundTurnIfNeeded() {
++        guard backgroundContinuation, backgroundTask == .invalid else { return }
++        backgroundState = "Protected"
++        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "NextAgentTurn") { [weak self] in
++            Task { @MainActor in
++                guard let self else { return }
++                self.backgroundState = "Paused — resumes when active"
++                self.endBackgroundTurn()
++            }
++        }
++    }
++
++    private func endBackgroundTurn() {
++        if backgroundTask != .invalid {
++            UIApplication.shared.endBackgroundTask(backgroundTask)
++            backgroundTask = .invalid
++        }
++        if !client.hasPendingTurn { backgroundState = "Idle" }
++    }
++
+     func checkRootHelper() {
+         let result = RootDaemonClient.request(action: "ping")
+         rootHelperStatus = result.success ? "Connected: \(result.output)" : "Unavailable: \(result.output)"
+@@ -146,6 +193,19 @@
+         self.tools = tools
+     }
+ 
++    var hasPendingTurn: Bool { UserDefaults.standard.bool(forKey: "nextagent.pendingTurn") }
++
++    private func markPending(baselineAssistantId: String?) {
++        UserDefaults.standard.set(true, forKey: "nextagent.pendingTurn")
++        if let baselineAssistantId { UserDefaults.standard.set(baselineAssistantId, forKey: "nextagent.pendingBaselineAssistantId") }
++        else { UserDefaults.standard.removeObject(forKey: "nextagent.pendingBaselineAssistantId") }
++    }
++
++    private func clearPending() {
++        UserDefaults.standard.set(false, forKey: "nextagent.pendingTurn")
++        UserDefaults.standard.removeObject(forKey: "nextagent.pendingBaselineAssistantId")
++    }
++
+     private var apiKey: String {
+         get throws {
+             guard let k = CredentialStore.loadAPIKey(), !k.isEmpty else {
+@@ -188,16 +248,26 @@
+             try await sendUserMessage(sessionId: state.sessionId, text: message)
+         }
+ 
++        markPending(baselineAssistantId: baselineAssistantId)
+         return try await driveSession(sessionId: state.sessionId, baselineAssistantId: baselineAssistantId)
+     }
+ 
++    @MainActor
++    func resumePendingTurn() async throws -> String {
++        guard let state, !state.sessionId.isEmpty, hasPendingTurn else {
++            throw NSError(domain: "NextAgent", code: 404, userInfo: [NSLocalizedDescriptionKey: "No pending managed-agent turn"])
++        }
++        let baseline = UserDefaults.standard.string(forKey: "nextagent.pendingBaselineAssistantId")
++        return try await driveSession(sessionId: state.sessionId, baselineAssistantId: baseline)
++    }
++
+     private func createSession(initialMessage: String) async throws -> [String: Any] {
+         let body: [String: Any] = [
+             "agent_id": savedAgentId,
+             "agent": ["tools": DeviceToolRegistry.toolSchemas],
+             "environment": ["type": "none"],
+             "input": initialMessage,
+-            "metadata": ["client": "NextAgent-iPhone", "client_version": "0.3.0"],
++            "metadata": ["client": "NextAgent-iPhone", "client_version": "0.4.0"],
+             "stream": false
+         ]
+         return try await requestJSON(method: "POST", path: "/sessions", body: body)
+@@ -225,6 +295,7 @@
+             let status = session["status"] as? String ?? "unknown"
+ 
+             if status == "failed" {
++                clearPending()
+                 let reason = (session["error"] as? String) ?? "Managed agent session failed"
+                 throw NSError(domain: "NextAgent", code: 500, userInfo: [NSLocalizedDescriptionKey: reason])
+             }
+@@ -256,6 +327,7 @@
+                 if let latest = try await latestAssistantMessage(sessionId: sessionId),
+                    latest.id != baselineAssistantId,
+                    !latest.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
++                    clearPending()
+                     return latest.text
+                 }
+             }
+@@ -352,6 +424,7 @@
+     A separately installed nextagentd root helper may provide privileged filesystem/process/system tools. Its protocol is allow-listed and blocks credential stores and private communications data.
+     Potentially disruptive tools may be disabled by the user. If a tool reports that sensitive actions are disabled, explain that the user can enable them in Settings and do not try to bypass the control.
+     Prefer read-only inspection before changing device state.
++    For user-visible answers in this iPhone app, use short headings and bullets. Avoid Markdown tables and fenced code blocks unless the user explicitly asks for them because the phone display is narrow.
+     """
+ 
+     static let toolSchemas: [[String: Any]] = [
+@@ -368,9 +441,9 @@
+         tool("list_files", "List files in an allowed user path. Paths under /var/mobile and the app container are supported when the install has access.", ["path": str("Directory path")], required: ["path"]),
+         tool("read_text_file", "Read a UTF-8 text file from an allowed user path. Large files are truncated.", ["path": str("File path")], required: ["path"]),
+         tool("write_text_file", "Write UTF-8 text to an allowed user path. Sensitive actions must be enabled.", ["path": str("File path"), "text": str("Text to write")], required: ["path", "text"]),
+-        tool("process_list", "List running processes using the jailbreak command environment when available.", [:]),
++        tool("process_list", "List running processes through the root helper without relying on a shell.", [:]),
+         tool("network_interfaces", "Show local network interface addresses without contacting external services.", [:]),
+-        tool("device_storage", "Show filesystem capacity and free space.", [:]),
++        tool("device_storage", "Show filesystem capacity and free space through the root helper.", [:]),
+         tool("get_brightness", "Get the current screen brightness from 0 to 1.", [:]),
+         tool("set_brightness", "Set the current screen brightness from 0 to 1.", ["value": num("Brightness between 0 and 1")], required: ["value"]),
+         tool("take_screenshot", "Attempt a full-device screenshot using available jailbreak screenshot utilities and save it under /var/mobile/Documents/NextAgent.", [:]),
+@@ -425,7 +498,9 @@
+             let privileged = RootDaemonClient.request(action: "ps")
+             return privileged.success ? privileged : ShellRunner.runPreset("ps -axo pid,user,comm | head -n 250")
+         case "network_interfaces": return ShellRunner.runPreset("ifconfig 2>/dev/null || ip addr 2>/dev/null")
+-        case "device_storage": return ShellRunner.runPreset("df -h / /var /var/mobile 2>/dev/null | uniq")
++        case "device_storage":
++            let privileged = RootDaemonClient.request(action: "storage")
++            return privileged.success ? privileged : ToolResult(success: false, output: "Root storage diagnostic failed: \(privileged.output)")
+         case "get_brightness": return ToolResult(success: true, output: String(format: "%.3f", UIScreen.main.brightness))
+         case "set_brightness":
+             guard let v = arguments["value"] as? NSNumber else { return badArgs() }
+@@ -910,6 +985,7 @@
+ 
+ struct RootView: View {
+     @EnvironmentObject var state: AppState
++    @Environment(\.scenePhase) private var scenePhase
+     var body: some View {
+         TabView {
+             ChatView().tabItem { Label("Agent", systemImage: "sparkles") }
+@@ -917,17 +993,41 @@
+             SettingsView().tabItem { Label("Settings", systemImage: "gearshape") }
+         }
+         .tint(.primary)
++        .onChange(of: scenePhase) { phase in
++            if phase == .active {
++                Task { await state.resumePendingTurnIfNeeded() }
++            }
++        }
+     }
+ }
+ 
+ struct ChatView: View {
+     @EnvironmentObject var state: AppState
++
++    private func attributed(_ text: String) -> AttributedString {
++        (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(text)
++    }
++
++    private func copy(_ text: String) {
++        UIPasteboard.general.string = text
++        state.status = "Copied"
++    }
++
++    private func pasteIntoComposer() {
++        guard let clip = UIPasteboard.general.string, !clip.isEmpty else { return }
++        if state.input.isEmpty { state.input = clip }
++        else { state.input += (state.input.hasSuffix(" ") || state.input.hasSuffix("\n") ? "" : " ") + clip }
++    }
++
+     var body: some View {
+         NavigationStack {
+             VStack(spacing: 0) {
+                 HStack {
+                     Circle().frame(width: 8, height: 8).opacity(state.busy ? 0.45 : 1)
+                     Text(state.status).font(.caption).lineLimit(1)
++                    if state.backgroundState != "Idle" {
++                        Text(state.backgroundState).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
++                    }
+                     Spacer()
+                     if !state.lastTool.isEmpty { Text("Tool: \(state.lastTool)").font(.caption2).foregroundStyle(.secondary) }
+                 }.padding(.horizontal).padding(.vertical, 8)
+@@ -936,13 +1036,38 @@
+                     ScrollView {
+                         LazyVStack(alignment: .leading, spacing: 10) {
+                             ForEach(state.messages) { m in
+-                                HStack {
++                                HStack(alignment: .bottom) {
+                                     if m.role == "assistant" {
+-                                        Text(m.text).padding(10).background(.thinMaterial).clipShape(RoundedRectangle(cornerRadius: 12))
++                                        VStack(alignment: .leading, spacing: 8) {
++                                            Text(attributed(m.text))
++                                                .textSelection(.enabled)
++                                            HStack(spacing: 12) {
++                                                Button { copy(m.text) } label: {
++                                                    Label("Copy", systemImage: "doc.on.doc")
++                                                }
++                                                .font(.caption)
++                                                .buttonStyle(.plain)
++                                                Spacer()
++                                            }
++                                        }
++                                        .padding(10)
++                                        .background(.thinMaterial)
++                                        .clipShape(RoundedRectangle(cornerRadius: 12))
++                                        .contextMenu {
++                                            Button("Copy response") { copy(m.text) }
++                                        }
+                                         Spacer(minLength: 35)
+                                     } else {
+                                         Spacer(minLength: 35)
+-                                        Text(m.text).padding(10).foregroundStyle(.white).background(.black).clipShape(RoundedRectangle(cornerRadius: 12))
++                                        Text(m.text)
++                                            .textSelection(.enabled)
++                                            .padding(10)
++                                            .foregroundStyle(.white)
++                                            .background(.black)
++                                            .clipShape(RoundedRectangle(cornerRadius: 12))
++                                            .contextMenu {
++                                                Button("Copy prompt") { copy(m.text) }
++                                            }
+                                     }
+                                 }.id(m.id)
+                             }
+@@ -952,7 +1077,14 @@
+                 }
+ 
+                 Divider()
+-                HStack(alignment: .bottom) {
++                HStack(alignment: .bottom, spacing: 8) {
++                    Button(action: pasteIntoComposer) {
++                        Image(systemName: "doc.on.clipboard")
++                            .frame(width: 28, height: 32)
++                    }
++                    .buttonStyle(.plain)
++                    .accessibilityLabel("Paste from clipboard")
++
+                     TextField("Ask Next Agent to inspect or control this iPhone…", text: $state.input, axis: .vertical)
+                         .textFieldStyle(.roundedBorder).lineLimit(1...5)
+                     Button {
+@@ -977,6 +1109,7 @@
+                     LabeledContent("UID", value: "\(getuid())")
+                     LabeledContent("EUID", value: "\(geteuid())")
+                     LabeledContent("Root helper", value: state.rootHelperStatus)
++                    LabeledContent("Background turn", value: state.backgroundState)
+                     Button("Test Root Helper") { state.checkRootHelper() }
+                     LabeledContent("Sensitive actions", value: state.sensitiveActions ? "Enabled" : "Disabled")
+                     LabeledContent("Last tool", value: state.lastTool)
+@@ -1024,7 +1157,11 @@
+                 Section("Device Control") {
+                     Toggle("Allow sensitive actions", isOn: $state.sensitiveActions)
+                         .onChange(of: state.sensitiveActions) { v in UserDefaults.standard.set(v, forKey: "nextagent.sensitiveActions") }
+-                    Text("When off, file writes, uicache, respring and process termination are blocked even if the agent requests them. Root read-only inspection remains available when nextagentd is installed.")
++                    Toggle("Continue active turns in background", isOn: $state.backgroundContinuation)
++                        .onChange(of: state.backgroundContinuation) { v in UserDefaults.standard.set(v, forKey: "nextagent.backgroundContinuation") }
++                    Text("Background continuation protects an active turn when you switch apps and automatically resumes a durable managed-agent session when Next Agent becomes active again. iOS can still suspend the UI process after its background execution window.")
++                        .font(.caption).foregroundStyle(.secondary)
++                    Text("When sensitive actions are off, file writes, uicache, respring and process termination are blocked. Root read-only inspection remains available.")
+                         .font(.caption).foregroundStyle(.secondary)
+                 }
+ 
+--- project.yml
++++ project.yml
+@@ -25,8 +25,8 @@
+       base:
+         PRODUCT_BUNDLE_IDENTIFIER: uk.zeshanbarvi.nextagent
+         PRODUCT_NAME: Next Agent
+-        MARKETING_VERSION: 0.3.1
+-        CURRENT_PROJECT_VERSION: 5
++        MARKETING_VERSION: 0.4.0
++        CURRENT_PROJECT_VERSION: 6
+         TARGETED_DEVICE_FAMILY: 1
+         SUPPORTS_MACCATALYST: NO
+         ENABLE_USER_SCRIPT_SANDBOXING: NO
