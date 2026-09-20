@@ -18,48 +18,69 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#include <mach-o/dyld.h>
 
-#define NEXTAGENTD_VERSION "0.3.3"
+#define NEXTAGENTD_VERSION "0.3.4"
 #define LISTEN_PORT 37589
 #define MAX_LINE 65536
 #define MAX_OUTPUT 524288
-#define TOKEN_RELATIVE_DIR "/var/mobile/Library/NextAgent"
-#define TOKEN_NAME "daemon.token"
+#define TOKEN_DIR "/var/mobile/Library/NextAgent"
+#define TOKEN_PATH TOKEN_DIR "/daemon.token"
+
+static bool detect_jbroot(char out[4096]) {
+    uint32_t n = 0;
+    _NSGetExecutablePath(NULL, &n);
+    if (n == 0 || n >= 4096) return false;
+    char exe[4096] = {0};
+    if (_NSGetExecutablePath(exe, &n) != 0) return false;
+
+    const char *suffix = "/usr/local/libexec/nextagentd";
+    char *p = strstr(exe, suffix);
+    if (!p) return false;
+    *p = 0;
+    if (exe[0] != '/') return false;
+    strlcpy(out, exe, 4096);
+    return true;
+}
 
 static bool roothide_mode(void) {
-    struct stat st;
-    return stat("/rootfs", &st) == 0 && S_ISDIR(st.st_mode);
+    char jbroot[4096] = {0};
+    return detect_jbroot(jbroot) && strstr(jbroot, ".jbroot-") != NULL;
 }
 
 static void token_locations(char dir[4096], char path[4096]) {
-    const char *prefix = roothide_mode() ? "/rootfs" : "";
-    snprintf(dir, 4096, "%s%s", prefix, TOKEN_RELATIVE_DIR);
-    snprintf(path, 4096, "%s/%s", dir, TOKEN_NAME);
+    strlcpy(dir, TOKEN_DIR, 4096);
+    strlcpy(path, TOKEN_PATH, 4096);
 }
 
 static const char *strip_rootfs_prefix(const char *p) {
     if (p && strncmp(p, "/rootfs/", 8) == 0) return p + 7;
+    if (p && strcmp(p, "/rootfs") == 0) return "/";
     return p;
 }
 
 static const char *resolve_rootfs_path(const char *p, char out[4096]) {
     if (!p) return p;
-    if (!roothide_mode() || strncmp(p, "/rootfs/", 8) == 0 || strcmp(p, "/rootfs") == 0) return p;
 
-    static const char *rootfsPrefixes[] = {
-        "/var/", "/private/", "/System/", "/Applications/", "/User/", "/Users/", "/Developer/"
-    };
-    for (size_t i = 0; i < sizeof(rootfsPrefixes)/sizeof(rootfsPrefixes[0]); i++) {
-        size_t n = strlen(rootfsPrefixes[i]);
-        if (strncmp(p, rootfsPrefixes[i], n) == 0) {
-            snprintf(out, 4096, "/rootfs%s", p);
+    /* RootHide native code already sees the real iOS rootfs at normal absolute
+       paths. /rootfs is only a bootstrap CLI alias, so strip it here. */
+    if (strncmp(p, "/rootfs/", 8) == 0) {
+        snprintf(out, 4096, "%s", p + 7);
+        return out;
+    }
+    if (strcmp(p, "/rootfs") == 0) {
+        strlcpy(out, "/", 4096);
+        return out;
+    }
+
+    /* Optional /jbroot alias for inspecting the randomized RootHide bootstrap. */
+    if (strncmp(p, "/jbroot/", 8) == 0 || strcmp(p, "/jbroot") == 0) {
+        char jbroot[4096] = {0};
+        if (detect_jbroot(jbroot)) {
+            if (strcmp(p, "/jbroot") == 0) strlcpy(out, jbroot, 4096);
+            else snprintf(out, 4096, "%s/%s", jbroot, p + 8);
             return out;
         }
-    }
-    if (!strcmp(p, "/var") || !strcmp(p, "/private") || !strcmp(p, "/System") ||
-        !strcmp(p, "/Applications") || !strcmp(p, "/User") || !strcmp(p, "/Users")) {
-        snprintf(out, 4096, "/rootfs%s", p);
-        return out;
     }
     return p;
 }
@@ -207,20 +228,22 @@ static char *json_escape(const char *s) {
 }
 
 static char *action_ping(void) {
-    char buf[768];
-    snprintf(buf, sizeof(buf), "{\"version\":\"%s\",\"pid\":%d,\"uid\":%d,\"euid\":%d,\"root\":%s,\"roothide\":%s,\"token_on_rootfs\":%s}",
+    char jbroot[4096] = {0};
+    bool hasJbroot = detect_jbroot(jbroot);
+    char *escaped = hasJbroot ? json_escape(jbroot) : NULL;
+    char buf[8192];
+    snprintf(buf, sizeof(buf),
+             "{\"version\":\"%s\",\"pid\":%d,\"uid\":%d,\"euid\":%d,\"root\":%s,\"roothide\":%s,\"token_path\":\"%s\",\"jbroot\":\"%s\"}",
              NEXTAGENTD_VERSION, getpid(), getuid(), geteuid(), geteuid() == 0 ? "true" : "false",
-             roothide_mode() ? "true" : "false", roothide_mode() ? "true" : "false");
+             roothide_mode() ? "true" : "false", TOKEN_PATH, escaped ? escaped : "");
+    free(escaped);
     return strdup(buf);
 }
 
 static char *action_jailbreak(void) {
     const char *paths[] = {
-        "/rootfs/private/preboot", "/rootfs/Applications",
         "/private/preboot", "/Applications",
-        "/usr/bin/dpkg", "/usr/bin/apt", "/usr/bin/jbroot", "/usr/bin/rootfs",
-        "/Applications/Sileo.app", "/Applications/Zebra.app",
-        "/usr/lib/libellekit.dylib", "/usr/lib/libsubstitute.dylib",
+        "/var/mobile/Library/NextAgent",
         "/var/jb", "/var/jb/usr/bin/dpkg", "/var/jb/usr/bin/apt"
     };
     char *out = calloc(1, 8192);
@@ -229,6 +252,14 @@ static char *action_jailbreak(void) {
     strcat(out, geteuid() == 0 ? "true" : "false");
     strcat(out, ",\"roothide\":");
     strcat(out, roothide_mode() ? "true" : "false");
+    char jbroot[4096] = {0};
+    if (detect_jbroot(jbroot)) {
+        char *e = json_escape(jbroot);
+        strcat(out, ",\"jbroot\":\""); strcat(out, e ? e : ""); strcat(out, "\"");
+        free(e);
+    } else {
+        strcat(out, ",\"jbroot\":\"\"");
+    }
     strcat(out, ",\"present_paths\":[");
     bool first = true;
     for (size_t i = 0; i < sizeof(paths)/sizeof(paths[0]); i++) {
@@ -463,6 +494,7 @@ int main(void) {
         logmsg("failed to create/read token at %s: %s", tokenPath, strerror(errno));
         return 78;
     }
+    logmsg("token ready at %s (uid=%d euid=%d)", TOKEN_PATH, getuid(), geteuid());
 
     int s = socket(AF_INET, SOCK_STREAM, 0);
     if (s < 0) return 79;
