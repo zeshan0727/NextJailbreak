@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T11:17:30Z",
+  "updatedAt": "2026-09-21T11:18:08Z",
   "files": [
     {
       "id": "tipa-qatar-marketplace-current-0.3.0",
@@ -10,8 +10,8 @@
       "platform": "TrollStore / iOS 16+",
       "version": "0.3.0 (3)",
       "url": "https://nextjailbreak.com/transfer/files/TIPA/0.3.0/TIPA-0.3.0.tipa",
-      "sha256": "8a027cd92d6de33c2def78bc7dc357ea7b97b515a1c136c34655a1c2d2e3bc04",
-      "sizeBytes": 1377026,
+      "sha256": "c6e698c4ade0832662bd99e40ea6db610966afe3168c7a3d7d2d976863a8a866",
+      "sizeBytes": 1389012,
       "notes": "Accuracy-first Qatar marketplace build. Accepts only verified individual-ad URL patterns, rejects marketplace home/category/search pages and generic feeds, filters phone accessories unless requested, improves natural-query normalization, and labels direct ads explicitly."
     },
     {
