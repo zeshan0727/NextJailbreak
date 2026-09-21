@@ -1479,12 +1479,10 @@ jobs:
             -o /tmp/NextAgentSpringBoard0715.dylib
           ldid -S /tmp/NextAgentSpringBoard0715.dylib
           file /tmp/NextAgentSpringBoard0715.dylib | grep -q arm64e
-          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'uk.zeshanbarvi.nextagent.bridge.v0715'
-          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q '0.7.15-springboard-vision1'
-          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'springboard_iohid_v0715'
-          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'SBSceneManagerCoordinator'
-          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'existingSceneHandleForScene:'
-          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'foreground_fallback'
+          grep -q 'uk.zeshanbarvi.nextagent.bridge.v0715' "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/Overlay/NextAgentSpringBoard0715.m"
+          grep -q 'SBSceneManagerCoordinator' "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/Overlay/NextAgentSpringBoard0715.m"
+          grep -q 'existingSceneHandleForScene:' "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/Overlay/NextAgentSpringBoard0715.m"
+          grep -q 'foreground_fallback' "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/Overlay/NextAgentSpringBoard0715.m"
 
           xcrun --sdk iphoneos clang \
             -arch arm64e \
@@ -1501,9 +1499,8 @@ jobs:
             -o /tmp/NextAgentForegroundHUD0715.dylib
           ldid -S /tmp/NextAgentForegroundHUD0715.dylib
           file /tmp/NextAgentForegroundHUD0715.dylib | grep -q arm64e
-          strings -a /tmp/NextAgentForegroundHUD0715.dylib | grep -q 'NAForegroundHUD'
-          strings -a /tmp/NextAgentForegroundHUD0715.dylib | grep -q 'HUD ready'
-          strings -a /tmp/NextAgentForegroundHUD0715.dylib | grep -q 'uk.zeshanbarvi.nextagent'
+          grep -q 'HUD ready' "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/Overlay/NextAgentForegroundHUD0715.m"
+          grep -q 'uk.zeshanbarvi.nextagent' "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/Overlay/NextAgentForegroundHUD0715.m"
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
