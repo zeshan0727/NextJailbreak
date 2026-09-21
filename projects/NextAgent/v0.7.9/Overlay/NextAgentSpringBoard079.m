@@ -850,7 +850,7 @@ static NSDictionary *NAReadJSON(NSString *path) {
             @"source": source ?: @"unavailable",
             @"quality": quality ?: @{},
             @"error": @"SpringBoard compositor did not return a validated frame",
-            @"transport_version": @"0.7.7-cfmessageport1"
+            @"transport_version": @"0.7.9-cfmessageport1"
         };
     }
 
@@ -869,7 +869,7 @@ static NSDictionary *NAReadJSON(NSString *path) {
             @"source": source ?: @"unknown",
             @"quality": quality ?: @{},
             @"error": @"validated frame could not be encoded for direct IPC",
-            @"transport_version": @"0.7.7-cfmessageport1"
+            @"transport_version": @"0.7.9-cfmessageport1"
         };
     }
 
@@ -885,7 +885,7 @@ static NSDictionary *NAReadJSON(NSString *path) {
         @"pixel_height": @(lrint(transportImage.size.height * transportImage.scale)),
         @"native_pixel_width": @(lrint(image.size.width * image.scale)),
         @"native_pixel_height": @(lrint(image.size.height * image.scale)),
-        @"transport_version": @"0.7.7-cfmessageport1",
+        @"transport_version": @"0.7.9-cfmessageport1",
         @"timestamp": @([[NSDate date] timeIntervalSince1970])
     };
 }
@@ -1349,7 +1349,9 @@ static NSDictionary *NAReadJSON(NSString *path) {
         @"launch_symbol_available": @(launchSymbol != NULL),
         @"nextagent_scene_available": @(scene != nil),
         @"host_probe_ready": @(hostReady),
-        @"mode": @"springboard_scene_host_50_50"
+        @"mode": @"springboard_scene_host_50_50",
+        @"bridge_version": @"0.7.9",
+        @"transport_version": @"0.7.9-springboard-vision1"
     };
 }
 
