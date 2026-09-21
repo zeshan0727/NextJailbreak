@@ -38,9 +38,9 @@ final class NextPostStore: ObservableObject {
     }
 
     init() {
-        usedLinks = Set(defaults.stringArray(forKey: Key.usedLinks) ?? [])
-        knownLinks = Set(defaults.stringArray(forKey: Key.knownLinks) ?? [])
-        lastArticleLink = defaults.string(forKey: Key.lastArticleLink)
+        usedLinks = Set((defaults.stringArray(forKey: Key.usedLinks) ?? []).map(Self.articleKey(from:)))
+        knownLinks = Set((defaults.stringArray(forKey: Key.knownLinks) ?? []).map(Self.articleKey(from:)))
+        lastArticleLink = defaults.string(forKey: Key.lastArticleLink).map(Self.articleKey(from:))
         generatedCount = defaults.integer(forKey: Key.generatedCount)
         cycleNumber = max(1, defaults.integer(forKey: Key.cycleNumber))
         generatedPost = defaults.string(forKey: Key.generatedPost) ?? ""
@@ -70,12 +70,10 @@ final class NextPostStore: ObservableObject {
 
         do {
             let articles = try await service.fetchArticles(forceRefresh: manual)
-            let currentLinks = Set(articles.map { $0.cleanURL.absoluteString })
+            let currentLinks = Set(articles.map(articleKey))
             let newLinks = knownLinks.isEmpty ? Set<String>() : currentLinks.subtracting(knownLinks)
 
-            reconcileUsedLinks(with: articles)
             totalArticles = articles.count
-            remainingThisCycle = max(0, articles.count - usedLinks.count)
             knownLinks = currentLinks
             defaults.set(Array(knownLinks), forKey: Key.knownLinks)
             updateRemainingArticles(from: articles)
@@ -101,7 +99,7 @@ final class NextPostStore: ObservableObject {
     }
 
     func selectRemainingArticle(_ article: PublishedArticle) {
-        guard !usedLinks.contains(article.cleanURL.absoluteString) else { return }
+        guard !usedLinks.contains(articleKey(article)) else { return }
         selectedRemainingArticle = article
         statusText = "Selected \(article.name) — tap Generate Next Post"
     }
@@ -123,23 +121,19 @@ final class NextPostStore: ObservableObject {
             let articles = try await service.fetchArticles(forceRefresh: true)
             guard !articles.isEmpty else { throw ArticleServiceError.noArticles }
 
-            reconcileUsedLinks(with: articles)
             totalArticles = articles.count
-            knownLinks.formUnion(articles.map { $0.cleanURL.absoluteString })
+            knownLinks.formUnion(articles.map(articleKey))
             defaults.set(Array(knownLinks), forKey: Key.knownLinks)
 
-            var candidates = articles.filter { !usedLinks.contains($0.cleanURL.absoluteString) }
+            let candidates = articles.filter { !usedLinks.contains(articleKey($0)) }
 
             if candidates.isEmpty {
-                usedLinks.removeAll()
-                cycleNumber += 1
-                defaults.set(cycleNumber, forKey: Key.cycleNumber)
-
-                if articles.count > 1, let lastArticleLink {
-                    candidates = articles.filter { $0.cleanURL.absoluteString != lastArticleLink }
-                } else {
-                    candidates = articles
-                }
+                selectedRemainingArticle = nil
+                updateRemainingArticles(from: articles)
+                statusText = "All published articles generated — waiting for new articles"
+                refreshResult = "No repeats — refresh after a new article is published"
+                persist()
+                return
             }
 
             let article: PublishedArticle
@@ -153,7 +147,7 @@ final class NextPostStore: ObservableObject {
             }
 
             let post = composer.compose(for: article, variation: generatedCount + 1)
-            let link = article.cleanURL.absoluteString
+            let link = articleKey(article)
 
             usedLinks.insert(link)
             lastArticleLink = link
@@ -164,11 +158,10 @@ final class NextPostStore: ObservableObject {
             remainingThisCycle = max(0, articles.count - usedLinks.count)
             updateRemainingArticles(from: articles)
             statusText = remainingThisCycle == 0
-                ? "All articles used — next tap starts a fresh cycle"
-                : "\(remainingThisCycle) article\(remainingThisCycle == 1 ? "" : "s") left before repeats"
+                ? "All published articles generated — waiting for new articles"
+                : "\(remainingThisCycle) ungenerated article\(remainingThisCycle == 1 ? "" : "s") remaining"
 
             persist()
-            AdsManager.shared.recordSuccessfulGeneration()
         } catch {
             errorMessage = error.localizedDescription
             statusText = "Generation failed"
@@ -221,17 +214,26 @@ final class NextPostStore: ObservableObject {
         UIApplication.shared.open(intentURL)
     }
 
-    private func reconcileUsedLinks(with articles: [PublishedArticle]) {
-        let currentLinks = Set(articles.map { $0.cleanURL.absoluteString })
-        let cleaned = usedLinks.intersection(currentLinks)
-        if cleaned != usedLinks {
-            usedLinks = cleaned
-            defaults.set(Array(usedLinks), forKey: Key.usedLinks)
+    private func articleKey(_ article: PublishedArticle) -> String {
+        Self.articleKey(from: article.cleanURL.absoluteString)
+    }
+
+    private static func articleKey(from raw: String) -> String {
+        guard let components = URLComponents(string: raw) else {
+            return raw.lowercased()
         }
+
+        var path = components.path
+        if path.hasSuffix(".html") {
+            path = String(path.dropLast(5))
+        }
+        path = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        return path.isEmpty ? "home" : path.lowercased()
     }
 
     private func updateRemainingArticles(from articles: [PublishedArticle]) {
-        remainingArticles = articles.filter { !usedLinks.contains($0.cleanURL.absoluteString) }
+        // published-articles.json is newest-first; filtering preserves that order.
+        remainingArticles = articles.filter { !usedLinks.contains(articleKey($0)) }
         remainingThisCycle = remainingArticles.count
 
         if let selectedRemainingArticle,
