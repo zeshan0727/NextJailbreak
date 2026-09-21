@@ -1,7 +1,43 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T10:55:56Z",
+  "updatedAt": "2026-09-21T10:58:29Z",
   "files": [
+    {
+      "id": "next-agent-current-0.7.19-roothide",
+      "name": "Next Agent 0.7.19 — SpringBoard HUD + Full-Screen Apps",
+      "fileName": "NextAgent-0.7.19.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "0.7.19 (27)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.19/NextAgent-0.7.19.tipa",
+      "sha256": "c9c5e16b1cc901c9e4466c524dfe223117f81194959dba527e1f237088b39eaa",
+      "sizeBytes": 1028333,
+      "notes": "Next Agent 0.7.19 makes Show HUD a direct SpringBoard broadcast test and changes self-test to require actual RootHide HUD tweak injection instead of merely expecting a fallback. Routine app automation remains full-screen."
+    },
+    {
+      "id": "next-agent-daemon-current-0.7.19-roothide",
+      "name": "Next Agent Daemon 0.7.19 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.19-RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iphoneos-arm64e",
+      "version": "0.7.19",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.19/NextAgentDaemon-0.7.19-RootHide.deb",
+      "sha256": "d24a35664b7f4b42b8cf7b8db084032f5584121998091d261f6e311ce3278fcd",
+      "sizeBytes": 62376,
+      "notes": "Matching RootHide helper for Next Agent 0.7.19. Installs the SpringBoard OCR/HID bridge, direct HUD-test broadcaster, tweak-load diagnostics and root helper; the HUD remains a separate RootHide tweak."
+    },
+    {
+      "id": "next-agent-hud-current-0.7.19-roothide",
+      "name": "Next Agent System HUD 0.7.19 — RootHide",
+      "fileName": "NextAgentStatusHUD-0.7.19-RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iphoneos-arm64e",
+      "version": "0.7.19",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.19/NextAgentStatusHUD-0.7.19-RootHide.deb",
+      "sha256": "75e4b79d613ef8ff05b1299211bf402393d8b2851ebfb627af514ef4d40601df",
+      "sizeBytes": 12496,
+      "notes": "SpringBoard-only RootHide HUD anchored to SpringBoard's status-bar/window hierarchy. It no longer depends on a UIWindow inside Next Agent or the foreground app."
+    },
     {
       "id": "tipa-qatar-marketplace-current-0.3.0",
       "name": "TIPA 0.3.0 — Qatar Marketplace Accuracy",
@@ -13,42 +49,6 @@
       "sha256": "dd8c791311ba93b7e1dc877044592dd6beb22fe8bf29f5830590835f7fe69712",
       "sizeBytes": 1376471,
       "notes": "Accuracy-first Qatar marketplace build. Accepts only verified individual-ad URL patterns, rejects marketplace home/category/search pages and generic feeds, filters phone accessories unless requested, improves natural-query normalization, and labels direct ads explicitly."
-    },
-    {
-      "id": "next-agent-current-0.7.18-roothide",
-      "name": "Next Agent 0.7.18 — Lifecycle-Safe HUD + Full-Screen Apps",
-      "fileName": "NextAgent-0.7.18.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.18 (26)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.18/NextAgent-0.7.18.tipa",
-      "sha256": "367579ac06e2f54f4c1067a7a3d2feefc264af4e6171c303130a66861b8c43e7",
-      "sizeBytes": 1028221,
-      "notes": "Next Agent 0.7.18 makes Show HUD a direct SpringBoard broadcast test and changes self-test to require actual RootHide HUD tweak injection instead of merely expecting a fallback. Routine app automation remains full-screen."
-    },
-    {
-      "id": "next-agent-daemon-current-0.7.18-roothide",
-      "name": "Next Agent Daemon 0.7.18 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.18-RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.18",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.18/NextAgentDaemon-0.7.18-RootHide.deb",
-      "sha256": "1907727de6a8f4859366f29ceb37d5fa317434a5925ca5fdae479ad5cfb4a4d9",
-      "sizeBytes": 62328,
-      "notes": "Matching RootHide helper for Next Agent 0.7.18. Installs the SpringBoard OCR/HID bridge, direct HUD-test broadcaster, tweak-load diagnostics and root helper; the HUD remains a separate RootHide tweak."
-    },
-    {
-      "id": "next-agent-hud-current-0.7.18-roothide",
-      "name": "Next Agent System HUD 0.7.18 — RootHide",
-      "fileName": "NextAgentStatusHUD-0.7.18-RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.18",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.18/NextAgentStatusHUD-0.7.18-RootHide.deb",
-      "sha256": "e156862250fa8fc45151218c250a4da9d685841282c9529c9c9bdb12d7da208b",
-      "sizeBytes": 19304,
-      "notes": "RootHide HUD stack now retries startup through UIApplication and UIWindowScene lifecycle events, preserving exact-bundle and known-app fallback injection while exposing bootstrap attempts, scene readiness and timeout state."
     },
     {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
