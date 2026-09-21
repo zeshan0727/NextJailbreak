@@ -1,22 +1,14 @@
-# Next Ledger 1.3.33 validated build
-# Build trigger: reliable Files and Google Drive restore picker
-name: Build Next Ledger TIPA
+name: Build TIPA Qatar Marketplace
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - "DailyLedger/**"
-      - "RootHideSMSImport/**"
-      - "project.yml"
-      - ".github/workflows/build-tipa.yml"
   push:
     paths:
-      - "DailyLedger/**"
-      - "RootHideSMSImport/**"
-      - "project.yml"
-      - ".github/workflows/build-tipa.yml"
+      - 'TIPA/**'
+      - '.github/workflows/build-tipa.yml'
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -24,73 +16,53 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Check out source
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install XcodeGen
-        run: brew install xcodegen dpkg ldid
+        run: brew install xcodegen
+
+      - name: Generate app icon
+        working-directory: TIPA
+        run: swift generate_app_icon.swift TIPA/Assets.xcassets/AppIcon.appiconset/AppIcon.png
 
       - name: Generate Xcode project
+        working-directory: TIPA
         run: xcodegen generate
 
-      - name: Build unsigned iPhone app
+      - name: Build unsigned iOS app
+        working-directory: TIPA
         run: |
+          set -euo pipefail
           xcodebuild \
-            -project DailyLedger.xcodeproj \
-            -scheme DailyLedger \
+            -project TIPA.xcodeproj \
+            -scheme TIPA \
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            build
+            build 2>&1 | tee xcodebuild.log
 
-      - name: Package for TrollStore
+      - name: Package TrollStore TIPA
+        working-directory: TIPA
         run: |
-          APP_PATH="$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
-          test -n "$APP_PATH"
-          rm -rf Payload
+          set -euo pipefail
+          rm -rf Payload TIPA.tipa
           mkdir -p Payload
-          cp -R "$APP_PATH" Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.33.tipa
-          shasum -a 256 NextLedger-1.3.33.tipa > NextLedger-1.3.33.sha256
-
-      - name: Test SMS parser
-        run: |
-          xcrun clang \
-            -fobjc-arc \
-            RootHideSMSImport/Sources/main.m \
-            -framework Foundation \
-            -framework CoreFoundation \
-            -framework AudioToolbox \
-            -lsqlite3 \
-            -o build/dailyledgersmsd-macos
-          build/dailyledgersmsd-macos --self-test
-
-      - name: Build RootHide SMS importer
-        run: |
-          THEOS_COMMIT="88506b2c22e9e07dd4ed055f23c9e398a117a2c7"
-          git init "$RUNNER_TEMP/theos"
-          git -C "$RUNNER_TEMP/theos" remote add origin https://github.com/roothide/theos.git
-          git -C "$RUNNER_TEMP/theos" fetch --depth 1 origin "$THEOS_COMMIT"
-          git -C "$RUNNER_TEMP/theos" checkout --detach "$THEOS_COMMIT"
-          git -C "$RUNNER_TEMP/theos" submodule update --init --recursive --depth 1
-          export THEOS="$RUNNER_TEMP/theos"
-          make -C RootHideSMSImport clean package FINALPACKAGE=1
-
-      - name: Package RootHide add-on
-        run: |
-          cp RootHideSMSImport/packages/*.deb DailyLedgerSMSImport-1.4.0-roothide.deb
-          shasum -a 256 DailyLedgerSMSImport-1.4.0-roothide.deb > DailyLedgerSMSImport-1.4.0-roothide.sha256
+          cp -R build/Build/Products/Release-iphoneos/TIPA.app Payload/
+          /usr/bin/zip -qry TIPA.tipa Payload
+          shasum -a 256 TIPA.tipa > TIPA.tipa.sha256
+          /usr/bin/file Payload/TIPA.app/TIPA
+          /usr/bin/plutil -p Payload/TIPA.app/Info.plist
 
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
         with:
-          name: NextLedger-TrollStore
+          name: TIPA-v0.1.0
           path: |
-            NextLedger-1.3.33.tipa
-            NextLedger-1.3.33.sha256
-            DailyLedgerSMSImport-1.4.0-roothide.deb
-            DailyLedgerSMSImport-1.4.0-roothide.sha256
+            TIPA/TIPA.tipa
+            TIPA/TIPA.tipa.sha256
+            TIPA/xcodebuild.log
           if-no-files-found: error
