@@ -1481,6 +1481,7 @@ jobs:
             -framework UIKit \
             -framework Foundation \
             -framework QuartzCore \
+            -framework CoreGraphics \
             -o /tmp/NextAgentForegroundHUD0714.dylib
           ldid -S /tmp/NextAgentForegroundHUD0714.dylib
           file /tmp/NextAgentForegroundHUD0714.dylib | grep -q arm64e
