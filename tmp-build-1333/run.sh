@@ -70,7 +70,7 @@ p.write_text(s)
 
 p=root/'control'
 s=p.read_text()
-s=re.sub(r'^Version:\s*1\.0\.15\s*$','Version: 1.0.16',s,flags=re.M)
+s=re.sub(r'^Version:\\s*[^\\n]+$','Version: 1.0.16',s,flags=re.M)
 if 'Version: 1.0.16' not in s:
     raise SystemExit('Unable to promote tweak baseline to 1.0.16')
 p.write_text(s)
