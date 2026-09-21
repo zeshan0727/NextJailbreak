@@ -218,7 +218,7 @@ final class MobileStore: ObservableObject {
     func reloadAll() async {
         guard let dbq = database else { return }
         do {
-            let newEntities: [EntityRow] = try dbq.read { db in
+            let newEntities: [EntityRow] = try await dbq.read { db in
                 guard try tableExists(db, "Entities") else { return [] }
                 return try Row.fetchAll(
                     db,
@@ -243,9 +243,14 @@ final class MobileStore: ObservableObject {
 
     func refreshEntityData() async {
         guard let dbq = database, let entity = selectedEntity else { return }
+        let entityID = entity.id
+        let entityName = entity.name
+        let year = selectedYear
+        let month = selectedMonth
         do {
-            let endDate = String(format: "%04d-%02d-31", selectedYear, selectedMonth)
-            let result = try dbq.read {
+            let endDate = String(format: "%04d-%02d-31", year, month)
+            let yearMonth = String(format: "%04d-%02d", year, month)
+            let result = try await dbq.read {
                 db -> (String, Int, Int, Bool, [TBRow], [PaymentRow], [PaymentRow], [EmployeeRow], [LeaveRow], [CostRow], [CompanyDocRow], [AuditLineRow]) in
 
                 var tbDate = ""
@@ -259,7 +264,7 @@ final class MobileStore: ObservableObject {
                     if let snap = try Row.fetchOne(
                         db,
                         sql: "SELECT SnapshotId,SnapshotDate,AccountCount,UnmappedCount,Balanced FROM ManagerReportTbSnapshotsV6A WHERE lower(Company)=lower(?) AND SnapshotDate<=? AND Active=1 ORDER BY SnapshotDate DESC, Version DESC LIMIT 1",
-                        arguments: [entity.name, endDate]
+                        arguments: [entityName, endDate]
                     ) {
                         let sid = string(snap, "SnapshotId")
                         tbDate = string(snap, "SnapshotDate")
@@ -281,14 +286,12 @@ final class MobileStore: ObservableObject {
                     }
                 }
 
-                let yearMonth = String(format: "%04d-%02d", selectedYear, selectedMonth)
-
                 var pvs: [PaymentRow] = []
                 if try tableExists(db, "PaymentVouchers") {
                     pvs = try Row.fetchAll(
                         db,
                         sql: "SELECT Id,VoucherNo,VoucherDate,Payee,Amount,Currency,Purpose FROM PaymentVouchers WHERE EntityId=? AND substr(COALESCE(VoucherDate,''),1,7)=? ORDER BY VoucherDate DESC,Id DESC",
-                        arguments: [entity.id, yearMonth]
+                        arguments: [entityID, yearMonth]
                     ).map { r in
                         PaymentRow(
                             id: int64(r, "Id"),
@@ -308,7 +311,7 @@ final class MobileStore: ObservableObject {
                     rvs = try Row.fetchAll(
                         db,
                         sql: "SELECT Id,ReceiptNo,ReceiptDate,ReceivedFrom,Amount,Currency,Purpose,ReceiptType FROM ReceiptVouchers WHERE EntityId=? AND substr(COALESCE(ReceiptDate,''),1,7)=? ORDER BY ReceiptDate DESC,Id DESC",
-                        arguments: [entity.id, yearMonth]
+                        arguments: [entityID, yearMonth]
                     ).map { r in
                         PaymentRow(
                             id: int64(r, "Id"),
@@ -328,7 +331,7 @@ final class MobileStore: ObservableObject {
                     emps = try Row.fetchAll(
                         db,
                         sql: "SELECT Id,EmployeeNo,Name,Position,Department,IsActive FROM Employees WHERE EntityId=? ORDER BY IsActive DESC,Name",
-                        arguments: [entity.id]
+                        arguments: [entityID]
                     ).map { r in
                         EmployeeRow(
                             id: int64(r, "Id"),
@@ -346,7 +349,7 @@ final class MobileStore: ObservableObject {
                     lvs = try Row.fetchAll(
                         db,
                         sql: "SELECT Id,RecordId,EmployeeName,LeaveStart,LeaveEnd,LeaveDays,NetPayable,TotalPayable,LeaveBalanceRemaining,Status FROM LeaveSettlementRecords WHERE EntityId=? ORDER BY COALESCE(UpdatedAt,CreatedAt) DESC,Id DESC LIMIT 250",
-                        arguments: [entity.id]
+                        arguments: [entityID]
                     ).map { r in
                         let netPayable = double(r, "NetPayable")
                         return LeaveRow(
@@ -368,7 +371,7 @@ final class MobileStore: ObservableObject {
                     cs = try Row.fetchAll(
                         db,
                         sql: "SELECT Id,Category,ItemName,Cost,CostMethod,ReportingCategory,Supplier,IsActive FROM CostItems WHERE EntityId=? ORDER BY IsActive DESC,ItemName",
-                        arguments: [entity.id]
+                        arguments: [entityID]
                     ).map { r in
                         CostRow(
                             id: int64(r, "Id"),
@@ -388,7 +391,7 @@ final class MobileStore: ObservableObject {
                     docs = try Row.fetchAll(
                         db,
                         sql: "SELECT Id,DocType,DocumentNumber,LegalName,ExpiryDate,AttachmentPath FROM CompanyDocuments WHERE EntityId=? ORDER BY DocType,DocumentNumber",
-                        arguments: [entity.id]
+                        arguments: [entityID]
                     ).map { r in
                         CompanyDocRow(
                             id: int64(r, "Id"),
@@ -406,7 +409,7 @@ final class MobileStore: ObservableObject {
                     audit = try Row.fetchAll(
                         db,
                         sql: "SELECT a.Id,a.StatementType,a.LineLabel,a.NoteNo,a.RowType FROM AuditStatementTemplateLines a JOIN Entities e ON e.Id=a.ReportingEntityId WHERE e.Id=? AND a.IsActive=1 ORDER BY a.StatementType,a.SortOrder",
-                        arguments: [entity.id]
+                        arguments: [entityID]
                     ).map { r in
                         AuditLineRow(
                             id: int64(r, "Id"),
@@ -621,37 +624,50 @@ struct MainTabs: View {
 struct WorkspaceHeader: View {
     @EnvironmentObject var store: MobileStore
 
+    private static let months = Array(1...12)
+    private static let monthNames = Calendar.current.monthSymbols
+    private static let years = Array(2024...2032)
+
+    private var workspaceKey: String {
+        "\(store.selectedEntityID)-\(store.selectedMonth)-\(store.selectedYear)"
+    }
+
     var body: some View {
         VStack(spacing: 10) {
             Picker("Entity", selection: $store.selectedEntityID) {
-                ForEach(store.entities) { Text($0.name).tag($0.id) }
+                ForEach(store.entities) { entity in
+                    Text(entity.name).tag(entity.id)
+                }
             }
             .pickerStyle(.menu)
 
             HStack {
                 Picker("Month", selection: $store.selectedMonth) {
-                    ForEach(1...12, id: .self) {
-                        Text(DateFormatter().monthSymbols[$0 - 1]).tag($0)
+                    ForEach(Self.months, id: \.self) { month in
+                        Text(Self.monthNames[month - 1]).tag(month)
                     }
                 }
                 .pickerStyle(.menu)
 
                 Picker("Year", selection: $store.selectedYear) {
-                    ForEach((2024...2032).map { $0 }, id: .self) {
-                        Text(String($0)).tag($0)
+                    ForEach(Self.years, id: \.self) { year in
+                        Text(String(year)).tag(year)
                     }
                 }
                 .pickerStyle(.menu)
 
                 Spacer()
-                Button { Task { await store.refreshEntityData() } } label: {
+
+                Button {
+                    Task { await store.refreshEntityData() }
+                } label: {
                     Image(systemName: "arrow.clockwise")
                 }
             }
         }
-        .onChange(of: store.selectedEntityID) { _ in Task { await store.refreshEntityData() } }
-        .onChange(of: store.selectedMonth) { _ in Task { await store.refreshEntityData() } }
-        .onChange(of: store.selectedYear) { _ in Task { await store.refreshEntityData() } }
+        .task(id: workspaceKey) {
+            await store.refreshEntityData()
+        }
     }
 }
 
