@@ -12,79 +12,64 @@ router = router_path.read_text()
 v07 = v07_path.read_text()
 ui = modern_ui_path.read_text()
 
-# ----- version -----
+# v0.7.15 is applied after the cumulative v0.7.14 patch.
 s = s.replace(
-    "Next Agent 0.7.13 is ready with native SpringBoard HUD status and precision tap OCR.",
+    "Next Agent 0.7.14 is ready with dual-layer task status and deeper HUD/background diagnostics.",
     "Next Agent 0.7.15 is ready with an in-app HUD verification probe and SpringBoard scene-manager recovery for app launches."
 )
 s = s.replace(
-    'private static let currentToolSchemaVersion = "0.7.13-nativehud-tap7"',
+    'private static let currentToolSchemaVersion = "0.7.14-dualhud-bgdiag8"',
     'private static let currentToolSchemaVersion = "0.7.15-hudprobe-scenes9"'
 )
-s = s.replace('"client_version": "0.7.13"', '"client_version": "0.7.14"')
+s = s.replace('"client_version": "0.7.14"', '"client_version": "0.7.15"')
 
 router = router.replace(
-    '"router_version": "0.7.13-nativehud-tap7"',
+    '"router_version": "0.7.14-dualhud-bgdiag8"',
     '"router_version": "0.7.15-hudprobe-scenes9"'
 )
 router = router.replace(
-    'transportVersion == "0.7.13-cfmessageport1"',
+    'transportVersion == "0.7.14-cfmessageport1"',
     'transportVersion == "0.7.15-cfmessageport1"'
 )
 router = router.replace(
-    'ocrTransportVersion == "0.7.13-springboard-vision1"',
+    'ocrTransportVersion == "0.7.14-springboard-vision1"',
     'ocrTransportVersion == "0.7.15-springboard-vision1"'
 )
 router = router.replace(
-    'splitBridgeVersion == "0.7.13"',
+    'splitBridgeVersion == "0.7.14"',
     'splitBridgeVersion == "0.7.15"'
 )
 router = router.replace(
-    'hidBridgeVersion == "0.7.13"',
+    'hidBridgeVersion == "0.7.14"',
     'hidBridgeVersion == "0.7.15"'
 )
+router = router.replace(
+    'let deadline = Date().addingTimeInterval(9.0)',
+    'let deadline = Date().addingTimeInterval(12.0)'
+)
 
-# v0.7.14 accepts either the native SpringBoard HUD or the packaged per-app HUD fallback.
-old_hud = '''        let hudRaw = NAScreenBridgeClient.hudStatus()
-        let hudBridgeVersion = hudRaw["bridge_version"] as? String ?? ""
-        results.append([
-            "tool": "native_status_hud",
-            "success": (hudRaw["success"] as? Bool) == true
-                && (hudRaw["hud_view_controller_class_available"] as? Bool) == true
-                && hudBridgeVersion == "0.7.13",
-            "output": String(describing: hudRaw)
-        ])
+# The existing v0.7.14 HUD-stack self-test remains valid; require the new generation.
+router = router.replace(
+    'hudBridgeVersion == "0.7.14"',
+    'hudBridgeVersion == "0.7.15"'
+)
 
+# Preserve the proven HID implementation and only move the diagnostic path label.
+v07 = v07.replace(
+    '"input_path": "springboard_iohid_v0714"',
+    '"input_path": "springboard_iohid_v0715"'
+)
+
+instruction = '''              Task status is provided by a dual HUD stack: native SpringBoard HUD when available, otherwise a foreground-app HUD injected into the currently active UIKit app. Do not treat native HUD unavailability by itself as task failure.
 '''
-new_hud = '''        let hudRaw = NAScreenBridgeClient.hudStatus()
-        let hudBridgeVersion = hudRaw["bridge_version"] as? String ?? ""
-        let nativeHUD = (hudRaw["success"] as? Bool) == true
-        let fallbackExpected = (hudRaw["foreground_hud_fallback_expected"] as? Bool) == true
-        results.append([
-            "tool": "status_hud_stack",
-            "success": hudBridgeVersion == "0.7.15" && (nativeHUD || fallbackExpected),
-            "output": String(describing: hudRaw)
-        ])
-
+extra = instruction + '''              The foreground HUD is also injected into Next Agent itself. A short "HUD ready" probe may appear when Next Agent launches; during an active task the same HUD should continue showing status before and after opening another app.
 '''
-if old_hud not in router:
-    raise SystemExit("v0.7.14 HUD self-test marker missing")
-router = router.replace(old_hud, new_hud, 1)
-
-# Keep diagnostic output explicit about native HUD failure vs foreground-app fallback.
-anchor = '''              When the user explicitly asks to navigate through an app UI (for example Settings → General → About), that visible UI route is part of the requested task. If a requested screen or row cannot be opened, do not substitute phone_status/device_info or another diagnostic source and then claim the UI task succeeded. Diagnostic tools may be used only to troubleshoot or provide clearly labeled secondary information; report the requested UI route as incomplete until the visible destination is reached and verified. phone_screen tap_text uses Accurate OCR for the actual tap target even though read/find/wait operations remain optimized for speed.
-'''
-extra = anchor + '''              Task status is provided by a dual HUD stack: native SpringBoard HUD when available, otherwise a foreground-app HUD injected into the currently active UIKit app. Do not treat native HUD unavailability by itself as task failure.
-              The foreground HUD is also injected into Next Agent itself. A short "HUD ready" probe may appear when Next Agent launches; during an active task the same HUD should continue showing status before and after opening another app.
-'''
-if anchor not in s:
-    raise SystemExit("v0.7.14 instruction anchor missing")
-s = s.replace(anchor, extra, 1)
-
-v07 = v07.replace('"input_path": "springboard_iohid_v0713"', '"input_path": "springboard_iohid_v0715"')
+if instruction not in s:
+    raise SystemExit("v0.7.15 HUD instruction anchor missing")
+s = s.replace(instruction, extra, 1)
 
 ui = ui.replace(
-    "0.7.13 • RootHide • Native HUD • Precision Tap",
+    "0.7.14 • RootHide • Dual HUD • Background Diagnostics",
     "0.7.15 • RootHide • HUD Probe • Scene Recovery"
 )
 
@@ -95,8 +80,8 @@ modern_ui_path.write_text(ui)
 
 project = root / "project.yml"
 y = project.read_text()
-y = y.replace("MARKETING_VERSION: 0.7.13", "MARKETING_VERSION: 0.7.15")
-y = y.replace("CURRENT_PROJECT_VERSION: 21", "CURRENT_PROJECT_VERSION: 23")
+y = y.replace("MARKETING_VERSION: 0.7.14", "MARKETING_VERSION: 0.7.15")
+y = y.replace("CURRENT_PROJECT_VERSION: 22", "CURRENT_PROJECT_VERSION: 23")
 project.write_text(y)
 
 plist_path = root / "NextAgent/Info.plist"
@@ -107,8 +92,6 @@ plist_path.write_bytes(plistlib.dumps(d))
 
 assert 'currentToolSchemaVersion = "0.7.15-hudprobe-scenes9"' in swift_path.read_text()
 assert '"router_version": "0.7.15-hudprobe-scenes9"' in router_path.read_text()
-assert "status_hud_stack" in router_path.read_text()
-assert "foreground_hud_fallback_expected" in router_path.read_text()
-assert "springboard_iohid_v0715" in v07_path.read_text()
 assert "HUD ready" in swift_path.read_text()
+assert "springboard_iohid_v0715" in v07_path.read_text()
 assert "MARKETING_VERSION: 0.7.15" in project.read_text()
