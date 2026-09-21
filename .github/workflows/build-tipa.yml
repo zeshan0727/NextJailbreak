@@ -60,7 +60,7 @@ jobs:
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
         with:
-          name: TIPA-v0.1.0
+          name: TIPA-v0.2.0
           path: |
             TIPA/TIPA.tipa
             TIPA/TIPA.tipa.sha256
