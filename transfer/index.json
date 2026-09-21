@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T12:33:44Z",
+  "updatedAt": "2026-09-21T13:12:42Z",
   "files": [
+    {
+      "id": "nextreminder-1.3.32-missed-daily-gmail-persistence",
+      "name": "Next Reminder 1.3.32 — Daily Missed Alerts & Gmail Persistence",
+      "fileName": "NextReminder_1.3.32_Unsigned.tipa",
+      "type": "tipa",
+      "platform": "Unsigned TIPA / iOS 16+",
+      "version": "1.3.32 (42)",
+      "url": "https://nextjailbreak.com/transfer/files/NextReminder/1.3.32/NextReminder_1.3.32_Unsigned.tipa",
+      "sha256": "6c3d0e063297a68456aa7efece05396b51932fc2563fd99c357f8b6f1a197343",
+      "sizeBytes": 2204734,
+      "notes": "Preserves the Gmail connector identity in Keychain with UserDefaults migration/cache, saves refreshed connector IDs after recovery, and retains automatic report-send retry. Adds an app-side daily missed-reminder fallback at the original clock time until completion. Stable File Sharing remains unchanged."
+    },
+    {
+      "id": "nextquickreminder-1.0.17-missed-daily-roothide",
+      "name": "Next Quick Reminder 1.0.17 — Missed Daily Alerts RootHide",
+      "fileName": "NextQuickReminder_1.0.17_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide",
+      "version": "1.0.17",
+      "url": "https://nextjailbreak.com/transfer/files/NextQuickReminder/1.0.17/NextQuickReminder_1.0.17_RootHide.deb",
+      "sha256": "2f48ca6408ff8f0027d52d1afe27e77ba4f159bacb01cc121f5d03a6c211111b",
+      "sizeBytes": 114120,
+      "notes": "Adds a persistent missed-reminder scheduler. After an incomplete reminder reaches its original due time, RootHide installs a daily alert at that same clock time and keeps it active until the reminder is completed, deleted, or notifications are disabled. Retains the 1.0.16 persistent pending-report wake scheduler."
+    },
     {
       "id": "tipa-qatar-marketplace-current-0.4.0",
       "name": "TIPA 0.4.0 — Qatar Marketplace Search",
@@ -341,42 +365,6 @@
       "notes": "Test 11 keeps the validated CPU/photo fixes and independent Time/Date font controls. It adds a direct post-render runtime fix for both Time and Date position, color and shadow/glow, and adds visible function labels above every Time/Date movement slider."
     },
     {
-      "id": "nextquickreminder-1.0.16-persistent-wake-roothide",
-      "name": "Next Quick Reminder 1.0.16 — Persistent Wake RootHide",
-      "fileName": "NextQuickReminder_1.0.16_RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide",
-      "version": "1.0.16",
-      "url": "https://nextjailbreak.com/transfer/files/NextQuickReminder/1.0.16/NextQuickReminder_1.0.16_RootHide.deb",
-      "sha256": "22413d82950dafcbc889eed8d3a149379e37a1874f888f8046e643e0bf403ea1",
-      "sizeBytes": 111040,
-      "notes": "Replaces the unreliable 30-second SpringBoard polling scheduler with PCPersistentTimer and system waking enabled for locked-device scheduled sends. Keeps the working fresh pending-reminder PDF generation, newest-3 retention, selected weekdays/time preferences, and Gmail file-share sender unchanged."
-    },
-    {
-      "id": "nextreminder-1.3.28-stable-files-rollback",
-      "name": "Next Reminder 1.3.28 — Stable Files Rollback",
-      "fileName": "NextReminder_1.3.28_Unsigned.tipa",
-      "type": "tipa",
-      "platform": "Unsigned TIPA / iOS 16+",
-      "version": "1.3.28 (38)",
-      "url": "https://nextjailbreak.com/transfer/files/NextReminder/1.3.28/NextReminder_1.3.28_Unsigned.tipa",
-      "sha256": "960f1199cbc5b32962f8077df0bdd48b0c3d6b3c3c0ca94ee1104882e607012b",
-      "sizeBytes": 2061731,
-      "notes": "Stability rollback for the persistent Files freeze. Restores the entire File Sharing implementation to the verified pre-report stable source instead of carrying any Pending Report/PDF/background-send UI code in the Files view. Keeps the current app data, other app updates, Live Activity version alignment, and compiled AppIcon fix. Pending Report generation is temporarily removed from the app while Files stability is verified."
-    },
-    {
-      "id": "nextreminder-1.3.31-gmail-report-recovery-fix",
-      "name": "Next Reminder 1.3.31 — Gmail Report Recovery Fix",
-      "fileName": "NextReminder_1.3.31_Unsigned.tipa",
-      "type": "tipa",
-      "platform": "Unsigned TIPA / iOS 16+",
-      "version": "1.3.31 (41)",
-      "url": "https://nextjailbreak.com/transfer/files/NextReminder/1.3.31/NextReminder_1.3.31_Unsigned.tipa",
-      "sha256": "0fc56b2bf9cfc0522a899de7fe261a17fd3010ec101632909313ddbab7b06d55",
-      "sizeBytes": 2199353,
-      "notes": "Fixes Pending Reports Send Email when Gmail tests successfully but the file-share request sees a stale connector. Send Report now uses the same secure Gmail recovery mechanism as the working email test path, synchronizes any refreshed connector ID, retries the PDF once, and shows the real HTTP/server error if retry still fails. Stable Files implementation remains unchanged."
-    },
-    {
       "id": "nextaccounts-1.0.6-search-swipe-delete",
       "name": "Next Accounts 1.0.6 — Search & Swipe Delete",
       "fileName": "NextAccounts-1.0.6-Search-Swipe-Delete.tipa",
@@ -458,18 +446,6 @@
       "url": "https://nextjailbreak.com/transfer/files/NextPost/1.0.9/NextPost-1.0.9-X-Preview-Fix.tipa",
       "sha256": "878556f4765e2a1e98d2ab2c844ca42baba6a5451c0bfa12d4ea69b5f6057428",
       "notes": "Fixes missing X post link previews by sharing the exact published article route and passing the article URL separately to the X compose intent. Keeps LevelPlay and Unity Ads mediation from 1.0.8."
-    },
-    {
-      "id": "nextquickreminder-1.0.16-persistent-wake-roothide",
-      "name": "Next Quick Reminder 1.0.16 — Persistent Wake RootHide",
-      "fileName": "NextQuickReminder_1.0.16_RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide",
-      "version": "1.0.16",
-      "url": "https://nextjailbreak.com/transfer/files/NextQuickReminder/1.0.16/NextQuickReminder_1.0.16_RootHide.deb",
-      "sha256": "22413d82950dafcbc889eed8d3a149379e37a1874f888f8046e643e0bf403ea1",
-      "sizeBytes": 111040,
-      "notes": "Replaces the unreliable 30-second SpringBoard polling scheduler with PCPersistentTimer and system waking enabled for locked-device scheduled sends. Keeps the working fresh pending-reminder PDF generation, newest-3 retention, selected weekdays/time preferences, and Gmail file-share sender unchanged."
     },
     {
       "id": "nextlock-1.1.5-test19-preferences-sections-roothide",
