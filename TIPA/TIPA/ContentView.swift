@@ -79,7 +79,7 @@ struct ContentView: View {
                 Text("Find it all in Qatar").font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer()
-            Text("v0.1")
+            Text("v0.2")
                 .font(.caption.bold()).foregroundStyle(accent)
                 .padding(.horizontal, 10).padding(.vertical, 6)
                 .background(accent.opacity(0.10), in: Capsule())
