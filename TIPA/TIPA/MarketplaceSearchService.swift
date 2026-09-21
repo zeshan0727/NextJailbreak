@@ -19,9 +19,15 @@ actor MarketplaceSearchService {
         await withTaskGroup(of: [MarketplaceListing].self) { group in
             for (sourceIndex, source) in MarketplaceSource.all.enumerated() {
                 group.addTask { [session] in
-                    await Self.fetchSource(source, sourceIndex: sourceIndex, query: query, session: session)
+                    await Self.fetchSource(
+                        source,
+                        sourceIndex: sourceIndex,
+                        query: query,
+                        session: session
+                    )
                 }
             }
+
             for await batch in group {
                 combined.append(contentsOf: batch)
             }
@@ -38,7 +44,11 @@ actor MarketplaceSearchService {
         query: String,
         session: URLSession
     ) async -> [MarketplaceListing] {
-        let searchText = "site:\(source.siteQuery) \(query) Qatar QAR"
+        var searchText = "site:\(source.siteQuery) \(query) Qatar QAR"
+
+        if looksLikePhoneQuery(query) && !queryRequestsAccessory(query) {
+            searchText += " -cover -case -protector -charger -cable -accessory -parts"
+        }
 
         let duck = await fetchDuckDuckGo(
             source: source,
@@ -47,15 +57,21 @@ actor MarketplaceSearchService {
             searchText: searchText,
             session: session
         )
-        if !duck.isEmpty { return duck }
 
-        return await fetchBrave(
+        if !duck.isEmpty {
+            return Array(duck.prefix(15))
+        }
+
+        // Brave is only a fallback. Its candidates are subjected to the exact
+        // same direct-post URL checks; generic marketplace pages never pass.
+        let brave = await fetchBrave(
             source: source,
             sourceIndex: sourceIndex,
             query: query,
             searchText: searchText,
             session: session
         )
+        return Array(brave.prefix(10))
     }
 
     private static func fetchDuckDuckGo(
@@ -76,11 +92,14 @@ actor MarketplaceSearchService {
 
         do {
             let (data, response) = try await session.data(for: request)
-            guard (response as? HTTPURLResponse)?.statusCode == 200,
-                  let html = String(data: data, encoding: .utf8),
-                  html.localizedCaseInsensitiveContains("result__a") else {
+            guard
+                (response as? HTTPURLResponse)?.statusCode == 200,
+                let html = String(data: data, encoding: .utf8),
+                html.localizedCaseInsensitiveContains("result__a")
+            else {
                 return []
             }
+
             return parseDuckDuckGo(
                 html,
                 source: source,
@@ -98,15 +117,16 @@ actor MarketplaceSearchService {
         sourceIndex: Int,
         query: String
     ) -> [MarketplaceListing] {
-        let pattern = #"(?is)<a(?=[^>]*class=["'][^"']*result__a[^"']*["'])(?=[^>]*href=["']([^"']+)["'])[^>]*>(.*?)</a>"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
+        let anchorPattern = #"(?is)<a(?=[^>]*class=["'][^"']*result__a[^"']*["'])(?=[^>]*href=["']([^"']+)["'])[^>]*>(.*?)</a>"#
+        guard let anchorRegex = try? NSRegularExpression(pattern: anchorPattern) else { return [] }
 
         let fullRange = NSRange(html.startIndex..<html.endIndex, in: html)
-        let matches = regex.matches(in: html, range: fullRange)
-        guard !matches.isEmpty else { return [] }
+        let anchors = anchorRegex.matches(in: html, range: fullRange)
+        guard !anchors.isEmpty else { return [] }
 
         var output: [MarketplaceListing] = []
-        for (index, match) in matches.enumerated() {
+
+        for (index, match) in anchors.enumerated() {
             guard
                 match.numberOfRanges >= 3,
                 let hrefRange = Range(match.range(at: 1), in: html),
@@ -114,38 +134,66 @@ actor MarketplaceSearchService {
             else { continue }
 
             let rawHref = decodeEntities(String(html[hrefRange]))
-            guard let target = resolveSearchURL(rawHref), isExpected(target, for: source) else { continue }
+            guard
+                let target = resolveSearchURL(rawHref),
+                isExactListingURL(target, for: source)
+            else { continue }
 
             let title = clean(String(html[titleRange]))
+            guard !title.isEmpty else { continue }
+
+            // Match the requested item against the title + exact URL slug only.
+            // We intentionally do NOT use surrounding page text for relevance.
+            let identityText = "\(title) \(target.path)"
+            guard matchesQuery(identityText, query: query) else { continue }
+            guard !isAccessoryMismatch(title: title, query: query) else { continue }
+
             let contextStart = match.range.location + match.range.length
             let contextEnd: Int
-            if index + 1 < matches.count {
-                contextEnd = min(matches[index + 1].range.location, contextStart + 2400)
+            if index + 1 < anchors.count {
+                contextEnd = min(anchors[index + 1].range.location, contextStart + 2200)
             } else {
-                contextEnd = min((html as NSString).length, contextStart + 2400)
+                contextEnd = min((html as NSString).length, contextStart + 2200)
             }
 
-            var snippet = ""
+            var context = ""
             if contextEnd > contextStart {
-                let ns = html as NSString
-                snippet = clean(ns.substring(with: NSRange(location: contextStart, length: contextEnd - contextStart)))
+                context = (html as NSString).substring(
+                    with: NSRange(location: contextStart, length: contextEnd - contextStart)
+                )
             }
 
-            let searchable = "\(title) \(snippet)"
-            guard matchesQuery(searchable, query: query) else { continue }
+            let snippet = extractDuckSnippet(context) ?? clean(context)
+            let price = extractPrice("\(title) \(snippet)")
 
             output.append(
                 MarketplaceListing(
-                    title: title.isEmpty ? query : title,
+                    title: title,
                     url: target,
                     source: source,
-                    priceQAR: extractPrice(searchable),
+                    priceQAR: price,
                     snippet: String(snippet.prefix(320)),
                     order: sourceIndex * 100 + index
                 )
             )
         }
+
         return output
+    }
+
+    private static func extractDuckSnippet(_ html: String) -> String? {
+        let pattern = #"(?is)<(?:a|div|span)[^>]*class=["'][^"']*result__snippet[^"']*["'][^>]*>(.*?)</(?:a|div|span)>"#
+        guard
+            let regex = try? NSRegularExpression(pattern: pattern),
+            let match = regex.firstMatch(in: html, range: NSRange(html.startIndex..<html.endIndex, in: html)),
+            match.numberOfRanges > 1,
+            let range = Range(match.range(at: 1), in: html)
+        else {
+            return nil
+        }
+
+        let value = clean(String(html[range]))
+        return value.isEmpty ? nil : value
     }
 
     private static func fetchBrave(
@@ -169,11 +217,14 @@ actor MarketplaceSearchService {
 
         do {
             let (data, response) = try await session.data(for: request)
-            guard (response as? HTTPURLResponse)?.statusCode == 200,
-                  let html = String(data: data, encoding: .utf8) else {
+            guard
+                (response as? HTTPURLResponse)?.statusCode == 200,
+                let html = String(data: data, encoding: .utf8)
+            else {
                 return []
             }
-            return parseGenericAnchors(
+
+            return parseBraveAnchors(
                 html,
                 source: source,
                 sourceIndex: sourceIndex,
@@ -184,7 +235,7 @@ actor MarketplaceSearchService {
         }
     }
 
-    private static func parseGenericAnchors(
+    private static func parseBraveAnchors(
         _ html: String,
         source: MarketplaceSource,
         sourceIndex: Int,
@@ -195,6 +246,7 @@ actor MarketplaceSearchService {
 
         let fullRange = NSRange(html.startIndex..<html.endIndex, in: html)
         let matches = regex.matches(in: html, range: fullRange)
+
         var output: [MarketplaceListing] = []
         var seen = Set<String>()
 
@@ -206,45 +258,192 @@ actor MarketplaceSearchService {
             else { continue }
 
             let rawHref = decodeEntities(String(html[hrefRange]))
-            guard let target = resolveSearchURL(rawHref), isExpected(target, for: source) else { continue }
+            guard
+                let target = resolveSearchURL(rawHref),
+                isExactListingURL(target, for: source)
+            else { continue }
 
             let key = canonicalKey(target)
             guard seen.insert(key).inserted else { continue }
 
             let title = clean(String(html[titleRange]))
-            let contextStart = match.range.location + match.range.length
-            let contextEnd = min((html as NSString).length, contextStart + 1400)
-            let snippet: String
-            if contextEnd > contextStart {
-                snippet = clean((html as NSString).substring(
-                    with: NSRange(location: contextStart, length: contextEnd - contextStart)
-                ))
-            } else {
-                snippet = ""
-            }
+            guard !title.isEmpty else { continue }
 
-            let searchable = "\(title) \(snippet)"
-            guard matchesQuery(searchable, query: query) else { continue }
+            let identityText = "\(title) \(target.path)"
+            guard matchesQuery(identityText, query: query) else { continue }
+            guard !isAccessoryMismatch(title: title, query: query) else { continue }
+
+            // Brave page layout changes frequently. To avoid assigning a nearby
+            // ad's price to this ad, only trust a price printed inside the link title.
+            let safePrice = extractPrice(title)
 
             output.append(
                 MarketplaceListing(
-                    title: title.isEmpty ? query : title,
+                    title: title,
                     url: target,
                     source: source,
-                    priceQAR: extractPrice(searchable),
-                    snippet: String(snippet.prefix(320)),
+                    priceQAR: safePrice,
+                    snippet: "",
                     order: sourceIndex * 100 + index
                 )
             )
 
-            if output.count >= 18 { break }
+            if output.count >= 10 { break }
         }
+
         return output
+    }
+
+    private static func isExactListingURL(_ url: URL, for source: MarketplaceSource) -> Bool {
+        let host = (url.host ?? "").lowercased()
+        let path = url.path.lowercased()
+        let absolute = url.absoluteString
+
+        switch source.id {
+        case "mzad":
+            guard host == "mzadqatar.com" || host.hasSuffix(".mzadqatar.com") else { return false }
+            guard path.contains("/products/") else { return false }
+            return regexMatches(#"-[0-9]{6,}/?$"#, in: path)
+
+        case "ql":
+            guard host == "qatarliving.com" || host.hasSuffix(".qatarliving.com") else { return false }
+            guard path.contains("/classifieds/items/") else { return false }
+            guard !path.contains("/category/") else { return false }
+            return regexMatches(#"-[0-9a-f]{8}/?$"#, in: path)
+
+        case "qatarsale":
+            guard host == "qatarsale.com" || host.hasSuffix(".qatarsale.com") else { return false }
+            guard path.contains("/product/") else { return false }
+            return regexMatches(#"-[0-9]{4,}/?$"#, in: path)
+
+        case "dubizzle":
+            guard host == "dubizzle.qa" || host.hasSuffix(".dubizzle.qa") else { return false }
+            guard path.contains("/ad/") else { return false }
+            return regexMatches(#"-id[0-9]+\.html/?$"#, in: absolute.lowercased())
+
+        case "facebook":
+            guard host == "facebook.com" || host.hasSuffix(".facebook.com") else { return false }
+            return regexMatches(#"/marketplace/item/[0-9]+/?$"#, in: path)
+
+        case "opensooq":
+            // OpenSooq's public index currently exposes category/model result pages
+            // rather than stable individual Qatar ad URLs. Accuracy wins over count:
+            // do not pretend a category page is an individual listing.
+            return false
+
+        default:
+            return false
+        }
+    }
+
+    private static func matchesQuery(_ text: String, query: String) -> Bool {
+        let hay = normalizeForMatch(text)
+        let tokens = normalizedTokens(query)
+        guard !tokens.isEmpty else { return true }
+
+        let numericTokens = tokens.filter { Int($0) != nil }
+        for token in numericTokens where !hay.contains(token) {
+            return false
+        }
+
+        let words = tokens.filter { Int($0) == nil }
+        if words.isEmpty { return true }
+
+        let hits = words.filter { hay.contains($0) }.count
+        if words.count <= 2 {
+            return hits == words.count
+        }
+        return hits >= words.count - 1
+    }
+
+    private static func normalizedTokens(_ text: String) -> [String] {
+        text.lowercased()
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+            .map { token in
+                switch String(token) {
+                case "samsungs": return "samsung"
+                case "iphones": return "iphone"
+                case "galaxys", "galaxies": return "galaxy"
+                default: return String(token)
+                }
+            }
+            .filter { $0.count >= 2 || Int($0) != nil }
+    }
+
+    private static func normalizeForMatch(_ text: String) -> String {
+        normalizedTokens(text).joined(separator: " ")
+    }
+
+    private static func looksLikePhoneQuery(_ query: String) -> Bool {
+        let q = " " + normalizeForMatch(query) + " "
+        let phoneWords = [
+            " iphone ", " samsung ", " galaxy ", " pixel ", " fold ", " flip ",
+            " vivo ", " oppo ", " xiaomi ", " oneplus ", " huawei ", " honor ",
+            " nokia ", " redmagic ", " phone "
+        ]
+        if phoneWords.contains(where: { q.contains($0) }) {
+            return true
+        }
+        return regexMatches(#"\b[0-9]{1,2}\s+pro\s+max\b"#, in: q)
+    }
+
+    private static func queryRequestsAccessory(_ query: String) -> Bool {
+        let q = normalizeForMatch(query)
+        return accessoryTerms.contains(where: { q.contains($0) })
+    }
+
+    private static func isAccessoryMismatch(title: String, query: String) -> Bool {
+        guard looksLikePhoneQuery(query), !queryRequestsAccessory(query) else { return false }
+        let t = normalizeForMatch(title)
+        return accessoryTerms.contains(where: { t.contains($0) })
+    }
+
+    private static let accessoryTerms = [
+        "cover", "case", "protector", "screen protector", "tempered", "glass",
+        "charger", "charging cable", "cable", "adapter", "accessory", "accessories",
+        "spare part", "parts", "lens protector", "skin"
+    ]
+
+    private static func extractPrice(_ text: String) -> Int? {
+        let patterns = [
+            #"(?i)\bfor\s+(?:QAR|QR|Q\.?R\.?)?\s*([0-9][0-9,. ]*)\s*(?:QAR|QR|Q\.?R\.?)"#,
+            #"(?i)\b(?:price|asking\s+price)\s*(?:is|:|-)?\s*(?:QAR|QR|Q\.?R\.?)?\s*([0-9][0-9,. ]*)"#,
+            #"(?i)\b(?:QAR|QR|Q\.?R\.?)\s*[:\-]?\s*([0-9][0-9,. ]*)"#,
+            #"(?i)\b([0-9][0-9,. ]*)\s*(?:QAR|QR|Q\.?R\.?)\b"#
+        ]
+
+        for pattern in patterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
+            let range = NSRange(text.startIndex..<text.endIndex, in: text)
+
+            guard
+                let match = regex.firstMatch(in: text, range: range),
+                match.numberOfRanges > 1,
+                let r = Range(match.range(at: 1), in: text)
+            else { continue }
+
+            let digits = text[r].filter(\.isNumber)
+            if let value = Int(digits), (20...10_000_000).contains(value) {
+                return value
+            }
+        }
+
+        return nil
+    }
+
+    private static func regexMatches(_ pattern: String, in text: String) -> Bool {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else {
+            return false
+        }
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        return regex.firstMatch(in: text, range: range) != nil
     }
 
     private static func resolveSearchURL(_ raw: String) -> URL? {
         var value = decodeEntities(raw).trimmingCharacters(in: .whitespacesAndNewlines)
-        if value.hasPrefix("//") { value = "https:" + value }
+        if value.hasPrefix("//") {
+            value = "https:" + value
+        }
 
         guard let url = URL(string: value) else { return nil }
         let host = (url.host ?? "").lowercased()
@@ -259,66 +458,6 @@ actor MarketplaceSearchService {
         }
 
         return url
-    }
-
-    private static func isExpected(_ url: URL, for source: MarketplaceSource) -> Bool {
-        let host = (url.host ?? "").lowercased()
-        switch source.id {
-        case "mzad":
-            return host == "mzadqatar.com" || host.hasSuffix(".mzadqatar.com")
-        case "ql":
-            return host == "qatarliving.com" || host.hasSuffix(".qatarliving.com")
-        case "opensooq":
-            return host == "qa.opensooq.com" || host.hasSuffix(".opensooq.com")
-        case "qatarsale":
-            return host == "qatarsale.com" || host.hasSuffix(".qatarsale.com")
-        case "dubizzle":
-            return host == "dubizzle.qa" || host.hasSuffix(".dubizzle.qa")
-        case "facebook":
-            return (host == "facebook.com" || host.hasSuffix(".facebook.com"))
-                && url.path.lowercased().contains("marketplace")
-        default:
-            return false
-        }
-    }
-
-    private static func matchesQuery(_ text: String, query: String) -> Bool {
-        let hay = text.lowercased()
-        let tokens = query.lowercased()
-            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
-            .map(String.init)
-            .filter { $0.count >= 2 || Int($0) != nil }
-
-        guard !tokens.isEmpty else { return true }
-        let hits = tokens.filter { hay.contains($0) }.count
-
-        if tokens.count <= 2 {
-            return hits == tokens.count
-        }
-        return hits >= max(2, tokens.count - 1)
-    }
-
-    private static func extractPrice(_ text: String) -> Int? {
-        let patterns = [
-            #"(?i)QAR\s*[:\-]?\s*([0-9][0-9,. ]*)"#,
-            #"(?i)([0-9][0-9,. ]*)\s*(?:QAR|Q\.?\s*R\.?)"#
-        ]
-
-        for pattern in patterns {
-            guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
-            let range = NSRange(text.startIndex..<text.endIndex, in: text)
-            guard
-                let match = regex.firstMatch(in: text, range: range),
-                match.numberOfRanges > 1,
-                let r = Range(match.range(at: 1), in: text)
-            else { continue }
-
-            let digits = text[r].filter(\.isNumber)
-            if let value = Int(digits), (20...10_000_000).contains(value) {
-                return value
-            }
-        }
-        return nil
     }
 
     private static func canonicalKey(_ url: URL) -> String {
@@ -340,8 +479,16 @@ actor MarketplaceSearchService {
 
     private static func clean(_ text: String) -> String {
         decodeEntities(text)
-            .replacingOccurrences(of: #"<script[\s\S]*?</script>"#, with: " ", options: [.regularExpression, .caseInsensitive])
-            .replacingOccurrences(of: #"<style[\s\S]*?</style>"#, with: " ", options: [.regularExpression, .caseInsensitive])
+            .replacingOccurrences(
+                of: #"<script[\s\S]*?</script>"#,
+                with: " ",
+                options: [.regularExpression, .caseInsensitive]
+            )
+            .replacingOccurrences(
+                of: #"<style[\s\S]*?</style>"#,
+                with: " ",
+                options: [.regularExpression, .caseInsensitive]
+            )
             .replacingOccurrences(of: #"<[^>]+>"#, with: " ", options: .regularExpression)
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
