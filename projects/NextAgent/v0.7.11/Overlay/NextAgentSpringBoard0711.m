@@ -33,17 +33,27 @@ typedef void *NAHIDEventRef;
 typedef void *NAHIDEventSystemClientRef;
 
 typedef NAHIDEventSystemClientRef (*NAHIDClientCreateFn)(CFAllocatorRef);
+typedef NAHIDEventSystemClientRef (*NAHIDClientCreateSimpleFn)(CFAllocatorRef);
 typedef NAHIDEventSystemClientRef (*NAHIDClientCreateWithTypeFn)(CFAllocatorRef, uint32_t, CFDictionaryRef);
 typedef void (*NAHIDClientScheduleFn)(NAHIDEventSystemClientRef, CFRunLoopRef, CFRunLoopMode);
-typedef NAHIDEventRef (*NAHIDDigitizerCreateFn)(CFAllocatorRef, uint64_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, double, double, double, double, double, Boolean, Boolean, uint32_t);
-typedef NAHIDEventRef (*NAHIDFingerCreateFn)(CFAllocatorRef, uint64_t, uint32_t, uint32_t, uint32_t, double, double, double, double, double, Boolean, Boolean, uint32_t);
-typedef NAHIDEventRef (*NAHIDKeyboardCreateFn)(CFAllocatorRef, uint64_t, uint32_t, uint32_t, Boolean, uint32_t);
+typedef NAHIDEventRef (*NAHIDDigitizerCreateFn)(
+    CFAllocatorRef, uint64_t, uint32_t, uint32_t, uint32_t, uint32_t,
+    uint32_t, double, double, double, double, double, Boolean, Boolean, uint32_t
+);
+typedef NAHIDEventRef (*NAHIDFingerCreateFn)(
+    CFAllocatorRef, uint64_t, uint32_t, uint32_t, uint32_t,
+    double, double, double, double, double, Boolean, Boolean, uint32_t
+);
+typedef NAHIDEventRef (*NAHIDKeyboardCreateFn)(
+    CFAllocatorRef, uint64_t, uint32_t, uint32_t, Boolean, uint32_t
+);
 typedef void (*NAHIDAppendFn)(NAHIDEventRef, NAHIDEventRef, uint32_t);
 typedef void (*NAHIDSetIntegerFn)(NAHIDEventRef, uint32_t, int64_t);
 typedef void (*NAHIDSetSenderFn)(NAHIDEventRef, uint64_t);
 typedef void (*NAHIDDispatchFn)(NAHIDEventSystemClientRef, NAHIDEventRef);
 
 static NAHIDClientCreateFn NAHIDCreateClient = NULL;
+static NAHIDClientCreateSimpleFn NAHIDCreateSimpleClient = NULL;
 static NAHIDClientCreateWithTypeFn NAHIDCreateClientWithType = NULL;
 static NAHIDClientScheduleFn NAHIDScheduleClient = NULL;
 static NAHIDDigitizerCreateFn NAHIDCreateDigitizer = NULL;
@@ -56,15 +66,20 @@ static NAHIDDispatchFn NAHIDDispatch = NULL;
 static NAHIDEventSystemClientRef NAHIDTouchClient = NULL;
 static NAHIDEventSystemClientRef NAHIDKeyboardClient = NULL;
 static BOOL NAHIDLoaded = NO;
+static NSString *NAHIDClientKind = @"none";
 
 static void NAHIDLoad(void) {
     if (NAHIDLoaded) return;
     NAHIDLoaded = YES;
 
-    void *handle = dlopen("/System/Library/Frameworks/IOKit.framework/IOKit", RTLD_NOW | RTLD_GLOBAL);
+    void *handle = dlopen(
+        "/System/Library/Frameworks/IOKit.framework/IOKit",
+        RTLD_NOW | RTLD_GLOBAL
+    );
     if (!handle) return;
 
     NAHIDCreateClient = (NAHIDClientCreateFn)dlsym(handle, "IOHIDEventSystemClientCreate");
+    NAHIDCreateSimpleClient = (NAHIDClientCreateSimpleFn)dlsym(handle, "IOHIDEventSystemClientCreateSimpleClient");
     NAHIDCreateClientWithType = (NAHIDClientCreateWithTypeFn)dlsym(handle, "IOHIDEventSystemClientCreateWithType");
     NAHIDScheduleClient = (NAHIDClientScheduleFn)dlsym(handle, "IOHIDEventSystemClientScheduleWithRunLoop");
     NAHIDCreateDigitizer = (NAHIDDigitizerCreateFn)dlsym(handle, "IOHIDEventCreateDigitizerEvent");
@@ -75,41 +90,57 @@ static void NAHIDLoad(void) {
     NAHIDSetSender = (NAHIDSetSenderFn)dlsym(handle, "IOHIDEventSetSenderID");
     NAHIDDispatch = (NAHIDDispatchFn)dlsym(handle, "IOHIDEventSystemClientDispatchEvent");
 
+    // Touch path follows established SpringBoard injection implementations.
     if (NAHIDCreateClient) {
         NAHIDTouchClient = NAHIDCreateClient(kCFAllocatorDefault);
-        if (NAHIDTouchClient && NAHIDScheduleClient) {
-            NAHIDScheduleClient(NAHIDTouchClient, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
-        }
+    }
+    if (!NAHIDTouchClient && NAHIDCreateSimpleClient) {
+        NAHIDTouchClient = NAHIDCreateSimpleClient(kCFAllocatorDefault);
     }
 
+    // Prefer the admin event-system client for keyboard delivery, then fall
+    // back to the default/simple client on builds where type 2 is unavailable.
     if (NAHIDCreateClientWithType) {
         NAHIDKeyboardClient = NAHIDCreateClientWithType(kCFAllocatorDefault, 2, NULL);
-        if (NAHIDKeyboardClient && NAHIDScheduleClient) {
-            NAHIDScheduleClient(NAHIDKeyboardClient, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
-        }
+        if (NAHIDKeyboardClient) NAHIDClientKind = @"admin_type_2";
     }
     if (!NAHIDKeyboardClient && NAHIDCreateClient) {
         NAHIDKeyboardClient = NAHIDCreateClient(kCFAllocatorDefault);
-        if (NAHIDKeyboardClient && NAHIDScheduleClient) {
-            NAHIDScheduleClient(NAHIDKeyboardClient, CFRunLoopGetMain(), kCFRunLoopDefaultMode);
+        if (NAHIDKeyboardClient) NAHIDClientKind = @"default";
+    }
+    if (!NAHIDKeyboardClient && NAHIDCreateSimpleClient) {
+        NAHIDKeyboardClient = NAHIDCreateSimpleClient(kCFAllocatorDefault);
+        if (NAHIDKeyboardClient) NAHIDClientKind = @"simple";
+    }
+
+    if (NAHIDScheduleClient) {
+        if (NAHIDTouchClient) {
+            NAHIDScheduleClient(NAHIDTouchClient, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+        }
+        if (NAHIDKeyboardClient && NAHIDKeyboardClient != NAHIDTouchClient) {
+            NAHIDScheduleClient(NAHIDKeyboardClient, CFRunLoopGetMain(), kCFRunLoopCommonModes);
         }
     }
 }
 
 static NSDictionary *NAHIDStatusPayload(void) {
     NAHIDLoad();
-    BOOL touchSymbols = NAHIDCreateDigitizer && NAHIDCreateFinger && NAHIDAppend && NAHIDDispatch;
+    BOOL touchSymbols =
+        NAHIDCreateDigitizer && NAHIDCreateFinger && NAHIDAppend && NAHIDDispatch;
     BOOL keyboardSymbols = NAHIDCreateKeyboard && NAHIDDispatch;
     return @{
         @"success": @(touchSymbols && keyboardSymbols && NAHIDTouchClient && NAHIDKeyboardClient),
         @"bridge_version": @"0.7.11",
         @"process": @"SpringBoard",
         @"touch_client": @(NAHIDTouchClient != NULL),
+        @"keyboard_client": @(NAHIDKeyboardClient != NULL),
         @"keyboard_admin_client": @(NAHIDKeyboardClient != NULL),
         @"touch_symbols": @(touchSymbols),
         @"keyboard_symbols": @(keyboardSymbols),
         @"dispatch_signature": @"void",
-        @"keyboard_client_type": NAHIDCreateClientWithType ? @"admin_2" : @"fallback_default"
+        @"timestamp_source": @"mach_absolute_time",
+        @"keyboard_client_type": NAHIDClientKind ?: @"none",
+        @"path": @"springboard_iohid_v0711"
     };
 }
 
@@ -119,26 +150,49 @@ static BOOL NAHIDDispatchPoint(double x, double y, BOOL down) {
         !NAHIDAppend || !NAHIDDispatch) return NO;
     if (x < 0.0 || x > 1.0 || y < 0.0 || y > 1.0) return NO;
 
-    const uint32_t range = 1;
-    const uint32_t touch = 2;
-    const uint32_t position = 4;
-    const uint32_t identity = 32;
-    uint32_t parentMask = range | touch | identity;
-    if (!down) parentMask |= position;
-    uint32_t childMask = range | touch;
+    // Same digitizer structure used by working SpringBoard HID injectors:
+    // hand transducer (3), integrated-display identity, normalized coordinates.
+    const uint32_t kRange = 1u;
+    const uint32_t kTouch = 2u;
+    const uint32_t kPosition = 4u;
+    const uint32_t kIdentity = 32u;
+
+    uint32_t parentMask = kRange | kTouch | kIdentity;
+    if (!down) parentMask |= kPosition;
+    uint32_t childMask = kRange | kTouch;
 
     uint64_t now = mach_absolute_time();
     NAHIDEventRef parent = NAHIDCreateDigitizer(
-        kCFAllocatorDefault, now,
-        3, 1u << 22, 1, parentMask, 0,
-        x, y, 0.0, down ? 1.0 : 0.0, 0.0,
-        true, down, 0
+        kCFAllocatorDefault,
+        now,
+        3,
+        1u << 22,
+        1,
+        parentMask,
+        0,
+        x,
+        y,
+        0.0,
+        down ? 1.0 : 0.0,
+        0.0,
+        true,
+        down,
+        0
     );
     NAHIDEventRef child = NAHIDCreateFinger(
-        kCFAllocatorDefault, now,
-        3, 2, childMask,
-        x, y, 0.0, down ? 1.0 : 0.0, 0.0,
-        true, down, 0
+        kCFAllocatorDefault,
+        now,
+        3,
+        2,
+        childMask,
+        x,
+        y,
+        0.0,
+        down ? 1.0 : 0.0,
+        0.0,
+        true,
+        down,
+        0
     );
 
     if (!parent || !child) {
@@ -148,7 +202,8 @@ static BOOL NAHIDDispatchPoint(double x, double y, BOOL down) {
     }
 
     if (NAHIDSetInteger) {
-        NAHIDSetInteger(parent, 4, 1);
+        // Built-in + display-integrated digitizer fields.
+        NAHIDSetInteger(parent, 4u, 1);
         NAHIDSetInteger(parent, (11u << 16) + 25u, 1);
     }
     if (NAHIDSetSender) {
@@ -156,7 +211,7 @@ static BOOL NAHIDDispatchPoint(double x, double y, BOOL down) {
     }
 
     NAHIDAppend(parent, child, 0);
-    NAHIDDispatch(NAHIDTouchClient, parent);
+    NAHIDDispatch(NAHIDTouchClient, parent); // private API returns void
     CFRelease(child);
     CFRelease(parent);
     return YES;
@@ -169,14 +224,17 @@ static BOOL NAHIDKeyboardEvent(uint32_t usage, BOOL down) {
     NAHIDEventRef event = NAHIDCreateKeyboard(
         kCFAllocatorDefault,
         mach_absolute_time(),
-        0x07,
+        0x07u,
         usage,
         down,
         0
     );
     if (!event) return NO;
-    if (NAHIDSetSender) NAHIDSetSender(event, 0x8000000817319375ULL);
-    NAHIDDispatch(NAHIDKeyboardClient, event);
+
+    if (NAHIDSetSender) {
+        NAHIDSetSender(event, 0x8000000817319375ULL);
+    }
+    NAHIDDispatch(NAHIDKeyboardClient, event); // private API returns void
     CFRelease(event);
     return YES;
 }
@@ -195,92 +253,27 @@ static int NAHIDUsageForKey(NSString *key) {
     return -1;
 }
 
-static NSDictionary *NAHIDTapPayload(double x, double y, NSInteger count) {
-    NSInteger taps = MAX(1, MIN(2, count));
-    for (NSInteger i = 0; i < taps; i++) {
-        if (!NAHIDDispatchPoint(x, y, YES)) {
-            return @{@"success": @NO, @"error": @"SpringBoard touch-down construction/dispatch failed"};
-        }
-        usleep(70000);
-        if (!NAHIDDispatchPoint(x, y, NO)) {
-            return @{@"success": @NO, @"error": @"SpringBoard touch-up construction/dispatch failed"};
-        }
-        if (i + 1 < taps) usleep(90000);
-    }
-    return @{@"success": @YES, @"bridge_version": @"0.7.11", @"path": @"springboard_iohid", @"count": @(taps)};
-}
-
-static NSDictionary *NAHIDLongPressPayload(double x, double y, double duration) {
-    if (!NAHIDDispatchPoint(x, y, YES)) {
-        return @{@"success": @NO, @"error": @"SpringBoard long-press down failed"};
-    }
-    usleep((useconds_t)(MAX(0.2, MIN(8.0, duration)) * 1000000.0));
-    if (!NAHIDDispatchPoint(x, y, NO)) {
-        return @{@"success": @NO, @"error": @"SpringBoard long-press up failed"};
-    }
-    return @{@"success": @YES, @"bridge_version": @"0.7.11", @"path": @"springboard_iohid"};
-}
-
-static NSDictionary *NAHIDSwipePayload(double x1, double y1, double x2, double y2, double duration) {
-    if (!NAHIDDispatchPoint(x1, y1, YES)) {
-        return @{@"success": @NO, @"error": @"SpringBoard swipe start failed"};
-    }
-    NSInteger steps = MAX(8, MIN(60, (NSInteger)llround(MAX(0.1, MIN(5.0, duration)) * 30.0)));
-    useconds_t delay = (useconds_t)((MAX(0.1, MIN(5.0, duration)) / (double)steps) * 1000000.0);
-    for (NSInteger i = 1; i <= steps; i++) {
-        double t = (double)i / (double)steps;
-        double x = x1 + (x2 - x1) * t;
-        double y = y1 + (y2 - y1) * t;
-        usleep(delay);
-        if (!NAHIDDispatchPoint(x, y, YES)) {
-            NAHIDDispatchPoint(x, y, NO);
-            return @{@"success": @NO, @"error": @"SpringBoard swipe move failed"};
-        }
-    }
-    usleep(18000);
-    if (!NAHIDDispatchPoint(x2, y2, NO)) {
-        return @{@"success": @NO, @"error": @"SpringBoard swipe end failed"};
-    }
-    return @{@"success": @YES, @"bridge_version": @"0.7.11", @"path": @"springboard_iohid"};
-}
-
-static NSDictionary *NAHIDKeyPayload(NSString *key) {
-    int usage = NAHIDUsageForKey(key);
-    if (usage < 0) return @{@"success": @NO, @"error": @"unsupported key"};
-    if (!NAHIDKeyboardEvent((uint32_t)usage, YES)) {
-        return @{@"success": @NO, @"error": @"SpringBoard keyboard key-down failed"};
-    }
-    usleep(45000);
-    if (!NAHIDKeyboardEvent((uint32_t)usage, NO)) {
-        return @{@"success": @NO, @"error": @"SpringBoard keyboard key-up failed"};
-    }
-    return @{@"success": @YES, @"bridge_version": @"0.7.11", @"path": @"springboard_iohid_admin"};
-}
-
-static NSDictionary *NAHIDPastePayload(void) {
-    if (!NAHIDKeyboardEvent(0xE3, YES)) {
-        return @{@"success": @NO, @"error": @"SpringBoard command key-down failed"};
-    }
-    usleep(25000);
-    if (!NAHIDKeyboardEvent(0x19, YES)) {
-        NAHIDKeyboardEvent(0xE3, NO);
-        return @{@"success": @NO, @"error": @"SpringBoard V key-down failed"};
-    }
-    usleep(45000);
-    NAHIDKeyboardEvent(0x19, NO);
-    usleep(25000);
-    NAHIDKeyboardEvent(0xE3, NO);
-    return @{@"success": @YES, @"bridge_version": @"0.7.11", @"path": @"springboard_iohid_admin_cmd_v"};
-}
-
 static BOOL NAHIDUsageForCharacter(unichar c, uint32_t *usage, BOOL *shift) {
     if (!usage || !shift) return NO;
     *shift = NO;
 
-    if (c >= 'a' && c <= 'z') { *usage = 0x04u + (uint32_t)(c - 'a'); return YES; }
-    if (c >= 'A' && c <= 'Z') { *usage = 0x04u + (uint32_t)(c - 'A'); *shift = YES; return YES; }
-    if (c >= '1' && c <= '9') { *usage = 0x1Eu + (uint32_t)(c - '1'); return YES; }
-    if (c == '0') { *usage = 0x27u; return YES; }
+    if (c >= 'a' && c <= 'z') {
+        *usage = 0x04u + (uint32_t)(c - 'a');
+        return YES;
+    }
+    if (c >= 'A' && c <= 'Z') {
+        *usage = 0x04u + (uint32_t)(c - 'A');
+        *shift = YES;
+        return YES;
+    }
+    if (c >= '1' && c <= '9') {
+        *usage = 0x1Eu + (uint32_t)(c - '1');
+        return YES;
+    }
+    if (c == '0') {
+        *usage = 0x27u;
+        return YES;
+    }
 
     switch (c) {
         case ' ': *usage = 0x2Cu; return YES;
@@ -298,10 +291,191 @@ static BOOL NAHIDUsageForCharacter(unichar c, uint32_t *usage, BOOL *shift) {
         case ',': *usage = 0x36u; return YES;
         case '.': *usage = 0x37u; return YES;
         case '/': *usage = 0x38u; return YES;
+
         case '!': *usage = 0x1Eu; *shift = YES; return YES;
         case '@': *usage = 0x1Fu; *shift = YES; return YES;
         case '#': *usage = 0x20u; *shift = YES; return YES;
-        case '
+        case '$': *usage = 0x21u; *shift = YES; return YES;
+        case '%': *usage = 0x22u; *shift = YES; return YES;
+        case '^': *usage = 0x23u; *shift = YES; return YES;
+        case '&': *usage = 0x24u; *shift = YES; return YES;
+        case '*': *usage = 0x25u; *shift = YES; return YES;
+        case '(': *usage = 0x26u; *shift = YES; return YES;
+        case ')': *usage = 0x27u; *shift = YES; return YES;
+        case '_': *usage = 0x2Du; *shift = YES; return YES;
+        case '+': *usage = 0x2Eu; *shift = YES; return YES;
+        case '{': *usage = 0x2Fu; *shift = YES; return YES;
+        case '}': *usage = 0x30u; *shift = YES; return YES;
+        case '|': *usage = 0x31u; *shift = YES; return YES;
+        case ':': *usage = 0x33u; *shift = YES; return YES;
+        case '"': *usage = 0x34u; *shift = YES; return YES;
+        case '~': *usage = 0x35u; *shift = YES; return YES;
+        case '<': *usage = 0x36u; *shift = YES; return YES;
+        case '>': *usage = 0x37u; *shift = YES; return YES;
+        case '?': *usage = 0x38u; *shift = YES; return YES;
+        default: return NO;
+    }
+}
+
+static NSDictionary *NAHIDTapPayload(double x, double y, NSInteger count) {
+    NSInteger taps = MAX(1, MIN(2, count));
+    for (NSInteger i = 0; i < taps; i++) {
+        if (!NAHIDDispatchPoint(x, y, YES)) {
+            return @{
+                @"success": @NO,
+                @"error": @"SpringBoard touch-down construction/dispatch failed"
+            };
+        }
+        usleep(55000);
+        if (!NAHIDDispatchPoint(x, y, NO)) {
+            return @{
+                @"success": @NO,
+                @"error": @"SpringBoard touch-up construction/dispatch failed"
+            };
+        }
+        if (i + 1 < taps) usleep(90000);
+    }
+    return @{
+        @"success": @YES,
+        @"bridge_version": @"0.7.11",
+        @"path": @"springboard_iohid_v0711",
+        @"count": @(taps)
+    };
+}
+
+static NSDictionary *NAHIDLongPressPayload(double x, double y, double duration) {
+    if (!NAHIDDispatchPoint(x, y, YES)) {
+        return @{@"success": @NO, @"error": @"SpringBoard long-press down failed"};
+    }
+    usleep((useconds_t)(MAX(0.2, MIN(8.0, duration)) * 1000000.0));
+    if (!NAHIDDispatchPoint(x, y, NO)) {
+        return @{@"success": @NO, @"error": @"SpringBoard long-press up failed"};
+    }
+    return @{
+        @"success": @YES,
+        @"bridge_version": @"0.7.11",
+        @"path": @"springboard_iohid_v0711"
+    };
+}
+
+static NSDictionary *NAHIDSwipePayload(
+    double x1, double y1, double x2, double y2, double duration
+) {
+    double clampedDuration = MAX(0.1, MIN(5.0, duration));
+    if (!NAHIDDispatchPoint(x1, y1, YES)) {
+        return @{@"success": @NO, @"error": @"SpringBoard swipe start failed"};
+    }
+
+    NSInteger steps = MAX(8, MIN(60, (NSInteger)llround(clampedDuration * 30.0)));
+    useconds_t delay = (useconds_t)((clampedDuration / (double)steps) * 1000000.0);
+    for (NSInteger i = 1; i <= steps; i++) {
+        double t = (double)i / (double)steps;
+        double x = x1 + (x2 - x1) * t;
+        double y = y1 + (y2 - y1) * t;
+        usleep(delay);
+        if (!NAHIDDispatchPoint(x, y, YES)) {
+            NAHIDDispatchPoint(x, y, NO);
+            return @{@"success": @NO, @"error": @"SpringBoard swipe move failed"};
+        }
+    }
+    usleep(18000);
+    if (!NAHIDDispatchPoint(x2, y2, NO)) {
+        return @{@"success": @NO, @"error": @"SpringBoard swipe end failed"};
+    }
+    return @{
+        @"success": @YES,
+        @"bridge_version": @"0.7.11",
+        @"path": @"springboard_iohid_v0711"
+    };
+}
+
+static NSDictionary *NAHIDKeyPayload(NSString *key) {
+    int usage = NAHIDUsageForKey(key);
+    if (usage < 0) {
+        return @{@"success": @NO, @"error": @"unsupported key"};
+    }
+    if (!NAHIDKeyboardEvent((uint32_t)usage, YES)) {
+        return @{@"success": @NO, @"error": @"SpringBoard keyboard key-down failed"};
+    }
+    usleep(30000);
+    if (!NAHIDKeyboardEvent((uint32_t)usage, NO)) {
+        return @{@"success": @NO, @"error": @"SpringBoard keyboard key-up failed"};
+    }
+    return @{
+        @"success": @YES,
+        @"bridge_version": @"0.7.11",
+        @"path": @"springboard_iohid_v0711"
+    };
+}
+
+static NSDictionary *NAHIDPastePayload(void) {
+    if (!NAHIDKeyboardEvent(0xE3u, YES)) {
+        return @{@"success": @NO, @"error": @"SpringBoard command key-down failed"};
+    }
+    usleep(18000);
+    if (!NAHIDKeyboardEvent(0x19u, YES)) {
+        NAHIDKeyboardEvent(0xE3u, NO);
+        return @{@"success": @NO, @"error": @"SpringBoard V key-down failed"};
+    }
+    usleep(30000);
+    NAHIDKeyboardEvent(0x19u, NO);
+    usleep(18000);
+    NAHIDKeyboardEvent(0xE3u, NO);
+
+    return @{
+        @"success": @YES,
+        @"bridge_version": @"0.7.11",
+        @"path": @"springboard_iohid_v0711_cmd_v"
+    };
+}
+
+static NSDictionary *NAHIDTypeTextPayload(NSString *text) {
+    if (!text.length || text.length > 4096) {
+        return @{@"success": @NO, @"error": @"text length must be 1...4096"};
+    }
+
+    NSUInteger typed = 0;
+    for (NSUInteger i = 0; i < text.length; i++) {
+        unichar c = [text characterAtIndex:i];
+        uint32_t usage = 0;
+        BOOL shift = NO;
+
+        if (!NAHIDUsageForCharacter(c, &usage, &shift)) {
+            return @{
+                @"success": @NO,
+                @"error": [NSString stringWithFormat:@"unsupported direct HID character at index %lu", (unsigned long)i],
+                @"typed_characters": @(typed)
+            };
+        }
+
+        if (shift && !NAHIDKeyboardEvent(0xE1u, YES)) {
+            return @{@"success": @NO, @"error": @"shift key-down failed", @"typed_characters": @(typed)};
+        }
+
+        BOOL downOK = NAHIDKeyboardEvent(usage, YES);
+        usleep(4500);
+        BOOL upOK = NAHIDKeyboardEvent(usage, NO);
+
+        if (shift) {
+            usleep(2500);
+            NAHIDKeyboardEvent(0xE1u, NO);
+        }
+        if (!downOK || !upOK) {
+            return @{@"success": @NO, @"error": @"character HID dispatch failed", @"typed_characters": @(typed)};
+        }
+
+        typed++;
+        usleep(5500);
+    }
+
+    return @{
+        @"success": @YES,
+        @"bridge_version": @"0.7.11",
+        @"path": @"springboard_iohid_v0711_direct_text",
+        @"typed_characters": @(typed)
+    };
+}
+
 static uint64_t NAHUDPackedState(NSString *mode, NSString *message, CGFloat progress) {
     uint64_t modeCode = 0;
     if ([mode isEqualToString:@"working"]) modeCode = 1;
