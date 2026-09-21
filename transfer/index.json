@@ -1,10 +1,34 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T06:07:20Z",
+  "updatedAt": "2026-09-21T06:20:16Z",
   "files": [
     {
+      "id": "next-agent-current-0.7.10-roothide",
+      "name": "Next Agent 0.7.10 — Async Split + System Theme",
+      "fileName": "NextAgent-0.7.10.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "0.7.10 (18)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.10/NextAgent-0.7.10.tipa",
+      "sha256": "e047ae2e2d6ce970d4e63aca4bfe37eaa917ebbd3f293e23d79fec3718c84dc7",
+      "sizeBytes": 1016833,
+      "notes": "Next Agent 0.7.10 makes split creation asynchronous and waits for the target scene instead of timing out. It also adds System, Light and Dark appearance options, with System following the iPhone appearance automatically."
+    },
+    {
+      "id": "next-agent-daemon-current-0.7.10-roothide",
+      "name": "Next Agent Daemon 0.7.10 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.10-RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iphoneos-arm64e",
+      "version": "0.7.10",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.10/NextAgentDaemon-0.7.10-RootHide.deb",
+      "sha256": "d02b5d47d29f12119bd36f7aa2566c07e2ea56e370d9bc1247d689b4533be15d",
+      "sizeBytes": 50748,
+      "notes": "Matching RootHide helper for Next Agent 0.7.10. Uses a generation-specific SpringBoard bridge, asynchronous target scene hosting, resilient OCR, automatic SpringBoard reload, HID and root helper services."
+    },
+    {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
-      "name": "Next Post 1.0.14 \u2014 No Ads + No Repeats",
+      "name": "Next Post 1.0.14 — No Ads + No Repeats",
       "fileName": "NextPost-1.0.14-No-Ads-No-Repeats.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -15,32 +39,8 @@
       "notes": "Removes all advertising UI, IronSource/LevelPlay SDK dependencies, interstitials, test controls and advertising metadata. Generated articles are permanently marked used with domain-independent IDs; when Remaining reaches zero, the app waits for newly published articles and never starts a repeat cycle. The searchable Remaining selector, automatic post composer, Refresh, Copy Text and Open in X remain."
     },
     {
-      "id": "next-agent-current-0.7.9-roothide",
-      "name": "Next Agent 0.7.9 \u2014 Locked OCR Bridge + Target Split",
-      "fileName": "NextAgent-0.7.9.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.9 (17)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.9/NextAgent-0.7.9.tipa",
-      "sha256": "0e1e4d2c16a4f6dbe3364cd9d9eeac5844c79d06ce9c84d194beb13b0cc69cf3",
-      "sizeBytes": 1001417,
-      "notes": "Next Agent 0.7.9 adds a generation-locked SpringBoard OCR bridge, automatic accurate-to-fast OCR fallback, and a target-only bottom-half scene host so Next Agent remains the real foreground app."
-    },
-    {
-      "id": "next-agent-daemon-current-0.7.9-roothide",
-      "name": "Next Agent Daemon 0.7.9 \u2014 RootHide",
-      "fileName": "NextAgentDaemon-0.7.9-RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.9",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.9/NextAgentDaemon-0.7.9-RootHide.deb",
-      "sha256": "4f89b1c465a2783a42de4ee3352b2e829bc7d330ff0bbb857a75024380c38c82",
-      "sizeBytes": 50112,
-      "notes": "Matching RootHide helper for Next Agent 0.7.9. Uses a generation-specific SpringBoard dylib/service, removes stale bridge files on upgrade, reloads SpringBoard after install, and provides target-only split hosting, OCR, HID and root helper services."
-    },
-    {
       "id": "nextpost-1.0.13-selectable-remaining",
-      "name": "Next Post 1.0.13 \u2014 Selectable Remaining",
+      "name": "Next Post 1.0.13 — Selectable Remaining",
       "fileName": "NextPost-1.0.13-Selectable-Remaining.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -52,7 +52,7 @@
     },
     {
       "id": "nextpost-1.0.12-protected-queue-your-take",
-      "name": "Next Post 1.0.12 \u2014 Protected Queue + Your Take",
+      "name": "Next Post 1.0.12 — Protected Queue + Your Take",
       "fileName": "NextPost-1.0.12-Protected-Queue-Your-Take.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -64,7 +64,7 @@
     },
     {
       "id": "nextpost-1.0.11-original-content-refresh",
-      "name": "Next Post 1.0.11 \u2014 Original Content + Refresh",
+      "name": "Next Post 1.0.11 — Original Content + Refresh",
       "fileName": "NextPost-1.0.11-Original-Content-Refresh.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -76,7 +76,7 @@
     },
     {
       "id": "livetouch-0.1.7-final-cleanup",
-      "name": "LiveTouch 0.1.7 \u2014 Final Cleanup",
+      "name": "LiveTouch 0.1.7 — Final Cleanup",
       "fileName": "LiveTouch-0.1.7-final-cleanup.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide iOS 15+",
@@ -127,7 +127,7 @@
     },
     {
       "id": "aspire-maintenance-1.1.4-dashboard-test",
-      "name": "Aspire Maintenance 1.1.4 \u2014 Dashboard Test",
+      "name": "Aspire Maintenance 1.1.4 — Dashboard Test",
       "fileName": "AspireMaintenance-1.1.4-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+ / Test",
@@ -283,7 +283,7 @@
     },
     {
       "id": "nextmultibrowser-1.1.10-device-category-modes",
-      "name": "Next Multi Browser 1.1.10 \u2014 Device Category Modes",
+      "name": "Next Multi Browser 1.1.10 — Device Category Modes",
       "fileName": "NextMultiBrowser_1.1.10_Device_Category_Modes.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 15+",
@@ -318,7 +318,7 @@
     },
     {
       "id": "nextquickreminder-1.0.16-persistent-wake-roothide",
-      "name": "Next Quick Reminder 1.0.16 \u2014 Persistent Wake RootHide",
+      "name": "Next Quick Reminder 1.0.16 — Persistent Wake RootHide",
       "fileName": "NextQuickReminder_1.0.16_RootHide.deb",
       "type": "deb",
       "platform": "RootHide",
@@ -330,7 +330,7 @@
     },
     {
       "id": "nextreminder-1.3.28-stable-files-rollback",
-      "name": "Next Reminder 1.3.28 \u2014 Stable Files Rollback",
+      "name": "Next Reminder 1.3.28 — Stable Files Rollback",
       "fileName": "NextReminder_1.3.28_Unsigned.tipa",
       "type": "tipa",
       "platform": "Unsigned TIPA / iOS 16+",
@@ -342,7 +342,7 @@
     },
     {
       "id": "nextreminder-1.3.31-gmail-report-recovery-fix",
-      "name": "Next Reminder 1.3.31 \u2014 Gmail Report Recovery Fix",
+      "name": "Next Reminder 1.3.31 — Gmail Report Recovery Fix",
       "fileName": "NextReminder_1.3.31_Unsigned.tipa",
       "type": "tipa",
       "platform": "Unsigned TIPA / iOS 16+",
@@ -354,7 +354,7 @@
     },
     {
       "id": "nextaccounts-1.0.6-search-swipe-delete",
-      "name": "Next Accounts 1.0.6 \u2014 Search & Swipe Delete",
+      "name": "Next Accounts 1.0.6 — Search & Swipe Delete",
       "fileName": "NextAccounts-1.0.6-Search-Swipe-Delete.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -366,7 +366,7 @@
     },
     {
       "id": "nextaccounts-1.0.5-independent-browser",
-      "name": "Next Accounts 1.0.5 \u2014 Independent Browser",
+      "name": "Next Accounts 1.0.5 — Independent Browser",
       "fileName": "NextAccounts-1.0.5-Independent-Browser.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -378,7 +378,7 @@
     },
     {
       "id": "nextaccounts-1.0.4-in-app-signup-browser",
-      "name": "Next Accounts 1.0.4 \u2014 In-App Signup Browser",
+      "name": "Next Accounts 1.0.4 — In-App Signup Browser",
       "fileName": "NextAccounts-1.0.4-In-App-Signup-Browser.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -390,7 +390,7 @@
     },
     {
       "id": "nextaccounts-1.0.3-platform-signup-links",
-      "name": "Next Accounts 1.0.3 \u2014 Platform Signup Links",
+      "name": "Next Accounts 1.0.3 — Platform Signup Links",
       "fileName": "NextAccounts-1.0.3-Platform-Signup-Links.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -402,7 +402,7 @@
     },
     {
       "id": "nextaccounts-1.0.2-automatic-emails",
-      "name": "Next Accounts 1.0.2 \u2014 Automatic Emails",
+      "name": "Next Accounts 1.0.2 — Automatic Emails",
       "fileName": "NextAccounts-1.0.2-Automatic-Emails.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -414,7 +414,7 @@
     },
     {
       "id": "nextaccounts-1.0.1-private-slots-platform-status",
-      "name": "Next Accounts 1.0.1 \u2014 Private Slots & Platform Status",
+      "name": "Next Accounts 1.0.1 — Private Slots & Platform Status",
       "fileName": "NextAccounts-1.0.1-PrivateSlots-PlatformStatus.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -437,7 +437,7 @@
     },
     {
       "id": "nextquickreminder-1.0.16-persistent-wake-roothide",
-      "name": "Next Quick Reminder 1.0.16 \u2014 Persistent Wake RootHide",
+      "name": "Next Quick Reminder 1.0.16 — Persistent Wake RootHide",
       "fileName": "NextQuickReminder_1.0.16_RootHide.deb",
       "type": "deb",
       "platform": "RootHide",
@@ -471,7 +471,7 @@
     },
     {
       "id": "nextmockupstudio-0.4-live3d",
-      "name": "Next Mockup Studio 0.4 \u2014 Live 3D iPhone Test",
+      "name": "Next Mockup Studio 0.4 — Live 3D iPhone Test",
       "fileName": "NextMockupStudio-iPhone17ProMax-Live3D-v0.4.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -563,7 +563,7 @@
       "id": "nextpost-1.0.2-levelplay-diagnostic",
       "fileName": "NextPost-1.0.2-LevelPlay-Diagnostic.tipa",
       "platform": "TrollStore / iOS 16+",
-      "notes": "LevelPlay diagnostic build. Enables Unity\u2019s official iOS integration test suite before SDK init, adds the required ATS network configuration, and exposes LevelPlay initialization/load errors instead of silently ignoring them. Use this build to verify test ad delivery while the account is pending approval.",
+      "notes": "LevelPlay diagnostic build. Enables Unity’s official iOS integration test suite before SDK init, adds the required ATS network configuration, and exposes LevelPlay initialization/load errors instead of silently ignoring them. Use this build to verify test ad delivery while the account is pending approval.",
       "version": "1.0.2",
       "type": "tipa",
       "name": "Next Post 1.0.2 LevelPlay Diagnostic",
