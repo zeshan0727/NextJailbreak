@@ -2,6 +2,7 @@ name: Publish Next Post to Transfer
 
 # 1.0.14 removes all advertising code/SDKs and permanently prevents article repeats.
 # Trigger publication after the verified 1.0.14 build artifact is committed.
+# Verified 1.0.14 build ready.
 on:
   workflow_dispatch:
   push:
