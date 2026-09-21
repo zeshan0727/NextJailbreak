@@ -70,10 +70,19 @@ p.write_text(s)
 
 p=root/'control'
 s=p.read_text()
-s=re.sub(r'^Version:\\s*[^\\n]+$','Version: 1.0.16',s,flags=re.M)
-if 'Version: 1.0.16' not in s:
-    raise SystemExit('Unable to promote tweak baseline to 1.0.16')
+lines=s.splitlines()
+found=False
+for i,line in enumerate(lines):
+    if line.strip().lower().startswith('version:'):
+        lines[i]='Version: 1.0.16'
+        found=True
+        break
+if not found:
+    raise SystemExit('Tweak control Version field missing')
+s='\\n'.join(lines)+'\\n'
 p.write_text(s)
+if 'Version: 1.0.16' not in p.read_text():
+    raise SystemExit('Unable to promote tweak baseline to 1.0.16')
 PYPERSIST
 
 mkdir -p "$R/out"
