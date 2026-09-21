@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T13:12:42Z",
+  "updatedAt": "2026-09-21T13:41:58Z",
   "files": [
+    {
+      "id": "tipa-qatar-marketplace-current-0.4.1",
+      "name": "TIPA 0.4.1 — Qatar Marketplace Search",
+      "fileName": "TIPA-0.4.1.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "0.4.1 (7)",
+      "url": "https://nextjailbreak.com/transfer/files/TIPA/0.4.1/TIPA-0.4.1.tipa",
+      "sha256": "ba9df36d9e42a27c0a7859e741c5d383a3a51d410bc387c4bc3eca9eeae7ec49",
+      "sizeBytes": 1433486,
+      "notes": "Backend-powered Qatar marketplace search plus optional authenticated Facebook Marketplace. Facebook login/session remains on-device in persistent WKWebView storage; exact /marketplace/item/ links are merged with backend results. Credentials and Facebook cookies are not sent to the Next Jailbreak backend."
+    },
     {
       "id": "nextreminder-1.3.32-missed-daily-gmail-persistence",
       "name": "Next Reminder 1.3.32 — Daily Missed Alerts & Gmail Persistence",
@@ -25,18 +37,6 @@
       "sha256": "2f48ca6408ff8f0027d52d1afe27e77ba4f159bacb01cc121f5d03a6c211111b",
       "sizeBytes": 114120,
       "notes": "Adds a persistent missed-reminder scheduler. After an incomplete reminder reaches its original due time, RootHide installs a daily alert at that same clock time and keeps it active until the reminder is completed, deleted, or notifications are disabled. Retains the 1.0.16 persistent pending-report wake scheduler."
-    },
-    {
-      "id": "tipa-qatar-marketplace-current-0.4.0",
-      "name": "TIPA 0.4.0 — Qatar Marketplace Search",
-      "fileName": "TIPA-0.4.0.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "0.4.0 (6)",
-      "url": "https://nextjailbreak.com/transfer/files/TIPA/0.4.0/TIPA-0.4.0.tipa",
-      "sha256": "fc4e89b061e5f567bb477bfd4289c1d039e7fa6ba7f6a292a69140bb79741f5d",
-      "sizeBytes": 1383406,
-      "notes": "Category-aware Qatar marketplace search. Searches broad marketplace domains, supports direct Qatar Living vehicle ads as well as classified items, uses rendered Brave results, preserves model tokens such as iPhone X, rejects generic category/home/search pages, and opens only exact ads."
     },
     {
       "id": "next-agent-current-0.7.19-roothide",
