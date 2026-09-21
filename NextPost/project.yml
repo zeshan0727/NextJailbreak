@@ -5,14 +5,6 @@ options:
     iOS: "16.0"
   createIntermediateGroups: true
 
-packages:
-  LevelPlay:
-    url: https://github.com/ironsource-mobile/LevelPlay-Swift-Package
-    revision: 3093cf731af059a3819ef62c4c0dafe34e8e2d28
-  UnityAdsAdapter:
-    url: https://github.com/ironsource-mobile/LevelPlay-UnityAds-Adapter-Swift-Package
-    revision: 995e0289b3cd587da6cb4c1c4e418e204bae8bb8
-
 settings:
   base:
     SWIFT_VERSION: "5.9"
@@ -20,9 +12,8 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
     SUPPORTS_MACCATALYST: "NO"
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "1.0.13"
-    CURRENT_PROJECT_VERSION: "13"
-    OTHER_LDFLAGS: "$(inherited) -ObjC -lz -lsqlite3 -framework JavaScriptCore -framework WebKit -framework AdSupport -framework SystemConfiguration"
+    MARKETING_VERSION: "1.0.14"
+    CURRENT_PROJECT_VERSION: "14"
 
 targets:
   NextPost:
@@ -34,11 +25,6 @@ targets:
         buildPhase: resources
       - path: PrivacyInfo.xcprivacy
         buildPhase: resources
-    dependencies:
-      - package: LevelPlay
-        product: UnityMediationSDK
-      - package: UnityAdsAdapter
-        product: UnityAdsAdapter
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextpost
