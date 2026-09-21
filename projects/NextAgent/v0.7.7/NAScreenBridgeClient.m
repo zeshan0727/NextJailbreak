@@ -82,6 +82,22 @@ static CFStringRef const NABridgeServiceName =
     return [self request:@{@"action": @"capture"} timeout:5.0];
 }
 
++ (NSDictionary *)ocrScreenFast:(BOOL)fast
+                       languages:(NSArray<NSString *> *)languages
+                        maxItems:(NSInteger)maxItems {
+    NSInteger bounded = MAX(1, MIN(200, maxItems));
+    return [self request:@{
+        @"action": @"ocr",
+        @"fast": @(fast),
+        @"languages": languages ?: @[],
+        @"max_items": @(bounded)
+    } timeout:8.0];
+}
+
++ (NSDictionary *)splitCapabilities {
+    return [self request:@{@"action": @"split_capabilities"} timeout:2.0];
+}
+
 + (NSDictionary *)openSplitWorkspaceWithPrimaryBundleID:(NSString *)primary
                                        secondaryBundleID:(NSString *)secondary {
     if (!primary.length || !secondary.length) {
