@@ -8,7 +8,7 @@ on:
       - '.github/workflows/build-tipa.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -56,6 +56,75 @@ jobs:
           shasum -a 256 TIPA.tipa > TIPA.tipa.sha256
           /usr/bin/file Payload/TIPA.app/TIPA
           /usr/bin/plutil -p Payload/TIPA.app/Info.plist
+
+      - name: Publish TIPA v0.3.0 to NS Transfer
+        working-directory: TIPA
+        run: |
+          set -euo pipefail
+          SRC="$GITHUB_WORKSPACE/TIPA/TIPA.tipa"
+          SHA_FILE="$GITHUB_WORKSPACE/TIPA/TIPA.tipa.sha256"
+          test -s "$SRC"
+          test -s "$SHA_FILE"
+
+          cp "$SRC" /tmp/TIPA-0.3.0.tipa
+          SHA256="$(awk '{print $1}' "$SHA_FILE")"
+          printf '%s' "$SHA256" > /tmp/TIPA-0.3.0.sha256
+
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B tipa-transfer-publish origin/main
+
+          DEST_DIR="transfer/files/TIPA/0.3.0"
+          DEST="$DEST_DIR/TIPA-0.3.0.tipa"
+          mkdir -p "$DEST_DIR"
+          cp /tmp/TIPA-0.3.0.tipa "$DEST"
+          cp /tmp/TIPA-0.3.0.sha256 "$DEST_DIR/TIPA-0.3.0.sha256"
+
+          export TIPA_SHA256="$SHA256"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          root = Path(os.environ["GITHUB_WORKSPACE"])
+          index_path = root / "transfer/index.json"
+          tipa_path = root / "transfer/files/TIPA/0.3.0/TIPA-0.3.0.tipa"
+
+          data = json.loads(index_path.read_text())
+          files = data.get("files", [])
+          files = [
+              item for item in files
+              if not str(item.get("id", "")).startswith("tipa-qatar-marketplace-current")
+          ]
+
+          entry = {
+              "id": "tipa-qatar-marketplace-current-0.3.0",
+              "name": "TIPA 0.3.0 — Qatar Marketplace Accuracy",
+              "fileName": "TIPA-0.3.0.tipa",
+              "type": "tipa",
+              "platform": "TrollStore / iOS 16+",
+              "version": "0.3.0 (3)",
+              "url": "https://nextjailbreak.com/transfer/files/TIPA/0.3.0/TIPA-0.3.0.tipa",
+              "sha256": os.environ["TIPA_SHA256"],
+              "sizeBytes": tipa_path.stat().st_size,
+              "notes": "Accuracy-first Qatar marketplace build. Accepts only verified individual-ad URL patterns, rejects marketplace home/category/search pages and generic feeds, filters phone accessories unless requested, improves natural-query normalization, and labels direct ads explicitly."
+          }
+
+          data["files"] = [entry] + files
+          data["updatedAt"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+          index_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+          PY
+
+          python3 -m json.tool transfer/index.json >/dev/null
+          test "$(shasum -a 256 "$DEST" | awk '{print $1}')" = "$SHA256"
+          grep -Fq '"id": "tipa-qatar-marketplace-current-0.3.0"' transfer/index.json
+
+          git add -f "$DEST_DIR" transfer/index.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Publish TIPA 0.3.0 to NS Transfer"
+          git push origin HEAD:main
 
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
