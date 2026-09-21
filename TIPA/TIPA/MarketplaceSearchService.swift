@@ -251,10 +251,11 @@ actor MarketplaceSearchService {
 
         if host.contains("duckduckgo.com"),
            let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-           let uddg = components.queryItems?.first(where: { $0.name == "uddg" })?.value,
-           let decoded = uddg.removingPercentEncoding ?? uddg,
-           let target = URL(string: decoded) {
-            return target
+           let uddg = components.queryItems?.first(where: { $0.name == "uddg" })?.value {
+            let decoded = uddg.removingPercentEncoding ?? uddg
+            if let target = URL(string: decoded) {
+                return target
+            }
         }
 
         return url
