@@ -591,7 +591,7 @@ struct SimpleRowsView: View {
         let rows = rowsProvider(model)
         Group {
             if rows.isEmpty {
-                ContentUnavailableView("No \(title.lowercased())", systemImage: icon)
+EmptyState(title: "No \\(title.lowercased())", icon: icon)
             } else {
                 RowsList(rows: rows, emptyTitle: "No records")
             }
