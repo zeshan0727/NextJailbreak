@@ -131,6 +131,10 @@ static CFStringRef const NABridgeServiceName =
     return [self request:@{@"action": @"hud_status"} timeout:2.0];
 }
 
++ (NSDictionary *)hudTest {
+    return [self request:@{@"action": @"hud_test"} timeout:2.0];
+}
+
 + (NSDictionary *)hidTapX:(double)x y:(double)y count:(NSInteger)count {
     return [self request:@{
         @"action": @"hid_tap",
