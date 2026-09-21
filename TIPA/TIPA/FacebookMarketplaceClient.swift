@@ -120,7 +120,7 @@ final class FacebookMarketplaceClient: ObservableObject {
     private static func clean(_ value: String) -> String {
         value
             .replacingOccurrences(of: "\u{00A0}", with: " ")
-            .replacingOccurrences(of: #"[	 ]+"#, with: " ", options: .regularExpression)
+            .replacingOccurrences(of: #"[\\t ]+"#, with: " ", options: .regularExpression)
             .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
