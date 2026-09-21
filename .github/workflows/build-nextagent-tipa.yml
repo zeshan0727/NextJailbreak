@@ -23,6 +23,7 @@ on:
       - "projects/NextAgent/v0.7.7/**"
       - "projects/NextAgent/v0.7.8/**"
       - "projects/NextAgent/v0.7.9/**"
+      - "projects/NextAgent/v0.7.10/**"
       - "projects/NextAgent/daemon/**"
       - ".github/workflows/build-nextagent-tipa.yml"
 
@@ -1097,6 +1098,23 @@ jobs:
           grep -q '0.7.9-springboard-vision1' NextAgent/V071Router.swift
           grep -q 'MARKETING_VERSION: 0.7.9' project.yml
 
+      - name: Apply v0.7.10 async split + System Light Dark theme
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.10/NAScreenBridgeClient.h" NextAgent/NAScreenBridgeClient.h
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.10/NAScreenBridgeClient.m" NextAgent/NAScreenBridgeClient.m
+          python3 "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.10/app_patch.py"
+          swiftc -frontend -parse NextAgent/NextAgent.swift
+          swiftc -frontend -parse NextAgent/V071Router.swift
+          swiftc -frontend -parse NextAgent/V07Tools.swift
+          swiftc -frontend -parse NextAgent/ModernUI.swift
+          grep -q '0.7.10-sbocr-split4' NextAgent/NextAgent.swift
+          grep -q 'openSplitWorkspaceAndWait' NextAgent/V071Router.swift
+          grep -q 'Picker("Appearance"' NextAgent/ModernUI.swift
+          grep -q 'NAAppearance.system.rawValue' NextAgent/ModernUI.swift
+          grep -q 'MARKETING_VERSION: 0.7.10' project.yml
+
       - name: Force and verify TrollStore app entitlements
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
@@ -1168,7 +1186,7 @@ jobs:
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: xcodegen generate
 
-      - name: Restore v0.7.9 product metadata after XcodeGen
+      - name: Restore v0.7.10 product metadata after XcodeGen
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -euo pipefail
@@ -1178,15 +1196,15 @@ jobs:
 
           p = Path("NextAgent/Info.plist")
           d = plistlib.loads(p.read_bytes())
-          d["CFBundleShortVersionString"] = "0.7.9"
-          d["CFBundleVersion"] = "17"
+          d["CFBundleShortVersionString"] = "0.7.10"
+          d["CFBundleVersion"] = "18"
           d["CFBundleDisplayName"] = "Next Agent"
           d["UIBackgroundModes"] = ["audio"]
           p.write_bytes(plistlib.dumps(d))
           PY
           /usr/bin/plutil -lint NextAgent/Info.plist
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.9'
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '17'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.10'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '18'
           /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes:0' NextAgent/Info.plist | grep -qx 'audio'
 
       - name: Restore TrollStore entitlements after XcodeGen
@@ -1232,7 +1250,7 @@ jobs:
           from pathlib import Path
 
           source = Path("projects/NextAgent/daemon/nextagentd.c").read_text()
-          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.9"', 1)
+          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.10"', 1)
 
           marker = 'static char *action_ping(void) {'
           if marker not in source:
@@ -1283,10 +1301,10 @@ jobs:
           if route not in source:
               raise SystemExit("daemon route marker missing")
           source = source.replace(route, extra, 1)
-          Path("/tmp/nextagentd-v079.c").write_text(source)
+          Path("/tmp/nextagentd-v0710.c").write_text(source)
           PY
 
-          cat > /tmp/nextagentd-v079.entitlements <<'EOF'
+          cat > /tmp/nextagentd-v0710.entitlements <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
@@ -1311,7 +1329,7 @@ jobs:
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.3" \
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.4" \
             -Os -Wall -Wextra \
-            -c /tmp/nextagentd-v079.c \
+            -c /tmp/nextagentd-v0710.c \
             -o /tmp/nextagentd-main.o
 
           xcrun --sdk iphoneos clang \
@@ -1345,12 +1363,12 @@ jobs:
             -framework CoreFoundation \
             -o /tmp/nextagentd
 
-          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v079.entitlements /tmp/nextagentd
+          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v0710.entitlements /tmp/nextagentd
           file /tmp/nextagentd
           /usr/bin/codesign -d --entitlements :- /tmp/nextagentd > /tmp/nextagentd-entitlements.plist 2>&1 || true
-          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v079.entitlements
+          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v0710.entitlements
 
-      - name: Build v0.7.9 generation-locked SpringBoard OCR + target split
+      - name: Build v0.7.10 async SpringBoard OCR + target split
         run: |
           set -euo pipefail
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
@@ -1362,7 +1380,7 @@ jobs:
             -fobjc-arc \
             -dynamiclib \
             -Os -Wall -Wextra \
-            "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.9/Overlay/NextAgentSpringBoard079.m" \
+            "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.10/Overlay/NextAgentSpringBoard0710.m" \
             -framework UIKit \
             -framework Foundation \
             -framework CoreFoundation \
@@ -1371,13 +1389,13 @@ jobs:
             -framework IOSurface \
             -framework CoreVideo \
             -framework Vision \
-            -o /tmp/NextAgentSpringBoard079.dylib
-          ldid -S /tmp/NextAgentSpringBoard079.dylib
-          file /tmp/NextAgentSpringBoard079.dylib | grep -q arm64e
-          strings -a /tmp/NextAgentSpringBoard079.dylib | grep -q 'uk.zeshanbarvi.nextagent.bridge.v079'
-          strings -a /tmp/NextAgentSpringBoard079.dylib | grep -q 'target_scene_overlay_50_50'
-          strings -a /tmp/NextAgentSpringBoard079.dylib | grep -q '0.7.9-springboard-vision1'
-          strings -a /tmp/NextAgentSpringBoard079.dylib | grep -q 'SBSceneSettingsUpdater'
+            -o /tmp/NextAgentSpringBoard0710.dylib
+          ldid -S /tmp/NextAgentSpringBoard0710.dylib
+          file /tmp/NextAgentSpringBoard0710.dylib | grep -q arm64e
+          strings -a /tmp/NextAgentSpringBoard0710.dylib | grep -q 'uk.zeshanbarvi.nextagent.bridge.v0710'
+          strings -a /tmp/NextAgentSpringBoard0710.dylib | grep -q 'target_scene_overlay_50_50'
+          strings -a /tmp/NextAgentSpringBoard0710.dylib | grep -q '0.7.10-springboard-vision1'
+          strings -a /tmp/NextAgentSpringBoard0710.dylib | grep -q 'SBSceneSettingsUpdater'
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -1404,11 +1422,11 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.9.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.9.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.9.sha256"
-          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.9.log"
-          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.9.plist"
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.9.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.10.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.10.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.10.sha256"
+          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.10.log"
+          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.10.plist"
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.10.tipa"
 
       - name: Package rootless daemon DEB
         run: |
@@ -1463,23 +1481,23 @@ jobs:
           mkdir -p "$P/DEBIAN" "$P/usr/local/libexec" "$P/Library/LaunchDaemons" "$P/usr/lib/TweakInject"
           cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
           cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.roothide.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
-          cp /tmp/NextAgentSpringBoard079.dylib "$P/usr/lib/TweakInject/NextAgentSpringBoard079.dylib"
-          cp projects/NextAgent/v0.7.9/Overlay/NextAgentSpringBoard079.plist "$P/usr/lib/TweakInject/NextAgentSpringBoard079.plist"
-          chmod 0755 "$P/usr/lib/TweakInject/NextAgentSpringBoard079.dylib"
-          chmod 0644 "$P/usr/lib/TweakInject/NextAgentSpringBoard079.plist"
+          cp /tmp/NextAgentSpringBoard0710.dylib "$P/usr/lib/TweakInject/NextAgentSpringBoard0710.dylib"
+          cp projects/NextAgent/v0.7.10/Overlay/NextAgentSpringBoard0710.plist "$P/usr/lib/TweakInject/NextAgentSpringBoard0710.plist"
+          chmod 0755 "$P/usr/lib/TweakInject/NextAgentSpringBoard0710.dylib"
+          chmod 0644 "$P/usr/lib/TweakInject/NextAgentSpringBoard0710.plist"
           mkdir -p "$P/usr/local/share/nextagent"
-          cp /tmp/nextagentd-v079.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
+          cp /tmp/nextagentd-v0710.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
           chmod 0755 "$P/usr/local/libexec/nextagentd"
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.7.9
+          Version: 0.7.10
           Architecture: iphoneos-arm64e
           Section: Utilities
           Priority: optional
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper for Next Agent 0.7.9 with generation-locked SpringBoard Vision OCR, accurate-to-fast OCR fallback, target-only 50/50 split workspace, direct capture transport, HID and system tools for RootHide.
+          Description: Privileged root helper for Next Agent 0.7.10 with asynchronous target split creation, resilient SpringBoard Vision OCR, generation-locked direct transport, HID and system tools for RootHide.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
@@ -1489,8 +1507,8 @@ jobs:
           ENT=/usr/local/share/nextagent/nextagentd.entitlements
           REALDIR=/rootfs/var/mobile/Library/NextAgent
           chmod 755 "$BIN" || true
-          chown root:wheel "$BIN" "$PLIST" "$ENT" /usr/lib/TweakInject/NextAgentSpringBoard079.dylib /usr/lib/TweakInject/NextAgentSpringBoard079.plist 2>/dev/null || true
-          rm -f /usr/lib/TweakInject/NextAgentOverlay.dylib /usr/lib/TweakInject/NextAgentOverlay.plist /usr/lib/TweakInject/NextAgentForegroundHUD.dylib /usr/lib/TweakInject/NextAgentForegroundHUD.plist /usr/lib/TweakInject/NextAgentSpringBoard.dylib /usr/lib/TweakInject/NextAgentSpringBoard.plist 2>/dev/null || true
+          chown root:wheel "$BIN" "$PLIST" "$ENT" /usr/lib/TweakInject/NextAgentSpringBoard0710.dylib /usr/lib/TweakInject/NextAgentSpringBoard0710.plist 2>/dev/null || true
+          rm -f /usr/lib/TweakInject/NextAgentOverlay.dylib /usr/lib/TweakInject/NextAgentOverlay.plist /usr/lib/TweakInject/NextAgentForegroundHUD.dylib /usr/lib/TweakInject/NextAgentForegroundHUD.plist /usr/lib/TweakInject/NextAgentSpringBoard.dylib /usr/lib/TweakInject/NextAgentSpringBoard.plist /usr/lib/TweakInject/NextAgentSpringBoard079.dylib /usr/lib/TweakInject/NextAgentSpringBoard079.plist 2>/dev/null || true
           mkdir -p "$REALDIR" 2>/dev/null || true
           chown mobile:mobile "$REALDIR" 2>/dev/null || true
           chmod 700 "$REALDIR" 2>/dev/null || true
@@ -1520,8 +1538,8 @@ jobs:
           exit 0
           EOF
           chmod 0755 "$P/DEBIAN/postinst" "$P/DEBIAN/prerm"
-          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.9-roothide.deb"
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.9-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.9-roothide.sha256"
+          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.10-roothide.deb"
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.10-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.10-roothide.sha256"
 
       - name: Package rootful daemon DEB
         run: |
@@ -1568,39 +1586,39 @@ jobs:
           dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb"
           shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256"
 
-      - name: Package v0.7.9 source
+      - name: Package v0.7.10 source
         working-directory: /tmp/nextagent-src
         run: |
           set -euo pipefail
           rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
-          mv NextAgent_v0.1.0 NextAgent_v0.7.9
-          mkdir -p NextAgent_v0.7.9/RootHelperSource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.9/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.9/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.9/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.9/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.9/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/system_v073.inc NextAgent_v0.7.9/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.4/system_v074.inc NextAgent_v0.7.9/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.h NextAgent_v0.7.9/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.m NextAgent_v0.7.9/RootHelperSource/
-          mkdir -p NextAgent_v0.7.9/OverlaySource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.9/Overlay/* NextAgent_v0.7.9/OverlaySource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.9/NAScreenBridgeClient.h NextAgent_v0.7.9/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.9/NAScreenBridgeClient.m NextAgent_v0.7.9/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.9/
-          cp /tmp/nextagentd-v079.c NextAgent_v0.7.9/RootHelperSource/nextagentd-v0.7.9.c
-          cp /tmp/nextagentd-v079.entitlements NextAgent_v0.7.9/RootHelperSource/nextagentd-v0.7.9.entitlements
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.9-source.zip" NextAgent_v0.7.9
-          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.9.plist"
+          mv NextAgent_v0.1.0 NextAgent_v0.7.10
+          mkdir -p NextAgent_v0.7.10/RootHelperSource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.10/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.10/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.10/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.10/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.10/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/system_v073.inc NextAgent_v0.7.10/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.4/system_v074.inc NextAgent_v0.7.10/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.h NextAgent_v0.7.10/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.m NextAgent_v0.7.10/RootHelperSource/
+          mkdir -p NextAgent_v0.7.10/OverlaySource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.10/Overlay/* NextAgent_v0.7.10/OverlaySource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.10/NAScreenBridgeClient.h NextAgent_v0.7.10/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.10/NAScreenBridgeClient.m NextAgent_v0.7.10/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.10/
+          cp /tmp/nextagentd-v0710.c NextAgent_v0.7.10/RootHelperSource/nextagentd-v0.7.10.c
+          cp /tmp/nextagentd-v0710.entitlements NextAgent_v0.7.10/RootHelperSource/nextagentd-v0.7.10.entitlements
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.10-source.zip" NextAgent_v0.7.10
+          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.10.plist"
 
-      - name: Publish v0.7.9 to NS Transfer
+      - name: Publish v0.7.10 to NS Transfer
         run: |
           set -euo pipefail
-          DEST="$GITHUB_WORKSPACE/transfer/files/NextAgent/0.7.9"
+          DEST="$GITHUB_WORKSPACE/transfer/files/NextAgent/0.7.10"
           mkdir -p "$DEST"
-          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.9.tipa" "$DEST/NextAgent-0.7.9.tipa"
-          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.9-roothide.deb" "$DEST/NextAgentDaemon-0.7.9-RootHide.deb"
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.10.tipa" "$DEST/NextAgent-0.7.10.tipa"
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.10-roothide.deb" "$DEST/NextAgentDaemon-0.7.10-RootHide.deb"
 
           python3 - <<'PY'
           import json, os
@@ -1609,11 +1627,11 @@ jobs:
 
           root = Path(os.environ["GITHUB_WORKSPACE"])
           index_path = root / "transfer/index.json"
-          tipa_path = root / "transfer/files/NextAgent/0.7.9/NextAgent-0.7.9.tipa"
-          deb_path = root / "transfer/files/NextAgent/0.7.9/NextAgentDaemon-0.7.9-RootHide.deb"
+          tipa_path = root / "transfer/files/NextAgent/0.7.10/NextAgent-0.7.10.tipa"
+          deb_path = root / "transfer/files/NextAgent/0.7.10/NextAgentDaemon-0.7.10-RootHide.deb"
 
-          tipa_sha = (root / "projects/NextAgent/build-output/NextAgent-0.7.9.sha256").read_text().strip()
-          deb_sha = (root / "projects/NextAgent/build-output/NextAgentDaemon-0.7.9-roothide.sha256").read_text().strip()
+          tipa_sha = (root / "projects/NextAgent/build-output/NextAgent-0.7.10.sha256").read_text().strip()
+          deb_sha = (root / "projects/NextAgent/build-output/NextAgentDaemon-0.7.10-roothide.sha256").read_text().strip()
 
           data = json.loads(index_path.read_text())
           files = data.get("files", [])
@@ -1624,28 +1642,28 @@ jobs:
           ]
 
           app_entry = {
-              "id": "next-agent-current-0.7.9-roothide",
-              "name": "Next Agent 0.7.9 — Locked OCR Bridge + Target Split",
-              "fileName": "NextAgent-0.7.9.tipa",
+              "id": "next-agent-current-0.7.10-roothide",
+              "name": "Next Agent 0.7.10 — Async Split + System Theme",
+              "fileName": "NextAgent-0.7.10.tipa",
               "type": "tipa",
               "platform": "TrollStore / RootHide / iOS 16+",
-              "version": "0.7.9 (17)",
-              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.9/NextAgent-0.7.9.tipa",
+              "version": "0.7.10 (18)",
+              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.10/NextAgent-0.7.10.tipa",
               "sha256": tipa_sha,
               "sizeBytes": tipa_path.stat().st_size,
-              "notes": "Next Agent 0.7.9 adds a generation-locked SpringBoard OCR bridge, automatic accurate-to-fast OCR fallback, and a target-only bottom-half scene host so Next Agent remains the real foreground app."
+              "notes": "Next Agent 0.7.10 makes split creation asynchronous and waits for the target scene instead of timing out. It also adds System, Light and Dark appearance options, with System following the iPhone appearance automatically."
           }
           daemon_entry = {
-              "id": "next-agent-daemon-current-0.7.9-roothide",
-              "name": "Next Agent Daemon 0.7.9 — RootHide",
-              "fileName": "NextAgentDaemon-0.7.9-RootHide.deb",
+              "id": "next-agent-daemon-current-0.7.10-roothide",
+              "name": "Next Agent Daemon 0.7.10 — RootHide",
+              "fileName": "NextAgentDaemon-0.7.10-RootHide.deb",
               "type": "deb",
               "platform": "RootHide / iphoneos-arm64e",
-              "version": "0.7.9",
-              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.9/NextAgentDaemon-0.7.9-RootHide.deb",
+              "version": "0.7.10",
+              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.10/NextAgentDaemon-0.7.10-RootHide.deb",
               "sha256": deb_sha,
               "sizeBytes": deb_path.stat().st_size,
-              "notes": "Matching RootHide helper for Next Agent 0.7.9. Uses a generation-specific SpringBoard dylib/service, removes stale bridge files on upgrade, reloads SpringBoard after install, and provides target-only split hosting, OCR, HID and root helper services."
+              "notes": "Matching RootHide helper for Next Agent 0.7.10. Uses a generation-specific SpringBoard bridge, asynchronous target scene hosting, resilient OCR, automatic SpringBoard reload, HID and root helper services."
           }
 
           data["files"] = [app_entry, daemon_entry] + files
@@ -1657,37 +1675,37 @@ jobs:
           import json
           from pathlib import Path
           d=json.loads(Path("transfer/index.json").read_text())
-          assert d["files"][0]["id"] == "next-agent-current-0.7.9-roothide"
-          assert d["files"][1]["id"] == "next-agent-daemon-current-0.7.9-roothide"
-          assert Path("transfer/files/NextAgent/0.7.9/NextAgent-0.7.9.tipa").is_file()
-          assert Path("transfer/files/NextAgent/0.7.9/NextAgentDaemon-0.7.9-RootHide.deb").is_file()
+          assert d["files"][0]["id"] == "next-agent-current-0.7.10-roothide"
+          assert d["files"][1]["id"] == "next-agent-daemon-current-0.7.10-roothide"
+          assert Path("transfer/files/NextAgent/0.7.10/NextAgent-0.7.10.tipa").is_file()
+          assert Path("transfer/files/NextAgent/0.7.10/NextAgentDaemon-0.7.10-RootHide.deb").is_file()
           PY
 
-      - name: Upload v0.7.9 locked OCR bridge + target split build
+      - name: Upload v0.7.10 async split + System theme build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.7.9-Locked-OCR-Bridge-Target-Split-RootHide
+          name: NextAgent-0.7.10-Async-Split-System-Theme-RootHide
           path: |
-            projects/NextAgent/build-output/NextAgent-0.7.9.tipa
-            projects/NextAgent/build-output/NextAgent-0.7.9.sha256
+            projects/NextAgent/build-output/NextAgent-0.7.10.tipa
+            projects/NextAgent/build-output/NextAgent-0.7.10.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256
-            projects/NextAgent/build-output/NextAgentDaemon-0.7.9-roothide.deb
-            projects/NextAgent/build-output/NextAgentDaemon-0.7.9-roothide.sha256
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.10-roothide.deb
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.10-roothide.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256
-            projects/NextAgent/build-output/NextAgent-v0.7.9-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.7.9.log
-            projects/NextAgent/build-output/app-entitlements-v0.7.9.plist
-            projects/NextAgent/build-output/daemon-entitlements-v0.7.9.plist
+            projects/NextAgent/build-output/NextAgent-v0.7.10-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.7.10.log
+            projects/NextAgent/build-output/app-entitlements-v0.7.10.plist
+            projects/NextAgent/build-output/daemon-entitlements-v0.7.10.plist
 
-      - name: Publish v0.7.9 locked OCR bridge + target split build
+      - name: Publish v0.7.10 async split + System theme build
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
-          git add -f transfer/index.json transfer/files/NextAgent/0.7.9/
+          git add -f transfer/index.json transfer/files/NextAgent/0.7.10/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.7.9 locked OCR bridge + target split [skip ci]"
+          git commit -m "Build Next Agent 0.7.10 async split + System theme [skip ci]"
           git push
