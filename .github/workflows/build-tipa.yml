@@ -57,18 +57,20 @@ jobs:
           /usr/bin/file Payload/TIPA.app/TIPA
           /usr/bin/plutil -p Payload/TIPA.app/Info.plist
 
-      - name: Publish TIPA v0.3.0 to NS Transfer
+      - name: Publish TIPA to NS Transfer
         working-directory: TIPA
         run: |
           set -euo pipefail
           SRC="$GITHUB_WORKSPACE/TIPA/TIPA.tipa"
-          SHA_FILE="$GITHUB_WORKSPACE/TIPA/TIPA.tipa.sha256"
+          APP="$GITHUB_WORKSPACE/TIPA/Payload/TIPA.app"
           test -s "$SRC"
-          test -s "$SHA_FILE"
+          test -d "$APP"
 
-          cp "$SRC" /tmp/TIPA-0.3.0.tipa
-          SHA256="$(awk '{print $1}' "$SHA_FILE")"
-          printf '%s' "$SHA256" > /tmp/TIPA-0.3.0.sha256
+          VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")
+          BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")
+          SHA256=$(shasum -a 256 "$SRC" | awk '{print $1}')
+
+          cp "$SRC" "/tmp/TIPA-$VERSION.tipa"
 
           cd "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
@@ -76,21 +78,27 @@ jobs:
           git fetch origin main
           git checkout -B tipa-transfer-publish origin/main
 
-          DEST_DIR="transfer/files/TIPA/0.3.0"
-          DEST="$DEST_DIR/TIPA-0.3.0.tipa"
+          DEST_DIR="transfer/files/TIPA/$VERSION"
+          DEST="$DEST_DIR/TIPA-$VERSION.tipa"
           mkdir -p "$DEST_DIR"
-          cp /tmp/TIPA-0.3.0.tipa "$DEST"
-          cp /tmp/TIPA-0.3.0.sha256 "$DEST_DIR/TIPA-0.3.0.sha256"
+          cp "/tmp/TIPA-$VERSION.tipa" "$DEST"
+          printf '%s  %s\n' "$SHA256" "TIPA-$VERSION.tipa" > "$DEST_DIR/TIPA-$VERSION.sha256"
 
+          export TIPA_VERSION="$VERSION"
+          export TIPA_BUILD="$BUILD"
           export TIPA_SHA256="$SHA256"
+
           python3 - <<'PY'
           import json, os
           from pathlib import Path
           from datetime import datetime, timezone
 
           root = Path(os.environ["GITHUB_WORKSPACE"])
+          version = os.environ["TIPA_VERSION"]
+          build = os.environ["TIPA_BUILD"]
+          sha = os.environ["TIPA_SHA256"]
           index_path = root / "transfer/index.json"
-          tipa_path = root / "transfer/files/TIPA/0.3.0/TIPA-0.3.0.tipa"
+          tipa_path = root / f"transfer/files/TIPA/{version}/TIPA-{version}.tipa"
 
           data = json.loads(index_path.read_text())
           files = data.get("files", [])
@@ -100,16 +108,16 @@ jobs:
           ]
 
           entry = {
-              "id": "tipa-qatar-marketplace-current-0.3.0",
-              "name": "TIPA 0.3.0 — Qatar Marketplace Accuracy",
-              "fileName": "TIPA-0.3.0.tipa",
+              "id": f"tipa-qatar-marketplace-current-{version}",
+              "name": f"TIPA {version} — Qatar Marketplace Search",
+              "fileName": f"TIPA-{version}.tipa",
               "type": "tipa",
               "platform": "TrollStore / iOS 16+",
-              "version": "0.3.0 (3)",
-              "url": "https://nextjailbreak.com/transfer/files/TIPA/0.3.0/TIPA-0.3.0.tipa",
-              "sha256": os.environ["TIPA_SHA256"],
+              "version": f"{version} ({build})",
+              "url": f"https://nextjailbreak.com/transfer/files/TIPA/{version}/TIPA-{version}.tipa",
+              "sha256": sha,
               "sizeBytes": tipa_path.stat().st_size,
-              "notes": "Accuracy-first Qatar marketplace build. Accepts only verified individual-ad URL patterns, rejects marketplace home/category/search pages and generic feeds, filters phone accessories unless requested, improves natural-query normalization, and labels direct ads explicitly."
+              "notes": "Accuracy-first Qatar marketplace search. Uses an on-device WebKit renderer for Brave search results, preserves single-letter model names such as iPhone X / Galaxy S / Z, accepts only individual marketplace ad URL patterns, rejects generic category/home/search pages, and opens the exact ad."
           }
 
           data["files"] = [entry] + files
@@ -119,17 +127,17 @@ jobs:
 
           python3 -m json.tool transfer/index.json >/dev/null
           test "$(shasum -a 256 "$DEST" | awk '{print $1}')" = "$SHA256"
-          grep -Fq '"id": "tipa-qatar-marketplace-current-0.3.0"' transfer/index.json
+          grep -Fq "\"id\": \"tipa-qatar-marketplace-current-$VERSION\"" transfer/index.json
 
           git add -f "$DEST_DIR" transfer/index.json
           git diff --cached --quiet && exit 0
-          git commit -m "Publish TIPA 0.3.0 to NS Transfer"
+          git commit -m "Publish TIPA $VERSION to NS Transfer"
           git push origin HEAD:main
 
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
         with:
-          name: TIPA-v0.3.0
+          name: TIPA-v0.3.1
           path: |
             TIPA/TIPA.tipa
             TIPA/TIPA.tipa.sha256
