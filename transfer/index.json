@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T12:01:36Z",
+  "updatedAt": "2026-09-21T12:33:44Z",
   "files": [
     {
-      "id": "tipa-qatar-marketplace-current-0.3.2",
-      "name": "TIPA 0.3.2 — Qatar Marketplace Search",
-      "fileName": "TIPA-0.3.2.tipa",
+      "id": "tipa-qatar-marketplace-current-0.4.0",
+      "name": "TIPA 0.4.0 — Qatar Marketplace Search",
+      "fileName": "TIPA-0.4.0.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
-      "version": "0.3.2 (5)",
-      "url": "https://nextjailbreak.com/transfer/files/TIPA/0.3.2/TIPA-0.3.2.tipa",
-      "sha256": "c0a69ab0f1d27ba0b4915db83c3627484809a12f2f3bf2168ff1fe084981ce53",
-      "sizeBytes": 1386618,
+      "version": "0.4.0 (6)",
+      "url": "https://nextjailbreak.com/transfer/files/TIPA/0.4.0/TIPA-0.4.0.tipa",
+      "sha256": "fc4e89b061e5f567bb477bfd4289c1d039e7fa6ba7f6a292a69140bb79741f5d",
+      "sizeBytes": 1383406,
       "notes": "Category-aware Qatar marketplace search. Searches broad marketplace domains, supports direct Qatar Living vehicle ads as well as classified items, uses rendered Brave results, preserves model tokens such as iPhone X, rejects generic category/home/search pages, and opens only exact ads."
     },
     {
