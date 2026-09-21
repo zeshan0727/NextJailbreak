@@ -1,0 +1,27 @@
+name: TIPA
+options:
+  bundleIdPrefix: com.nextjailbreak
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    PRODUCT_BUNDLE_IDENTIFIER: com.nextjailbreak.tipa
+    SWIFT_VERSION: 5.9
+    TARGETED_DEVICE_FAMILY: "1,2"
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: 1
+    IPHONEOS_DEPLOYMENT_TARGET: 16.0
+targets:
+  TIPA:
+    type: application
+    platform: iOS
+    sources:
+      - TIPA
+    settings:
+      base:
+        INFOPLIST_FILE: TIPA/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGNING_ALLOWED: NO
+    scheme:
+      testTargets: []
