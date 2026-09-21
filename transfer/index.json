@@ -1,30 +1,30 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-20T11:57:48Z",
+  "updatedAt": "2026-09-21T05:43:07Z",
   "files": [
     {
-      "id": "next-agent-current-0.4.0-roothide",
-      "name": "Next Agent 0.4.0 — RootHide Background",
-      "fileName": "NextAgent-0.4.0.tipa",
+      "id": "next-agent-current-0.7.8-roothide",
+      "name": "Next Agent 0.7.8 — SpringBoard OCR + Enforced Split",
+      "fileName": "NextAgent-0.7.8.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.4.0 (6)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.4.0/NextAgent-0.4.0.tipa",
-      "sha256": "73d8739ea7771fa42076487286309aa33608c6bea011926579303c70e9718fcf",
-      "sizeBytes": 186152,
-      "notes": "GPT-6 Astra managed iPhone agent. Adds active-turn background continuation, transient-network retry/resume, multi-app open sequencing, copy/paste response controls, compact phone formatting, and RootHide daemon integration."
+      "version": "0.7.8 (16)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.8/NextAgent-0.7.8.tipa",
+      "sha256": "6cf434b67982603890d76f7ed7a5df0dc7821fbb1b970b5051760bedb16fd988",
+      "sizeBytes": 1001189,
+      "notes": "Next Agent 0.7.8 adds SpringBoard-native Vision OCR, a real OCR self-test, split-workspace capability validation, and enforced 50/50 split routing for normal interactive app opens so Next Agent remains foreground while the target app is hosted alongside it."
     },
     {
-      "id": "next-agent-daemon-current-0.4.0-roothide",
-      "name": "Next Agent Daemon 0.4.0 — RootHide",
-      "fileName": "NextAgentDaemon-0.4.0-RootHide.deb",
+      "id": "next-agent-daemon-current-0.7.8-roothide",
+      "name": "Next Agent Daemon 0.7.8 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.8-RootHide.deb",
       "type": "deb",
       "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.4.0",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.4.0/NextAgentDaemon-0.4.0-RootHide.deb",
-      "sha256": "c2d921e4113a776b3508ff66b4c1d0b5d535979327264e4da15eb7deb0fa5928",
-      "sizeBytes": 8456,
-      "notes": "RootHide privileged helper for Next Agent 0.4.0. Native root process enumeration via sysctl and storage diagnostics via statfs; authenticated localhost IPC retained."
+      "version": "0.7.8",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.8/NextAgentDaemon-0.7.8-RootHide.deb",
+      "sha256": "a50ec361282ea781ad931b95804366cee8a1ec68f69cb4da98536976224648af",
+      "sizeBytes": 49780,
+      "notes": "Matching RootHide helper for Next Agent 0.7.8. Provides SpringBoard-native Vision OCR, direct capture transport, scene-host split-workspace support, HID input and root helper services."
     },
     {
       "id": "nextpost-1.0.13-selectable-remaining",

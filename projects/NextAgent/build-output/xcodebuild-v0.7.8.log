@@ -9,7 +9,7 @@ Build settings from command line:
 
 --- xcodebuild: WARNING: Using the first of multiple matching destinations:
 { platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
-{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:923a974f51af1a7903105ed45860637f8c682dc9, name:My Mac }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:69b9dd5bbcac7c9227b8eb297e974757249830e4, name:My Mac }
 { platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
 note: Using codesigning identity override: 
 ComputePackagePrebuildTargetDependencyGraph
@@ -24,7 +24,7 @@ CreateBuildOperation
 
 --- xcodebuild: WARNING: Using the first of multiple matching destinations:
 { platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
-{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:923a974f51af1a7903105ed45860637f8c682dc9, name:My Mac }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:69b9dd5bbcac7c9227b8eb297e974757249830e4, name:My Mac }
 { platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
 note: Using codesigning identity override: 
 ComputePackagePrebuildTargetDependencyGraph
@@ -60,8 +60,8 @@ ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/X
 
 ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -x c -c /dev/null
 
-Build description signature: 8d51a47cf6153ab8488723c6810e179e
-Build description path: /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/XCBuildData/8d51a47cf6153ab8488723c6810e179e.xcbuilddata
+Build description signature: 55e2f168bbcc27d053df6733227ee9e5
+Build description path: /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/XCBuildData/55e2f168bbcc27d053df6733227ee9e5.xcbuilddata
 ClangStatCache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
     cd /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent.xcodeproj
     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -o /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
@@ -147,13 +147,13 @@ MkDir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     /bin/mkdir -p /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app
 
-MkDir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/unthinned (in target 'NextAgent' from project 'NextAgent')
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    /bin/mkdir -p /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/unthinned
-
 MkDir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/thinned (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     /bin/mkdir -p /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/thinned
+
+MkDir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/unthinned (in target 'NextAgent' from project 'NextAgent')
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    /bin/mkdir -p /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/unthinned
 
 GenerateAssetSymbols /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/Assets.xcassets (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -194,19 +194,10 @@ PrecompileSwiftBridgingHeader normal arm64 (in target 'NextAgent' from project '
 SwiftDriverJobDiscovery normal arm64 Compiling bridging header (in target 'NextAgent' from project 'NextAgent')
 
 SwiftCompile normal arm64 Compiling\ AutomationStore.swift,\ BackgroundKeepAlive.swift,\ ModernUI.swift,\ NextAgent.swift,\ ScreenVision.swift,\ V05Tools.swift,\ V071Router.swift,\ V07Tools.swift,\ V07UI.swift,\ GeneratedAssetSymbols.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/AutomationStore.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/BackgroundKeepAlive.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/ModernUI.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NextAgent.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/ScreenVision.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/V05Tools.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/V071Router.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/V07Tools.swift /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/V07UI.swift /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources/GeneratedAssetSymbols.swift /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/PrecompiledHeaders/NextAgent-Bridging-Header.pch (in target 'NextAgent' from project 'NextAgent')
+
 CompileSwift normal arm64 (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     
-
-LinkAssetCatalog /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/Assets.xcassets (in target 'NextAgent' from project 'NextAgent')
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-linkAssetCatalog --thinned /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/thinned --thinned-dependencies /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_generated_info.plist_thinned --unthinned /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/unthinned --unthinned-dependencies /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_generated_info.plist_unthinned --output /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app --plist-output /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_generated_info.plist
-note: Emplaced /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next Agent.app/Assets.car (in target 'NextAgent' from project 'NextAgent')
-note: Emplaced /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next Agent.app/AppIcon60x60@2x.png (in target 'NextAgent' from project 'NextAgent')
-
-ProcessInfoPlistFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Info.plist /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/Info.plist (in target 'NextAgent' from project 'NextAgent')
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-infoPlistUtility /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/Info.plist -producttype com.apple.product-type.application -genpkginfo /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_generated_info.plist -requiredArchitecture arm64 -o /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Info.plist
 
 SwiftDriverJobDiscovery normal arm64 Compiling AutomationStore.swift, BackgroundKeepAlive.swift, ModernUI.swift, NextAgent.swift, ScreenVision.swift, V05Tools.swift, V071Router.swift, V07Tools.swift, V07UI.swift, GeneratedAssetSymbols.swift (in target 'NextAgent' from project 'NextAgent')
 
@@ -248,21 +239,25 @@ ScanDependencies /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     
     builtin-ScanDependencies -o /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.o.scan -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x objective-c -ivfsstatcache /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Wquoted-include-in-framework-header -Wno-implicit-atomic-properties -Werror\=deprecated-objc-isa-usage -Wno-objc-interface-ivars -Werror\=objc-root-class -Wno-arc-repeated-use-of-weak -Wimplicit-retain-self -Wduplicate-method-match -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wno-selector -Wno-strict-selector-match -Wundeclared-selector -Wdeprecated-implementations -Wno-implicit-fallthrough -fstrict-aliasing -Wprotocol -Wdeprecated-declarations -Wno-sign-conversion -Winfinite-recursion -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wno-semicolon-before-method-body -Wunguarded-availability @/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp -MMD -MT dependencies -MF /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.d --serialize-diagnostics /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.dia -c /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NABackgroundAssertion.m -o /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.o
 
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_float-9X3M9B0B3B76C5LFDC6PAKKN5.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_float-9X3M9B0B3B76C5LFDC6PAKKN5.scan
+
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_iso646-2WZQRN2LTSQZ0Z4SHDG52XACE.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_iso646-2WZQRN2LTSQZ0Z4SHDG52XACE.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_float-9X3M9B0B3B76C5LFDC6PAKKN5.scan
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/os_availability_internal-3NWPSFSEY54970LOC9AHQZNN.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_float-9X3M9B0B3B76C5LFDC6PAKKN5.scan
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/os_availability_internal-3NWPSFSEY54970LOC9AHQZNN.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/ptrauth-BB4CZLGWY46G1STH5DI2OWU0V.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/ptrauth-BB4CZLGWY46G1STH5DI2OWU0V.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/os_availability_internal-3NWPSFSEY54970LOC9AHQZNN.scan
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_float-16VQEPKNBT4GOSWLC0RJD2U9Q.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/os_availability_internal-3NWPSFSEY54970LOC9AHQZNN.scan
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_float-16VQEPKNBT4GOSWLC0RJD2U9Q.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_stdarg-3EEYIS8JE13V6Y7S73KA9HHN3.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -271,10 +266,6 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_fenv-2PRRLRSMHNQO3A4JSCUUVB9KE.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_fenv-2PRRLRSMHNQO3A4JSCUUVB9KE.scan
-
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_float-16VQEPKNBT4GOSWLC0RJD2U9Q.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_float-16VQEPKNBT4GOSWLC0RJD2U9Q.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/ptrcheck-13I2LP8L21JKWHN5SFAVOCEVU.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -304,21 +295,21 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/DarwinFoundation-BRM8YTDU04GVYUE57GOQKETBB.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_strings-25DK4SS441FF4D9AHK8STBYBQ.scan
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_errno-8GVA6RR2YFYHDES5L8SLAFPLC.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_strings-25DK4SS441FF4D9AHK8STBYBQ.scan
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_errno-8GVA6RR2YFYHDES5L8SLAFPLC.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_useconds_t-B9XWCE8YZ0K738VWDIKT3C1KW.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_useconds_t-B9XWCE8YZ0K738VWDIKT3C1KW.scan
 
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_strings-25DK4SS441FF4D9AHK8STBYBQ.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_strings-25DK4SS441FF4D9AHK8STBYBQ.scan
+
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_stdint-6H63JL8FIZPSEWLY52D4JU651.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_stdint-6H63JL8FIZPSEWLY52D4JU651.scan
-
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_errno-8GVA6RR2YFYHDES5L8SLAFPLC.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_errno-8GVA6RR2YFYHDES5L8SLAFPLC.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_complex-6F7PYR0AXCAVPDJN331TXIKD.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -348,33 +339,41 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_locale-2Y2NJFHKHNPFQNIG8CGQYK88E.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/mach-8TBOA27D3OFTIUWO3TEPCPTRE.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/mach-8TBOA27D3OFTIUWO3TEPCPTRE.scan
-
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_ctype-B271KJ1WBO9C52R6HUXKVDADF.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_ctype-B271KJ1WBO9C52R6HUXKVDADF.scan
-
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_setjmp-60REKN4EWPWZH859DULKTXUFK.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_setjmp-60REKN4EWPWZH859DULKTXUFK.scan
-
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_limits-2RCLBPUN9BKQ4JU9L88MYO7DI.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_limits-2RCLBPUN9BKQ4JU9L88MYO7DI.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_tgmath-DJ1D3VLRM1X2DGG1Y3A6WPSFF.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_tgmath-DJ1D3VLRM1X2DGG1Y3A6WPSFF.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/netinet_in-53C02RWEDKFSGZSV1OPZO0ZWB.scan
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/mach-8TBOA27D3OFTIUWO3TEPCPTRE.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/netinet_in-53C02RWEDKFSGZSV1OPZO0ZWB.scan
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/mach-8TBOA27D3OFTIUWO3TEPCPTRE.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/__wctype-EGF4BK5WCDTBDAACZGTOAX1MP.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/__wctype-EGF4BK5WCDTBDAACZGTOAX1MP.scan
+
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_setjmp-60REKN4EWPWZH859DULKTXUFK.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_setjmp-60REKN4EWPWZH859DULKTXUFK.scan
+
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_tgmath-2T0T0YHVWNCWXX36LE1A4X92V.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_tgmath-2T0T0YHVWNCWXX36LE1A4X92V.scan
+
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_limits-2RCLBPUN9BKQ4JU9L88MYO7DI.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_limits-2RCLBPUN9BKQ4JU9L88MYO7DI.scan
+
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_wctype-ERNYNI1Q78RULZNQBWA8G7RBA.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_wctype-ERNYNI1Q78RULZNQBWA8G7RBA.scan
+
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/netinet_in-53C02RWEDKFSGZSV1OPZO0ZWB.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/netinet_in-53C02RWEDKFSGZSV1OPZO0ZWB.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_limits-8DN9I4DP2YGYJ3OSJPPRMHJ8W.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -384,25 +383,17 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_sys_select-4XJ0P678EEGQE8U3X370AVEBE.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_wctype-ERNYNI1Q78RULZNQBWA8G7RBA.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_wctype-ERNYNI1Q78RULZNQBWA8G7RBA.scan
-
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_tgmath-2T0T0YHVWNCWXX36LE1A4X92V.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_tgmath-2T0T0YHVWNCWXX36LE1A4X92V.scan
-
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/xlocale-21YR5BS2GQPECJS3C4FP9CEZI.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/xlocale-21YR5BS2GQPECJS3C4FP9CEZI.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_types-7B15RSX3II248QQYC7ZN6OAYZ.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_types-7B15RSX3II248QQYC7ZN6OAYZ.scan
-
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_assert-NSXXU0BIPEGY9FNFO7BZB7BP.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_assert-NSXXU0BIPEGY9FNFO7BZB7BP.scan
+
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_types-7B15RSX3II248QQYC7ZN6OAYZ.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_types-7B15RSX3II248QQYC7ZN6OAYZ.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_stdint-C75HDYS1B5ETW16JOMKKTR3RQ.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -416,10 +407,6 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/nl_types-AWZ3HRTX3DRXZLSJIJZOY1S0B.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_string-69P7WVBO98G5DW9YR2HW9PQEM.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_string-69P7WVBO98G5DW9YR2HW9PQEM.scan
-
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_resource-8OSPQ6SVXCDKS0PQGKL956EAM.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_resource-8OSPQ6SVXCDKS0PQGKL956EAM.scan
@@ -427,6 +414,10 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/gethostuuid-6WN96VQGX5CTR7UJXE0888UAZ.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/gethostuuid-6WN96VQGX5CTR7UJXE0888UAZ.scan
+
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_string-69P7WVBO98G5DW9YR2HW9PQEM.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_string-69P7WVBO98G5DW9YR2HW9PQEM.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_inttypes-BZFK9FD98XC2ZCWRLXS4O36D8.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -436,6 +427,10 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_stdio-6GW5VMRDPO9XLYRYA2OLTMN78.scan
 
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_inttypes-ADLQE0TT50G1TNM2BRLOANEX7.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_inttypes-ADLQE0TT50G1TNM2BRLOANEX7.scan
+
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_signal-DKL1CMDIKLBG0RJ2DV4IWSDOT.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_signal-DKL1CMDIKLBG0RJ2DV4IWSDOT.scan
@@ -444,17 +439,13 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_stdatomic-5NZ9JIHCOS39LYID0AHAZ2S8V.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_inttypes-ADLQE0TT50G1TNM2BRLOANEX7.scan
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_wchar-1KRJ4F8ZN6TCOR98L4LCUEJ9P.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_inttypes-ADLQE0TT50G1TNM2BRLOANEX7.scan
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_wchar-1KRJ4F8ZN6TCOR98L4LCUEJ9P.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_select-8ZTDS5JQLXPFHSZEZ9ITFYZ7E.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_select-8ZTDS5JQLXPFHSZEZ9ITFYZ7E.scan
-
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_wchar-1KRJ4F8ZN6TCOR98L4LCUEJ9P.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_wchar-1KRJ4F8ZN6TCOR98L4LCUEJ9P.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_wait-RLM2HE18AWRL7TBX2OORFJ6Y.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -500,24 +491,17 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/XPC-B6NGSZNRAPQ1TXOKLOYMBECDV.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/Security-ALS9ZLSH0Y7MQSE15Z15IYUJ9.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/Security-ALS9ZLSH0Y7MQSE15Z15IYUJ9.scan
-
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/CFNetwork-71C6KP6P4BKSY428GKU84QY42.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/CFNetwork-71C6KP6P4BKSY428GKU84QY42.scan
 
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/Security-ALS9ZLSH0Y7MQSE15Z15IYUJ9.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/Security-ALS9ZLSH0Y7MQSE15Z15IYUJ9.scan
+
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/Foundation-EF7J239PLJIYISMVQN3UE8A14.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/Foundation-EF7J239PLJIYISMVQN3UE8A14.scan
-
-CompileC /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.o /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NABackgroundAssertion.m normal arm64 objective-c com.apple.compilers.llvm.clang.1_0.compiler (in target 'NextAgent' from project 'NextAgent')
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    
-    Using response file: /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp
-    
-    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x objective-c -ivfsstatcache /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Wquoted-include-in-framework-header -Wno-implicit-atomic-properties -Werror\=deprecated-objc-isa-usage -Wno-objc-interface-ivars -Werror\=objc-root-class -Wno-arc-repeated-use-of-weak -Wimplicit-retain-self -Wduplicate-method-match -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wno-selector -Wno-strict-selector-match -Wundeclared-selector -Wdeprecated-implementations -Wno-implicit-fallthrough -fstrict-aliasing -Wprotocol -Wdeprecated-declarations -Wno-sign-conversion -Winfinite-recursion -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wno-semicolon-before-method-body -Wunguarded-availability @/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp -MMD -MT dependencies -MF /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.d --serialize-diagnostics /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.dia -c /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NABackgroundAssertion.m -o /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.o
 
 CompileC /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NAScreenBridgeClient.o /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NAScreenBridgeClient.m normal arm64 objective-c com.apple.compilers.llvm.clang.1_0.compiler (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -526,20 +510,37 @@ CompileC /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/N
     
     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x objective-c -ivfsstatcache /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Wquoted-include-in-framework-header -Wno-implicit-atomic-properties -Werror\=deprecated-objc-isa-usage -Wno-objc-interface-ivars -Werror\=objc-root-class -Wno-arc-repeated-use-of-weak -Wimplicit-retain-self -Wduplicate-method-match -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wno-selector -Wno-strict-selector-match -Wundeclared-selector -Wdeprecated-implementations -Wno-implicit-fallthrough -fstrict-aliasing -Wprotocol -Wdeprecated-declarations -Wno-sign-conversion -Winfinite-recursion -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wno-semicolon-before-method-body -Wunguarded-availability @/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp -MMD -MT dependencies -MF /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NAScreenBridgeClient.d --serialize-diagnostics /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NAScreenBridgeClient.dia -c /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NAScreenBridgeClient.m -o /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NAScreenBridgeClient.o
 
+CompileC /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.o /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NABackgroundAssertion.m normal arm64 objective-c com.apple.compilers.llvm.clang.1_0.compiler (in target 'NextAgent' from project 'NextAgent')
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    
+    Using response file: /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp
+    
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x objective-c -ivfsstatcache /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Wquoted-include-in-framework-header -Wno-implicit-atomic-properties -Werror\=deprecated-objc-isa-usage -Wno-objc-interface-ivars -Werror\=objc-root-class -Wno-arc-repeated-use-of-weak -Wimplicit-retain-self -Wduplicate-method-match -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wno-selector -Wno-strict-selector-match -Wundeclared-selector -Wdeprecated-implementations -Wno-implicit-fallthrough -fstrict-aliasing -Wprotocol -Wdeprecated-declarations -Wno-sign-conversion -Winfinite-recursion -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wno-semicolon-before-method-body -Wunguarded-availability @/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp -MMD -MT dependencies -MF /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.d --serialize-diagnostics /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.dia -c /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NABackgroundAssertion.m -o /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NABackgroundAssertion.o
+
 Ld /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Next\ Agent normal (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios16.0 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -Os -L/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -L/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos -F/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -F/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos -filelist /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.LinkFileList -Xlinker -rpath -Xlinker @executable_path/Frameworks -dead_strip -Xlinker -object_path_lto -Xlinker /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent_lto.o -Xlinker -dependency_info -Xlinker /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent_dependency_info.dat -fobjc-arc -fobjc-link-runtime -L/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next_Agent.swiftmodule -o /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Next\ Agent
+
+LinkAssetCatalog /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/Assets.xcassets (in target 'NextAgent' from project 'NextAgent')
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-linkAssetCatalog --thinned /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/thinned --thinned-dependencies /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_generated_info.plist_thinned --unthinned /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/unthinned --unthinned-dependencies /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_generated_info.plist_unthinned --output /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app --plist-output /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_generated_info.plist
+note: Emplaced /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next Agent.app/AppIcon60x60@2x.png (in target 'NextAgent' from project 'NextAgent')
+note: Emplaced /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next Agent.app/Assets.car (in target 'NextAgent' from project 'NextAgent')
+
+ProcessInfoPlistFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Info.plist /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/Info.plist (in target 'NextAgent' from project 'NextAgent')
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-infoPlistUtility /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/Info.plist -producttype com.apple.product-type.application -genpkginfo /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_generated_info.plist -requiredArchitecture arm64 -o /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Info.plist
+
+ExtractAppIntentsMetadata (in target 'NextAgent' from project 'NextAgent')
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name Next_Agent --sdk-root /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk --xcode-version 16F6 --platform-family iOS --deployment-target 16.0 --bundle-identifier uk.zeshanbarvi.nextagent --output /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app --target-triple arm64-apple-ios16.0 --binary-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Next\ Agent --dependency-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent_dependency_info.dat --stringsdata-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftFileList --metadata-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent.DependencyMetadataFileList --static-metadata-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-09-21 05:42:57.640 appintentsmetadataprocessor[4623:16347] Starting appintentsmetadataprocessor export
+2026-09-21 05:42:57.647 appintentsmetadataprocessor[4623:16347] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
 
 CopySwiftLibs /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-swiftStdLibTool --copy --verbose --scan-executable /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Next\ Agent --scan-folder /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Frameworks --scan-folder /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/PlugIns --scan-folder /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/SystemExtensions --scan-folder /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Extensions --platform iphoneos --toolchain /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
 Ignoring --strip-bitcode because --sign was not passed
-
-ExtractAppIntentsMetadata (in target 'NextAgent' from project 'NextAgent')
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name Next_Agent --sdk-root /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk --xcode-version 16F6 --platform-family iOS --deployment-target 16.0 --bundle-identifier uk.zeshanbarvi.nextagent --output /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app --target-triple arm64-apple-ios16.0 --binary-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Next\ Agent --dependency-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent_dependency_info.dat --stringsdata-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftFileList --metadata-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent.DependencyMetadataFileList --static-metadata-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
-2026-09-21 05:35:26.652 appintentsmetadataprocessor[4519:16936] Starting appintentsmetadataprocessor export
-2026-09-21 05:35:26.656 appintentsmetadataprocessor[4519:16936] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
 
 GenerateDSYMFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app.dSYM /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Next\ Agent (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -548,8 +549,8 @@ GenerateDSYMFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Releas
 AppIntentsSSUTraining (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Info.plist --temp-dir-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/ssu --bundle-id uk.zeshanbarvi.nextagent --product-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app --extracted-metadata-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Metadata.appintents --metadata-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent.DependencyMetadataFileList --archive-ssu-assets
-2026-09-21 05:35:26.684 appintentsnltrainingprocessor[4521:16948] Parsing options for appintentsnltrainingprocessor
-2026-09-21 05:35:26.685 appintentsnltrainingprocessor[4521:16948] No AppShortcuts found - Skipping.
+2026-09-21 05:42:57.682 appintentsnltrainingprocessor[4625:16350] Parsing options for appintentsnltrainingprocessor
+2026-09-21 05:42:57.685 appintentsnltrainingprocessor[4625:16350] No AppShortcuts found - Skipping.
 
 RegisterExecutionPolicyException /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
