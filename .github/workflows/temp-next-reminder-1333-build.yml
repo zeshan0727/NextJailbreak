@@ -1,0 +1,81 @@
+name: Temp Next Reminder 1.3.32 Source Inspector
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tmp-build-1333/**'
+      - '.github/workflows/temp-next-reminder-1333-build.yml'
+permissions:
+  contents: read
+jobs:
+  inspect-app:
+    if: github.head_ref == 'build-next-reminder-1333-working'
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import verified app source builders
+        shell: bash
+        run: |
+          git fetch --depth 1 origin build-next-reminder-1322-working
+          git checkout FETCH_HEAD -- tmp-build
+          git fetch --depth 1 origin build-next-reminder-1325-working
+          git checkout FETCH_HEAD -- tmp-build-1325/patch
+          git fetch --depth 1 origin build-next-reminder-1326-working
+          git checkout FETCH_HEAD -- tmp-build-1326/app1326.patch.xz.b64
+          git fetch --depth 1 origin build-next-reminder-1328-working
+          git checkout FETCH_HEAD -- tmp-build-1328/build.sh
+          git fetch --depth 1 origin build-next-reminder-1329-working
+          git checkout FETCH_HEAD -- tmp-build-1329/build.sh tmp-build-1329/PendingReports.swift
+          git fetch --depth 1 origin build-next-reminder-1330-working
+          git checkout FETCH_HEAD -- tmp-build-1330/app1330.patch.xz.b64
+          git fetch --depth 1 origin build-next-reminder-1332-working
+          git checkout FETCH_HEAD -- tmp-build-1332/build.sh
+      - name: Reconstruct current app source
+        shell: bash
+        run: bash tmp-build-1332/build.sh
+      - name: Collect relevant app source
+        shell: bash
+        run: |
+          O="$RUNNER_TEMP/inspect-app"
+          mkdir -p "$O"
+          cp -R "$RUNNER_TEMP/appsrc/NextReminder/Sources" "$O/Sources"
+          cp "$RUNNER_TEMP/appsrc/NextReminder.xcodeproj/project.pbxproj" "$O/project.pbxproj"
+          grep -RniE 'GmailConnectionStore|GmailOAuthClient|Keychain|UNUserNotification|notification|schedule|dueDate|isCompleted' "$O/Sources" > "$O/matches.txt" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextReminder-1.3.31-Reconstructed-Sources
+          path: ${{ runner.temp }}/inspect-app
+          retention-days: 7
+  inspect-tweak:
+    if: github.head_ref == 'build-next-reminder-1333-working'
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import verified tweak source builders
+        shell: bash
+        run: |
+          git fetch --depth 1 origin build-next-reminder-1322-working
+          git checkout FETCH_HEAD -- tmp-build
+          git fetch --depth 1 origin build-next-reminder-1325-working
+          git checkout FETCH_HEAD -- tmp-build-1325/patch
+          git fetch --depth 1 origin build-next-reminder-1330-working
+          git checkout FETCH_HEAD -- tmp-build-1330/tweak1015.patch.xz.b64
+          git fetch --depth 1 origin build-next-reminder-1331b-working
+          git checkout FETCH_HEAD -- tmp-build-1331/build.sh tmp-build-1331/PersistentReportScheduler.m
+      - name: Reconstruct current tweak source
+        shell: bash
+        run: bash tmp-build-1331/build.sh
+      - name: Collect relevant tweak source
+        shell: bash
+        run: |
+          O="$RUNNER_TEMP/inspect-tweak"
+          mkdir -p "$O"
+          cp -R "$RUNNER_TEMP/nqrsrc" "$O/nqrsrc"
+          grep -RniE 'Reminder|notification|dueDate|completed|PCPersistentTimer|UNUserNotification' "$O/nqrsrc" > "$O/matches.txt" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextQuickReminder-1.0.16-Reconstructed-Sources
+          path: ${{ runner.temp }}/inspect-tweak
+          retention-days: 7
