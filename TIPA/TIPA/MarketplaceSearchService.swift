@@ -41,7 +41,7 @@ actor MarketplaceSearchService {
             return []
         }
 
-        var searchText = "site:\\(source.siteQuery) \"\\(query)\" Qatar QAR"
+        var searchText = "site:\\(source.siteQuery) \\(query) Qatar QAR"
 
         if looksLikePhoneQuery(query) && !queryRequestsAccessory(query) {
             searchText += " -cover -case -protector -charger -cable -accessory -parts -screen"
