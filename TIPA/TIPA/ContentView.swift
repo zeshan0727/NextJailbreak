@@ -79,7 +79,7 @@ struct ContentView: View {
                 Text("Find it all in Qatar").font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer()
-            Text("v0.3.2")
+            Text("v0.4")
                 .font(.caption.bold()).foregroundStyle(accent)
                 .padding(.horizontal, 10).padding(.vertical, 6)
                 .background(accent.opacity(0.10), in: Capsule())
@@ -148,7 +148,7 @@ struct ContentView: View {
         if hasSearched || isSearching {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(isSearching ? "Searching…" : "\(filtered.count) listings").font(.headline)
+                    Text(isSearching ? "Searching live marketplaces…" : "\(filtered.count) verified direct ads").font(.headline)
                     if !resolvedQuery.isEmpty { Text(resolvedQuery).font(.caption).foregroundStyle(.secondary) }
                 }
                 Spacer()
@@ -167,7 +167,7 @@ struct ContentView: View {
         if let errorText {
             messageCard(icon: "exclamationmark.triangle.fill", title: "Search issue", text: errorText)
         } else if hasSearched && !isSearching && filtered.isEmpty {
-            messageCard(icon: "checkmark.shield", title: "No verified direct ad found", text: "TIPA now rejects home pages, category pages and generic marketplace feeds. Try an exact model such as “iPhone 14 Pro Max”, “Samsung Fold 5”, or “Patrol 2012”.")
+            messageCard(icon: "checkmark.shield", title: "No matching direct ad found", text: "The live search completed, but no individual listing matched this exact query. Try the model name without extra words, for example “iPhone 14 Pro Max”, “Fold 5”, or “Patrol 2012”.")
         } else {
             LazyVStack(spacing: 12) {
                 ForEach(Array(filtered.enumerated()), id: \.element.id) { index, listing in
@@ -220,7 +220,7 @@ struct ContentView: View {
     private var footer: some View {
         VStack(spacing: 5) {
             Text("TIPA does not host or sell listings.").font(.caption.bold())
-            Text("Only individual ad URLs are shown. Marketplace home pages, category pages and generic feeds are discarded. Always verify the live price, seller and availability before buying.")
+            Text("Search is processed by the Next Jailbreak marketplace backend. Only individual ad URLs are returned; generic category/search pages are discarded. Always verify the live price, seller and availability before buying.")
                 .font(.caption2).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
         .padding(.top, 8)
@@ -236,6 +236,7 @@ struct ContentView: View {
                 resolvedQuery = result.query
                 listings = result.listings
                 sort = result.sort
+                errorText = result.error
                 isSearching = false
             }
         }
