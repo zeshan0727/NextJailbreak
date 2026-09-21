@@ -1,0 +1,71 @@
+name: Temporary Build Accountants Mobile 0.1.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-accountants-mobile-v010-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: accountants-mobile-v010-temp
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout Accountants Mobile source branch
+        uses: actions/checkout@v4
+        with:
+          ref: accountants-mobile-v010-local-backup
+
+      - name: Build unsigned iPhone app and TIPA
+        id: compile
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          bash -x AccountantsMobile/build.sh
+
+      - name: Upload Accountants Mobile artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AccountantsMobile-0.1.0
+          if-no-files-found: warn
+          path: |
+            AccountantsMobile/dist/AccountantsMobile-0.1.0.tipa
+            AccountantsMobile/dist/AccountantsMobile-0.1.0.ipa
+            AccountantsMobile/dist/AccountantsMobile-0.1.0-source.zip
+            AccountantsMobile/dist/SHA256SUMS.txt
+            AccountantsMobile/dist/xcodebuild.log
+            AccountantsMobile/dist/binary.txt
+
+      - name: Publish exact build status
+        if: always()
+        env:
+          BUILD_OUTCOME: ${{ steps.compile.outcome }}
+        run: |
+          set -euo pipefail
+          STATUS_DIR="/tmp/accountants-mobile-status"
+          rm -rf "$STATUS_DIR"
+          mkdir -p "$STATUS_DIR"
+          printf 'run_id=%s\noutcome=%s\ncommit=%s\nversion=0.1.0\nbuild=1\nbranch=accountants-mobile-v010-local-backup\n' \
+            "$GITHUB_RUN_ID" "$BUILD_OUTCOME" "$GITHUB_SHA" > "$STATUS_DIR/latest-run.txt"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan accountants-mobile-status
+          git rm -rf .
+          cp "$STATUS_DIR/latest-run.txt" latest-run.txt
+          git add latest-run.txt
+          git commit -m "Publish Accountants Mobile 0.1.0 build status"
+          git push --force origin HEAD:accountants-mobile-status
+
+      - name: Fail when compilation failed
+        if: steps.compile.outcome != 'success'
+        run: exit 1
