@@ -5,11 +5,13 @@ root = Path(".")
 swift_path = root / "NextAgent/NextAgent.swift"
 router_path = root / "NextAgent/V071Router.swift"
 v05_path = root / "NextAgent/V05Tools.swift"
+v07_path = root / "NextAgent/V07Tools.swift"
 modern_ui_path = root / "NextAgent/ModernUI.swift"
 
 s = swift_path.read_text()
 router = router_path.read_text()
 v05 = v05_path.read_text()
+v07 = v07_path.read_text()
 ui = modern_ui_path.read_text()
 
 # ----- version -----
@@ -209,6 +211,37 @@ if helper_marker not in v05:
     raise SystemExit("v0.7.11 V05 helper insertion marker missing")
 v05 = v05.replace(helper_marker, bridge_helper + helper_marker, 1)
 
+# ----- all screen-driven taps use the same SpringBoard HID bridge -----
+old_v07_tap = '''        let match = matches[occurrence - 1]
+        let argument = String(format: "%.6f,%.6f", match.centerX, match.centerY)
+        let result = RootDaemonClient.request(action: "tap", argument: argument)
+        if !result.success { return result }
+        return v07JSON([
+            "success": true,
+            "tapped": match.dictionary,
+            "occurrence": occurrence
+        ])
+'''
+new_v07_tap = '''        let match = matches[occurrence - 1]
+        let raw = NAScreenBridgeClient.hidTap(
+            x: match.centerX,
+            y: match.centerY,
+            count: 1
+        )
+        guard (raw["success"] as? Bool) == true else {
+            return ToolResult(success: false, output: String(describing: raw))
+        }
+        return v07JSON([
+            "success": true,
+            "tapped": match.dictionary,
+            "occurrence": occurrence,
+            "input_path": "springboard_iohid_v0711"
+        ])
+'''
+if old_v07_tap not in v07:
+    raise SystemExit("v0.7.11 v07 tap_text marker missing")
+v07 = v07.replace(old_v07_tap, new_v07_tap, 1)
+
 # ----- self-test: distinguish symbol creation from the real SpringBoard HID transport -----
 split_test = '''        let splitCapabilityRaw = NAScreenBridgeClient.splitCapabilities()
         let splitBridgeVersion = splitCapabilityRaw["bridge_version"] as? String ?? ""
@@ -252,6 +285,7 @@ ui = ui.replace(
 swift_path.write_text(s)
 router_path.write_text(router)
 v05_path.write_text(v05)
+v07_path.write_text(v07)
 modern_ui_path.write_text(ui)
 
 project = root / "project.yml"
@@ -269,5 +303,6 @@ plist_path.write_bytes(plistlib.dumps(d))
 assert 'currentToolSchemaVersion = "0.7.11-sbocr-hid5"' in swift_path.read_text()
 assert "NAScreenBridgeClient.hidTypeText" in v05_path.read_text()
 assert "NAScreenBridgeClient.hidTap" in v05_path.read_text()
+assert "springboard_iohid_v0711" in v07_path.read_text()
 assert "springboard_hid_bridge" in router_path.read_text()
 assert "MARKETING_VERSION: 0.7.11" in project.read_text()
