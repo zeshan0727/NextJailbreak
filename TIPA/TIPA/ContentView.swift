@@ -186,7 +186,8 @@ struct ContentView: View {
                 }
                 VStack(alignment: .leading, spacing: 7) {
                     HStack(alignment: .firstTextBaseline) {
-                        if best { Text("LOWEST").font(.caption2.weight(.black)).foregroundStyle(.white).padding(.horizontal, 7).padding(.vertical, 3).background(Color.green, in: Capsule()) }\n                        Text("DIRECT").font(.caption2.weight(.bold)).foregroundStyle(accent).padding(.horizontal, 7).padding(.vertical, 3).background(accent.opacity(0.10), in: Capsule())
+                        if best { Text("LOWEST").font(.caption2.weight(.black)).foregroundStyle(.white).padding(.horizontal, 7).padding(.vertical, 3).background(Color.green, in: Capsule()) }
+                        Text("DIRECT").font(.caption2.weight(.bold)).foregroundStyle(accent).padding(.horizontal, 7).padding(.vertical, 3).background(accent.opacity(0.10), in: Capsule())
                         Spacer()
                         if let price = listing.priceQAR { Text("QAR \(price.formatted())").font(.headline).foregroundStyle(.green) }
                         else { Text("Price n/a").font(.caption.bold()).foregroundStyle(.secondary) }
