@@ -1,13 +1,13 @@
 name: Publish Next Post to Transfer
 
-# 1.0.13 restores the 1.0.11 automatic post flow and adds manual selection from Remaining.
-# Verified build is present; trigger Transfer publication for 1.0.13.
+# 1.0.14 removes all advertising code/SDKs and permanently prevents article repeats.
+# Trigger publication after the verified 1.0.14 build artifact is committed.
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'applications/NextPost-1.0.13-Selectable-Remaining.tipa'
+      - 'applications/NextPost-1.0.14-No-Ads-No-Repeats.tipa'
       - '.github/workflows/publish-nextpost-transfer.yml'
 
 permissions:
@@ -30,9 +30,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SRC='applications/NextPost-1.0.13-Selectable-Remaining.tipa'
-          DEST_DIR='transfer/files/NextPost/1.0.13'
-          DEST="$DEST_DIR/NextPost-1.0.13-Selectable-Remaining.tipa"
+          SRC='applications/NextPost-1.0.14-No-Ads-No-Repeats.tipa'
+          DEST_DIR='transfer/files/NextPost/1.0.14'
+          DEST="$DEST_DIR/NextPost-1.0.14-No-Ads-No-Repeats.tipa"
           INDEX='transfer/index.json'
 
           test -s "$SRC"
@@ -52,19 +52,19 @@ jobs:
           index_path = Path('transfer/index.json')
           data = json.loads(index_path.read_text())
           files = data.get('files', [])
-          entry_id = 'nextpost-1.0.13-selectable-remaining'
+          entry_id = 'nextpost-1.0.14-no-ads-no-repeats'
           files = [item for item in files if item.get('id') != entry_id]
           entry = {
               'id': entry_id,
-              'name': 'Next Post 1.0.13 — Selectable Remaining',
-              'fileName': 'NextPost-1.0.13-Selectable-Remaining.tipa',
+              'name': 'Next Post 1.0.14 — No Ads + No Repeats',
+              'fileName': 'NextPost-1.0.14-No-Ads-No-Repeats.tipa',
               'type': 'tipa',
               'platform': 'TrollStore / iOS 16+',
-              'version': '1.0.13 (13)',
-              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.13/NextPost-1.0.13-Selectable-Remaining.tipa',
+              'version': '1.0.14 (14)',
+              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.14/NextPost-1.0.14-No-Ads-No-Repeats.tipa',
               'sha256': os.environ['SHA256'],
               'sizeBytes': int(os.environ['SIZE']),
-              'notes': 'Restores the complete 1.0.11 automatic X post generation flow and removes the 1.0.12 Your Take/protected-queue behavior. Remaining now opens a searchable list of unused articles; select any article and Generate creates the full post automatically, marks it used, and updates Remaining. Random Generate, Refresh Articles, Copy Text, Open in X, preview card and focused hashtags remain as in 1.0.11.'
+              'notes': 'Removes all advertising UI, IronSource/LevelPlay SDK dependencies, interstitials, test controls and advertising metadata. Generated articles are permanently marked used with domain-independent IDs; when Remaining reaches zero, the app waits for newly published articles and never starts a repeat cycle. The searchable Remaining selector, automatic post composer, Refresh, Copy Text and Open in X remain.'
           }
           data['files'] = [entry] + files
           data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
@@ -72,7 +72,7 @@ jobs:
           PY
 
           python3 -m json.tool "$INDEX" >/dev/null
-          grep -q 'nextpost-1.0.13-selectable-remaining' "$INDEX"
+          grep -q 'nextpost-1.0.14-no-ads-no-repeats' "$INDEX"
           grep -q "$SHA256" "$INDEX"
           test "$(sha256sum "$DEST" | awk '{print $1}')" = "$SHA256"
 
@@ -82,7 +82,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add transfer/files/NextPost/1.0.13/NextPost-1.0.13-Selectable-Remaining.tipa transfer/index.json
-          git commit -m 'Publish Next Post 1.0.13 to Transfer' || true
+          git add transfer/files/NextPost/1.0.14/NextPost-1.0.14-No-Ads-No-Repeats.tipa transfer/index.json
+          git commit -m 'Publish Next Post 1.0.14 to Transfer' || true
           git pull --rebase origin main
           git push origin HEAD:main
