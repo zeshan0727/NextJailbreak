@@ -1,0 +1,1 @@
+{ Filter = { Bundles = ( "com.apple.Preferences", "com.apple.mobilenotes", "com.apple.mobilesafari", "com.apple.MobileSMS", "com.apple.mobilemail", "com.apple.reminders", "com.apple.Maps", "com.apple.calculator", "com.apple.AppStore", "com.apple.mobilecal" ); }; }\n
