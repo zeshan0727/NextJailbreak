@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T11:56:58Z",
+  "updatedAt": "2026-09-21T11:57:45Z",
   "files": [
     {
-      "id": "tipa-qatar-marketplace-current-0.3.1",
-      "name": "TIPA 0.3.1 — Qatar Marketplace Search",
-      "fileName": "TIPA-0.3.1.tipa",
+      "id": "tipa-qatar-marketplace-current-0.3.2",
+      "name": "TIPA 0.3.2 — Qatar Marketplace Search",
+      "fileName": "TIPA-0.3.2.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
-      "version": "0.3.1 (4)",
-      "url": "https://nextjailbreak.com/transfer/files/TIPA/0.3.1/TIPA-0.3.1.tipa",
-      "sha256": "d09919d34036660d7b7da0785d21a19fb2b4e3e7ecd14359633a6f5bc8203bfb",
-      "sizeBytes": 1384919,
+      "version": "0.3.2 (5)",
+      "url": "https://nextjailbreak.com/transfer/files/TIPA/0.3.2/TIPA-0.3.2.tipa",
+      "sha256": "85323c7b884550aa8e9980d8918704dfa77f88b899e52a077075e7e611e92961",
+      "sizeBytes": 1386622,
       "notes": "Accuracy-first Qatar marketplace search. Uses an on-device WebKit renderer for Brave search results, preserves single-letter model names such as iPhone X / Galaxy S / Z, accepts only individual marketplace ad URL patterns, rejects generic category/home/search pages, and opens the exact ad."
     },
     {
