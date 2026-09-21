@@ -70,13 +70,13 @@ actor MarketplaceSearchService {
             let key = canonicalKey(target)
             guard seen.insert(key).inserted else { continue }
 
-            let title = clean(candidate.title)
+            let rawTitle = clean(candidate.title)
             let context = clean(candidate.context)
-            guard !title.isEmpty else { continue }
+            let title = displayTitle(rawTitle: rawTitle, context: context, query: query)
 
-            let identityText = "\(title) \(target.path)"
+            let identityText = "\(title) \(context) \(target.path)"
             guard matchesQuery(identityText, query: query) else { continue }
-            guard !isAccessoryMismatch(title: title, query: query) else { continue }
+            guard !isAccessoryMismatch(title: "\(title) \(context)", query: query) else { continue }
 
             let price = extractPrice("\(title) \(context)")
 
@@ -114,9 +114,17 @@ actor MarketplaceSearchService {
 
         case "ql":
             guard host == "qatarliving.com" || host.hasSuffix(".qatarliving.com") else { return false }
-            guard path.contains("/classifieds/items/") else { return false }
-            guard !path.contains("/category/"), !path.contains("/profile/") else { return false }
-            return regexMatches(#"-[0-9a-f]{8}/?$"#, in: path)
+
+            if path.contains("/classifieds/items/") {
+                guard !path.contains("/category/"), !path.contains("/profile/") else { return false }
+                return regexMatches(#"-[0-9a-f]{8}/?$"#, in: path)
+            }
+
+            if path.contains("/vehicles/cars/") {
+                return regexMatches(#"/vehicles/cars/[0-9]+_[^/]+/?$"#, in: path)
+            }
+
+            return false
 
         case "qatarsale":
             guard host == "qatarsale.com" || host.hasSuffix(".qatarsale.com") else { return false }
@@ -138,6 +146,32 @@ actor MarketplaceSearchService {
         default:
             return false
         }
+    }
+
+    private static func displayTitle(rawTitle: String, context: String, query: String) -> String {
+        let trimmed = rawTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmed.count >= 4,
+           !trimmed.lowercased().contains("mzadqatar.com"),
+           !trimmed.lowercased().contains("qatarliving.com"),
+           !trimmed.lowercased().contains("dubizzle.qa") {
+            return String(trimmed.prefix(140))
+        }
+
+        let pieces = context
+            .components(separatedBy: CharacterSet(charactersIn: "|•·"))
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        if let best = pieces.first(where: { matchesQuery($0, query: query) }) {
+            return String(best.prefix(140))
+        }
+
+        if !context.isEmpty {
+            return String(context.prefix(140))
+        }
+
+        return query
     }
 
     private static func matchesQuery(_ text: String, query: String) -> Bool {
