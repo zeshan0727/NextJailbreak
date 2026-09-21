@@ -10,6 +10,8 @@ struct ContentView: View {
     @State private var isSearching = false
     @State private var hasSearched = false
     @State private var errorText: String?
+    @State private var showFacebookLogin = false
+    @StateObject private var facebook = FacebookMarketplaceClient.shared
 
     private let service = MarketplaceSearchService()
     private let accent = Color(red: 0.45, green: 0.22, blue: 0.91)
@@ -49,6 +51,7 @@ struct ContentView: View {
                     VStack(spacing: 18) {
                         hero
                         searchCard
+                        facebookConnectionCard
                         sourceStrip
                         resultsHeader
                         results
@@ -61,6 +64,9 @@ struct ContentView: View {
             .toolbar(.hidden, for: .navigationBar)
         }
         .tint(accent)
+        .sheet(isPresented: $showFacebookLogin) {
+            FacebookLoginSheet(client: facebook)
+        }
     }
 
     private var hero: some View {
@@ -119,6 +125,50 @@ struct ContentView: View {
         .padding(17)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 24).stroke(accent.opacity(0.10)))
+    }
+
+    private var facebookConnectionCard: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Color.blue.opacity(0.12))
+                    .frame(width: 42, height: 42)
+                Image(systemName: "f.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.blue)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Facebook Marketplace")
+                    .font(.subheadline.bold())
+                Text(facebook.isConnected
+                     ? "Connected — private session stays on this iPhone"
+                     : "Connect once to include logged-in Marketplace posts")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
+            Spacer()
+
+            Button(facebook.isConnected ? "Manage" : "Connect") {
+                showFacebookLogin = true
+            }
+            .font(.caption.bold())
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                facebook.isConnected ? Color.green.opacity(0.12) : accent.opacity(0.10),
+                in: Capsule()
+            )
+            .foregroundStyle(facebook.isConnected ? Color.green : accent)
+        }
+        .padding(14)
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke((facebook.isConnected ? Color.green : accent).opacity(0.12))
+        )
     }
 
     private var sourceStrip: some View {
@@ -220,7 +270,7 @@ struct ContentView: View {
     private var footer: some View {
         VStack(spacing: 5) {
             Text("TIPA does not host or sell listings.").font(.caption.bold())
-            Text("Search is processed by the Next Jailbreak marketplace backend. Only individual ad URLs are returned; generic category/search pages are discarded. Always verify the live price, seller and availability before buying.")
+            Text("Public marketplaces use the Next Jailbreak search backend. Facebook uses your logged-in session locally on this iPhone; Facebook cookies and credentials are never sent to our backend. Only individual ad URLs are shown.")
                 .font(.caption2).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
         .padding(.top, 8)
@@ -229,14 +279,33 @@ struct ContentView: View {
     private func runSearch() {
         let raw = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard raw.count > 1, !isSearching else { return }
-        isSearching = true; hasSearched = true; errorText = nil; selectedSource = nil
+
+        isSearching = true
+        hasSearched = true
+        errorText = nil
+        selectedSource = nil
+
         Task {
-            let result = await service.search(raw)
+            let backend = await service.search(raw)
+
+            var merged = backend.listings
+            if facebook.isConnected {
+                let facebookListings = await facebook.search(query: backend.query)
+
+                var seen = Set(merged.map { $0.url.absoluteString.lowercased() })
+                for item in facebookListings {
+                    let key = item.url.absoluteString.lowercased()
+                    if seen.insert(key).inserted {
+                        merged.append(item)
+                    }
+                }
+            }
+
             await MainActor.run {
-                resolvedQuery = result.query
-                listings = result.listings
-                sort = result.sort
-                errorText = result.error
+                resolvedQuery = backend.query
+                listings = merged
+                sort = backend.sort
+                errorText = backend.error
                 isSearching = false
             }
         }
