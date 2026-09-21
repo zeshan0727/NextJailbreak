@@ -79,7 +79,7 @@ for i,line in enumerate(lines):
         break
 if not found:
     raise SystemExit('Tweak control Version field missing')
-s='\\n'.join(lines)+'\\n'
+s='\n'.join(lines)+'\n'
 p.write_text(s)
 if 'Version: 1.0.16' not in p.read_text():
     raise SystemExit('Unable to promote tweak baseline to 1.0.16')
