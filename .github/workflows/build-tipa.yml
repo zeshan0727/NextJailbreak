@@ -124,7 +124,7 @@ jobs:
               "url": f"https://nextjailbreak.com/transfer/files/TIPA/{version}/TIPA-{version}.tipa",
               "sha256": sha,
               "sizeBytes": tipa_path.stat().st_size,
-              "notes": "Category-aware Qatar marketplace search. Searches broad marketplace domains, supports direct Qatar Living vehicle ads as well as classified items, uses rendered Brave results, preserves model tokens such as iPhone X, rejects generic category/home/search pages, and opens only exact ads."
+              "notes": "Backend-powered Qatar marketplace search plus optional authenticated Facebook Marketplace. Facebook login/session remains on-device in persistent WKWebView storage; exact /marketplace/item/ links are merged with backend results. Credentials and Facebook cookies are not sent to the Next Jailbreak backend."
           }
 
           data["files"] = [entry] + files
