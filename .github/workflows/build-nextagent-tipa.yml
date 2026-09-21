@@ -1911,5 +1911,5 @@ jobs:
           git add -f projects/NextAgent/build-output/
           git add -f transfer/index.json transfer/files/NextAgent/0.7.16/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.7.16 system HUD tweak + full-screen automation [skip ci]"
+          git commit -m "Build Next Agent 0.7.16 system HUD tweak + full-screen automation"
           git push
