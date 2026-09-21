@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *)hidSwipeX1:(double)x1 y1:(double)y1 x2:(double)x2 y2:(double)y2 duration:(double)duration NS_SWIFT_NAME(hidSwipe(x1:y1:x2:y2:duration:));
 + (NSDictionary *)hidPressKey:(NSString *)key NS_SWIFT_NAME(hidPressKey(_:));
 + (NSDictionary *)hidPasteShortcut NS_SWIFT_NAME(hidPasteShortcut());
++ (NSDictionary *)hidTypeText:(NSString *)text NS_SWIFT_NAME(hidTypeText(_:));
 @end
 
 NS_ASSUME_NONNULL_END
