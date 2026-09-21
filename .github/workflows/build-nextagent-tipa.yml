@@ -1570,6 +1570,75 @@ jobs:
           /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.8-source.zip" NextAgent_v0.7.8
           cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.8.plist"
 
+      - name: Publish v0.7.8 to NS Transfer
+        run: |
+          set -euo pipefail
+          DEST="$GITHUB_WORKSPACE/transfer/files/NextAgent/0.7.8"
+          mkdir -p "$DEST"
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.8.tipa" "$DEST/NextAgent-0.7.8.tipa"
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.8-roothide.deb" "$DEST/NextAgentDaemon-0.7.8-RootHide.deb"
+
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          root = Path(os.environ["GITHUB_WORKSPACE"])
+          index_path = root / "transfer/index.json"
+          tipa_path = root / "transfer/files/NextAgent/0.7.8/NextAgent-0.7.8.tipa"
+          deb_path = root / "transfer/files/NextAgent/0.7.8/NextAgentDaemon-0.7.8-RootHide.deb"
+
+          tipa_sha = (root / "projects/NextAgent/build-output/NextAgent-0.7.8.sha256").read_text().strip()
+          deb_sha = (root / "projects/NextAgent/build-output/NextAgentDaemon-0.7.8-roothide.sha256").read_text().strip()
+
+          data = json.loads(index_path.read_text())
+          files = data.get("files", [])
+          files = [
+              item for item in files
+              if not str(item.get("id", "")).startswith("next-agent-current-")
+              and not str(item.get("id", "")).startswith("next-agent-daemon-current-")
+          ]
+
+          app_entry = {
+              "id": "next-agent-current-0.7.8-roothide",
+              "name": "Next Agent 0.7.8 — SpringBoard OCR + Enforced Split",
+              "fileName": "NextAgent-0.7.8.tipa",
+              "type": "tipa",
+              "platform": "TrollStore / RootHide / iOS 16+",
+              "version": "0.7.8 (16)",
+              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.8/NextAgent-0.7.8.tipa",
+              "sha256": tipa_sha,
+              "sizeBytes": tipa_path.stat().st_size,
+              "notes": "Next Agent 0.7.8 adds SpringBoard-native Vision OCR, a real OCR self-test, split-workspace capability validation, and enforced 50/50 split routing for normal interactive app opens so Next Agent remains foreground while the target app is hosted alongside it."
+          }
+          daemon_entry = {
+              "id": "next-agent-daemon-current-0.7.8-roothide",
+              "name": "Next Agent Daemon 0.7.8 — RootHide",
+              "fileName": "NextAgentDaemon-0.7.8-RootHide.deb",
+              "type": "deb",
+              "platform": "RootHide / iphoneos-arm64e",
+              "version": "0.7.8",
+              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.8/NextAgentDaemon-0.7.8-RootHide.deb",
+              "sha256": deb_sha,
+              "sizeBytes": deb_path.stat().st_size,
+              "notes": "Matching RootHide helper for Next Agent 0.7.8. Provides SpringBoard-native Vision OCR, direct capture transport, scene-host split-workspace support, HID input and root helper services."
+          }
+
+          data["files"] = [app_entry, daemon_entry] + files
+          data["updatedAt"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+          index_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+          PY
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path("transfer/index.json").read_text())
+          assert d["files"][0]["id"] == "next-agent-current-0.7.8-roothide"
+          assert d["files"][1]["id"] == "next-agent-daemon-current-0.7.8-roothide"
+          assert Path("transfer/files/NextAgent/0.7.8/NextAgent-0.7.8.tipa").is_file()
+          assert Path("transfer/files/NextAgent/0.7.8/NextAgentDaemon-0.7.8-RootHide.deb").is_file()
+          PY
+
       - name: Upload v0.7.8 SpringBoard OCR + enforced split build
         uses: actions/upload-artifact@v4
         with:
@@ -1594,6 +1663,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
+          git add -f transfer/index.json transfer/files/NextAgent/0.7.8/
           git diff --cached --quiet && exit 0
           git commit -m "Build Next Agent 0.7.8 SpringBoard OCR + enforced split [skip ci]"
           git push
