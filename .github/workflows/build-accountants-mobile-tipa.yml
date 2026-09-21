@@ -1,0 +1,71 @@
+name: Build Accountants Mobile TIPA
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "AccountantsMobile/**"
+      - ".github/workflows/build-accountants-mobile-tipa.yml"
+  push:
+    paths:
+      - "AccountantsMobile/**"
+      - ".github/workflows/build-accountants-mobile-tipa.yml"
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: AccountantsMobile
+        run: xcodegen generate
+
+      - name: Resolve Swift packages
+        working-directory: AccountantsMobile
+        run: |
+          xcodebuild \
+            -project AccountantsMobile.xcodeproj \
+            -scheme AccountantsMobile \
+            -resolvePackageDependencies
+
+      - name: Build unsigned iPhone app
+        working-directory: AccountantsMobile
+        run: |
+          xcodebuild \
+            -project AccountantsMobile.xcodeproj \
+            -scheme AccountantsMobile \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package TrollStore TIPA
+        working-directory: AccountantsMobile
+        run: |
+          APP_PATH="$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP_PATH"
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload Accountants-Mobile-0.1.0.tipa
+          shasum -a 256 Accountants-Mobile-0.1.0.tipa > Accountants-Mobile-0.1.0.sha256
+
+      - name: Upload TIPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Accountants-Mobile-v0.1.0-TrollStore
+          path: |
+            AccountantsMobile/Accountants-Mobile-0.1.0.tipa
+            AccountantsMobile/Accountants-Mobile-0.1.0.sha256
+          if-no-files-found: error
