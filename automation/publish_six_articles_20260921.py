@@ -13,7 +13,9 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 from automation import publish_verified_batch_20260916 as batch
 from automation import sync_editorial_indexes
-from automation.ios_repo_news import validate_article
+from automation.ios_repo_news import validate_article, VERIFIER_INSTRUCTIONS
+from automation.openai_api import structured_response
+from automation.schemas import VERDICT_SCHEMA
 from automation.source_visuals import acquire_unique_source_visual
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +29,54 @@ original_build = batch.build_source
 original_render = batch._render_article
 original_slug = batch._slug
 original_generate = batch.generate_strict
+
+METADATA = {
+    'Nugget': 'Nugget 7.4 adds PosterBoard configuration options for iOS 26.4+, with a full-device backup requirement, stability limits and no iOS 27 support.',
+    'SideStore': 'SideStore 0.7.0-alpha addresses HTTP 503 sign-in failures after Apple server changes. Review the affected versions, build date and alpha limitations.',
+    'SideStore Nightly': 'Explore the September 20 SideStore 0.7.0 nightly: dual pairing files, protocol preferences, revised prompts and experimental hotswap.',
+    'LiveContainer': 'Compare LiveContainer 3.8.0 with the September 18 nightly, including storage tools, sharing, multitasking and exact installation requirements.',
+    'Dopamine': 'Dopamine 3.0.9 fixes Home Screen cleanup during jailbreak removal. Learn the iOS ranges and the different TrollStore and non-TrollStore removal flows.',
+    'palera1n': 'Explore palera1n 3.0.0 beta 2: GUI controls for DFU and PongoOS, quick-mode fixes, macOS improvements, official downloads and hardware limits.',
+}
+
+
+def polish(article, source):
+    article = json.loads(json.dumps(article))
+    article['meta_description'] = METADATA[source['name']]
+    article['social_post'] = METADATA[source['name']]
+    # Remove drafting-context commentary from reader-facing text.
+    omit_starts = (
+        'This article’s publication date is not provided',
+        'The original source material does not provide this article',
+        'There is also an important publication-date distinction.',
+    )
+    for section in article['sections']:
+        section['paragraphs'] = [p for p in section['paragraphs'] if not p.startswith(omit_starts)]
+        section['bullets'] = [p for p in section['bullets'] if not p.startswith('Article publication date:')]
+    if source['name'] == 'Nugget':
+        section = article['sections'][-1]
+        section['paragraphs'][0] = 'Use the official project’s current installation instructions and release files. Nugget 7.4 was released on September 18, 2026, following version 7.3.2 on August 24. Match the instructions to the selected release and the device’s iOS version before applying a customization.'
+        article['faq'][0]['answer'] = 'Nugget 7.4 was released on September 18, 2026. The preceding 7.3.2 release was published on August 24, 2026.'
+    if source['name'] == 'palera1n':
+        article['sections'][0]['paragraphs'][1] = 'Beta 2 follows v3.0.0-beta.1, which was published on July 26, 2026. The August 3 beta is a subsequent testing release; neither its version number nor its later date changes that pre-release designation.'
+    def clean(v):
+        if isinstance(v, str):
+            for a,b in [('supplied source material','official documentation'),('supplied release material','official release notes'),('supplied release notes','official release notes'),('supplied source','official source'),('supplied material','release material'),('supplied sources','official sources')]:
+                v=v.replace(a,b)
+            return v
+        if isinstance(v, list): return [clean(x) for x in v]
+        if isinstance(v, dict): return {k:clean(x) for k,x in v.items()}
+        return v
+    article=clean(article)
+    assert not validate_article(article, source, batch.CONFIG)
+    verdict, metadata = structured_response(
+        model='gpt-5.6-luna', instructions=VERIFIER_INSTRUCTIONS,
+        input_payload={'ORIGINAL_SOURCE_MATERIAL':source['source_text'],'article':article},
+        schema_name='nextjailbreak_batch_final_review',schema=VERDICT_SCHEMA,max_output_tokens=1800)
+    if verdict.get('approved') is not True or verdict.get('issues') or verdict.get('unsupported_claims'):
+        raise ValueError('Final editorial verification failed: '+json.dumps(verdict))
+    (REVIEW / f"{BY_NAME[source['name']]['slug']}-final.json").write_text(json.dumps({'article':article,'verdict':verdict,'api':metadata},indent=2))
+    return article
 
 
 def slug(value):
@@ -82,6 +132,7 @@ def generate(source):
 
 def render(article, source, media, site, now, target_path):
     target = BY_NAME[source["name"]]
+    article = polish(article, source)
     # Two distinct authentic source images; normal visual registry rules apply.
     detail = acquire_unique_source_visual(
         source_urls=source["source_urls"], slug=target["slug"] + "-detail",
@@ -183,6 +234,15 @@ def main():
         if target.get("article_description"): entry["description"] = target["article_description"]
         if target.get("detail_media"): entry["additional_media"] = [target["detail_media"]]
     batch.AUDIT_PATH.write_text(json.dumps(audit, indent=2, ensure_ascii=False) + "\n")
+    # Older guide templates lack the supported dynamic Jailbreak insertion slot.
+    # Add it after the existing featured guide while preserving all static cards.
+    for path in sync_editorial_indexes.TUTORIALS:
+        text = path.read_text()
+        if sync_editorial_indexes.JAIL_START not in text:
+            section = text.index('id="jailbreak-guides"')
+            end = text.index('</article>', section) + len('</article>')
+            text = text[:end] + '\n' + sync_editorial_indexes.JAIL_START + '\n' + sync_editorial_indexes.JAIL_END + text[end:]
+            path.write_text(text)
     sync_editorial_indexes.main()
     # Render feeds again with corrected categories and descriptions.
     (ROOT / "feed.xml").write_text(batch._render_feed(audit["entries"], batch.SITE))
