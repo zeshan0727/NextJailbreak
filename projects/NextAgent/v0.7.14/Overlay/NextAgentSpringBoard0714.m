@@ -511,6 +511,8 @@ static uint64_t NAHUDPackedState(NSString *mode, NSString *message, CGFloat prog
     else if ([lower containsString:@"planning"]) detailCode = 5;
     else if ([lower containsString:@"resum"] || [lower containsString:@"waiting"]) detailCode = 6;
     else if ([lower containsString:@"checking"]) detailCode = 7;
+    else if ([lower containsString:@"thinking"]) detailCode = 8;
+    else if ([lower containsString:@"return"]) detailCode = 9;
 
     uint64_t progressCode = (uint64_t)llround(MAX(0.0, MIN(1.0, progress)) * 1000.0);
     return (modeCode << 56) | (detailCode << 48) | progressCode;
@@ -2686,8 +2688,6 @@ static void NAStartDirectBridge(void) {
         kCFRunLoopCommonModes
     );
 }
-
-static const char *NAFallbackHUDGenerationMarker = "foreground_app_hud_v0714";
 
 __attribute__((constructor))
 static void NAOverlayInit(void) {
