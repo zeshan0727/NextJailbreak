@@ -1,0 +1,60 @@
+name: Prepare six verified articles for September 21
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'automation/article_batch_20260921.json'
+      - 'automation/publish_six_articles_20260921.py'
+      - '.github/workflows/publish-six-articles-20260921.yml'
+permissions:
+  contents: write
+concurrency:
+  group: nextjailbreak-six-articles-20260921
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Check batch publisher
+        run: |
+          python3 -m py_compile automation/publish_six_articles_20260921.py
+          python3 -m unittest automation.tests.test_source_visuals -v
+      - name: Generate and validate all six articles
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5.6-luna
+        run: |
+          test -n "${OPENAI_API_KEY:-}"
+          set -o pipefail
+          python3 -u -m automation.publish_six_articles_20260921 | tee /tmp/six-articles-20260921.log
+      - name: Save complete reviewed batch to staging branch
+        run: |
+          git config user.name "nextsolution-publisher[bot]"
+          git config user.email "nextsolution-publisher[bot]@users.noreply.github.com"
+          git restore automation/batch-20260916-result.json
+          git add automation/published-articles.json automation/source-visual-registry.json automation/batch-20260921-result.json index.html tutorials.html tutorials/index.html feed.xml sitemap.xml assets/articles/source-media
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          for target in json.loads(Path('automation/article_batch_20260921.json').read_text()):
+              subprocess.run(['git','add',target['slug']+'/index.html'],check=True)
+          PY
+          git diff --cached --check
+          git commit -m "Prepare six source-verified articles with original visuals and SEO"
+          git push origin HEAD:refs/heads/editorial/six-articles-20260921
+      - name: Preserve review evidence and log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: six-articles-20260921-review
+          path: |
+            /tmp/six-articles-20260921.log
+            automation/out/batch-20260921/
+            automation/batch-20260921-result.json
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,0 +1,51 @@
+[
+  {
+    "name": "Nugget", "version": "7.4", "package_id": "nugget", "slug": "nugget-7-4-posterboard-ios-26-4",
+    "title": "Nugget 7.4: PosterBoard Options for iOS 26.4+ and Current Limits",
+    "description": "Nugget desktop customization utility; a release explainer, not a jailbreak announcement.",
+    "category": {"id": "visual-customization", "label": "Visual Customization"},
+    "urls": ["https://github.com/leminlimez/Nugget/releases/tag/v7.4", "https://github.com/leminlimez/Nugget", "https://github.com/leminlimez/Nugget/releases/tag/v7.3.2"],
+    "scope_note": "Explain the September 18 release. Cover configurations versus descriptors, whole-device backup requirement, acknowledged instability, pymobiledevice3 backend changes and explicit lack of iOS 27 support. Do not suggest universal device success, an iOS 27 workaround, or that this is a full jailbreak. Separate existing documented features from additions in 7.4. Do not invent installation steps or guaranteed recovery."
+  },
+  {
+    "name": "SideStore", "version": "0.7.0-alpha", "package_id": "sidestore-signin-503", "slug": "sidestore-0-7-0-alpha-sign-in-error-503",
+    "title": "SideStore 0.7.0-alpha Addresses Sign-In Error 503",
+    "description": "SideStore alpha release explainer focused on the documented Apple-server sign-in change.",
+    "category": {"id": "system-utilities", "label": "System & Utilities"},
+    "urls": ["https://github.com/SideStore/SideStore/releases/tag/0.7.0-alpha", "https://sidestore.io/", "https://docs.sidestore.io/", "https://github.com/SideStore/SideStore"],
+    "scope_note": "Focus exclusively on the temporary alpha that addresses sign-in status 503 after Apple server changes broke 0.6.4 and earlier. The release page date is September 15, while the embedded build timestamp is September 11; distinguish them. Explain scope, official installation documentation and what the release does not establish. Label alpha throughout even if GitHub calls it Latest. Do not claim it fixes every sign-in, refresh, or pairing problem. Leave nightly pairing details to the separate September 20 article."
+  },
+  {
+    "name": "SideStore Nightly", "version": "0.7.0", "package_id": "sidestore-nightly-pairing", "slug": "sidestore-nightly-2026-09-20-pairing-update",
+    "title": "SideStore 0.7.0 Nightly: September 20 Pairing Changes Explained",
+    "description": "Experimental SideStore nightly snapshot from September 20, 2026, focused on dual pairing support and pairing-flow refinements.",
+    "category": {"id": "system-utilities", "label": "System & Utilities"},
+    "urls": ["https://github.com/SideStore/SideStore/releases/tag/nightly", "https://github.com/SideStore/SideStore/commit/0dd743f75afc358b0ba4a002feb5f19474492371", "https://docs.sidestore.io/", "https://github.com/SideStore/SideStore"],
+    "required_source_text": "0.7.0-20260920.1479+0dd743f7",
+    "scope_note": "This is the dated experimental nightly snapshot 0.7.0-20260920.1479+0dd743f7 built September 20 2026, NOT a stable 0.7.0 release. The rolling nightly URL can change. Focus on dual pairing-file support, preferred-protocol handling, pairing prompts, pairing file manager, session-level delegate fix, and moving hotswap into experimental, only to the extent documented. Explain what changelog wording means without inferring broader platform support, automatic seamless switching, or guaranteed fixes. Keep the alpha 503 topic to a brief related-reference distinction; do not duplicate its article."
+  },
+  {
+    "name": "LiveContainer", "version": "3.8.0", "package_id": "livecontainer-stable-nightly", "slug": "livecontainer-3-8-0-stable-vs-nightly",
+    "title": "LiveContainer 3.8.0 vs September 18 Nightly: Features and Requirements",
+    "description": "Compare the documented stable LiveContainer release with the dated experimental nightly snapshot.",
+    "category": {"id": "system-utilities", "label": "System & Utilities"},
+    "urls": ["https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0", "https://github.com/LiveContainer/LiveContainer/releases/tag/nightly", "https://livecontainer.github.io/", "https://github.com/LiveContainer/LiveContainer"],
+    "scope_note": "Stable 3.8.0 was released July 17, 2026; the September 18 nightly is a pre-release with a litehook arm64e_x1 DSC-suffix update. Do not report July features as newly released in September. Explain stable storage management, share extension, multitasking settings, tweak toggles and StosDebug support using release evidence. Preserve exact standalone requirement SideStore 0.6.2+ OR AltStore 2.2.1+ and bundled installation via Impactor or iloader; never imply all apps work, a full jailbreak, or guaranteed JIT. Explain release channels and tradeoffs without claiming benchmarked superiority."
+  },
+  {
+    "name": "Dopamine", "version": "3.0.9", "package_id": "dopamine-removal-309", "slug": "dopamine-3-0-9-jailbreak-removal-fixes",
+    "title": "Dopamine 3.0.9: Home Screen Cleanup and Jailbreak Removal Explained",
+    "description": "A focused explainer of Dopamine 3.0.9 cleanup fixes and the removal-flow changes introduced in 3.0.8.",
+    "category": {"id": "jailbreak", "label": "Jailbreak"},
+    "urls": ["https://github.com/opa334/Dopamine/releases/tag/3.0.9", "https://github.com/opa334/Dopamine/releases/tag/3.0.8", "https://github.com/opa334/Dopamine/releases/tag/3.0.7", "https://github.com/opa334/Dopamine"],
+    "scope_note": "This is an August 22, 2026 release explainer, not a new September release or general installation tutorial. 3.0.9 extends leftover jailbreak-app Home Screen cleanup to iOS 18.0-18.3.1; 3.0.8 covered iOS 18.4+ and altered Remove Jailbreak availability. Explain exact documented removal flow and TrollStore/non-TrollStore distinction. Hide Jailbreak is not uninstalling and does not guarantee app-detection bypass. Briefly contextualize the 3.0.7 dyld.old/kernel-panic fix with accurate attribution. Do not broaden device/firmware support, promise no data loss, or duplicate the site's general Dopamine guides."
+  },
+  {
+    "name": "palera1n", "version": "3.0.0", "package_id": "palera1n-gui-beta2", "slug": "palera1n-3-0-0-beta-2-gui-dfu-fixes",
+    "title": "palera1n 3.0.0 Beta 2: GUI Changes and DFU Fixes Explained",
+    "description": "An explainer of the August beta release, with documented GUI, DFU and PongoOS changes and platform limits.",
+    "category": {"id": "jailbreak", "label": "Jailbreak"},
+    "urls": ["https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2", "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.1", "https://palera.in/", "https://github.com/palera1n/palera1n"],
+    "scope_note": "Cover v3.0.0-beta.2 released August 3 2026. Always label beta; 3.0.0 is not a stable release claim. Explain interface starting from DFU/PongoOS, quick-mode DFU helper correction, macOS menu/CMD+Q, device replug handling and other directly documented fixes. CLI flags are developer-level context, not blanket advice to enable them. Explain listed macOS/Linux/iOS artifacts without inventing native Windows support or claiming modern iPhone support beyond the official hardware scope. Avoid claiming new iOS 27 support or guaranteed reliability."
+  }
+]
