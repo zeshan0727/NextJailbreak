@@ -1120,6 +1120,7 @@ static NSDictionary *NAReadJSON(NSString *path) {
         @"window_level": @(self.window ? self.window.windowLevel : 0.0),
         @"visible": @(self.visible),
         @"system_hud_available": @(self.systemHUDAvailable),
+        @"status_surface_generation": @"system_hud_v0712",
         @"system_hud_visible": @(self.systemHUDVisible),
         @"status_surface": self.systemHUDVisible ? @"springboard_hud" : (self.visible ? @"window_fallback" : @"none"),
         @"protected_pid": @(NAProtectedPID),
@@ -2408,8 +2409,6 @@ static void NAStartDirectBridge(void) {
         kCFRunLoopCommonModes
     );
 }
-
-static const char *NAStatusSurfaceGeneration = "system_hud_v0712";
 
 __attribute__((constructor))
 static void NAOverlayInit(void) {
