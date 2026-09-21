@@ -213,33 +213,47 @@ v05 = v05.replace(helper_marker, bridge_helper + helper_marker, 1)
 
 # ----- all screen-driven taps use the same SpringBoard HID bridge -----
 old_v07_tap = '''        let match = matches[occurrence - 1]
-        let argument = String(format: "%.6f,%.6f", match.centerX, match.centerY)
+        guard let x = match["center_x"] as? NSNumber,
+              let y = match["center_y"] as? NSNumber else {
+            return ToolResult(success: false, output: "OCR match did not include usable coordinates")
+        }
+
+        let argument = String(format: "%.6f,%.6f", x.doubleValue, y.doubleValue)
         let result = RootDaemonClient.request(action: "tap", argument: argument)
         if !result.success { return result }
+
         return v07JSON([
             "success": true,
-            "tapped": match.dictionary,
-            "occurrence": occurrence
+            "tapped": match,
+            "occurrence": occurrence,
+            "source": payload["source"] ?? "springboard_vision"
         ])
 '''
 new_v07_tap = '''        let match = matches[occurrence - 1]
+        guard let x = match["center_x"] as? NSNumber,
+              let y = match["center_y"] as? NSNumber else {
+            return ToolResult(success: false, output: "OCR match did not include usable coordinates")
+        }
+
         let raw = NAScreenBridgeClient.hidTap(
-            x: match.centerX,
-            y: match.centerY,
+            x: x.doubleValue,
+            y: y.doubleValue,
             count: 1
         )
         guard (raw["success"] as? Bool) == true else {
             return ToolResult(success: false, output: String(describing: raw))
         }
+
         return v07JSON([
             "success": true,
-            "tapped": match.dictionary,
+            "tapped": match,
             "occurrence": occurrence,
+            "source": payload["source"] ?? "springboard_vision",
             "input_path": "springboard_iohid_v0711"
         ])
 '''
 if old_v07_tap not in v07:
-    raise SystemExit("v0.7.11 v07 tap_text marker missing")
+    raise SystemExit("v0.7.11 transformed v07 tap_text marker missing")
 v07 = v07.replace(old_v07_tap, new_v07_tap, 1)
 
 # ----- self-test: distinguish symbol creation from the real SpringBoard HID transport -----
