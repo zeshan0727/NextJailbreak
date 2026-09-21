@@ -28,6 +28,7 @@ on:
       - "projects/NextAgent/v0.7.12/**"
       - "projects/NextAgent/v0.7.13/**"
       - "projects/NextAgent/v0.7.14/**"
+      - "projects/NextAgent/v0.7.15/**"
       - "projects/NextAgent/daemon/**"
       - ".github/workflows/build-nextagent-tipa.yml"
 
@@ -1184,6 +1185,22 @@ jobs:
           grep -q 'springboard_iohid_v0714' NextAgent/V07Tools.swift
           grep -q 'MARKETING_VERSION: 0.7.14' project.yml
 
+      - name: Apply v0.7.15 HUD probe + scene-manager recovery
+        working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
+        run: |
+          set -euo pipefail
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/NAScreenBridgeClient.h" NextAgent/NAScreenBridgeClient.h
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/NAScreenBridgeClient.m" NextAgent/NAScreenBridgeClient.m
+          python3 "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/app_patch.py"
+          swiftc -frontend -parse NextAgent/NextAgent.swift
+          swiftc -frontend -parse NextAgent/V071Router.swift
+          swiftc -frontend -parse NextAgent/V07Tools.swift
+          swiftc -frontend -parse NextAgent/ModernUI.swift
+          grep -q '0.7.15-hudprobe-scenes9' NextAgent/NextAgent.swift
+          grep -q 'HUD ready' NextAgent/NextAgent.swift
+          grep -q 'springboard_iohid_v0715' NextAgent/V07Tools.swift
+          grep -q 'MARKETING_VERSION: 0.7.15' project.yml
+
       - name: Force and verify TrollStore app entitlements
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
@@ -1255,7 +1272,7 @@ jobs:
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: xcodegen generate
 
-      - name: Restore v0.7.14 product metadata after XcodeGen
+      - name: Restore v0.7.15 product metadata after XcodeGen
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -euo pipefail
@@ -1265,15 +1282,15 @@ jobs:
 
           p = Path("NextAgent/Info.plist")
           d = plistlib.loads(p.read_bytes())
-          d["CFBundleShortVersionString"] = "0.7.14"
-          d["CFBundleVersion"] = "22"
+          d["CFBundleShortVersionString"] = "0.7.15"
+          d["CFBundleVersion"] = "23"
           d["CFBundleDisplayName"] = "Next Agent"
           d["UIBackgroundModes"] = ["audio"]
           p.write_bytes(plistlib.dumps(d))
           PY
           /usr/bin/plutil -lint NextAgent/Info.plist
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.14'
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '22'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' NextAgent/Info.plist | grep -qx '0.7.15'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' NextAgent/Info.plist | grep -qx '23'
           /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes:0' NextAgent/Info.plist | grep -qx 'audio'
 
       - name: Restore TrollStore entitlements after XcodeGen
@@ -1319,7 +1336,7 @@ jobs:
           from pathlib import Path
 
           source = Path("projects/NextAgent/daemon/nextagentd.c").read_text()
-          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.14"', 1)
+          source = source.replace('#define NEXTAGENTD_VERSION "0.4.0"', '#define NEXTAGENTD_VERSION "0.7.15"', 1)
 
           marker = 'static char *action_ping(void) {'
           if marker not in source:
@@ -1370,10 +1387,10 @@ jobs:
           if route not in source:
               raise SystemExit("daemon route marker missing")
           source = source.replace(route, extra, 1)
-          Path("/tmp/nextagentd-v0714.c").write_text(source)
+          Path("/tmp/nextagentd-v0715.c").write_text(source)
           PY
 
-          cat > /tmp/nextagentd-v0714.entitlements <<'EOF'
+          cat > /tmp/nextagentd-v0715.entitlements <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0"><dict>
@@ -1398,7 +1415,7 @@ jobs:
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.3" \
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.4" \
             -Os -Wall -Wextra \
-            -c /tmp/nextagentd-v0714.c \
+            -c /tmp/nextagentd-v0715.c \
             -o /tmp/nextagentd-main.o
 
           xcrun --sdk iphoneos clang \
@@ -1432,12 +1449,12 @@ jobs:
             -framework CoreFoundation \
             -o /tmp/nextagentd
 
-          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v0714.entitlements /tmp/nextagentd
+          /usr/bin/codesign --force --sign - --entitlements /tmp/nextagentd-v0715.entitlements /tmp/nextagentd
           file /tmp/nextagentd
           /usr/bin/codesign -d --entitlements :- /tmp/nextagentd > /tmp/nextagentd-entitlements.plist 2>&1 || true
-          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v0714.entitlements
+          grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v0715.entitlements
 
-      - name: Build v0.7.14 SpringBoard bridge + foreground-app HUD fallback
+      - name: Build v0.7.15 HUD probe + scene-manager recovery
         run: |
           set -euo pipefail
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
@@ -1449,7 +1466,7 @@ jobs:
             -fobjc-arc \
             -dynamiclib \
             -Os -Wall -Wextra \
-            "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.14/Overlay/NextAgentSpringBoard0714.m" \
+            "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/Overlay/NextAgentSpringBoard0715.m" \
             -framework UIKit \
             -framework Foundation \
             -framework CoreFoundation \
@@ -1459,16 +1476,15 @@ jobs:
             -framework CoreVideo \
             -framework Vision \
             -framework IOKit \
-            -o /tmp/NextAgentSpringBoard0714.dylib
-          ldid -S /tmp/NextAgentSpringBoard0714.dylib
-          file /tmp/NextAgentSpringBoard0714.dylib | grep -q arm64e
-          strings -a /tmp/NextAgentSpringBoard0714.dylib | grep -q 'uk.zeshanbarvi.nextagent.bridge.v0714'
-          strings -a /tmp/NextAgentSpringBoard0714.dylib | grep -q '0.7.14-springboard-vision1'
-          strings -a /tmp/NextAgentSpringBoard0714.dylib | grep -q 'springboard_iohid_v0714'
-          strings -a /tmp/NextAgentSpringBoard0714.dylib | grep -q 'native_sbhud_v0714'
-          strings -a /tmp/NextAgentSpringBoard0714.dylib | grep -q 'foreground_hud_fallback_expected'
-          strings -a /tmp/NextAgentSpringBoard0714.dylib | grep -q 'RBSProcessIdentifier'
-          strings -a /tmp/NextAgentSpringBoard0714.dylib | grep -q 'initWithBundleIdentifier:pid:flags:reason:name:withHandler:acquire:'
+            -o /tmp/NextAgentSpringBoard0715.dylib
+          ldid -S /tmp/NextAgentSpringBoard0715.dylib
+          file /tmp/NextAgentSpringBoard0715.dylib | grep -q arm64e
+          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'uk.zeshanbarvi.nextagent.bridge.v0715'
+          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q '0.7.15-springboard-vision1'
+          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'springboard_iohid_v0715'
+          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'SBSceneManagerCoordinator'
+          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'existingSceneHandleForScene:'
+          strings -a /tmp/NextAgentSpringBoard0715.dylib | grep -q 'foreground_fallback'
 
           xcrun --sdk iphoneos clang \
             -arch arm64e \
@@ -1477,16 +1493,17 @@ jobs:
             -fobjc-arc \
             -dynamiclib \
             -Os -Wall -Wextra \
-            "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.14/Overlay/NextAgentForegroundHUD0714.m" \
+            "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.15/Overlay/NextAgentForegroundHUD0715.m" \
             -framework UIKit \
             -framework Foundation \
             -framework QuartzCore \
             -framework CoreGraphics \
-            -o /tmp/NextAgentForegroundHUD0714.dylib
-          ldid -S /tmp/NextAgentForegroundHUD0714.dylib
-          file /tmp/NextAgentForegroundHUD0714.dylib | grep -q arm64e
-          strings -a /tmp/NextAgentForegroundHUD0714.dylib | grep -q 'NAForegroundHUD'
-          strings -a /tmp/NextAgentForegroundHUD0714.dylib | grep -q 'uk.zeshanbarvi.nextagent.hud.state'
+            -o /tmp/NextAgentForegroundHUD0715.dylib
+          ldid -S /tmp/NextAgentForegroundHUD0715.dylib
+          file /tmp/NextAgentForegroundHUD0715.dylib | grep -q arm64e
+          strings -a /tmp/NextAgentForegroundHUD0715.dylib | grep -q 'NAForegroundHUD'
+          strings -a /tmp/NextAgentForegroundHUD0715.dylib | grep -q 'HUD ready'
+          strings -a /tmp/NextAgentForegroundHUD0715.dylib | grep -q 'uk.zeshanbarvi.nextagent'
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -1513,11 +1530,11 @@ jobs:
           mkdir -p package/Payload
           cp -R "$APP" package/Payload/
           mkdir -p "$GITHUB_WORKSPACE/projects/NextAgent/build-output"
-          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.14.tipa" Payload)
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.14.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.14.sha256"
-          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.14.log"
-          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.14.plist"
-          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.14.tipa"
+          (cd package && /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.15.tipa" Payload)
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.15.tipa" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.15.sha256"
+          cp /tmp/nextagent-xcodebuild-v030.log "$GITHUB_WORKSPACE/projects/NextAgent/build-output/xcodebuild-v0.7.15.log"
+          cp /tmp/nextagent-final-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/app-entitlements-v0.7.15.plist"
+          unzip -t "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.15.tipa"
 
       - name: Package rootless daemon DEB
         run: |
@@ -1572,25 +1589,25 @@ jobs:
           mkdir -p "$P/DEBIAN" "$P/usr/local/libexec" "$P/Library/LaunchDaemons" "$P/usr/lib/TweakInject"
           cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
           cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.roothide.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
-          cp /tmp/NextAgentSpringBoard0714.dylib "$P/usr/lib/TweakInject/NextAgentSpringBoard0714.dylib"
-          cp projects/NextAgent/v0.7.14/Overlay/NextAgentSpringBoard0714.plist "$P/usr/lib/TweakInject/NextAgentSpringBoard0714.plist"
-          cp /tmp/NextAgentForegroundHUD0714.dylib "$P/usr/lib/TweakInject/NextAgentForegroundHUD0714.dylib"
-          cp projects/NextAgent/v0.7.14/Overlay/NextAgentForegroundHUD0714.plist "$P/usr/lib/TweakInject/NextAgentForegroundHUD0714.plist"
-          chmod 0755 "$P/usr/lib/TweakInject/NextAgentSpringBoard0714.dylib" "$P/usr/lib/TweakInject/NextAgentForegroundHUD0714.dylib"
-          chmod 0644 "$P/usr/lib/TweakInject/NextAgentSpringBoard0714.plist" "$P/usr/lib/TweakInject/NextAgentForegroundHUD0714.plist"
+          cp /tmp/NextAgentSpringBoard0715.dylib "$P/usr/lib/TweakInject/NextAgentSpringBoard0715.dylib"
+          cp projects/NextAgent/v0.7.15/Overlay/NextAgentSpringBoard0715.plist "$P/usr/lib/TweakInject/NextAgentSpringBoard0715.plist"
+          cp /tmp/NextAgentForegroundHUD0715.dylib "$P/usr/lib/TweakInject/NextAgentForegroundHUD0715.dylib"
+          cp projects/NextAgent/v0.7.15/Overlay/NextAgentForegroundHUD0715.plist "$P/usr/lib/TweakInject/NextAgentForegroundHUD0715.plist"
+          chmod 0755 "$P/usr/lib/TweakInject/NextAgentSpringBoard0715.dylib" "$P/usr/lib/TweakInject/NextAgentForegroundHUD0715.dylib"
+          chmod 0644 "$P/usr/lib/TweakInject/NextAgentSpringBoard0715.plist" "$P/usr/lib/TweakInject/NextAgentForegroundHUD0715.plist"
           mkdir -p "$P/usr/local/share/nextagent"
-          cp /tmp/nextagentd-v0714.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
+          cp /tmp/nextagentd-v0715.entitlements "$P/usr/local/share/nextagent/nextagentd.entitlements"
           chmod 0755 "$P/usr/local/libexec/nextagentd"
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.7.14
+          Version: 0.7.15
           Architecture: iphoneos-arm64e
           Section: Utilities
           Priority: optional
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper for Next Agent 0.7.14 with dual status HUD (native SpringBoard plus foreground-app fallback), persistent HUD/background diagnostics, stronger SpringBoard-held process protection, precision tap OCR, HID input and async split tools for RootHide.
+          Description: Privileged root helper for Next Agent 0.7.15 with in-app HUD verification, foreground-app status HUD, SpringBoard scene-manager split recovery, precision OCR, proven HID input and background diagnostics for RootHide.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
@@ -1600,8 +1617,8 @@ jobs:
           ENT=/usr/local/share/nextagent/nextagentd.entitlements
           REALDIR=/rootfs/var/mobile/Library/NextAgent
           chmod 755 "$BIN" || true
-          chown root:wheel "$BIN" "$PLIST" "$ENT" /usr/lib/TweakInject/NextAgentSpringBoard0714.dylib /usr/lib/TweakInject/NextAgentSpringBoard0714.plist /usr/lib/TweakInject/NextAgentForegroundHUD0714.dylib /usr/lib/TweakInject/NextAgentForegroundHUD0714.plist 2>/dev/null || true
-          rm -f /usr/lib/TweakInject/NextAgentOverlay.dylib /usr/lib/TweakInject/NextAgentOverlay.plist /usr/lib/TweakInject/NextAgentForegroundHUD.dylib /usr/lib/TweakInject/NextAgentForegroundHUD.plist /usr/lib/TweakInject/NextAgentSpringBoard.dylib /usr/lib/TweakInject/NextAgentSpringBoard.plist /usr/lib/TweakInject/NextAgentSpringBoard079.dylib /usr/lib/TweakInject/NextAgentSpringBoard079.plist /usr/lib/TweakInject/NextAgentSpringBoard0710.dylib /usr/lib/TweakInject/NextAgentSpringBoard0710.plist /usr/lib/TweakInject/NextAgentSpringBoard0711.dylib /usr/lib/TweakInject/NextAgentSpringBoard0711.plist /usr/lib/TweakInject/NextAgentSpringBoard0712.dylib /usr/lib/TweakInject/NextAgentSpringBoard0712.plist /usr/lib/TweakInject/NextAgentSpringBoard0713.dylib /usr/lib/TweakInject/NextAgentSpringBoard0713.plist 2>/dev/null || true
+          chown root:wheel "$BIN" "$PLIST" "$ENT" /usr/lib/TweakInject/NextAgentSpringBoard0715.dylib /usr/lib/TweakInject/NextAgentSpringBoard0715.plist /usr/lib/TweakInject/NextAgentForegroundHUD0715.dylib /usr/lib/TweakInject/NextAgentForegroundHUD0715.plist 2>/dev/null || true
+          rm -f /usr/lib/TweakInject/NextAgentOverlay.dylib /usr/lib/TweakInject/NextAgentOverlay.plist /usr/lib/TweakInject/NextAgentForegroundHUD.dylib /usr/lib/TweakInject/NextAgentForegroundHUD.plist /usr/lib/TweakInject/NextAgentSpringBoard.dylib /usr/lib/TweakInject/NextAgentSpringBoard.plist /usr/lib/TweakInject/NextAgentSpringBoard079.dylib /usr/lib/TweakInject/NextAgentSpringBoard079.plist /usr/lib/TweakInject/NextAgentSpringBoard0710.dylib /usr/lib/TweakInject/NextAgentSpringBoard0710.plist /usr/lib/TweakInject/NextAgentSpringBoard0711.dylib /usr/lib/TweakInject/NextAgentSpringBoard0711.plist /usr/lib/TweakInject/NextAgentSpringBoard0712.dylib /usr/lib/TweakInject/NextAgentSpringBoard0712.plist /usr/lib/TweakInject/NextAgentSpringBoard0713.dylib /usr/lib/TweakInject/NextAgentSpringBoard0713.plist /usr/lib/TweakInject/NextAgentSpringBoard0714.dylib /usr/lib/TweakInject/NextAgentSpringBoard0714.plist /usr/lib/TweakInject/NextAgentForegroundHUD0714.dylib /usr/lib/TweakInject/NextAgentForegroundHUD0714.plist 2>/dev/null || true
           mkdir -p "$REALDIR" 2>/dev/null || true
           chown mobile:mobile "$REALDIR" 2>/dev/null || true
           chmod 700 "$REALDIR" 2>/dev/null || true
@@ -1631,8 +1648,8 @@ jobs:
           exit 0
           EOF
           chmod 0755 "$P/DEBIAN/postinst" "$P/DEBIAN/prerm"
-          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.14-roothide.deb"
-          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.14-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.14-roothide.sha256"
+          dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.15-roothide.deb"
+          shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.15-roothide.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.15-roothide.sha256"
 
       - name: Package rootful daemon DEB
         run: |
@@ -1679,39 +1696,39 @@ jobs:
           dpkg-deb --root-owner-group --build "$P" "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb"
           shasum -a 256 "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb" | awk '{print $1}' > "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256"
 
-      - name: Package v0.7.14 source
+      - name: Package v0.7.15 source
         working-directory: /tmp/nextagent-src
         run: |
           set -euo pipefail
           rm -rf NextAgent_v0.1.0/build NextAgent_v0.1.0/package NextAgent_v0.1.0/NextAgent.xcodeproj
-          mv NextAgent_v0.1.0 NextAgent_v0.7.14
-          mkdir -p NextAgent_v0.7.14/RootHelperSource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.14/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.14/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.14/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.14/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.14/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/system_v073.inc NextAgent_v0.7.14/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.4/system_v074.inc NextAgent_v0.7.14/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.h NextAgent_v0.7.14/RootHelperSource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.m NextAgent_v0.7.14/RootHelperSource/
-          mkdir -p NextAgent_v0.7.14/OverlaySource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.14/Overlay/* NextAgent_v0.7.14/OverlaySource/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.14/NAScreenBridgeClient.h NextAgent_v0.7.14/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.14/NAScreenBridgeClient.m NextAgent_v0.7.14/
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.14/
-          cp /tmp/nextagentd-v0714.c NextAgent_v0.7.14/RootHelperSource/nextagentd-v0.7.14.c
-          cp /tmp/nextagentd-v0714.entitlements NextAgent_v0.7.14/RootHelperSource/nextagentd-v0.7.14.entitlements
-          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.14-source.zip" NextAgent_v0.7.14
-          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.14.plist"
+          mv NextAgent_v0.1.0 NextAgent_v0.7.15
+          mkdir -p NextAgent_v0.7.15/RootHelperSource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/daemon/* NextAgent_v0.7.15/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.5/hid_v05.inc NextAgent_v0.7.15/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/system_v07.inc NextAgent_v0.7.15/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.h NextAgent_v0.7.15/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.15/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/system_v073.inc NextAgent_v0.7.15/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.4/system_v074.inc NextAgent_v0.7.15/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.h NextAgent_v0.7.15/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.m NextAgent_v0.7.15/RootHelperSource/
+          mkdir -p NextAgent_v0.7.15/OverlaySource
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.15/Overlay/* NextAgent_v0.7.15/OverlaySource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.15/NAScreenBridgeClient.h NextAgent_v0.7.15/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.15/NAScreenBridgeClient.m NextAgent_v0.7.15/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.15/
+          cp /tmp/nextagentd-v0715.c NextAgent_v0.7.15/RootHelperSource/nextagentd-v0.7.15.c
+          cp /tmp/nextagentd-v0715.entitlements NextAgent_v0.7.15/RootHelperSource/nextagentd-v0.7.15.entitlements
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-v0.7.15-source.zip" NextAgent_v0.7.15
+          cp /tmp/nextagentd-entitlements.plist "$GITHUB_WORKSPACE/projects/NextAgent/build-output/daemon-entitlements-v0.7.15.plist"
 
-      - name: Publish v0.7.14 to NS Transfer
+      - name: Publish v0.7.15 to NS Transfer
         run: |
           set -euo pipefail
-          DEST="$GITHUB_WORKSPACE/transfer/files/NextAgent/0.7.14"
+          DEST="$GITHUB_WORKSPACE/transfer/files/NextAgent/0.7.15"
           mkdir -p "$DEST"
-          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.14.tipa" "$DEST/NextAgent-0.7.14.tipa"
-          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.14-roothide.deb" "$DEST/NextAgentDaemon-0.7.14-RootHide.deb"
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgent-0.7.15.tipa" "$DEST/NextAgent-0.7.15.tipa"
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/build-output/NextAgentDaemon-0.7.15-roothide.deb" "$DEST/NextAgentDaemon-0.7.15-RootHide.deb"
 
           python3 - <<'PY'
           import json, os
@@ -1720,11 +1737,11 @@ jobs:
 
           root = Path(os.environ["GITHUB_WORKSPACE"])
           index_path = root / "transfer/index.json"
-          tipa_path = root / "transfer/files/NextAgent/0.7.14/NextAgent-0.7.14.tipa"
-          deb_path = root / "transfer/files/NextAgent/0.7.14/NextAgentDaemon-0.7.14-RootHide.deb"
+          tipa_path = root / "transfer/files/NextAgent/0.7.15/NextAgent-0.7.15.tipa"
+          deb_path = root / "transfer/files/NextAgent/0.7.15/NextAgentDaemon-0.7.15-RootHide.deb"
 
-          tipa_sha = (root / "projects/NextAgent/build-output/NextAgent-0.7.14.sha256").read_text().strip()
-          deb_sha = (root / "projects/NextAgent/build-output/NextAgentDaemon-0.7.14-roothide.sha256").read_text().strip()
+          tipa_sha = (root / "projects/NextAgent/build-output/NextAgent-0.7.15.sha256").read_text().strip()
+          deb_sha = (root / "projects/NextAgent/build-output/NextAgentDaemon-0.7.15-roothide.sha256").read_text().strip()
 
           data = json.loads(index_path.read_text())
           files = data.get("files", [])
@@ -1735,28 +1752,28 @@ jobs:
           ]
 
           app_entry = {
-              "id": "next-agent-current-0.7.14-roothide",
-              "name": "Next Agent 0.7.14 — Dual HUD + Background Diagnostics",
-              "fileName": "NextAgent-0.7.14.tipa",
+              "id": "next-agent-current-0.7.15-roothide",
+              "name": "Next Agent 0.7.15 — HUD Probe + Scene Recovery",
+              "fileName": "NextAgent-0.7.15.tipa",
               "type": "tipa",
               "platform": "TrollStore / RootHide / iOS 16+",
-              "version": "0.7.14 (22)",
-              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.14/NextAgent-0.7.14.tipa",
+              "version": "0.7.15 (23)",
+              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.15/NextAgent-0.7.15.tipa",
               "sha256": tipa_sha,
               "sizeBytes": tipa_path.stat().st_size,
-              "notes": "Next Agent 0.7.14 keeps the proven HID/OCR core and adds dual-layer live task status: native SpringBoard HUD when available plus a foreground-app HUD fallback for Settings, Notes, Safari and other UIKit apps. HUD and background-protection diagnostics now record failure stages and historical acquire/release state."
+              "notes": "Next Agent 0.7.15 shows the HUD inside Next Agent itself with a short HUD-ready probe, keeps status visible in foreground UIKit apps, and strengthens split launching with SBSceneManagerCoordinator scene discovery plus an iOS 16 foreground-launch recovery path."
           }
           daemon_entry = {
-              "id": "next-agent-daemon-current-0.7.14-roothide",
-              "name": "Next Agent Daemon 0.7.14 — RootHide",
-              "fileName": "NextAgentDaemon-0.7.14-RootHide.deb",
+              "id": "next-agent-daemon-current-0.7.15-roothide",
+              "name": "Next Agent Daemon 0.7.15 — RootHide",
+              "fileName": "NextAgentDaemon-0.7.15-RootHide.deb",
               "type": "deb",
               "platform": "RootHide / iphoneos-arm64e",
-              "version": "0.7.14",
-              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.14/NextAgentDaemon-0.7.14-RootHide.deb",
+              "version": "0.7.15",
+              "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.15/NextAgentDaemon-0.7.15-RootHide.deb",
               "sha256": deb_sha,
               "sizeBytes": deb_path.stat().st_size,
-              "notes": "Matching RootHide helper for Next Agent 0.7.14. Installs the SpringBoard bridge and foreground-app HUD fallback, stronger SpringBoard-held RBS/BKS process protection, persistent diagnostics, proven HID input, precision OCR, async split hosting and automatic SpringBoard reload."
+              "notes": "Matching RootHide helper for Next Agent 0.7.15. Installs the in-app/foreground HUD fallback and SpringBoard bridge with scene-manager recovery, proven HID input, precision OCR, background diagnostics and automatic SpringBoard reload."
           }
 
           data["files"] = [app_entry, daemon_entry] + files
@@ -1768,37 +1785,37 @@ jobs:
           import json
           from pathlib import Path
           d=json.loads(Path("transfer/index.json").read_text())
-          assert d["files"][0]["id"] == "next-agent-current-0.7.14-roothide"
-          assert d["files"][1]["id"] == "next-agent-daemon-current-0.7.14-roothide"
-          assert Path("transfer/files/NextAgent/0.7.14/NextAgent-0.7.14.tipa").is_file()
-          assert Path("transfer/files/NextAgent/0.7.14/NextAgentDaemon-0.7.14-RootHide.deb").is_file()
+          assert d["files"][0]["id"] == "next-agent-current-0.7.15-roothide"
+          assert d["files"][1]["id"] == "next-agent-daemon-current-0.7.15-roothide"
+          assert Path("transfer/files/NextAgent/0.7.15/NextAgent-0.7.15.tipa").is_file()
+          assert Path("transfer/files/NextAgent/0.7.15/NextAgentDaemon-0.7.15-RootHide.deb").is_file()
           PY
 
-      - name: Upload v0.7.14 dual HUD + background diagnostics build
+      - name: Upload v0.7.15 HUD probe + scene recovery build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.7.14-Dual-HUD-Background-Diagnostics-RootHide
+          name: NextAgent-0.7.15-HUD-Probe-Scene-Recovery-RootHide
           path: |
-            projects/NextAgent/build-output/NextAgent-0.7.14.tipa
-            projects/NextAgent/build-output/NextAgent-0.7.14.sha256
+            projects/NextAgent/build-output/NextAgent-0.7.15.tipa
+            projects/NextAgent/build-output/NextAgent-0.7.15.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootless.sha256
-            projects/NextAgent/build-output/NextAgentDaemon-0.7.14-roothide.deb
-            projects/NextAgent/build-output/NextAgentDaemon-0.7.14-roothide.sha256
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.15-roothide.deb
+            projects/NextAgent/build-output/NextAgentDaemon-0.7.15-roothide.sha256
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.deb
             projects/NextAgent/build-output/NextAgentDaemon-0.3.0-rootful.sha256
-            projects/NextAgent/build-output/NextAgent-v0.7.14-source.zip
-            projects/NextAgent/build-output/xcodebuild-v0.7.14.log
-            projects/NextAgent/build-output/app-entitlements-v0.7.14.plist
-            projects/NextAgent/build-output/daemon-entitlements-v0.7.14.plist
+            projects/NextAgent/build-output/NextAgent-v0.7.15-source.zip
+            projects/NextAgent/build-output/xcodebuild-v0.7.15.log
+            projects/NextAgent/build-output/app-entitlements-v0.7.15.plist
+            projects/NextAgent/build-output/daemon-entitlements-v0.7.15.plist
 
-      - name: Publish v0.7.14 dual HUD + background diagnostics build
+      - name: Publish v0.7.15 HUD probe + scene recovery build
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f projects/NextAgent/build-output/
-          git add -f transfer/index.json transfer/files/NextAgent/0.7.14/
+          git add -f transfer/index.json transfer/files/NextAgent/0.7.15/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.7.14 dual HUD + background diagnostics [skip ci]"
+          git commit -m "Build Next Agent 0.7.15 HUD probe + scene recovery [skip ci]"
           git push
