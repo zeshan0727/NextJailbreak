@@ -185,12 +185,21 @@ v05 = v05.replace(
 # Generic NSDictionary -> ToolResult adapter.
 helper_marker = '''    private func v05JSON(_ object: Any) -> ToolResult {
 '''
-bridge_helper = '''    private func v0511BridgeResult(_ raw: NSDictionary) -> ToolResult {
-        let success = (raw["success"] as? Bool) ?? false
-        guard JSONSerialization.isValidJSONObject(raw),
-              let data = try? JSONSerialization.data(withJSONObject: raw, options: [.prettyPrinted]),
+bridge_helper = '''    private func v0511BridgeResult(_ raw: Any) -> ToolResult {
+        let dictionary: [AnyHashable: Any]
+        if let value = raw as? [AnyHashable: Any] {
+            dictionary = value
+        } else if let value = raw as? NSDictionary {
+            dictionary = value as? [AnyHashable: Any] ?? [:]
+        } else {
+            return ToolResult(success: false, output: String(describing: raw))
+        }
+
+        let success = (dictionary["success"] as? Bool) ?? false
+        guard JSONSerialization.isValidJSONObject(dictionary),
+              let data = try? JSONSerialization.data(withJSONObject: dictionary, options: [.prettyPrinted]),
               let output = String(data: data, encoding: .utf8) else {
-            return ToolResult(success: success, output: String(describing: raw))
+            return ToolResult(success: success, output: String(describing: dictionary))
         }
         return ToolResult(success: success, output: output)
     }
