@@ -24,6 +24,22 @@ jobs:
         run: |
           python3 -m py_compile automation/publish_six_articles_20260921.py
           python3 -m unittest automation.tests.test_source_visuals -v
+      - name: Reuse completed verification from the first batch attempt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/prior-review
+          if gh run download 35600793915 --repo zeshan0727/NextJailbreak --name six-articles-20260921-review --dir /tmp/prior-review; then
+            python3 - <<'PY'
+          from pathlib import Path
+          import shutil
+          dest=Path('automation/out/batch-20260921')
+          dest.mkdir(parents=True, exist_ok=True)
+          for p in Path('/tmp/prior-review').rglob('*.json'):
+              if p.name.endswith(('-source.json','-draft.json')):
+                  shutil.copyfile(p,dest/p.name)
+          PY
+          fi
       - name: Generate and validate all six articles
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

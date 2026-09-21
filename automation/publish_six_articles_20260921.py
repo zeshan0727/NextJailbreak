@@ -37,6 +37,14 @@ def slug(value):
 
 
 def build_source(target):
+    cached = REVIEW / f"{target['slug']}-source.json"
+    if cached.exists():
+        source = json.loads(cached.read_text())
+        assert source['name'] == target['name'] and source['version'] == target['version']
+        assert source['source_urls'] == target['urls'] and target['scope_note'] in source['source_text']
+        if target.get('required_source_text'):
+            assert target['required_source_text'] in source['source_text']
+        return source
     # Fetch original pages before considering editorial instructions as context.
     actual = {k: v for k, v in target.items() if k != "scope_note"}
     source = original_build(actual)
@@ -58,6 +66,13 @@ def build_source(target):
 
 def generate(source):
     print(f"GENERATING {source['name']} {source['version']}", flush=True)
+    cached = REVIEW / f"{BY_NAME[source['name']]['slug']}-draft.json"
+    if cached.exists():
+        data = json.loads(cached.read_text())
+        assert data.get('verification', {}).get('verifier'), 'Missing successful verifier metadata'
+        assert not validate_article(data['article'], source, batch.CONFIG)
+        print(f"REUSING VERIFIED DRAFT {source['name']}", flush=True)
+        return data['article'], data['verification']
     article, meta = original_generate(source)
     assert not validate_article(article, source, batch.CONFIG)
     (REVIEW / f"{BY_NAME[source['name']]['slug']}-draft.json").write_text(
@@ -97,6 +112,9 @@ def render(article, source, media, site, now, target_path):
                 if obj.get("@type") == "TechArticle":
                     obj.update(description=description, headline=article["title"], articleSection=section)
                     obj.pop("alternativeHeadline", None)
+                if obj.get("@type") == "SoftwareApplication":
+                    obj['softwareVersion'] = {'palera1n': '3.0.0-beta.2', 'SideStore Nightly': '0.7.0-20260920.1479+0dd743f7'}.get(source['name'], source['version'])
+                    obj['description'] = description
                 if obj.get("@type") == "ListItem" and obj.get("position") == 2:
                     obj.update(name=section, item=site["base_url"].rstrip("/") + section_link)
                 for v in obj.values(): walk(v)
@@ -135,7 +153,7 @@ def check():
         assert page.count('<link rel="canonical"') == 1
         assert f'href="{canonical}"' in page and canonical in locations and canonical in feed
         assert href in indexes and entry["category"] == target["category"]
-        for needle in ["TechArticle", "SoftwareApplication", "BreadcrumbList", "og:image", "twitter:image", "Community Comments"]:
+        for needle in ["TechArticle", "SoftwareApplication", "BreadcrumbList", "og:image", "twitter:image", "data-nj-comments"]:
             assert needle in page, (href, needle)
         assert "noindex" not in page
         assert len(re.findall(r'<figure class="article-visual">', page)) >= 2
