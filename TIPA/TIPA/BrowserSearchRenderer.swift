@@ -67,24 +67,42 @@ private final class BrowserSearchRenderer: NSObject, WKNavigationDelegate {
                 const href = (a.href || '').trim();
                 if (!href) continue;
 
-                const title = ((a.innerText || a.textContent || '') + '')
+                let title = ((a.innerText || a.textContent || '') + '')
                   .replace(/\\s+/g, ' ')
                   .trim();
 
                 let node = a;
                 let context = title;
-                for (let i = 0; i < 5 && node; i++, node = node.parentElement) {
+
+                for (let i = 0; i < 7 && node; i++, node = node.parentElement) {
                   const text = ((node.innerText || node.textContent || '') + '')
                     .replace(/\\s+/g, ' ')
                     .trim();
-                  if (text.length > context.length) context = text;
-                  if (context.length >= 500) break;
+
+                  if (text.length >= Math.max(20, title.length) && text.length <= 2200) {
+                    context = text;
+                  }
+
+                  if (context.length >= 120 && context.length <= 2200) {
+                    const heading = node.querySelector && node.querySelector('h1,h2,h3,h4');
+                    if (heading) {
+                      const candidate = ((heading.innerText || heading.textContent || '') + '')
+                        .replace(/\\s+/g, ' ')
+                        .trim();
+                      if (candidate.length >= 4 && candidate.length <= 180) title = candidate;
+                    }
+                    break;
+                  }
+                }
+
+                if (!title && context) {
+                  title = context.slice(0, 180);
                 }
 
                 rows.push({
                   href,
                   title,
-                  context: context.slice(0, 1400)
+                  context: context.slice(0, 1800)
                 });
               }
               return JSON.stringify(rows);
