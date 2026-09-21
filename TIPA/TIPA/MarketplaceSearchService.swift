@@ -55,7 +55,7 @@ actor MarketplaceSearchService {
             }
 
             guard (200...299).contains(http.statusCode) else {
-                let message = decodeBackendError(data) ?? "Search backend error (HTTP \(http.statusCode))."
+                let message = Self.decodeBackendError(data) ?? "Search backend error (HTTP \(http.statusCode))."
                 return (query, [], intent.preferredSort, message)
             }
 
@@ -66,12 +66,12 @@ actor MarketplaceSearchService {
 
             for (index, item) in decoded.listings.enumerated() {
                 guard let listingURL = URL(string: item.url),
-                      let source = sourceFor(name: item.source, url: listingURL),
-                      isDirectListingURL(listingURL, source: source) else {
+                      let source = Self.sourceFor(name: item.source, url: listingURL),
+                      Self.isDirectListingURL(listingURL, source: source) else {
                     continue
                 }
 
-                let key = canonicalKey(listingURL)
+                let key = Self.canonicalKey(listingURL)
                 guard seen.insert(key).inserted else { continue }
 
                 result.append(
