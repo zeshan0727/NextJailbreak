@@ -1,30 +1,42 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T09:19:28Z",
+  "updatedAt": "2026-09-21T09:50:32Z",
   "files": [
     {
-      "id": "next-agent-current-0.7.15-roothide",
-      "name": "Next Agent 0.7.15 — HUD Probe + Scene Recovery",
-      "fileName": "NextAgent-0.7.15.tipa",
+      "id": "next-agent-current-0.7.16-roothide",
+      "name": "Next Agent 0.7.16 — System HUD Tweak + Full-Screen Apps",
+      "fileName": "NextAgent-0.7.16.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.15 (23)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.15/NextAgent-0.7.15.tipa",
-      "sha256": "c80a47aac605a3f51847fbe1a68f6d4117b5d9389bfc5979e77560288c7a318f",
-      "sizeBytes": 1022434,
-      "notes": "Next Agent 0.7.15 shows the HUD inside Next Agent itself with a short HUD-ready probe, keeps status visible in foreground UIKit apps, and strengthens split launching with SBSceneManagerCoordinator scene discovery plus an iOS 16 foreground-launch recovery path."
+      "version": "0.7.16 (24)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.16/NextAgent-0.7.16.tipa",
+      "sha256": "92f3c0d9be290c63b63804af06384351379af5395708bd50b22587848ef135d6",
+      "sizeBytes": 1027282,
+      "notes": "Next Agent 0.7.16 adds manual Show HUD and Clear Split buttons, returns routine app automation to reliable full-screen launching, and keeps split workspace explicit-only for diagnostics."
     },
     {
-      "id": "next-agent-daemon-current-0.7.15-roothide",
-      "name": "Next Agent Daemon 0.7.15 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.15-RootHide.deb",
+      "id": "next-agent-daemon-current-0.7.16-roothide",
+      "name": "Next Agent Daemon 0.7.16 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.16-RootHide.deb",
       "type": "deb",
       "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.15",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.15/NextAgentDaemon-0.7.15-RootHide.deb",
-      "sha256": "18c45946ed4cdbabad18ddf9ebfadf80e7ea08941d9da4b99f73aaa1fc0f4bca",
-      "sizeBytes": 68192,
-      "notes": "Matching RootHide helper for Next Agent 0.7.15. Installs the in-app/foreground HUD fallback and SpringBoard bridge with scene-manager recovery, proven HID input, precision OCR, background diagnostics and automatic SpringBoard reload."
+      "version": "0.7.16",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.16/NextAgentDaemon-0.7.16-RootHide.deb",
+      "sha256": "dd5c3e6f1943ad22956be4b11fd44bbddf1789e5484a51c1b743db5da6cd8a62",
+      "sizeBytes": 61396,
+      "notes": "Matching RootHide helper for Next Agent 0.7.16. Installs the SpringBoard OCR/HID bridge and root helper; the system-wide HUD is packaged separately as the Next Agent System HUD RootHide tweak."
+    },
+    {
+      "id": "next-agent-hud-current-0.7.16-roothide",
+      "name": "Next Agent System HUD 0.7.16 — RootHide",
+      "fileName": "NextAgentStatusHUD-0.7.16-RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iphoneos-arm64e",
+      "version": "0.7.16",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.16/NextAgentStatusHUD-0.7.16-RootHide.deb",
+      "sha256": "fcdb1328d9aad45ffa35764eb0bcd9f60c61d5635dfe1102c89e56cef1ad2c41",
+      "sizeBytes": 10572,
+      "notes": "Standalone RootHide system-wide HUD tweak for Next Agent. Injects into UIKit apps and displays Working, Opening, Reading, Typing, Thinking, Returning, Complete, Failed and Stopped states from Next Agent without using split workspace."
     },
     {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
