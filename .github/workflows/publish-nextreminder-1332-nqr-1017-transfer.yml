@@ -1,0 +1,119 @@
+name: Publish Next Reminder 1.3.32 + NQR 1.0.17 to NS Transfer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-nextreminder-1332-nqr-1017-transfer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ARTIFACT_ID: '10640886317'
+      APP_DIR: transfer/files/NextReminder/1.3.32
+      APP_FILE: NextReminder_1.3.32_Unsigned.tipa
+      APP_SHA: 6c3d0e063297a68456aa7efece05396b51932fc2563fd99c357f8b6f1a197343
+      APP_SIZE: '2204734'
+      TWEAK_DIR: transfer/files/NextQuickReminder/1.0.17
+      TWEAK_FILE: NextQuickReminder_1.0.17_RootHide.deb
+      TWEAK_SHA: 2f48ca6408ff8f0027d52d1afe27e77ba4f159bacb01cc121f5d03a6c211111b
+      TWEAK_SIZE: '114120'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact verified build artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/nr1332-nqr1017.zip
+          rm -rf /tmp/nr-release && mkdir -p /tmp/nr-release
+          unzip -q /tmp/nr1332-nqr1017.zip -d /tmp/nr-release
+          test -f "/tmp/nr-release/${APP_FILE}"
+          test -f "/tmp/nr-release/${TWEAK_FILE}"
+          test "$(sha256sum "/tmp/nr-release/${APP_FILE}" | awk '{print $1}')" = "${APP_SHA}"
+          test "$(sha256sum "/tmp/nr-release/${TWEAK_FILE}" | awk '{print $1}')" = "${TWEAK_SHA}"
+          test "$(stat -c %s "/tmp/nr-release/${APP_FILE}")" = "${APP_SIZE}"
+          test "$(stat -c %s "/tmp/nr-release/${TWEAK_FILE}")" = "${TWEAK_SIZE}"
+
+      - name: Publish both builds and update feed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git reset --hard origin/main
+          mkdir -p "${APP_DIR}" "${TWEAK_DIR}"
+          cp "/tmp/nr-release/${APP_FILE}" "${APP_DIR}/${APP_FILE}"
+          cp "/tmp/nr-release/${TWEAK_FILE}" "${TWEAK_DIR}/${TWEAK_FILE}"
+
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          p = Path('transfer/index.json')
+          data = json.loads(p.read_text())
+          files = data.get('files', [])
+
+          files = [
+              x for x in files
+              if not str(x.get('id', '')).startswith('nextreminder-1.3.')
+              and not str(x.get('id', '')).startswith('nextquickreminder-1.0.')
+          ]
+
+          app = {
+              'id': 'nextreminder-1.3.32-missed-daily-gmail-persistence',
+              'name': 'Next Reminder 1.3.32 — Daily Missed Alerts & Gmail Persistence',
+              'fileName': 'NextReminder_1.3.32_Unsigned.tipa',
+              'type': 'tipa',
+              'platform': 'Unsigned TIPA / iOS 16+',
+              'version': '1.3.32 (42)',
+              'url': 'https://nextjailbreak.com/transfer/files/NextReminder/1.3.32/NextReminder_1.3.32_Unsigned.tipa',
+              'sha256': '6c3d0e063297a68456aa7efece05396b51932fc2563fd99c357f8b6f1a197343',
+              'sizeBytes': 2204734,
+              'notes': 'Preserves the Gmail connector identity in Keychain with UserDefaults migration/cache, saves refreshed connector IDs after recovery, and retains automatic report-send retry. Adds an app-side daily missed-reminder fallback at the original clock time until completion. Stable File Sharing remains unchanged.'
+          }
+
+          tweak = {
+              'id': 'nextquickreminder-1.0.17-missed-daily-roothide',
+              'name': 'Next Quick Reminder 1.0.17 — Missed Daily Alerts RootHide',
+              'fileName': 'NextQuickReminder_1.0.17_RootHide.deb',
+              'type': 'deb',
+              'platform': 'RootHide',
+              'version': '1.0.17',
+              'url': 'https://nextjailbreak.com/transfer/files/NextQuickReminder/1.0.17/NextQuickReminder_1.0.17_RootHide.deb',
+              'sha256': '2f48ca6408ff8f0027d52d1afe27e77ba4f159bacb01cc121f5d03a6c211111b',
+              'sizeBytes': 114120,
+              'notes': 'Adds a persistent missed-reminder scheduler. After an incomplete reminder reaches its original due time, RootHide installs a daily alert at that same clock time and keeps it active until the reminder is completed, deleted, or notifications are disabled. Retains the 1.0.16 persistent pending-report wake scheduler.'
+          }
+
+          data['files'] = [app, tweak] + files
+          data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
+          p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+          PY
+
+          python3 -m json.tool transfer/index.json >/dev/null
+          test "$(sha256sum "${APP_DIR}/${APP_FILE}" | awk '{print $1}')" = "${APP_SHA}"
+          test "$(sha256sum "${TWEAK_DIR}/${TWEAK_FILE}" | awk '{print $1}')" = "${TWEAK_SHA}"
+
+      - name: Commit publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json "${APP_DIR}/${APP_FILE}" "${TWEAK_DIR}/${TWEAK_FILE}"
+          git commit -m 'Publish Next Reminder 1.3.32 and NQR 1.0.17'
+          git push origin HEAD:main
