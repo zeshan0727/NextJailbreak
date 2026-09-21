@@ -1,30 +1,30 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T06:20:16Z",
+  "updatedAt": "2026-09-21T07:25:38Z",
   "files": [
     {
-      "id": "next-agent-current-0.7.10-roothide",
-      "name": "Next Agent 0.7.10 — Async Split + System Theme",
-      "fileName": "NextAgent-0.7.10.tipa",
+      "id": "next-agent-current-0.7.11-roothide",
+      "name": "Next Agent 0.7.11 — SpringBoard HID Input",
+      "fileName": "NextAgent-0.7.11.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.10 (18)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.10/NextAgent-0.7.10.tipa",
-      "sha256": "e047ae2e2d6ce970d4e63aca4bfe37eaa917ebbd3f293e23d79fec3718c84dc7",
-      "sizeBytes": 1016833,
-      "notes": "Next Agent 0.7.10 makes split creation asynchronous and waits for the target scene instead of timing out. It also adds System, Light and Dark appearance options, with System following the iPhone appearance automatically."
+      "version": "0.7.11 (19)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.11/NextAgent-0.7.11.tipa",
+      "sha256": "2d3380bbe81315cd5d9df839e12c411516dc12ac6f361aaf9bd0f3dc10c254ee",
+      "sizeBytes": 1021779,
+      "notes": "Next Agent 0.7.11 routes touch, keyboard keys, direct text typing and paste shortcuts through the SpringBoard HID bridge. It keeps asynchronous split, resilient OCR, and System / Light / Dark appearance."
     },
     {
-      "id": "next-agent-daemon-current-0.7.10-roothide",
-      "name": "Next Agent Daemon 0.7.10 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.10-RootHide.deb",
+      "id": "next-agent-daemon-current-0.7.11-roothide",
+      "name": "Next Agent Daemon 0.7.11 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.11-RootHide.deb",
       "type": "deb",
       "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.10",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.10/NextAgentDaemon-0.7.10-RootHide.deb",
-      "sha256": "d02b5d47d29f12119bd36f7aa2566c07e2ea56e370d9bc1247d689b4533be15d",
-      "sizeBytes": 50748,
-      "notes": "Matching RootHide helper for Next Agent 0.7.10. Uses a generation-specific SpringBoard bridge, asynchronous target scene hosting, resilient OCR, automatic SpringBoard reload, HID and root helper services."
+      "version": "0.7.11",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.11/NextAgentDaemon-0.7.11-RootHide.deb",
+      "sha256": "e8a418a5b4d5bd349313f4f575c6862ff21c82144842dcfa724304d777e494e7",
+      "sizeBytes": 53812,
+      "notes": "Matching RootHide helper for Next Agent 0.7.11. Installs the SpringBoard HID bridge with normal touch client and Admin keyboard client, resilient OCR, async split hosting, automatic SpringBoard reload and root helper services."
     },
     {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
