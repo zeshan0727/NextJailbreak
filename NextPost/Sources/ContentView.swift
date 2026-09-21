@@ -33,9 +33,6 @@ struct ContentView: View {
                 .padding(.bottom, 30)
             }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            adBanner
-        }
         .task {
             await store.refreshStats()
         }
@@ -225,8 +222,8 @@ struct ContentView: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
         }
-        .disabled(store.isLoading || store.isRefreshing)
-        .opacity(store.isLoading ? 0.78 : 1)
+        .disabled(store.isLoading || store.isRefreshing || (store.remainingThisCycle == 0 && store.selectedRemainingArticle == nil))
+        .opacity((store.isLoading || store.remainingThisCycle == 0) ? 0.58 : 1)
     }
 
     private var resultBox: some View {
@@ -332,20 +329,6 @@ struct ContentView: View {
         .opacity(store.generatedPost.isEmpty ? 0.55 : 1)
     }
 
-    private var adBanner: some View {
-        VStack(spacing: 2) {
-            Text("ADVERTISEMENT")
-                .font(.system(size: 8, weight: .medium))
-                .foregroundStyle(.tertiary)
-
-            LevelPlayBannerView()
-                .frame(maxWidth: .infinity)
-                .frame(height: 58)
-        }
-        .padding(.top, 3)
-        .background(Color.black.opacity(0.96))
-    }
-
     private var sourceFooter: some View {
         VStack(spacing: 7) {
             HStack(spacing: 6) {
@@ -358,7 +341,7 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Text("Source: https://nextjailbreak.com • Cycle \(store.cycleNumber)")
+            Text("Source: https://nextjailbreak.com • No repeats • Newest remaining first")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
@@ -403,7 +386,7 @@ private struct RemainingArticlesSheet: View {
                             .foregroundStyle(.green)
                         Text("No Remaining Articles")
                             .font(.headline)
-                        Text("All articles in this cycle have already been generated. Generate again to begin the next cycle.")
+                        Text("All published articles have already been generated. They will not repeat. Tap Refresh after new articles are published.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
