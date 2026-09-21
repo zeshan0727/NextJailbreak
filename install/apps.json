@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-aspire",
+      "name": "Aspire Maintainance",
+      "version": "1.1.9",
+      "build": "12",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.aspire",
+      "icon": "/install/icons/com-nextsolution-aspire-c7e2d0856c0f.png",
+      "manifest": "/install/com-nextsolution-aspire.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.1.9/com-nextsolution-aspire-1.1.9-12.ipa",
+      "sha256": "c7e2d0856c0f6f745996c51afc80aff2bce989a31e3af469e29c53e8c9f65d0a",
+      "sizeBytes": 2331408,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-uyou",
       "name": "Youtube Downloader",
       "version": "20.10.4",
@@ -61,26 +82,6 @@
       "duplicateSigned": false,
       "tweakCount": 0,
       "customIcon": false
-    },
-    {
-      "id": "com-nextsolution-aspire",
-      "name": "Aspire",
-      "version": "1.1.8",
-      "build": "11",
-      "platform": "iPhone",
-      "minimumOS": "iOS 16.0+",
-      "bundleId": "com.nextsolution.aspire",
-      "icon": "/install/icons/com-nextsolution-aspire-c86cdb9be01f.png",
-      "manifest": "/install/com-nextsolution-aspire.plist",
-      "available": true,
-      "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.1.8/com-nextsolution-aspire-1.1.8-11.ipa",
-      "sha256": "c86cdb9be01fe191a84af1705550c60c51bd88d5fc5334b760518227f18f298e",
-      "sizeBytes": 10696313,
-      "storage": "Cloudflare R2",
-      "duplicateSigned": false,
-      "tweakCount": 0,
-      "customIcon": true
     },
     {
       "id": "com-nextsolution-tiktok",
@@ -169,5 +170,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-09-19"
+  "updated": "2026-09-21"
 }
