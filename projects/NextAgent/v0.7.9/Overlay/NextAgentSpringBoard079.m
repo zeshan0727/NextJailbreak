@@ -915,6 +915,25 @@ static NSDictionary *NAReadJSON(NSString *path) {
     VNImageRequestHandler *handler = [[VNImageRequestHandler alloc] initWithCGImage:image.CGImage options:@{}];
     NSError *error = nil;
     BOOL performed = [handler performRequests:@[request] error:&error];
+    BOOL fellBackToFast = NO;
+
+    // Accurate text recognition can fail inside SpringBoard on some iOS 16
+    // devices with "Error computing NN outputs." Fast recognition is already
+    // proven to work on-device, so transparently retry there rather than
+    // reporting OCR unavailable.
+    if ((!performed || error) && !fast) {
+        request = [VNRecognizeTextRequest new];
+        request.recognitionLevel = VNRequestTextRecognitionLevelFast;
+        request.usesLanguageCorrection = NO;
+        request.minimumTextHeight = 0.005;
+        if (languages.count) request.recognitionLanguages = languages;
+
+        handler = [[VNImageRequestHandler alloc] initWithCGImage:image.CGImage options:@{}];
+        error = nil;
+        performed = [handler performRequests:@[request] error:&error];
+        fellBackToFast = performed && !error;
+    }
+
     if (!performed || error) {
         return @{
             @"success": @NO,
@@ -969,7 +988,7 @@ static NSDictionary *NAReadJSON(NSString *path) {
         @"items": items,
         @"count": @(items.count),
         @"coordinate_space": @"normalized top-left; x/y range 0...1",
-        @"recognition_level": fast ? @"fast" : @"accurate",
+        @"recognition_level": fellBackToFast ? @"fast_fallback" : (fast ? @"fast" : @"accurate"),
         @"transport_version": @"0.7.9-springboard-vision1",
         @"error": items.count ? @"" : @"Vision completed but returned zero text observations"
     };
@@ -1112,6 +1131,17 @@ static NSDictionary *NAReadJSON(NSString *path) {
 
 @end
 
+
+@interface NASplitTargetWindow : UIWindow
+@property(nonatomic,assign) CGRect interactiveRect;
+@end
+
+@implementation NASplitTargetWindow
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    if (!CGRectContainsPoint(self.interactiveRect, point)) return nil;
+    return [super hitTest:point withEvent:event];
+}
+@end
 
 @interface NASplitWorkspaceController : NSObject
 @property(nonatomic,strong) UIWindow *window;
@@ -1308,11 +1338,7 @@ static NSDictionary *NAReadJSON(NSString *path) {
 }
 
 - (void)refreshForegroundScenes {
-    [self markSceneForeground:nil updater:nil];
     SEL foreground = NSSelectorFromString(@"setForeground:");
-    if ([self.primaryUpdater respondsToSelector:foreground]) {
-        ((void (*)(id, SEL, BOOL))objc_msgSend)(self.primaryUpdater, foreground, YES);
-    }
     if ([self.secondaryUpdater respondsToSelector:foreground]) {
         ((void (*)(id, SEL, BOOL))objc_msgSend)(self.secondaryUpdater, foreground, YES);
     }
@@ -1329,35 +1355,26 @@ static NSDictionary *NAReadJSON(NSString *path) {
     );
     void *launchSymbol = dlsym(handle ?: RTLD_DEFAULT, "SBSLaunchApplicationWithIdentifier");
 
-    id app = [self applicationForBundleID:@"uk.zeshanbarvi.nextagent"];
-    id scene = [self sceneForApplication:app];
-    UIView *probe = nil;
-    if (scene && hostClass) {
-        probe = [self hostViewForScene:scene
-                                frame:CGRectMake(0, 0, 24, 24)
-                                label:@"Next Agent split capability probe"];
-        [probe removeFromSuperview];
-    }
-
-    BOOL hostReady = probe != nil;
-    BOOL success = hostClass && appControllerClass && updaterClass && launchSymbol && scene && hostReady;
+    // v0.7.9 no longer requires SpringBoard to obtain/re-host the Next Agent
+    // scene. Next Agent remains the actual foreground application; SpringBoard
+    // hosts only the target scene in the bottom half.
+    BOOL success = hostClass && appControllerClass && updaterClass && launchSymbol;
     return @{
         @"success": @(success),
         @"host_class_available": @(hostClass != Nil),
         @"application_controller_available": @(appControllerClass != Nil),
         @"scene_settings_updater_available": @(updaterClass != Nil),
         @"launch_symbol_available": @(launchSymbol != NULL),
-        @"nextagent_scene_available": @(scene != nil),
-        @"host_probe_ready": @(hostReady),
-        @"mode": @"springboard_scene_host_50_50",
+        @"nextagent_scene_required": @NO,
+        @"mode": @"target_scene_overlay_50_50",
         @"bridge_version": @"0.7.9",
         @"transport_version": @"0.7.9-springboard-vision1"
     };
 }
 
 - (NSDictionary *)openPrimary:(NSString *)primary secondary:(NSString *)secondary {
-    if (!primary.length || !secondary.length) {
-        return @{@"success": @NO, @"error": @"missing split workspace bundle ID"};
+    if (!secondary.length) {
+        return @{@"success": @NO, @"error": @"missing target split-workspace bundle ID"};
     }
 
     [self close];
@@ -1368,20 +1385,16 @@ static NSDictionary *NAReadJSON(NSString *path) {
         return @{@"success": @NO, @"error": @"SpringBoard UIWindowScene is unavailable"};
     }
 
-    id primaryScene = [self waitForSceneBundleID:primary];
     id secondaryScene = [self waitForSceneBundleID:secondary];
-    if (!primaryScene || !secondaryScene) {
+    if (!secondaryScene) {
         return @{
             @"success": @NO,
-            @"error": @"one or both application scenes were unavailable",
-            @"primary_scene": @(primaryScene != nil),
-            @"secondary_scene": @(secondaryScene != nil)
+            @"error": @"target application scene was unavailable",
+            @"secondary_scene": @NO
         };
     }
 
-    self.primaryUpdater = [self foregroundUpdaterForScene:primaryScene identifier:@"primary"];
     self.secondaryUpdater = [self foregroundUpdaterForScene:secondaryScene identifier:@"secondary"];
-    [self markSceneForeground:primaryScene updater:self.primaryUpdater];
     [self markSceneForeground:secondaryScene updater:self.secondaryUpdater];
 
     [self.foregroundTimer invalidate];
@@ -1393,76 +1406,81 @@ static NSDictionary *NAReadJSON(NSString *path) {
 
     CGRect bounds = UIScreen.mainScreen.bounds;
     CGFloat divider = 2.0;
-    CGFloat topHeight = floor((bounds.size.height - divider) * 0.50);
-    CGRect topFrame = CGRectMake(0, 0, bounds.size.width, topHeight);
+    CGFloat splitY = floor(bounds.size.height * 0.50);
     CGRect bottomFrame = CGRectMake(
         0,
-        topHeight + divider,
+        splitY + divider,
         bounds.size.width,
-        bounds.size.height - topHeight - divider
+        MAX(1.0, bounds.size.height - splitY - divider)
     );
 
-    UIWindow *window = [[UIWindow alloc] initWithWindowScene:windowScene];
+    NASplitTargetWindow *window = [[NASplitTargetWindow alloc] initWithWindowScene:windowScene];
     window.frame = bounds;
     window.windowLevel = 999990.0;
-    window.backgroundColor = UIColor.blackColor;
-    window.opaque = YES;
+    window.backgroundColor = UIColor.clearColor;
+    window.opaque = NO;
     window.userInteractionEnabled = YES;
+    window.interactiveRect = bottomFrame;
 
     UIViewController *controller = [UIViewController new];
     controller.view.frame = bounds;
-    controller.view.backgroundColor = UIColor.blackColor;
+    controller.view.backgroundColor = UIColor.clearColor;
     controller.view.userInteractionEnabled = YES;
     window.rootViewController = controller;
 
-    UIView *top = [self hostViewForScene:primaryScene frame:topFrame label:@"Next Agent primary scene"];
-    UIView *bottom = [self hostViewForScene:secondaryScene frame:bottomFrame label:@"Next Agent secondary scene"];
-    if (!top || !bottom) {
+    UIView *bottom = [self hostViewForScene:secondaryScene
+                                      frame:bottomFrame
+                                     label:@"Next Agent target scene"];
+    if (!bottom) {
         window.hidden = YES;
         return @{
             @"success": @NO,
-            @"error": self.lastError ?: @"could not create one or both scene host views"
+            @"error": self.lastError ?: @"could not create target scene host view"
         };
     }
 
-    UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, topHeight, bounds.size.width, divider)];
-    separator.backgroundColor = [UIColor colorWithWhite:0.18 alpha:1.0];
+    UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(0, splitY, bounds.size.width, divider)];
+    separator.backgroundColor = [UIColor colorWithWhite:0.22 alpha:0.92];
     separator.userInteractionEnabled = NO;
 
-    [controller.view addSubview:top];
+    // Optional small label so the user can see which half belongs to the target.
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(12, splitY - 24, bounds.size.width - 24, 20)];
+    label.text = [NSString stringWithFormat:@"Next Agent • %@", secondary];
+    label.font = [UIFont systemFontOfSize:10 weight:UIFontWeightSemibold];
+    label.textColor = [UIColor colorWithWhite:1 alpha:0.65];
+    label.backgroundColor = UIColor.clearColor;
+    label.userInteractionEnabled = NO;
+
     [controller.view addSubview:bottom];
     [controller.view addSubview:separator];
+    [controller.view addSubview:label];
 
     window.hidden = NO;
     window.alpha = 1.0;
 
     self.window = window;
-    self.primaryHost = top;
+    self.primaryHost = nil;
     self.secondaryHost = bottom;
-    self.primaryBundleID = primary;
+    self.primaryBundleID = primary ?: @"uk.zeshanbarvi.nextagent";
     self.secondaryBundleID = secondary;
 
     return @{
         @"success": @YES,
-        @"mode": @"springboard_scene_host_50_50",
-        @"layout": @"top_bottom",
-        @"primary_bundle_id": primary,
+        @"mode": @"target_scene_overlay_50_50",
+        @"layout": @"nextagent_top_target_bottom",
+        @"primary_bundle_id": self.primaryBundleID,
         @"secondary_bundle_id": secondary,
-        @"primary_rect": @{
-            @"x": @0,
-            @"y": @0,
-            @"width": @(bounds.size.width),
-            @"height": @(topHeight)
-        },
+        @"primary_host_required": @NO,
+        @"secondary_host_ready": @YES,
         @"secondary_rect": @{
             @"x": @0,
-            @"y": @((topHeight + divider) / bounds.size.height),
+            @"y": @((splitY + divider) / bounds.size.height),
             @"width": @1,
-            @"height": @((bounds.size.height - topHeight - divider) / bounds.size.height)
+            @"height": @((bounds.size.height - splitY - divider) / bounds.size.height)
         },
         @"window_level": @(window.windowLevel),
         @"interactive": @YES,
-        @"experimental": @YES
+        @"bridge_version": @"0.7.9"
     };
 }
 
@@ -1472,10 +1490,11 @@ static NSDictionary *NAReadJSON(NSString *path) {
         @"active": @(self.window != nil && !self.window.hidden),
         @"primary_bundle_id": self.primaryBundleID ?: @"",
         @"secondary_bundle_id": self.secondaryBundleID ?: @"",
-        @"primary_host_ready": @(self.primaryHost != nil),
+        @"primary_host_ready": @YES,
+        @"primary_host_required": @NO,
         @"secondary_host_ready": @(self.secondaryHost != nil),
         @"last_error": self.lastError ?: @"",
-        @"mode": @"springboard_scene_host_50_50"
+        @"mode": @"target_scene_overlay_50_50"
     };
 }
 
