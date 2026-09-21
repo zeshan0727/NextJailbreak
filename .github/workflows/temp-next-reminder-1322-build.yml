@@ -32,7 +32,7 @@ jobs:
           git checkout FETCH_HEAD -- tmp-build-1331/build.sh tmp-build-1331/PersistentReportScheduler.m
       - name: Build and validate app + RootHide tweak
         shell: bash
-        run: bash tmp-build-1333/build.sh
+        run: bash tmp-build-1333/run.sh
       - uses: actions/upload-artifact@v4
         with:
           name: NextReminder-1.3.32-NQR-1.0.17-Missed-Daily-Gmail-Persistence
