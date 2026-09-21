@@ -1485,7 +1485,7 @@ jobs:
             -o /tmp/NextAgentForegroundHUD0714.dylib
           ldid -S /tmp/NextAgentForegroundHUD0714.dylib
           file /tmp/NextAgentForegroundHUD0714.dylib | grep -q arm64e
-          strings -a /tmp/NextAgentForegroundHUD0714.dylib | grep -q 'Next Agent • Thinking'
+          strings -a /tmp/NextAgentForegroundHUD0714.dylib | grep -q 'NAForegroundHUD'
           strings -a /tmp/NextAgentForegroundHUD0714.dylib | grep -q 'uk.zeshanbarvi.nextagent.hud.state'
 
       - name: Package TrollStore app
