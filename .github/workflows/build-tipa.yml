@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: tipa-build-publish
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: macos-15
@@ -75,20 +79,23 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git checkout -B tipa-transfer-publish origin/main
-
-          DEST_DIR="transfer/files/TIPA/$VERSION"
-          DEST="$DEST_DIR/TIPA-$VERSION.tipa"
-          mkdir -p "$DEST_DIR"
-          cp "/tmp/TIPA-$VERSION.tipa" "$DEST"
-          printf '%s  %s\n' "$SHA256" "TIPA-$VERSION.tipa" > "$DEST_DIR/TIPA-$VERSION.sha256"
 
           export TIPA_VERSION="$VERSION"
           export TIPA_BUILD="$BUILD"
           export TIPA_SHA256="$SHA256"
 
-          python3 - <<'PY'
+          publish_attempt() {
+            git fetch origin main
+            git checkout -B tipa-transfer-publish origin/main
+            git reset --hard origin/main
+
+            DEST_DIR="transfer/files/TIPA/$VERSION"
+            DEST="$DEST_DIR/TIPA-$VERSION.tipa"
+            mkdir -p "$DEST_DIR"
+            cp "/tmp/TIPA-$VERSION.tipa" "$DEST"
+            printf '%s  %s\n' "$SHA256" "TIPA-$VERSION.tipa" > "$DEST_DIR/TIPA-$VERSION.sha256"
+
+            python3 - <<'PY'
           import json, os
           from pathlib import Path
           from datetime import datetime, timezone
@@ -117,7 +124,7 @@ jobs:
               "url": f"https://nextjailbreak.com/transfer/files/TIPA/{version}/TIPA-{version}.tipa",
               "sha256": sha,
               "sizeBytes": tipa_path.stat().st_size,
-              "notes": "Accuracy-first Qatar marketplace search. Uses an on-device WebKit renderer for Brave search results, preserves single-letter model names such as iPhone X / Galaxy S / Z, accepts only individual marketplace ad URL patterns, rejects generic category/home/search pages, and opens the exact ad."
+              "notes": "Category-aware Qatar marketplace search. Searches broad marketplace domains, supports direct Qatar Living vehicle ads as well as classified items, uses rendered Brave results, preserves model tokens such as iPhone X, rejects generic category/home/search pages, and opens only exact ads."
           }
 
           data["files"] = [entry] + files
@@ -125,14 +132,29 @@ jobs:
           index_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
           PY
 
-          python3 -m json.tool transfer/index.json >/dev/null
-          test "$(shasum -a 256 "$DEST" | awk '{print $1}')" = "$SHA256"
-          grep -Fq "\"id\": \"tipa-qatar-marketplace-current-$VERSION\"" transfer/index.json
+            python3 -m json.tool transfer/index.json >/dev/null
+            test "$(shasum -a 256 "$DEST" | awk '{print $1}')" = "$SHA256"
+            grep -Fq "\"id\": \"tipa-qatar-marketplace-current-$VERSION\"" transfer/index.json
 
-          git add -f "$DEST_DIR" transfer/index.json
-          git diff --cached --quiet && exit 0
-          git commit -m "Publish TIPA $VERSION to NS Transfer"
-          git push origin HEAD:main
+            git add -f "$DEST_DIR" transfer/index.json
+            if git diff --cached --quiet; then
+              return 0
+            fi
+            git commit -m "Publish TIPA $VERSION to NS Transfer"
+            git push origin HEAD:main
+          }
+
+          for attempt in 1 2 3 4 5; do
+            if publish_attempt; then
+              echo "NS Transfer publish succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "NS Transfer changed during publish; retrying from latest main ($attempt/5)..."
+            sleep $((attempt * 2))
+          done
+
+          echo "NS Transfer publish failed after 5 attempts"
+          exit 1
 
       - name: Upload TIPA
         uses: actions/upload-artifact@v4
