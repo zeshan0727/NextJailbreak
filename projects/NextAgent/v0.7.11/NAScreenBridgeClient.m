@@ -165,4 +165,14 @@ static CFStringRef const NABridgeServiceName =
     return [self request:@{@"action": @"hid_paste"} timeout:3.0];
 }
 
++ (NSDictionary *)hidTypeText:(NSString *)text {
+    if (!text.length || text.length > 4096) {
+        return @{@"success": @NO, @"error": @"text length must be 1...4096"};
+    }
+    return [self request:@{
+        @"action": @"hid_type_text",
+        @"text": text
+    } timeout:20.0];
+}
+
 @end
