@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T10:58:29Z",
+  "updatedAt": "2026-09-21T11:17:30Z",
   "files": [
+    {
+      "id": "tipa-qatar-marketplace-current-0.3.0",
+      "name": "TIPA 0.3.0 — Qatar Marketplace Accuracy",
+      "fileName": "TIPA-0.3.0.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "0.3.0 (3)",
+      "url": "https://nextjailbreak.com/transfer/files/TIPA/0.3.0/TIPA-0.3.0.tipa",
+      "sha256": "8a027cd92d6de33c2def78bc7dc357ea7b97b515a1c136c34655a1c2d2e3bc04",
+      "sizeBytes": 1377026,
+      "notes": "Accuracy-first Qatar marketplace build. Accepts only verified individual-ad URL patterns, rejects marketplace home/category/search pages and generic feeds, filters phone accessories unless requested, improves natural-query normalization, and labels direct ads explicitly."
+    },
     {
       "id": "next-agent-current-0.7.19-roothide",
       "name": "Next Agent 0.7.19 — SpringBoard HUD + Full-Screen Apps",
@@ -37,18 +49,6 @@
       "sha256": "75e4b79d613ef8ff05b1299211bf402393d8b2851ebfb627af514ef4d40601df",
       "sizeBytes": 12496,
       "notes": "SpringBoard-only RootHide HUD anchored to SpringBoard's status-bar/window hierarchy. It no longer depends on a UIWindow inside Next Agent or the foreground app."
-    },
-    {
-      "id": "tipa-qatar-marketplace-current-0.3.0",
-      "name": "TIPA 0.3.0 — Qatar Marketplace Accuracy",
-      "fileName": "TIPA-0.3.0.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "0.3.0 (3)",
-      "url": "https://nextjailbreak.com/transfer/files/TIPA/0.3.0/TIPA-0.3.0.tipa",
-      "sha256": "dd8c791311ba93b7e1dc877044592dd6beb22fe8bf29f5830590835f7fe69712",
-      "sizeBytes": 1376471,
-      "notes": "Accuracy-first Qatar marketplace build. Accepts only verified individual-ad URL patterns, rejects marketplace home/category/search pages and generic feeds, filters phone accessories unless requested, improves natural-query normalization, and labels direct ads explicitly."
     },
     {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
