@@ -1,30 +1,30 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T08:03:35Z",
+  "updatedAt": "2026-09-21T08:24:58Z",
   "files": [
     {
-      "id": "next-agent-current-0.7.12-roothide",
-      "name": "Next Agent 0.7.12 — Status + Performance",
-      "fileName": "NextAgent-0.7.12.tipa",
+      "id": "next-agent-current-0.7.13-roothide",
+      "name": "Next Agent 0.7.13 — Native HUD + Precision Tap",
+      "fileName": "NextAgent-0.7.13.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.12 (20)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.12/NextAgent-0.7.12.tipa",
-      "sha256": "5e20b23c57e93966b683de42deaa599449cce8695f4e3322ba9ff51d7d5c53f3",
-      "sizeBytes": 1022531,
-      "notes": "Next Agent 0.7.12 keeps the proven SpringBoard HID core and adds a system-wide SpringBoard HUD for live task status, Fast OCR for routine navigation, short-lived OCR caching, quicker UI polling, Thinking status between tool calls, and System / Light / Dark appearance."
+      "version": "0.7.13 (21)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.13/NextAgent-0.7.13.tipa",
+      "sha256": "9fb1bd3ada29d788a5bb5e9b58f30709190fb64907c284629301430cb091351a",
+      "sizeBytes": 1022404,
+      "notes": "Next Agent 0.7.13 keeps the proven SpringBoard HID core, switches task status to native SBHUDViewController, restores Accurate Vision OCR for actual tap_text targets while keeping faster OCR for read/find/wait operations, and prevents diagnostic device_info from being presented as completion of a requested UI-navigation route."
     },
     {
-      "id": "next-agent-daemon-current-0.7.12-roothide",
-      "name": "Next Agent Daemon 0.7.12 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.12-RootHide.deb",
+      "id": "next-agent-daemon-current-0.7.13-roothide",
+      "name": "Next Agent Daemon 0.7.13 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.13-RootHide.deb",
       "type": "deb",
       "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.12",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.12/NextAgentDaemon-0.7.12-RootHide.deb",
-      "sha256": "efbe8250d9b0cf314352729e904b2ec1ea2ead4c6ef5ea0793db098c72cca4b6",
-      "sizeBytes": 57060,
-      "notes": "Matching RootHide helper for Next Agent 0.7.12. Installs the system HUD + OCR/HID SpringBoard bridge, keeps the proven touch/Admin keyboard path, adds OCR caching, async split hosting, automatic SpringBoard reload and root helper services."
+      "version": "0.7.13",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.13/NextAgentDaemon-0.7.13-RootHide.deb",
+      "sha256": "aa2dfc3428747bb36f2d124cbf3274cc2457a7f9689c8a00f77a7cc50ade839b",
+      "sizeBytes": 58080,
+      "notes": "Matching RootHide helper for Next Agent 0.7.13. Installs the native SBHUDViewController status bridge plus the proven touch/Admin keyboard HID path, precision tap OCR, async split hosting, automatic SpringBoard reload and root helper services."
     },
     {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
