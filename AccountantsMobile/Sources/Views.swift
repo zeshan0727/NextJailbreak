@@ -98,7 +98,7 @@ struct RootView: View {
             }
             .navigationTitle("Accountants")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Button {
                             Task { await model.syncNow(force: true) }
@@ -377,7 +377,7 @@ struct ManagerReportingView: View {
             SearchBar(text: $search, prompt: "Account code or name")
             let rows = model.managerRows(search: search)
             if rows.isEmpty {
-                ContentUnavailableView("No TB data", systemImage: "tablecells", description: Text("Import/sync the selected period on the Windows app, then let the cloud backup refresh."))
+                EmptyState(title: "No TB data", icon: "tablecells", message: "Import/sync the selected period on the Windows app, then let the cloud backup refresh.")
             } else {
                 List {
                     ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
@@ -453,7 +453,7 @@ struct AuditView: View {
             let type = segment == 0 ? "PL" : "BS"
             let rows = model.auditRows(statement: type)
             if rows.isEmpty {
-                ContentUnavailableView("No audit template", systemImage: "checkmark.seal", description: Text("No audit statement lines were found for this entity."))
+                EmptyState(title: "No audit template", icon: "checkmark.seal", message: "No audit statement lines were found for this entity.")
             } else {
                 List {
                     ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
@@ -492,7 +492,7 @@ struct FARView: View {
         let files = model.farFiles()
         Group {
             if files.isEmpty {
-                ContentUnavailableView("No FAR files", systemImage: "building.2.crop.circle", description: Text("FAR files from the Windows backup will appear here after sync."))
+                EmptyState(title: "No FAR files", icon: "building.2.crop.circle", message: "FAR files from the Windows backup will appear here after sync.")
             } else {
                 List(files) { file in
                     Button {
@@ -542,7 +542,7 @@ struct FilesView: View {
             SearchBar(text: $search, prompt: "Search synced files")
             let files = model.syncedFiles(filter: search)
             if files.isEmpty {
-                ContentUnavailableView("No files", systemImage: "folder", description: Text("No matching files are present in the latest synced backup."))
+                EmptyState(title: "No files", icon: "folder", message: "No matching files are present in the latest synced backup.")
             } else {
                 List(files) { file in
                     Button {
@@ -606,7 +606,7 @@ struct RowsList: View {
 
     var body: some View {
         if rows.isEmpty {
-            ContentUnavailableView(emptyTitle, systemImage: "tray")
+            EmptyState(title: emptyTitle, icon: "tray")
         } else {
             List {
                 ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
@@ -626,6 +626,32 @@ struct RowsList: View {
             }
             .listStyle(.plain)
         }
+    }
+}
+
+struct EmptyState: View {
+    let title: String
+    let icon: String
+    var message: String = ""
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Spacer()
+            Image(systemName: icon)
+                .font(.system(size: 42))
+                .foregroundStyle(.secondary)
+            Text(title)
+                .font(.headline)
+            if !message.isEmpty {
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 28)
+            }
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, minHeight: 260)
     }
 }
 
