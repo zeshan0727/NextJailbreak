@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T09:50:32Z",
+  "updatedAt": "2026-09-21T09:57:45Z",
   "files": [
     {
       "id": "next-agent-current-0.7.16-roothide",
@@ -10,7 +10,7 @@
       "platform": "TrollStore / RootHide / iOS 16+",
       "version": "0.7.16 (24)",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.16/NextAgent-0.7.16.tipa",
-      "sha256": "92f3c0d9be290c63b63804af06384351379af5395708bd50b22587848ef135d6",
+      "sha256": "b413cf71ae03f278ac4a12f9e394e416b016de3fe73fc895a29aa84b71a431b7",
       "sizeBytes": 1027282,
       "notes": "Next Agent 0.7.16 adds manual Show HUD and Clear Split buttons, returns routine app automation to reliable full-screen launching, and keeps split workspace explicit-only for diagnostics."
     },
@@ -22,8 +22,8 @@
       "platform": "RootHide / iphoneos-arm64e",
       "version": "0.7.16",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.16/NextAgentDaemon-0.7.16-RootHide.deb",
-      "sha256": "dd5c3e6f1943ad22956be4b11fd44bbddf1789e5484a51c1b743db5da6cd8a62",
-      "sizeBytes": 61396,
+      "sha256": "eadc7a01f5f27e0a9e6baeef7f3227f93a12e5f2dde87db738765c70ca984ce5",
+      "sizeBytes": 61768,
       "notes": "Matching RootHide helper for Next Agent 0.7.16. Installs the SpringBoard OCR/HID bridge and root helper; the system-wide HUD is packaged separately as the Next Agent System HUD RootHide tweak."
     },
     {
@@ -34,8 +34,8 @@
       "platform": "RootHide / iphoneos-arm64e",
       "version": "0.7.16",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.16/NextAgentStatusHUD-0.7.16-RootHide.deb",
-      "sha256": "fcdb1328d9aad45ffa35764eb0bcd9f60c61d5635dfe1102c89e56cef1ad2c41",
-      "sizeBytes": 10572,
+      "sha256": "b732c804b65e4e92afca8b9fa474f7d23bacdf34c63fa25bbd002063109a7877",
+      "sizeBytes": 10564,
       "notes": "Standalone RootHide system-wide HUD tweak for Next Agent. Injects into UIKit apps and displays Working, Opening, Reading, Typing, Thinking, Returning, Complete, Failed and Stopped states from Next Agent without using split workspace."
     },
     {
