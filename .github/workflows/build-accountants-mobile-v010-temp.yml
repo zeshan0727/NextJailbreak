@@ -69,3 +69,5 @@ jobs:
       - name: Fail when compilation failed
         if: steps.compile.outcome != 'success'
         run: exit 1
+
+# Rebuild after Swift concurrency fix
