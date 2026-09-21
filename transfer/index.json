@@ -1,30 +1,30 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T08:58:15Z",
+  "updatedAt": "2026-09-21T09:19:28Z",
   "files": [
     {
-      "id": "next-agent-current-0.7.14-roothide",
-      "name": "Next Agent 0.7.14 — Dual HUD + Background Diagnostics",
-      "fileName": "NextAgent-0.7.14.tipa",
+      "id": "next-agent-current-0.7.15-roothide",
+      "name": "Next Agent 0.7.15 — HUD Probe + Scene Recovery",
+      "fileName": "NextAgent-0.7.15.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.14 (22)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.14/NextAgent-0.7.14.tipa",
-      "sha256": "ce857b1461521cd41a2adc0c709aecf6d1cffe536ac27160f11e6cae081ef0c3",
-      "sizeBytes": 1022465,
-      "notes": "Next Agent 0.7.14 keeps the proven HID/OCR core and adds dual-layer live task status: native SpringBoard HUD when available plus a foreground-app HUD fallback for Settings, Notes, Safari and other UIKit apps. HUD and background-protection diagnostics now record failure stages and historical acquire/release state."
+      "version": "0.7.15 (23)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.15/NextAgent-0.7.15.tipa",
+      "sha256": "c80a47aac605a3f51847fbe1a68f6d4117b5d9389bfc5979e77560288c7a318f",
+      "sizeBytes": 1022434,
+      "notes": "Next Agent 0.7.15 shows the HUD inside Next Agent itself with a short HUD-ready probe, keeps status visible in foreground UIKit apps, and strengthens split launching with SBSceneManagerCoordinator scene discovery plus an iOS 16 foreground-launch recovery path."
     },
     {
-      "id": "next-agent-daemon-current-0.7.14-roothide",
-      "name": "Next Agent Daemon 0.7.14 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.14-RootHide.deb",
+      "id": "next-agent-daemon-current-0.7.15-roothide",
+      "name": "Next Agent Daemon 0.7.15 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.15-RootHide.deb",
       "type": "deb",
       "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.14",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.14/NextAgentDaemon-0.7.14-RootHide.deb",
-      "sha256": "9d775a5c6ea04281dfc3b98db51287e1335f18f1012b0223d5cad0e677c09297",
-      "sizeBytes": 66516,
-      "notes": "Matching RootHide helper for Next Agent 0.7.14. Installs the SpringBoard bridge and foreground-app HUD fallback, stronger SpringBoard-held RBS/BKS process protection, persistent diagnostics, proven HID input, precision OCR, async split hosting and automatic SpringBoard reload."
+      "version": "0.7.15",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.15/NextAgentDaemon-0.7.15-RootHide.deb",
+      "sha256": "18c45946ed4cdbabad18ddf9ebfadf80e7ea08941d9da4b99f73aaa1fc0f4bca",
+      "sizeBytes": 68192,
+      "notes": "Matching RootHide helper for Next Agent 0.7.15. Installs the in-app/foreground HUD fallback and SpringBoard bridge with scene-manager recovery, proven HID input, precision OCR, background diagnostics and automatic SpringBoard reload."
     },
     {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
