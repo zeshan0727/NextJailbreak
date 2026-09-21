@@ -1,30 +1,30 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T05:43:07Z",
+  "updatedAt": "2026-09-21T06:01:03Z",
   "files": [
     {
-      "id": "next-agent-current-0.7.8-roothide",
-      "name": "Next Agent 0.7.8 — SpringBoard OCR + Enforced Split",
-      "fileName": "NextAgent-0.7.8.tipa",
+      "id": "next-agent-current-0.7.9-roothide",
+      "name": "Next Agent 0.7.9 — Locked OCR Bridge + Target Split",
+      "fileName": "NextAgent-0.7.9.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.8 (16)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.8/NextAgent-0.7.8.tipa",
-      "sha256": "6cf434b67982603890d76f7ed7a5df0dc7821fbb1b970b5051760bedb16fd988",
-      "sizeBytes": 1001189,
-      "notes": "Next Agent 0.7.8 adds SpringBoard-native Vision OCR, a real OCR self-test, split-workspace capability validation, and enforced 50/50 split routing for normal interactive app opens so Next Agent remains foreground while the target app is hosted alongside it."
+      "version": "0.7.9 (17)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.9/NextAgent-0.7.9.tipa",
+      "sha256": "0e1e4d2c16a4f6dbe3364cd9d9eeac5844c79d06ce9c84d194beb13b0cc69cf3",
+      "sizeBytes": 1001417,
+      "notes": "Next Agent 0.7.9 adds a generation-locked SpringBoard OCR bridge, automatic accurate-to-fast OCR fallback, and a target-only bottom-half scene host so Next Agent remains the real foreground app."
     },
     {
-      "id": "next-agent-daemon-current-0.7.8-roothide",
-      "name": "Next Agent Daemon 0.7.8 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.8-RootHide.deb",
+      "id": "next-agent-daemon-current-0.7.9-roothide",
+      "name": "Next Agent Daemon 0.7.9 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.9-RootHide.deb",
       "type": "deb",
       "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.8",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.8/NextAgentDaemon-0.7.8-RootHide.deb",
-      "sha256": "a50ec361282ea781ad931b95804366cee8a1ec68f69cb4da98536976224648af",
-      "sizeBytes": 49780,
-      "notes": "Matching RootHide helper for Next Agent 0.7.8. Provides SpringBoard-native Vision OCR, direct capture transport, scene-host split-workspace support, HID input and root helper services."
+      "version": "0.7.9",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.9/NextAgentDaemon-0.7.9-RootHide.deb",
+      "sha256": "4f89b1c465a2783a42de4ee3352b2e829bc7d330ff0bbb857a75024380c38c82",
+      "sizeBytes": 50112,
+      "notes": "Matching RootHide helper for Next Agent 0.7.9. Uses a generation-specific SpringBoard dylib/service, removes stale bridge files on upgrade, reloads SpringBoard after install, and provides target-only split hosting, OCR, HID and root helper services."
     },
     {
       "id": "nextpost-1.0.13-selectable-remaining",
