@@ -60,9 +60,10 @@ struct SearchIntent {
             .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
             .map { normalizeToken(String($0).lowercased()) }
             .filter { token in
-                !token.isEmpty &&
-                !stop.contains(token) &&
-                (token.count > 1 || Int(token) != nil)
+                let modelLetters: Set<String> = ["x", "s", "z"]
+                return !token.isEmpty &&
+                    !stop.contains(token) &&
+                    (token.count > 1 || Int(token) != nil || modelLetters.contains(token))
             }
 
         let cleaned = tokens.joined(separator: " ")
