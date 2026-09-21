@@ -79,7 +79,7 @@ struct ContentView: View {
                 Text("Find it all in Qatar").font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer()
-            Text("v0.2")
+            Text("v0.3")
                 .font(.caption.bold()).foregroundStyle(accent)
                 .padding(.horizontal, 10).padding(.vertical, 6)
                 .background(accent.opacity(0.10), in: Capsule())
@@ -167,7 +167,7 @@ struct ContentView: View {
         if let errorText {
             messageCard(icon: "exclamationmark.triangle.fill", title: "Search issue", text: errorText)
         } else if hasSearched && !isSearching && filtered.isEmpty {
-            messageCard(icon: "magnifyingglass", title: "No indexed listing found", text: "Try a shorter item name, for example “15 Pro Max”, “Fold 5”, or “Patrol 2012”.")
+            messageCard(icon: "checkmark.shield", title: "No verified direct ad found", text: "TIPA now rejects home pages, category pages and generic marketplace feeds. Try an exact model such as “iPhone 14 Pro Max”, “Samsung Fold 5”, or “Patrol 2012”.")
         } else {
             LazyVStack(spacing: 12) {
                 ForEach(Array(filtered.enumerated()), id: \.element.id) { index, listing in
@@ -186,7 +186,7 @@ struct ContentView: View {
                 }
                 VStack(alignment: .leading, spacing: 7) {
                     HStack(alignment: .firstTextBaseline) {
-                        if best { Text("BEST").font(.caption2.weight(.black)).foregroundStyle(.white).padding(.horizontal, 7).padding(.vertical, 3).background(Color.green, in: Capsule()) }
+                        if best { Text("LOWEST").font(.caption2.weight(.black)).foregroundStyle(.white).padding(.horizontal, 7).padding(.vertical, 3).background(Color.green, in: Capsule()) }\n                        Text("DIRECT").font(.caption2.weight(.bold)).foregroundStyle(accent).padding(.horizontal, 7).padding(.vertical, 3).background(accent.opacity(0.10), in: Capsule())
                         Spacer()
                         if let price = listing.priceQAR { Text("QAR \(price.formatted())").font(.headline).foregroundStyle(.green) }
                         else { Text("Price n/a").font(.caption.bold()).foregroundStyle(.secondary) }
@@ -195,7 +195,7 @@ struct ContentView: View {
                     HStack {
                         Text(listing.source.name).font(.caption).foregroundStyle(.secondary)
                         Spacer()
-                        Label("Open", systemImage: "arrow.up.right.square").font(.caption.bold()).foregroundStyle(accent)
+                        Label("Exact ad", systemImage: "arrow.up.right.square").font(.caption.bold()).foregroundStyle(accent)
                     }
                 }
             }
@@ -219,7 +219,7 @@ struct ContentView: View {
     private var footer: some View {
         VStack(spacing: 5) {
             Text("TIPA does not host or sell listings.").font(.caption.bold())
-            Text("Results are web-indexed from the original marketplaces. Always verify the live price, seller and availability before buying.")
+            Text("Only individual ad URLs are shown. Marketplace home pages, category pages and generic feeds are discarded. Always verify the live price, seller and availability before buying.")
                 .font(.caption2).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
         .padding(.top, 8)
