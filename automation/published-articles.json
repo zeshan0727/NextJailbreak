@@ -1,6 +1,216 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "jailbreak",
+        "label": "Jailbreak"
+      },
+      "description": "Explore palera1n 3.0.0 beta 2: GUI controls for DFU and PongoOS, quick-mode fixes, macOS improvements, official downloads and hardware limits.",
+      "entry_type": "source-news",
+      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
+      "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-a4961ba476.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.1",
+      "modified_at": "2026-09-22T06:21:05+00:00",
+      "name": "palera1n",
+      "package": "palera1n-gui-beta2",
+      "published_at": "2026-09-22T06:21:05+00:00",
+      "quality_target": 9,
+      "selection_pool": "user-authorized-six-article-batch-20260921",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
+      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/5bb59012a666c5d15ad5a34f1c1c47ecb5d33791f65468d391fb7bc987906525/palera1n/palera1n/releases/tag/v3.0.0-beta.1",
+      "title": "palera1n 3.0.0 Beta 2: GUI Changes and DFU Fixes Explained",
+      "version": "3.0.0",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-detail-b8ad42813f.png",
+          "image_url": "https://opengraph.githubassets.com/8696974cc13c7691ed71889df3af88bb03a172a7b7c0cc714e395ff3865cede7/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
+          "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
+          "source_host": "github.com",
+          "credit": "Source visual from github.com",
+          "origin": "og:image"
+        }
+      ]
+    },
+    {
+      "category": {
+        "id": "jailbreak",
+        "label": "Jailbreak"
+      },
+      "description": "Dopamine 3.0.9 fixes Home Screen cleanup during jailbreak removal. Learn the iOS ranges and the different TrollStore and non-TrollStore removal flows.",
+      "entry_type": "source-news",
+      "href": "dopamine-3-0-9-jailbreak-removal-fixes/",
+      "image": "assets/articles/source-media/dopamine-3-0-9-jailbreak-removal-fixes-5b159483aa.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.8",
+      "modified_at": "2026-09-22T06:21:04+00:00",
+      "name": "Dopamine",
+      "package": "dopamine-removal-309",
+      "published_at": "2026-09-22T06:21:04+00:00",
+      "quality_target": 9,
+      "selection_pool": "user-authorized-six-article-batch-20260921",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.9",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.9",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/50b3ac3295d498b5454dd2612c05032b011619c81c264f537059a1338d5e5518/opa334/Dopamine/releases/tag/3.0.8",
+      "title": "Dopamine 3.0.9: Home Screen Cleanup and Jailbreak Removal Explained",
+      "version": "3.0.9",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/dopamine-3-0-9-jailbreak-removal-fixes-detail-bcbd3380fc.png",
+          "image_url": "https://opengraph.githubassets.com/c90bb19f67c2bb3469e7fc6d351413f8424e11b135fff72c5c79abab0b419d28/opa334/Dopamine/releases/tag/3.0.9",
+          "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.9",
+          "source_host": "github.com",
+          "credit": "Source visual from github.com",
+          "origin": "og:image"
+        }
+      ]
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Compare LiveContainer 3.8.0 with the September 18 nightly, including storage tools, sharing, multitasking and exact installation requirements.",
+      "entry_type": "source-news",
+      "href": "livecontainer-3-8-0-stable-vs-nightly/",
+      "image": "assets/articles/source-media/livecontainer-3-8-0-stable-vs-nightly-ba0ec777ef.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "modified_at": "2026-09-22T06:21:03+00:00",
+      "name": "LiveContainer",
+      "package": "livecontainer-stable-nightly",
+      "published_at": "2026-09-22T06:21:03+00:00",
+      "quality_target": 9,
+      "selection_pool": "user-authorized-six-article-batch-20260921",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "source_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/349be28ae55f70eb9c9f238e82fb0579c48df6a511dae458241db0a4975477f4/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "title": "LiveContainer 3.8.0 vs September 18 Nightly: Features and Requirements",
+      "version": "3.8.0",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/livecontainer-3-8-0-stable-vs-nightly-detail-4bac5376ee.png",
+          "image_url": "https://opengraph.githubassets.com/9c0af71fb07c83d6b6084acce70d0c0debabf5033f0d1afafce7a7a2b56d509c/LiveContainer/LiveContainer",
+          "source_url": "https://github.com/LiveContainer/LiveContainer",
+          "source_host": "github.com",
+          "credit": "Source visual from github.com",
+          "origin": "og:image"
+        }
+      ]
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Explore the September 20 SideStore 0.7.0 nightly: dual pairing files, protocol preferences, revised prompts and experimental hotswap.",
+      "entry_type": "source-news",
+      "href": "sidestore-nightly-2026-09-20-pairing-update/",
+      "image": "assets/articles/source-media/sidestore-nightly-2026-09-20-pairing-update-79c3c13807.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/SideStore/SideStore/commit/0dd743f75afc358b0ba4a002feb5f19474492371",
+      "modified_at": "2026-09-22T06:21:02+00:00",
+      "name": "SideStore Nightly",
+      "package": "sidestore-nightly-pairing",
+      "published_at": "2026-09-22T06:21:02+00:00",
+      "quality_target": 9,
+      "selection_pool": "user-authorized-six-article-batch-20260921",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/SideStore/SideStore/releases/tag/nightly",
+      "source_url": "https://github.com/SideStore/SideStore/releases/tag/nightly",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/2f251d2f970876fd4e741d294a739968fefee25d2e47b5d0550c8f049c758eee/SideStore/SideStore/commit/0dd743f75afc358b0ba4a002feb5f19474492371",
+      "title": "SideStore 0.7.0 Nightly: September 20 Pairing Changes Explained",
+      "version": "0.7.0",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/sidestore-nightly-2026-09-20-pairing-update-detail-fb53888140.png",
+          "image_url": "https://opengraph.githubassets.com/ef6df120c6f8cb095dd89cfc9fbba3ed8ef6816c676c3f4e19d5fc35dc1fad26/SideStore/SideStore/releases/tag/nightly",
+          "source_url": "https://github.com/SideStore/SideStore/releases/tag/nightly",
+          "source_host": "github.com",
+          "credit": "Source visual from github.com",
+          "origin": "og:image"
+        }
+      ]
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "SideStore 0.7.0-alpha addresses HTTP 503 sign-in failures after Apple server changes. Review the affected versions, build date and alpha limitations.",
+      "entry_type": "source-news",
+      "href": "sidestore-0-7-0-alpha-sign-in-error-503/",
+      "image": "assets/articles/source-media/sidestore-0-7-0-alpha-sign-in-error-503-3dd03b23b5.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/SideStore/SideStore",
+      "modified_at": "2026-09-22T06:21:01+00:00",
+      "name": "SideStore",
+      "package": "sidestore-signin-503",
+      "published_at": "2026-09-22T06:21:01+00:00",
+      "quality_target": 9,
+      "selection_pool": "user-authorized-six-article-batch-20260921",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/SideStore/SideStore/releases/tag/0.7.0-alpha",
+      "source_url": "https://github.com/SideStore/SideStore/releases/tag/0.7.0-alpha",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/aaf7ce244adb6018f81cac16a2697009ff9b2f5821376fbc8b43f50f1029e36c/SideStore/SideStore",
+      "title": "SideStore 0.7.0-alpha Addresses Sign-In Error 503",
+      "version": "0.7.0-alpha",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/sidestore-0-7-0-alpha-sign-in-error-503-detail-bd724fe2f1.png",
+          "image_url": "https://opengraph.githubassets.com/cc6b877cef4a91c0cee8071f2dde5f5a851be7bbd17e4959dabbfa08eecbbf0a/SideStore/SideStore/releases/tag/0.7.0-alpha",
+          "source_url": "https://github.com/SideStore/SideStore/releases/tag/0.7.0-alpha",
+          "source_host": "github.com",
+          "credit": "Source visual from github.com",
+          "origin": "og:image"
+        }
+      ]
+    },
+    {
+      "category": {
+        "id": "visual-customization",
+        "label": "Visual Customization"
+      },
+      "description": "Nugget 7.4 adds PosterBoard configuration options for iOS 26.4+, with a full-device backup requirement, stability limits and no iOS 27 support.",
+      "entry_type": "source-news",
+      "href": "nugget-7-4-posterboard-ios-26-4/",
+      "image": "assets/articles/source-media/nugget-7-4-posterboard-ios-26-4-5e0714ba89.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/leminlimez/Nugget/releases/tag/v7.3.2",
+      "modified_at": "2026-09-22T06:21:00+00:00",
+      "name": "Nugget",
+      "package": "nugget",
+      "published_at": "2026-09-22T06:21:00+00:00",
+      "quality_target": 9,
+      "selection_pool": "user-authorized-six-article-batch-20260921",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/leminlimez/Nugget/releases/tag/v7.4",
+      "source_url": "https://github.com/leminlimez/Nugget/releases/tag/v7.4",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/456dd12083bee8555d3b0b22be72f219c39d22dcbe81286980b59113ffdb2913/leminlimez/Nugget/releases/tag/v7.3.2",
+      "title": "Nugget 7.4: PosterBoard Options for iOS 26.4+ and Current Limits",
+      "version": "7.4",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/nugget-7-4-posterboard-ios-26-4-detail-cf210f7d3d.png",
+          "image_url": "https://opengraph.githubassets.com/7893ba70c6848b9a86cb8851ff3c95bb6eaff040c4211adcce46b1e651b22c1e/leminlimez/Nugget/releases/tag/v7.4",
+          "source_url": "https://github.com/leminlimez/Nugget/releases/tag/v7.4",
+          "source_host": "github.com",
+          "credit": "Source visual from github.com",
+          "origin": "og:image"
+        }
+      ]
+    },
+    {
       "article_sha256": "dabc2b76c60d0b9ca80b738f9a31954190b8b0491d12e5c6f0cc6200775ef611",
       "candidate_fingerprint": "de4f9cd4a7c689edcc435eabba67667bc626d8b6de239361cd1c785b2abfe70b",
       "category": {
@@ -3155,8 +3365,292 @@
       "published_at": "2026-09-20T20:48:50+00:00",
       "run_id": "35536401617",
       "version": "1.5.5"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_091011302015541e016ab125a75d2c87d1ba03c804b84147c7",
+          "usage": {
+            "input_tokens": 17669,
+            "input_tokens_details": {
+              "cache_write_tokens": 17666,
+              "cached_tokens": 0
+            },
+            "output_tokens": 481,
+            "output_tokens_details": {
+              "reasoning_tokens": 346
+            },
+            "total_tokens": 18150
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d1b936f3333420e016ab1258f334887d18846a6064267477f",
+          "usage": {
+            "input_tokens": 15186,
+            "input_tokens_details": {
+              "cache_write_tokens": 15183,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2767,
+            "output_tokens_details": {
+              "reasoning_tokens": 85
+            },
+            "total_tokens": 17953
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "nugget-7-4-posterboard-ios-26-4/",
+      "package": "nugget",
+      "published_at": "2026-09-22T06:21:00+00:00",
+      "version": "7.4"
+    },
+    {
+      "action": "create",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0a7b008bf0a5c45f016ab125c6cc2887d1a6c76f6cc97d36af",
+          "usage": {
+            "input_tokens": 15110,
+            "input_tokens_details": {
+              "cache_write_tokens": 15107,
+              "cached_tokens": 0
+            },
+            "output_tokens": 539,
+            "output_tokens_details": {
+              "reasoning_tokens": 375
+            },
+            "total_tokens": 15649
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_060ea232c6efac3b016ab125cc264887d1a57ed6eaca0b20be",
+          "usage": {
+            "input_tokens": 15205,
+            "input_tokens_details": {
+              "cache_write_tokens": 15202,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2418,
+            "output_tokens_details": {
+              "reasoning_tokens": 86
+            },
+            "total_tokens": 17623
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_03732aefb1b44a85016ab125df105887d1a08057dcf85b9098",
+          "usage": {
+            "input_tokens": 15182,
+            "input_tokens_details": {
+              "cache_write_tokens": 15179,
+              "cached_tokens": 0
+            },
+            "output_tokens": 418,
+            "output_tokens_details": {
+              "reasoning_tokens": 272
+            },
+            "total_tokens": 15600
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_08c9373957dc197c016ab125b1730887d196fee5eed8980161",
+          "usage": {
+            "input_tokens": 13063,
+            "input_tokens_details": {
+              "cache_write_tokens": 13060,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2330,
+            "output_tokens_details": {
+              "reasoning_tokens": 68
+            },
+            "total_tokens": 15393
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "sidestore-0-7-0-alpha-sign-in-error-503/",
+      "package": "sidestore-signin-503",
+      "published_at": "2026-09-22T06:21:01+00:00",
+      "version": "0.7.0-alpha"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0b8658deb41df354016ab125ffd8a087d1b4d37eabc76ac3bf",
+          "usage": {
+            "input_tokens": 23485,
+            "input_tokens_details": {
+              "cache_write_tokens": 23482,
+              "cached_tokens": 0
+            },
+            "output_tokens": 438,
+            "output_tokens_details": {
+              "reasoning_tokens": 293
+            },
+            "total_tokens": 23923
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_06c537783ade6ca6016ab125e9a5dc87d1bd7b8d26d913cd43",
+          "usage": {
+            "input_tokens": 21236,
+            "input_tokens_details": {
+              "cache_write_tokens": 21233,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2541,
+            "output_tokens_details": {
+              "reasoning_tokens": 71
+            },
+            "total_tokens": 23777
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "sidestore-nightly-2026-09-20-pairing-update/",
+      "package": "sidestore-nightly-pairing",
+      "published_at": "2026-09-22T06:21:02+00:00",
+      "version": "0.7.0"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0196c0e21115f00d016ab12620b33487d1a5204a3154cb46e5",
+          "usage": {
+            "input_tokens": 19483,
+            "input_tokens_details": {
+              "cache_write_tokens": 19480,
+              "cached_tokens": 0
+            },
+            "output_tokens": 391,
+            "output_tokens_details": {
+              "reasoning_tokens": 256
+            },
+            "total_tokens": 19874
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_002d8e9b3fbed9cd016ab1260cc99c87d1a7ed1539b5397ed7",
+          "usage": {
+            "input_tokens": 17151,
+            "input_tokens_details": {
+              "cache_write_tokens": 17148,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2582,
+            "output_tokens_details": {
+              "reasoning_tokens": 35
+            },
+            "total_tokens": 19733
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "livecontainer-3-8-0-stable-vs-nightly/",
+      "package": "livecontainer-stable-nightly",
+      "published_at": "2026-09-22T06:21:03+00:00",
+      "version": "3.8.0"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_080cdd6b9dd221f7016ab12642ec4487d19c719d1824d63490",
+          "usage": {
+            "input_tokens": 19873,
+            "input_tokens_details": {
+              "cache_write_tokens": 19870,
+              "cached_tokens": 0
+            },
+            "output_tokens": 512,
+            "output_tokens_details": {
+              "reasoning_tokens": 358
+            },
+            "total_tokens": 20385
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0961bbb985df053c016ab1262a705487d1976e260258bfa4ea",
+          "usage": {
+            "input_tokens": 17238,
+            "input_tokens_details": {
+              "cache_write_tokens": 17235,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2893,
+            "output_tokens_details": {
+              "reasoning_tokens": 40
+            },
+            "total_tokens": 20131
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "dopamine-3-0-9-jailbreak-removal-fixes/",
+      "package": "dopamine-removal-309",
+      "published_at": "2026-09-22T06:21:04+00:00",
+      "version": "3.0.9"
+    },
+    {
+      "action": "create",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_027dfaa5ea00ccdc016ab12666f2c087d18b8aa93bfecda89f",
+          "usage": {
+            "input_tokens": 22916,
+            "input_tokens_details": {
+              "cache_write_tokens": 22913,
+              "cached_tokens": 0
+            },
+            "output_tokens": 434,
+            "output_tokens_details": {
+              "reasoning_tokens": 254
+            },
+            "total_tokens": 23350
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0676efd1721900b5016ab1264e7db087d19fef2779ffa6ba8b",
+          "usage": {
+            "input_tokens": 20359,
+            "input_tokens_details": {
+              "cache_write_tokens": 20356,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2821,
+            "output_tokens_details": {
+              "reasoning_tokens": 42
+            },
+            "total_tokens": 23180
+          }
+        }
+      },
+      "channel": "manual-verified-original-source-batch",
+      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
+      "package": "palera1n-gui-beta2",
+      "published_at": "2026-09-22T06:21:05+00:00",
+      "version": "3.0.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-20T20:48:50+00:00"
+  "updated_at": "2026-09-22T06:21:18+00:00"
 }
