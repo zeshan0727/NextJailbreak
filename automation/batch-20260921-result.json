@@ -1,0 +1,53 @@
+{
+  "updated_at": "2026-09-22T06:21:18+00:00",
+  "results": [
+    {
+      "name": "Nugget",
+      "version": "7.4",
+      "status": "published",
+      "href": "nugget-7-4-posterboard-ios-26-4/",
+      "image": "assets/articles/source-media/nugget-7-4-posterboard-ios-26-4-5e0714ba89.png",
+      "media_source_url": "https://github.com/leminlimez/Nugget/releases/tag/v7.3.2"
+    },
+    {
+      "name": "SideStore",
+      "version": "0.7.0-alpha",
+      "status": "published",
+      "href": "sidestore-0-7-0-alpha-sign-in-error-503/",
+      "image": "assets/articles/source-media/sidestore-0-7-0-alpha-sign-in-error-503-3dd03b23b5.png",
+      "media_source_url": "https://github.com/SideStore/SideStore"
+    },
+    {
+      "name": "SideStore Nightly",
+      "version": "0.7.0",
+      "status": "published",
+      "href": "sidestore-nightly-2026-09-20-pairing-update/",
+      "image": "assets/articles/source-media/sidestore-nightly-2026-09-20-pairing-update-79c3c13807.png",
+      "media_source_url": "https://github.com/SideStore/SideStore/commit/0dd743f75afc358b0ba4a002feb5f19474492371"
+    },
+    {
+      "name": "LiveContainer",
+      "version": "3.8.0",
+      "status": "published",
+      "href": "livecontainer-3-8-0-stable-vs-nightly/",
+      "image": "assets/articles/source-media/livecontainer-3-8-0-stable-vs-nightly-ba0ec777ef.png",
+      "media_source_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0"
+    },
+    {
+      "name": "Dopamine",
+      "version": "3.0.9",
+      "status": "published",
+      "href": "dopamine-3-0-9-jailbreak-removal-fixes/",
+      "image": "assets/articles/source-media/dopamine-3-0-9-jailbreak-removal-fixes-5b159483aa.png",
+      "media_source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.8"
+    },
+    {
+      "name": "palera1n",
+      "version": "3.0.0",
+      "status": "published",
+      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
+      "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-a4961ba476.png",
+      "media_source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.1"
+    }
+  ]
+}
