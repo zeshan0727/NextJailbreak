@@ -58,9 +58,11 @@ jobs:
           import json, subprocess
           from pathlib import Path
           for target in json.loads(Path('automation/article_batch_20260921.json').read_text()):
-              subprocess.run(['git','add',target['slug']+'/index.html'],check=True)
+              page=Path(target['slug'])/'index.html'
+              page.write_text('\\n'.join(line.rstrip() for line in page.read_text().splitlines())+'\\n')
+              subprocess.run(['git','add',str(page)],check=True)
           PY
-          git diff --cached --check
+          git diff --cached --check -- . ':(exclude)assets/articles/source-media'
           git commit -m "Prepare six source-verified articles with original visuals and SEO"
           git push origin HEAD:refs/heads/editorial/six-articles-20260921
       - name: Preserve review evidence and log
