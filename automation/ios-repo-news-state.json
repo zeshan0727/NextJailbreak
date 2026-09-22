@@ -25,7 +25,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/bigboss/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-16T06:10:09.583518+00:00",
+      "checked_at": "2026-09-22T21:00:27.041910+00:00",
       "package": "me.alfhaily.rocket",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -64,11 +64,11 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-14T21:37:23.320014+00:00",
+      "checked_at": "2026-09-22T21:00:27+00:00",
       "package": "com.fouadraheb.regram",
-      "status": "duplicate",
-      "target_path": "regram-for-instagram-6-1-update/",
-      "version": "6.1"
+      "status": "published",
+      "target_path": "regram-for-instagram-6-2-update/",
+      "version": "6.2"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
       "checked_at": "2026-09-21T11:16:14.999264+00:00",
@@ -113,7 +113,7 @@
       "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
-      "checked_at": "2026-09-21T11:16:14.999264+00:00",
+      "checked_at": "2026-09-22T21:00:27.041910+00:00",
       "package": "com.cercube.ios",
       "status": "duplicate",
       "target_path": "cercube-for-youtube-6-1-3-update/",
@@ -232,7 +232,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytx/": {
-      "checked_at": "2026-09-20T20:29:13.146751+00:00",
+      "checked_at": "2026-09-22T21:00:27.041910+00:00",
       "package": "com.ps.ytx",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -1684,6 +1684,79 @@
         "com.witchan.ios-mcp: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0cd2a2a2d530c251016ab2eca2b1f087d08d1d655c16a9c6a1",
+          "usage": {
+            "input_tokens": 23513,
+            "input_tokens_details": {
+              "cache_write_tokens": 23510,
+              "cached_tokens": 0
+            },
+            "output_tokens": 743,
+            "output_tokens_details": {
+              "reasoning_tokens": 516
+            },
+            "total_tokens": 24256
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_004dc431ba77108a016ab2ecac99dc87d09c895d290bf77ca3",
+          "usage": {
+            "input_tokens": 23719,
+            "input_tokens_details": {
+              "cache_write_tokens": 23716,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2537,
+            "output_tokens_details": {
+              "reasoning_tokens": 57
+            },
+            "total_tokens": 26256
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_02f50b8b9cacf180016ab2ecc8015c87d09b9f166c6bd1ea91",
+          "usage": {
+            "input_tokens": 23349,
+            "input_tokens_details": {
+              "cache_write_tokens": 23346,
+              "cached_tokens": 0
+            },
+            "output_tokens": 347,
+            "output_tokens_details": {
+              "reasoning_tokens": 240
+            },
+            "total_tokens": 23696
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0a84dad44c712812016ab2ec84ed6487d0aa18bfb7637d93b1",
+          "usage": {
+            "input_tokens": 21055,
+            "input_tokens_details": {
+              "cache_write_tokens": 21052,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2719,
+            "output_tokens_details": {
+              "reasoning_tokens": 75
+            },
+            "total_tokens": 23774
+          }
+        }
+      },
+      "at": "2026-09-22T21:00:27+00:00",
+      "package": "com.fouadraheb.regram",
+      "target_path": "regram-for-instagram-6-2-update/",
+      "version": "6.2"
     }
   ],
   "schema_version": 1

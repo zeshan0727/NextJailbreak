@@ -2,6 +2,41 @@
   "entries": [
     {
       "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Regram for Instagram 6.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "regram-for-instagram-6-2-update/",
+      "image": "assets/articles/source-media/regram-for-instagram-6-2-update-9db610e010.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Regram-for-Instagram/commit/0ce35181a2daeb25be88bb9446fb6101dfce9b90",
+      "modified_at": "2026-09-22T21:00:27+00:00",
+      "name": "Regram for Instagram",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-09-22T21:00:27+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/48fc7c99dd1aa29623cb56b1c77de2e40e7fd9a616a5c5ca9fe888447f35141c/FouadRaheb/Regram-for-Instagram/commit/0ce35181a2daeb25be88bb9446fb6101dfce9b90",
+      "title": "Regram 6.2 Adds Stacked Notifications, Reels Controls and Expanded Local Spoofing",
+      "version": "6.2"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Source visual from github.com",
+          "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-detail-b8ad42813f.png",
+          "image_url": "https://opengraph.githubassets.com/8696974cc13c7691ed71889df3af88bb03a172a7b7c0cc714e395ff3865cede7/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
+          "origin": "og:image",
+          "source_host": "github.com",
+          "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2"
+        }
+      ],
+      "category": {
         "id": "jailbreak",
         "label": "Jailbreak"
       },
@@ -23,19 +58,19 @@
       "source_visual_origin": "og:image",
       "source_visual_url": "https://opengraph.githubassets.com/5bb59012a666c5d15ad5a34f1c1c47ecb5d33791f65468d391fb7bc987906525/palera1n/palera1n/releases/tag/v3.0.0-beta.1",
       "title": "palera1n 3.0.0 Beta 2: GUI Changes and DFU Fixes Explained",
-      "version": "3.0.0",
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-detail-b8ad42813f.png",
-          "image_url": "https://opengraph.githubassets.com/8696974cc13c7691ed71889df3af88bb03a172a7b7c0cc714e395ff3865cede7/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
-          "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
-          "source_host": "github.com",
-          "credit": "Source visual from github.com",
-          "origin": "og:image"
-        }
-      ]
+      "version": "3.0.0"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Source visual from github.com",
+          "image": "assets/articles/source-media/dopamine-3-0-9-jailbreak-removal-fixes-detail-bcbd3380fc.png",
+          "image_url": "https://opengraph.githubassets.com/c90bb19f67c2bb3469e7fc6d351413f8424e11b135fff72c5c79abab0b419d28/opa334/Dopamine/releases/tag/3.0.9",
+          "origin": "og:image",
+          "source_host": "github.com",
+          "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.9"
+        }
+      ],
       "category": {
         "id": "jailbreak",
         "label": "Jailbreak"
@@ -58,19 +93,19 @@
       "source_visual_origin": "og:image",
       "source_visual_url": "https://opengraph.githubassets.com/50b3ac3295d498b5454dd2612c05032b011619c81c264f537059a1338d5e5518/opa334/Dopamine/releases/tag/3.0.8",
       "title": "Dopamine 3.0.9: Home Screen Cleanup and Jailbreak Removal Explained",
-      "version": "3.0.9",
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/dopamine-3-0-9-jailbreak-removal-fixes-detail-bcbd3380fc.png",
-          "image_url": "https://opengraph.githubassets.com/c90bb19f67c2bb3469e7fc6d351413f8424e11b135fff72c5c79abab0b419d28/opa334/Dopamine/releases/tag/3.0.9",
-          "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.9",
-          "source_host": "github.com",
-          "credit": "Source visual from github.com",
-          "origin": "og:image"
-        }
-      ]
+      "version": "3.0.9"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Source visual from github.com",
+          "image": "assets/articles/source-media/livecontainer-3-8-0-stable-vs-nightly-detail-4bac5376ee.png",
+          "image_url": "https://opengraph.githubassets.com/9c0af71fb07c83d6b6084acce70d0c0debabf5033f0d1afafce7a7a2b56d509c/LiveContainer/LiveContainer",
+          "origin": "og:image",
+          "source_host": "github.com",
+          "source_url": "https://github.com/LiveContainer/LiveContainer"
+        }
+      ],
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -93,19 +128,19 @@
       "source_visual_origin": "og:image",
       "source_visual_url": "https://opengraph.githubassets.com/349be28ae55f70eb9c9f238e82fb0579c48df6a511dae458241db0a4975477f4/LiveContainer/LiveContainer/releases/tag/3.8.0",
       "title": "LiveContainer 3.8.0 vs September 18 Nightly: Features and Requirements",
-      "version": "3.8.0",
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/livecontainer-3-8-0-stable-vs-nightly-detail-4bac5376ee.png",
-          "image_url": "https://opengraph.githubassets.com/9c0af71fb07c83d6b6084acce70d0c0debabf5033f0d1afafce7a7a2b56d509c/LiveContainer/LiveContainer",
-          "source_url": "https://github.com/LiveContainer/LiveContainer",
-          "source_host": "github.com",
-          "credit": "Source visual from github.com",
-          "origin": "og:image"
-        }
-      ]
+      "version": "3.8.0"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Source visual from github.com",
+          "image": "assets/articles/source-media/sidestore-nightly-2026-09-20-pairing-update-detail-fb53888140.png",
+          "image_url": "https://opengraph.githubassets.com/ef6df120c6f8cb095dd89cfc9fbba3ed8ef6816c676c3f4e19d5fc35dc1fad26/SideStore/SideStore/releases/tag/nightly",
+          "origin": "og:image",
+          "source_host": "github.com",
+          "source_url": "https://github.com/SideStore/SideStore/releases/tag/nightly"
+        }
+      ],
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -128,19 +163,19 @@
       "source_visual_origin": "og:image",
       "source_visual_url": "https://opengraph.githubassets.com/2f251d2f970876fd4e741d294a739968fefee25d2e47b5d0550c8f049c758eee/SideStore/SideStore/commit/0dd743f75afc358b0ba4a002feb5f19474492371",
       "title": "SideStore 0.7.0 Nightly: September 20 Pairing Changes Explained",
-      "version": "0.7.0",
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/sidestore-nightly-2026-09-20-pairing-update-detail-fb53888140.png",
-          "image_url": "https://opengraph.githubassets.com/ef6df120c6f8cb095dd89cfc9fbba3ed8ef6816c676c3f4e19d5fc35dc1fad26/SideStore/SideStore/releases/tag/nightly",
-          "source_url": "https://github.com/SideStore/SideStore/releases/tag/nightly",
-          "source_host": "github.com",
-          "credit": "Source visual from github.com",
-          "origin": "og:image"
-        }
-      ]
+      "version": "0.7.0"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Source visual from github.com",
+          "image": "assets/articles/source-media/sidestore-0-7-0-alpha-sign-in-error-503-detail-bd724fe2f1.png",
+          "image_url": "https://opengraph.githubassets.com/cc6b877cef4a91c0cee8071f2dde5f5a851be7bbd17e4959dabbfa08eecbbf0a/SideStore/SideStore/releases/tag/0.7.0-alpha",
+          "origin": "og:image",
+          "source_host": "github.com",
+          "source_url": "https://github.com/SideStore/SideStore/releases/tag/0.7.0-alpha"
+        }
+      ],
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -163,19 +198,19 @@
       "source_visual_origin": "og:image",
       "source_visual_url": "https://opengraph.githubassets.com/aaf7ce244adb6018f81cac16a2697009ff9b2f5821376fbc8b43f50f1029e36c/SideStore/SideStore",
       "title": "SideStore 0.7.0-alpha Addresses Sign-In Error 503",
-      "version": "0.7.0-alpha",
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/sidestore-0-7-0-alpha-sign-in-error-503-detail-bd724fe2f1.png",
-          "image_url": "https://opengraph.githubassets.com/cc6b877cef4a91c0cee8071f2dde5f5a851be7bbd17e4959dabbfa08eecbbf0a/SideStore/SideStore/releases/tag/0.7.0-alpha",
-          "source_url": "https://github.com/SideStore/SideStore/releases/tag/0.7.0-alpha",
-          "source_host": "github.com",
-          "credit": "Source visual from github.com",
-          "origin": "og:image"
-        }
-      ]
+      "version": "0.7.0-alpha"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Source visual from github.com",
+          "image": "assets/articles/source-media/nugget-7-4-posterboard-ios-26-4-detail-cf210f7d3d.png",
+          "image_url": "https://opengraph.githubassets.com/7893ba70c6848b9a86cb8851ff3c95bb6eaff040c4211adcce46b1e651b22c1e/leminlimez/Nugget/releases/tag/v7.4",
+          "origin": "og:image",
+          "source_host": "github.com",
+          "source_url": "https://github.com/leminlimez/Nugget/releases/tag/v7.4"
+        }
+      ],
       "category": {
         "id": "visual-customization",
         "label": "Visual Customization"
@@ -198,17 +233,7 @@
       "source_visual_origin": "og:image",
       "source_visual_url": "https://opengraph.githubassets.com/456dd12083bee8555d3b0b22be72f219c39d22dcbe81286980b59113ffdb2913/leminlimez/Nugget/releases/tag/v7.3.2",
       "title": "Nugget 7.4: PosterBoard Options for iOS 26.4+ and Current Limits",
-      "version": "7.4",
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/nugget-7-4-posterboard-ios-26-4-detail-cf210f7d3d.png",
-          "image_url": "https://opengraph.githubassets.com/7893ba70c6848b9a86cb8851ff3c95bb6eaff040c4211adcce46b1e651b22c1e/leminlimez/Nugget/releases/tag/v7.4",
-          "source_url": "https://github.com/leminlimez/Nugget/releases/tag/v7.4",
-          "source_host": "github.com",
-          "credit": "Source visual from github.com",
-          "origin": "og:image"
-        }
-      ]
+      "version": "7.4"
     },
     {
       "article_sha256": "dabc2b76c60d0b9ca80b738f9a31954190b8b0491d12e5c6f0cc6200775ef611",
@@ -3649,8 +3674,17 @@
       "package": "palera1n-gui-beta2",
       "published_at": "2026-09-22T06:21:05+00:00",
       "version": "3.0.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "regram-for-instagram-6-2-update/",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-09-22T21:00:27+00:00",
+      "run_id": "35783834359",
+      "version": "6.2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-22T06:21:18+00:00"
+  "updated_at": "2026-09-22T21:00:27+00:00"
 }
