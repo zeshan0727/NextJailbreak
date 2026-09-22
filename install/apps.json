@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-accountants",
+      "name": "Accountants",
+      "version": "1.0.1",
+      "build": "2",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.accountants",
+      "icon": "/apple-touch-icon.png",
+      "manifest": "/install/com-nextsolution-accountants.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-accountants/1.0.1/com-nextsolution-accountants-1.0.1-2.ipa",
+      "sha256": "e105b2e029ade5507f31b21492daa26996e1c5d34eceef7d7de6ee484206e21c",
+      "sizeBytes": 2040696,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-aspire",
       "name": "Aspire Maintainance",
       "version": "1.1.9",
@@ -170,5 +191,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-09-21"
+  "updated": "2026-09-22"
 }
