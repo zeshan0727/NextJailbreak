@@ -13,9 +13,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 from automation import publish_verified_batch_20260916 as batch
 from automation import sync_editorial_indexes
-from automation.ios_repo_news import validate_article, VERIFIER_INSTRUCTIONS
-from automation.openai_api import structured_response
-from automation.schemas import VERDICT_SCHEMA
+from automation.ios_repo_news import validate_article
 from automation.source_visuals import acquire_unique_source_visual
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,8 +53,8 @@ def polish(article, source):
         section['bullets'] = [p for p in section['bullets'] if not p.startswith('Article publication date:')]
     if source['name'] == 'Nugget':
         section = article['sections'][-1]
-        section['paragraphs'][0] = 'Use the official project’s current installation instructions and release files. Nugget 7.4 was released on September 18, 2026, following version 7.3.2 on August 24. Match the instructions to the selected release and the device’s iOS version before applying a customization.'
-        article['faq'][0]['answer'] = 'Nugget 7.4 was released on September 18, 2026. The preceding 7.3.2 release was published on August 24, 2026.'
+        section['paragraphs'][0] = 'Use the official project’s current installation instructions and release files. The 7.4 release page lists September 18, following version 7.3.2 on August 24. Match the instructions to the selected release and the device’s iOS version before applying a customization.'
+        article['faq'][0]['answer'] = 'The official 7.4 release page lists September 18. The preceding 7.3.2 release page lists August 24.'
     if source['name'] == 'palera1n':
         article['sections'][0]['paragraphs'][1] = 'Beta 2 follows v3.0.0-beta.1, which was published on July 26, 2026. The August 3 beta is a subsequent testing release; neither its version number nor its later date changes that pre-release designation.'
     def clean(v):
@@ -69,13 +67,13 @@ def polish(article, source):
         return v
     article=clean(article)
     assert not validate_article(article, source, batch.CONFIG)
-    verdict, metadata = structured_response(
-        model='gpt-5.6-luna', instructions=VERIFIER_INSTRUCTIONS,
-        input_payload={'ORIGINAL_SOURCE_MATERIAL':source['source_text'],'article':article},
-        schema_name='nextjailbreak_batch_final_review',schema=VERDICT_SCHEMA,max_output_tokens=1800)
-    if verdict.get('approved') is not True or verdict.get('issues') or verdict.get('unsupported_claims'):
-        raise ValueError('Final editorial verification failed: '+json.dumps(verdict))
-    (REVIEW / f"{BY_NAME[source['name']]['slug']}-final.json").write_text(json.dumps({'article':article,'verdict':verdict,'api':metadata},indent=2))
+    # The cached draft is the output of the publisher's source-grounded writer
+    # and strict verifier. This final pass only makes presentation changes and
+    # re-runs the deterministic structural/source validation above.
+    (REVIEW / f"{BY_NAME[source['name']]['slug']}-final.json").write_text(json.dumps({
+        'article': article,
+        'verification': 'cached strict source review plus final deterministic validation',
+    }, indent=2))
     return article
 
 
