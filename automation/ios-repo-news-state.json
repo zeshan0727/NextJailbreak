@@ -64,14 +64,14 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-25T21:14:39.436484+00:00",
+      "checked_at": "2026-09-26T10:25:23.797942+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-2-update/",
       "version": "6.2"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-09-25T21:14:39.436484+00:00",
+      "checked_at": "2026-09-26T10:25:23.797942+00:00",
       "package": "com.fouadraheb.watusi3",
       "status": "duplicate",
       "target_path": "watusi-3-for-whatsapp-1-3-24-update/",
@@ -113,7 +113,7 @@
       "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
-      "checked_at": "2026-09-25T21:14:39.436484+00:00",
+      "checked_at": "2026-09-26T10:25:23.797942+00:00",
       "package": "com.cercube.ios",
       "status": "duplicate",
       "target_path": "cercube-for-youtube-6-1-3-update/",
@@ -172,7 +172,7 @@
       "version": "1.0.3"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.zqbb.hello.keyboard.ai/": {
-      "checked_at": "2026-09-25T21:14:39.436484+00:00",
+      "checked_at": "2026-09-26T10:25:23.797942+00:00",
       "package": "com.zqbb.hello.keyboard.ai",
       "status": "duplicate",
       "target_path": "hellokeyboardai-2-1-0-1-update/",
@@ -217,6 +217,13 @@
       "package": "me.alfhaily.rocket",
       "reason": "stale discovery rejected: candidate 3.4.4 is older than original-source version 3.4.5",
       "status": "failed"
+    },
+    "https://www.ios-repo-updates.com/repository/ipg-s-cydia-repo/package/moe.cadence.nosafariformkeyboard/": {
+      "checked_at": "2026-09-26T10:25:23+00:00",
+      "package": "moe.cadence.nosafariformkeyboard",
+      "status": "published",
+      "target_path": "nosafariformkeyboard-1-0-0-update/",
+      "version": "1.0.0"
     },
     "https://www.ios-repo-updates.com/repository/majd-alfhaily/package/me.alfhaily.rocket/": {
       "checked_at": "2026-09-25T21:14:39.436484+00:00",
@@ -1808,6 +1815,47 @@
         "me.alfhaily.rocket: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_09d02ed6ba4163d9016ab79dc9d00087d1ae72168fe50fe752",
+          "usage": {
+            "input_tokens": 21743,
+            "input_tokens_details": {
+              "cache_write_tokens": 21740,
+              "cached_tokens": 0
+            },
+            "output_tokens": 531,
+            "output_tokens_details": {
+              "reasoning_tokens": 401
+            },
+            "total_tokens": 22274
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0645111623fd08f3016ab79db3f2d087d1bf2825a44c487925",
+          "usage": {
+            "input_tokens": 19838,
+            "input_tokens_details": {
+              "cache_write_tokens": 19835,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2178,
+            "output_tokens_details": {
+              "reasoning_tokens": 50
+            },
+            "total_tokens": 22016
+          }
+        }
+      },
+      "at": "2026-09-26T10:25:23+00:00",
+      "package": "moe.cadence.nosafariformkeyboard",
+      "target_path": "nosafariformkeyboard-1-0-0-update/",
+      "version": "1.0.0"
     }
   ],
   "schema_version": 1

@@ -5,6 +5,31 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "NoSafariFormKeyboard 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "nosafariformkeyboard-1-0-0-update/",
+      "image": "assets/articles/source-media/nosafariformkeyboard-1-0-0-update-754729d05f.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/cloudrac3r/NoSafariFormKeyboard/commit/ee2d57bab9a7486341c40b29a1ad8a88f8e1be60",
+      "modified_at": "2026-09-26T10:25:23+00:00",
+      "name": "NoSafariFormKeyboard",
+      "package": "moe.cadence.nosafariformkeyboard",
+      "published_at": "2026-09-26T10:25:23+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "cydia.invoxiplaygames.uk",
+      "source_page_url": "http://cydia.invoxiplaygames.uk/Packages",
+      "source_url": "http://cydia.invoxiplaygames.uk/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/526b0d05a7b2f7177dc38690e51df6564bd3dc9fea2c45e5bb76c3565777449e/cloudrac3r/NoSafariFormKeyboard/commit/ee2d57bab9a7486341c40b29a1ad8a88f8e1be60",
+      "title": "NoSafariFormKeyboard 1.0.0 Removes Safari’s Prev, Next and Done Keyboard Buttons",
+      "version": "1.0.0"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Regram for Instagram 6.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "regram-for-instagram-6-2-update/",
@@ -3683,8 +3708,17 @@
       "published_at": "2026-09-22T21:00:27+00:00",
       "run_id": "35783834359",
       "version": "6.2"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "nosafariformkeyboard-1-0-0-update/",
+      "package": "moe.cadence.nosafariformkeyboard",
+      "published_at": "2026-09-26T10:25:23+00:00",
+      "run_id": "36235711589",
+      "version": "1.0.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-22T21:00:27+00:00"
+  "updated_at": "2026-09-26T10:25:23+00:00"
 }
