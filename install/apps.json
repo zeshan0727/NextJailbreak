@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-township",
+      "name": "Township",
+      "version": "39.0.2",
+      "build": "39.0.2",
+      "platform": "iPhone",
+      "minimumOS": "iOS 10.0+",
+      "bundleId": "com.nextsolution.Township",
+      "icon": "/install/icons/com-nextsolution-township-11f0ae383b69.png",
+      "manifest": "/install/com-nextsolution-township.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-township/39.0.2/com-nextsolution-township-39.0.2-39.0.2.ipa",
+      "sha256": "11f0ae383b693cf33e98c1eacb2c8d9623da67c4d65fa071286d697425cae2c5",
+      "sizeBytes": 213183146,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-accountants",
       "name": "Accountants",
       "version": "1.0.1",
@@ -191,5 +212,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-09-22"
+  "updated": "2026-09-26"
 }
