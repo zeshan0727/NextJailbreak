@@ -5,6 +5,31 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "Watusi 3 for WhatsApp 1.3.25 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "watusi-3-for-whatsapp-1-3-25-update/",
+      "image": "assets/articles/source-media/watusi-3-for-whatsapp-1-3-25-update-9b82e24170.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/tunecc/WatusiZhHans/commit/0b5dd9cfd0cedf2c18cf793fbd439612e7e02589",
+      "modified_at": "2026-09-27T21:03:21+00:00",
+      "name": "Watusi 3 for WhatsApp",
+      "package": "com.fouadraheb.watusi3",
+      "published_at": "2026-09-27T21:03:21+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/6bae3b250367915bb3d41075e1714b5d6c08b91bda407d0537513fc6747f30b3/tunecc/WatusiZhHans/commit/0b5dd9cfd0cedf2c18cf793fbd439612e7e02589",
+      "title": "Watusi 3 for WhatsApp 1.3.25 Adds WhatsApp 26.37.X Support and Targeted Fixes",
+      "version": "1.3.25"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "NoSafariFormKeyboard 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "nosafariformkeyboard-1-0-0-update/",
@@ -3717,8 +3742,17 @@
       "published_at": "2026-09-26T10:25:23+00:00",
       "run_id": "36235711589",
       "version": "1.0.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "watusi-3-for-whatsapp-1-3-25-update/",
+      "package": "com.fouadraheb.watusi3",
+      "published_at": "2026-09-27T21:03:21+00:00",
+      "run_id": "36350238152",
+      "version": "1.3.25"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-26T10:25:23+00:00"
+  "updated_at": "2026-09-27T21:03:21+00:00"
 }

@@ -25,7 +25,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/bigboss/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-26T20:46:43.483943+00:00",
+      "checked_at": "2026-09-27T21:03:21.695863+00:00",
       "package": "me.alfhaily.rocket",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -64,18 +64,18 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-26T20:46:43.483943+00:00",
+      "checked_at": "2026-09-27T21:03:21.695863+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-2-update/",
       "version": "6.2"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-09-26T20:46:43.483943+00:00",
+      "checked_at": "2026-09-27T21:03:21+00:00",
       "package": "com.fouadraheb.watusi3",
-      "status": "duplicate",
-      "target_path": "watusi-3-for-whatsapp-1-3-24-update/",
-      "version": "1.3.24"
+      "status": "published",
+      "target_path": "watusi-3-for-whatsapp-1-3-25-update/",
+      "version": "1.3.25"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.82flex.touchvis/": {
       "checked_at": "2026-09-14T09:26:07.020998+00:00",
@@ -113,7 +113,7 @@
       "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
-      "checked_at": "2026-09-26T20:46:43.483943+00:00",
+      "checked_at": "2026-09-27T21:03:21.695863+00:00",
       "package": "com.cercube.ios",
       "status": "duplicate",
       "target_path": "cercube-for-youtube-6-1-3-update/",
@@ -239,7 +239,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytx/": {
-      "checked_at": "2026-09-26T20:46:43.483943+00:00",
+      "checked_at": "2026-09-27T21:03:21.695863+00:00",
       "package": "com.ps.ytx",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -1865,6 +1865,79 @@
         "me.alfhaily.rocket: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_03462e91f1f6a01e016ab984c7c02087d2a2bdf9401022c12f",
+          "usage": {
+            "input_tokens": 28863,
+            "input_tokens_details": {
+              "cache_write_tokens": 28860,
+              "cached_tokens": 0
+            },
+            "output_tokens": 662,
+            "output_tokens_details": {
+              "reasoning_tokens": 479
+            },
+            "total_tokens": 29525
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0a7dd179813a49e6016ab984ce178887d2a9ee9e9de6d6b58b",
+          "usage": {
+            "input_tokens": 28978,
+            "input_tokens_details": {
+              "cache_write_tokens": 28975,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2921,
+            "output_tokens_details": {
+              "reasoning_tokens": 78
+            },
+            "total_tokens": 31899
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_03220f2a3cbc5e98016ab984e3f60487d29aee62ef84d33038",
+          "usage": {
+            "input_tokens": 29003,
+            "input_tokens_details": {
+              "cache_write_tokens": 29000,
+              "cached_tokens": 0
+            },
+            "output_tokens": 526,
+            "output_tokens_details": {
+              "reasoning_tokens": 411
+            },
+            "total_tokens": 29529
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0fada6c9530c467a016ab984ae2d5487d29a0a4b9ad01d7023",
+          "usage": {
+            "input_tokens": 26358,
+            "input_tokens_details": {
+              "cache_write_tokens": 26355,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2801,
+            "output_tokens_details": {
+              "reasoning_tokens": 97
+            },
+            "total_tokens": 29159
+          }
+        }
+      },
+      "at": "2026-09-27T21:03:21+00:00",
+      "package": "com.fouadraheb.watusi3",
+      "target_path": "watusi-3-for-whatsapp-1-3-25-update/",
+      "version": "1.3.25"
     }
   ],
   "schema_version": 1
