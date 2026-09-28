@@ -68,7 +68,7 @@ jobs:
           fi
           git diff --cached --check -- . ':(exclude)assets/articles/source-media'
           git commit -m "Publish selected recent tweak updates with Monetag"
-          git pull --rebase origin main
+          git pull --rebase -X ours origin main
           git push origin HEAD:main
 
       - name: Preserve publication diagnostics
