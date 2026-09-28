@@ -1,5 +1,332 @@
 {
+  "schema_version": 1,
+  "updated_at": "2026-09-28T19:10:19+00:00",
   "entries": [
+    {
+      "entry_type": "source-news",
+      "package": "com.0xkuj.ccbackgrounder17",
+      "name": "CCBackgrounder17",
+      "version": "1.0.0",
+      "title": "CCBackgrounder17 Adds a Control Center Background Mode Toggle for iOS 17+",
+      "description": "CCBackgrounder17 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "ccbackgrounder17-1-0-0-update/",
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "source_name": "github.com",
+      "source_url": "https://github.com/0xkuj/CCBackgrounder17",
+      "source_page_url": "https://github.com/0xkuj/CCBackgrounder17",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/ccbackgrounder17-1-0-0-update-5859c8611f.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/0xkuj/CCBackgrounder17",
+      "source_visual_url": "https://opengraph.githubassets.com/1e92eb4fdfbde121119c8f619c923695154570800b6f11ffdfe9ae4906c10235/0xkuj/CCBackgrounder17",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:20+00:00",
+      "modified_at": "2026-09-28T18:52:20+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.autotouch.autotouch",
+      "name": "AutoTouch",
+      "version": "8.6.2",
+      "title": "AutoTouch 8.6.2 Improves WebDAV, Finder Access and Script Playback Reliability",
+      "description": "AutoTouch 8.6.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "autotouch-8-6-2-update/",
+      "category": {
+        "id": "productivity",
+        "label": "Productivity"
+      },
+      "source_name": "autotouch.net",
+      "source_url": "https://autotouch.net/",
+      "source_page_url": "https://autotouch.net/",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/autotouch-8-6-2-update-8158754d3e.jpg",
+      "media_credit": "Source visual from autotouch.net",
+      "media_source_url": "https://autotouch.net/",
+      "source_visual_url": "https://autotouch.net/static/img/control-panel.da87ec615cc5.jpg",
+      "source_visual_origin": "img",
+      "published_at": "2026-09-28T18:52:19+00:00",
+      "modified_at": "2026-09-28T18:52:19+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.zjer.photoscore",
+      "name": "PhotosCore",
+      "version": "1.3",
+      "title": "PhotosCore: What the Official Havoc Listing Confirms About Apple Photos Customization",
+      "description": "PhotosCore 1.3 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "photoscore-1-3-update/",
+      "category": {
+        "id": "media",
+        "label": "Media"
+      },
+      "source_name": "havoc.app",
+      "source_url": "https://havoc.app/package/photoscore",
+      "source_page_url": "https://havoc.app/package/photoscore",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/photoscore-1-3-update-b802d8f16b.jpg",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/package/photoscore",
+      "source_visual_url": "https://media.havoc.app/6a868c51324f05e66acdf88b",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:18+00:00",
+      "modified_at": "2026-09-28T18:52:18+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.witchan.ios-mcp",
+      "name": "iOS MCP",
+      "version": "1.2.8",
+      "title": "iOS MCP 1.2.8 adds system-language settings support for jailbroken iPhones",
+      "description": "iOS MCP 1.2.8 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "ios-mcp-1-2-8-update/",
+      "category": {
+        "id": "productivity",
+        "label": "Productivity"
+      },
+      "source_name": "github.com",
+      "source_url": "https://github.com/witchan/ios-mcp",
+      "source_page_url": "https://github.com/witchan/ios-mcp",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/ios-mcp-1-2-8-update-9469e5dc33.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/witchan/ios-mcp",
+      "source_visual_url": "https://opengraph.githubassets.com/9cc7e9c507b9a1c378ebebeaf0d82a493eb11a1bf4981df9a135b8e51c1bcb39/witchan/ios-mcp",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:16+00:00",
+      "modified_at": "2026-09-28T18:52:16+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.ps.appcolorclose",
+      "name": "AppColorClose",
+      "version": "1.2.2",
+      "title": "AppColorClose 1.2.2 Updates Build Support for Rootless and Traditional Jailbreak Environments",
+      "description": "AppColorClose 1.2.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "appcolorclose-1-2-2-update/",
+      "category": {
+        "id": "customization",
+        "label": "Customization"
+      },
+      "source_name": "github.com",
+      "source_url": "https://github.com/PoomSmart/AppColorClose",
+      "source_page_url": "https://github.com/PoomSmart/AppColorClose",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/appcolorclose-1-2-2-update-384a375b8e.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/PoomSmart/AppColorClose/commit/4681f3888eb8ae5bfdbc48c9ac354cbd68abba3d",
+      "source_visual_url": "https://opengraph.githubassets.com/00a3d2c2a4ea5ab0f8b648ac55a4e9b015aa37b8f7e74ebe4bfdf8e85560967d/PoomSmart/AppColorClose/commit/4681f3888eb8ae5bfdbc48c9ac354cbd68abba3d",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:15+00:00",
+      "modified_at": "2026-09-28T18:52:15+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.ps.youchoosequality",
+      "name": "YouChooseQuality",
+      "version": "1.0.10",
+      "title": "YouChooseQuality 1.0.10 updates package metadata and adds Turkish localization",
+      "description": "YouChooseQuality 1.0.10 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "youchoosequality-1-0-10-update/",
+      "category": {
+        "id": "media",
+        "label": "Media"
+      },
+      "source_name": "github.com",
+      "source_url": "https://github.com/PoomSmart/YouChooseQuality",
+      "source_page_url": "https://github.com/PoomSmart/YouChooseQuality",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/youchoosequality-1-0-10-update-74c43b4409.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/PoomSmart/YouChooseQuality/commit/2fdfb2a18b485d4d9442772c98d3896df4383e13",
+      "source_visual_url": "https://opengraph.githubassets.com/2c7d2dd984bb0cf6f33df1168644c930610ec9a023170df30b2e2a8edb8c30a9/PoomSmart/YouChooseQuality/commit/2fdfb2a18b485d4d9442772c98d3896df4383e13",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:14+00:00",
+      "modified_at": "2026-09-28T18:52:14+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.pisknk.twentyone",
+      "name": "TwentyOne",
+      "version": "2.0",
+      "title": "TwentyOne 2.0 Reworks Apple Music’s Interface With Animated Artwork and Last.fm Scrobbling",
+      "description": "TwentyOne 2.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "twentyone-2-0-update/",
+      "category": {
+        "id": "media",
+        "label": "Media"
+      },
+      "source_name": "github.com",
+      "source_url": "https://github.com/pisknk/twenty-one-reborn",
+      "source_page_url": "https://github.com/pisknk/twenty-one-reborn",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/twentyone-2-0-update-65bebb2454.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/pisknk/twenty-one-reborn/commit/ab1332c703bce30e8004d2ae7de7dfcd5dbba758",
+      "source_visual_url": "https://opengraph.githubassets.com/12ca73b6beb873fab7d31dc9ecc62b7176bb90b40f57db52ce41abf549ba671b/pisknk/twenty-one-reborn/commit/ab1332c703bce30e8004d2ae7de7dfcd5dbba758",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:13+00:00",
+      "modified_at": "2026-09-28T18:52:13+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "app.catscript.mcp",
+      "name": "CatMCP",
+      "version": "1.2.0",
+      "title": "CatMCP brings an MCP server to jailbroken iOS",
+      "description": "CatMCP 1.2.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "catmcp-1-2-0-update/",
+      "category": {
+        "id": "productivity",
+        "label": "Productivity"
+      },
+      "source_name": "havoc.app",
+      "source_url": "https://havoc.app/package/catmcp",
+      "source_page_url": "https://havoc.app/package/catmcp",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/catmcp-1-2-0-update-3b1679748f.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/package/catmcp",
+      "source_visual_url": "https://media.havoc.app/6a1829778817ff396a9119a7",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:11+00:00",
+      "modified_at": "2026-09-28T18:52:11+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.blacknoisy.prism",
+      "name": "Prism",
+      "version": "1.6.1",
+      "title": "Prism: A Focused Tool for Capture, Annotation, OCR, Translation and Pinning",
+      "description": "Prism 1.6.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "prism-1-6-1-update/",
+      "category": {
+        "id": "productivity",
+        "label": "Productivity"
+      },
+      "source_name": "havoc.app",
+      "source_url": "https://havoc.app/package/prism",
+      "source_page_url": "https://havoc.app/package/prism",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/prism-1-6-1-update-b850e0b6b3.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/package/prism",
+      "source_visual_url": "https://media.havoc.app/6a7835029e5377f2c5170dce",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:10+00:00",
+      "modified_at": "2026-09-28T18:52:10+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "app.catscript.pro",
+      "name": "CatScript and CatScript Lite",
+      "version": "1.6.1",
+      "title": "CatScript and CatScript Lite: What the Official Package Listings Confirm",
+      "description": "CatScript and CatScript Lite 1.6.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "catscript-and-catscript-lite-1-6-1-update/",
+      "category": {
+        "id": "productivity",
+        "label": "Productivity"
+      },
+      "source_name": "havoc.app",
+      "source_url": "https://havoc.app/package/catscript",
+      "source_page_url": "https://havoc.app/package/catscript",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/catscript-and-catscript-lite-1-6-1-update-2dedd504ec.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/package/catscript",
+      "source_visual_url": "https://media.havoc.app/67825683e809aedc216db07e",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:09+00:00",
+      "modified_at": "2026-09-28T18:52:09+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.gokuencinar.bandlock",
+      "name": "BandLock",
+      "version": "1.3",
+      "title": "BandLock 1.3 brings LTE, 5G NR and country-based modem controls to iOS jailbreak users",
+      "description": "BandLock 1.3 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "bandlock-1-3-update/",
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "source_name": "github.com",
+      "source_url": "https://github.com/Gokuencinar/GokuEnREPO",
+      "source_page_url": "https://github.com/Gokuencinar/GokuEnREPO",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/bandlock-1-3-update-0a2e22a997.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/Gokuencinar/GokuEnREPO/commit/b546426feb185618b38bcc634e8d64758d215f22",
+      "source_visual_url": "https://opengraph.githubassets.com/8b73f2a4cde2539ee81b8074ea129536d42e9878d0a15d29a0113f8cd8726e48/Gokuencinar/GokuEnREPO/commit/b546426feb185618b38bcc634e8d64758d215f22",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:08+00:00",
+      "modified_at": "2026-09-28T18:52:08+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.aronsz26.lockscreenrestore",
+      "name": "LockScreenRestore",
+      "version": "1.8.2",
+      "title": "LockScreenRestore 1.9.1 Refines iOS 15 Clock Sizing Across iOS 16 iPhones",
+      "description": "LockScreenRestore 1.8.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "lockscreenrestore-1-8-2-update/",
+      "category": {
+        "id": "customization",
+        "label": "Customization"
+      },
+      "source_name": "github.com",
+      "source_url": "https://github.com/aronsz26/LockScreenRestore",
+      "source_page_url": "https://github.com/aronsz26/LockScreenRestore",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/lockscreenrestore-1-8-2-update-401fc3dd4b.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/aronsz26/LockScreenRestore/commit/1eee67c17dd2f45b838c979d2f9c060472b2a8e8",
+      "source_visual_url": "https://opengraph.githubassets.com/290e302cd08cb299f4e319ee39ca93841fd078daefb8f70c1f2395c6ddce0d56/aronsz26/LockScreenRestore/commit/1eee67c17dd2f45b838c979d2f9c060472b2a8e8",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:07+00:00",
+      "modified_at": "2026-09-28T18:52:07+00:00",
+      "quality_target": 9
+    },
+    {
+      "entry_type": "source-news",
+      "package": "com.tweakpilot.tweak",
+      "name": "TweakPilot",
+      "version": "1.2.2",
+      "title": "TweakPilot: What the Havoc Listing Actually Confirms",
+      "description": "TweakPilot 1.2.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "tweakpilot-1-2-2-update/",
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "source_name": "havoc.app",
+      "source_url": "https://havoc.app/package/tweakpilot",
+      "source_page_url": "https://havoc.app/package/tweakpilot",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "image": "assets/articles/source-media/tweakpilot-1-2-2-update-a69c65d500.png",
+      "media_credit": "Source visual from havoc.app",
+      "media_source_url": "https://havoc.app/package/tweakpilot",
+      "source_visual_url": "https://media.havoc.app/6ab77c9e0d4754aea94ef734",
+      "source_visual_origin": "og:image",
+      "published_at": "2026-09-28T18:52:06+00:00",
+      "modified_at": "2026-09-28T18:52:06+00:00",
+      "quality_target": 9
+    },
     {
       "category": {
         "id": "system-utilities",
@@ -3751,8 +4078,776 @@
       "published_at": "2026-09-27T21:03:21+00:00",
       "run_id": "36350238152",
       "version": "1.3.25"
+    },
+    {
+      "published_at": "2026-09-28T18:52:06+00:00",
+      "action": "create",
+      "package": "com.tweakpilot.tweak",
+      "version": "1.2.2",
+      "href": "tweakpilot-1-2-2-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_0ea5f57c79833a63016abab75912ec87d0acaad0a855d40068",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 22489,
+            "input_tokens_details": {
+              "cache_write_tokens": 22486,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2190,
+            "output_tokens_details": {
+              "reasoning_tokens": 87
+            },
+            "total_tokens": 24679
+          }
+        },
+        "initial_verifier": {
+          "response_id": "resp_0798e558e202894a016abab77241f087d0bcb75f8bc6e7e98e",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24388,
+            "input_tokens_details": {
+              "cache_write_tokens": 24385,
+              "cached_tokens": 0
+            },
+            "output_tokens": 541,
+            "output_tokens_details": {
+              "reasoning_tokens": 153
+            },
+            "total_tokens": 24929
+          }
+        },
+        "repair": {
+          "response_id": "resp_0493822940b50e93016abab77a810087d09498b9213eec6aca",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24735,
+            "input_tokens_details": {
+              "cache_write_tokens": 24732,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2431,
+            "output_tokens_details": {
+              "reasoning_tokens": 136
+            },
+            "total_tokens": 27166
+          }
+        },
+        "verifier": {
+          "response_id": "resp_031bec64760d8682016abab799d88c87d0a62220765d1b1ec9",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24586,
+            "input_tokens_details": {
+              "cache_write_tokens": 24583,
+              "cached_tokens": 0
+            },
+            "output_tokens": 219,
+            "output_tokens_details": {
+              "reasoning_tokens": 104
+            },
+            "total_tokens": 24805
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:07+00:00",
+      "action": "create",
+      "package": "com.aronsz26.lockscreenrestore",
+      "version": "1.8.2",
+      "href": "lockscreenrestore-1-8-2-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_0197b5437f255d9e016abab7a2c67487d087a3ca9944ee0b36",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 30021,
+            "input_tokens_details": {
+              "cache_write_tokens": 30018,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2542,
+            "output_tokens_details": {
+              "reasoning_tokens": 52
+            },
+            "total_tokens": 32563
+          }
+        },
+        "verifier": {
+          "response_id": "resp_00632e93a9301f34016abab7ba5e5c87d0a055d6196b1e856e",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 32287,
+            "input_tokens_details": {
+              "cache_write_tokens": 32284,
+              "cached_tokens": 0
+            },
+            "output_tokens": 344,
+            "output_tokens_details": {
+              "reasoning_tokens": 232
+            },
+            "total_tokens": 32631
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:08+00:00",
+      "action": "create",
+      "package": "com.gokuencinar.bandlock",
+      "version": "1.3",
+      "href": "bandlock-1-3-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_0588a23909df19f0016abab8014f4887d09f049839b0dd569a",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 31604,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 31601
+            },
+            "output_tokens": 2281,
+            "output_tokens_details": {
+              "reasoning_tokens": 93
+            },
+            "total_tokens": 33885
+          }
+        },
+        "verifier": {
+          "response_id": "resp_07f76b7145798109016abab8171c8087d081337d8857865734",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 33579,
+            "input_tokens_details": {
+              "cache_write_tokens": 33576,
+              "cached_tokens": 0
+            },
+            "output_tokens": 559,
+            "output_tokens_details": {
+              "reasoning_tokens": 449
+            },
+            "total_tokens": 34138
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:09+00:00",
+      "action": "create",
+      "package": "app.catscript.pro",
+      "version": "1.6.1",
+      "href": "catscript-and-catscript-lite-1-6-1-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_07b384bc092a01ac016abab821b74c87d08252c7a7f7af31c0",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 33041,
+            "input_tokens_details": {
+              "cache_write_tokens": 33038,
+              "cached_tokens": 0
+            },
+            "output_tokens": 1942,
+            "output_tokens_details": {
+              "reasoning_tokens": 63
+            },
+            "total_tokens": 34983
+          }
+        },
+        "initial_verifier": {
+          "response_id": "resp_02d2ed3a0ed2d895016abab835aff487d08bdfbb61a37234ed",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 34705,
+            "input_tokens_details": {
+              "cache_write_tokens": 34702,
+              "cached_tokens": 0
+            },
+            "output_tokens": 444,
+            "output_tokens_details": {
+              "reasoning_tokens": 117
+            },
+            "total_tokens": 35149
+          }
+        },
+        "repair": {
+          "response_id": "resp_07ee4497d684c943016abab83b6ac887d0aac74bb2664e890d",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 34980,
+            "input_tokens_details": {
+              "cache_write_tokens": 34977,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2524,
+            "output_tokens_details": {
+              "reasoning_tokens": 75
+            },
+            "total_tokens": 37504
+          }
+        },
+        "verifier": {
+          "response_id": "resp_06cb3bf7cae7299e016abab85b8ec887d0905c61420e82ee40",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 35299,
+            "input_tokens_details": {
+              "cache_write_tokens": 35296,
+              "cached_tokens": 0
+            },
+            "output_tokens": 336,
+            "output_tokens_details": {
+              "reasoning_tokens": 195
+            },
+            "total_tokens": 35635
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:10+00:00",
+      "action": "create",
+      "package": "com.blacknoisy.prism",
+      "version": "1.6.1",
+      "href": "prism-1-6-1-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_09f393a5eeaaebf1016abab861d06c87d09078ed37fce7be3e",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 33143,
+            "input_tokens_details": {
+              "cache_write_tokens": 33140,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2095,
+            "output_tokens_details": {
+              "reasoning_tokens": 78
+            },
+            "total_tokens": 35238
+          }
+        },
+        "initial_verifier": {
+          "response_id": "resp_084e99a6c65fdd81016abab879696c87d0a608301d47200db6",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 34943,
+            "input_tokens_details": {
+              "cache_write_tokens": 34940,
+              "cached_tokens": 0
+            },
+            "output_tokens": 542,
+            "output_tokens_details": {
+              "reasoning_tokens": 205
+            },
+            "total_tokens": 35485
+          }
+        },
+        "repair": {
+          "response_id": "resp_0536f5fbe35128ed016abab881199087d09bfd29f31352b1ae",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 35241,
+            "input_tokens_details": {
+              "cache_write_tokens": 35238,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2510,
+            "output_tokens_details": {
+              "reasoning_tokens": 84
+            },
+            "total_tokens": 37751
+          }
+        },
+        "verifier": {
+          "response_id": "resp_00f75f34cbf1b58e016abab89ff80487d0877f4fe3ba99c8e7",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 35379,
+            "input_tokens_details": {
+              "cache_write_tokens": 35376,
+              "cached_tokens": 0
+            },
+            "output_tokens": 242,
+            "output_tokens_details": {
+              "reasoning_tokens": 158
+            },
+            "total_tokens": 35621
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:11+00:00",
+      "action": "create",
+      "package": "app.catscript.mcp",
+      "version": "1.2.0",
+      "href": "catmcp-1-2-0-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_06725a45ce7f5532016abab8a44db087d096a099015dac801f",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 22506,
+            "input_tokens_details": {
+              "cache_write_tokens": 22503,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2582,
+            "output_tokens_details": {
+              "reasoning_tokens": 121
+            },
+            "total_tokens": 25088
+          }
+        },
+        "initial_verifier": {
+          "response_id": "resp_085904720cf67bae016abab8bce6b087d091fd0b8b7109ae30",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24522,
+            "input_tokens_details": {
+              "cache_write_tokens": 24519,
+              "cached_tokens": 0
+            },
+            "output_tokens": 541,
+            "output_tokens_details": {
+              "reasoning_tokens": 189
+            },
+            "total_tokens": 25063
+          }
+        },
+        "repair": {
+          "response_id": "resp_0383a6f7607ab651016abab8c3f55c87d09395cc5c575cd4f5",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24841,
+            "input_tokens_details": {
+              "cache_write_tokens": 24838,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2618,
+            "output_tokens_details": {
+              "reasoning_tokens": 106
+            },
+            "total_tokens": 27459
+          }
+        },
+        "verifier": {
+          "response_id": "resp_0d2f66c61781d020016abab8e45cd887d0ba1ced20d37e3624",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24827,
+            "input_tokens_details": {
+              "cache_write_tokens": 24824,
+              "cached_tokens": 0
+            },
+            "output_tokens": 275,
+            "output_tokens_details": {
+              "reasoning_tokens": 148
+            },
+            "total_tokens": 25102
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:13+00:00",
+      "action": "create",
+      "package": "com.pisknk.twentyone",
+      "version": "2.0",
+      "href": "twentyone-2-0-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_0cf1240083c6fa9e016abab9b7714087d08d14824d3aebd6a6",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 27768,
+            "input_tokens_details": {
+              "cache_write_tokens": 27765,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2502,
+            "output_tokens_details": {
+              "reasoning_tokens": 79
+            },
+            "total_tokens": 30270
+          }
+        },
+        "verifier": {
+          "response_id": "resp_09c97071613579b6016abab9d1873487d09fbd2a3e15e6aa0c",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 29989,
+            "input_tokens_details": {
+              "cache_write_tokens": 29986,
+              "cached_tokens": 0
+            },
+            "output_tokens": 350,
+            "output_tokens_details": {
+              "reasoning_tokens": 242
+            },
+            "total_tokens": 30339
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:14+00:00",
+      "action": "create",
+      "package": "com.ps.youchoosequality",
+      "version": "1.0.10",
+      "href": "youchoosequality-1-0-10-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_04f1a34549e18778016abab9db229087d0a24997ef76d6355e",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 27316,
+            "input_tokens_details": {
+              "cache_write_tokens": 27313,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2057,
+            "output_tokens_details": {
+              "reasoning_tokens": 40
+            },
+            "total_tokens": 29373
+          }
+        },
+        "verifier": {
+          "response_id": "resp_0efa7cea37e45379016abab9efadac87d0a523ce8efff72986",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 29130,
+            "input_tokens_details": {
+              "cache_write_tokens": 29127,
+              "cached_tokens": 0
+            },
+            "output_tokens": 375,
+            "output_tokens_details": {
+              "reasoning_tokens": 281
+            },
+            "total_tokens": 29505
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:15+00:00",
+      "action": "create",
+      "package": "com.ps.appcolorclose",
+      "version": "1.2.2",
+      "href": "appcolorclose-1-2-2-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_0550d33ebcdde80f016abab9f98be087d0855dc307384ba82f",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 29296,
+            "input_tokens_details": {
+              "cache_write_tokens": 29293,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2524,
+            "output_tokens_details": {
+              "reasoning_tokens": 106
+            },
+            "total_tokens": 31820
+          }
+        },
+        "verifier": {
+          "response_id": "resp_0dcacf4892e589d2016ababa16bf3487d0ad02ce2caec67a40",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 31506,
+            "input_tokens_details": {
+              "cache_write_tokens": 31503,
+              "cached_tokens": 0
+            },
+            "output_tokens": 616,
+            "output_tokens_details": {
+              "reasoning_tokens": 516
+            },
+            "total_tokens": 32122
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:16+00:00",
+      "action": "create",
+      "package": "com.witchan.ios-mcp",
+      "version": "1.2.8",
+      "href": "ios-mcp-1-2-8-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_00c0ce431da4caaa016ababa265adc87d09d6290259dc52334",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 32456,
+            "input_tokens_details": {
+              "cache_write_tokens": 32453,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2407,
+            "output_tokens_details": {
+              "reasoning_tokens": 50
+            },
+            "total_tokens": 34863
+          }
+        },
+        "verifier": {
+          "response_id": "resp_06a4b5163f421b37016ababa3e3bb487d0808bf40d7d0e41ed",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 34599,
+            "input_tokens_details": {
+              "cache_write_tokens": 34596,
+              "cached_tokens": 0
+            },
+            "output_tokens": 609,
+            "output_tokens_details": {
+              "reasoning_tokens": 516
+            },
+            "total_tokens": 35208
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:18+00:00",
+      "action": "create",
+      "package": "com.zjer.photoscore",
+      "version": "1.3",
+      "href": "photoscore-1-3-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_066e40f6306b5522016ababa89180c87d0881a7807fda712e6",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 22501,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 22498
+            },
+            "output_tokens": 1906,
+            "output_tokens_details": {
+              "reasoning_tokens": 88
+            },
+            "total_tokens": 24407
+          }
+        },
+        "initial_verifier": {
+          "response_id": "resp_0335d950291e318f016ababa9eb74087d0ba2fdd168cdb9b86",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24110,
+            "input_tokens_details": {
+              "cache_write_tokens": 24107,
+              "cached_tokens": 0
+            },
+            "output_tokens": 484,
+            "output_tokens_details": {
+              "reasoning_tokens": 201
+            },
+            "total_tokens": 24594
+          }
+        },
+        "repair": {
+          "response_id": "resp_0e95d009d3c5a11d016ababaa52ffc87d0bc62ec40de6f7868",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24344,
+            "input_tokens_details": {
+              "cache_write_tokens": 24341,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2222,
+            "output_tokens_details": {
+              "reasoning_tokens": 86
+            },
+            "total_tokens": 26566
+          }
+        },
+        "verifier": {
+          "response_id": "resp_0f712d8637e8891d016ababac144d087d09a1e71c35df3b182",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 24442,
+            "input_tokens_details": {
+              "cache_write_tokens": 24439,
+              "cached_tokens": 0
+            },
+            "output_tokens": 315,
+            "output_tokens_details": {
+              "reasoning_tokens": 201
+            },
+            "total_tokens": 24757
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:19+00:00",
+      "action": "create",
+      "package": "com.autotouch.autotouch",
+      "version": "8.6.2",
+      "href": "autotouch-8-6-2-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_0b1c03a079774db0016ababac7781087d0a6811684cc87a57a",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 9264,
+            "input_tokens_details": {
+              "cache_write_tokens": 9261,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2401,
+            "output_tokens_details": {
+              "reasoning_tokens": 41
+            },
+            "total_tokens": 11665
+          }
+        },
+        "initial_verifier": {
+          "response_id": "resp_084a19b228508241016ababadfc8e087d0bcfa097216d6d5ba",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 11428,
+            "input_tokens_details": {
+              "cache_write_tokens": 11425,
+              "cached_tokens": 0
+            },
+            "output_tokens": 783,
+            "output_tokens_details": {
+              "reasoning_tokens": 512
+            },
+            "total_tokens": 12211
+          }
+        },
+        "repair": {
+          "response_id": "resp_0073da8dc0da8bd0016ababae9cf8c87d0914d9e727b0fa6d0",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 11635,
+            "input_tokens_details": {
+              "cache_write_tokens": 11632,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2642,
+            "output_tokens_details": {
+              "reasoning_tokens": 47
+            },
+            "total_tokens": 14277
+          }
+        },
+        "verifier": {
+          "response_id": "resp_092914d5f1f44699016ababb05b09887d0a0dc65ce7321f43c",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 11668,
+            "input_tokens_details": {
+              "cache_write_tokens": 11665,
+              "cached_tokens": 0
+            },
+            "output_tokens": 389,
+            "output_tokens_details": {
+              "reasoning_tokens": 274
+            },
+            "total_tokens": 12057
+          }
+        }
+      }
+    },
+    {
+      "published_at": "2026-09-28T18:52:20+00:00",
+      "action": "create",
+      "package": "com.0xkuj.ccbackgrounder17",
+      "version": "1.0.0",
+      "href": "ccbackgrounder17-1-0-0-update/",
+      "channel": "user-authorized-recent-tweak-batch-20260928",
+      "api": {
+        "writer": {
+          "response_id": "resp_020007a30cb0d214016ababb0cca4087d08b2cd70adaf2e6e2",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 15569,
+            "input_tokens_details": {
+              "cache_write_tokens": 15566,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2164,
+            "output_tokens_details": {
+              "reasoning_tokens": 70
+            },
+            "total_tokens": 17733
+          }
+        },
+        "initial_verifier": {
+          "response_id": "resp_01452a2b35da0a50016ababb256f8887d081e2ad939af33c79",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 17447,
+            "input_tokens_details": {
+              "cache_write_tokens": 17444,
+              "cached_tokens": 0
+            },
+            "output_tokens": 763,
+            "output_tokens_details": {
+              "reasoning_tokens": 516
+            },
+            "total_tokens": 18210
+          }
+        },
+        "repair": {
+          "response_id": "resp_02205de7fd5f100c016ababb2f910887d09b393b2ed91cadc5",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 17650,
+            "input_tokens_details": {
+              "cache_write_tokens": 17647,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2416,
+            "output_tokens_details": {
+              "reasoning_tokens": 67
+            },
+            "total_tokens": 20066
+          }
+        },
+        "verifier": {
+          "response_id": "resp_0fafc26e177fe8a2016ababb4be09887d0870c908738c89f2b",
+          "model": "gpt-5.6-luna",
+          "usage": {
+            "input_tokens": 17718,
+            "input_tokens_details": {
+              "cache_write_tokens": 17715,
+              "cached_tokens": 0
+            },
+            "output_tokens": 309,
+            "output_tokens_details": {
+              "reasoning_tokens": 212
+            },
+            "total_tokens": 18027
+          }
+        }
+      }
     }
-  ],
-  "schema_version": 1,
-  "updated_at": "2026-09-27T21:03:21+00:00"
+  ]
 }

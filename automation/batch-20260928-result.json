@@ -1,0 +1,101 @@
+{
+  "updated_at": "2026-09-28T19:10:19+00:00",
+  "results": [
+    {
+      "name": "TweakPilot",
+      "version": "1.2.2",
+      "status": "published",
+      "href": "tweakpilot-1-2-2-update/"
+    },
+    {
+      "name": "LockScreenRestore",
+      "version": "1.8.2",
+      "status": "published",
+      "href": "lockscreenrestore-1-8-2-update/"
+    },
+    {
+      "name": "BandLock",
+      "version": "1.3",
+      "status": "published",
+      "href": "bandlock-1-3-update/"
+    },
+    {
+      "name": "CatScript and CatScript Lite",
+      "version": "1.6.1",
+      "status": "published",
+      "href": "catscript-and-catscript-lite-1-6-1-update/"
+    },
+    {
+      "name": "Prism",
+      "version": "1.6.1",
+      "status": "published",
+      "href": "prism-1-6-1-update/"
+    },
+    {
+      "name": "CatMCP",
+      "version": "1.2.0",
+      "status": "published",
+      "href": "catmcp-1-2-0-update/"
+    },
+    {
+      "name": "CatVNC",
+      "version": "1.7.1",
+      "status": "failed",
+      "reason": "attempt 1: article failed 9/10 quality gate: The editorial brief specifically requests coverage of CatVNC 1.7.1, but the article does not cover that release. The supplied CatVNC source does not state a version, so the release claim cannot be responsibly added without additional original source material.; The a | attempt 2: article failed 9/10 quality gate: meta description contains malformed or suspicious generated text; The meta description ends abruptly with “and-”.; The social post contains a typo or truncation: “security spec,-”.; Several sections repeat the source’s limitations at length;"
+    },
+    {
+      "name": "TwentyOne",
+      "version": "2.0",
+      "status": "published",
+      "href": "twentyone-2-0-update/"
+    },
+    {
+      "name": "YouChooseQuality",
+      "version": "1.0.10",
+      "status": "published",
+      "href": "youchoosequality-1-0-10-update/"
+    },
+    {
+      "name": "AppColorClose",
+      "version": "1.2.2",
+      "status": "published",
+      "href": "appcolorclose-1-2-2-update/"
+    },
+    {
+      "name": "iOS MCP",
+      "version": "1.2.8",
+      "status": "published",
+      "href": "ios-mcp-1-2-8-update/"
+    },
+    {
+      "name": "NoSafariFormKeyboard",
+      "version": "1.0.0",
+      "status": "duplicate",
+      "href": "nosafariformkeyboard-1-0-0-update/"
+    },
+    {
+      "name": "PhotosCore",
+      "version": "1.3",
+      "status": "published",
+      "href": "photoscore-1-3-update/"
+    },
+    {
+      "name": "AutoTouch",
+      "version": "8.6.2",
+      "status": "published",
+      "href": "autotouch-8-6-2-update/"
+    },
+    {
+      "name": "CCBackgrounder17",
+      "version": "1.0.0",
+      "status": "published",
+      "href": "ccbackgrounder17-1-0-0-update/"
+    },
+    {
+      "name": "Web Port",
+      "version": "2026-09-26",
+      "status": "failed",
+      "reason": "No unique authentic visual was available from the cited source pages; publication is held instead of reusing a generic image."
+    }
+  ]
+}
