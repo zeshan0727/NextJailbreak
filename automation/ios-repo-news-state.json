@@ -25,7 +25,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/bigboss/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-27T21:03:21.695863+00:00",
+      "checked_at": "2026-09-28T23:02:13.676206+00:00",
       "package": "me.alfhaily.rocket",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -64,11 +64,11 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-28T13:57:19.963978+00:00",
+      "checked_at": "2026-09-28T23:02:13+00:00",
       "package": "com.fouadraheb.regram",
-      "status": "duplicate",
-      "target_path": "regram-for-instagram-6-2-update/",
-      "version": "6.2"
+      "status": "published",
+      "target_path": "regram-for-instagram-6-3-update/",
+      "version": "6.3"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
       "checked_at": "2026-09-28T13:57:19.963978+00:00",
@@ -113,7 +113,7 @@
       "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
-      "checked_at": "2026-09-28T13:57:19.963978+00:00",
+      "checked_at": "2026-09-28T23:02:13.676206+00:00",
       "package": "com.cercube.ios",
       "status": "duplicate",
       "target_path": "cercube-for-youtube-6-1-3-update/",
@@ -239,7 +239,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytx/": {
-      "checked_at": "2026-09-27T21:03:21.695863+00:00",
+      "checked_at": "2026-09-28T23:02:13.676206+00:00",
       "package": "com.ps.ytx",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -1950,6 +1950,47 @@
       "at": "2026-09-28T13:57:19.963978+00:00",
       "failures": [],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_021936a5a966113c016abaf219fa7c87d284c221ef6036b7c1",
+          "usage": {
+            "input_tokens": 23806,
+            "input_tokens_details": {
+              "cache_write_tokens": 23803,
+              "cached_tokens": 0
+            },
+            "output_tokens": 498,
+            "output_tokens_details": {
+              "reasoning_tokens": 378
+            },
+            "total_tokens": 24304
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d52aa4d37444d90016abaf203d70887d28ef553b328fbd754",
+          "usage": {
+            "input_tokens": 21691,
+            "input_tokens_details": {
+              "cache_write_tokens": 21688,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2377,
+            "output_tokens_details": {
+              "reasoning_tokens": 72
+            },
+            "total_tokens": 24068
+          }
+        }
+      },
+      "at": "2026-09-28T23:02:13+00:00",
+      "package": "com.fouadraheb.regram",
+      "target_path": "regram-for-instagram-6-3-update/",
+      "version": "6.3"
     }
   ],
   "schema_version": 1
