@@ -45,22 +45,42 @@ jobs:
         run: |
           git config user.name "nextsolution-publisher[bot]"
           git config user.email "nextsolution-publisher[bot]@users.noreply.github.com"
-          git add automation/published-articles.json automation/source-visual-registry.json automation/batch-20260928-result.json index.html tutorials.html tutorials/index.html feed.xml sitemap.xml assets/articles/source-media
           python3 - <<'PY'
-          import json, subprocess
+          import json, re, subprocess
           from pathlib import Path
+
+          pages = []
           for target in json.loads(Path('automation/article_batch_20260928.json').read_text()):
               slug = target.get('slug')
               if not slug:
-                  import re
                   value = f"{target['name']} {target['version']} update".lower()
                   slug = re.sub(r"[^a-z0-9]+", "-", value).strip("-")[:80] or "ios-update"
               page = Path(slug) / 'index.html'
               if page.exists():
-                  subprocess.run(['git','add',str(page)],check=True)
+                  pages.append(page)
+
           ns = Path('nosafariformkeyboard-1-0-0-update/index.html')
           if ns.exists():
-              subprocess.run(['git','add',str(ns)],check=True)
+              pages.append(ns)
+
+          # Normalize generated HTML before Git's whitespace validation.
+          for page in pages:
+              text = page.read_text(encoding='utf-8')
+              page.write_text(
+                  '\n'.join(line.rstrip() for line in text.splitlines()) + '\n',
+                  encoding='utf-8'
+              )
+
+          subprocess.run([
+              'git','add',
+              'automation/published-articles.json',
+              'automation/source-visual-registry.json',
+              'automation/batch-20260928-result.json',
+              'index.html','tutorials.html','tutorials/index.html',
+              'feed.xml','sitemap.xml','assets/articles/source-media'
+          ], check=True)
+          for page in pages:
+              subprocess.run(['git','add',str(page)],check=True)
           PY
           if git diff --cached --quiet; then
             echo "No website changes to commit."
