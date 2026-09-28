@@ -578,9 +578,8 @@ def _render_article(article: dict[str, Any], source: dict[str, Any], media: dict
         for url in source["source_urls"][:3]
         if urlparse(url).netloc.lower() not in DISCOVERY_HOSTS
     )
-    client = str(site.get("adsense_client", "")).strip()
-    adsense_meta = f'<meta name="google-adsense-account" content="{esc(client)}">' if client else ""
-    adsense_script = f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(client)}" crossorigin="anonymous"></script>' if client else ""
+    monetag_meta = '<meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324">'
+    monetag_loader = '<script defer src="/assets/adsterra.js?v=20260910-1" data-ns-monetag-loader="1"></script>'
     structured = {
         "@context": "https://schema.org", "@type": "TechArticle",
         "headline": article["title"], "alternativeHeadline": seo_title_text.split(" | ", 1)[0], "description": seo_description_text,
@@ -612,8 +611,7 @@ def _render_article(article: dict[str, Any], source: dict[str, Any], media: dict
   <meta name="twitter:title" content="{esc(seo_title_text)}">
   <meta name="twitter:description" content="{esc(seo_description_text)}">
   <meta name="twitter:image" content="{esc(hero_url)}">
-  {adsense_meta}
-  {adsense_script}
+  {monetag_meta}
   <script type="application/ld+json">{json.dumps(structured, ensure_ascii=False)}</script>
   <script type="application/ld+json">{seo_semantic_jsonld}</script>
 </head>
@@ -635,6 +633,7 @@ def _render_article(article: dict[str, Any], source: dict[str, Any], media: dict
     </article>
   </main>
   <footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="brand" href="/"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><p>Jailbreak news, useful tweak information, practical guides, and original videos.</p></div><div class="footer-column"><strong>Read</strong><a href="/#latest">Latest articles</a><a href="/tutorials/#verified-articles">Tweaks</a><a href="/tutorials/#jailbreak-guides">Jailbreak</a></div><div class="footer-column"><strong>Legal</strong><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div><div class="footer-bottom"><div class="container"><span>© 2026 Next Jailbreak</span></div></div></footer>
+  {monetag_loader}
   <script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>
 </body>
 </html>\n'''

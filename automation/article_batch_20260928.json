@@ -1,0 +1,304 @@
+[
+  {
+    "name": "TweakPilot",
+    "version": "1.2.2",
+    "package_id": "com.tweakpilot.tweak",
+    "description": "Floating SpringBoard control panel for managing installed tweaks, device stats and quick actions.",
+    "urls": [
+      "https://havoc.app/package/tweakpilot",
+      "https://havoc.app/Packages"
+    ],
+    "category": {
+      "id": "system-utilities",
+      "label": "System & Utilities"
+    },
+    "scope_note": "Cover the September 27 initial release, floating tweak toggles, pending-respring state, live RAM/CPU/battery stats, quick actions, resizing, edge snapping, lock-screen hiding, and the stated rootless/RootHide compatibility. Do not invent testing."
+  },
+  {
+    "name": "LockScreenRestore",
+    "version": "1.8.2",
+    "package_id": "com.aronsz26.lockscreenrestore",
+    "description": "Restores an iOS 15-style Lock Screen experience on jailbroken iOS 16 devices.",
+    "urls": [
+      "https://github.com/aronsz26/LockScreenRestore",
+      "https://raw.githubusercontent.com/aronsz26/LockScreenRestore/main/control",
+      "https://raw.githubusercontent.com/aronsz26/LockScreenRestore/main/README.md"
+    ],
+    "github": [
+      [
+        "aronsz26",
+        "LockScreenRestore"
+      ]
+    ],
+    "category": {
+      "id": "customization",
+      "label": "Customization"
+    },
+    "scope_note": "Use the current 1.8.2 project state, explain the iOS 15-style clock/date, notifications, music player, Focus, charging and wallpaper behavior, and preserve the developer's beta/testing caveats. Do not broaden compatibility beyond the source."
+  },
+  {
+    "name": "BandLock",
+    "version": "1.3",
+    "package_id": "com.gokuencinar.bandlock",
+    "description": "Standalone modem band-control utility with separate RootHide, Dopamine rootless and rootful builds.",
+    "urls": [
+      "https://github.com/Gokuencinar/GokuEnREPO",
+      "https://raw.githubusercontent.com/Gokuencinar/GokuEnREPO/main/Packages",
+      "https://raw.githubusercontent.com/Gokuencinar/GokuEnREPO/main/BANDLOCK.md",
+      "https://gokuencinar.github.io/GokuEnREPO/bandlock.html"
+    ],
+    "github": [
+      [
+        "Gokuencinar",
+        "GokuEnREPO"
+      ]
+    ],
+    "category": {
+      "id": "system-utilities",
+      "label": "System & Utilities"
+    },
+    "scope_note": "Cover the current 1.3 BandLock family, separate RootHide/Dopamine/rootful packages, LTE/4G and 5G NR controls only as documented, Control Center/Field Test features where sourced, and experimental newer-iOS caveats. Do not present carrier or radio changes as risk-free."
+  },
+  {
+    "name": "CatScript and CatScript Lite",
+    "version": "1.6.1",
+    "package_id": "app.catscript.pro",
+    "description": "CatScript iOS automation framework and its Lite edition updated to version 1.6.1.",
+    "urls": [
+      "https://havoc.app/package/catscript",
+      "https://havoc.app/package/catscriptlite",
+      "https://havoc.app/Packages"
+    ],
+    "category": {
+      "id": "productivity",
+      "label": "Productivity"
+    },
+    "scope_note": "Treat CatScript and CatScript Lite as one update article. Clearly distinguish the paid and Lite packages, only describe automation features supported by official source material, and focus on what the 1.6.1 release means for current users."
+  },
+  {
+    "name": "Prism",
+    "version": "1.6.1",
+    "package_id": "com.blacknoisy.prism",
+    "description": "Screen capture, annotation, scrolling screenshot, OCR, translation and pinning tweak.",
+    "urls": [
+      "https://havoc.app/package/prism",
+      "https://havoc.app/Packages",
+      "https://havoc.app/depiction/prism"
+    ],
+    "category": {
+      "id": "productivity",
+      "label": "Productivity"
+    },
+    "scope_note": "Cover Prism 1.6.1 as the latest update. Explain capture/annotation/OCR/translation/pinning only from the official listing and changelog. Keep cloud/API privacy implications factual and avoid claiming universal compatibility."
+  },
+  {
+    "name": "CatMCP",
+    "version": "1.2.0",
+    "package_id": "app.catscript.mcp",
+    "description": "MCP server tweak for controlling and integrating jailbroken iOS devices.",
+    "urls": [
+      "https://havoc.app/package/catmcp",
+      "https://havoc.app/Packages"
+    ],
+    "category": {
+      "id": "productivity",
+      "label": "Productivity"
+    },
+    "scope_note": "Explain CatMCP 1.2.0 from official material, what an MCP server on iOS is intended to enable, package requirements and compatibility, without implying capabilities not documented by the developer."
+  },
+  {
+    "name": "CatVNC",
+    "version": "1.7.1",
+    "package_id": "app.catscript.vnc",
+    "description": "VNC server package for jailbroken iOS devices.",
+    "urls": [
+      "https://havoc.app/package/catvnc",
+      "https://havoc.app/Packages"
+    ],
+    "category": {
+      "id": "productivity",
+      "label": "Productivity"
+    },
+    "scope_note": "Cover CatVNC 1.7.1, its VNC-server purpose, compatibility and installation requirements from official material. Include sensible remote-access security context without inventing encryption or authentication claims."
+  },
+  {
+    "name": "TwentyOne",
+    "version": "2.0",
+    "package_id": "com.pisknk.twentyone",
+    "description": "Apple Music visual customization tweak with animated artwork, tinting and Last.fm features.",
+    "urls": [
+      "https://github.com/pisknk/twenty-one-reborn",
+      "https://raw.githubusercontent.com/pisknk/twenty-one-reborn/main/control",
+      "https://raw.githubusercontent.com/pisknk/twenty-one-reborn/main/README.md"
+    ],
+    "github": [
+      [
+        "pisknk",
+        "twenty-one-reborn"
+      ]
+    ],
+    "category": {
+      "id": "media",
+      "label": "Media"
+    },
+    "scope_note": "Cover TwentyOne v2/2.0: faster background tinting, animated artwork behavior and Last.fm features only when supported by source. State the developer's tested iOS/jailbreak scope and do not generalize to untested versions."
+  },
+  {
+    "name": "YouChooseQuality",
+    "version": "1.0.10",
+    "package_id": "com.ps.youchoosequality",
+    "description": "YouTube tweak that automatically selects a preferred video quality.",
+    "urls": [
+      "https://github.com/PoomSmart/YouChooseQuality",
+      "https://raw.githubusercontent.com/PoomSmart/YouChooseQuality/master/control",
+      "https://poomsmart.github.io/repo/"
+    ],
+    "github": [
+      [
+        "PoomSmart",
+        "YouChooseQuality"
+      ]
+    ],
+    "category": {
+      "id": "media",
+      "label": "Media"
+    },
+    "scope_note": "Cover 1.0.10 as a focused YouTube quality-selection update. Keep the article useful by explaining the tweak's purpose, requirements and practical compatibility checks without padding a small changelog."
+  },
+  {
+    "name": "AppColorClose",
+    "version": "1.2.2",
+    "package_id": "com.ps.appcolorclose",
+    "description": "Tints the app-close control using colors derived from the app icon.",
+    "urls": [
+      "https://github.com/PoomSmart/AppColorClose",
+      "https://raw.githubusercontent.com/PoomSmart/AppColorClose/master/control",
+      "https://poomsmart.github.io/repo/"
+    ],
+    "github": [
+      [
+        "PoomSmart",
+        "AppColorClose"
+      ]
+    ],
+    "category": {
+      "id": "customization",
+      "label": "Customization"
+    },
+    "scope_note": "Cover the 1.2.2 revival/update and the tweak's app-icon-based close-box tinting. Explain rootless/rootful package differences only if sourced and avoid stretching the article with unsupported features."
+  },
+  {
+    "name": "iOS MCP",
+    "version": "1.2.8",
+    "package_id": "com.witchan.ios-mcp",
+    "description": "MCP server for AI-driven control and inspection of jailbroken iOS devices.",
+    "urls": [
+      "https://github.com/witchan/ios-mcp",
+      "https://raw.githubusercontent.com/witchan/ios-mcp/main/control",
+      "https://raw.githubusercontent.com/witchan/ios-mcp/main/README_EN.md"
+    ],
+    "github": [
+      [
+        "witchan",
+        "ios-mcp"
+      ]
+    ],
+    "category": {
+      "id": "productivity",
+      "label": "Productivity"
+    },
+    "scope_note": "Publish the current 1.2.8 source state rather than the already-superseded 1.2.7 listing. Explain documented MCP/device-control capabilities, requirements and security implications; do not imply the tool bypasses iOS security boundaries it does not document."
+  },
+  {
+    "name": "NoSafariFormKeyboard",
+    "version": "1.0.0",
+    "package_id": "moe.cadence.nosafariformkeyboard",
+    "description": "Removes Safari's previous, next and done form-keyboard buttons.",
+    "urls": [
+      "https://github.com/cloudrac3r/NoSafariFormKeyboard",
+      "https://raw.githubusercontent.com/cloudrac3r/NoSafariFormKeyboard/main/control"
+    ],
+    "github": [
+      [
+        "cloudrac3r",
+        "NoSafariFormKeyboard"
+      ]
+    ],
+    "category": {
+      "id": "system-utilities",
+      "label": "System & Utilities"
+    },
+    "scope_note": "This exact-version article already exists on Next Jailbreak. Treat it as a duplicate and only normalize monetization/index state; do not create a second page."
+  },
+  {
+    "name": "PhotosCore",
+    "version": "1.3",
+    "package_id": "com.zjer.photoscore",
+    "description": "Enhances Apple Photos with customizable viewing, navigation, layouts and album behavior.",
+    "urls": [
+      "https://havoc.app/package/photoscore",
+      "https://havoc.app/Packages"
+    ],
+    "category": {
+      "id": "media",
+      "label": "Media"
+    },
+    "scope_note": "Cover PhotosCore 1.3 using the official Havoc listing and changelog. Focus on Photos layout/navigation/viewing changes and exact supported iOS range; distinguish configuration features from Apple Photos behavior."
+  },
+  {
+    "name": "AutoTouch",
+    "version": "8.6.2",
+    "package_id": "com.autotouch.autotouch",
+    "description": "Lua-based iOS automation platform for jailbroken devices.",
+    "urls": [
+      "https://autotouch.net/",
+      "https://docs.autotouch.net/release-notes/",
+      "https://docs.autotouch.net/faq.html"
+    ],
+    "category": {
+      "id": "productivity",
+      "label": "Productivity"
+    },
+    "scope_note": "Cover AutoTouch 8.6.2 with the September 24 release notes: WebDAV/Finder compatibility, folder-listing optimization, reusable pairing codes and the touch-restriction fix. Include the Lua-only migration context from 8.6.0 only as relevant background."
+  },
+  {
+    "name": "CCBackgrounder17",
+    "version": "1.0.0",
+    "package_id": "com.0xkuj.ccbackgrounder17",
+    "description": "Control Center toggle that can keep selected apps in a foreground-like background state on iOS 17.",
+    "urls": [
+      "https://github.com/0xkuj/CCBackgrounder17",
+      "https://raw.githubusercontent.com/0xkuj/CCBackgrounder17/main/control",
+      "https://raw.githubusercontent.com/0xkuj/CCBackgrounder17/main/README.md"
+    ],
+    "github": [
+      [
+        "0xkuj",
+        "CCBackgrounder17"
+      ]
+    ],
+    "category": {
+      "id": "system-utilities",
+      "label": "System & Utilities"
+    },
+    "scope_note": "Cover the open-source 1.0.0 release, Control Center action, optional app auto-toggle and iOS 17 requirement. Explain that background execution changes can affect battery/resource use without inventing measurements."
+  },
+  {
+    "name": "Web Port",
+    "version": "2026-09-26",
+    "package_id": "lululab.webport",
+    "description": "System-wide modern WebKit replacement project for legacy armv7 iOS 6/7 devices.",
+    "urls": [
+      "https://www.reddit.com/r/LegacyJailbreak/comments/1wqf2nr/release_web_port_2026_webkit_on_ios_6_system_wide/",
+      "http://lululab.net/",
+      "http://lululab.net/misc/web-port-engine-swap.md",
+      "http://lululab.net/misc/webkit-safari-7624.5.1.10-branch-webport.diff"
+    ],
+    "category": {
+      "id": "system-utilities",
+      "label": "Legacy iOS"
+    },
+    "skip_version_check": true,
+    "scope_note": "Treat September 26, 2026 as the release identifier. Explain the armv7 iOS 6/7 scope, modern WebKit replacement approach, WebP/fonts/JIT claims, memory limitations, and the developer's published engine-swap/patch notes. Do not claim support for iOS 8+ or 64-bit devices."
+  }
+]
