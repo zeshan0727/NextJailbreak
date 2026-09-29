@@ -129,6 +129,37 @@ run_block = '''    @MainActor
     }
 
     @MainActor
+    func resumePendingTurn() async throws -> String {
+        guard let state, !state.sessionId.isEmpty, hasPendingTurn else {
+            throw NSError(
+                domain: "NextAgent",
+                code: 404,
+                userInfo: [NSLocalizedDescriptionKey: "No pending managed-agent turn"]
+            )
+        }
+
+        let baseline = UserDefaults.standard.string(forKey: "nextagent.pendingBaselineAssistantId")
+        do {
+            return try await driveSession(
+                sessionId: state.sessionId,
+                baselineAssistantId: baseline
+            )
+        } catch {
+            if isSessionConflict(error) {
+                resetManagedSessionState()
+                throw NSError(
+                    domain: "NextAgent.Session",
+                    code: 409,
+                    userInfo: [NSLocalizedDescriptionKey:
+                        "The background agent session expired and was reset. Start the command again."
+                    ]
+                )
+            }
+            throw normalizeAPIError(error)
+        }
+    }
+
+    @MainActor
     private func resetManagedSessionState() {
         state?.sessionId = ""
         let defaults = UserDefaults.standard
@@ -290,6 +321,7 @@ assert 'currentToolSchemaVersion = "0.7.20-session-recovery14"' in final_s
 assert '"router_version": "0.7.20-session-recovery14"' in final_r
 assert "isSessionConflict" in final_s
 assert "currentTurnToolExecutionCount" in final_s
+assert "func resumePendingTurn()" in final_s
 assert "PARTIAL — process alive, no valid background assertion" in final_s
 assert "status_hud_springboard" not in final_r
 assert 'actionTile("Show HUD"' not in final_ui
