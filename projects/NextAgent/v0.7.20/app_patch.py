@@ -186,31 +186,8 @@ s = s.replace(
     1
 )
 
-# Parse API error JSON before throwing it so the chat never dumps the raw
-# {"error":{...}} envelope for normal API failures.
-raw_error = '''                        let text = String(data: data, encoding: .utf8) ?? "HTTP \(http.statusCode)"
-                        throw NSError(domain: "NextAgent", code: http.statusCode, userInfo: [NSLocalizedDescriptionKey: text])
-'''
-clean_error = '''                        let text = String(data: data, encoding: .utf8) ?? "HTTP \(http.statusCode)"
-                        var message = text
-                        if let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                           let apiError = object["error"] as? [String: Any],
-                           let apiMessage = apiError["message"] as? String,
-                           !apiMessage.isEmpty {
-                            message = apiMessage
-                        }
-                        throw NSError(
-                            domain: "NextAgent.API",
-                            code: http.statusCode,
-                            userInfo: [
-                                NSLocalizedDescriptionKey: message,
-                                "raw_response": text
-                            ]
-                        )
-'''
-if raw_error not in s:
-    raise SystemExit("v0.7.20 requestData error marker missing")
-s = s.replace(raw_error, clean_error, 1)
+# API error envelopes are normalized in runUserMessage via normalizeAPIError().
+# Keep the proven request transport unchanged to avoid destabilizing networking.
 
 # ---- Make background diagnostics truthful ----
 self_start = s.find('    func runLocalSelfTest() async {')
@@ -250,8 +227,8 @@ self_block = '''    func runLocalSelfTest() async {
         recordTool("local_self_test", result)
 
         let report =
-            "Daemon background protection: \(protectionLabel) | \(protectStatus.output) | " +
-            "Local tool self-test: \(result.output)"
+            "Daemon background protection: \\(protectionLabel) | \\(protectStatus.output) | " +
+            "Local tool self-test: \\(result.output)"
         messages.append(ChatMessage(role: "assistant", text: report))
 
         if !result.success {
