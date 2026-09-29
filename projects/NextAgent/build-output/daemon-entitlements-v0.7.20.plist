@@ -1,0 +1,3 @@
+Executable=/private/tmp/nextagentd
+warning: Specifying ':' in the path is deprecated and will not work in a future release
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict><key>com.apple.hid.system.server-access</key><true/><key>com.apple.private.hid.client.event-dispatch</key><true/><key>com.apple.private.security.no-container</key><true/><key>com.apple.private.security.no-sandbox</key><true/><key>com.apple.private.security.storage.AppBundles</key><true/><key>com.apple.private.security.storage.AppDataContainers</key><true/><key>platform-application</key><true/></dict></plist>

@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-21T13:41:58Z",
+  "updatedAt": "2026-09-29T05:56:38Z",
   "files": [
+    {
+      "id": "next-agent-current-0.7.20-roothide",
+      "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
+      "fileName": "NextAgent-0.7.20.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "0.7.20 (28)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
+      "sha256": "d0b3d1f13159e7bec6ff23a88d03b300d7c8f498faa71cd52176adda326aec3d",
+      "sizeBytes": 1024036,
+      "notes": "Internal-stability build. Automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
+    },
+    {
+      "id": "next-agent-daemon-current-0.7.20-roothide",
+      "name": "Next Agent Daemon 0.7.20 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.20-RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iphoneos-arm64e",
+      "version": "0.7.20",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
+      "sha256": "d28f7a3e12abf96491de86db4fb8a04429a79e08e909e0f179a5d8d6c40e7457",
+      "sizeBytes": 62476,
+      "notes": "Matching RootHide helper using the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
+    },
     {
       "id": "tipa-qatar-marketplace-current-0.4.1",
       "name": "TIPA 0.4.1 — Qatar Marketplace Search",
@@ -37,42 +61,6 @@
       "sha256": "2f48ca6408ff8f0027d52d1afe27e77ba4f159bacb01cc121f5d03a6c211111b",
       "sizeBytes": 114120,
       "notes": "Adds a persistent missed-reminder scheduler. After an incomplete reminder reaches its original due time, RootHide installs a daily alert at that same clock time and keeps it active until the reminder is completed, deleted, or notifications are disabled. Retains the 1.0.16 persistent pending-report wake scheduler."
-    },
-    {
-      "id": "next-agent-current-0.7.19-roothide",
-      "name": "Next Agent 0.7.19 — SpringBoard HUD + Full-Screen Apps",
-      "fileName": "NextAgent-0.7.19.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.19 (27)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.19/NextAgent-0.7.19.tipa",
-      "sha256": "c9c5e16b1cc901c9e4466c524dfe223117f81194959dba527e1f237088b39eaa",
-      "sizeBytes": 1028333,
-      "notes": "Next Agent 0.7.19 makes Show HUD a direct SpringBoard broadcast test and changes self-test to require actual RootHide HUD tweak injection instead of merely expecting a fallback. Routine app automation remains full-screen."
-    },
-    {
-      "id": "next-agent-daemon-current-0.7.19-roothide",
-      "name": "Next Agent Daemon 0.7.19 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.19-RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.19",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.19/NextAgentDaemon-0.7.19-RootHide.deb",
-      "sha256": "d24a35664b7f4b42b8cf7b8db084032f5584121998091d261f6e311ce3278fcd",
-      "sizeBytes": 62376,
-      "notes": "Matching RootHide helper for Next Agent 0.7.19. Installs the SpringBoard OCR/HID bridge, direct HUD-test broadcaster, tweak-load diagnostics and root helper; the HUD remains a separate RootHide tweak."
-    },
-    {
-      "id": "next-agent-hud-current-0.7.19-roothide",
-      "name": "Next Agent System HUD 0.7.19 — RootHide",
-      "fileName": "NextAgentStatusHUD-0.7.19-RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.19",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.19/NextAgentStatusHUD-0.7.19-RootHide.deb",
-      "sha256": "75e4b79d613ef8ff05b1299211bf402393d8b2851ebfb627af514ef4d40601df",
-      "sizeBytes": 12496,
-      "notes": "SpringBoard-only RootHide HUD anchored to SpringBoard's status-bar/window hierarchy. It no longer depends on a UIWindow inside Next Agent or the foreground app."
     },
     {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
