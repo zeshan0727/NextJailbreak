@@ -160,19 +160,6 @@
     },
     {
       "available": true,
-      "build": "7",
-      "bundleId": "com.aspiregroup.maintenance",
-      "icon": "/logo.png",
-      "id": "aspiremaintenance-1-1-4",
-      "manifest": "/install/manifests/aspiremaintenance-1-1-4.plist",
-      "minimumOS": "iOS 16.0+",
-      "name": "Aspire Maintenance 1.1.4",
-      "platform": "iPhone",
-      "status": "Ready to install",
-      "version": "1.1.4"
-    },
-    {
-      "available": true,
       "build": "12",
       "bundleId": "com.nextsolution.nextmedia146",
       "icon": "/logo.png",
@@ -212,5 +199,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-09-26"
+  "updated": "2026-09-30"
 }
