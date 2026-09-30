@@ -1,6 +1,29 @@
 {
   "entries": [
     {
+      "article_sha256": "30f43024efaf37885064d2123ef1ebb0787f49e741a4cfd9c66210f6693b1fe3",
+      "candidate_fingerprint": "f0d84a3f33004f281f4fae3c8d89b606ff7605a6d0b9de6727efaf04fb4a57b7",
+      "category": {
+        "id": "lock-screen",
+        "label": "Lock Screen"
+      },
+      "description": "Souvenir 1.32 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "souvenir-tweak.html",
+      "image": "https://media.havoc.app/64e32db56a132e5871186be7",
+      "media_credit": "Souvenir official package listing",
+      "media_source_url": "https://havoc.app/package/souvenir",
+      "modified_at": "2026-09-30T21:18:46+00:00",
+      "name": "Souvenir",
+      "package": "com.eliofeghali.souvenir",
+      "published_at": "2026-09-30T21:18:46+00:00",
+      "selection_pool": "evergreen",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/souvenir",
+      "source_url": "https://havoc.app/",
+      "title": "Souvenir 1.32: Lock Screen Customization Tweak and Package Details",
+      "version": "1.32"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -4880,8 +4903,17 @@
       "published_at": "2026-09-28T23:02:13+00:00",
       "run_id": "36495737714",
       "version": "6.3"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "f0d84a3f33004f281f4fae3c8d89b606ff7605a6d0b9de6727efaf04fb4a57b7",
+      "href": "souvenir-tweak.html",
+      "package": "com.eliofeghali.souvenir",
+      "published_at": "2026-09-30T21:18:46+00:00",
+      "run_id": "36777973835",
+      "version": "1.32"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-28T23:02:13+00:00"
+  "updated_at": "2026-09-30T21:18:46+00:00"
 }
