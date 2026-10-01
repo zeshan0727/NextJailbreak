@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: nextagent-0720-bridge-hotfix
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   publish:
@@ -42,20 +42,49 @@ jobs:
           dpkg-deb -R /tmp/nextagent0720/NextAgentDaemon-0.7.20-roothide.deb /tmp/pkg
 
           test -x /tmp/pkg/usr/local/libexec/nextagentd
-          test -f /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib
-          test -f /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.plist
+
+          # Replace the unverified 0.7.19 SpringBoard payload with the last
+          # physically verified capture/OCR/HID bridge from 0.7.17. The
+          # Objective-C client API is identical. Retarget only same-length
+          # embedded version/protocol strings so the current v0719 client can
+          # communicate with the proven bridge without changing app logic.
+          test -f projects/NextAgent/build-output/NextAgentDaemon-0.7.17-roothide.deb
+          rm -rf /tmp/pkg0717
+          dpkg-deb -R projects/NextAgent/build-output/NextAgentDaemon-0.7.17-roothide.deb /tmp/pkg0717
+          test -f /tmp/pkg0717/usr/lib/TweakInject/NextAgentSpringBoard0717.dylib
+          test -f /tmp/pkg0717/usr/lib/TweakInject/NextAgentSpringBoard0717.plist
+
+          cp /tmp/pkg0717/usr/lib/TweakInject/NextAgentSpringBoard0717.dylib /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib
+          cp /tmp/pkg0717/usr/lib/TweakInject/NextAgentSpringBoard0717.plist /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.plist
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("/tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib")
+          b = p.read_bytes()
+          if b"uk.zeshanbarvi.nextagent.bridge.v0717" not in b:
+              raise SystemExit("proven 0.7.17 bridge service marker missing")
+          b = b.replace(b"v0717", b"v0719")
+          b = b.replace(b"0.7.17", b"0.7.20")
+          if b"uk.zeshanbarvi.nextagent.bridge.v0719" not in b:
+              raise SystemExit("retargeted v0719 bridge service marker missing")
+          p.write_bytes(b)
+          PY
+
+          rm -f /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0717.dylib /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0717.plist
+          chmod 0755 /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib
+          chmod 0644 /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.plist
 
           cat > /tmp/pkg/DEBIAN/control <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.7.20-2
+          Version: 0.7.20-3
           Architecture: iphoneos-arm64e
           Section: Tweaks
           Priority: optional
           Depends: firmware (>= 16.0), mobilesubstrate
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper and SpringBoard automation bridge for Next Agent 0.7.20 on RootHide. Includes RootHide-aware root command routing, execution probe, SpringBoard OCR/HID bridge, full-screen automation, progress transport and background diagnostics. The experimental HUD project is discontinued.
+          Description: Privileged root helper and stable SpringBoard automation bridge for Next Agent 0.7.20 on RootHide. Preserves the verified uid-0 daemon and uses the physically verified 0.7.17 capture/OCR/HID bridge retargeted to the current protocol. HUD is discontinued.
           EOF
 
           python3 - <<'PY'
@@ -105,7 +134,7 @@ jobs:
           chmod 0755 /tmp/pkg/DEBIAN/postinst /tmp/pkg/DEBIAN/prerm
           dpkg-deb --root-owner-group --build /tmp/pkg /tmp/NextAgentDaemon-0.7.20-RootHide.deb
 
-          dpkg-deb -f /tmp/NextAgentDaemon-0.7.20-RootHide.deb Version | grep -qx '0.7.20-2'
+          dpkg-deb -f /tmp/NextAgentDaemon-0.7.20-RootHide.deb Version | grep -qx '0.7.20-3'
           dpkg-deb -f /tmp/NextAgentDaemon-0.7.20-RootHide.deb Section | grep -qx 'Tweaks'
           dpkg-deb -f /tmp/NextAgentDaemon-0.7.20-RootHide.deb Depends | grep -q 'mobilesubstrate'
           dpkg-deb -c /tmp/NextAgentDaemon-0.7.20-RootHide.deb | grep -q 'usr/lib/TweakInject/NextAgentSpringBoard0719.dylib'
@@ -142,13 +171,14 @@ jobs:
           found = False
           for item in d.get("files", []):
               if item.get("id") == "next-agent-daemon-current-0.7.20-roothide":
-                  item["name"] = "Next Agent Daemon 0.7.20-2 — RootHide Bridge Hotfix"
-                  item["version"] = "0.7.20-2"
+                  item["name"] = "Next Agent Daemon 0.7.20-3 — Stable RootHide Bridge"
+                  item["version"] = "0.7.20-3"
                   item["sha256"] = sha
                   item["sizeBytes"] = deb.stat().st_size
                   item["notes"] = (
-                      "RootHide bridge hotfix. Preserves the verified uid-0 0.7.20 daemon binary, "
-                      "packages the SpringBoard OCR/HID bridge as a proper tweak dependency, clears stale "
+                      "Stable RootHide bridge hotfix. Preserves the verified uid-0 0.7.20 daemon binary, "
+                      "uses the physically verified 0.7.17 SpringBoard capture/OCR/HID implementation retargeted "
+                      "to the current bridge protocol, packages it as a proper tweak dependency, clears stale "
                       "overlay status, and forces a RootHide-aware SpringBoard reload. HUD remains discontinued."
                   )
                   found = True
@@ -163,6 +193,6 @@ jobs:
 
           git add -f             projects/NextAgent/build-output/NextAgentDaemon-0.7.20-roothide.deb             projects/NextAgent/build-output/NextAgentDaemon-0.7.20-roothide.sha256             transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb             transfer/index.json
 
-          git commit -m "Publish Next Agent 0.7.20-2 RootHide bridge hotfix"
+          git commit -m "Publish Next Agent 0.7.20-3 stable RootHide bridge"
           git pull --rebase origin main
           git push
