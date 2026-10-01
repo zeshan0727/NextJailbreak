@@ -1268,17 +1268,22 @@ jobs:
           grep -q 'status_hud_springboard' NextAgent/V071Router.swift
           grep -q 'MARKETING_VERSION: 0.7.19' project.yml
 
-      - name: Apply v0.7.20 internal session recovery
+      - name: Apply v0.7.20 root routing + session recovery
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
         run: |
           set -euo pipefail
           python3 "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.20/app_patch.py"
           swiftc -frontend -parse NextAgent/NextAgent.swift
           swiftc -frontend -parse NextAgent/V071Router.swift
+          swiftc -frontend -parse NextAgent/V07Tools.swift
           swiftc -frontend -parse NextAgent/ModernUI.swift
           grep -q '0.7.20-session-recovery14' NextAgent/NextAgent.swift
           grep -q 'isSessionConflict' NextAgent/NextAgent.swift
           grep -q 'currentTurnToolExecutionCount' NextAgent/NextAgent.swift
+          grep -q 'root_exec_probe' NextAgent/V071Router.swift
+          grep -q '"success": failed == 0' NextAgent/V071Router.swift
+          ! grep -q 'daemon.success ? daemon : ShellRunner.runRootPreset' NextAgent/NextAgent.swift
+          ! grep -q 'privileged.success ? privileged : ShellRunner.runPreset' NextAgent/NextAgent.swift
           ! grep -q 'status_hud_springboard' NextAgent/V071Router.swift
           ! grep -q 'actionTile("Show HUD"' NextAgent/ModernUI.swift
           grep -q 'MARKETING_VERSION: 0.7.20' project.yml
@@ -1423,7 +1428,7 @@ jobs:
           marker = 'static char *action_ping(void) {'
           if marker not in source:
               raise SystemExit("daemon action_ping marker missing")
-          includes = '#include "hid_v05.inc"\n#include "system_v07.inc"\n#include "system_v073.inc"\n#include "system_v074.inc"\n#include "NABatteryDiagnostics.h"\n#include "NAProcessProtector.h"\n\n'
+          includes = '#include "hid_v05.inc"\n#include "system_v07.inc"\n#include "system_v073.inc"\n#include "system_v074.inc"\n#include "system_v0720.inc"\n#include "NABatteryDiagnostics.h"\n#include "NAProcessProtector.h"\n\n'
           source = source.replace(marker, includes + marker, 1)
 
           route = '    else if (!strcmp(action, "storage")) out = action_storage(&ok_i);\n'
@@ -1446,6 +1451,7 @@ jobs:
               else if (!strcmp(action, "service_start")) out = na_launchctl_domain_action("start", arg, false, &ok_i);
               else if (!strcmp(action, "service_restart")) out = na_launchctl_domain_action("restart", arg, false, &ok_i);
               else if (!strcmp(action, "service_stop")) out = na_launchctl_domain_action("stop", arg, false, &ok_i);
+              else if (!strcmp(action, "root_probe")) out = action_root_exec_probe_v0720(&ok_i);
               else if (!strcmp(action, "root_stat")) out = action_root_stat_v07(arg, &ok_i);
               else if (!strcmp(action, "root_search")) out = action_root_search_v07(arg, &ok_i);
               else if (!strcmp(action, "root_mkdir")) out = action_root_mkdir_v07(arg, &ok_i);
@@ -1469,6 +1475,24 @@ jobs:
           if route not in source:
               raise SystemExit("daemon route marker missing")
           source = source.replace(route, extra, 1)
+
+          # v0.7.20 privileged service actions must use RootHide-aware binary
+          # resolution instead of the old /var/jb-only PATH shell snippets.
+          old_uicache = '    else if (!strcmp(action, "uicache")) { out = action_uicache(&ok_i); }\n'
+          old_respring = '    else if (!strcmp(action, "respring")) { out = action_respring(&ok_i); }\n'
+          if old_uicache not in source or old_respring not in source:
+              raise SystemExit("v0.7.20 daemon uicache/respring route marker missing")
+          source = source.replace(
+              old_uicache,
+              '    else if (!strcmp(action, "uicache")) { out = action_uicache_v0720(&ok_i); }\n',
+              1
+          )
+          source = source.replace(
+              old_respring,
+              '    else if (!strcmp(action, "respring")) { out = action_respring_v0720(&ok_i); }\n',
+              1
+          )
+
           Path("/tmp/nextagentd-v0720.c").write_text(source)
           PY
 
@@ -1496,6 +1520,7 @@ jobs:
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7" \
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.3" \
             -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.4" \
+            -I "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.20" \
             -Os -Wall -Wextra \
             -c /tmp/nextagentd-v0720.c \
             -o /tmp/nextagentd-main.o
@@ -1535,6 +1560,9 @@ jobs:
           file /tmp/nextagentd
           /usr/bin/codesign -d --entitlements :- /tmp/nextagentd > /tmp/nextagentd-entitlements.plist 2>&1 || true
           grep -q 'com.apple.hid.system.server-access' /tmp/nextagentd-v0720.entitlements
+          grep -q 'root_probe' /tmp/nextagentd-v0720.c
+          grep -q 'action_uicache_v0720' /tmp/nextagentd-v0720.c
+          grep -q 'action_respring_v0720' /tmp/nextagentd-v0720.c
 
       - name: Build stable SpringBoard OCR + HID bridge
         run: |
@@ -1653,7 +1681,7 @@ jobs:
           Priority: optional
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper for Next Agent 0.7.20 with the stable SpringBoard OCR/HID bridge, full-screen automation, progress transport and background diagnostics for RootHide. The experimental HUD project is discontinued.
+          Description: Privileged root helper for Next Agent 0.7.20 with RootHide-aware root command routing, an execution probe, the stable SpringBoard OCR/HID bridge, full-screen automation, progress transport and background diagnostics. The experimental HUD project is discontinued.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
@@ -1757,6 +1785,7 @@ jobs:
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/NABatteryDiagnostics.m NextAgent_v0.7.20/RootHelperSource/
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/system_v073.inc NextAgent_v0.7.20/RootHelperSource/
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.4/system_v074.inc NextAgent_v0.7.20/RootHelperSource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.20/system_v0720.inc NextAgent_v0.7.20/RootHelperSource/
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.h NextAgent_v0.7.20/RootHelperSource/
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.m NextAgent_v0.7.20/RootHelperSource/
           mkdir -p NextAgent_v0.7.20/OverlaySource
@@ -1808,7 +1837,7 @@ jobs:
               "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
               "sha256": tipa_sha,
               "sizeBytes": tipa_path.stat().st_size,
-              "notes": "Internal-stability build. Automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
+              "notes": "Internal-stability build. Fixes privileged routing so daemon-backed actions never fall back to the UID 501 app shell, adds an actual root execution probe, automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
           }
           daemon_entry = {
               "id": "next-agent-daemon-current-0.7.20-roothide",
@@ -1820,7 +1849,7 @@ jobs:
               "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
               "sha256": deb_sha,
               "sizeBytes": deb_path.stat().st_size,
-              "notes": "Matching RootHide helper using the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
+              "notes": "Matching RootHide helper with RootHide-aware uicache/respring resolution and an allow-listed uid-0 execution probe, while preserving the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
           }
 
           data["files"] = [app_entry, daemon_entry] + files
@@ -1842,7 +1871,7 @@ jobs:
       - name: Upload v0.7.20 internal stability build
         uses: actions/upload-artifact@v4
         with:
-          name: NextAgent-0.7.20-Internal-Stability-RootHide
+          name: NextAgent-0.7.20-Root-Routing-Session-Recovery
           path: |
             projects/NextAgent/build-output/NextAgent-0.7.20.tipa
             projects/NextAgent/build-output/NextAgent-0.7.20.sha256
@@ -1865,5 +1894,6 @@ jobs:
           git add -f projects/NextAgent/build-output/
           git add -f transfer/index.json transfer/files/NextAgent/0.7.20/
           git diff --cached --quiet && exit 0
-          git commit -m "Build Next Agent 0.7.20 internal stability"
+          git commit -m "Build Next Agent 0.7.20 root routing and session recovery"
+          git pull --rebase origin main
           git push
