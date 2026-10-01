@@ -347,6 +347,15 @@ router = router.replace(
     1
 )
 
+# Split workspace is diagnostic/explicit-only. Normal automation is full-screen,
+# so do not make split capability a required health check.
+split_start = router.find('        let splitCapabilityRaw = NAScreenBridgeClient.splitCapabilities()')
+split_end = router.find('        let hidBridgeRaw = NAScreenBridgeClient.hidStatus()', split_start)
+if split_start >= 0:
+    if split_end < 0:
+        raise SystemExit("v0.7.20 split self-test end marker missing")
+    router = router[:split_start] + router[split_end:]
+
 # OCR and a full-screen self-open validate the proven automation path without
 # leaving the user in another app.
 checks_marker = '''            ("root_helper_status", [:]),
@@ -475,6 +484,15 @@ ui = ui.replace(
     "0.7.20 • RootHide • Session Recovery • Full-Screen Apps"
 )
 
+# Keep bridge errors aligned with the package users actually install.
+bridge_client_path = root / "NextAgent/NAScreenBridgeClient.m"
+bridge_client = bridge_client_path.read_text()
+bridge_client = bridge_client.replace(
+    "SpringBoard direct bridge is unavailable. Install the matching RootHide 0.7.19 package and respring.",
+    "SpringBoard automation bridge is unavailable. Reinstall the matching Next Agent 0.7.20 RootHide bridge package and respring."
+)
+bridge_client_path.write_text(bridge_client)
+
 swift_path.write_text(s)
 router_path.write_text(router)
 modern_ui_path.write_text(ui)
@@ -505,6 +523,8 @@ assert "func resumePendingTurn()" in final_s
 assert "PARTIAL — process alive, no valid background assertion" in final_s
 assert '"root_exec_probe"' in final_r
 assert '"success": failed == 0' in final_r
+assert '"split_workspace_capability"' not in final_r
+assert "matching Next Agent 0.7.20 RootHide bridge package" in bridge_client_path.read_text()
 assert 'daemon.success ? daemon : ShellRunner.runRootPreset' not in final_s
 assert 'privileged.success ? privileged : ShellRunner.runPreset' not in final_s
 assert "status_hud_springboard" not in final_r
