@@ -17,13 +17,13 @@ s = s.replace(
 )
 s = s.replace(
     'private static let currentToolSchemaVersion = "0.7.19-springboard-hud13"',
-    'private static let currentToolSchemaVersion = "0.7.20-session-recovery14"'
+    'private static let currentToolSchemaVersion = "0.7.20-session-recovery15"'
 )
 s = s.replace('"client_version": "0.7.19"', '"client_version": "0.7.20"')
 
 router = router.replace(
     '"router_version": "0.7.19-springboard-hud13"',
-    '"router_version": "0.7.20-session-recovery14"'
+    '"router_version": "0.7.20-session-recovery15"'
 )
 
 # HUD project is discontinued. Remove HUD from local self-test rather than
@@ -356,6 +356,94 @@ if split_start >= 0:
         raise SystemExit("v0.7.20 split self-test end marker missing")
     router = router[:split_start] + router[split_end:]
 
+# Bridge generations 0.7.19 and 0.7.20 use the same proven protocol.
+# Objective-C bridge booleans can arrive as NSNumber, so coerce them explicitly
+# instead of relying only on Swift Bool bridging.
+direct_old = '''            let transportVersion = directBridge["transport_version"] as? String ?? ""
+            results.append([
+                "tool": "direct_screen_bridge",
+                "success": (directBridge["success"] as? Bool) == true
+                    && transportVersion == "0.7.19-cfmessageport1",
+                "output": String(describing: directBridge)
+            ])
+'''
+direct_new = '''            let transportVersion = directBridge["transport_version"] as? String ?? ""
+            let bridgeSuccess = (directBridge["success"] as? Bool) == true
+                || (directBridge["success"] as? NSNumber)?.intValue == 1
+            let supportedTransport = transportVersion == "0.7.19-cfmessageport1"
+                || transportVersion == "0.7.20-cfmessageport1"
+            results.append([
+                "tool": "direct_screen_bridge",
+                "success": bridgeSuccess && supportedTransport,
+                "output": String(describing: directBridge)
+            ])
+'''
+if direct_old not in router:
+    raise SystemExit("v0.7.20 direct bridge validator marker missing")
+router = router.replace(direct_old, direct_new, 1)
+
+ocr_old = '''        let ocrCount = (ocrRaw["count"] as? NSNumber)?.intValue ?? 0
+        let ocrTransportVersion = ocrRaw["transport_version"] as? String ?? ""
+        results.append([
+            "tool": "direct_ocr_bridge",
+            "success": (ocrRaw["success"] as? Bool) == true
+                && ocrCount > 0
+                && ocrTransportVersion == "0.7.19-springboard-vision1",
+            "output": String(describing: ocrRaw)
+        ])
+'''
+ocr_new = '''        let ocrCount = (ocrRaw["count"] as? NSNumber)?.intValue ?? 0
+        let ocrTransportVersion = ocrRaw["transport_version"] as? String ?? ""
+        let ocrSuccess = (ocrRaw["success"] as? Bool) == true
+            || (ocrRaw["success"] as? NSNumber)?.intValue == 1
+        let supportedOCRTransport = ocrTransportVersion == "0.7.19-springboard-vision1"
+            || ocrTransportVersion == "0.7.20-springboard-vision1"
+        results.append([
+            "tool": "direct_ocr_bridge",
+            "success": ocrSuccess
+                && ocrCount > 0
+                && supportedOCRTransport,
+            "output": String(describing: ocrRaw)
+        ])
+'''
+if ocr_old not in router:
+    raise SystemExit("v0.7.20 OCR validator marker missing")
+router = router.replace(ocr_old, ocr_new, 1)
+
+hid_old = '''        let hidBridgeRaw = NAScreenBridgeClient.hidStatus()
+        let hidBridgeVersion = hidBridgeRaw["bridge_version"] as? String ?? ""
+        results.append([
+            "tool": "springboard_hid_bridge",
+            "success": (hidBridgeRaw["success"] as? Bool) == true
+                && (hidBridgeRaw["touch_client"] as? Bool) == true
+                && (hidBridgeRaw["keyboard_admin_client"] as? Bool) == true
+                && hidBridgeVersion == "0.7.19",
+            "output": String(describing: hidBridgeRaw)
+        ])
+'''
+hid_new = '''        let hidBridgeRaw = NAScreenBridgeClient.hidStatus()
+        let hidBridgeVersion = hidBridgeRaw["bridge_version"] as? String ?? ""
+        let hidSuccess = (hidBridgeRaw["success"] as? Bool) == true
+            || (hidBridgeRaw["success"] as? NSNumber)?.intValue == 1
+        let touchReady = (hidBridgeRaw["touch_client"] as? Bool) == true
+            || (hidBridgeRaw["touch_client"] as? NSNumber)?.intValue == 1
+        let keyboardReady = (hidBridgeRaw["keyboard_admin_client"] as? Bool) == true
+            || (hidBridgeRaw["keyboard_admin_client"] as? NSNumber)?.intValue == 1
+        let supportedHIDBridge = hidBridgeVersion == "0.7.19"
+            || hidBridgeVersion == "0.7.20"
+        results.append([
+            "tool": "springboard_hid_bridge",
+            "success": hidSuccess
+                && touchReady
+                && keyboardReady
+                && supportedHIDBridge,
+            "output": String(describing: hidBridgeRaw)
+        ])
+'''
+if hid_old not in router:
+    raise SystemExit("v0.7.20 HID validator marker missing")
+router = router.replace(hid_old, hid_new, 1)
+
 # OCR and a full-screen self-open validate the proven automation path without
 # leaving the user in another app.
 checks_marker = '''            ("root_helper_status", [:]),
@@ -500,20 +588,20 @@ modern_ui_path.write_text(ui)
 project = root / "project.yml"
 y = project.read_text()
 y = y.replace("MARKETING_VERSION: 0.7.19", "MARKETING_VERSION: 0.7.20")
-y = y.replace("CURRENT_PROJECT_VERSION: 27", "CURRENT_PROJECT_VERSION: 28")
+y = y.replace("CURRENT_PROJECT_VERSION: 27", "CURRENT_PROJECT_VERSION: 29")
 project.write_text(y)
 
 plist_path = root / "NextAgent/Info.plist"
 d = plistlib.loads(plist_path.read_bytes())
 d["CFBundleShortVersionString"] = "0.7.20"
-d["CFBundleVersion"] = "28"
+d["CFBundleVersion"] = "29"
 plist_path.write_bytes(plistlib.dumps(d))
 
 final_s = swift_path.read_text()
 final_r = router_path.read_text()
 final_ui = modern_ui_path.read_text()
-assert 'currentToolSchemaVersion = "0.7.20-session-recovery14"' in final_s
-assert '"router_version": "0.7.20-session-recovery14"' in final_r
+assert 'currentToolSchemaVersion = "0.7.20-session-recovery15"' in final_s
+assert '"router_version": "0.7.20-session-recovery15"' in final_r
 assert "isSessionConflict" in final_s
 assert "private static func requestOnce" in final_s
 assert "automatic reconnect attempts" in final_s
@@ -524,6 +612,9 @@ assert "PARTIAL — process alive, no valid background assertion" in final_s
 assert '"root_exec_probe"' in final_r
 assert '"success": failed == 0' in final_r
 assert '"split_workspace_capability"' not in final_r
+assert '0.7.20-cfmessageport1' in final_r
+assert '0.7.20-springboard-vision1' in final_r
+assert 'hidBridgeVersion == "0.7.20"' in final_r
 assert "matching Next Agent 0.7.20 RootHide bridge package" in bridge_client_path.read_text()
 assert 'daemon.success ? daemon : ShellRunner.runRootPreset' not in final_s
 assert 'privileged.success ? privileged : ShellRunner.runPreset' not in final_s
