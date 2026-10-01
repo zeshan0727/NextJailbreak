@@ -1,0 +1,103 @@
+name: Build Next Tweaks IPA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NextTweaksApp/**'
+      - '!NextTweaksApp/build-output/**'
+      - '.github/workflows/build-nexttweaks-ipa.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-nexttweaks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate glossy app icon
+        working-directory: NextTweaksApp
+        run: swift generate_app_icon.swift NextTweaks/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+
+      - name: Generate Xcode project
+        working-directory: NextTweaksApp
+        run: xcodegen generate
+
+      - name: Build unsigned iPhone app
+        id: build
+        working-directory: NextTweaksApp
+        shell: bash
+        run: |
+          set +e
+          mkdir -p build-output
+          xcodebuild \
+            -project NextTweaks.xcodeproj \
+            -scheme NextTweaks \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee build-output/xcodebuild.log
+          BUILD_STATUS=${PIPESTATUS[0]}
+          echo "exit_code=$BUILD_STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$BUILD_STATUS" -eq 0 ]; then
+            echo "SUCCESS - Next Tweaks 1.0.0" > build-output/build-status.txt
+          else
+            echo "FAILED (xcodebuild exit code $BUILD_STATUS)" > build-output/build-status.txt
+          fi
+          exit 0
+
+      - name: Package IPA
+        if: steps.build.outputs.exit_code == '0'
+        working-directory: NextTweaksApp
+        run: |
+          rm -rf Payload NextTweaks-1.0.0.ipa
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/NextTweaks.app Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextTweaks-1.0.0.ipa
+          cp NextTweaks-1.0.0.ipa build-output/NextTweaks-1.0.0.ipa
+          shasum -a 256 build-output/NextTweaks-1.0.0.ipa > build-output/NextTweaks-1.0.0.sha256
+
+      - name: Publish build result
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: NextTweaksApp
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f build-output/build-status.txt build-output/xcodebuild.log
+          if [ -f build-output/NextTweaks-1.0.0.ipa ]; then
+            git add -f build-output/NextTweaks-1.0.0.ipa build-output/NextTweaks-1.0.0.sha256
+          fi
+          git commit -m "Publish Next Tweaks 1.0.0 IPA" || true
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Upload IPA artifact
+        if: steps.build.outputs.exit_code == '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextTweaks-IPA
+          path: |
+            NextTweaksApp/NextTweaks-1.0.0.ipa
+            NextTweaksApp/build-output/NextTweaks-1.0.0.sha256
+          if-no-files-found: error
+
+      - name: Fail if build failed
+        if: steps.build.outputs.exit_code != '0'
+        run: exit 1
