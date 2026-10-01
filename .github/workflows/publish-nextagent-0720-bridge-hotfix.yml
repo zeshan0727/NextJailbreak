@@ -64,7 +64,7 @@ jobs:
           if b"uk.zeshanbarvi.nextagent.bridge.v0717" not in b:
               raise SystemExit("proven 0.7.17 bridge service marker missing")
           b = b.replace(b"v0717", b"v0719")
-          b = b.replace(b"0.7.17", b"0.7.20")
+          b = b.replace(b"0.7.17", b"0.7.19")
           if b"uk.zeshanbarvi.nextagent.bridge.v0719" not in b:
               raise SystemExit("retargeted v0719 bridge service marker missing")
           p.write_bytes(b)
@@ -84,7 +84,7 @@ jobs:
           Depends: firmware (>= 16.0), mobilesubstrate
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper and stable SpringBoard automation bridge for Next Agent 0.7.20 on RootHide. Preserves the verified uid-0 daemon and uses the physically verified 0.7.17 capture/OCR/HID bridge retargeted to the current protocol. HUD is discontinued.
+          Description: Privileged root helper and stable SpringBoard automation bridge for Next Agent 0.7.20 on RootHide. Preserves the verified uid-0 daemon and uses the physically verified 0.7.17 capture/OCR/HID bridge retargeted to the current 0.7.19 bridge protocol. HUD is discontinued.
           EOF
 
           python3 - <<'PY'
