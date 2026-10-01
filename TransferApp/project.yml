@@ -19,12 +19,12 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.transfer
         PRODUCT_NAME: NextSolutionTransfer
-        MARKETING_VERSION: 1.1.4
-        CURRENT_PROJECT_VERSION: 114
+        MARKETING_VERSION: 1.1.7
+        CURRENT_PROJECT_VERSION: 117
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: "NextSolution Transfer"
+        INFOPLIST_KEY_CFBundleDisplayName: "NS Transfers"
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
