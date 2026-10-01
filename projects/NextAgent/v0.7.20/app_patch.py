@@ -328,9 +328,7 @@ s = s.replace(
 # Keep the proven request transport unchanged to avoid destabilizing networking.
 
 # ---- Self-test: require real root execution and truthful aggregate status ----
-selftest_results_marker = '''        var results: [[String: Any]] = []
-        for (toolName, args) in checks {
-'''
+selftest_results_marker = '        var results: [[String: Any]] = []\n'
 if selftest_results_marker not in router:
     raise SystemExit("v0.7.20 router self-test results marker missing")
 router = router.replace(
@@ -345,8 +343,6 @@ router = router.replace(
             "success": rootExec.success,
             "output": String(rootExec.output.prefix(900))
         ])
-
-        for (toolName, args) in checks {
 ''',
     1
 )
