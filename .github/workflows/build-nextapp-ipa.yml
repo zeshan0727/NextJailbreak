@@ -1,0 +1,157 @@
+name: Build Next App IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'NextAppApp/**'
+      - '!NextAppApp/build-output/**'
+      - '.github/workflows/build-nextapp-ipa.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-nextapp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate glossy Next App icon
+        working-directory: NextAppApp
+        run: swift generate_app_icon.swift NextApp/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+
+      - name: Generate Xcode project
+        working-directory: NextAppApp
+        run: xcodegen generate
+
+      - name: Build unsigned iPhone app
+        id: build
+        working-directory: NextAppApp
+        shell: bash
+        run: |
+          set +e
+          mkdir -p build-output
+          xcodebuild \
+            -project NextApp.xcodeproj \
+            -scheme NextApp \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee build-output/xcodebuild.log
+          BUILD_STATUS=${PIPESTATUS[0]}
+          echo "exit_code=$BUILD_STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$BUILD_STATUS" -eq 0 ]; then
+            echo "SUCCESS - Next App 1.0.0" > build-output/build-status.txt
+          else
+            echo "FAILED (xcodebuild exit code $BUILD_STATUS)" > build-output/build-status.txt
+          fi
+          exit 0
+
+      - name: Package IPA
+        if: steps.build.outputs.exit_code == '0'
+        working-directory: NextAppApp
+        run: |
+          rm -rf Payload NextApp-1.0.0.ipa
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/NextApp.app Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextApp-1.0.0.ipa
+          cp NextApp-1.0.0.ipa build-output/NextApp-1.0.0.ipa
+          shasum -a 256 build-output/NextApp-1.0.0.ipa > build-output/NextApp-1.0.0.sha256
+
+      - name: Publish to NS Transfer
+        if: steps.build.outputs.exit_code == '0' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: NextAppApp
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST_DIR='../transfer/files/NextApp/1.0.0'
+          DEST_FILE='NextApp-1.0.0.ipa'
+          mkdir -p "$DEST_DIR"
+          cp "build-output/$DEST_FILE" "$DEST_DIR/$DEST_FILE"
+
+          SHA256=$(shasum -a 256 "$DEST_DIR/$DEST_FILE" | awk '{print $1}')
+          SIZE=$(stat -f%z "$DEST_DIR/$DEST_FILE")
+          export SHA256 SIZE
+
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          p=Path('../transfer/index.json')
+          data=json.loads(p.read_text())
+          remove_ids={
+              'nexttweaks-1.0.0-glossy-live-tweaks',
+              'nextapp-1.0.0-live-install-catalog'
+          }
+          files=[x for x in data.get('files',[]) if x.get('id') not in remove_ids]
+
+          item={
+              'id':'nextapp-1.0.0-live-install-catalog',
+              'name':'Next App 1.0.0 — Live App Installer',
+              'fileName':'NextApp-1.0.0.ipa',
+              'type':'ipa',
+              'platform':'TrollStore / iOS 16+',
+              'version':'1.0.0 (1)',
+              'url':'https://nextjailbreak.com/transfer/files/NextApp/1.0.0/NextApp-1.0.0.ipa',
+              'sha256':os.environ['SHA256'],
+              'sizeBytes':int(os.environ['SIZE']),
+              'notes':'Glossy single-window native app library powered directly by nextjailbreak.com/install/apps.json. It mirrors the apps published on /install, refreshes automatically every 30 seconds and when returning to the foreground, supports pull-to-refresh, displays the live app icon/version/build/minimum iOS, and uses the same OTA itms-services manifest install flow as the website. Newly published apps appear automatically without rebuilding Next App.'
+          }
+
+          data['files']=[item]+files
+          data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+          PY
+
+          python3 -m json.tool ../transfer/index.json >/dev/null
+
+      - name: Commit app, build and NS Transfer publication
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: NextAppApp
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -f build-output/build-status.txt build-output/xcodebuild.log
+          if [ -f build-output/NextApp-1.0.0.ipa ]; then
+            git add -f build-output/NextApp-1.0.0.ipa build-output/NextApp-1.0.0.sha256
+            git add -f ../transfer/files/NextApp/1.0.0/NextApp-1.0.0.ipa ../transfer/index.json
+          fi
+
+          git commit -m "Publish Next App 1.0.0" || true
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Upload IPA artifact
+        if: steps.build.outputs.exit_code == '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextApp-IPA
+          path: |
+            NextAppApp/NextApp-1.0.0.ipa
+            NextAppApp/build-output/NextApp-1.0.0.sha256
+          if-no-files-found: error
+
+      - name: Fail if build failed
+        if: steps.build.outputs.exit_code != '0'
+        run: exit 1
