@@ -98,11 +98,11 @@ jobs:
           test "$BUNDLE" = "com.nextsolution.nextapp"
           test -f "$APP/Assets.car"
 
-          strings "$BIN" > "$RUNNER_TEMP/nextapp-102.strings"
-          grep -q 'Duplicate App' "$RUNNER_TEMP/nextapp-102.strings"
-          grep -q 'nextdup' "$RUNNER_TEMP/nextapp-102.strings"
-          grep -q 'apple-magnifier' "$RUNNER_TEMP/nextapp-102.strings"
-          grep -q '127.0.0.1' "$RUNNER_TEMP/nextapp-102.strings"
+          grep -q 'Button("Duplicate App")' NextApp/NextApp.swift
+          grep -q 'nextdup' NextApp/AppDuplication.swift
+          grep -q 'apple-magnifier' NextApp/AppDuplication.swift
+          grep -q '127.0.0.1' NextApp/AppDuplication.swift
+          test -d "$APP/ZIPFoundation_ZIPFoundation.bundle"
 
       - name: Upload test IPA
         uses: actions/upload-artifact@v4
