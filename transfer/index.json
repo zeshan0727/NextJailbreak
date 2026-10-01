@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T12:31:07Z",
+  "updatedAt": "2026-10-01T12:37:25Z",
   "files": [
+    {
+      "id": "next-agent-current-0.7.20-roothide",
+      "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
+      "fileName": "NextAgent-0.7.20.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "0.7.20 (28)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
+      "sha256": "4de90274bed699bb41b7fda50826a73dd0a29a347d3264e280e53e527dfcd6db",
+      "sizeBytes": 1024429,
+      "notes": "Internal-stability build. Fixes privileged routing so daemon-backed actions never fall back to the UID 501 app shell, adds an actual root execution probe, automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
+    },
+    {
+      "id": "next-agent-daemon-current-0.7.20-roothide",
+      "name": "Next Agent Daemon 0.7.20 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.20-RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iphoneos-arm64e",
+      "version": "0.7.20",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
+      "sha256": "901f526038371e7ae64b278e69b53250513e2371b1b8d571dc7c8fe61266bd79",
+      "sizeBytes": 63200,
+      "notes": "Matching RootHide helper with RootHide-aware uicache/respring resolution and an allow-listed uid-0 execution probe, while preserving the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
+    },
     {
       "id": "nexttweaks-1.0.0-glossy-live-tweaks",
       "name": "Next Tweaks 1.0.0 — Glossy Live Tweaks",
@@ -13,30 +37,6 @@
       "sha256": "f21e79924c32b6f5218e78eb478c175b23055c4b1423061ffa18856b0bf1420a",
       "sizeBytes": 2455478,
       "notes": "Single-window native SwiftUI tweak browser with glossy glass theming. Loads the live Next Jailbreak Packages feed, merges duplicate architecture variants, shows tweak icons, versions and descriptions, supports pull-to-refresh, and provides one Install button that routes to Sileo, Zebra or Cydia with direct DEB fallback."
-    },
-    {
-      "id": "next-agent-current-0.7.20-roothide",
-      "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
-      "fileName": "NextAgent-0.7.20.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.20 (28)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
-      "sha256": "a2422cf7e4449d575d1c5879db4786192dba2f173c6894ea23e02e5fb7ae2c31",
-      "sizeBytes": 1024222,
-      "notes": "Internal-stability build. Automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
-    },
-    {
-      "id": "next-agent-daemon-current-0.7.20-roothide",
-      "name": "Next Agent Daemon 0.7.20 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.20-RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.20",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
-      "sha256": "7f15ad28aad9cfba289a6d4923c84aedde1efd03ff0dc496807d73eb2bca9e65",
-      "sizeBytes": 62428,
-      "notes": "Matching RootHide helper using the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
     },
     {
       "id": "tipa-qatar-marketplace-current-0.4.1",
