@@ -1,0 +1,275 @@
+name: Build NS Transfers 1.1.7 Glass
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/ns-transfers-1.1.7-glass
+    paths:
+      - 'TransferApp/**'
+      - '.github/workflows/build-ns-transfers-1.1.7.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ns-transfers-1.1.7-glass
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout 1.1.7 source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate 1.1.7 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'MARKETING_VERSION: 1.1.7' TransferApp/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: 117' TransferApp/project.yml
+          grep -q 'INFOPLIST_KEY_CFBundleDisplayName: "NS Transfers"' TransferApp/project.yml
+          grep -q 'https://nextjailbreak.com/transfer/index.json' TransferApp/Sources/NextSolutionTransferApp.swift
+          grep -q 'zeshan0727/NextJailbreak' TransferApp/Sources/NextSolutionTransferApp.swift
+          grep -q 'download(for: request)' TransferApp/Sources/NextSolutionTransferApp.swift
+          grep -q 'transferGlassPanel' TransferApp/Sources/NextSolutionTransferApp.swift
+          grep -q 'swipeActions(edge: .trailing' TransferApp/Sources/NextSolutionTransferApp.swift
+          grep -q 'deleteFromRoot' TransferApp/Sources/NextSolutionTransferApp.swift
+          grep -q 'removeDeviceCopy' TransferApp/Sources/NextSolutionTransferApp.swift
+          grep -q 'EnhancedUploadView' TransferApp/Sources/NextSolutionTransferApp.swift
+          grep -q 'private let enhancedUploadRepo = "zeshan0727/NextJailbreak"' TransferApp/Sources/EnhancedUploadView.swift
+          grep -q 'Phone → NS Transfers' TransferApp/Sources/EnhancedUploadView.swift
+          ! grep -R 'nextsolution\.app' TransferApp --include='*.swift' --include='*.yml' --include='*.yaml'
+
+      - name: Install build tools
+        run: brew install xcodegen imagemagick
+
+      - name: Generate AppIcon asset catalog
+        working-directory: TransferApp
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="GeneratedAssets/Assets.xcassets"
+          SET="$ROOT/AppIcon.appiconset"
+          rm -rf GeneratedAssets
+          mkdir -p "$SET"
+
+          cat > "$ROOT/Contents.json" <<'JSON'
+          {"info":{"author":"xcode","version":1}}
+          JSON
+
+          magick -background none Resources/AppIcon.svg -resize 1024x1024 "$SET/AppIcon-1024.png"
+
+          make_icon() {
+            magick "$SET/AppIcon-1024.png" -resize "${2}x${2}" "$SET/$1"
+          }
+
+          make_icon AppIcon-20.png 20
+          make_icon AppIcon-20@2x.png 40
+          make_icon AppIcon-20@3x.png 60
+          make_icon AppIcon-29.png 29
+          make_icon AppIcon-29@2x.png 58
+          make_icon AppIcon-29@3x.png 87
+          make_icon AppIcon-40.png 40
+          make_icon AppIcon-40@2x.png 80
+          make_icon AppIcon-40@3x.png 120
+          make_icon AppIcon-60@2x.png 120
+          make_icon AppIcon-60@3x.png 180
+          make_icon AppIcon-76.png 76
+          make_icon AppIcon-76@2x.png 152
+          make_icon AppIcon-83.5@2x.png 167
+
+          cat > "$SET/Contents.json" <<'JSON'
+          {
+            "images": [
+              {"filename":"AppIcon-20@2x.png","idiom":"iphone","scale":"2x","size":"20x20"},
+              {"filename":"AppIcon-20@3x.png","idiom":"iphone","scale":"3x","size":"20x20"},
+              {"filename":"AppIcon-29@2x.png","idiom":"iphone","scale":"2x","size":"29x29"},
+              {"filename":"AppIcon-29@3x.png","idiom":"iphone","scale":"3x","size":"29x29"},
+              {"filename":"AppIcon-40@2x.png","idiom":"iphone","scale":"2x","size":"40x40"},
+              {"filename":"AppIcon-40@3x.png","idiom":"iphone","scale":"3x","size":"40x40"},
+              {"filename":"AppIcon-60@2x.png","idiom":"iphone","scale":"2x","size":"60x60"},
+              {"filename":"AppIcon-60@3x.png","idiom":"iphone","scale":"3x","size":"60x60"},
+              {"filename":"AppIcon-20.png","idiom":"ipad","scale":"1x","size":"20x20"},
+              {"filename":"AppIcon-20@2x.png","idiom":"ipad","scale":"2x","size":"20x20"},
+              {"filename":"AppIcon-29.png","idiom":"ipad","scale":"1x","size":"29x29"},
+              {"filename":"AppIcon-29@2x.png","idiom":"ipad","scale":"2x","size":"29x29"},
+              {"filename":"AppIcon-40.png","idiom":"ipad","scale":"1x","size":"40x40"},
+              {"filename":"AppIcon-40@2x.png","idiom":"ipad","scale":"2x","size":"40x40"},
+              {"filename":"AppIcon-76.png","idiom":"ipad","scale":"1x","size":"76x76"},
+              {"filename":"AppIcon-76@2x.png","idiom":"ipad","scale":"2x","size":"76x76"},
+              {"filename":"AppIcon-83.5@2x.png","idiom":"ipad","scale":"2x","size":"83.5x83.5"},
+              {"filename":"AppIcon-1024.png","idiom":"ios-marketing","scale":"1x","size":"1024x1024"}
+            ],
+            "info":{"author":"xcode","version":1}
+          }
+          JSON
+
+          test "$(sips -g pixelWidth "$SET/AppIcon-1024.png" | awk '/pixelWidth/{print $2}')" = "1024"
+          test "$(sips -g pixelHeight "$SET/AppIcon-1024.png" | awk '/pixelHeight/{print $2}')" = "1024"
+
+      - name: Generate Xcode project
+        working-directory: TransferApp
+        run: xcodegen generate
+
+      - name: Build unsigned app
+        working-directory: TransferApp
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf build Payload output verify
+
+          xcodebuild \
+            -project NextSolutionTransfer.xcodeproj \
+            -scheme NextSolutionTransfer \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee xcodebuild-1.1.7.log
+
+      - name: Package TIPA
+        working-directory: TransferApp
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p Payload output
+          cp -R build/Build/Products/Release-iphoneos/NextSolutionTransfer.app Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload output/NS-Transfers-1.1.7.tipa
+          shasum -a 256 output/NS-Transfers-1.1.7.tipa > output/NS-Transfers-1.1.7.sha256
+
+      - name: Validate TIPA
+        working-directory: TransferApp
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p verify
+          ditto -x -k output/NS-Transfers-1.1.7.tipa verify
+
+          APP=verify/Payload/NextSolutionTransfer.app
+          BIN="$APP/NextSolutionTransfer"
+
+          test -f "$BIN"
+          SHORT=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")
+          BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")
+          NAME=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$APP/Info.plist")
+          BUNDLE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
+
+          echo "Version=$SHORT Build=$BUILD Name=$NAME Bundle=$BUNDLE"
+
+          test "$SHORT" = "1.1.7"
+          test "$BUILD" = "117"
+          test "$NAME" = "NS Transfers"
+          test "$BUNDLE" = "com.nextsolution.transfer"
+          test -f "$APP/Assets.car"
+
+          strings "$BIN" | grep -q 'nextjailbreak.com/transfer/index.json'
+          strings "$BIN" | grep -q 'zeshan0727/NextJailbreak'
+          strings "$BIN" | grep -q 'NS Transfers'
+          strings "$BIN" | grep -q 'Delete from Root'
+
+      - name: Upload TIPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NS-Transfers-1.1.7
+          path: |
+            TransferApp/output/NS-Transfers-1.1.7.tipa
+            TransferApp/output/NS-Transfers-1.1.7.sha256
+            TransferApp/xcodebuild-1.1.7.log
+          if-no-files-found: error
+
+      - name: Publish 1.1.7 to NS Transfer feed safely
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          OUT="$GITHUB_WORKSPACE/TransferApp/output"
+          TEMP_TIPA="$RUNNER_TEMP/NS-Transfers-1.1.7.tipa"
+          TEMP_SHA="$RUNNER_TEMP/NS-Transfers-1.1.7.sha256"
+          SITE="$RUNNER_TEMP/ns-transfer-site"
+
+          cp "$OUT/NS-Transfers-1.1.7.tipa" "$TEMP_TIPA"
+          cp "$OUT/NS-Transfers-1.1.7.sha256" "$TEMP_SHA"
+
+          git clone --depth 1 --branch main "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$SITE"
+
+          for ATTEMPT in 1 2 3; do
+            git -C "$SITE" fetch origin main
+            git -C "$SITE" reset --hard origin/main
+            git -C "$SITE" clean -fd
+
+            DEST="$SITE/transfer/files/NextSolutionTransfer/1.1.7"
+            mkdir -p "$DEST"
+            cp "$TEMP_TIPA" "$DEST/NS-Transfers-1.1.7.tipa"
+            cp "$TEMP_SHA" "$DEST/NS-Transfers-1.1.7.sha256"
+
+            SHA256=$(shasum -a 256 "$DEST/NS-Transfers-1.1.7.tipa" | awk '{print $1}')
+            SIZE=$(stat -f%z "$DEST/NS-Transfers-1.1.7.tipa")
+            export SHA256 SIZE
+
+            python3 - "$SITE/transfer/index.json" <<'PY'
+          import datetime
+          import json
+          import os
+          import pathlib
+          import sys
+
+          manifest = pathlib.Path(sys.argv[1])
+          data = json.loads(manifest.read_text())
+
+          files = []
+          for item in data.get("files", []):
+              item_id = str(item.get("id", "")).lower()
+              if item_id.startswith("nextsolution-transfer-") or item_id.startswith("ns-transfers-"):
+                  continue
+              files.append(item)
+
+          files.insert(0, {
+              "id": "ns-transfers-1.1.7-glass-performance",
+              "name": "NS Transfers 1.1.7 — Glass Performance",
+              "fileName": "NS-Transfers-1.1.7.tipa",
+              "type": "tipa",
+              "platform": "TrollStore / iOS 16+",
+              "version": "1.1.7 (117)",
+              "url": "https://nextjailbreak.com/transfer/files/NextSolutionTransfer/1.1.7/NS-Transfers-1.1.7.tipa",
+              "sha256": os.environ["SHA256"],
+              "sizeBytes": int(os.environ["SIZE"]),
+              "notes": "Modern lightweight glossy-glass redesign matching Next App while preserving NS Transfers 1.1.6 search, download/share, local delete, swipe root delete, Files/Photos/Videos upload, and Keychain token functions. Uses the current nextjailbreak.com / NextJailbreak backend, avoids expensive per-row blur/material/shadows, only redraws when the feed changes, and streams large downloads through URLSession temporary files instead of loading the full package into RAM."
+          })
+
+          data["files"] = files
+          data["updatedAt"] = (
+              datetime.datetime.now(datetime.timezone.utc)
+              .replace(microsecond=0)
+              .isoformat()
+              .replace("+00:00", "Z")
+          )
+
+          manifest.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+          PY
+
+            python3 -m json.tool "$SITE/transfer/index.json" >/dev/null
+
+            git -C "$SITE" config user.name "github-actions[bot]"
+            git -C "$SITE" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$SITE" add transfer/index.json transfer/files/NextSolutionTransfer/1.1.7
+            git -C "$SITE" commit -m "Publish NS Transfers 1.1.7 glass performance" || true
+
+            if git -C "$SITE" push origin HEAD:main; then
+              exit 0
+            fi
+
+            echo "Publication race on attempt $ATTEMPT; retrying from current main."
+          done
+
+          echo "NS Transfer publication failed after 3 attempts."
+          exit 1
