@@ -17,11 +17,14 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Install packaging tools
+        run: brew install dpkg ldid-procursus
 
       - name: Download proven 0.7.20 artifact
         env:
@@ -43,36 +46,39 @@ jobs:
 
           test -x /tmp/pkg/usr/local/libexec/nextagentd
 
-          # Replace the unverified 0.7.19 SpringBoard payload with the last
-          # physically verified capture/OCR/HID bridge from 0.7.17. The
-          # Objective-C client API is identical. Retarget only same-length
-          # embedded version/protocol strings so the current v0719 client can
-          # communicate with the proven bridge without changing app logic.
-          test -f projects/NextAgent/build-output/NextAgentDaemon-0.7.17-roothide.deb
-          rm -rf /tmp/pkg0717
-          dpkg-deb -R projects/NextAgent/build-output/NextAgentDaemon-0.7.17-roothide.deb /tmp/pkg0717
-          test -f /tmp/pkg0717/usr/lib/TweakInject/NextAgentSpringBoard0717.dylib
-          test -f /tmp/pkg0717/usr/lib/TweakInject/NextAgentSpringBoard0717.plist
-
-          cp /tmp/pkg0717/usr/lib/TweakInject/NextAgentSpringBoard0717.dylib /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib
-          cp /tmp/pkg0717/usr/lib/TweakInject/NextAgentSpringBoard0717.plist /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.plist
-
+          # Build from the last physically verified SpringBoard automation core
+          # (0.7.17 capture + Vision OCR + IOHID), but retarget its protocol
+          # identifiers to the v0719 client used by the 0.7.20 app.
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          cp projects/NextAgent/v0.7.17/Overlay/NextAgentSpringBoard0717.m /tmp/NextAgentSpringBoardStable.m
           python3 - <<'PY'
           from pathlib import Path
-          p = Path("/tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib")
-          b = p.read_bytes()
-          if b"uk.zeshanbarvi.nextagent.bridge.v0717" not in b:
+          p = Path("/tmp/NextAgentSpringBoardStable.m")
+          src = p.read_text()
+          if "uk.zeshanbarvi.nextagent.bridge.v0717" not in src:
               raise SystemExit("proven 0.7.17 bridge service marker missing")
-          b = b.replace(b"v0717", b"v0719")
-          b = b.replace(b"0.7.17", b"0.7.19")
-          if b"uk.zeshanbarvi.nextagent.bridge.v0719" not in b:
+          src = src.replace("v0717", "v0719")
+          src = src.replace("0.7.17", "0.7.19")
+          if "uk.zeshanbarvi.nextagent.bridge.v0719" not in src:
               raise SystemExit("retargeted v0719 bridge service marker missing")
-          p.write_bytes(b)
+          p.write_text(src)
           PY
 
-          rm -f /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0717.dylib /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0717.plist
+          xcrun --sdk iphoneos clang \
+            -arch arm64e -isysroot "$SDK" -miphoneos-version-min=16.0 \
+            -fobjc-arc -dynamiclib -Os -Wall -Wextra \
+            /tmp/NextAgentSpringBoardStable.m \
+            -framework UIKit -framework Foundation -framework CoreFoundation \
+            -framework QuartzCore -framework CoreGraphics -framework IOSurface \
+            -framework CoreVideo -framework Vision -framework IOKit \
+            -o /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib
+          ldid -S /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib
+          cp projects/NextAgent/v0.7.17/Overlay/NextAgentSpringBoard0717.plist /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.plist
           chmod 0755 /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib
           chmod 0644 /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.plist
+
+          file /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib | grep -q arm64e
+          grep -q 'springboard_iohid_v0719' /tmp/NextAgentSpringBoardStable.m
 
           cat > /tmp/pkg/DEBIAN/control <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
