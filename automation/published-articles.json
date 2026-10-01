@@ -1,6 +1,35 @@
 {
   "entries": [
     {
+      "slug": "ps5-relapse-jailbreak-13-60-official-release",
+      "title": "PS5 Relapse Update Removes Incompatible Payloads and R2 Auto-Load Flow",
+      "name": "PS5 Relapse Exploit",
+      "version": "repository update 2026-09-30",
+      "category": {
+        "id": "jailbreak-development",
+        "label": "Jailbreak Development"
+      },
+      "source": "https://github.com/ntfargo/Relapse-Exploit",
+      "developer": "ntfargo",
+      "release": "2026-09-29",
+      "compat": "PS5 firmware 7.00–13.60",
+      "description": "The official PS5 Relapse repository removed incompatible etaHEN, kstuff and shadowmountplus payloads plus the R2 auto-load flow; firmware support remains 7.00–13.60.",
+      "href": "ps5-relapse-jailbreak-13-60-official-release/",
+      "published_at": "2026-09-29T08:30:00Z",
+      "modified_at": "2026-10-01T21:00:00Z",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/ntfargo/Relapse-Exploit",
+      "media_source_url": null,
+      "source_visual_url": null,
+      "media_credit": null,
+      "entry_type": "development-update",
+      "selection_pool": "official-project-current-development",
+      "update_commits": [
+        "https://github.com/ntfargo/Relapse-Exploit/commit/a4c6f3e150f014abe63293b86556f1fcf6e8cb5b",
+        "https://github.com/ntfargo/Relapse-Exploit/commit/dd8e4e0914c5e9d066ee1f9b056be76cb992c8e0"
+      ]
+    },
+    {
       "slug": "nowlyrics-1-0-synced-lyrics-lock-screen",
       "title": "NowLyrics 1.0 Brings Synced Lyrics to the Lock Screen, Control Center and CarPlay",
       "name": "NowLyrics",
