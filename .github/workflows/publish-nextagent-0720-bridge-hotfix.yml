@@ -1,0 +1,168 @@
+name: Publish Next Agent 0.7.20 Bridge Hotfix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-nextagent-0720-bridge-hotfix.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: nextagent-0720-bridge-hotfix
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download proven 0.7.20 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/${GITHUB_REPOSITORY}/actions/artifacts/11163181206/zip > /tmp/nextagent0720.zip
+          rm -rf /tmp/nextagent0720
+          mkdir -p /tmp/nextagent0720
+          unzip -q /tmp/nextagent0720.zip -d /tmp/nextagent0720
+          test -f /tmp/nextagent0720/NextAgentDaemon-0.7.20-roothide.deb
+          echo "Downloaded proven 0.7.20 artifact."
+
+      - name: Repackage RootHide bridge hotfix
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/pkg
+          dpkg-deb -R /tmp/nextagent0720/NextAgentDaemon-0.7.20-roothide.deb /tmp/pkg
+
+          test -x /tmp/pkg/usr/local/libexec/nextagentd
+          test -f /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib
+          test -f /tmp/pkg/usr/lib/TweakInject/NextAgentSpringBoard0719.plist
+
+          cat > /tmp/pkg/DEBIAN/control <<'EOF'
+          Package: uk.zeshanbarvi.nextagentd.roothide
+          Name: Next Agent Root Helper (RootHide)
+          Version: 0.7.20-2
+          Architecture: iphoneos-arm64e
+          Section: Tweaks
+          Priority: optional
+          Depends: firmware (>= 16.0), mobilesubstrate
+          Maintainer: Next Jailbreak
+          Author: Next Jailbreak
+          Description: Privileged root helper and SpringBoard automation bridge for Next Agent 0.7.20 on RootHide. Includes RootHide-aware root command routing, execution probe, SpringBoard OCR/HID bridge, full-screen automation, progress transport and background diagnostics. The experimental HUD project is discontinued.
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("/tmp/pkg/DEBIAN/postinst")
+          s = p.read_text()
+
+          old_cleanup = "rm -f /rootfs/var/mobile/Library/NextAgent/statushud.springboard.json /rootfs/var/mobile/Library/NextAgent/statushud.nextagent.json /rootfs/var/mobile/Library/NextAgent/statushud.external.json 2>/dev/null || true"
+          new_cleanup = old_cleanup.replace(
+              " 2>/dev/null || true",
+              " /rootfs/var/mobile/Library/NextAgent/overlay.status.json 2>/dev/null || true"
+          )
+          if old_cleanup in s:
+              s = s.replace(old_cleanup, new_cleanup, 1)
+
+          old_reload = """(
+            sleep 2
+            if command -v sbreload >/dev/null 2>&1; then
+              sbreload >/dev/null 2>&1 || true
+            else
+              killall -9 SpringBoard >/dev/null 2>&1 || true
+            fi
+          ) >/dev/null 2>&1 &"""
+          new_reload = """(
+            sleep 2
+            if [ -x /usr/bin/sbreload ]; then
+              /usr/bin/sbreload >/dev/null 2>&1 || true
+            elif [ -x /var/jb/usr/bin/sbreload ]; then
+              /var/jb/usr/bin/sbreload >/dev/null 2>&1 || true
+            elif command -v sbreload >/dev/null 2>&1; then
+              sbreload >/dev/null 2>&1 || true
+            elif [ -x /usr/bin/killall ]; then
+              /usr/bin/killall -9 SpringBoard >/dev/null 2>&1 || true
+            elif [ -x /var/jb/usr/bin/killall ]; then
+              /var/jb/usr/bin/killall -9 SpringBoard >/dev/null 2>&1 || true
+            else
+              killall -9 SpringBoard >/dev/null 2>&1 || true
+            fi
+          ) >/dev/null 2>&1 &"""
+          if old_reload in s:
+              s = s.replace(old_reload, new_reload, 1)
+
+          p.write_text(s)
+          PY
+
+          chmod 0755 /tmp/pkg/DEBIAN/postinst /tmp/pkg/DEBIAN/prerm
+          dpkg-deb --root-owner-group --build /tmp/pkg /tmp/NextAgentDaemon-0.7.20-RootHide.deb
+
+          dpkg-deb -f /tmp/NextAgentDaemon-0.7.20-RootHide.deb Version | grep -qx '0.7.20-2'
+          dpkg-deb -f /tmp/NextAgentDaemon-0.7.20-RootHide.deb Section | grep -qx 'Tweaks'
+          dpkg-deb -f /tmp/NextAgentDaemon-0.7.20-RootHide.deb Depends | grep -q 'mobilesubstrate'
+          dpkg-deb -c /tmp/NextAgentDaemon-0.7.20-RootHide.deb | grep -q 'usr/lib/TweakInject/NextAgentSpringBoard0719.dylib'
+          dpkg-deb -c /tmp/NextAgentDaemon-0.7.20-RootHide.deb | grep -q 'usr/lib/TweakInject/NextAgentSpringBoard0719.plist'
+
+          sha256sum /tmp/NextAgentDaemon-0.7.20-RootHide.deb | awk '{print $1}' > /tmp/nextagent-daemon.sha256
+          cat /tmp/nextagent-daemon.sha256
+
+      - name: Publish repaired package to repository and NS Transfer
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Rebase before touching release files so concurrent website work is preserved.
+          git pull --rebase origin main
+
+          cp /tmp/NextAgentDaemon-0.7.20-RootHide.deb projects/NextAgent/build-output/NextAgentDaemon-0.7.20-roothide.deb
+          cp /tmp/nextagent-daemon.sha256 projects/NextAgent/build-output/NextAgentDaemon-0.7.20-roothide.sha256
+          mkdir -p transfer/files/NextAgent/0.7.20
+          cp /tmp/NextAgentDaemon-0.7.20-RootHide.deb transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          root = Path(".")
+          index_path = root / "transfer/index.json"
+          d = json.loads(index_path.read_text())
+          deb = root / "transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb"
+          sha = (root / "projects/NextAgent/build-output/NextAgentDaemon-0.7.20-roothide.sha256").read_text().strip()
+
+          found = False
+          for item in d.get("files", []):
+              if item.get("id") == "next-agent-daemon-current-0.7.20-roothide":
+                  item["name"] = "Next Agent Daemon 0.7.20-2 — RootHide Bridge Hotfix"
+                  item["version"] = "0.7.20-2"
+                  item["sha256"] = sha
+                  item["sizeBytes"] = deb.stat().st_size
+                  item["notes"] = (
+                      "RootHide bridge hotfix. Preserves the verified uid-0 0.7.20 daemon binary, "
+                      "packages the SpringBoard OCR/HID bridge as a proper tweak dependency, clears stale "
+                      "overlay status, and forces a RootHide-aware SpringBoard reload. HUD remains discontinued."
+                  )
+                  found = True
+                  break
+
+          if not found:
+              raise SystemExit("Next Agent daemon transfer entry missing")
+
+          d["updatedAt"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+          index_path.write_text(json.dumps(d, indent=2, ensure_ascii=False) + "\n")
+          PY
+
+          git add -f             projects/NextAgent/build-output/NextAgentDaemon-0.7.20-roothide.deb             projects/NextAgent/build-output/NextAgentDaemon-0.7.20-roothide.sha256             transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb             transfer/index.json
+
+          git commit -m "Publish Next Agent 0.7.20-2 RootHide bridge hotfix"
+          git pull --rebase origin main
+          git push
