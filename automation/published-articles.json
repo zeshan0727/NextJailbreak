@@ -1,6 +1,35 @@
 {
   "entries": [
     {
+      "slug": "nowlyrics-1-0-synced-lyrics-lock-screen",
+      "title": "NowLyrics 1.0 Brings Synced Lyrics to the Lock Screen, Control Center and CarPlay",
+      "name": "NowLyrics",
+      "version": "1.0.0",
+      "package": "com.c3x14n.nowlyrics",
+      "category": {
+        "id": "music",
+        "label": "Music"
+      },
+      "source": "https://havoc.app/package/nowlyrics",
+      "developer": "tuonghoa2k7",
+      "release": "2026-09-28",
+      "compat": "iOS 15.0–26.0.1; rootless only",
+      "price": "1.99",
+      "image": "assets/articles/source-media/nowlyrics-1-0-official.png",
+      "sourceImage": "https://media.havoc.app/6ab48859f6c599af739689a3",
+      "description": "NowLyrics 1.0 shows line-synced lyrics in place of the track title across the Lock Screen, Control Center, Dynamic Island and CarPlay.",
+      "href": "nowlyrics-1-0-synced-lyrics-lock-screen/",
+      "published_at": "2026-10-01T15:04:37Z",
+      "modified_at": "2026-10-01T15:04:37Z",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/nowlyrics",
+      "media_source_url": "https://havoc.app/package/nowlyrics",
+      "source_visual_url": "https://media.havoc.app/6ab48859f6c599af739689a3",
+      "media_credit": "tuonghoa2k7 official Havoc screenshot",
+      "entry_type": "source-news",
+      "selection_pool": "manual-original-source"
+    },
+    {
       "slug": "lilywhite-1-0-1-status-bar-capsule",
       "title": "lilywhite 1.0.1 Refines Its Status Bar Capsule for Jailbroken iPhones",
       "name": "lilywhite",
