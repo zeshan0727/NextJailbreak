@@ -95,6 +95,61 @@ request_wrapper = '''    static func request(action: String, argument: String = 
 '''
 s = s[:request_start] + request_wrapper + request_once + s[request_end:]
 
+# Privileged operations must stay on the daemon path. Falling back to the app
+# process executes as mobile/UID 501 and can misreport a healthy root helper as
+# unavailable. Return the daemon's real result instead.
+root_fallback_rewrites = [
+    (
+        '''        case "process_list":
+            let privileged = RootDaemonClient.request(action: "ps")
+            return privileged.success ? privileged : ShellRunner.runPreset("ps -axo pid,user,comm | head -n 250")
+''',
+        '''        case "process_list":
+            return RootDaemonClient.request(action: "ps")
+'''
+    ),
+    (
+        '''        case "refresh_icon_cache":
+            guard allowSensitive else { return sensitiveOff() }
+            let daemon = RootDaemonClient.request(action: "uicache")
+            return daemon.success ? daemon : ShellRunner.runRootPreset("uicache -a 2>&1")
+''',
+        '''        case "refresh_icon_cache":
+            guard allowSensitive else { return sensitiveOff() }
+            return RootDaemonClient.request(action: "uicache")
+'''
+    ),
+    (
+        '''        case "respring":
+            guard allowSensitive else { return sensitiveOff() }
+            let daemon = RootDaemonClient.request(action: "respring")
+            return daemon.success ? daemon : ShellRunner.runRootPreset("(command -v sbreload >/dev/null && sbreload) || killall SpringBoard")
+''',
+        '''        case "respring":
+            guard allowSensitive else { return sensitiveOff() }
+            return RootDaemonClient.request(action: "respring")
+'''
+    ),
+    (
+        '''        case "terminate_process":
+            guard allowSensitive else { return sensitiveOff() }
+            guard let pid = (arguments["pid"] as? NSNumber)?.intValue, pid > 20 else { return badArgs() }
+            let daemon = RootDaemonClient.request(action: "kill", argument: String(pid))
+            return daemon.success ? daemon : ShellRunner.runRootPreset("kill -TERM \\(pid)")
+''',
+        '''        case "terminate_process":
+            guard allowSensitive else { return sensitiveOff() }
+            guard let pid = (arguments["pid"] as? NSNumber)?.intValue, pid > 20 else { return badArgs() }
+            return RootDaemonClient.request(action: "kill", argument: String(pid))
+'''
+    ),
+]
+for old, new in root_fallback_rewrites:
+    if old not in s:
+        raise SystemExit("v0.7.20 privileged UID-501 fallback marker missing")
+    s = s.replace(old, new, 1)
+
+
 # ---- Managed agent: conflict recovery ----
 # Track whether a turn already executed device-side actions. We only
 # transparently replay a conflicted turn when no tool has executed, preventing
@@ -272,6 +327,68 @@ s = s.replace(
 # API error envelopes are normalized in runUserMessage via normalizeAPIError().
 # Keep the proven request transport unchanged to avoid destabilizing networking.
 
+# ---- Self-test: require real root execution and truthful aggregate status ----
+selftest_results_marker = '''        var results: [[String: Any]] = []
+        for (toolName, args) in checks {
+'''
+if selftest_results_marker not in router:
+    raise SystemExit("v0.7.20 router self-test results marker missing")
+router = router.replace(
+    selftest_results_marker,
+    '''        var results: [[String: Any]] = []
+
+        // Ping only proves the daemon answered. This probe executes a small
+        // allow-listed command inside nextagentd and must report uid 0.
+        let rootExec = RootDaemonClient.request(action: "root_probe")
+        results.append([
+            "tool": "root_exec_probe",
+            "success": rootExec.success,
+            "output": String(rootExec.output.prefix(900))
+        ])
+
+        for (toolName, args) in checks {
+''',
+    1
+)
+
+# OCR and a full-screen self-open validate the proven automation path without
+# leaving the user in another app.
+checks_marker = '''            ("root_helper_status", [:]),
+            ("device_info", [:]),
+            ("hid_status", [:]),
+'''
+if checks_marker not in router:
+    raise SystemExit("v0.7.20 router self-test checks marker missing")
+router = router.replace(
+    checks_marker,
+    '''            ("root_helper_status", [:]),
+            ("device_info", [:]),
+            ("ocr_screen", ["fast": true]),
+            ("hid_status", [:]),
+            ("phone_apps", ["action": "open_bundle", "bundle_id": Bundle.main.bundleIdentifier ?? "uk.zeshanbarvi.nextagent"]),
+''',
+    1
+)
+
+aggregate_marker = '''        let passed = results.filter { ($0["success"] as? Bool) == true }.count
+        return routerJSON([
+            "success": passed > 0,
+'''
+if aggregate_marker not in router:
+    raise SystemExit("v0.7.20 router aggregate-success marker missing")
+router = router.replace(
+    aggregate_marker,
+    '''        let passed = results.filter { ($0["success"] as? Bool) == true }.count
+        let failed = results.count - passed
+        let overallStatus = failed == 0 ? "verified" : (passed == 0 ? "failed" : "degraded")
+        return routerJSON([
+            "success": failed == 0,
+            "status": overallStatus,
+            "failed": failed,
+''',
+    1
+)
+
 # ---- Make background diagnostics truthful ----
 self_start = s.find('    func runLocalSelfTest() async {')
 self_end = s.find('    func handleBecameActive() async {', self_start)
@@ -332,6 +449,7 @@ if instruction_anchor not in s:
     raise SystemExit("v0.7.20 agent instruction anchor missing")
 instruction_extra = instruction_anchor + '''
               A single failed privileged command does not prove the root helper is permanently unavailable; RootDaemonClient performs automatic reconnect attempts. If a privileged action still fails, report the exact final helper error without inventing a broader diagnosis.
+              Privileged filesystem, process, package, service, uicache, respring, and process-termination actions must use nextagentd only. Never fall back to the app process or describe a UID 501 shell as root execution.
               Never use uicache as a repair for root-helper connectivity, filesystem reads, or file search. Use uicache only when the user explicitly requests icon/application registration refresh or when a completed package/app registration change genuinely requires it.
               For filesystem discovery, search/read first and do not mutate or delete anything unless the current user request explicitly asks for that exact mutation.
 '''
@@ -389,6 +507,10 @@ assert "Never use uicache as a repair for root-helper connectivity" in final_s
 assert "currentTurnToolExecutionCount" in final_s
 assert "func resumePendingTurn()" in final_s
 assert "PARTIAL — process alive, no valid background assertion" in final_s
+assert '"root_exec_probe"' in final_r
+assert '"success": failed == 0' in final_r
+assert 'daemon.success ? daemon : ShellRunner.runRootPreset' not in final_s
+assert 'privileged.success ? privileged : ShellRunner.runPreset' not in final_s
 assert "status_hud_springboard" not in final_r
 assert 'actionTile("Show HUD"' not in final_ui
 assert 'settingsSection("SYSTEM-WIDE HUD")' not in final_ui
