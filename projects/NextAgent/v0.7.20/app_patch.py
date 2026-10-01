@@ -326,6 +326,17 @@ self_block = '''    func runLocalSelfTest() async {
 '''
 s = s[:self_start] + self_block + s[self_end:]
 
+# ---- Agent behavior: don't misuse uicache/root diagnostics ----
+instruction_anchor = 'Use tools when the request requires phone interaction. Report only actual tool results and never claim success without a successful result.'
+if instruction_anchor not in s:
+    raise SystemExit("v0.7.20 agent instruction anchor missing")
+instruction_extra = instruction_anchor + '''
+              A single failed privileged command does not prove the root helper is permanently unavailable; RootDaemonClient performs automatic reconnect attempts. If a privileged action still fails, report the exact final helper error without inventing a broader diagnosis.
+              Never use uicache as a repair for root-helper connectivity, filesystem reads, or file search. Use uicache only when the user explicitly requests icon/application registration refresh or when a completed package/app registration change genuinely requires it.
+              For filesystem discovery, search/read first and do not mutate or delete anything unless the current user request explicitly asks for that exact mutation.
+'''
+s = s.replace(instruction_anchor, instruction_extra, 1)
+
 # ---- UI cleanup: remove discontinued HUD controls ----
 quick = '''            HStack(spacing: 10) {
                 actionTile("Show HUD", "rectangle.topthird.inset.filled", NATheme.cyan) {
@@ -374,6 +385,7 @@ assert '"router_version": "0.7.20-session-recovery14"' in final_r
 assert "isSessionConflict" in final_s
 assert "private static func requestOnce" in final_s
 assert "automatic reconnect attempts" in final_s
+assert "Never use uicache as a repair for root-helper connectivity" in final_s
 assert "currentTurnToolExecutionCount" in final_s
 assert "func resumePendingTurn()" in final_s
 assert "PARTIAL — process alive, no valid background assertion" in final_s
