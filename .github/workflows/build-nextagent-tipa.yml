@@ -1581,7 +1581,7 @@ jobs:
           if "uk.zeshanbarvi.nextagent.bridge.v0717" not in s:
               raise SystemExit("0.7.17 bridge service marker missing")
           s = s.replace("v0717", "v0719")
-          s = s.replace("0.7.17", "0.7.20")
+          s = s.replace("0.7.17", "0.7.19")
           p.write_text(s)
           PY
 
