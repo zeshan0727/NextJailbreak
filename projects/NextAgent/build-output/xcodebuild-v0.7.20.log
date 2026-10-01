@@ -9,7 +9,7 @@ Build settings from command line:
 
 --- xcodebuild: WARNING: Using the first of multiple matching destinations:
 { platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
-{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:ab227b311095ff06ce57a84fd51abfb4b94697b7, name:My Mac }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:c29e8e05d3ffefee2d743551ea7e42290bce9586, name:My Mac }
 { platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
 note: Using codesigning identity override: 
 ComputePackagePrebuildTargetDependencyGraph
@@ -24,7 +24,7 @@ CreateBuildOperation
 
 --- xcodebuild: WARNING: Using the first of multiple matching destinations:
 { platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
-{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:ab227b311095ff06ce57a84fd51abfb4b94697b7, name:My Mac }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:c29e8e05d3ffefee2d743551ea7e42290bce9586, name:My Mac }
 { platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
 note: Using codesigning identity override: 
 ComputePackagePrebuildTargetDependencyGraph
@@ -60,8 +60,8 @@ ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/X
 
 ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -x c -c /dev/null
 
-Build description signature: 8e06e0b3b1028b5cfad48c1c780348cd
-Build description path: /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/XCBuildData/8e06e0b3b1028b5cfad48c1c780348cd.xcbuilddata
+Build description signature: 538064ec7d454c48109663e87220a893
+Build description path: /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/XCBuildData/538064ec7d454c48109663e87220a893.xcbuilddata
 ClangStatCache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
     cd /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent.xcodeproj
     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -o /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
@@ -74,26 +74,26 @@ CreateBuildDirectory /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediat
     cd /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent.xcodeproj
     builtin-create-build-directory /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex
 
-CreateBuildDirectory /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos
-    cd /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent.xcodeproj
-    builtin-create-build-directory /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos
-
 WriteAuxiliaryFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent-36b65d9bd11bb869a72c5a5225ef8159-VFS-iphoneos/all-product-headers.yaml
     cd /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent.xcodeproj
     write-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent-36b65d9bd11bb869a72c5a5225ef8159-VFS-iphoneos/all-product-headers.yaml
+
+CreateBuildDirectory /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos
+    cd /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent.xcodeproj
+    builtin-create-build-directory /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos
 
 CreateBuildDirectory /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
     cd /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent.xcodeproj
     builtin-create-build-directory /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
 
-WriteAuxiliaryFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent_const_extract_protocols.json (in target 'NextAgent' from project 'NextAgent')
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    write-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent_const_extract_protocols.json
-
 WriteAuxiliaryFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     write-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp
 -target arm64-apple-ios16.0 '-std=gnu11' -fobjc-arc -fobjc-weak -fmodules -gmodules '-fmodules-cache-path=/tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex' -fpascal-strings -Os -fno-common '-DNS_BLOCK_ASSERTIONS=1' '-DOBJC_OLD_DISPATCH_PROTOTYPES=0' -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -g '-fvisibility=hidden' -iquote '/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next Agent-generated-files.hmap' '-I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next Agent-own-target-headers.hmap' '-I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next Agent-all-target-headers.hmap' -iquote '/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next Agent-project-headers.hmap' -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/include -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources-normal/arm64 -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources/arm64 -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources -F/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos
+
+WriteAuxiliaryFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent_const_extract_protocols.json (in target 'NextAgent' from project 'NextAgent')
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    write-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent_const_extract_protocols.json
 
 WriteAuxiliaryFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent-OutputFileMap.json (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -147,13 +147,13 @@ MkDir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     /bin/mkdir -p /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app
 
-MkDir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/thinned (in target 'NextAgent' from project 'NextAgent')
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    /bin/mkdir -p /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/thinned
-
 MkDir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/unthinned (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     /bin/mkdir -p /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/unthinned
+
+MkDir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/thinned (in target 'NextAgent' from project 'NextAgent')
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    /bin/mkdir -p /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/assetcatalog_output/thinned
 
 GenerateAssetSymbols /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/Assets.xcassets (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -181,15 +181,15 @@ SwiftDriver NextAgent normal arm64 com.apple.xcode.tools.swift.compiler (in targ
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-SwiftDriver -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Next_Agent -O -whole-module-optimization -enforce-exclusivity\=checked @/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos -F /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -output-file-map /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next_Agent.swiftmodule -validate-clang-modules-once -clang-build-session-file /tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-generated-files.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-own-target-headers.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-project-headers.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/include -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources-normal/arm64 -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources/arm64 -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next_Agent-Swift.h -import-objc-header /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NextAgent-Bridging-Header.h -pch-output-dir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/PrecompiledHeaders -working-directory /tmp/nextagent-src/NextAgent_v0.1.0 -no-emit-module-separately-wmo
 
-SwiftDriver\ Compilation NextAgent normal arm64 com.apple.xcode.tools.swift.compiler (in target 'NextAgent' from project 'NextAgent')
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-Swift-Compilation -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Next_Agent -O -whole-module-optimization -enforce-exclusivity\=checked @/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos -F /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -output-file-map /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next_Agent.swiftmodule -validate-clang-modules-once -clang-build-session-file /tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-generated-files.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-own-target-headers.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-project-headers.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/include -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources-normal/arm64 -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources/arm64 -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next_Agent-Swift.h -import-objc-header /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NextAgent-Bridging-Header.h -pch-output-dir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/PrecompiledHeaders -working-directory /tmp/nextagent-src/NextAgent_v0.1.0 -no-emit-module-separately-wmo
-
 SwiftGeneratePch normal arm64 Compiling\ bridging\ header (in target 'NextAgent' from project 'NextAgent')
 
 PrecompileSwiftBridgingHeader normal arm64 (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     
+
+SwiftDriver\ Compilation NextAgent normal arm64 com.apple.xcode.tools.swift.compiler (in target 'NextAgent' from project 'NextAgent')
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-Swift-Compilation -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Next_Agent -O -whole-module-optimization -enforce-exclusivity\=checked @/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos -F /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -output-file-map /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next_Agent.swiftmodule -validate-clang-modules-once -clang-build-session-file /tmp/nextagent-src/NextAgent_v0.1.0/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/NextAgent_const_extract_protocols.json -Xcc -iquote -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-generated-files.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-own-target-headers.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-all-target-headers.hmap -Xcc -iquote -Xcc /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent-project-headers.hmap -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/include -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources-normal/arm64 -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources/arm64 -Xcc -I/tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/DerivedSources -emit-objc-header -emit-objc-header-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next_Agent-Swift.h -import-objc-header /tmp/nextagent-src/NextAgent_v0.1.0/NextAgent/NextAgent-Bridging-Header.h -pch-output-dir /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/PrecompiledHeaders -working-directory /tmp/nextagent-src/NextAgent_v0.1.0 -no-emit-module-separately-wmo
 
 SwiftDriverJobDiscovery normal arm64 Compiling bridging header (in target 'NextAgent' from project 'NextAgent')
 
@@ -411,10 +411,6 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_time-5LDY075QYVLT2NJ8XHUQQO4IJ.scan
 
-PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_inttypes-ADLQE0TT50G1TNM2BRLOANEX7.scan
-    cd /tmp/nextagent-src/NextAgent_v0.1.0
-    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_inttypes-ADLQE0TT50G1TNM2BRLOANEX7.scan
-
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_resource-8OSPQ6SVXCDKS0PQGKL956EAM.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/sys_resource-8OSPQ6SVXCDKS0PQGKL956EAM.scan
@@ -422,6 +418,10 @@ PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.n
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/nl_types-AWZ3HRTX3DRXZLSJIJZOY1S0B.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/nl_types-AWZ3HRTX3DRXZLSJIJZOY1S0B.scan
+
+PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_inttypes-ADLQE0TT50G1TNM2BRLOANEX7.scan
+    cd /tmp/nextagent-src/NextAgent_v0.1.0
+    builtin-precompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/_Builtin_inttypes-ADLQE0TT50G1TNM2BRLOANEX7.scan
 
 PrecompileModule /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/ExplicitPrecompiledModules/gethostuuid-6WN96VQGX5CTR7UJXE0888UAZ.scan
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -534,8 +534,8 @@ ProcessInfoPlistFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Re
 ExtractAppIntentsMetadata (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name Next_Agent --sdk-root /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk --xcode-version 16F6 --platform-family iOS --deployment-target 16.0 --bundle-identifier uk.zeshanbarvi.nextagent --output /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app --target-triple arm64-apple-ios16.0 --binary-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Next\ Agent --dependency-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent_dependency_info.dat --stringsdata-file /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftFileList --metadata-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent.DependencyMetadataFileList --static-metadata-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent.DependencyStaticMetadataFileList --swift-const-vals-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Objects-normal/arm64/Next\ Agent.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
-2026-10-01 13:08:10.443 appintentsmetadataprocessor[8748:29810] Starting appintentsmetadataprocessor export
-2026-10-01 13:08:10.456 appintentsmetadataprocessor[8748:29810] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-10-01 13:42:22.650 appintentsmetadataprocessor[2604:10715] Starting appintentsmetadataprocessor export
+2026-10-01 13:42:22.657 appintentsmetadataprocessor[2604:10715] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
 
 CopySwiftLibs /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
@@ -549,8 +549,8 @@ GenerateDSYMFile /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Releas
 AppIntentsSSUTraining (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0
     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Info.plist --temp-dir-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/ssu --bundle-id uk.zeshanbarvi.nextagent --product-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app --extracted-metadata-path /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app/Metadata.appintents --metadata-file-list /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Intermediates.noindex/NextAgent.build/Release-iphoneos/NextAgent.build/Next\ Agent.DependencyMetadataFileList --archive-ssu-assets
-2026-10-01 13:08:10.508 appintentsnltrainingprocessor[8750:29821] Parsing options for appintentsnltrainingprocessor
-2026-10-01 13:08:10.510 appintentsnltrainingprocessor[8750:29821] No AppShortcuts found - Skipping.
+2026-10-01 13:42:22.690 appintentsnltrainingprocessor[2606:10720] Parsing options for appintentsnltrainingprocessor
+2026-10-01 13:42:22.692 appintentsnltrainingprocessor[2606:10720] No AppShortcuts found - Skipping.
 
 RegisterExecutionPolicyException /tmp/nextagent-src/NextAgent_v0.1.0/build/Build/Products/Release-iphoneos/Next\ Agent.app (in target 'NextAgent' from project 'NextAgent')
     cd /tmp/nextagent-src/NextAgent_v0.1.0

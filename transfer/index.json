@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T13:38:01Z",
+  "updatedAt": "2026-10-01T13:42:32Z",
   "files": [
+    {
+      "id": "next-agent-current-0.7.20-roothide",
+      "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
+      "fileName": "NextAgent-0.7.20.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "0.7.20 (29)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
+      "sha256": "c4e5188d3a8d6fe95c279248f39a4151e37f1714fc0c1754833da530aeefbea2",
+      "sizeBytes": 1025878,
+      "notes": "Internal-stability build. Fixes privileged routing so daemon-backed actions never fall back to the UID 501 app shell, adds an actual root execution probe, automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
+    },
+    {
+      "id": "next-agent-daemon-current-0.7.20-roothide",
+      "name": "Next Agent Daemon 0.7.20 — RootHide",
+      "fileName": "NextAgentDaemon-0.7.20-RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iphoneos-arm64e",
+      "version": "0.7.20-3",
+      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
+      "sha256": "e6e7f084772059bc89ccb5e7988207f0651594d5252a22c6fe8e05f6ad1d2a63",
+      "sizeBytes": 62656,
+      "notes": "Matching RootHide helper with verified uid-0 execution plus the physically verified 0.7.17 SpringBoard capture/OCR/HID core retargeted to the current v0719 protocol. Packaged as a RootHide tweak dependency; installer clears stale bridge/HUD status and forces a RootHide-aware SpringBoard reload. HUD remains discontinued."
+    },
     {
       "id": "nextapp-1.0.2-duplicate-apps",
       "name": "Next App 1.0.2 — Duplicate Apps",
@@ -25,30 +49,6 @@
       "sha256": "b70f1fd516c1c5accc996de4328a88f2eaff41480ec1e53b4201174af6d7fece",
       "sizeBytes": 427955,
       "notes": "Modern lightweight glossy-glass redesign matching Next App while preserving NS Transfers 1.1.6 search, download/share, local delete, swipe root delete, Files/Photos/Videos upload, and Keychain token functions. Uses the current nextjailbreak.com / NextJailbreak backend, avoids expensive per-row blur/material/shadows, only redraws when the feed changes, and streams large downloads through URLSession temporary files instead of loading the full package into RAM."
-    },
-    {
-      "id": "next-agent-current-0.7.20-roothide",
-      "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
-      "fileName": "NextAgent-0.7.20.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "0.7.20 (28)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
-      "sha256": "f931a639df406885609d6a10792b6b0f39bb53f85bed2ff66952d9e155681292",
-      "sizeBytes": 1024429,
-      "notes": "Internal-stability build. Fixes privileged routing so daemon-backed actions never fall back to the UID 501 app shell, adds an actual root execution probe, automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
-    },
-    {
-      "id": "next-agent-daemon-current-0.7.20-roothide",
-      "name": "Next Agent Daemon 0.7.20 — RootHide",
-      "fileName": "NextAgentDaemon-0.7.20-RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.20-3",
-      "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
-      "sha256": "706412e2c72a8850a5de26e0383b90a7f285d65c7386addb38578a1f5012d9dd",
-      "sizeBytes": 63032,
-      "notes": "Matching RootHide helper with verified uid-0 execution plus the physically verified 0.7.17 SpringBoard capture/OCR/HID core retargeted to the current v0719 protocol. Packaged as a RootHide tweak dependency; installer clears stale bridge/HUD status and forces a RootHide-aware SpringBoard reload. HUD remains discontinued."
     },
     {
       "id": "tipa-qatar-marketplace-current-0.4.1",
