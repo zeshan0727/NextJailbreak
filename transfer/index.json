@@ -1,19 +1,7 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T12:50:00Z",
+  "updatedAt": "2026-10-01T13:05:28Z",
   "files": [
-    {
-      "id": "nextapp-1.0.1-live-install-catalog",
-      "name": "Next App 1.0.1 — OTA + Performance Fix",
-      "fileName": "NextApp-1.0.1.ipa",
-      "type": "ipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "1.0.1 (2)",
-      "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.1/NextApp-1.0.1.ipa",
-      "sha256": "e942ec71bdf36c939afa7748dc9faad5ed746ec6ec915320146dec290d4218a4",
-      "sizeBytes": 1443540,
-      "notes": "Fixes the Install button by issuing the same exact itms-services OTA manifest request format used on nextjailbreak.com/install. Also improves scrolling performance by removing expensive per-card blur/material rendering and heavy shadows, disabling unnecessary list animations, and avoiding full-list redraws unless apps.json actually changes."
-    },
     {
       "id": "next-agent-current-0.7.20-roothide",
       "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
@@ -22,7 +10,7 @@
       "platform": "TrollStore / RootHide / iOS 16+",
       "version": "0.7.20 (28)",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
-      "sha256": "4de90274bed699bb41b7fda50826a73dd0a29a347d3264e280e53e527dfcd6db",
+      "sha256": "1ac78dba33c7c67bcb672ce5608095f108055de34d1b7cbaaee55cd1533c7bf1",
       "sizeBytes": 1024429,
       "notes": "Internal-stability build. Fixes privileged routing so daemon-backed actions never fall back to the UID 501 app shell, adds an actual root execution probe, automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
     },
@@ -34,9 +22,21 @@
       "platform": "RootHide / iphoneos-arm64e",
       "version": "0.7.20",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
-      "sha256": "901f526038371e7ae64b278e69b53250513e2371b1b8d571dc7c8fe61266bd79",
-      "sizeBytes": 63200,
+      "sha256": "91b346d7696e68bc449ccc887ddd3214d8e5e1c239f17a77ecb2ead0a44f380e",
+      "sizeBytes": 63164,
       "notes": "Matching RootHide helper with RootHide-aware uicache/respring resolution and an allow-listed uid-0 execution probe, while preserving the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
+    },
+    {
+      "id": "nextapp-1.0.1-live-install-catalog",
+      "name": "Next App 1.0.1 — OTA + Performance Fix",
+      "fileName": "NextApp-1.0.1.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.1 (2)",
+      "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.1/NextApp-1.0.1.ipa",
+      "sha256": "e942ec71bdf36c939afa7748dc9faad5ed746ec6ec915320146dec290d4218a4",
+      "sizeBytes": 1443540,
+      "notes": "Fixes the Install button by issuing the same exact itms-services OTA manifest request format used on nextjailbreak.com/install. Also improves scrolling performance by removing expensive per-card blur/material rendering and heavy shadows, disabling unnecessary list animations, and avoiding full-list redraws unless apps.json actually changes."
     },
     {
       "id": "tipa-qatar-marketplace-current-0.4.1",
