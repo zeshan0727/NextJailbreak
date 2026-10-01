@@ -1277,11 +1277,15 @@ jobs:
           swiftc -frontend -parse NextAgent/V071Router.swift
           swiftc -frontend -parse NextAgent/V07Tools.swift
           swiftc -frontend -parse NextAgent/ModernUI.swift
-          grep -q '0.7.20-session-recovery14' NextAgent/NextAgent.swift
+          grep -q '0.7.20-session-recovery15' NextAgent/NextAgent.swift
           grep -q 'isSessionConflict' NextAgent/NextAgent.swift
           grep -q 'currentTurnToolExecutionCount' NextAgent/NextAgent.swift
           grep -q 'root_exec_probe' NextAgent/V071Router.swift
           grep -q '"success": failed == 0' NextAgent/V071Router.swift
+          ! grep -q 'split_workspace_capability' NextAgent/V071Router.swift
+          grep -q '0.7.20-cfmessageport1' NextAgent/V071Router.swift
+          grep -q '0.7.20-springboard-vision1' NextAgent/V071Router.swift
+          grep -q 'hidBridgeVersion == "0.7.20"' NextAgent/V071Router.swift
           ! grep -q 'daemon.success ? daemon : ShellRunner.runRootPreset' NextAgent/NextAgent.swift
           ! grep -q 'privileged.success ? privileged : ShellRunner.runPreset' NextAgent/NextAgent.swift
           ! grep -q 'status_hud_springboard' NextAgent/V071Router.swift
@@ -1860,7 +1864,7 @@ jobs:
               "fileName": "NextAgent-0.7.20.tipa",
               "type": "tipa",
               "platform": "TrollStore / RootHide / iOS 16+",
-              "version": "0.7.20 (28)",
+              "version": "0.7.20 (29)",
               "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
               "sha256": tipa_sha,
               "sizeBytes": tipa_path.stat().st_size,
