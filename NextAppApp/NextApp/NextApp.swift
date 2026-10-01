@@ -13,6 +13,9 @@ struct NextAppItem: Codable, Identifiable, Hashable {
     let manifest: String
     let available: Bool
     let status: String?
+    let downloadURL: String?
+    let sha256: String?
+    let sizeBytes: Int?
 }
 
 struct NextAppCatalog: Codable {
@@ -45,7 +48,7 @@ final class AppCatalogStore: ObservableObject {
             request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             request.timeoutInterval = 20
             request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
-            request.setValue("NextApp/1.0.1", forHTTPHeaderField: "User-Agent")
+            request.setValue("NextApp/1.0.2", forHTTPHeaderField: "User-Agent")
 
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse,
@@ -266,7 +269,13 @@ struct AppsHomeView: View {
 struct AppCard: View, Equatable {
     let app: NextAppItem
 
-    @State private var installFailed = false
+    @State private var alertMessage: String?
+    @State private var showMore = false
+    @State private var askDuplicateCount = false
+    @State private var duplicateCountText = "1"
+    @State private var isDuplicating = false
+    @State private var duplicateStatus = ""
+    @State private var duplicateResults: [DuplicateAppResult] = []
 
     static func == (lhs: AppCard, rhs: AppCard) -> Bool {
         lhs.app == rhs.app
@@ -296,7 +305,10 @@ struct AppCard: View, Equatable {
 
                 Spacer(minLength: 6)
 
-                installButton
+                VStack(spacing: 6) {
+                    installButton
+                    moreButton
+                }
             }
 
             HStack(spacing: 7) {
@@ -313,13 +325,29 @@ struct AppCard: View, Equatable {
                 .font(.caption2.monospaced())
                 .foregroundStyle(.white.opacity(0.32))
                 .lineLimit(1)
+
+            if isDuplicating {
+                duplicationProgress
+            }
+
+            if !duplicateResults.isEmpty {
+                duplicateInstallList
+            }
         }
         .padding(15)
         .fastGlassPanel(cornerRadius: 23)
-        .alert("Install Request Failed", isPresented: $installFailed) {
-            Button("OK", role: .cancel) {}
+        .alert(
+            "Next App",
+            isPresented: Binding(
+                get: { alertMessage != nil },
+                set: { if !$0 { alertMessage = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {
+                alertMessage = nil
+            }
         } message: {
-            Text("iOS did not accept the OTA install request for this app.")
+            Text(alertMessage ?? "")
         }
     }
 
@@ -328,7 +356,7 @@ struct AppCard: View, Equatable {
             AppInstaller.install(app) { success in
                 if !success {
                     DispatchQueue.main.async {
-                        installFailed = true
+                        alertMessage = "iOS did not accept the OTA install request for this app."
                     }
                 }
             }
@@ -363,7 +391,238 @@ struct AppCard: View, Equatable {
                 )
         }
         .buttonStyle(.plain)
-        .disabled(!app.available)
+        .disabled(!app.available || isDuplicating)
+    }
+
+    private var moreButton: some View {
+        Button {
+            showMore = true
+        } label: {
+            HStack(spacing: 5) {
+                Text("More")
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 11, weight: .bold))
+            }
+            .font(.caption.weight(.bold))
+            .foregroundStyle(.white.opacity(app.available ? 0.78 : 0.42))
+            .padding(.horizontal, 14)
+            .frame(height: 31)
+            .background(
+                Capsule()
+                    .fill(.white.opacity(0.075))
+            )
+            .overlay(
+                Capsule()
+                    .stroke(.white.opacity(0.13), lineWidth: 0.8)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(!app.available || isDuplicating)
+        .confirmationDialog(
+            "More",
+            isPresented: $showMore,
+            titleVisibility: .visible
+        ) {
+            Button("Duplicate App") {
+                duplicateCountText = "1"
+                askDuplicateCount = true
+            }
+
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Additional actions for \(app.name)")
+        }
+        .alert(
+            "Duplicate \(app.name)",
+            isPresented: $askDuplicateCount
+        ) {
+            TextField("Number of copies", text: $duplicateCountText)
+                .keyboardType(.numberPad)
+
+            Button("Cancel", role: .cancel) {}
+
+            Button("Create") {
+                startDuplication()
+            }
+        } message: {
+            Text("Enter how many duplicate apps to create. Maximum 10.")
+        }
+    }
+
+    private var duplicationProgress: some View {
+        HStack(spacing: 11) {
+            ProgressView()
+                .tint(.white)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Duplicating app")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.90))
+
+                Text(duplicateStatus.isEmpty ? "Preparing…" : duplicateStatus)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.48))
+                    .lineLimit(2)
+            }
+
+            Spacer()
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.white.opacity(0.055))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(.white.opacity(0.10), lineWidth: 0.8)
+        )
+    }
+
+    private var duplicateInstallList: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack {
+                Label("Duplicate Apps", systemImage: "square.on.square.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.84))
+
+                Spacer()
+
+                Text("\(duplicateResults.count) ready")
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(Color.green.opacity(0.88))
+            }
+
+            ForEach(duplicateResults) { result in
+                duplicateRow(result)
+            }
+
+            Text("Install uses TrollStore's URL scheme. If TrollStore does not open, use Share and choose TrollStore.")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.38))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.white.opacity(0.045))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(.white.opacity(0.10), lineWidth: 0.8)
+        )
+    }
+
+    private func duplicateRow(_ result: DuplicateAppResult) -> some View {
+        HStack(spacing: 10) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(.white.opacity(0.08))
+
+                Image(systemName: "square.on.square")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.84))
+            }
+            .frame(width: 42, height: 42)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(result.name)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+
+                Text(result.bundleId)
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.white.opacity(0.33))
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 4)
+
+            Button {
+                DuplicateIPAInstallBridge.shared.install(
+                    fileURL: result.fileURL
+                ) { outcome in
+                    if case .failure(let error) = outcome {
+                        DispatchQueue.main.async {
+                            alertMessage = error.localizedDescription
+                        }
+                    }
+                }
+            } label: {
+                Text("Install")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .frame(height: 34)
+                    .background(
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 0.31, green: 0.60, blue: 1.0),
+                                        Color(red: 0.62, green: 0.33, blue: 1.0)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    )
+            }
+            .buttonStyle(.plain)
+
+            ShareLink(item: result.fileURL) {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.76))
+                    .frame(width: 34, height: 34)
+                    .background(
+                        Circle()
+                            .fill(.white.opacity(0.075))
+                    )
+                    .overlay(
+                        Circle()
+                            .stroke(.white.opacity(0.11), lineWidth: 0.8)
+                    )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func startDuplication() {
+        guard let count = Int(duplicateCountText),
+              (1...10).contains(count) else {
+            alertMessage = "Enter a number from 1 to 10."
+            return
+        }
+
+        duplicateResults = []
+        duplicateStatus = "Preparing…"
+        isDuplicating = true
+
+        Task {
+            do {
+                let results = try await DuplicateAppEngine.createCopies(
+                    of: app,
+                    count: count
+                ) { status in
+                    DispatchQueue.main.async {
+                        duplicateStatus = status
+                    }
+                }
+
+                await MainActor.run {
+                    duplicateResults = results
+                    duplicateStatus = "Ready to install"
+                    isDuplicating = false
+                }
+            } catch {
+                await MainActor.run {
+                    isDuplicating = false
+                    duplicateStatus = ""
+                    alertMessage = "Duplicate failed: \(error.localizedDescription)"
+                }
+            }
+        }
     }
 
     private var appIcon: some View {
