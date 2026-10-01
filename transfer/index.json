@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T13:08:21Z",
+  "updatedAt": "2026-10-01T13:08:58Z",
   "files": [
+    {
+      "id": "ns-transfers-1.1.7-glass-performance",
+      "name": "NS Transfers 1.1.7 — Glass Performance",
+      "fileName": "NS-Transfers-1.1.7.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.1.7 (117)",
+      "url": "https://nextjailbreak.com/transfer/files/NextSolutionTransfer/1.1.7/NS-Transfers-1.1.7.tipa",
+      "sha256": "b70f1fd516c1c5accc996de4328a88f2eaff41480ec1e53b4201174af6d7fece",
+      "sizeBytes": 427955,
+      "notes": "Modern lightweight glossy-glass redesign matching Next App while preserving NS Transfers 1.1.6 search, download/share, local delete, swipe root delete, Files/Photos/Videos upload, and Keychain token functions. Uses the current nextjailbreak.com / NextJailbreak backend, avoids expensive per-row blur/material/shadows, only redraws when the feed changes, and streams large downloads through URLSession temporary files instead of loading the full package into RAM."
+    },
     {
       "id": "next-agent-current-0.7.20-roothide",
       "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
