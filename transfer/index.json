@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T12:16:50Z",
+  "updatedAt": "2026-10-01T12:19:10Z",
   "files": [
     {
       "id": "next-agent-current-0.7.20-roothide",
@@ -10,7 +10,7 @@
       "platform": "TrollStore / RootHide / iOS 16+",
       "version": "0.7.20 (28)",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
-      "sha256": "70c3b04da22e34e8d890be7e70bf7dd2edf85896cba54e745224448e3eed3973",
+      "sha256": "a2422cf7e4449d575d1c5879db4786192dba2f173c6894ea23e02e5fb7ae2c31",
       "sizeBytes": 1024222,
       "notes": "Internal-stability build. Automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
     },
@@ -22,8 +22,8 @@
       "platform": "RootHide / iphoneos-arm64e",
       "version": "0.7.20",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
-      "sha256": "304f2c69b1d6a9634467258335eed81f3ddd7efb5c68bc09885eba4752e3655a",
-      "sizeBytes": 62404,
+      "sha256": "7f15ad28aad9cfba289a6d4923c84aedde1efd03ff0dc496807d73eb2bca9e65",
+      "sizeBytes": 62428,
       "notes": "Matching RootHide helper using the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
     },
     {
