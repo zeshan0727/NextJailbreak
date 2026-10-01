@@ -1564,22 +1564,39 @@ jobs:
           grep -q 'action_uicache_v0720' /tmp/nextagentd-v0720.c
           grep -q 'action_respring_v0720' /tmp/nextagentd-v0720.c
 
-      - name: Build stable SpringBoard OCR + HID bridge
+      - name: Build physically verified SpringBoard OCR + HID bridge
         run: |
           set -euo pipefail
           SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
 
+          # 0.7.17 is the last bridge generation physically verified on the
+          # target iPhone for compositor capture, Vision OCR and SpringBoard
+          # IOHID. HUD is discontinued, so keep that proven automation core
+          # and retarget only its protocol/version identifiers.
+          cp "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.17/Overlay/NextAgentSpringBoard0717.m" /tmp/NextAgentSpringBoardStable.m
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("/tmp/NextAgentSpringBoardStable.m")
+          s = p.read_text()
+          if "uk.zeshanbarvi.nextagent.bridge.v0717" not in s:
+              raise SystemExit("0.7.17 bridge service marker missing")
+          s = s.replace("v0717", "v0719")
+          s = s.replace("0.7.17", "0.7.20")
+          p.write_text(s)
+          PY
+
           xcrun --sdk iphoneos clang \
             -arch arm64e -isysroot "$SDK" -miphoneos-version-min=16.0 \
             -fobjc-arc -dynamiclib -Os -Wall -Wextra \
-            "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.19/Overlay/NextAgentSpringBoard0719.m" \
+            /tmp/NextAgentSpringBoardStable.m \
             -framework UIKit -framework Foundation -framework CoreFoundation \
             -framework QuartzCore -framework CoreGraphics -framework IOSurface \
             -framework CoreVideo -framework Vision -framework IOKit \
             -o /tmp/NextAgentSpringBoard0719.dylib
           ldid -S /tmp/NextAgentSpringBoard0719.dylib
           file /tmp/NextAgentSpringBoard0719.dylib | grep -q arm64e
-          grep -q 'springboard_iohid_v0719' "$GITHUB_WORKSPACE/projects/NextAgent/v0.7.19/Overlay/NextAgentSpringBoard0719.m"
+          grep -q 'springboard_iohid_v0719' /tmp/NextAgentSpringBoardStable.m
+          grep -q 'uk.zeshanbarvi.nextagent.bridge.v0719' /tmp/NextAgentSpringBoardStable.m
 
       - name: Package TrollStore app
         working-directory: /tmp/nextagent-src/NextAgent_v0.1.0
@@ -1666,7 +1683,7 @@ jobs:
           cp /tmp/nextagentd "$P/usr/local/libexec/nextagentd"
           cp projects/NextAgent/daemon/uk.zeshanbarvi.nextagentd.roothide.plist "$P/Library/LaunchDaemons/uk.zeshanbarvi.nextagentd.plist"
           cp /tmp/NextAgentSpringBoard0719.dylib "$P/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib"
-          cp projects/NextAgent/v0.7.19/Overlay/NextAgentSpringBoard0719.plist "$P/usr/lib/TweakInject/NextAgentSpringBoard0719.plist"
+          cp projects/NextAgent/v0.7.17/Overlay/NextAgentSpringBoard0717.plist "$P/usr/lib/TweakInject/NextAgentSpringBoard0719.plist"
           chmod 0755 "$P/usr/lib/TweakInject/NextAgentSpringBoard0719.dylib"
           chmod 0644 "$P/usr/lib/TweakInject/NextAgentSpringBoard0719.plist"
           mkdir -p "$P/usr/local/share/nextagent"
@@ -1675,14 +1692,14 @@ jobs:
           cat > "$P/DEBIAN/control" <<'EOF'
           Package: uk.zeshanbarvi.nextagentd.roothide
           Name: Next Agent Root Helper (RootHide)
-          Version: 0.7.20-2
+          Version: 0.7.20-3
           Architecture: iphoneos-arm64e
           Section: Tweaks
           Priority: optional
           Depends: firmware (>= 16.0), mobilesubstrate
           Maintainer: Next Jailbreak
           Author: Next Jailbreak
-          Description: Privileged root helper and SpringBoard automation bridge for Next Agent 0.7.20 on RootHide. Includes RootHide-aware root command routing, execution probe, SpringBoard OCR/HID bridge, full-screen automation, progress transport and background diagnostics. The experimental HUD project is discontinued.
+          Description: Privileged root helper and stable SpringBoard automation bridge for Next Agent 0.7.20 on RootHide. Preserves the verified uid-0 daemon and uses the physically verified 0.7.17 capture/OCR/HID bridge retargeted to the current v0719 protocol. HUD is discontinued.
           EOF
           cat > "$P/DEBIAN/postinst" <<'EOF'
           #!/bin/sh
@@ -1798,7 +1815,8 @@ jobs:
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.h NextAgent_v0.7.20/RootHelperSource/
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.3/NAProcessProtector.m NextAgent_v0.7.20/RootHelperSource/
           mkdir -p NextAgent_v0.7.20/OverlaySource
-          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.19/Overlay/* NextAgent_v0.7.20/OverlaySource/
+          cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.17/Overlay/* NextAgent_v0.7.20/OverlaySource/
+          cp /tmp/NextAgentSpringBoardStable.m NextAgent_v0.7.20/OverlaySource/NextAgentSpringBoardStable-v0.7.20.m
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.19/NAScreenBridgeClient.h NextAgent_v0.7.20/
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7.19/NAScreenBridgeClient.m NextAgent_v0.7.20/
           cp "$GITHUB_WORKSPACE"/projects/NextAgent/v0.7/THIRD_PARTY_NOTICES.txt NextAgent_v0.7.20/
@@ -1854,11 +1872,11 @@ jobs:
               "fileName": "NextAgentDaemon-0.7.20-RootHide.deb",
               "type": "deb",
               "platform": "RootHide / iphoneos-arm64e",
-              "version": "0.7.20",
+              "version": "0.7.20-3",
               "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
               "sha256": deb_sha,
               "sizeBytes": deb_path.stat().st_size,
-              "notes": "Matching RootHide helper with RootHide-aware uicache/respring resolution and an allow-listed uid-0 execution probe, while preserving the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
+              "notes": "Matching RootHide helper with verified uid-0 execution plus the physically verified 0.7.17 SpringBoard capture/OCR/HID core retargeted to the current v0719 protocol. Packaged as a RootHide tweak dependency; installer clears stale bridge/HUD status and forces a RootHide-aware SpringBoard reload. HUD remains discontinued."
           }
 
           data["files"] = [app_entry, daemon_entry] + files
