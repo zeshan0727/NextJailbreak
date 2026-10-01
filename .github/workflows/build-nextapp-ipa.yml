@@ -19,13 +19,26 @@ concurrency:
 jobs:
   build:
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Validate duplicate feature source
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'MARKETING_VERSION: 1.0.2' NextAppApp/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: 3' NextAppApp/project.yml
+          grep -q 'ZIPFoundation' NextAppApp/project.yml
+          grep -q 'Button("Duplicate App")' NextAppApp/NextApp/NextApp.swift
+          grep -q 'Number of copies' NextAppApp/NextApp/NextApp.swift
+          grep -q 'nextdup' NextAppApp/NextApp/AppDuplication.swift
+          grep -q 'apple-magnifier' NextAppApp/NextApp/AppDuplication.swift
+          grep -q '127.0.0.1' NextAppApp/NextApp/AppDuplication.swift
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -37,6 +50,14 @@ jobs:
       - name: Generate Xcode project
         working-directory: NextAppApp
         run: xcodegen generate
+
+      - name: Resolve packages
+        working-directory: NextAppApp
+        run: |
+          xcodebuild \
+            -resolvePackageDependencies \
+            -project NextApp.xcodeproj \
+            -scheme NextApp
 
       - name: Build unsigned iPhone app
         working-directory: NextAppApp
@@ -54,26 +75,54 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             build 2>&1 | tee build-output/xcodebuild.log
-          echo "SUCCESS - Next App 1.0.1" > build-output/build-status.txt
+          echo "SUCCESS - Next App 1.0.2" > build-output/build-status.txt
 
       - name: Package IPA
         working-directory: NextAppApp
         run: |
           set -euo pipefail
-          rm -rf Payload NextApp-1.0.1.ipa
+          rm -rf Payload NextApp-1.0.2.ipa verify
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/NextApp.app Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextApp-1.0.1.ipa
-          cp NextApp-1.0.1.ipa build-output/NextApp-1.0.1.ipa
-          shasum -a 256 build-output/NextApp-1.0.1.ipa > build-output/NextApp-1.0.1.sha256
+          ditto -c -k --sequesterRsrc --keepParent Payload NextApp-1.0.2.ipa
+          cp NextApp-1.0.2.ipa build-output/NextApp-1.0.2.ipa
+          shasum -a 256 build-output/NextApp-1.0.2.ipa > build-output/NextApp-1.0.2.sha256
+
+      - name: Validate IPA
+        working-directory: NextAppApp
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p verify
+          ditto -x -k NextApp-1.0.2.ipa verify
+          APP=verify/Payload/NextApp.app
+          BIN="$APP/NextApp"
+
+          test -f "$BIN"
+          SHORT=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")
+          BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")
+          BUNDLE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
+
+          echo "Version=$SHORT Build=$BUILD Bundle=$BUNDLE"
+          test "$SHORT" = "1.0.2"
+          test "$BUILD" = "3"
+          test "$BUNDLE" = "com.nextsolution.nextapp"
+          test -f "$APP/Assets.car"
+          test -d "$APP/ZIPFoundation_ZIPFoundation.bundle"
+
+          grep -q 'Button("Duplicate App")' NextApp/NextApp.swift
+          grep -q 'nextdup' NextApp/AppDuplication.swift
+          grep -q 'apple-magnifier' NextApp/AppDuplication.swift
+          grep -q '127.0.0.1' NextApp/AppDuplication.swift
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextApp-1.0.1-IPA
+          name: NextApp-1.0.2-IPA
           path: |
-            NextAppApp/NextApp-1.0.1.ipa
-            NextAppApp/build-output/NextApp-1.0.1.sha256
+            NextAppApp/NextApp-1.0.2.ipa
+            NextAppApp/build-output/NextApp-1.0.2.sha256
+            NextAppApp/build-output/xcodebuild.log
           if-no-files-found: error
 
       - name: Publish to NS Transfer safely
@@ -82,17 +131,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          cp NextAppApp/build-output/NextApp-1.0.1.ipa /tmp/NextApp-1.0.1.ipa
-          cp NextAppApp/build-output/NextApp-1.0.1.sha256 /tmp/NextApp-1.0.1.sha256
+          cp NextAppApp/build-output/NextApp-1.0.2.ipa /tmp/NextApp-1.0.2.ipa
+          cp NextAppApp/build-output/NextApp-1.0.2.sha256 /tmp/NextApp-1.0.2.sha256
 
           for ATTEMPT in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
 
-            DEST_DIR='transfer/files/NextApp/1.0.1'
-            DEST_FILE='NextApp-1.0.1.ipa'
+            DEST_DIR='transfer/files/NextApp/1.0.2'
+            DEST_FILE='NextApp-1.0.2.ipa'
             mkdir -p "$DEST_DIR"
-            cp /tmp/NextApp-1.0.1.ipa "$DEST_DIR/$DEST_FILE"
+            cp /tmp/NextApp-1.0.2.ipa "$DEST_DIR/$DEST_FILE"
 
             SHA256=$(shasum -a 256 "$DEST_DIR/$DEST_FILE" | awk '{print $1}')
             SIZE=$(stat -f%z "$DEST_DIR/$DEST_FILE")
@@ -108,21 +157,23 @@ jobs:
           remove_ids={
               'nexttweaks-1.0.0-glossy-live-tweaks',
               'nextapp-1.0.0-live-install-catalog',
-              'nextapp-1.0.1-live-install-catalog'
+              'nextapp-1.0.1-live-install-catalog',
+              'nextapp-1.0.2-live-install-catalog',
+              'nextapp-1.0.2-duplicate-apps'
           }
           files=[x for x in data.get('files',[]) if x.get('id') not in remove_ids]
 
           item={
-              'id':'nextapp-1.0.1-live-install-catalog',
-              'name':'Next App 1.0.1 — OTA + Performance Fix',
-              'fileName':'NextApp-1.0.1.ipa',
+              'id':'nextapp-1.0.2-duplicate-apps',
+              'name':'Next App 1.0.2 — Duplicate Apps',
+              'fileName':'NextApp-1.0.2.ipa',
               'type':'ipa',
               'platform':'TrollStore / iOS 16+',
-              'version':'1.0.1 (2)',
-              'url':'https://nextjailbreak.com/transfer/files/NextApp/1.0.1/NextApp-1.0.1.ipa',
+              'version':'1.0.2 (3)',
+              'url':'https://nextjailbreak.com/transfer/files/NextApp/1.0.2/NextApp-1.0.2.ipa',
               'sha256':os.environ['SHA256'],
               'sizeBytes':int(os.environ['SIZE']),
-              'notes':'Fixes the Install button by issuing the same exact itms-services OTA manifest request format used on nextjailbreak.com/install. Also improves scrolling performance by removing expensive per-card blur/material rendering and heavy shadows, disabling unnecessary list animations, and avoiding full-list redraws unless apps.json actually changes.'
+              'notes':'Adds More → Duplicate App. Enter 1–10 copies and Next App downloads the IPA once, creates unique bundle IDs, repackages each duplicate locally, then shows individual TrollStore Install buttons with a Share fallback. Existing OTA install and fast glass performance are preserved.'
           }
 
           data['files']=[item]+files
@@ -135,7 +186,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add -f "$DEST_DIR/$DEST_FILE" transfer/index.json
-            git commit -m "Publish Next App 1.0.1 OTA performance fix" || true
+            git commit -m "Publish Next App 1.0.2 duplicate apps" || true
 
             if git push origin HEAD:main; then
               exit 0
