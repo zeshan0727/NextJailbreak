@@ -313,7 +313,7 @@ enum DuplicateAppEngine {
                 } else if currentId == originalRootId {
                     replacement = duplicateRootId
                 } else if currentId.hasPrefix(originalRootId + ".") {
-                    replacement = duplicateRootId + currentId.dropFirst(originalRootId.count)
+                    replacement = duplicateRootId + String(currentId.dropFirst(originalRootId.count))
                 } else {
                     replacement = makeDuplicateBundleIdentifier(
                         base: currentId,
