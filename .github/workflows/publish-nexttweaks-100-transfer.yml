@@ -1,0 +1,98 @@
+name: Publish Next Tweaks 1.0.0 to NS Transfer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-nexttweaks-100-transfer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      ARTIFACT_ID: '11161799624'
+      DEST_DIR: transfer/files/NextTweaks/1.0.0
+      DEST_FILE: NextTweaks-1.0.0.ipa
+      EXPECTED_SHA: f21e79924c32b6f5218e78eb478c175b23055c4b1423061ffa18856b0bf1420a
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download exact verified IPA artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > /tmp/nexttweaks100.zip
+          rm -rf /tmp/nexttweaks100
+          mkdir -p /tmp/nexttweaks100
+          unzip -q /tmp/nexttweaks100.zip -d /tmp/nexttweaks100
+          test -f "/tmp/nexttweaks100/${DEST_FILE}"
+          ACTUAL_SHA=$(sha256sum "/tmp/nexttweaks100/${DEST_FILE}" | awk '{print $1}')
+          test "$ACTUAL_SHA" = "$EXPECTED_SHA"
+
+      - name: Publish IPA and update NS Transfer catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$DEST_DIR"
+          cp "/tmp/nexttweaks100/$DEST_FILE" "$DEST_DIR/$DEST_FILE"
+
+          SIZE=$(stat -c%s "$DEST_DIR/$DEST_FILE")
+          export SIZE
+
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          p = Path('transfer/index.json')
+          data = json.loads(p.read_text())
+          files = data.get('files', [])
+
+          entry_id = 'nexttweaks-1.0.0-glossy-live-tweaks'
+          files = [x for x in files if x.get('id') != entry_id]
+
+          item = {
+              'id': entry_id,
+              'name': 'Next Tweaks 1.0.0 — Glossy Live Tweaks',
+              'fileName': 'NextTweaks-1.0.0.ipa',
+              'type': 'ipa',
+              'platform': 'TrollStore / iOS 16+',
+              'version': '1.0.0 (1)',
+              'url': 'https://nextjailbreak.com/transfer/files/NextTweaks/1.0.0/NextTweaks-1.0.0.ipa',
+              'sha256': 'f21e79924c32b6f5218e78eb478c175b23055c4b1423061ffa18856b0bf1420a',
+              'sizeBytes': int(os.environ['SIZE']),
+              'notes': 'Single-window native SwiftUI tweak browser with glossy glass theming. Loads the live Next Jailbreak Packages feed, merges duplicate architecture variants, shows tweak icons, versions and descriptions, supports pull-to-refresh, and provides one Install button that routes to Sileo, Zebra or Cydia with direct DEB fallback.'
+          }
+
+          data['files'] = [item] + files
+          data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+          PY
+
+          python3 -m json.tool transfer/index.json >/dev/null
+          test "$(sha256sum "$DEST_DIR/$DEST_FILE" | awk '{print $1}')" = "$EXPECTED_SHA"
+          grep -q 'nexttweaks-1.0.0-glossy-live-tweaks' transfer/index.json
+
+      - name: Commit NS Transfer publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json "$DEST_DIR/$DEST_FILE"
+          git commit -m 'Publish Next Tweaks 1.0.0 to NS Transfer' || true
+          git pull --rebase origin main
+          git push origin HEAD:main
