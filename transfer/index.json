@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T12:19:10Z",
+  "updatedAt": "2026-10-01T12:31:07Z",
   "files": [
+    {
+      "id": "nexttweaks-1.0.0-glossy-live-tweaks",
+      "name": "Next Tweaks 1.0.0 — Glossy Live Tweaks",
+      "fileName": "NextTweaks-1.0.0.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.0 (1)",
+      "url": "https://nextjailbreak.com/transfer/files/NextTweaks/1.0.0/NextTweaks-1.0.0.ipa",
+      "sha256": "f21e79924c32b6f5218e78eb478c175b23055c4b1423061ffa18856b0bf1420a",
+      "sizeBytes": 2455478,
+      "notes": "Single-window native SwiftUI tweak browser with glossy glass theming. Loads the live Next Jailbreak Packages feed, merges duplicate architecture variants, shows tweak icons, versions and descriptions, supports pull-to-refresh, and provides one Install button that routes to Sileo, Zebra or Cydia with direct DEB fallback."
+    },
     {
       "id": "next-agent-current-0.7.20-roothide",
       "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
