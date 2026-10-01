@@ -170,10 +170,11 @@ jobs:
           test "$BUNDLE" = "com.nextsolution.transfer"
           test -f "$APP/Assets.car"
 
-          strings "$BIN" | grep -q 'nextjailbreak.com/transfer/index.json'
-          strings "$BIN" | grep -q 'zeshan0727/NextJailbreak'
-          strings "$BIN" | grep -q 'NS Transfers'
-          strings "$BIN" | grep -q 'Delete from Root'
+          strings "$BIN" > "$RUNNER_TEMP/ns-transfers-1.1.7.strings"
+          grep -q 'nextjailbreak.com/transfer/index.json' "$RUNNER_TEMP/ns-transfers-1.1.7.strings"
+          grep -q 'zeshan0727/NextJailbreak' "$RUNNER_TEMP/ns-transfers-1.1.7.strings"
+          grep -q 'NS Transfers' "$RUNNER_TEMP/ns-transfers-1.1.7.strings"
+          grep -q 'Delete from Root' "$RUNNER_TEMP/ns-transfers-1.1.7.strings"
 
       - name: Upload TIPA artifact
         uses: actions/upload-artifact@v4
