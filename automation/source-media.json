@@ -164,7 +164,46 @@
           "alt": "Phonehub preferences in the official package screenshot"
         }
       ]
+    },
+    "com.mystery.supercomp": {
+      "credit_label": "Mysteryexe — official Super Complications Havoc listing",
+      "source_page_url": "https://havoc.app/package/supercomp",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6a89b346e5e34cd5fe449268",
+        "alt": "Official Super Complications screenshot showing Lock Screen widget arrangement and the widget picker"
+      },
+      "screenshots": []
+    },
+    "com.karin722.lilywhite": {
+      "credit_label": "tako3s — official lilywhite Havoc listing",
+      "source_page_url": "https://havoc.app/package/lilywhite",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ab8f730f180aae7681e3c3e",
+        "alt": "Official lilywhite screenshot showing a capsule clock, battery outline, signal dots and notification app icons"
+      },
+      "screenshots": []
+    },
+    "com.xsxs18.voidy": {
+      "credit_label": "xsxs18 — Voidy official Havoc listing",
+      "source_page_url": "https://havoc.app/package/voidy",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ab7c3c90d4754aea950b925",
+        "alt": "Official Voidy interface"
+      },
+      "screenshots": []
+    },
+    "com.xsxs18.tweakpilot": {
+      "credit_label": "xsxs18 — TweakPilot official Havoc listing",
+      "source_page_url": "https://havoc.app/package/tweakpilot",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ab77d350d4754aea94efb2b",
+        "alt": "Official TweakPilot control panel"
+      },
+      "screenshots": []
     }
   }
 }
-

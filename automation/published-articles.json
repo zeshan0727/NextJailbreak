@@ -1,6 +1,83 @@
 {
   "entries": [
     {
+      "slug": "lilywhite-1-0-1-status-bar-capsule",
+      "title": "lilywhite 1.0.1 Refines Its Status Bar Capsule for Jailbroken iPhones",
+      "name": "lilywhite",
+      "version": "1.0.1",
+      "package": "com.karin722.lilywhite",
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "source": "https://havoc.app/package/lilywhite",
+      "developer": "tako3s",
+      "release": "2026-09-30",
+      "compat": "iOS 16.0–26.0",
+      "price": "2.49",
+      "image": "assets/articles/source-media/lilywhite-1-0-1-official.png",
+      "sourceImage": "https://media.havoc.app/6ab8f730f180aae7681e3c3e",
+      "description": "lilywhite 1.0.1 fixes mobile-data text overlap and improves activation. See the original status bar screenshot, device limits and setup checks.",
+      "href": "lilywhite-1-0-1-status-bar-capsule/",
+      "published_at": "2026-10-01T11:15:55.839Z",
+      "modified_at": "2026-10-01T11:15:55.839Z",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/lilywhite",
+      "media_source_url": "https://havoc.app/package/lilywhite",
+      "source_visual_url": "https://media.havoc.app/6ab8f730f180aae7681e3c3e",
+      "media_credit": "tako3s official Havoc screenshot",
+      "entry_type": "source-news",
+      "selection_pool": "manual-original-source"
+    },
+    {
+      "slug": "super-complications-1-3-roothide-widget-fixes",
+      "title": "Super Complications 1.3 Fixes RootHide and Lock Screen Widget Editing",
+      "name": "Super Complications",
+      "version": "1.3",
+      "package": "com.mystery.supercomp",
+      "category": {
+        "id": "lock-screen",
+        "label": "Lock Screen"
+      },
+      "source": "https://havoc.app/package/supercomp",
+      "developer": "Mysteryexe",
+      "release": "2026-09-29",
+      "compat": "iOS 16.0–17.7.11",
+      "price": "1.99",
+      "image": "assets/articles/source-media/super-complications-1-3-official.png",
+      "sourceImage": "https://media.havoc.app/6a89b346e5e34cd5fe449268",
+      "description": "Super Complications 1.3 fixes RootHide, shortcut saving and PosterBoard previews. See supported iOS versions, original screenshots and setup advice.",
+      "href": "super-complications-1-3-roothide-widget-fixes/",
+      "published_at": "2026-10-01T11:15:55.839Z",
+      "modified_at": "2026-10-01T11:15:55.839Z",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/supercomp",
+      "media_source_url": "https://havoc.app/package/supercomp",
+      "source_visual_url": "https://media.havoc.app/6a89b346e5e34cd5fe449268",
+      "media_credit": "Mysteryexe official Havoc screenshot",
+      "entry_type": "source-news",
+      "selection_pool": "manual-original-source"
+    },
+    {
+      "title": "Voidy vs TweakPilot: Which Jailbreak Utility Fits Your Setup?",
+      "name": "Voidy vs TweakPilot",
+      "href": "voidy-vs-tweakpilot/",
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Compare Voidy maintenance tools with TweakPilot’s floating controls, with original developer screenshots and compatibility notes.",
+      "image": "assets/articles/source-media/voidy-official.png",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/voidy",
+      "media_source_url": "https://havoc.app/package/voidy",
+      "media_credit": "xsxs18 official Havoc screenshots",
+      "published_at": "2026-09-30T13:00:55Z",
+      "modified_at": "2026-10-01T11:15:55.839Z",
+      "entry_type": "comparison",
+      "selection_pool": "manual-original-source"
+    },
+    {
       "article_sha256": "30f43024efaf37885064d2123ef1ebb0787f49e741a4cfd9c66210f6693b1fe3",
       "candidate_fingerprint": "f0d84a3f33004f281f4fae3c8d89b606ff7605a6d0b9de6727efaf04fb4a57b7",
       "category": {
