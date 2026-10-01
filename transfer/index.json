@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T12:45:52Z",
+  "updatedAt": "2026-10-01T12:50:00Z",
   "files": [
     {
-      "id": "nextapp-1.0.0-live-install-catalog",
-      "name": "Next App 1.0.0 — Live App Installer",
-      "fileName": "NextApp-1.0.0.ipa",
+      "id": "nextapp-1.0.1-live-install-catalog",
+      "name": "Next App 1.0.1 — OTA + Performance Fix",
+      "fileName": "NextApp-1.0.1.ipa",
       "type": "ipa",
       "platform": "TrollStore / iOS 16+",
-      "version": "1.0.0 (1)",
-      "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.0/NextApp-1.0.0.ipa",
-      "sha256": "2f81b995d4bd55021ddcd38c9d0dd2e6d3cc3a48fe600bec6e04283a67420df0",
+      "version": "1.0.1 (2)",
+      "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.1/NextApp-1.0.1.ipa",
+      "sha256": "e942ec71bdf36c939afa7748dc9faad5ed746ec6ec915320146dec290d4218a4",
       "sizeBytes": 1443540,
-      "notes": "Glossy single-window native app library powered directly by nextjailbreak.com/install/apps.json. It mirrors the apps published on /install, refreshes automatically every 30 seconds and when returning to the foreground, supports pull-to-refresh, displays the live app icon/version/build/minimum iOS, and uses the same OTA itms-services manifest install flow as the website. Newly published apps appear automatically without rebuilding Next App."
+      "notes": "Fixes the Install button by issuing the same exact itms-services OTA manifest request format used on nextjailbreak.com/install. Also improves scrolling performance by removing expensive per-card blur/material rendering and heavy shadows, disabling unnecessary list animations, and avoiding full-list redraws unless apps.json actually changes."
     },
     {
       "id": "next-agent-current-0.7.20-roothide",
