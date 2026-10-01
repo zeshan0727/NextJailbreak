@@ -23,40 +23,47 @@ struct NextAppCatalog: Codable {
 
 @MainActor
 final class AppCatalogStore: ObservableObject {
-    @Published var apps: [NextAppItem] = []
-    @Published var isLoading = false
+    @Published private(set) var apps: [NextAppItem] = []
+    @Published private(set) var isLoading = false
     @Published var errorMessage: String?
-    @Published var lastUpdated: Date?
 
     private let catalogURL = URL(string: "https://nextjailbreak.com/install/apps.json")!
 
     func load(showSpinner: Bool = true) async {
         if showSpinner { isLoading = true }
-        errorMessage = nil
-        defer { isLoading = false }
+        defer {
+            if showSpinner { isLoading = false }
+        }
 
         do {
             var components = URLComponents(url: catalogURL, resolvingAgainstBaseURL: false)!
-            components.queryItems = [URLQueryItem(name: "v", value: String(Int(Date().timeIntervalSince1970)))]
+            components.queryItems = [
+                URLQueryItem(name: "v", value: String(Int(Date().timeIntervalSince1970)))
+            ]
 
             var request = URLRequest(url: components.url!)
             request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             request.timeoutInterval = 20
             request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
-            request.setValue("NextApp/1.0", forHTTPHeaderField: "User-Agent")
+            request.setValue("NextApp/1.0.1", forHTTPHeaderField: "User-Agent")
 
             let (data, response) = try await URLSession.shared.data(for: request)
-            guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            guard let http = response as? HTTPURLResponse,
+                  (200..<300).contains(http.statusCode) else {
                 throw URLError(.badServerResponse)
             }
 
             let catalog = try JSONDecoder().decode(NextAppCatalog.self, from: data)
-            apps = catalog.apps
-            lastUpdated = Date()
 
-            if apps.isEmpty {
-                errorMessage = "No apps are published yet."
+            if catalog.apps != apps {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    apps = catalog.apps
+                }
             }
+
+            errorMessage = catalog.apps.isEmpty ? "No apps are published yet." : nil
         } catch {
             if apps.isEmpty {
                 errorMessage = "Unable to load the app catalog."
@@ -67,6 +74,7 @@ final class AppCatalogStore: ObservableObject {
     func startLiveRefresh() async {
         while !Task.isCancelled {
             try? await Task.sleep(nanoseconds: 30_000_000_000)
+            guard !Task.isCancelled else { return }
             await load(showSpinner: false)
         }
     }
@@ -82,20 +90,34 @@ enum AppInstaller {
         return URL(string: app.icon, relativeTo: baseURL)?.absoluteURL
     }
 
-    static func install(_ app: NextAppItem) {
-        guard app.available else { return }
-        guard let manifestURL = URL(string: app.manifest, relativeTo: baseURL)?.absoluteURL else { return }
+    static func install(_ app: NextAppItem, completion: @escaping (Bool) -> Void) {
+        guard app.available else {
+            completion(false)
+            return
+        }
 
-        var components = URLComponents()
-        components.scheme = "itms-services"
-        components.path = ""
-        components.queryItems = [
-            URLQueryItem(name: "action", value: "download-manifest"),
-            URLQueryItem(name: "url", value: manifestURL.absoluteString)
-        ]
+        guard let manifestURL = URL(string: app.manifest, relativeTo: baseURL)?.absoluteURL else {
+            completion(false)
+            return
+        }
 
-        guard let installURL = components.url else { return }
-        UIApplication.shared.open(installURL)
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._~")
+
+        guard let encodedManifest = manifestURL.absoluteString
+            .addingPercentEncoding(withAllowedCharacters: allowed),
+              let installURL = URL(
+                string: "itms-services://?action=download-manifest&url=\(encodedManifest)"
+              ) else {
+            completion(false)
+            return
+        }
+
+        UIApplication.shared.open(
+            installURL,
+            options: [:],
+            completionHandler: completion
+        )
     }
 }
 
@@ -115,10 +137,10 @@ struct AppsHomeView: View {
 
     var body: some View {
         ZStack {
-            GlassBackground()
+            FastGlassBackground()
 
             ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 14) {
+                LazyVStack(spacing: 12) {
                     header
                         .padding(.top, 8)
                         .padding(.bottom, 4)
@@ -131,21 +153,26 @@ struct AppsHomeView: View {
 
                     ForEach(store.apps) { app in
                         AppCard(app: app)
+                            .equatable()
                     }
 
                     if !store.apps.isEmpty {
-                        VStack(spacing: 5) {
+                        VStack(spacing: 4) {
                             Text("Live from nextjailbreak.com/install")
                                 .font(.caption2.weight(.semibold))
                             Text("New apps appear automatically")
                                 .font(.caption2)
                         }
-                        .foregroundStyle(.white.opacity(0.38))
+                        .foregroundStyle(.white.opacity(0.42))
                         .padding(.top, 8)
                         .padding(.bottom, 28)
                     }
                 }
                 .padding(.horizontal, 16)
+            }
+            .scrollDismissesKeyboard(.immediately)
+            .transaction { transaction in
+                transaction.animation = nil
             }
             .refreshable {
                 await store.load()
@@ -168,19 +195,26 @@ struct AppsHomeView: View {
         HStack(spacing: 13) {
             ZStack {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(.ultraThinMaterial)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                .white.opacity(0.18),
+                                .white.opacity(0.07)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(.white.opacity(0.24), lineWidth: 1)
+                            .stroke(.white.opacity(0.20), lineWidth: 0.8)
                     )
 
                 Image(systemName: "square.grid.2x2.fill")
                     .font(.system(size: 24, weight: .semibold))
-                    .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.white)
             }
             .frame(width: 58, height: 58)
-            .shadow(color: .black.opacity(0.24), radius: 18, y: 9)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("Next App")
@@ -208,11 +242,11 @@ struct AppsHomeView: View {
             ProgressView().tint(.white)
             Text("Loading apps…")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.78))
+                .foregroundStyle(.white.opacity(0.80))
             Spacer()
         }
         .padding(16)
-        .glassPanel(cornerRadius: 20)
+        .fastGlassPanel(cornerRadius: 20)
     }
 
     private func statusCard(icon: String, text: String) -> some View {
@@ -221,20 +255,26 @@ struct AppsHomeView: View {
                 .foregroundStyle(.white.opacity(0.9))
             Text(text)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.78))
+                .foregroundStyle(.white.opacity(0.80))
             Spacer()
         }
         .padding(16)
-        .glassPanel(cornerRadius: 20)
+        .fastGlassPanel(cornerRadius: 20)
     }
 }
 
-struct AppCard: View {
+struct AppCard: View, Equatable {
     let app: NextAppItem
 
+    @State private var installFailed = false
+
+    static func == (lhs: AppCard, rhs: AppCard) -> Bool {
+        lhs.app == rhs.app
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .center, spacing: 14) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 13) {
                 appIcon
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -245,16 +285,16 @@ struct AppCard: View {
 
                     Text("Version \(app.version) · Build \(app.build)")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.56))
+                        .foregroundStyle(.white.opacity(0.58))
                         .lineLimit(1)
 
                     Text("\(app.platform) · \(app.minimumOS)")
                         .font(.caption2.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.42))
+                        .foregroundStyle(.white.opacity(0.44))
                         .lineLimit(1)
                 }
 
-                Spacer(minLength: 8)
+                Spacer(minLength: 6)
 
                 installButton
             }
@@ -266,21 +306,32 @@ struct AppCard: View {
 
                 Text(app.available ? "Ready to install" : (app.status ?? "Not available"))
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(app.available ? .green.opacity(0.9) : .orange.opacity(0.9))
+                    .foregroundStyle(app.available ? .green.opacity(0.92) : .orange.opacity(0.92))
             }
 
             Text(app.bundleId)
                 .font(.caption2.monospaced())
-                .foregroundStyle(.white.opacity(0.30))
+                .foregroundStyle(.white.opacity(0.32))
                 .lineLimit(1)
         }
-        .padding(16)
-        .glassPanel(cornerRadius: 24)
+        .padding(15)
+        .fastGlassPanel(cornerRadius: 23)
+        .alert("Install Request Failed", isPresented: $installFailed) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("iOS did not accept the OTA install request for this app.")
+        }
     }
 
     private var installButton: some View {
         Button {
-            AppInstaller.install(app)
+            AppInstaller.install(app) { success in
+                if !success {
+                    DispatchQueue.main.async {
+                        installFailed = true
+                    }
+                }
+            }
         } label: {
             Text(app.available ? "Install" : "Unavailable")
                 .font(.subheadline.weight(.bold))
@@ -293,8 +344,8 @@ struct AppCard: View {
                             app.available
                             ? LinearGradient(
                                 colors: [
-                                    Color(red: 0.33, green: 0.62, blue: 1.0),
-                                    Color(red: 0.63, green: 0.34, blue: 1.0)
+                                    Color(red: 0.31, green: 0.60, blue: 1.0),
+                                    Color(red: 0.62, green: 0.33, blue: 1.0)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -308,9 +359,8 @@ struct AppCard: View {
                 )
                 .overlay(
                     Capsule()
-                        .stroke(.white.opacity(app.available ? 0.34 : 0.14), lineWidth: 0.8)
+                        .stroke(.white.opacity(app.available ? 0.30 : 0.14), lineWidth: 0.8)
                 )
-                .shadow(color: app.available ? Color.purple.opacity(0.28) : .clear, radius: 12, y: 6)
         }
         .buttonStyle(.plain)
         .disabled(!app.available)
@@ -318,11 +368,14 @@ struct AppCard: View {
 
     private var appIcon: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 17, style: .continuous)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(.white.opacity(0.10))
 
             if let url = AppInstaller.iconURL(for: app) {
-                AsyncImage(url: url) { phase in
+                AsyncImage(
+                    url: url,
+                    transaction: Transaction(animation: nil)
+                ) { phase in
                     switch phase {
                     case .success(let image):
                         image
@@ -336,93 +389,81 @@ struct AppCard: View {
                 placeholderIcon
             }
         }
-        .frame(width: 62, height: 62)
-        .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
+        .frame(width: 60, height: 60)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 17, style: .continuous)
-                .stroke(.white.opacity(0.18), lineWidth: 0.8)
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(.white.opacity(0.16), lineWidth: 0.8)
         )
-        .shadow(color: .black.opacity(0.22), radius: 12, y: 6)
     }
 
     private var placeholderIcon: some View {
         Image(systemName: "app.fill")
-            .font(.system(size: 28, weight: .semibold))
-            .foregroundStyle(.white.opacity(0.84))
+            .font(.system(size: 27, weight: .semibold))
+            .foregroundStyle(.white.opacity(0.82))
     }
 }
 
-struct GlassBackground: View {
+struct FastGlassBackground: View {
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.02, green: 0.025, blue: 0.07),
-                        Color(red: 0.055, green: 0.035, blue: 0.13),
-                        Color(red: 0.02, green: 0.06, blue: 0.12)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.018, green: 0.025, blue: 0.075),
+                    Color(red: 0.055, green: 0.035, blue: 0.13),
+                    Color(red: 0.018, green: 0.07, blue: 0.12)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
 
-                Circle()
-                    .fill(Color.blue.opacity(0.32))
-                    .frame(width: proxy.size.width * 0.95)
-                    .blur(radius: 82)
-                    .offset(x: -proxy.size.width * 0.38, y: -proxy.size.height * 0.31)
+            RadialGradient(
+                colors: [
+                    Color.blue.opacity(0.22),
+                    .clear
+                ],
+                center: .topLeading,
+                startRadius: 10,
+                endRadius: 330
+            )
 
-                Circle()
-                    .fill(Color.purple.opacity(0.30))
-                    .frame(width: proxy.size.width * 0.86)
-                    .blur(radius: 92)
-                    .offset(x: proxy.size.width * 0.38, y: proxy.size.height * 0.08)
-
-                Circle()
-                    .fill(Color.cyan.opacity(0.15))
-                    .frame(width: proxy.size.width * 0.78)
-                    .blur(radius: 96)
-                    .offset(x: proxy.size.width * 0.25, y: proxy.size.height * 0.57)
-
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .opacity(0.18)
-            }
-            .ignoresSafeArea()
+            RadialGradient(
+                colors: [
+                    Color.purple.opacity(0.20),
+                    .clear
+                ],
+                center: .trailing,
+                startRadius: 20,
+                endRadius: 360
+            )
         }
+        .ignoresSafeArea()
     }
 }
 
 private extension View {
-    func glassPanel(cornerRadius: CGFloat) -> some View {
+    func fastGlassPanel(cornerRadius: CGFloat) -> some View {
         self
             .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(.ultraThinMaterial)
-
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    .white.opacity(0.11),
-                                    .white.opacity(0.025),
-                                    .clear
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.115),
+                                Color.white.opacity(0.055)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
-                }
+                    )
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .stroke(
                         LinearGradient(
                             colors: [
-                                .white.opacity(0.30),
-                                .white.opacity(0.08),
-                                .white.opacity(0.16)
+                                .white.opacity(0.24),
+                                .white.opacity(0.08)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -430,6 +471,5 @@ private extension View {
                         lineWidth: 0.8
                     )
             )
-            .shadow(color: .black.opacity(0.22), radius: 20, y: 10)
     }
 }
