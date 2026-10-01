@@ -9,7 +9,7 @@ Build settings from command line:
 
 --- xcodebuild: WARNING: Using the first of multiple matching destinations:
 { platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
-{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:a1e48c7703b1efc0269d005b0441eba2eb30aece, name:My Mac }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:3a32204dd7e600733fc7d8903ce53094edd2d7cd, name:My Mac }
 { platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
 note: Using codesigning identity override: 
 ComputePackagePrebuildTargetDependencyGraph
@@ -41,27 +41,27 @@ ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/X
 
 ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
 
-Build description signature: d46f32e0a3d38a3227d943206bf59836
-Build description path: /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/XCBuildData/d46f32e0a3d38a3227d943206bf59836.xcbuilddata
+Build description signature: 3c264272063174bf339fd578f417b558
+Build description path: /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/XCBuildData/3c264272063174bf339fd578f417b558.xcbuilddata
 CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
     builtin-create-build-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products
-
-ClangStatCache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
-    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
-    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -o /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
 
 CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
     builtin-create-build-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex
 
-CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos
+ClangStatCache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
-    builtin-create-build-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -o /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
 
 WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp-8c501db7998ac145b691fdeb924468c4-VFS-iphoneos/all-product-headers.yaml
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
     write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp-8c501db7998ac145b691fdeb924468c4-VFS-iphoneos/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
+    builtin-create-build-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos
 
 CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
@@ -205,16 +205,16 @@ ProcessInfoPlistFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/b
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
     builtin-infoPlistUtility /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_generated_info.plist -requiredArchitecture arm64 -o /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Info.plist
 
-ExtractAppIntentsMetadata (in target 'NextApp' from project 'NextApp')
-    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
-    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name NextApp --sdk-root /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk --xcode-version 16F6 --platform-family iOS --deployment-target 16.0 --bundle-identifier com.nextsolution.nextapp --output /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app --target-triple arm64-apple-ios16.0 --binary-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp --dependency-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_dependency_info.dat --stringsdata-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftFileList --metadata-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
-2026-10-01 12:38:21.951 appintentsmetadataprocessor[2444:10683] Starting appintentsmetadataprocessor export
-2026-10-01 12:38:21.955 appintentsmetadataprocessor[2444:10683] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
-
 CopySwiftLibs /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app (in target 'NextApp' from project 'NextApp')
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
     builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp --scan-folder /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Frameworks --scan-folder /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/PlugIns --scan-folder /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/SystemExtensions --scan-folder /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Extensions --platform iphoneos --toolchain /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
 Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name NextApp --sdk-root /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk --xcode-version 16F6 --platform-family iOS --deployment-target 16.0 --bundle-identifier com.nextsolution.nextapp --output /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app --target-triple arm64-apple-ios16.0 --binary-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp --dependency-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_dependency_info.dat --stringsdata-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftFileList --metadata-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-10-01 12:45:51.847 appintentsmetadataprocessor[1744:8790] Starting appintentsmetadataprocessor export
+2026-10-01 12:45:51.858 appintentsmetadataprocessor[1744:8790] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
 
 GenerateDSYMFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app.dSYM /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp (in target 'NextApp' from project 'NextApp')
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
@@ -223,8 +223,8 @@ GenerateDSYMFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build
 AppIntentsSSUTraining (in target 'NextApp' from project 'NextApp')
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
     /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Info.plist --temp-dir-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/ssu --bundle-id com.nextsolution.nextapp --product-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app --extracted-metadata-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Metadata.appintents --metadata-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyMetadataFileList --archive-ssu-assets
-2026-10-01 12:38:21.979 appintentsnltrainingprocessor[2446:10687] Parsing options for appintentsnltrainingprocessor
-2026-10-01 12:38:21.980 appintentsnltrainingprocessor[2446:10687] No AppShortcuts found - Skipping.
+2026-10-01 12:45:51.915 appintentsnltrainingprocessor[1746:8798] Parsing options for appintentsnltrainingprocessor
+2026-10-01 12:45:51.916 appintentsnltrainingprocessor[1746:8798] No AppShortcuts found - Skipping.
 
 RegisterExecutionPolicyException /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app (in target 'NextApp' from project 'NextApp')
     cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp

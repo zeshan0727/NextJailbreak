@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T12:38:22Z",
+  "updatedAt": "2026-10-01T12:45:52Z",
   "files": [
     {
       "id": "nextapp-1.0.0-live-install-catalog",
@@ -10,8 +10,8 @@
       "platform": "TrollStore / iOS 16+",
       "version": "1.0.0 (1)",
       "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.0/NextApp-1.0.0.ipa",
-      "sha256": "bbb616faee3d22f9f5d57b58f7f677675fb3cb49e69da39ed11548190e3b3878",
-      "sizeBytes": 1441762,
+      "sha256": "2f81b995d4bd55021ddcd38c9d0dd2e6d3cc3a48fe600bec6e04283a67420df0",
+      "sizeBytes": 1443540,
       "notes": "Glossy single-window native app library powered directly by nextjailbreak.com/install/apps.json. It mirrors the apps published on /install, refreshes automatically every 30 seconds and when returning to the foreground, supports pull-to-refresh, displays the live app icon/version/build/minimum iOS, and uses the same OTA itms-services manifest install flow as the website. Newly published apps appear automatically without rebuilding Next App."
     },
     {
