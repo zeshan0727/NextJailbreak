@@ -1,0 +1,244 @@
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project NextApp.xcodeproj -scheme NextApp -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= build
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = 
+    CODE_SIGNING_ALLOWED = NO
+    CODE_SIGNING_REQUIRED = NO
+    SDKROOT = iphoneos18.5
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:a1e48c7703b1efc0269d005b0441eba2eb30aece, name:My Mac }
+{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+note: Using codesigning identity override: 
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'NextApp' in project 'NextApp' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: d46f32e0a3d38a3227d943206bf59836
+Build description path: /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/XCBuildData/d46f32e0a3d38a3227d943206bf59836.xcbuilddata
+CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
+    builtin-create-build-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products
+
+ClangStatCache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -o /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
+
+CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
+    builtin-create-build-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex
+
+CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
+    builtin-create-build-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp-8c501db7998ac145b691fdeb924468c4-VFS-iphoneos/all-product-headers.yaml
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp-8c501db7998ac145b691fdeb924468c4-VFS-iphoneos/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp.xcodeproj
+    builtin-create-build-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_const_extract_protocols.json (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftFileList (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftConstValuesFileList (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.LinkFileList (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-OutputFileMap.json (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.hmap (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.hmap
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyStaticMetadataFileList (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyMetadataFileList (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-project-headers.hmap (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-own-target-headers.hmap (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-generated-files.hmap (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-all-target-headers.hmap (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-all-non-framework-target-headers.hmap (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    write-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-all-non-framework-target-headers.hmap
+
+MkDir /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /bin/mkdir -p /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app
+
+MkDir /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/unthinned (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /bin/mkdir -p /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/unthinned
+
+MkDir /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/thinned (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /bin/mkdir -p /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/thinned
+
+GenerateAssetSymbols /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Assets.xcassets (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Assets.xcassets --compile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_dependencies --output-partial-info-plist /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_generated_info.plist --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 16.0 --platform iphoneos --bundle-identifier com.nextsolution.nextapp --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CompileAssetCatalogVariant thinned /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Assets.xcassets (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Assets.xcassets --compile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 16.0 --platform iphoneos
+/* com.apple.actool.compilation-results */
+/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_generated_info.plist_thinned
+/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriver NextApp normal arm64 com.apple.xcode.tools.swift.compiler (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-SwiftDriver -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name NextApp -O -whole-module-optimization -enforce-exclusivity\=checked @/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos -F /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -output-file-map /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-generated-files.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-own-target-headers.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-project-headers.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-Swift.h -working-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp -no-emit-module-separately-wmo
+
+SwiftCompile normal arm64 Compiling\ NextApp.swift,\ GeneratedAssetSymbols.swift /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/NextApp.swift /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'NextApp' from project 'NextApp')
+
+CompileSwift normal arm64 (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    
+
+SwiftDriver\ Compilation NextApp normal arm64 com.apple.xcode.tools.swift.compiler (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-Swift-Compilation -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name NextApp -O -whole-module-optimization -enforce-exclusivity\=checked @/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos -F /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -output-file-map /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-generated-files.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-own-target-headers.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-project-headers.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-Swift.h -working-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp -no-emit-module-separately-wmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling NextApp.swift, GeneratedAssetSymbols.swift (in target 'NextApp' from project 'NextApp')
+
+SwiftDriver\ Compilation\ Requirements NextApp normal arm64 com.apple.xcode.tools.swift.compiler (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name NextApp -O -whole-module-optimization -enforce-exclusivity\=checked @/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos -F /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -output-file-map /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-generated-files.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-own-target-headers.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp-project-headers.hmap -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-Swift.h -working-directory /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp -no-emit-module-separately-wmo
+
+SwiftMergeGeneratedHeaders /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/NextApp-Swift.h /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-Swift.h (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp-Swift.h -o /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/DerivedSources/NextApp-Swift.h
+
+Copy /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftmodule (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftmodule /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftdoc (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftdoc /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.swiftmodule/arm64-apple-ios.abi.json /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.abi.json (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.abi.json /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftsourceinfo (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftsourceinfo /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+Ld /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp normal (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios16.0 -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -Os -L/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -L/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos -F/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -F/Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos -filelist /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.LinkFileList -Xlinker -rpath -Xlinker @executable_path/Frameworks -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_lto.o -Xlinker -dependency_info -Xlinker /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.swiftmodule -o /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp
+
+LinkAssetCatalog /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Assets.xcassets (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-linkAssetCatalog --thinned /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/thinned --thinned-dependencies /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_generated_info.plist_unthinned --output /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app --plist-output /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/AppIcon76x76@2x~ipad.png (in target 'NextApp' from project 'NextApp')
+note: Emplaced /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Assets.car (in target 'NextApp' from project 'NextApp')
+note: Emplaced /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/AppIcon60x60@2x.png (in target 'NextApp' from project 'NextApp')
+
+ProcessInfoPlistFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Info.plist /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Info.plist (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-infoPlistUtility /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/NextApp/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/assetcatalog_generated_info.plist -requiredArchitecture arm64 -o /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Info.plist
+
+ExtractAppIntentsMetadata (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name NextApp --sdk-root /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk --xcode-version 16F6 --platform-family iOS --deployment-target 16.0 --bundle-identifier com.nextsolution.nextapp --output /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app --target-triple arm64-apple-ios16.0 --binary-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp --dependency-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp_dependency_info.dat --stringsdata-file /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftFileList --metadata-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/Objects-normal/arm64/NextApp.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-10-01 12:38:21.951 appintentsmetadataprocessor[2444:10683] Starting appintentsmetadataprocessor export
+2026-10-01 12:38:21.955 appintentsmetadataprocessor[2444:10683] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+
+CopySwiftLibs /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp --scan-folder /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Frameworks --scan-folder /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/PlugIns --scan-folder /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/SystemExtensions --scan-folder /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Extensions --platform iphoneos --toolchain /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+GenerateDSYMFile /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app.dSYM /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/NextApp -o /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app.dSYM
+
+AppIntentsSSUTraining (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Info.plist --temp-dir-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/ssu --bundle-id com.nextsolution.nextapp --product-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app --extracted-metadata-path /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app/Metadata.appintents --metadata-file-list /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Intermediates.noindex/NextApp.build/Release-iphoneos/NextApp.build/NextApp.DependencyMetadataFileList --archive-ssu-assets
+2026-10-01 12:38:21.979 appintentsnltrainingprocessor[2446:10687] Parsing options for appintentsnltrainingprocessor
+2026-10-01 12:38:21.980 appintentsnltrainingprocessor[2446:10687] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-RegisterExecutionPolicyException /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app
+
+Validate /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    builtin-validationUtility /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app -infoplist-subpath Info.plist
+warning: All interface orientations must be supported unless the app requires full screen. (in target 'NextApp' from project 'NextApp')
+
+Touch /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app (in target 'NextApp' from project 'NextApp')
+    cd /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp
+    /usr/bin/touch -c /Users/runner/work/NextJailbreak/NextJailbreak/NextAppApp/build/Build/Products/Release-iphoneos/NextApp.app
+
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'NextApp' from project 'NextApp')
+** BUILD SUCCEEDED **
+

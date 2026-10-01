@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T12:37:25Z",
+  "updatedAt": "2026-10-01T12:38:22Z",
   "files": [
+    {
+      "id": "nextapp-1.0.0-live-install-catalog",
+      "name": "Next App 1.0.0 — Live App Installer",
+      "fileName": "NextApp-1.0.0.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.0 (1)",
+      "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.0/NextApp-1.0.0.ipa",
+      "sha256": "bbb616faee3d22f9f5d57b58f7f677675fb3cb49e69da39ed11548190e3b3878",
+      "sizeBytes": 1441762,
+      "notes": "Glossy single-window native app library powered directly by nextjailbreak.com/install/apps.json. It mirrors the apps published on /install, refreshes automatically every 30 seconds and when returning to the foreground, supports pull-to-refresh, displays the live app icon/version/build/minimum iOS, and uses the same OTA itms-services manifest install flow as the website. Newly published apps appear automatically without rebuilding Next App."
+    },
     {
       "id": "next-agent-current-0.7.20-roothide",
       "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
@@ -25,18 +37,6 @@
       "sha256": "901f526038371e7ae64b278e69b53250513e2371b1b8d571dc7c8fe61266bd79",
       "sizeBytes": 63200,
       "notes": "Matching RootHide helper with RootHide-aware uicache/respring resolution and an allow-listed uid-0 execution probe, while preserving the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
-    },
-    {
-      "id": "nexttweaks-1.0.0-glossy-live-tweaks",
-      "name": "Next Tweaks 1.0.0 — Glossy Live Tweaks",
-      "fileName": "NextTweaks-1.0.0.ipa",
-      "type": "ipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "1.0.0 (1)",
-      "url": "https://nextjailbreak.com/transfer/files/NextTweaks/1.0.0/NextTweaks-1.0.0.ipa",
-      "sha256": "f21e79924c32b6f5218e78eb478c175b23055c4b1423061ffa18856b0bf1420a",
-      "sizeBytes": 2455478,
-      "notes": "Single-window native SwiftUI tweak browser with glossy glass theming. Loads the live Next Jailbreak Packages feed, merges duplicate architecture variants, shows tweak icons, versions and descriptions, supports pull-to-refresh, and provides one Install button that routes to Sileo, Zebra or Cydia with direct DEB fallback."
     },
     {
       "id": "tipa-qatar-marketplace-current-0.4.1",
