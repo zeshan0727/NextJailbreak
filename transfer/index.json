@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T13:05:28Z",
+  "updatedAt": "2026-10-01T13:08:21Z",
   "files": [
     {
       "id": "next-agent-current-0.7.20-roothide",
@@ -10,7 +10,7 @@
       "platform": "TrollStore / RootHide / iOS 16+",
       "version": "0.7.20 (28)",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgent-0.7.20.tipa",
-      "sha256": "1ac78dba33c7c67bcb672ce5608095f108055de34d1b7cbaaee55cd1533c7bf1",
+      "sha256": "f931a639df406885609d6a10792b6b0f39bb53f85bed2ff66952d9e155681292",
       "sizeBytes": 1024429,
       "notes": "Internal-stability build. Fixes privileged routing so daemon-backed actions never fall back to the UID 501 app shell, adds an actual root execution probe, automatically recovers stale/conflicted managed-agent sessions before device actions, avoids unsafe replay after actions, cleans raw API error envelopes, removes the discontinued HUD UI, and keeps proven full-screen OCR/HID automation."
     },
@@ -20,11 +20,11 @@
       "fileName": "NextAgentDaemon-0.7.20-RootHide.deb",
       "type": "deb",
       "platform": "RootHide / iphoneos-arm64e",
-      "version": "0.7.20",
+      "version": "0.7.20-3",
       "url": "https://nextjailbreak.com/transfer/files/NextAgent/0.7.20/NextAgentDaemon-0.7.20-RootHide.deb",
-      "sha256": "91b346d7696e68bc449ccc887ddd3214d8e5e1c239f17a77ecb2ead0a44f380e",
-      "sizeBytes": 63164,
-      "notes": "Matching RootHide helper with RootHide-aware uicache/respring resolution and an allow-listed uid-0 execution probe, while preserving the proven SpringBoard OCR/HID bridge. Its installer also removes discontinued Next Agent HUD tweak files and stale HUD status data."
+      "sha256": "706412e2c72a8850a5de26e0383b90a7f285d65c7386addb38578a1f5012d9dd",
+      "sizeBytes": 63032,
+      "notes": "Matching RootHide helper with verified uid-0 execution plus the physically verified 0.7.17 SpringBoard capture/OCR/HID core retargeted to the current v0719 protocol. Packaged as a RootHide tweak dependency; installer clears stale bridge/HUD status and forces a RootHide-aware SpringBoard reload. HUD remains discontinued."
     },
     {
       "id": "nextapp-1.0.1-live-install-catalog",
