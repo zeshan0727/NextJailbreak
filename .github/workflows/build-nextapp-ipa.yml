@@ -58,7 +58,7 @@ jobs:
           BUILD_STATUS=${PIPESTATUS[0]}
           echo "exit_code=$BUILD_STATUS" >> "$GITHUB_OUTPUT"
           if [ "$BUILD_STATUS" -eq 0 ]; then
-            echo "SUCCESS - Next App 1.0.0" > build-output/build-status.txt
+            echo "SUCCESS - Next App 1.0.1" > build-output/build-status.txt
           else
             echo "FAILED (xcodebuild exit code $BUILD_STATUS)" > build-output/build-status.txt
           fi
@@ -68,12 +68,12 @@ jobs:
         if: steps.build.outputs.exit_code == '0'
         working-directory: NextAppApp
         run: |
-          rm -rf Payload NextApp-1.0.0.ipa
+          rm -rf Payload NextApp-1.0.1.ipa
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/NextApp.app Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextApp-1.0.0.ipa
-          cp NextApp-1.0.0.ipa build-output/NextApp-1.0.0.ipa
-          shasum -a 256 build-output/NextApp-1.0.0.ipa > build-output/NextApp-1.0.0.sha256
+          ditto -c -k --sequesterRsrc --keepParent Payload NextApp-1.0.1.ipa
+          cp NextApp-1.0.1.ipa build-output/NextApp-1.0.1.ipa
+          shasum -a 256 build-output/NextApp-1.0.1.ipa > build-output/NextApp-1.0.1.sha256
 
       - name: Publish to NS Transfer
         if: steps.build.outputs.exit_code == '0' && github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -81,8 +81,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          DEST_DIR='../transfer/files/NextApp/1.0.0'
-          DEST_FILE='NextApp-1.0.0.ipa'
+          DEST_DIR='../transfer/files/NextApp/1.0.1'
+          DEST_FILE='NextApp-1.0.1.ipa'
           mkdir -p "$DEST_DIR"
           cp "build-output/$DEST_FILE" "$DEST_DIR/$DEST_FILE"
 
@@ -99,21 +99,22 @@ jobs:
           data=json.loads(p.read_text())
           remove_ids={
               'nexttweaks-1.0.0-glossy-live-tweaks',
-              'nextapp-1.0.0-live-install-catalog'
+              'nextapp-1.0.0-live-install-catalog',
+              'nextapp-1.0.1-live-install-catalog'
           }
           files=[x for x in data.get('files',[]) if x.get('id') not in remove_ids]
 
           item={
-              'id':'nextapp-1.0.0-live-install-catalog',
-              'name':'Next App 1.0.0 — Live App Installer',
-              'fileName':'NextApp-1.0.0.ipa',
+              'id':'nextapp-1.0.1-live-install-catalog',
+              'name':'Next App 1.0.1 — Live App Installer',
+              'fileName':'NextApp-1.0.1.ipa',
               'type':'ipa',
               'platform':'TrollStore / iOS 16+',
-              'version':'1.0.0 (1)',
-              'url':'https://nextjailbreak.com/transfer/files/NextApp/1.0.0/NextApp-1.0.0.ipa',
+              'version':'1.0.1 (2)',
+              'url':'https://nextjailbreak.com/transfer/files/NextApp/1.0.1/NextApp-1.0.1.ipa',
               'sha256':os.environ['SHA256'],
               'sizeBytes':int(os.environ['SIZE']),
-              'notes':'Glossy single-window native app library powered directly by nextjailbreak.com/install/apps.json. It mirrors the apps published on /install, refreshes automatically every 30 seconds and when returning to the foreground, supports pull-to-refresh, displays the live app icon/version/build/minimum iOS, and uses the same OTA itms-services manifest install flow as the website. Newly published apps appear automatically without rebuilding Next App.'
+              'notes':'Performance + OTA installer fix. Uses the exact itms-services://?action=download-manifest&url= request format used by the working website, with an error alert if iOS rejects the request. Replaces expensive per-card materials, blur and shadows with lightweight glass gradients, disables unnecessary animations, and only updates the live app list when the catalog actually changes. Still mirrors nextjailbreak.com/install/apps.json automatically.'
           }
 
           data['files']=[item]+files
@@ -133,12 +134,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add -f build-output/build-status.txt build-output/xcodebuild.log
-          if [ -f build-output/NextApp-1.0.0.ipa ]; then
-            git add -f build-output/NextApp-1.0.0.ipa build-output/NextApp-1.0.0.sha256
-            git add -f ../transfer/files/NextApp/1.0.0/NextApp-1.0.0.ipa ../transfer/index.json
+          if [ -f build-output/NextApp-1.0.1.ipa ]; then
+            git add -f build-output/NextApp-1.0.1.ipa build-output/NextApp-1.0.1.sha256
+            git add -f ../transfer/files/NextApp/1.0.1/NextApp-1.0.1.ipa ../transfer/index.json
           fi
 
-          git commit -m "Publish Next App 1.0.0" || true
+          git commit -m "Publish Next App 1.0.1" || true
           git pull --rebase origin main
           git push origin HEAD:main
 
@@ -148,8 +149,8 @@ jobs:
         with:
           name: NextApp-IPA
           path: |
-            NextAppApp/NextApp-1.0.0.ipa
-            NextAppApp/build-output/NextApp-1.0.0.sha256
+            NextAppApp/NextApp-1.0.1.ipa
+            NextAppApp/build-output/NextApp-1.0.1.sha256
           if-no-files-found: error
 
       - name: Fail if build failed
