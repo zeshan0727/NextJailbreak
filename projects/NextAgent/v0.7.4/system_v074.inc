@@ -73,15 +73,59 @@ static bool na074_write_atomic(const char *path, const char *text, mode_t mode, 
     return true;
 }
 
+static long na074_json_long_field(const char *text, const char *field) {
+    if (!text || !field) return -1;
+
+    char needle[96];
+    snprintf(needle, sizeof(needle), "\"%s\":", field);
+    const char *p = strstr(text, needle);
+    if (!p) return -1;
+
+    p += strlen(needle);
+    while (*p == ' ' || *p == '\t') p++;
+
+    errno = 0;
+    char *end = NULL;
+    long value = strtol(p, &end, 10);
+    if (errno != 0 || end == p) return -1;
+    return value;
+}
+
 static char *action_overlay_status_v074(int *ok) {
     char *text = na074_read_small_file(NA074_OVERLAY_STATUS_PATH, 16384);
     if (!text || !*text) {
         free(text);
         *ok = 0;
-        return strdup("SpringBoard overlay status file is unavailable. The overlay is probably not injected; respring after installing the RootHide package.");
+        return strdup("SpringBoard bridge status file is unavailable. The SpringBoard automation bridge is not currently verified.");
     }
 
-    *ok = strstr(text, "\"loaded\":true") != NULL;
+    const bool loaded = strstr(text, "\"loaded\":true") != NULL;
+    const long bridgePID = na074_json_long_field(text, "pid");
+    const bool pidAlive = bridgePID > 1 && (kill((pid_t)bridgePID, 0) == 0 || errno == EPERM);
+
+    if (!loaded || !pidAlive) {
+        size_t needed = strlen(text) + 256;
+        char *out = calloc(1, needed);
+        if (!out) {
+            free(text);
+            *ok = 0;
+            return strdup("SpringBoard bridge status exists but could not be validated.");
+        }
+
+        snprintf(
+            out,
+            needed,
+            "STALE_OR_INACTIVE_BRIDGE pid=%ld alive=%s | %s",
+            bridgePID,
+            pidAlive ? "true" : "false",
+            text
+        );
+        free(text);
+        *ok = 0;
+        return out;
+    }
+
+    *ok = 1;
     return text;
 }
 
