@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T13:08:58Z",
+  "updatedAt": "2026-10-01T13:38:01Z",
   "files": [
+    {
+      "id": "nextapp-1.0.2-duplicate-apps",
+      "name": "Next App 1.0.2 — Duplicate Apps",
+      "fileName": "NextApp-1.0.2.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.2 (3)",
+      "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.2/NextApp-1.0.2.ipa",
+      "sha256": "270927dbf67912aa18c43388fc810111dc88a3c34518781fe15810b81db3ab1e",
+      "sizeBytes": 1650217,
+      "notes": "Adds More → Duplicate App. Enter 1–10 copies and Next App downloads the IPA once, creates unique bundle IDs, repackages each duplicate locally, then shows individual TrollStore Install buttons with a Share fallback. Existing OTA install and fast glass performance are preserved."
+    },
     {
       "id": "ns-transfers-1.1.7-glass-performance",
       "name": "NS Transfers 1.1.7 — Glass Performance",
@@ -37,18 +49,6 @@
       "sha256": "706412e2c72a8850a5de26e0383b90a7f285d65c7386addb38578a1f5012d9dd",
       "sizeBytes": 63032,
       "notes": "Matching RootHide helper with verified uid-0 execution plus the physically verified 0.7.17 SpringBoard capture/OCR/HID core retargeted to the current v0719 protocol. Packaged as a RootHide tweak dependency; installer clears stale bridge/HUD status and forces a RootHide-aware SpringBoard reload. HUD remains discontinued."
-    },
-    {
-      "id": "nextapp-1.0.1-live-install-catalog",
-      "name": "Next App 1.0.1 — OTA + Performance Fix",
-      "fileName": "NextApp-1.0.1.ipa",
-      "type": "ipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "1.0.1 (2)",
-      "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.1/NextApp-1.0.1.ipa",
-      "sha256": "e942ec71bdf36c939afa7748dc9faad5ed746ec6ec915320146dec290d4218a4",
-      "sizeBytes": 1443540,
-      "notes": "Fixes the Install button by issuing the same exact itms-services OTA manifest request format used on nextjailbreak.com/install. Also improves scrolling performance by removing expensive per-card blur/material rendering and heavy shadows, disabling unnecessary list animations, and avoiding full-list redraws unless apps.json actually changes."
     },
     {
       "id": "tipa-qatar-marketplace-current-0.4.1",
