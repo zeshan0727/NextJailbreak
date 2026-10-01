@@ -43,6 +43,58 @@ if hud_func_start >= 0:
         raise SystemExit("v0.7.20 testSystemHUD end missing")
     s = s[:hud_func_start] + s[hud_func_end:]
 
+# ---- Root helper: transient reconnect/retry ----
+# The daemon is launchd-managed and can briefly disappear during respring,
+# package reload, or token recreation. Retry transient transport failures
+# locally instead of telling the model that root access is permanently gone.
+request_sig = '    static func request(action: String, argument: String = "") -> ToolResult {'
+request_start = s.find(request_sig)
+request_end = s.find('    private static func loadToken()', request_start)
+if request_start < 0 or request_end < 0:
+    raise SystemExit("v0.7.20 RootDaemonClient request bounds missing")
+
+request_once = s[request_start:request_end]
+request_once = request_once.replace(
+    request_sig,
+    '    private static func requestOnce(action: String, argument: String = "") -> ToolResult {',
+    1
+)
+
+request_wrapper = '''    static func request(action: String, argument: String = "") -> ToolResult {
+        var last = ToolResult(success: false, output: "Root helper request was not attempted")
+        let delays: [useconds_t] = [0, 150_000, 350_000, 700_000]
+
+        for (attempt, delay) in delays.enumerated() {
+            if delay > 0 { usleep(delay) }
+
+            let result = requestOnce(action: action, argument: argument)
+            if result.success { return result }
+            last = result
+
+            // Server-side validation/authorization errors are deterministic;
+            // socket/token/lifecycle errors are transient and get retried.
+            let lower = result.output.lowercased()
+            let deterministic =
+                lower.contains("invalid daemon action") ||
+                lower.contains("malformed root helper response") ||
+                lower.contains("denied") ||
+                lower.contains("not allowed") ||
+                lower.contains("sensitive")
+
+            if deterministic { break }
+
+            if attempt == delays.count - 1 { break }
+        }
+
+        return ToolResult(
+            success: false,
+            output: "Root helper temporarily unavailable after automatic reconnect attempts. Last error: " + last.output
+        )
+    }
+
+'''
+s = s[:request_start] + request_wrapper + request_once + s[request_end:]
+
 # ---- Managed agent: conflict recovery ----
 # Track whether a turn already executed device-side actions. We only
 # transparently replay a conflicted turn when no tool has executed, preventing
@@ -320,6 +372,8 @@ final_ui = modern_ui_path.read_text()
 assert 'currentToolSchemaVersion = "0.7.20-session-recovery14"' in final_s
 assert '"router_version": "0.7.20-session-recovery14"' in final_r
 assert "isSessionConflict" in final_s
+assert "private static func requestOnce" in final_s
+assert "automatic reconnect attempts" in final_s
 assert "currentTurnToolExecutionCount" in final_s
 assert "func resumePendingTurn()" in final_s
 assert "PARTIAL — process alive, no valid background assertion" in final_s
