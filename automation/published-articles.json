@@ -2,6 +2,41 @@
   "entries": [
     {
       "category": {
+        "id": "home-screen",
+        "label": "Home Screen"
+      },
+      "compat": "iOS 15.0–17.7.11; rootless; not compatible with RootHide or Relaxin",
+      "description": "Akino 1.0.2 fixes an iOS 17 floating-dock crash, expands icon coverage and improves Settings visibility. Check its strict rootless compatibility.",
+      "developer": "Foxfort Mobile",
+      "entry_type": "tweak-update",
+      "href": "akino-1-0-2-icon-styling-update/",
+      "image": "assets/articles/source-media/akino-1-0-2-official-banner.png",
+      "additional_media": [
+        {
+          "credit": "Official Akino Home Screen screenshot by Foxfort Mobile",
+          "image": "assets/articles/source-media/akino-1-0-2-official-home-screen.png",
+          "source_url": "https://havoc.app/package/akino",
+          "source_visual_url": "https://media.havoc.app/6aba25a42b48dde454a954de"
+        }
+      ],
+      "media_credit": "Official Akino banner by Foxfort Mobile",
+      "media_source_url": "https://havoc.app/package/akino",
+      "modified_at": "2026-10-02T14:59:13Z",
+      "name": "Akino",
+      "package": "com.foxfort.akino",
+      "published_at": "2026-10-02T14:59:13Z",
+      "release": "2026-10-01",
+      "selection_pool": "official-havoc-individual-update",
+      "slug": "akino-1-0-2-icon-styling-update",
+      "source": "https://havoc.app/package/akino",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/akino",
+      "source_visual_url": "https://media.havoc.app/6aba26532b48dde454a95a4e",
+      "title": "Akino 1.0.2 Fixes iOS 17 Floating Dock Crash and Expands Icon Styling",
+      "version": "1.0.2"
+    },
+    {
+      "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
       },
@@ -5147,8 +5182,16 @@
       "published_at": "2026-10-02T11:28:46+00:00",
       "run_id": "37001167204",
       "version": "1.3.26"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "akino-1-0-2-icon-styling-update/",
+      "package": "com.foxfort.akino",
+      "published_at": "2026-10-02T14:59:13Z",
+      "version": "1.0.2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-02T11:28:46+00:00"
+  "updated_at": "2026-10-02T14:59:13Z"
 }
