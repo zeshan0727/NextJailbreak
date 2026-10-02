@@ -25,7 +25,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/bigboss/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-09-29T22:00:22.885865+00:00",
+      "checked_at": "2026-10-02T11:28:46.442802+00:00",
       "package": "me.alfhaily.rocket",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -64,18 +64,18 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-09-30T11:29:30.640749+00:00",
+      "checked_at": "2026-10-02T11:28:46.442802+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-3-update/",
       "version": "6.3"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-09-30T11:29:30.640749+00:00",
+      "checked_at": "2026-10-02T11:28:46+00:00",
       "package": "com.fouadraheb.watusi3",
-      "status": "duplicate",
-      "target_path": "watusi-3-for-whatsapp-1-3-25-update/",
-      "version": "1.3.25"
+      "status": "published",
+      "target_path": "watusi-3-for-whatsapp-1-3-26-update/",
+      "version": "1.3.26"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.82flex.touchvis/": {
       "checked_at": "2026-09-14T09:26:07.020998+00:00",
@@ -113,7 +113,7 @@
       "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
-      "checked_at": "2026-09-30T11:29:30.640749+00:00",
+      "checked_at": "2026-10-02T11:28:46.442802+00:00",
       "package": "com.cercube.ios",
       "status": "duplicate",
       "target_path": "cercube-for-youtube-6-1-3-update/",
@@ -239,7 +239,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytx/": {
-      "checked_at": "2026-09-29T22:00:22.885865+00:00",
+      "checked_at": "2026-10-02T11:28:46.442802+00:00",
       "package": "com.ps.ytx",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -2012,6 +2012,47 @@
       "at": "2026-09-30T11:29:30.640749+00:00",
       "failures": [],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d63ba5f4fbca84a016abf95a8c51c87d194bb4e2428e9ded9",
+          "usage": {
+            "input_tokens": 28773,
+            "input_tokens_details": {
+              "cache_write_tokens": 28770,
+              "cached_tokens": 0
+            },
+            "output_tokens": 544,
+            "output_tokens_details": {
+              "reasoning_tokens": 416
+            },
+            "total_tokens": 29317
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_03b925c87d92566c016abf95944b3087d1abd9ff9e1156780e",
+          "usage": {
+            "input_tokens": 26475,
+            "input_tokens_details": {
+              "cache_write_tokens": 26472,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2610,
+            "output_tokens_details": {
+              "reasoning_tokens": 91
+            },
+            "total_tokens": 29085
+          }
+        }
+      },
+      "at": "2026-10-02T11:28:46+00:00",
+      "package": "com.fouadraheb.watusi3",
+      "target_path": "watusi-3-for-whatsapp-1-3-26-update/",
+      "version": "1.3.26"
     }
   ],
   "schema_version": 1
