@@ -1,6 +1,33 @@
 {
   "entries": [
     {
+      "slug": "trollstore-installation-method-guide",
+      "title": "How to Install TrollStore in 2026: Choose the Right Method for Your iPhone",
+      "name": "TrollStore",
+      "version": "2.1.1",
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Jailbreak Guide"
+      },
+      "source": "https://github.com/opa334/TrollStore",
+      "developer": "opa334",
+      "release": "2026-04-01",
+      "compat": "iOS 14.0 beta 2–16.6.1; iOS 16.7 RC (20H18); iOS 17.0",
+      "description": "Use the official TrollStore compatibility boundaries and installation-method matrix to choose TrollInstallerX, TrollHelperOTA, TrollRestore or another supported path.",
+      "href": "trollstore-installation-method-guide/",
+      "published_at": "2026-10-02T02:56:51Z",
+      "modified_at": "2026-10-02T02:56:51Z",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "sourceImage": "https://github.com/opa334/TrollStore/blob/main/TrollStore/Resources/AppIcon76x76%402x.png",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/opa334/TrollStore",
+      "media_source_url": "https://github.com/opa334/TrollStore/blob/main/TrollStore/Resources/AppIcon76x76%402x.png",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/main/TrollStore/Resources/AppIcon76x76%402x.png",
+      "media_credit": "Official TrollStore app icon by opa334",
+      "entry_type": "evergreen-guide",
+      "selection_pool": "official-project-evergreen"
+    },
+    {
       "slug": "ps5-relapse-jailbreak-13-60-official-release",
       "title": "PS5 Relapse Update Removes Incompatible Payloads and R2 Auto-Load Flow",
       "name": "PS5 Relapse Exploit",
@@ -5050,5 +5077,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-09-30T21:18:46+00:00"
+  "updated_at": "2026-10-02T02:56:51Z"
 }
