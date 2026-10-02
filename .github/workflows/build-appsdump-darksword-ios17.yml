@@ -1,0 +1,76 @@
+name: Build AppsDump DarkSword iOS 17
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/appsdump-darksword-ios17
+    paths:
+      - 'AppsDumpDarkSword/**'
+      - '.github/workflows/build-appsdump-darksword-ios17.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'AppsDumpDarkSword/**'
+      - '.github/workflows/build-appsdump-darksword-ios17.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: appsdump-darksword-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout NextSolution patch branch
+        uses: actions/checkout@v4
+
+      - name: Fetch pinned LARA DarkSword source
+        run: |
+          set -euo pipefail
+          rm -rf lara-src
+          git clone https://github.com/rooootdev/lara.git lara-src
+          cd lara-src
+          git checkout 393331d12729f413c2f6346d731a442b77e3b270
+          git submodule update --init --recursive || true
+
+      - name: Apply AppsDump iOS 17 frontend patches
+        run: |
+          python3 AppsDumpDarkSword/patch_lara.py
+          python3 AppsDumpDarkSword/compat_xcode16.py
+
+      - name: Build unsigned iPhone IPA
+        working-directory: lara-src
+        run: |
+          set -euo pipefail
+          chmod +x ipabuild.sh
+          ./ipabuild.sh
+          test -f lara.ipa
+
+      - name: Package AppsDump test TIPA and patched source
+        run: |
+          set -euo pipefail
+          cp lara-src/lara.ipa "$RUNNER_TEMP/AppsDump-DS-4.1.0-iOS17.ipa"
+          cp lara-src/lara.ipa "$RUNNER_TEMP/AppsDump-DS-4.1.0-iOS17.tipa"
+          unzip -t "$RUNNER_TEMP/AppsDump-DS-4.1.0-iOS17.tipa" >/dev/null
+          tar -czf "$RUNNER_TEMP/AppsDump-DS-4.1.0-Source.tar.gz" lara-src AppsDumpDarkSword
+          shasum -a 256 \
+            "$RUNNER_TEMP/AppsDump-DS-4.1.0-iOS17.ipa" \
+            "$RUNNER_TEMP/AppsDump-DS-4.1.0-iOS17.tipa" \
+            "$RUNNER_TEMP/AppsDump-DS-4.1.0-Source.tar.gz"
+
+      - name: Upload test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppsDump-DS-4.1.0-iOS17
+          path: |
+            ${{ runner.temp }}/AppsDump-DS-4.1.0-iOS17.ipa
+            ${{ runner.temp }}/AppsDump-DS-4.1.0-iOS17.tipa
+            ${{ runner.temp }}/AppsDump-DS-4.1.0-Source.tar.gz
+          if-no-files-found: error
+          retention-days: 30
