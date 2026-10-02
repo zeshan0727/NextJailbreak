@@ -1,6 +1,45 @@
 {
   "entries": [
     {
+      "slug": "sileo-vs-zebra-package-manager",
+      "title": "Sileo vs Zebra in 2026: Which Package Manager Fits Your Jailbreak?",
+      "name": "Sileo vs Zebra",
+      "version": "Sileo 2.5.1; Zebra 1.1.37",
+      "category": {
+        "id": "comparison",
+        "label": "Comparison"
+      },
+      "source": "https://github.com/Sileo/Sileo",
+      "developer": "Sileo Team and Zebra Team",
+      "release": "2026-08-07",
+      "compat": "Sileo project description: iOS 11+; Zebra branch and release support varies by line and jailbreak",
+      "description": "Compare Sileo 2.5.1 and Zebra 1.1.37 using official release details, jailbreak requirements, rootless packages, iOS documentation and current feature differences.",
+      "href": "sileo-vs-zebra-package-manager/",
+      "published_at": "2026-10-02T08:56:15Z",
+      "modified_at": "2026-10-02T08:56:15Z",
+      "image": "assets/articles/source-media/sileo-official-app-icon.png",
+      "sourceImage": "https://github.com/Sileo/Sileo/blob/main/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon83.5x83.5%402x.png",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/Sileo/Sileo",
+      "media_source_url": "https://github.com/Sileo/Sileo/blob/main/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon83.5x83.5%402x.png",
+      "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/main/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon83.5x83.5%402x.png",
+      "media_credit": "Official Sileo app icon from Sileo/Sileo",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/zebra-official-app-icon.png",
+          "source_url": "https://github.com/zbrateam/Zebra/blob/main/Zebra/Assets.xcassets/App%20Icons/AppIcon.appiconset/Icon-App-83.5x83.5%402x.png",
+          "source_visual_url": "https://raw.githubusercontent.com/zbrateam/Zebra/main/Zebra/Assets.xcassets/App%20Icons/AppIcon.appiconset/Icon-App-83.5x83.5%402x.png",
+          "credit": "Official Zebra app icon from zbrateam/Zebra"
+        }
+      ],
+      "sources": [
+        "https://github.com/Sileo/Sileo/releases/tag/2.5.1",
+        "https://github.com/zbrateam/Zebra/releases/tag/v1.1.37"
+      ],
+      "entry_type": "comparison",
+      "selection_pool": "official-project-comparison"
+    },
+    {
       "slug": "trollstore-installation-method-guide",
       "title": "How to Install TrollStore in 2026: Choose the Right Method for Your iPhone",
       "name": "TrollStore",
@@ -5077,5 +5116,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-02T02:56:51Z"
+  "updated_at": "2026-10-02T08:56:15Z"
 }
