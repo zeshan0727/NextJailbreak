@@ -1,6 +1,33 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Jailbreak Guide"
+      },
+      "compat": "TrollStore-supported versions: iOS/iPadOS 14.0 beta 2–16.6.1; 16.7 RC (20H18); 17.0",
+      "description": "Install IPA and TIPA files with TrollStore using its file picker, understand URL installs, remove apps correctly and recover registrations safely.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "install-ipa-with-trollstore-guide/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_credit": "Official TrollStore app icon by opa334",
+      "media_source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "modified_at": "2026-10-03T02:55:53Z",
+      "name": "TrollStore IPA Installation",
+      "published_at": "2026-10-03T02:55:53Z",
+      "release": "2026-04-01",
+      "selection_pool": "official-project-evergreen",
+      "slug": "install-ipa-with-trollstore-guide",
+      "source": "https://github.com/opa334/TrollStore",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/opa334/TrollStore",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "title": "How to Install IPA Files with TrollStore Safely",
+      "version": "2.1.1"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "jailbreak",
@@ -5192,8 +5219,16 @@
       "published_at": "2026-10-02T21:03:56Z",
       "previous_version": "3.0.9",
       "version": "3.0.10"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-guide",
+      "href": "install-ipa-with-trollstore-guide/",
+      "package": "guide.trollstore.install-ipa",
+      "published_at": "2026-10-03T02:55:53Z",
+      "version": "2.1.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-02T21:03:56Z"
+  "updated_at": "2026-10-03T02:55:53Z"
 }
