@@ -1,9 +1,10 @@
 name: Temporary Location Spoofer WiFi-IP Build
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
@@ -17,13 +18,6 @@ jobs:
           ref: v1.0.8
           path: location-spoofer
 
-      - name: Patch Wi-Fi proxy listener and auto-profile
-        working-directory: location-spoofer
-        run: |
-          cp ../host/LocationSpooferBuild/patch_proxy.py ./patch_proxy.py
-          python3 ./patch_proxy.py
-          rm ./patch_proxy.py
-
       - name: Checkout build patch
         uses: actions/checkout@v4
         with:
@@ -31,6 +25,13 @@ jobs:
           sparse-checkout: |
             LocationSpooferBuild/patch_proxy.py
           sparse-checkout-cone-mode: false
+
+      - name: Patch Wi-Fi proxy listener and auto-profile
+        working-directory: location-spoofer
+        run: |
+          cp ../host/LocationSpooferBuild/patch_proxy.py ./patch_proxy.py
+          python3 ./patch_proxy.py
+          rm ./patch_proxy.py
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -60,7 +61,7 @@ jobs:
       - name: Upload patched IPA
         uses: actions/upload-artifact@v4
         with:
-          name: Location-Spoofer-1.0.8-WiFiIP-unsigned
+          name: Location-Spoofer-1.0.8-AutoWiFiProfile-unsigned
           path: location-spoofer/dist/PaopaoLocationSpoofer-unsigned.ipa
           if-no-files-found: error
           retention-days: 30
