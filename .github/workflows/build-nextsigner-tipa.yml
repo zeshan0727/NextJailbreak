@@ -128,3 +128,49 @@ jobs:
             ${{ runner.temp }}/NextSigner-1.3.8.ipa
           if-no-files-found: error
           retention-days: 30
+
+
+  build_location_spoofer:
+    name: Build Location Spoofer IPA
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout upstream Location Spoofer
+        uses: actions/checkout@v4
+        with:
+          repository: xweiba/location-spoofer
+          ref: v1.0.8
+          path: location-spoofer
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Build unsigned IPA
+        working-directory: location-spoofer
+        run: ./build.sh
+
+      - name: Validate IPA
+        working-directory: location-spoofer
+        run: |
+          set -euo pipefail
+          test -s dist/PaopaoLocationSpoofer-unsigned.ipa
+          unzip -t dist/PaopaoLocationSpoofer-unsigned.ipa >/dev/null
+          unzip -l dist/PaopaoLocationSpoofer-unsigned.ipa | grep -E 'Payload/.+\.app/Info.plist'
+
+      - name: Upload Location Spoofer IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Location-Spoofer-iOS16-unsigned-IPA
+          path: location-spoofer/dist/PaopaoLocationSpoofer-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
