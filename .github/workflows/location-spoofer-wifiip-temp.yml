@@ -2,13 +2,12 @@ name: Temporary Location Spoofer WiFi-IP Build
 
 on:
   push:
-    paths:
-      - ".github/workflows/location-spoofer-wifiip-temp.yml"
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-latest
     timeout-minutes: 35
     steps:
       - name: Checkout upstream
