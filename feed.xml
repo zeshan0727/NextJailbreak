@@ -6,12 +6,28 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
-      <title>TrollStore vs SideStore vs AltStore Classic: Which IPA Installer Should You Use?</title><link>https://nextjailbreak.com/trollstore-vs-sidestore-vs-altstore/</link><guid isPermaLink="true">https://nextjailbreak.com/trollstore-vs-sidestore-vs-altstore/</guid>
-      <pubDate>Sat, 03 Oct 2026 09:00:33 GMT</pubDate><description>Compare TrollStore 2.1.1, SideStore 0.7.0-alpha and AltStore Classic 2.3 by iOS support, refresh rules, setup, computer use and signing limits.</description><category>IPA Installer Comparison</category>
+      <title>KrashKop 1.0.2: Lightweight Crash Reporter</title>
+      <link>https://nextjailbreak.com/krashkop-tweak.html</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/krashkop-tweak.html</guid>
+      <pubDate>Sat, 03 Oct 2026 11:16:40 GMT</pubDate>
+      <description>KrashKop 1.0.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
     </item>
     <item>
-      <title>How to Install IPA Files with TrollStore Safely</title><link>https://nextjailbreak.com/install-ipa-with-trollstore-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/install-ipa-with-trollstore-guide/</guid>
-      <pubDate>Sat, 03 Oct 2026 02:55:53 GMT</pubDate><description>Install IPA and TIPA files with TrollStore using its file picker, understand URL installs, remove apps correctly and recover registrations safely.</description><category>Jailbreak Guide</category>
+      <title>TrollStore vs SideStore vs AltStore Classic: Which IPA Installer Should You Use?</title>
+      <link>https://nextjailbreak.com/trollstore-vs-sidestore-vs-altstore/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/trollstore-vs-sidestore-vs-altstore/</guid>
+      <pubDate>Sat, 03 Oct 2026 09:00:33 GMT</pubDate>
+      <description>Compare TrollStore 2.1.1, SideStore 0.7.0-alpha and AltStore Classic 2.3 by iOS support, refresh rules, setup, computer use and signing limits.</description>
+      <category>IPA Installer Comparison</category>
+    </item>
+    <item>
+      <title>How to Install IPA Files with TrollStore Safely</title>
+      <link>https://nextjailbreak.com/install-ipa-with-trollstore-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/install-ipa-with-trollstore-guide/</guid>
+      <pubDate>Sat, 03 Oct 2026 02:55:53 GMT</pubDate>
+      <description>Install IPA and TIPA files with TrollStore using its file picker, understand URL installs, remove apps correctly and recover registrations safely.</description>
+      <category>Jailbreak Guide</category>
     </item>
     <item>
       <title>Dopamine 3.0.10 Adds Frida Hooking API and Fixes Xcode Debugging on iOS 17+</title>
@@ -19,9 +35,16 @@
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-0-9-jailbreak-removal-fixes/</guid>
       <pubDate>Fri, 02 Oct 2026 21:03:56 GMT</pubDate>
       <description>Dopamine 3.0.10 fixes Frida-related panics on supported iOS 26 systems and restores an Xcode debugging workflow on iOS 17 and newer.</description>
-      <category>Jailbreak Development</category>
+      <category>Jailbreak</category>
     </item>
-    <item><title>Akino 1.0.2 Fixes iOS 17 Floating Dock Crash and Expands Icon Styling</title><link>https://nextjailbreak.com/akino-1-0-2-icon-styling-update/</link><guid isPermaLink="true">https://nextjailbreak.com/akino-1-0-2-icon-styling-update/</guid><pubDate>Fri, 02 Oct 2026 14:59:13 GMT</pubDate><description>Akino 1.0.2 fixes an iOS 17 floating-dock crash, expands icon coverage and improves Settings visibility. Check its strict rootless compatibility.</description><category>Home Screen</category></item>
+    <item>
+      <title>Akino 1.0.2 Fixes iOS 17 Floating Dock Crash and Expands Icon Styling</title>
+      <link>https://nextjailbreak.com/akino-1-0-2-icon-styling-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/akino-1-0-2-icon-styling-update/</guid>
+      <pubDate>Fri, 02 Oct 2026 14:59:13 GMT</pubDate>
+      <description>Akino 1.0.2 fixes an iOS 17 floating-dock crash, expands icon coverage and improves Settings visibility. Check its strict rootless compatibility.</description>
+      <category>Home Screen</category>
+    </item>
     <item>
       <title>Watusi 3 for WhatsApp 1.3.26 adds WhatsApp 26.38.X support and fixes sideloaded voice notes</title>
       <link>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-26-update/</link>
@@ -88,8 +111,8 @@
     </item>
     <item>
       <title>Souvenir 1.32: Lock Screen Customization Tweak and Package Details</title>
-      <link>https://nextjailbreak.com/souvenir-tweak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/souvenir-tweak/</guid>
+      <link>https://nextjailbreak.com/souvenir-tweak.html</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/souvenir-tweak.html</guid>
       <pubDate>Wed, 30 Sep 2026 21:18:46 GMT</pubDate>
       <description>Souvenir 1.32 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>Lock Screen</category>
@@ -220,38 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/nosafariformkeyboard-1-0-0-update/</guid>
       <pubDate>Sat, 26 Sep 2026 10:25:23 GMT</pubDate>
       <description>NoSafariFormKeyboard 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Regram 6.2 Adds Stacked Notifications, Reels Controls and Expanded Local Spoofing</title>
-      <link>https://nextjailbreak.com/regram-for-instagram-6-2-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/regram-for-instagram-6-2-update/</guid>
-      <pubDate>Tue, 22 Sep 2026 21:00:27 GMT</pubDate>
-      <description>Regram for Instagram 6.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>palera1n 3.0.0 Beta 2: GUI Changes and DFU Fixes Explained</title>
-      <link>https://nextjailbreak.com/palera1n-3-0-0-beta-2-gui-dfu-fixes/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/palera1n-3-0-0-beta-2-gui-dfu-fixes/</guid>
-      <pubDate>Tue, 22 Sep 2026 06:21:05 GMT</pubDate>
-      <description>Explore palera1n 3.0.0 beta 2: GUI controls for DFU and PongoOS, quick-mode fixes, macOS improvements, official downloads and hardware limits.</description>
-      <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>LiveContainer 3.8.0 vs September 18 Nightly: Features and Requirements</title>
-      <link>https://nextjailbreak.com/livecontainer-3-8-0-stable-vs-nightly/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/livecontainer-3-8-0-stable-vs-nightly/</guid>
-      <pubDate>Tue, 22 Sep 2026 06:21:03 GMT</pubDate>
-      <description>Compare LiveContainer 3.8.0 with the September 18 nightly, including storage tools, sharing, multitasking and exact installation requirements.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>SideStore 0.7.0 Nightly: September 20 Pairing Changes Explained</title>
-      <link>https://nextjailbreak.com/sidestore-nightly-2026-09-20-pairing-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/sidestore-nightly-2026-09-20-pairing-update/</guid>
-      <pubDate>Tue, 22 Sep 2026 06:21:02 GMT</pubDate>
-      <description>Explore the September 20 SideStore 0.7.0 nightly: dual pairing files, protocol preferences, revised prompts and experimental hotswap.</description>
       <category>System &amp; Utilities</category>
     </item>
   </channel>

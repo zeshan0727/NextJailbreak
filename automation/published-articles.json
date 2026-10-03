@@ -1,6 +1,41 @@
 {
   "entries": [
     {
+      "article_sha256": "db122ba9056cd111364f3a21e4f999fc8772233da034ca75e84d982900208b54",
+      "candidate_fingerprint": "e60adc12c603c02403465de5a5bf3b0f3267ebbfefa9327fd5bad238b3b35b1a",
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "KrashKop 1.0.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "href": "krashkop-tweak.html",
+      "image": "https://media.havoc.app/63edc5070a347a438decacfb",
+      "media_credit": "KrashKop official package listing",
+      "media_source_url": "https://havoc.app/package/krashkop",
+      "modified_at": "2026-10-03T11:16:40+00:00",
+      "name": "KrashKop",
+      "package": "com.foxfort.krashkop",
+      "published_at": "2026-10-03T11:16:40+00:00",
+      "selection_pool": "evergreen",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/krashkop",
+      "source_url": "https://havoc.app/",
+      "title": "KrashKop 1.0.2: Lightweight Crash Reporter",
+      "version": "1.0.2"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official AltStore Classic app icon",
+          "path": "assets/articles/source-media/altstore-classic-official-icon.webp",
+          "source_url": "https://github.com/altstoreio/AltStore/blob/develop/AltStore/Resources/Assets.xcassets/AppIcon.appiconset/Group%2023.png"
+        },
+        {
+          "credit": "Official TrollStore app icon",
+          "path": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+          "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png"
+        }
+      ],
       "category": {
         "id": "ipa-comparison",
         "label": "IPA Installer Comparison"
@@ -24,18 +59,6 @@
       "source_page_url": "https://github.com/altstoreio/AltStore/releases/tag/v2.3",
       "source_visual_origin": "official-repository-assets",
       "source_visual_url": "https://raw.githubusercontent.com/SideStore/SideStore/develop/AltStore/Resources/Assets.xcassets/SideStore.imageset/1024.png",
-      "additional_media": [
-        {
-          "path": "assets/articles/source-media/altstore-classic-official-icon.webp",
-          "credit": "Official AltStore Classic app icon",
-          "source_url": "https://github.com/altstoreio/AltStore/blob/develop/AltStore/Resources/Assets.xcassets/AppIcon.appiconset/Group%2023.png"
-        },
-        {
-          "path": "assets/articles/source-media/trollstore-official-app-icon.jpg",
-          "credit": "Official TrollStore app icon",
-          "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png"
-        }
-      ],
       "title": "TrollStore vs SideStore vs AltStore Classic: Which IPA Installer Should You Use?",
       "version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3"
     },
@@ -72,7 +95,9 @@
         "id": "jailbreak",
         "label": "Jailbreak"
       },
+      "compat": "arm64e: iOS 15.0–17.3.1; A12/A13: iOS 15.0–18.7.1 and 26.0–26.0.1; arm64: iOS 15.0–18.7.1",
       "description": "Dopamine 3.0.10 fixes Frida-related panics on supported iOS 26 systems and restores an Xcode debugging workflow on iOS 17 and newer.",
+      "developer": "opa334",
       "entry_type": "development-update",
       "href": "dopamine-3-0-9-jailbreak-removal-fixes/",
       "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
@@ -82,6 +107,7 @@
       "name": "Dopamine",
       "package": "org.coolstar.dopamine",
       "published_at": "2026-09-22T06:21:04+00:00",
+      "release": "2026-09-23",
       "selection_pool": "official-project-current-development",
       "source_name": "GitHub",
       "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
@@ -89,12 +115,17 @@
       "source_visual_origin": "official-repository-asset",
       "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
       "title": "Dopamine 3.0.10 Adds Frida Hooking API and Fixes Xcode Debugging on iOS 17+",
-      "version": "3.0.10",
-      "compat": "arm64e: iOS 15.0–17.3.1; A12/A13: iOS 15.0–18.7.1 and 26.0–26.0.1; arm64: iOS 15.0–18.7.1",
-      "developer": "opa334",
-      "release": "2026-09-23"
+      "version": "3.0.10"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Official Akino Home Screen screenshot by Foxfort Mobile",
+          "image": "assets/articles/source-media/akino-1-0-2-official-home-screen.png",
+          "source_url": "https://havoc.app/package/akino",
+          "source_visual_url": "https://media.havoc.app/6aba25a42b48dde454a954de"
+        }
+      ],
       "category": {
         "id": "home-screen",
         "label": "Home Screen"
@@ -105,14 +136,6 @@
       "entry_type": "tweak-update",
       "href": "akino-1-0-2-icon-styling-update/",
       "image": "assets/articles/source-media/akino-1-0-2-official-banner.png",
-      "additional_media": [
-        {
-          "credit": "Official Akino Home Screen screenshot by Foxfort Mobile",
-          "image": "assets/articles/source-media/akino-1-0-2-official-home-screen.png",
-          "source_url": "https://havoc.app/package/akino",
-          "source_visual_url": "https://media.havoc.app/6aba25a42b48dde454a954de"
-        }
-      ],
       "media_credit": "Official Akino banner by Foxfort Mobile",
       "media_source_url": "https://havoc.app/package/akino",
       "modified_at": "2026-10-02T14:59:13Z",
@@ -5255,8 +5278,8 @@
       "channel": "scheduled-current-jailbreak-development",
       "href": "dopamine-3-0-9-jailbreak-removal-fixes/",
       "package": "org.coolstar.dopamine",
-      "published_at": "2026-10-02T21:03:56Z",
       "previous_version": "3.0.9",
+      "published_at": "2026-10-02T21:03:56Z",
       "version": "3.0.10"
     },
     {
@@ -5274,8 +5297,17 @@
       "package": "comparison.ipa-installers",
       "published_at": "2026-10-03T09:00:33Z",
       "version": "2026-10-03"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "e60adc12c603c02403465de5a5bf3b0f3267ebbfefa9327fd5bad238b3b35b1a",
+      "href": "krashkop-tweak.html",
+      "package": "com.foxfort.krashkop",
+      "published_at": "2026-10-03T11:16:40+00:00",
+      "run_id": "37118807430",
+      "version": "1.0.2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-03T09:00:33Z"
+  "updated_at": "2026-10-03T11:16:40+00:00"
 }
