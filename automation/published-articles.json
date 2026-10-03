@@ -306,29 +306,36 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
-      "compat": "iOS 16.0–26.0",
-      "description": "lilywhite 1.0.1 fixes mobile-data text overlap and improves activation. See the original status bar screenshot, device limits and setup checks.",
+      "compat": "iOS 16.0–26.0; rootless; notch or Dynamic Island iPhones",
+      "description": "lilywhite 1.1.0 adds Dual-SIM signal rows, network-type labels, custom time formats and notification-app filtering for supported rootless iPhones.",
       "developer": "tako3s",
-      "entry_type": "source-news",
+      "entry_type": "tweak-update",
       "href": "lilywhite-1-0-1-status-bar-capsule/",
-      "image": "assets/articles/source-media/lilywhite-1-0-1-official.png",
-      "media_credit": "tako3s official Havoc screenshot",
+      "image": "assets/articles/source-media/lilywhite-1-1-0-official-banner.png",
+      "media_credit": "Official lilywhite 1.1.0 banner and current screenshot by tako3s",
       "media_source_url": "https://havoc.app/package/lilywhite",
-      "modified_at": "2026-10-01T11:15:55.839Z",
+      "modified_at": "2026-10-03T15:04:01Z",
       "name": "lilywhite",
       "package": "com.karin722.lilywhite",
       "price": "2.49",
       "published_at": "2026-10-01T11:15:55.839Z",
-      "release": "2026-09-30",
-      "selection_pool": "manual-original-source",
+      "release": "2026-10-02",
+      "selection_pool": "official-havoc-individual-update",
       "slug": "lilywhite-1-0-1-status-bar-capsule",
       "source": "https://havoc.app/package/lilywhite",
-      "sourceImage": "https://media.havoc.app/6ab8f730f180aae7681e3c3e",
+      "sourceImage": "https://media.havoc.app/6ab8f760f180aae7681e3db5",
       "source_name": "Havoc",
       "source_page_url": "https://havoc.app/package/lilywhite",
-      "source_visual_url": "https://media.havoc.app/6ab8f730f180aae7681e3c3e",
-      "title": "lilywhite 1.0.1 Refines Its Status Bar Capsule for Jailbroken iPhones",
-      "version": "1.0.1"
+      "source_visual_url": "https://media.havoc.app/6ab8f760f180aae7681e3db5",
+      "title": "lilywhite 1.1.0 Adds Dual-SIM Signal Rows and Custom Status Bar Time",
+      "version": "1.1.0",
+      "additional_media": [
+        {
+          "path": "assets/articles/source-media/lilywhite-1-0-1-official.png",
+          "credit": "Official current lilywhite screenshot by tako3s",
+          "source_url": "https://media.havoc.app/6ab8f730f180aae7681e3c3e"
+        }
+      ]
     },
     {
       "category": {
@@ -5306,8 +5313,16 @@
       "published_at": "2026-10-03T11:16:40+00:00",
       "run_id": "37118807430",
       "version": "1.0.2"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "lilywhite-1-0-1-status-bar-capsule/",
+      "package": "com.karin722.lilywhite",
+      "published_at": "2026-10-03T15:04:01Z",
+      "version": "1.1.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-03T11:16:40+00:00"
+  "updated_at": "2026-10-03T15:04:01Z"
 }
