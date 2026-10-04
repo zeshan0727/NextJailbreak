@@ -1,6 +1,35 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Jailbreak Guide"
+      },
+      "compat": "Existing Dopamine environment; use the matching TrollStore or non-TrollStore removal flow",
+      "description": "Remove the Dopamine jailbreak using its supported TrollStore or non-TrollStore flow while keeping normal apps, personal files and user data.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "remove-dopamine-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-10-04T03:01:33Z",
+      "name": "Dopamine Jailbreak Removal",
+      "package": "guide.dopamine.remove-jailbreak",
+      "published_at": "2026-10-04T03:01:33Z",
+      "release": "2026-09-23",
+      "selection_pool": "official-project-evergreen",
+      "slug": "remove-dopamine-jailbreak-guide",
+      "source": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.10/Application/Dopamine/UI/Settings/DOSettingsController.m",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Remove Dopamine Jailbreak Safely Without Erasing Your iPhone",
+      "version": "3.0.10"
+    },
+    {
       "article_sha256": "db122ba9056cd111364f3a21e4f999fc8772233da034ca75e84d982900208b54",
       "candidate_fingerprint": "e60adc12c603c02403465de5a5bf3b0f3267ebbfefa9327fd5bad238b3b35b1a",
       "category": {
@@ -5338,8 +5367,16 @@
       "previous_version": "24A435",
       "published_at": "2026-10-03T21:00:43Z",
       "version": "2.4.0"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-guide",
+      "href": "remove-dopamine-jailbreak-guide/",
+      "package": "guide.dopamine.remove-jailbreak",
+      "published_at": "2026-10-04T03:01:33Z",
+      "version": "3.0.10"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-03T21:00:43Z"
+  "updated_at": "2026-10-04T03:01:33Z"
 }
