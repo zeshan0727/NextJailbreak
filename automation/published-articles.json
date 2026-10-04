@@ -1,6 +1,37 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",
+          "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-force-quit.jpg?v=bc266b0b",
+          "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg"
+        }
+      ],
+      "category": {"id": "jailbreak-development", "label": "Jailbreak Development"},
+      "compat": "Rootless iPad tweak; iPadOS 15–16 intended; iPadOS 17+ experimental; compatible jailbreak and one supported window engine required",
+      "description": "The open-source iPad tweak now keeps Stage Manager windows on one desktop and fixes force-quit, placement, rotation and menu-targeting problems.",
+      "developer": "BesiktasliSeba",
+      "entry_type": "jailbreak-development",
+      "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
+      "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-settings.jpg?v=0624fbbd",
+      "media_credit": "Official MacStatusBar&Dock package depiction by BesiktasliSeba",
+      "media_source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
+      "modified_at": "2026-10-04T21:04:21Z",
+      "name": "MacStatusBar&Dock",
+      "package": "com.besiktasliseba.macstatusbaranddock",
+      "published_at": "2026-10-04T21:04:21Z",
+      "release": "2026-10-04",
+      "selection_pool": "official-open-source-development",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
+      "source_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
+      "source_visual_origin": "official-developer-package-depiction",
+      "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
+      "title": "MacStatusBar&Dock 1.3.5 Improves Stage Manager Windows on Jailbroken iPads",
+      "version": "1.3.5"
+    },
+    {
       "category": {
         "id": "apps",
         "label": "YouTube Tweak"

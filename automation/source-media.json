@@ -1,6 +1,21 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.besiktasliseba.macstatusbaranddock": {
+      "credit_label": "MacStatusBar&Dock official developer package depiction",
+      "source_page_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
+      "official_source": true,
+      "hero": {
+        "url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
+        "alt": "MacStatusBar&Dock showing Settings in a Mac-style window with a menu bar and Dock on an iPad"
+      },
+      "screenshots": [
+        {
+          "url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg",
+          "alt": "MacStatusBar&Dock showing multiple iPad app windows and the Force Quit Applications panel"
+        }
+      ]
+    },
     "com.zqbb.hello.keyboard.ai": {
       "credit_label": "HelloKeyboardAI official Havoc listing",
       "source_page_url": "https://havoc.app/package/hellokeyboardai",
