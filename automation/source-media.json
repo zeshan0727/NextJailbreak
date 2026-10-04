@@ -204,6 +204,21 @@
         "alt": "Official TweakPilot control panel"
       },
       "screenshots": []
+    },
+    "com.moondr1.quickring": {
+      "credit_label": "moondr1 — QuickRing official Havoc listing",
+      "source_page_url": "https://havoc.app/package/quickring",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6aad9c48d0f9c7b80d3c88e1",
+        "alt": "Official QuickRing promotional artwork"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6abac9e82b48dde454ad7674",
+          "alt": "Official QuickRing time, date and connectivity controls"
+        }
+      ]
     }
   }
 }

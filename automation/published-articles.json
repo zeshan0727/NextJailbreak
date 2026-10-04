@@ -1,6 +1,29 @@
 {
   "entries": [
     {
+      "name": "QuickRing",
+      "title": "QuickRing 1.1.0 Adds Time and Date Circles, Fixes iOS 26 Safe Mode",
+      "version": "1.1.0",
+      "package": "com.moondr1.quickring",
+      "href": "quickring-1-1-0-time-date-circles/",
+      "description": "QuickRing 1.1.0 adds time and date circles, independent colors and layout controls, with a battery-monitoring Safe Mode fix for iOS 26.",
+      "image": "assets/articles/source-media/quickring-1-1-0-official-banner.png",
+      "category": {
+        "id": "system-utilities",
+        "label": "Status Bar Tweaks"
+      },
+      "published_at": "2026-10-04T11:32:04.766Z",
+      "modified_at": "2026-10-04T11:32:04.766Z",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/quickring",
+      "source_url": "https://havoc.app/package/quickring",
+      "media_source_url": "https://havoc.app/package/quickring",
+      "source_visual_url": "https://media.havoc.app/6aad9c48d0f9c7b80d3c88e1",
+      "media_credit": "moondr1 — official QuickRing Havoc images",
+      "entry_type": "source-news",
+      "selection_pool": "manual-original-source"
+    },
+    {
       "additional_media": [
         {
           "credit": "Official Dopamine app icon from the 3.0.10 source tag",
