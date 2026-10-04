@@ -1,6 +1,41 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "credit": "Official Dopamine app icon from the 3.0.10 source tag",
+          "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
+        }
+      ],
+      "category": {
+        "id": "jailbreak-comparison",
+        "label": "Jailbreak Comparison"
+      },
+      "compat": "Dopamine: official arm64e, A12/A13 and arm64 firmware ranges; palera1n: A8–A11 and listed T2 devices",
+      "description": "Compare Dopamine 3.0.10 and palera1n 3.0.0 beta 2 by device, iOS support, computer requirements, reboot behavior, passcode limits and jailbreak environment.",
+      "developer": "opa334; palera1n team",
+      "entry_type": "roundup-comparison",
+      "href": "dopamine-vs-palera1n-jailbreak-comparison/",
+      "image": "assets/articles/source-media/palera1n-v3-official-demo.png",
+      "media_credit": "Official palera1n 3.0 beta demo from the v3.0.0-beta.2 source tag",
+      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.2/demo.png",
+      "modified_at": "2026-10-04T08:57:29Z",
+      "name": "Dopamine 3 vs palera1n 3",
+      "package": "comparison.dopamine-palera1n",
+      "published_at": "2026-10-04T08:57:29Z",
+      "release": "2026-10-04",
+      "selection_pool": "official-project-comparison",
+      "slug": "dopamine-vs-palera1n-jailbreak-comparison",
+      "source": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.2/demo.png",
+      "title": "Dopamine 3 vs palera1n 3: Which Jailbreak Fits Your iPhone?",
+      "version": "Dopamine 3.0.10 / palera1n 3.0.0-beta.2"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "jailbreak-guide",
@@ -5375,8 +5410,16 @@
       "package": "guide.dopamine.remove-jailbreak",
       "published_at": "2026-10-04T03:01:33Z",
       "version": "3.0.10"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-roundup-comparison",
+      "href": "dopamine-vs-palera1n-jailbreak-comparison/",
+      "package": "comparison.dopamine-palera1n",
+      "published_at": "2026-10-04T08:57:29Z",
+      "version": "2026-10-04"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-04T03:01:33Z"
+  "updated_at": "2026-10-04T08:57:29Z"
 }
