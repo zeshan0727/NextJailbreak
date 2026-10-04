@@ -7,7 +7,7 @@
       "package": "com.moondr1.quickring",
       "href": "quickring-1-1-0-time-date-circles/",
       "description": "QuickRing 1.1.0 adds time and date circles, independent colors and layout controls, with a battery-monitoring Safe Mode fix for iOS 26.",
-      "image": "assets/articles/source-media/quickring-1-1-0-official-banner.png",
+      "image": "assets/articles/source-media/quickring-1-1-0-official-banner.png?v=ab26aaca",
       "category": {
         "id": "system-utilities",
         "label": "Status Bar Tweaks"
