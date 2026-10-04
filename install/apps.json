@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-lcs",
+      "name": "LC Spoofer",
+      "version": "1.0.8",
+      "build": "10",
+      "platform": "iPhone",
+      "minimumOS": "iOS 15.0+",
+      "bundleId": "com.nextsolution.LCS",
+      "icon": "/install/icons/com-nextsolution-lcs-8b1d72187cad.png",
+      "manifest": "/install/com-nextsolution-lcs.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-lcs/1.0.8/com-nextsolution-lcs-1.0.8-10.ipa",
+      "sha256": "8b1d72187caddc7620ee9bfbcaea4a48b390083c3f100aa20789ebd7f93601a7",
+      "sizeBytes": 4160059,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-njapps",
       "name": "Zee App Library",
       "version": "1.0.1",
@@ -220,5 +241,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-10-01"
+  "updated": "2026-10-04"
 }
