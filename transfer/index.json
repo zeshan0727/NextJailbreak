@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T14:11:24Z",
+  "updatedAt": "2026-10-05T14:16:08Z",
   "files": [
+    {
+      "id": "nextsigner-1.5.2",
+      "name": "Next Signer 1.5.2",
+      "fileName": "NextSigner-1.5.2.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.2",
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.2/NextSigner-1.5.2.tipa",
+      "sha256": "257fc08f2183a8844896b56527ea1e39fb8b52604da1a3dafec3e7f979794d88",
+      "sizeBytes": 3403156,
+      "storage": "Cloudflare R2",
+      "notes": "Fixes local signing embedded.mobileprovision handling by embedding the selected profile before Zsign signs the app. Also removes remaining custom animations, live material blur, shadows and heavy compositing while retaining ProMotion high-refresh support."
+    },
     {
       "id": "netmirror-1.0.9-startup-network-diagnostic",
       "name": "NetMirror 1.0.9 \u2014 Startup Network Diagnostic",
@@ -37,19 +50,6 @@
       "sha256": "a0354ce866973a4c96f97b9d0227a0de179a8df4b18051c5fdf4e4c0b51df4b7",
       "sizeBytes": 6405946,
       "notes": "Diagnostic-only follow-up to 1.0.6. Removes the competing generic RCTSetLogFunction/fatal popup so one authoritative fatal handler can expose RCTJSStackTraceKey, Hermes rawStack, JS frame method/file/line/column data, and NSError userInfo for the remaining startup TypeError. Existing ImageLoader, Android Networking/BlobManager, AndroidProgressBar, and brightness compatibility are retained; the original Hermes bundle is unchanged."
-    },
-    {
-      "id": "nextsigner-1.5.1",
-      "name": "Next Signer 1.5.1",
-      "fileName": "NextSigner-1.5.1.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "1.5.1",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.1/NextSigner-1.5.1.tipa",
-      "sha256": "7c8a2d229ac74f381e2f8abeb0a06c8d19554bac68c1733aba178bc652155443",
-      "sizeBytes": 3407839,
-      "storage": "Cloudflare R2",
-      "notes": "Performance build: adaptive 60-120 Hz ProMotion support on compatible iPhones, reduced live blur/material rendering, lighter shadows, and simplified tab transitions for smoother scrolling while preserving local signing and OTA workflows."
     },
     {
       "id": "netmirror-1.0.6-hermes-stack-diagnostic",
