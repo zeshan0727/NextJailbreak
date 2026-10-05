@@ -30,48 +30,16 @@ enum NSTheme {
 
 struct NSBackground: View {
     var body: some View {
-        GeometryReader { proxy in
-            ZStack {
+        LinearGradient(
+            colors: [
+                NSTheme.background,
+                NSTheme.elevated.opacity(0.42),
                 NSTheme.background
-
-                Rectangle()
-                    .fill(
-                        RadialGradient(
-                            colors: [NSTheme.blue.opacity(0.22), .clear],
-                            center: .topLeading,
-                            startRadius: 0,
-                            endRadius: proxy.size.width * 0.95
-                        )
-                    )
-
-                Rectangle()
-                    .fill(
-                        RadialGradient(
-                            colors: [NSTheme.violet.opacity(0.16), .clear],
-                            center: .trailing,
-                            startRadius: 0,
-                            endRadius: proxy.size.width * 0.90
-                        )
-                    )
-
-                Rectangle()
-                    .fill(
-                        RadialGradient(
-                            colors: [NSTheme.cyan.opacity(0.08), .clear],
-                            center: .bottomTrailing,
-                            startRadius: 0,
-                            endRadius: proxy.size.width * 0.82
-                        )
-                    )
-
-                LinearGradient(
-                    colors: [.clear, Color.black.opacity(0.32)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            }
-            .ignoresSafeArea()
-        }
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
         .allowsHitTesting(false)
     }
 }
@@ -89,34 +57,13 @@ struct NSGlassCard<Content: View>: View {
         content
             .padding(padding)
             .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    NSTheme.elevated.opacity(0.96),
-                                    NSTheme.elevated.opacity(0.78)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(Color.white.opacity(0.018))
-                }
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(NSTheme.elevated.opacity(0.92))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.17), Color.white.opacity(0.035)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
+                    .stroke(Color.white.opacity(0.10), lineWidth: 1)
             )
-            .shadow(color: Color.black.opacity(0.16), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -182,7 +129,6 @@ struct NSIconBadge: View {
                 RoundedRectangle(cornerRadius: size * 0.31, style: .continuous)
                     .stroke(Color.white.opacity(0.22), lineWidth: 1)
             )
-            .shadow(color: NSTheme.blue.opacity(0.18), radius: 6, x: 0, y: 3)
     }
 }
 
@@ -263,13 +209,6 @@ struct NSPrimaryButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(Color.white.opacity(0.20), lineWidth: 1)
             )
-            .shadow(
-                color: (destructive ? NSTheme.danger : NSTheme.blue).opacity(configuration.isPressed ? 0.12 : 0.30),
-                radius: configuration.isPressed ? 3 : 7,
-                x: 0,
-                y: configuration.isPressed ? 2 : 4
-            )
-            .scaleEffect(configuration.isPressed ? 0.985 : 1)
             .opacity(configuration.isPressed ? 0.90 : 1)
     }
 }
