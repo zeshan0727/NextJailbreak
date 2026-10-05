@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-ac",
+      "name": "AirCard",
+      "version": "1.3.2",
+      "build": "1.3.2",
+      "platform": "iPhone",
+      "minimumOS": "iOS 18.0+",
+      "bundleId": "com.nextsolution.AC",
+      "icon": "/install/icons/com-nextsolution-ac-f547b47b6304.png",
+      "manifest": "/install/com-nextsolution-ac.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-ac/1.3.2/com-nextsolution-ac-1.3.2-1.3.2.ipa",
+      "sha256": "f547b47b6304f2709a5d8dd48e9eb95e4cf940e0810d33d16c8f749ebfe99466",
+      "sizeBytes": 4836694,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-husk",
       "name": "Husk Android 0.6.1",
       "version": "0.6.1",
