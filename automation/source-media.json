@@ -1,6 +1,16 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.nathan.nathanlr": {
+      "credit_label": "NathanLR official project icon",
+      "source_page_url": "https://github.com/verygenericname/nathanlr/blob/main/usprebooter/Assets.xcassets/AppIcon.appiconset/nathan.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/verygenericname/nathanlr/main/usprebooter/Assets.xcassets/AppIcon.appiconset/nathan.png",
+        "alt": "Official green and black NathanLR app icon from the project source repository"
+      },
+      "screenshots": []
+    },
     "com.roothide.Bootstrap": {
       "credit_label": "RootHide Bootstrap official project icon",
       "source_page_url": "https://github.com/roothide/Bootstrap/blob/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
