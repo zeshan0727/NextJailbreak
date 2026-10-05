@@ -71,7 +71,7 @@ struct NextSignerLocalSignView: View {
         NSGlassCard(padding: 18) {
             VStack(alignment: .leading, spacing: 14) {
                 NSPageHeader(
-                    eyebrow: "Next Signer 1.5.2",
+                    eyebrow: "Next Signer 1.5.3",
                     title: "Sign on your iPhone",
                     subtitle: "Private, local IPA signing with your saved certificate and provisioning profile. Publishing stays a separate action.",
                     systemImage: "signature"
@@ -915,7 +915,7 @@ struct NextSignerLocalSettingsView: View {
                     Text("Next Signer")
                         .font(.headline)
                         .foregroundStyle(.white)
-                    Text("Version 1.5.2  •  Build 28")
+                    Text("Version 1.5.3  •  Build 29")
                         .font(.caption)
                         .foregroundStyle(NSTheme.textSecondary)
                     Text("Local signing + Apple OTA + private publishing")
