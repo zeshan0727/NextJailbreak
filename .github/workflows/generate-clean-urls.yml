@@ -5,9 +5,12 @@ on:
     branches: [main]
     paths:
       - '*.html'
+      - '**/index.html'
       - 'feed.xml'
       - 'sitemap.xml'
       - 'automation/clean_urls.py'
+      - 'automation/optimize_social_card.py'
+      - 'assets/brand/next-jailbreak-social-card.png'
       - 'automation/legacy_route_policy.py'
       - '.github/workflows/generate-clean-urls.yml'
   workflow_dispatch:
@@ -31,6 +34,8 @@ jobs:
 
       - name: Generate one indexable clean route per page
         run: |
+          python3 -m pip install --disable-pip-version-check --quiet pillow
+          python3 automation/optimize_social_card.py
           python3 -m automation.legacy_route_policy prepare --repository-root .
           python3 automation/clean_urls.py
           python3 -m automation.legacy_route_policy finalize --repository-root .
