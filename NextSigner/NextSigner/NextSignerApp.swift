@@ -11,11 +11,12 @@ struct NextSignerApp: App {
                     if publishLog.isVisible {
                         PublishLogMiniView(center: publishLog)
                             .padding(.horizontal, 12)
-                            .padding(.bottom, 58)
+                            .padding(.bottom, 102)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }
                 .animation(.easeInOut(duration: 0.2), value: publishLog.isVisible)
+                .preferredColorScheme(.dark)
         }
     }
 }
