@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T13:27:33Z",
+  "updatedAt": "2026-10-05T14:11:24Z",
   "files": [
+    {
+      "id": "netmirror-1.0.9-startup-network-diagnostic",
+      "name": "NetMirror 1.0.9 \u2014 Startup Network Diagnostic",
+      "fileName": "NetMirror-1.0.9-Startup-Network-Diagnostic.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.9",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.9/NetMirror-1.0.9-Startup-Network-Diagnostic.tipa",
+      "sha256": "af09b2da628dbaee5746dc5a8333022bdbd79614db3a1720107d5909d01bdff9",
+      "sizeBytes": 6413944,
+      "notes": "Diagnostic follow-up to 1.0.8. Keeps the exact original Hermes bundle and all existing compatibility shims, and adds on-device startup networking diagnostics for the bootstrap /check.php requests (request start/end, host, timeout, HTTP status/error, response byte count). This is intended to diagnose the remaining red-dot splash hang without changing app startup logic."
+    },
     {
       "id": "netmirror-1.0.8-statusbar-android-compat",
       "name": "NetMirror 1.0.8 \u2014 Android StatusBar Compatibility",
