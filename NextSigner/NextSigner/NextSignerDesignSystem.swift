@@ -34,23 +34,35 @@ struct NSBackground: View {
             ZStack {
                 NSTheme.background
 
-                Circle()
-                    .fill(NSTheme.blue.opacity(0.26))
-                    .frame(width: proxy.size.width * 0.85)
-                    .blur(radius: 88)
-                    .offset(x: -proxy.size.width * 0.42, y: -proxy.size.height * 0.36)
+                Rectangle()
+                    .fill(
+                        RadialGradient(
+                            colors: [NSTheme.blue.opacity(0.22), .clear],
+                            center: .topLeading,
+                            startRadius: 0,
+                            endRadius: proxy.size.width * 0.95
+                        )
+                    )
 
-                Circle()
-                    .fill(NSTheme.violet.opacity(0.20))
-                    .frame(width: proxy.size.width * 0.78)
-                    .blur(radius: 100)
-                    .offset(x: proxy.size.width * 0.48, y: proxy.size.height * 0.08)
+                Rectangle()
+                    .fill(
+                        RadialGradient(
+                            colors: [NSTheme.violet.opacity(0.16), .clear],
+                            center: .trailing,
+                            startRadius: 0,
+                            endRadius: proxy.size.width * 0.90
+                        )
+                    )
 
-                Circle()
-                    .fill(NSTheme.cyan.opacity(0.10))
-                    .frame(width: proxy.size.width * 0.64)
-                    .blur(radius: 92)
-                    .offset(x: proxy.size.width * 0.30, y: proxy.size.height * 0.48)
+                Rectangle()
+                    .fill(
+                        RadialGradient(
+                            colors: [NSTheme.cyan.opacity(0.08), .clear],
+                            center: .bottomTrailing,
+                            startRadius: 0,
+                            endRadius: proxy.size.width * 0.82
+                        )
+                    )
 
                 LinearGradient(
                     colors: [.clear, Color.black.opacity(0.32)],
@@ -79,9 +91,18 @@ struct NSGlassCard<Content: View>: View {
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(.ultraThinMaterial)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    NSTheme.elevated.opacity(0.96),
+                                    NSTheme.elevated.opacity(0.78)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(Color.white.opacity(0.025))
+                        .fill(Color.white.opacity(0.018))
                 }
             )
             .overlay(
@@ -95,7 +116,7 @@ struct NSGlassCard<Content: View>: View {
                         lineWidth: 1
                     )
             )
-            .shadow(color: Color.black.opacity(0.22), radius: 22, x: 0, y: 12)
+            .shadow(color: Color.black.opacity(0.16), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -161,7 +182,7 @@ struct NSIconBadge: View {
                 RoundedRectangle(cornerRadius: size * 0.31, style: .continuous)
                     .stroke(Color.white.opacity(0.22), lineWidth: 1)
             )
-            .shadow(color: NSTheme.blue.opacity(0.25), radius: 12, x: 0, y: 7)
+            .shadow(color: NSTheme.blue.opacity(0.18), radius: 6, x: 0, y: 3)
     }
 }
 
@@ -244,9 +265,9 @@ struct NSPrimaryButtonStyle: ButtonStyle {
             )
             .shadow(
                 color: (destructive ? NSTheme.danger : NSTheme.blue).opacity(configuration.isPressed ? 0.12 : 0.30),
-                radius: configuration.isPressed ? 6 : 14,
+                radius: configuration.isPressed ? 3 : 7,
                 x: 0,
-                y: configuration.isPressed ? 3 : 8
+                y: configuration.isPressed ? 2 : 4
             )
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
             .opacity(configuration.isPressed ? 0.90 : 1)
