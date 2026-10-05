@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T16:19:03Z",
+  "updatedAt": "2026-10-05T16:56:20Z",
   "files": [
+    {
+      "id": "netmirror-1.0.13-webview-boundary-diagnostic",
+      "name": "NetMirror 1.0.13 \u2014 WebView Boundary Diagnostic",
+      "fileName": "NetMirror-1.0.13-WebView-Boundary-Diagnostic.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.13",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.13/NetMirror-1.0.13-WebView-Boundary-Diagnostic.tipa",
+      "sha256": "d5aa866a562881e00c0fbd0732aa87653e2066f3703631d591d9bb27c5c43127",
+      "sizeBytes": 6414989,
+      "notes": "Traces the exact post-bootstrap boundary after 1.0.12 proved Android networking events are delivered into JS. Adds startup request URLs, decoded bootstrap target diagnostics, and native react-native-webview tracing for setSource, visitSource, loadRequest, navigation, finish and provisional navigation failures. Retains all prior Android-to-iOS shims and the unchanged recovered Hermes bundle."
+    },
     {
       "id": "netmirror-1.0.12-bridge-delivery-fix",
       "name": "NetMirror 1.0.12 \u2014 Bridge Delivery Fix",
