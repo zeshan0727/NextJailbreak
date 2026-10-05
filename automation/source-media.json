@@ -10,9 +10,18 @@
         "alt": "Official Dynamic120hz banner promoting a 120Hz ProMotion experience"
       },
       "screenshots": [
-        {"url":"https://media.havoc.app/6a45f87e3c99d317b705dbe0","alt":"Dynamic120hz 3.3.3-3 settings showing a 120 preferred frame rate and injection controls"},
-        {"url":"https://media.havoc.app/66e4ffad535641239ecf538b","alt":"Hello CPU companion utility showing thermal and CPU frequency controls"},
-        {"url":"https://media.havoc.app/667fceff8299e3b7b37cf48f","alt":"Control Center with a frame-rate indicator in an official Dynamic120hz screenshot"}
+        {
+          "url": "https://media.havoc.app/6a45f87e3c99d317b705dbe0",
+          "alt": "Dynamic120hz 3.3.3-3 settings showing a 120 preferred frame rate and injection controls"
+        },
+        {
+          "url": "https://media.havoc.app/66e4ffad535641239ecf538b",
+          "alt": "Hello CPU companion utility showing thermal and CPU frequency controls"
+        },
+        {
+          "url": "https://media.havoc.app/667fceff8299e3b7b37cf48f",
+          "alt": "Control Center with a frame-rate indicator in an official Dynamic120hz screenshot"
+        }
       ]
     },
     "com.nathan.nathanlr": {
@@ -268,6 +277,16 @@
           "alt": "Official QuickRing time, date and connectivity controls"
         }
       ]
+    },
+    "com.johndie.begonecia": {
+      "credit_label": "Jond-ie — official BegoneCIA project source",
+      "source_page_url": "https://github.com/Jond-ie/begonecia",
+      "official_source": true,
+      "hero": {
+        "url": "assets/articles/source-media/begonecia-rootless5-official-cc-icon.png",
+        "alt": "Official BegoneCIA crossed-out CIA Control Center icon"
+      },
+      "screenshots": []
     }
   }
 }

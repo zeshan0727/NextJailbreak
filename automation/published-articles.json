@@ -1,40 +1,91 @@
 {
   "entries": [
     {
-      "additional_media": [
-        {"credit":"Official Dynamic120hz 3.3.3-3 settings screenshot by zqbb","image":"assets/articles/source-media/dynamic120hz-3-3-3-3-official-settings.png","source_url":"https://media.havoc.app/6a45f87e3c99d317b705dbe0"},
-        {"credit":"Official Hello CPU companion screenshot by zqbb","image":"assets/articles/source-media/dynamic120hz-3-3-3-3-official-hello-cpu.jpg","source_url":"https://media.havoc.app/66e4ffad535641239ecf538b"}
-      ],
-      "category":{"id":"individual-tweak-update","label":"Individual Tweak Update"},
-      "compat":"Havoc package range iOS 15.0–17.3.1; jailbreak required; rootless supported; developer lists iPhone 13/14/15 Pro and Pro Max hardware",
-      "description":"Dynamic120hz 3.3.3-3 adds 120-FPS screen recording and improves dynamic refresh-rate unlocking on supported jailbroken ProMotion iPhones.",
-      "developer":"zqbb",
-      "entry_type":"tweak-update",
-      "href":"dynamic120hz-3-3-3-3-120fps-screen-recording/",
-      "image":"assets/articles/source-media/dynamic120hz-3-3-3-3-official-banner.png",
-      "media_credit":"Official Dynamic120hz Havoc banner by zqbb",
-      "media_source_url":"https://havoc.app/package/dynamic120hz",
-      "modified_at":"2026-10-05T14:03:02Z",
-      "name":"Dynamic120hz",
-      "package":"com.zqbb.dynamic120hz",
-      "published_at":"2026-10-05T14:03:02Z",
-      "release":"2026-10-03",
-      "selection_pool":"official-havoc-individual-update",
-      "slug":"dynamic120hz-3-3-3-3-120fps-screen-recording",
-      "source_name":"Havoc",
-      "source_page_url":"https://havoc.app/package/dynamic120hz",
-      "source_url":"https://havoc.app/package/dynamic120hz",
-      "source_visual_origin":"official-havoc-banner-and-screenshots",
-      "source_visual_url":"https://media.havoc.app/666c5c6deb47fe1b609512c1",
-      "title":"Dynamic120hz 3.3.3-3 Adds 120 FPS Screen Recording",
-      "version":"3.3.3-3"
+      "additional_media": [],
+      "category": {
+        "id": "jailbreak-development",
+        "label": "Jailbreak Development"
+      },
+      "compat": "Rootless package; developer-tested with Dopamine on iOS 15.8.6, 16.7 and 17.5.1; jailbreak availability remains device-specific",
+      "description": "BegoneCIA 0.2.0-rootless5 adds iOS 17 microphone handling and confirms A12+ operation on an iPhone SE 2 running iOS 17.5.1.",
+      "developer": "Jond-ie",
+      "entry_type": "current-development",
+      "href": "begonecia-rootless-ios-17-a12-support/",
+      "image": "assets/articles/source-media/begonecia-rootless5-official-cc-icon.png",
+      "media_credit": "Official BegoneCIA Control Center icon by Jond-ie",
+      "media_source_url": "https://github.com/Jond-ie/begonecia/blob/main/Module/Resources/Icon@2x.png",
+      "modified_at": "2026-10-05T21:00:41Z",
+      "name": "BegoneCIA",
+      "package": "com.johndie.begonecia",
+      "published_at": "2026-10-05T21:00:41Z",
+      "release": "2026-10-04",
+      "selection_pool": "official-github-development",
+      "slug": "begonecia-rootless-ios-17-a12-support",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/Jond-ie/begonecia",
+      "source_url": "https://github.com/Jond-ie/begonecia",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/Jond-ie/begonecia/main/Module/Resources/Icon@2x.png",
+      "title": "BegoneCIA 0.2.0-rootless5 Adds iOS 17 and A12+ Support",
+      "version": "0.2.0-rootless5"
     },
     {
       "additional_media": [
-        {"credit": "Official Dopamine app icon from the 3.0.10 source tag", "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png", "source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"},
-        {"credit": "Official RootHide Bootstrap app icon", "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png", "source_url": "https://github.com/roothide/Bootstrap/blob/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png"}
+        {
+          "credit": "Official Dynamic120hz 3.3.3-3 settings screenshot by zqbb",
+          "image": "assets/articles/source-media/dynamic120hz-3-3-3-3-official-settings.png",
+          "source_url": "https://media.havoc.app/6a45f87e3c99d317b705dbe0"
+        },
+        {
+          "credit": "Official Hello CPU companion screenshot by zqbb",
+          "image": "assets/articles/source-media/dynamic120hz-3-3-3-3-official-hello-cpu.jpg",
+          "source_url": "https://media.havoc.app/66e4ffad535641239ecf538b"
+        }
       ],
-      "category": {"id": "jailbreak-comparison", "label": "Jailbreak Comparison"},
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc package range iOS 15.0–17.3.1; jailbreak required; rootless supported; developer lists iPhone 13/14/15 Pro and Pro Max hardware",
+      "description": "Dynamic120hz 3.3.3-3 adds 120-FPS screen recording and improves dynamic refresh-rate unlocking on supported jailbroken ProMotion iPhones.",
+      "developer": "zqbb",
+      "entry_type": "tweak-update",
+      "href": "dynamic120hz-3-3-3-3-120fps-screen-recording/",
+      "image": "assets/articles/source-media/dynamic120hz-3-3-3-3-official-banner.png",
+      "media_credit": "Official Dynamic120hz Havoc banner by zqbb",
+      "media_source_url": "https://havoc.app/package/dynamic120hz",
+      "modified_at": "2026-10-05T14:03:02Z",
+      "name": "Dynamic120hz",
+      "package": "com.zqbb.dynamic120hz",
+      "published_at": "2026-10-05T14:03:02Z",
+      "release": "2026-10-03",
+      "selection_pool": "official-havoc-individual-update",
+      "slug": "dynamic120hz-3-3-3-3-120fps-screen-recording",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/dynamic120hz",
+      "source_url": "https://havoc.app/package/dynamic120hz",
+      "source_visual_origin": "official-havoc-banner-and-screenshots",
+      "source_visual_url": "https://media.havoc.app/666c5c6deb47fe1b609512c1",
+      "title": "Dynamic120hz 3.3.3-3 Adds 120 FPS Screen Recording",
+      "version": "3.3.3-3"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official Dopamine app icon from the 3.0.10 source tag",
+          "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
+        },
+        {
+          "credit": "Official RootHide Bootstrap app icon",
+          "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
+          "source_url": "https://github.com/roothide/Bootstrap/blob/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
+        }
+      ],
+      "category": {
+        "id": "jailbreak-comparison",
+        "label": "Jailbreak Comparison"
+      },
       "compat": "Dopamine: official chip-specific ranges; NathanLR: A12+ on 16.5.1–16.6.1, 16.7 RC and 17.0; RootHide Bootstrap: iOS 15.0–17.0 on A8–A17 Pro and M1/M2, subject to TrollStore",
       "description": "Compare a full rootless jailbreak, an archived semi-jailbreak and the distinct RootHide environment by support, packages and current recommendation.",
       "developer": "opa334; Nathan; RootHide team",
@@ -59,7 +110,10 @@
       "version": "Dopamine 3.0.10 / NathanLR source 2.0.9 / RootHide Bootstrap 2.2.1"
     },
     {
-      "category": {"id": "jailbreak-guide", "label": "Jailbreak Guide"},
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Jailbreak Guide"
+      },
       "compat": "Concept guide covering rootful, conventional rootless and RootHide environments; package compatibility does not establish jailbreak availability",
       "description": "Compare jailbreak filesystem environments, recognize package architecture clues and avoid confusing tweak support with device jailbreak availability.",
       "developer": "Theos; RootHide; opa334",
@@ -89,7 +143,10 @@
           "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg"
         }
       ],
-      "category": {"id": "jailbreak-development", "label": "Jailbreak Development"},
+      "category": {
+        "id": "jailbreak-development",
+        "label": "Jailbreak Development"
+      },
       "compat": "Rootless iPad tweak; iPadOS 15–16 intended; basic Stage Manager behavior user-confirmed on 16.0 but still labeled untested; iPadOS 17+ experimental; compatible jailbreak and one supported window engine required",
       "description": "The open-source iPad tweak now supports seven Stage Manager windows and fixes closing, minimizing and engine-switching bugs.",
       "developer": "BesiktasliSeba",
@@ -5563,8 +5620,16 @@
       "package": "com.zqbb.dynamic120hz",
       "published_at": "2026-10-05T14:03:02Z",
       "version": "3.3.3-3"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-current-development",
+      "href": "begonecia-rootless-ios-17-a12-support/",
+      "package": "com.johndie.begonecia",
+      "published_at": "2026-10-05T21:00:41Z",
+      "version": "0.2.0-rootless5"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-05T14:03:02Z"
+  "updated_at": "2026-10-05T21:00:41Z"
 }
