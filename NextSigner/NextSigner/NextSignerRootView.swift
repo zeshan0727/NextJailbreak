@@ -55,8 +55,6 @@ struct NextSignerRootView: View {
             NSBackground()
 
             selectedView
-                .id(selection)
-                .transition(.opacity)
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             NSFloatingTabBar(selection: $selection)
@@ -64,7 +62,6 @@ struct NextSignerRootView: View {
                 .padding(.top, 7)
                 .padding(.bottom, 6)
         }
-        .animation(.easeInOut(duration: 0.18), value: selection)
     }
 
     @ViewBuilder
@@ -93,9 +90,7 @@ private struct NSFloatingTabBar: View {
         HStack(spacing: 4) {
             ForEach(NextSignerTab.allCases) { tab in
                 Button {
-                    withAnimation(.easeInOut(duration: 0.18)) {
-                        selection = tab
-                    }
+                    selection = tab
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: selection == tab ? tab.selectedIcon : tab.icon)
@@ -127,12 +122,12 @@ private struct NSFloatingTabBar: View {
         }
         .padding(7)
         .frame(maxWidth: .infinity)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 25, style: .continuous))
+        .background(NSTheme.elevated.opacity(0.97), in: RoundedRectangle(cornerRadius: 25, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 25, style: .continuous)
                 .stroke(Color.white.opacity(0.12), lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.34), radius: 22, x: 0, y: 10)
+        .shadow(color: Color.black.opacity(0.20), radius: 8, x: 0, y: 4)
     }
 }
 
