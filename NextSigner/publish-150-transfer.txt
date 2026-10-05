@@ -1,1 +1,0 @@
-Publish Next Signer 1.5.0 build 26 to NS Transfer from artifact NextSigner-1.5.0-Modern.
