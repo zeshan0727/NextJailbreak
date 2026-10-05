@@ -1,0 +1,69 @@
+name: Publish NetMirror 1.0.8 To NS Transfer
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - ".github/workflows/publish-netmirror-1.0.8.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild TIPA from transfer chunks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p transfer/files/NetMirror/1.0.8
+          cat transfer/builds/NetMirror-1.0.8-chunks/part*.txt | base64 -d > transfer/files/NetMirror/1.0.8/NetMirror-1.0.8-StatusBar-Android-Compat.tipa
+          test "$(stat -c%s transfer/files/NetMirror/1.0.8/NetMirror-1.0.8-StatusBar-Android-Compat.tipa)" = "6410758"
+          echo "e0040b719f445058fa8f58d9be2e11f083f8f43caff6ea56bac2cd3e82718584  transfer/files/NetMirror/1.0.8/NetMirror-1.0.8-StatusBar-Android-Compat.tipa" | sha256sum -c -
+
+      - name: Add NetMirror v8 to NS Transfer feed
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          p=Path("transfer/index.json")
+          j=json.loads(p.read_text())
+          files=[x for x in j.get("files",[]) if x.get("id")!="netmirror-1.0.8-statusbar-android-compat"]
+          files.insert(0,{
+            "id":"netmirror-1.0.8-statusbar-android-compat",
+            "name":"NetMirror 1.0.8 — Android StatusBar Compatibility",
+            "fileName":"NetMirror-1.0.8-StatusBar-Android-Compat.tipa",
+            "type":"tipa",
+            "platform":"TrollStore / iOS 15.1+",
+            "version":"1.0.8",
+            "url":"https://nextjailbreak.com/transfer/files/NetMirror/1.0.8/NetMirror-1.0.8-StatusBar-Android-Compat.tipa",
+            "sha256":"e0040b719f445058fa8f58d9be2e11f083f8f43caff6ea56bac2cd3e82718584",
+            "sizeBytes":6410758,
+            "notes":"Fixes the v7 startup Hermes TypeError identified at StatusBarManager.setColor. Preserves the stock iOS status-bar module as StatusBarManagerIOS and exposes an Android-compatible StatusBarManager with getConstants, setColor, setTranslucent, setStyle, and setHidden. Retains ImageLoader, Android Networking/BlobManager, AndroidProgressBar, brightness compatibility, and full Hermes fatal diagnostics. Original recovered Hermes bundle remains unchanged."
+          })
+          j["files"]=files
+          j["updatedAt"]=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+          p.write_text(json.dumps(j,indent=2)+"\n")
+          PY
+
+      - name: Commit NS Transfer package
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add transfer/files/NetMirror/1.0.8/NetMirror-1.0.8-StatusBar-Android-Compat.tipa transfer/index.json
+          if git diff --cached --quiet; then
+            echo "No publish changes"
+          else
+            git commit -m "Publish NetMirror 1.0.8 to NS Transfer [skip ci]"
+            git push origin HEAD:main
+          fi
