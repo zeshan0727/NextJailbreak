@@ -1,0 +1,69 @@
+name: Publish NetMirror 1.0.13 To NS Transfer
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - ".github/workflows/publish-netmirror-1.0.13.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild TIPA from transfer chunks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p transfer/files/NetMirror/1.0.13
+          cat transfer/builds/NetMirror-1.0.13-chunks/part*.txt | base64 -d > transfer/files/NetMirror/1.0.13/NetMirror-1.0.13-WebView-Boundary-Diagnostic.tipa
+          test "$(stat -c%s transfer/files/NetMirror/1.0.13/NetMirror-1.0.13-WebView-Boundary-Diagnostic.tipa)" = "6414989"
+          echo "d5aa866a562881e00c0fbd0732aa87653e2066f3703631d591d9bb27c5c43127  transfer/files/NetMirror/1.0.13/NetMirror-1.0.13-WebView-Boundary-Diagnostic.tipa" | sha256sum -c -
+
+      - name: Add NetMirror v13 to NS Transfer feed
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          p=Path("transfer/index.json")
+          j=json.loads(p.read_text())
+          files=[x for x in j.get("files",[]) if x.get("id")!="netmirror-1.0.13-webview-boundary-diagnostic"]
+          files.insert(0,{
+            "id":"netmirror-1.0.13-webview-boundary-diagnostic",
+            "name":"NetMirror 1.0.13 — WebView Boundary Diagnostic",
+            "fileName":"NetMirror-1.0.13-WebView-Boundary-Diagnostic.tipa",
+            "type":"tipa",
+            "platform":"TrollStore / iOS 15.1+",
+            "version":"1.0.13",
+            "url":"https://nextjailbreak.com/transfer/files/NetMirror/1.0.13/NetMirror-1.0.13-WebView-Boundary-Diagnostic.tipa",
+            "sha256":"d5aa866a562881e00c0fbd0732aa87653e2066f3703631d591d9bb27c5c43127",
+            "sizeBytes":6414989,
+            "notes":"Traces the exact post-bootstrap boundary after 1.0.12 proved Android networking events are delivered into JS. Adds startup request URLs, decoded bootstrap target diagnostics, and native react-native-webview tracing for setSource, visitSource, loadRequest, navigation, finish and provisional navigation failures. Retains all prior Android-to-iOS shims and the unchanged recovered Hermes bundle."
+          })
+          j["files"]=files
+          j["updatedAt"]=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+          p.write_text(json.dumps(j,indent=2)+"\n")
+          PY
+
+      - name: Commit NS Transfer package
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add transfer/files/NetMirror/1.0.13/NetMirror-1.0.13-WebView-Boundary-Diagnostic.tipa transfer/index.json
+          if git diff --cached --quiet; then
+            echo "No publish changes"
+          else
+            git commit -m "Publish NetMirror 1.0.13 to NS Transfer [skip ci]"
+            git push origin HEAD:main
+          fi
