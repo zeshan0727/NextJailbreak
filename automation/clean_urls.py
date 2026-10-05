@@ -16,7 +16,7 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = "https://nextjailbreak.com"
-SOCIAL_IMAGE = f"{SITE}/assets/brand/next-jailbreak-social-card.png"
+SOCIAL_IMAGE = f"{SITE}/assets/brand/next-jailbreak-social-card-whatsapp.jpg"
 SOCIAL_IMAGE_WIDTH = "1200"
 SOCIAL_IMAGE_HEIGHT = "630"
 
@@ -187,7 +187,63 @@ def _absolute_preview_url(value: str) -> str | None:
     return SITE + "/" + value.lstrip("/")
 
 
+def _local_preview_path(url: str) -> Path | None:
+    """Resolve only first-party preview assets that exist in this repository."""
+    value = _absolute_preview_url(url)
+    if not value:
+        return None
+    parsed = urlsplit(value)
+    if parsed.scheme not in {"http", "https"}:
+        return None
+    if parsed.netloc.lower() not in {"nextjailbreak.com", "www.nextjailbreak.com"}:
+        return None
+    if not parsed.path.startswith("/assets/"):
+        return None
+    candidate = (ROOT / parsed.path.lstrip("/")).resolve()
+    root = ROOT.resolve()
+    if candidate != root and root not in candidate.parents:
+        return None
+    return candidate if candidate.is_file() else None
+
+
+def _preview_dimensions(path: Path) -> tuple[int, int] | None:
+    try:
+        from PIL import Image
+
+        with Image.open(path) as image:
+            return int(image.width), int(image.height)
+    except Exception:
+        return None
+
+
+def _social_ready_preview(url: str) -> bool:
+    """Use topic artwork only when it is crawler-friendly; otherwise use the branded card."""
+    path = _local_preview_path(url)
+    if not path:
+        return False
+    try:
+        # WhatsApp has historically been sensitive to large preview assets.
+        if path.stat().st_size > 240 * 1024:
+            return False
+    except OSError:
+        return False
+    dims = _preview_dimensions(path)
+    if not dims:
+        return False
+    width, height = dims
+    if width < 600 or height < 315:
+        return False
+    ratio = width / max(height, 1)
+    return 1.20 <= ratio <= 2.20
+
+
 def _article_preview_image(text: str) -> str:
+    candidates: list[str] = []
+
+    existing = _meta_value(text, attr="property", key="og:image")
+    if existing:
+        candidates.append(existing)
+
     for script in re.finditer(
         r'<script[^>]*type=["\']application/ld\+json["\'][^>]*>(?P<body>.*?)</script>',
         text,
@@ -200,10 +256,7 @@ def _article_preview_image(text: str) -> str:
             re.IGNORECASE,
         )
         if image:
-            value = image.group("single") or image.group("array")
-            resolved = _absolute_preview_url(value)
-            if resolved and resolved != SOCIAL_IMAGE:
-                return resolved
+            candidates.append(image.group("single") or image.group("array"))
 
     figure = re.search(
         r'<figure[^>]*class=["\'][^"\']*(?:article-visual|authentic-media)[^"\']*["\'][^>]*>.*?<img[^>]*src=["\'](?P<src>[^"\']+)["\']',
@@ -211,9 +264,7 @@ def _article_preview_image(text: str) -> str:
         re.IGNORECASE | re.DOTALL,
     )
     if figure:
-        resolved = _absolute_preview_url(figure.group("src"))
-        if resolved:
-            return resolved
+        candidates.append(figure.group("src"))
 
     article_img = re.search(
         r'<article\b[^>]*>.*?<img[^>]*src=["\'](?P<src>[^"\']+)["\']',
@@ -221,14 +272,12 @@ def _article_preview_image(text: str) -> str:
         re.IGNORECASE | re.DOTALL,
     )
     if article_img:
-        resolved = _absolute_preview_url(article_img.group("src"))
-        if resolved:
-            return resolved
+        candidates.append(article_img.group("src"))
 
-    existing = _meta_value(text, attr="property", key="og:image")
-    resolved = _absolute_preview_url(existing) if existing else None
-    if resolved and resolved != SOCIAL_IMAGE:
-        return resolved
+    for candidate in candidates:
+        resolved = _absolute_preview_url(candidate)
+        if resolved and resolved != SOCIAL_IMAGE and _social_ready_preview(resolved):
+            return resolved
 
     return SOCIAL_IMAGE
 
@@ -271,12 +320,18 @@ def ensure_social_preview_meta(text: str) -> str:
     for attr, key, value in values:
         text = _upsert_meta(text, attr=attr, key=key, content=value)
 
-    if social_image == SOCIAL_IMAGE:
-        text = _upsert_meta(text, attr="property", key="og:image:type", content="image/png")
-        text = _upsert_meta(text, attr="property", key="og:image:width", content=SOCIAL_IMAGE_WIDTH)
-        text = _upsert_meta(text, attr="property", key="og:image:height", content=SOCIAL_IMAGE_HEIGHT)
+    preview_path = _local_preview_path(social_image)
+    preview_dims = _preview_dimensions(preview_path) if preview_path else None
+    suffix = preview_path.suffix.lower() if preview_path else ""
+    mime = "image/jpeg" if suffix in {".jpg", ".jpeg"} else ("image/png" if suffix == ".png" else None)
+    if mime:
+        text = _upsert_meta(text, attr="property", key="og:image:type", content=mime)
     else:
         text = _remove_meta(text, attr="property", key="og:image:type")
+    if preview_dims:
+        text = _upsert_meta(text, attr="property", key="og:image:width", content=str(preview_dims[0]))
+        text = _upsert_meta(text, attr="property", key="og:image:height", content=str(preview_dims[1]))
+    else:
         text = _remove_meta(text, attr="property", key="og:image:width")
         text = _remove_meta(text, attr="property", key="og:image:height")
     return text
@@ -336,6 +391,20 @@ def main() -> int:
         target_dir.mkdir(parents=True, exist_ok=True)
         target = target_dir / "index.html"
         if not target.exists() or target.read_text(encoding="utf-8") != normalized:
+            target.write_text(normalized, encoding="utf-8")
+
+    # Some newer publishers write directly to /<slug>/index.html instead of
+    # creating a legacy root .html file. Normalize those article routes too so
+    # every shareable article receives crawler-safe Open Graph metadata.
+    for target in sorted(ROOT.glob("*/index.html")):
+        if target.parent.name in {"assets", "automation", "apps", "repo-site", "transfer"}:
+            continue
+        old = target.read_text(encoding="utf-8")
+        lower = old.lower()
+        if "<article" not in lower and 'property="og:type" content="article"' not in lower:
+            continue
+        normalized = ensure_social_preview_meta(old)
+        if normalized != old:
             target.write_text(normalized, encoding="utf-8")
 
     update_discovery_file(ROOT / "feed.xml", pages)
