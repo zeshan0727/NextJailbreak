@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T12:42:21Z",
+  "updatedAt": "2026-10-05T12:55:08Z",
   "files": [
+    {
+      "id": "netmirror-1.0.7-hermes-fatal-stack-capture",
+      "name": "NetMirror 1.0.7 \u2014 Hermes Fatal Stack Capture",
+      "fileName": "NetMirror-1.0.7-Hermes-Fatal-Stack-Capture.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.7",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.7/NetMirror-1.0.7-Hermes-Fatal-Stack-Capture.tipa",
+      "sha256": "a0354ce866973a4c96f97b9d0227a0de179a8df4b18051c5fdf4e4c0b51df4b7",
+      "sizeBytes": 6405946,
+      "notes": "Diagnostic-only follow-up to 1.0.6. Removes the competing generic RCTSetLogFunction/fatal popup so one authoritative fatal handler can expose RCTJSStackTraceKey, Hermes rawStack, JS frame method/file/line/column data, and NSError userInfo for the remaining startup TypeError. Existing ImageLoader, Android Networking/BlobManager, AndroidProgressBar, and brightness compatibility are retained; the original Hermes bundle is unchanged."
+    },
     {
       "id": "nextsigner-1.5.1",
       "name": "Next Signer 1.5.1",
