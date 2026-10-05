@@ -162,6 +162,27 @@ struct LocalSignerService {
             throw LocalSignerError.nestedBundleNotAllowed(nestedID, profile.applicationIdentifierPattern)
         }
 
+        // Ensure the selected provisioning profile is physically embedded before
+        // Zsign creates the signature. Some Swift-package builds use the profile
+        // for entitlements but do not copy embedded.mobileprovision into the app.
+        // Embedding it before signing keeps the final bundle internally consistent.
+        let embeddedProfile = appURL.appendingPathComponent("embedded.mobileprovision")
+        do {
+            let profileData = try Data(contentsOf: provisioningURL)
+            guard !profileData.isEmpty else { throw LocalSignerError.invalidProvisioningProfile }
+            if fm.fileExists(atPath: embeddedProfile.path) {
+                try fm.removeItem(at: embeddedProfile)
+            }
+            try profileData.write(to: embeddedProfile, options: .atomic)
+        } catch let error as LocalSignerError {
+            throw error
+        } catch {
+            throw LocalSignerError.invalidProvisioningProfile
+        }
+        guard fm.fileExists(atPath: embeddedProfile.path), fileHasContent(embeddedProfile) else {
+            throw LocalSignerError.invalidProvisioningProfile
+        }
+
         // Upstream zsign supports signing an unsigned app/Mach-O and can allocate
         // code-signature space itself. Its return value is the signing authority.
         // Do not second-guess a successful sign with checkSigned(), CodeResources,
@@ -199,7 +220,6 @@ struct LocalSignerService {
             throw LocalSignerError.metadataValidationFailed
         }
 
-        let embeddedProfile = appURL.appendingPathComponent("embedded.mobileprovision")
         guard fm.fileExists(atPath: embeddedProfile.path), fileHasContent(embeddedProfile) else {
             throw LocalSignerError.signedProfileMissing
         }
