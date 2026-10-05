@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-husk",
+      "name": "Husk Android 0.6.1",
+      "version": "0.6.1",
+      "build": "9",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.4+",
+      "bundleId": "com.nextsolution.husk",
+      "icon": "/install/icons/com-nextsolution-husk-da5aae1622fa.png",
+      "manifest": "/install/com-nextsolution-husk.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-husk/0.6.1/com-nextsolution-husk-0.6.1-9.ipa",
+      "sha256": "da5aae1622fa79525a5631e9cebaba4abb1f469fcd0fe58199fed94f1c5fffc1",
+      "sizeBytes": 41415502,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-lcs",
       "name": "LC Spoofer",
       "version": "1.0.8",
@@ -241,5 +262,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-10-04"
+  "updated": "2026-10-05"
 }
