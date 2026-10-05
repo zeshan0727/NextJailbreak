@@ -3,6 +3,18 @@
   "updatedAt": "2026-10-05T11:58:00Z",
   "files": [
     {
+      "id": "netmirror-1.0.5-brightness-startup-fix",
+      "name": "NetMirror 1.0.5 — Brightness Startup Fix",
+      "fileName": "NetMirror-1.0.5-Brightness-Startup-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.5",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.5/NetMirror-1.0.5-Brightness-Startup-Fix.tipa",
+      "sha256": "847972e35ae1da41d00be34f9bcf6ec9a3c4f0eb7252a9b6061adeb2334c700a",
+      "sizeBytes": 6406553,
+      "notes": "NetMirror Android-to-iOS React Native compatibility test build. Includes ImageLoader, Android Networking, BlobManager, AndroidProgressBar, and Android system-brightness compatibility fixes, plus enhanced Hermes runtime diagnostics."
+    },
+    {
       "id": "husk-0.6.1-android-translation-layer",
       "name": "Husk 0.6.1 — Android Translation Layer",
       "fileName": "Husk.ipa",
