@@ -179,9 +179,7 @@ struct PublishLogMiniView: View {
                 }
 
                 Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        center.isExpanded.toggle()
-                    }
+                    center.isExpanded.toggle()
                 } label: {
                     Image(systemName: center.isExpanded ? "chevron.down" : "chevron.up")
                 }
@@ -225,20 +223,17 @@ struct PublishLogMiniView: View {
                 .frame(height: center.isExpanded ? 210 : 82)
                 .onChange(of: center.entries.count) { _ in
                     if let id = center.entries.last?.id {
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            proxy.scrollTo(id, anchor: .bottom)
-                        }
+                        proxy.scrollTo(id, anchor: .bottom)
                     }
                 }
             }
         }
         .padding(12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(NSTheme.elevated.opacity(0.98), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(.quaternary, lineWidth: 1)
         }
-        .shadow(radius: 8, y: 3)
     }
 
     @ViewBuilder
