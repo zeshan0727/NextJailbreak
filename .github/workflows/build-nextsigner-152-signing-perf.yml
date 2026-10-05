@@ -1,0 +1,126 @@
+name: Build Next Signer 1.5.2 Signing + Performance Fix
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/nextsigner-1.5.2-signing-perf-fix
+    paths:
+      - 'NextSigner/**'
+      - '.github/workflows/build-nextsigner-152-signing-perf.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nextsigner-152-signing-perf-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXTSIGNER_VERSION: '1.5.2'
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify release and fix metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'MARKETING_VERSION: "1.5.2"' NextSigner/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "28"' NextSigner/project.yml
+          grep -q '<key>CADisableMinimumFrameDurationOnPhone</key>' NextSigner/Info.plist
+          grep -A1 '<key>CADisableMinimumFrameDurationOnPhone</key>' NextSigner/Info.plist | grep -q '<true/>'
+          python3 - <<'PY'
+          from pathlib import Path
+          signer = Path('NextSigner/NextSigner/LocalSignerService.swift').read_text()
+          embedded = 'let embeddedProfile = appURL.appendingPathComponent("embedded.mobileprovision")'
+          zsign = 'let signedOK = Zsign.sign'
+          assert embedded in signer, 'embedded.mobileprovision pre-embed step missing'
+          assert zsign in signer, 'Zsign call missing'
+          assert signer.index(embedded) < signer.index(zsign), 'profile must be embedded before Zsign signs the bundle'
+          assert 'try profileData.write(to: embeddedProfile, options: .atomic)' in signer
+          for path in [
+              'NextSigner/NextSigner/NextSignerApp.swift',
+              'NextSigner/NextSigner/NextSignerDesignSystem.swift',
+              'NextSigner/NextSigner/NextSignerRootView.swift',
+              'NextSigner/NextSigner/NextSignerLocalViews.swift',
+              'NextSigner/NextSigner/PublishLogCenter.swift',
+          ]:
+              text = Path(path).read_text()
+              for banned in ['withAnimation', '.animation(', '.transition(', '.blur(', '.shadow(', 'ultraThinMaterial', 'thinMaterial']:
+                  assert banned not in text, f'{banned} still present in active UI file {path}'
+          PY
+          grep -q 'local.install(app, using: store)' NextSigner/NextSigner/NextSignerLocalViews.swift
+          grep -q 'itms-services://?action=download-manifest' NextSigner/NextSigner/LocalSigningController.swift
+
+      - name: Prepare Zsign package
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf NextSigner/Vendor/Zsign-Package
+          git clone --depth 1 --branch package https://github.com/claration/Zsign-Package.git NextSigner/Vendor/Zsign-Package
+          test -f NextSigner/Vendor/Zsign-Package/Package.swift
+
+      - name: Generate app icon
+        run: python3 NextSigner/generate_app_icon.py
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: NextSigner
+        run: xcodegen generate
+
+      - name: Build unsigned iPhone app
+        working-directory: NextSigner
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project NextSigner.xcodeproj \
+            -scheme NextSigner \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath "$RUNNER_TEMP/NextSignerDerived" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package IPA and TIPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find "$RUNNER_TEMP/NextSignerDerived/Build/Products/Release-iphoneos" -maxdepth 1 -type d -name '*.app' | head -n1)"
+          test -n "$APP_PATH" || { echo 'Built .app not found'; exit 1; }
+          test -f "$APP_PATH/Assets.car" || { echo 'Compiled asset catalog missing'; exit 1; }
+
+          rm -rf "$RUNNER_TEMP/package"
+          mkdir -p "$RUNNER_TEMP/package/Payload"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/package/Payload/NextSigner.app"
+
+          cd "$RUNNER_TEMP/package"
+          /usr/bin/zip -qry "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.ipa" Payload
+          cp "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.ipa" "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.tipa"
+
+          unzip -t "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.ipa" >/dev/null
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$RUNNER_TEMP/package/Payload/NextSigner.app/Info.plist" | grep -qx '1.5.2'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$RUNNER_TEMP/package/Payload/NextSigner.app/Info.plist" | grep -qx '28'
+          /usr/libexec/PlistBuddy -c 'Print :CADisableMinimumFrameDurationOnPhone' "$RUNNER_TEMP/package/Payload/NextSigner.app/Info.plist" | grep -qx 'true'
+          shasum -a 256 "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.ipa" "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.tipa"
+          stat -f '%N %z bytes' "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.ipa" "$RUNNER_TEMP/NextSigner-${NEXTSIGNER_VERSION}.tipa"
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextSigner-1.5.2-Signing-Performance-Fix
+          path: |
+            ${{ runner.temp }}/NextSigner-1.5.2.ipa
+            ${{ runner.temp }}/NextSigner-1.5.2.tipa
+          if-no-files-found: error
+          retention-days: 30
