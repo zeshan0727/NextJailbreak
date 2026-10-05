@@ -8,18 +8,25 @@ struct NextSignerLocalSignView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
-                    header
-                    sourceCard
-                    identityCard
-                    credentialsCard
-                    optionsCard
-                    signCard
+            ZStack {
+                NSBackground()
+
+                ScrollView {
+                    VStack(spacing: 14) {
+                        hero
+                        sourceCard
+                        identityCard
+                        credentialsCard
+                        optionsCard
+                        signCard
+                    }
+                    .nsPagePadding()
+                    .padding(.bottom, 16)
                 }
-                .padding()
             }
-            .navigationTitle("Next Signer")
+            .navigationTitle("Sign")
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear { local.refreshCredentials() }
             .sheet(isPresented: $showPicker) {
                 ManualDocumentPicker(
                     documentTypes: ["public.item", "public.data", "public.archive", "com.apple.itunes.ipa"],
@@ -60,155 +67,195 @@ struct NextSignerLocalSignView: View {
         }
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Local signing", systemImage: "iphone.and.arrow.forward")
-                .font(.title2.bold())
-            Text("The IPA is signed entirely on this iPhone. GitHub is not contacted until you manually publish a signed app from the Signed Apps tab.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+    private var hero: some View {
+        NSGlassCard(padding: 18) {
+            VStack(alignment: .leading, spacing: 14) {
+                NSPageHeader(
+                    eyebrow: "Next Signer 1.5",
+                    title: "Sign on your iPhone",
+                    subtitle: "Private, local IPA signing with your saved certificate and provisioning profile. Publishing stays a separate action.",
+                    systemImage: "signature"
+                )
+
+                HStack(spacing: 8) {
+                    NSStatusChip(
+                        text: local.credentialsReady ? "Profile ready" : "Profile needed",
+                        systemImage: local.credentialsReady ? "checkmark.shield.fill" : "exclamationmark.triangle.fill",
+                        tint: local.credentialsReady ? NSTheme.mint : NSTheme.warning
+                    )
+                    NSStatusChip(text: "On-device", systemImage: "iphone", tint: NSTheme.cyan)
+                }
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var sourceCard: some View {
-        GroupBox {
-            VStack(spacing: 12) {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 14) {
+                NSSectionHeader("Source app", subtitle: "IPA or TIPA from Files", systemImage: "shippingbox.fill")
+
                 if let url = store.request.ipaURL {
-                    HStack(spacing: 12) {
-                        Image(systemName: "shippingbox.fill")
-                            .font(.title2)
-                            .frame(width: 44, height: 44)
-                            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                        VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 13) {
+                        NSIconBadge(systemImage: "app.fill", size: 54, tint: NSTheme.blue)
+
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(url.lastPathComponent)
                                 .font(.headline)
+                                .foregroundStyle(.white)
                                 .lineLimit(2)
-                            if let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize {
-                                Text(ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
+
+                            Text(fileSizeText(url))
+                                .font(.caption)
+                                .foregroundStyle(NSTheme.textSecondary)
                         }
+
                         Spacer()
+
                         Button(role: .destructive) {
                             store.clearSelectedIPA()
                         } label: {
                             Image(systemName: "trash")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(NSTheme.danger)
+                                .frame(width: 38, height: 38)
+                                .background(NSTheme.danger.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
+                        .buttonStyle(.plain)
                     }
                 } else {
-                    VStack(spacing: 8) {
-                        Image(systemName: "square.and.arrow.down")
-                            .font(.system(size: 34))
-                        Text("No IPA selected").font(.headline)
-                        Text("Choose an IPA or TIPA from Files.")
+                    VStack(spacing: 10) {
+                        NSIconBadge(systemImage: "square.and.arrow.down.fill", size: 58, tint: NSTheme.violet)
+                        Text("Choose an app to sign")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        Text("The file stays on this device during local signing.")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(NSTheme.textSecondary)
+                            .multilineTextAlignment(.center)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 8)
                 }
 
-                Button { showPicker = true } label: {
-                    Label(store.request.ipaURL == nil ? "Choose IPA / TIPA" : "Choose Another IPA / TIPA", systemImage: "folder")
-                        .frame(maxWidth: .infinity)
+                Button {
+                    showPicker = true
+                } label: {
+                    Label(
+                        store.request.ipaURL == nil ? "Choose IPA / TIPA" : "Choose Another App",
+                        systemImage: "folder.fill"
+                    )
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.cyan))
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-        } label: {
-            Label("Source IPA", systemImage: "app.dashed")
         }
     }
 
     private var identityCard: some View {
-        GroupBox {
-            VStack(spacing: 12) {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 13) {
+                NSSectionHeader("App identity", subtitle: "Name and bundle identifier for the signed copy", systemImage: "character.cursor.ibeam")
+
                 TextField("App name", text: $store.request.appName)
                     .textInputAutocapitalization(.words)
                     .autocorrectionDisabled()
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(NSModernTextFieldStyle())
+
                 TextField("Bundle ID", text: $store.request.bundleID)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.asciiCapable)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(NSModernTextFieldStyle())
 
                 HStack(spacing: 8) {
                     Image(systemName: store.request.isValidBundleID ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                        .foregroundStyle(store.request.isValidBundleID ? .green : .orange)
-                    Text(store.request.isValidBundleID ? "Bundle identifier format is valid." : "Enter a valid bundle identifier.")
+                        .foregroundStyle(store.request.isValidBundleID ? NSTheme.mint : NSTheme.warning)
+
+                    Text(store.request.isValidBundleID ? "Bundle identifier is valid" : "Enter a valid reverse-DNS bundle identifier")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(NSTheme.textSecondary)
+
                     Spacer()
                 }
             }
-        } label: {
-            Label("App identity", systemImage: "number")
         }
     }
 
     private var credentialsCard: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 10) {
-                credentialRow("P12 certificate", ready: local.hasP12)
-                credentialRow("Provisioning profile", ready: local.hasProvisioningProfile)
-                credentialRow("P12 password", ready: local.p12PasswordIsStored)
-                if !local.credentialsReady {
-                    Text("Open the Profiles tab and import the three local signing items before signing.")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 13) {
+                NSSectionHeader("Signing profile", subtitle: "Stored only on this iPhone", systemImage: "person.badge.key.fill")
+
+                credentialRow("P12 certificate", systemImage: "key.fill", ready: local.hasP12)
+                credentialRow("Provisioning profile", systemImage: "doc.badge.gearshape", ready: local.hasProvisioningProfile)
+                credentialRow("P12 password", systemImage: "lock.fill", ready: local.p12PasswordIsStored)
+
+                Divider().overlay(Color.white.opacity(0.08))
+
+                if local.credentialsReady {
+                    NSStatusChip(text: "Ready for local signing", systemImage: "checkmark.shield.fill", tint: NSTheme.mint)
                 } else {
-                    Label("Local signing profile ready", systemImage: "checkmark.shield.fill")
-                        .font(.caption.bold())
-                        .foregroundStyle(.green)
+                    Text("Complete the missing item in Profiles before signing.")
+                        .font(.footnote)
+                        .foregroundStyle(NSTheme.warning)
                 }
             }
-        } label: {
-            Label("Local signing profile", systemImage: "checkmark.seal")
         }
     }
 
-    private func credentialRow(_ title: String, ready: Bool) -> some View {
-        HStack {
-            Image(systemName: ready ? "checkmark.circle.fill" : "xmark.circle")
-                .foregroundStyle(ready ? .green : .secondary)
+    private func credentialRow(_ title: String, systemImage: String, ready: Bool) -> some View {
+        HStack(spacing: 11) {
+            Image(systemName: systemImage)
+                .foregroundStyle(ready ? NSTheme.mint : Color.white.opacity(0.38))
+                .frame(width: 26)
+
             Text(title)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.white)
+
             Spacer()
-            Text(ready ? "Ready" : "Missing")
-                .font(.caption)
-                .foregroundStyle(ready ? .green : .secondary)
+
+            Image(systemName: ready ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(ready ? NSTheme.mint : Color.white.opacity(0.25))
         }
     }
 
     private var optionsCard: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 10) {
-                Toggle("Install as duplicate app", isOn: Binding(
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 13) {
+                NSSectionHeader("Signing options", subtitle: "Control how the signed copy is installed", systemImage: "slider.horizontal.3")
+
+                Toggle(isOn: Binding(
                     get: { store.request.duplicateSigning },
                     set: { store.setDuplicateSigning($0) }
-                ))
-                Text("Changes the bundle identifier so the signed copy can install beside the original app.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text("Custom icon and tweak injection are not sent to GitHub in local-sign mode. The IPA itself is signed on-device and preserved unchanged apart from the requested app name/bundle ID and signature.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                )) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Install as duplicate")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text("Generate a unique bundle ID so it can sit beside the original app.")
+                            .font(.caption)
+                            .foregroundStyle(NSTheme.textSecondary)
+                    }
+                }
+                .tint(NSTheme.cyan)
             }
-        } label: {
-            Label("Signing options", systemImage: "slider.horizontal.3")
         }
     }
 
     private var signCard: some View {
-        GroupBox {
-            VStack(spacing: 12) {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 13) {
+                NSSectionHeader("Ready to sign", subtitle: "No GitHub upload happens here", systemImage: "checkmark.seal.fill")
+
                 if local.isSigning {
-                    ProgressView(value: local.signingProgress)
-                    Text(local.signingMessage.isEmpty ? "Signing locally…" : local.signingMessage)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 8) {
+                        ProgressView(value: local.signingProgress)
+                            .tint(NSTheme.cyan)
+                        Text(local.signingMessage.isEmpty ? "Signing locally…" : local.signingMessage)
+                            .font(.caption)
+                            .foregroundStyle(NSTheme.textSecondary)
+                    }
                 }
 
                 Button {
@@ -216,10 +263,8 @@ struct NextSignerLocalSignView: View {
                     local.sign(request: store.request)
                 } label: {
                     Label(local.isSigning ? "Signing on iPhone…" : "Sign IPA Locally", systemImage: "signature")
-                        .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
+                .buttonStyle(NSPrimaryButtonStyle())
                 .disabled(
                     store.request.ipaURL == nil ||
                     store.request.appName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
@@ -227,21 +272,26 @@ struct NextSignerLocalSignView: View {
                     !local.credentialsReady ||
                     local.isSigning
                 )
-
-                Text("No GitHub upload happens when this button is pressed.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                .opacity(
+                    store.request.ipaURL == nil ||
+                    !store.request.isValidBundleID ||
+                    !local.credentialsReady ? 0.45 : 1
+                )
 
                 if let success = local.signingSuccess {
                     Label(success, systemImage: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.footnote)
+                        .foregroundStyle(NSTheme.mint)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
-        } label: {
-            Label("Sign", systemImage: "checkmark.seal.fill")
         }
+    }
+
+    private func fileSizeText(_ url: URL) -> String {
+        guard let values = try? url.resourceValues(forKeys: [.fileSizeKey]),
+              let bytes = values.fileSize else { return "IPA / TIPA" }
+        return ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
     }
 }
 
@@ -253,54 +303,66 @@ struct NextSignerSignedAppsView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if local.signedApps.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "checkmark.seal")
-                            .font(.system(size: 42))
-                            .foregroundStyle(.secondary)
-                        Text("No signed apps yet")
-                            .font(.headline)
-                        Text("Sign an IPA locally from the Sign tab. It will appear here automatically.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 30)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List {
+            ZStack {
+                NSBackground()
+
+                ScrollView {
+                    LazyVStack(spacing: 14) {
+                        NSPageHeader(
+                            eyebrow: "Local Vault",
+                            title: "Signed Apps",
+                            subtitle: "Install, publish, share or remove signed IPAs saved on this iPhone.",
+                            systemImage: "checkmark.seal.fill"
+                        )
+
                         if let message = local.publishMessage {
-                            Section {
+                            NSGlassCard {
                                 Label(message, systemImage: "checkmark.circle.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.green)
+                                    .font(.footnote)
+                                    .foregroundStyle(NSTheme.mint)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
+
                         if let error = local.publishError {
-                            Section {
+                            NSGlassCard {
                                 Label(error, systemImage: "exclamationmark.triangle.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.red)
+                                    .font(.footnote)
+                                    .foregroundStyle(NSTheme.danger)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                     .textSelection(.enabled)
                             }
                         }
 
-                        ForEach(local.signedApps) { app in
-                            Section {
-                                signedAppRow(app)
+                        if local.signedApps.isEmpty {
+                            emptyState
+                        } else {
+                            HStack {
+                                Text("\(local.signedApps.count) SIGNED APP\(local.signedApps.count == 1 ? "" : "S")")
+                                    .font(.caption2.weight(.bold))
+                                    .tracking(1.1)
+                                    .foregroundStyle(NSTheme.textSecondary)
+                                Spacer()
+                            }
+
+                            ForEach(local.signedApps) { app in
+                                signedAppCard(app)
                             }
                         }
                     }
-                    .refreshable { local.refreshSignedApps() }
+                    .nsPagePadding()
+                    .padding(.bottom, 16)
                 }
+                .refreshable { local.refreshSignedApps() }
             }
             .navigationTitle("Signed Apps")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button { local.refreshSignedApps() } label: {
                         Image(systemName: "arrow.clockwise")
                     }
+                    .tint(NSTheme.cyan)
                 }
             }
             .onAppear { local.refreshSignedApps() }
@@ -327,90 +389,126 @@ struct NextSignerSignedAppsView: View {
         }
     }
 
-    private func signedAppRow(_ app: LocalSignedApp) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "app.badge.checkmark.fill")
-                    .font(.title2)
-                    .frame(width: 52, height: 52)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 13))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(app.appName).font(.headline)
-                    Text(app.bundleID)
-                        .font(.caption2.monospaced())
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                    HStack(spacing: 6) {
-                        if !app.version.isEmpty { Text("v\(app.version)") }
-                        if !app.build.isEmpty { Text("build \(app.build)") }
-                        if app.sizeBytes > 0 { Text(ByteCountFormatter.string(fromByteCount: app.sizeBytes, countStyle: .file)) }
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                }
-                Spacer()
+    private var emptyState: some View {
+        NSGlassCard {
+            VStack(spacing: 13) {
+                NSIconBadge(systemImage: "checkmark.seal", size: 60, tint: NSTheme.violet)
+                Text("Your signed apps will live here")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                Text("Sign an IPA from the Sign tab. The finished IPA is saved locally and appears here automatically.")
+                    .font(.footnote)
+                    .foregroundStyle(NSTheme.textSecondary)
+                    .multilineTextAlignment(.center)
             }
-
-            Text(app.filename)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-
-            if local.installingID == app.id {
-                ProgressView()
-                Text(local.installMessage ?? "Preparing Apple OTA installation…")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            if local.publishingID == app.id {
-                ProgressView(value: local.publishProgress)
-                Text("Publishing signed IPA to site…")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            HStack(spacing: 8) {
-                Button {
-                    local.install(app, using: store)
-                } label: {
-                    Label("Install", systemImage: "arrow.down.app.fill")
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.green)
-                .disabled(local.installingID != nil || local.publishingID != nil)
-
-                Button {
-                    local.publish(app, using: store)
-                } label: {
-                    Label("Publish", systemImage: "paperplane.fill")
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(local.publishingID != nil || local.installingID != nil)
-            }
-
-            HStack(spacing: 8) {
-                Button {
-                    shareURL = app.ipaURL
-                } label: {
-                    Label("Share IPA", systemImage: "square.and.arrow.up")
-                }
-                .buttonStyle(.bordered)
-
-                Button(role: .destructive) {
-                    deleteCandidate = app
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-                .buttonStyle(.bordered)
-                .disabled(local.publishingID == app.id || local.installingID == app.id)
-            }
-
-            Text("Install uses Apple OTA Ad Hoc installation. The already-signed IPA is staged temporarily over HTTPS and is not added to your site. Publish remains a separate manual action.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
         }
-        .padding(.vertical, 4)
+    }
+
+    private func signedAppCard(_ app: LocalSignedApp) -> some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top, spacing: 13) {
+                    NSIconBadge(systemImage: "app.badge.checkmark.fill", size: 58, tint: NSTheme.mint)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(app.appName)
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+
+                        Text(app.bundleID)
+                            .font(.caption2.monospaced())
+                            .foregroundStyle(Color.white.opacity(0.48))
+                            .lineLimit(1)
+
+                        Text([app.version.isEmpty ? nil : "v\(app.version)", app.build.isEmpty ? nil : "build \(app.build)"].compactMap { $0 }.joined(separator: " • "))
+                            .font(.caption)
+                            .foregroundStyle(NSTheme.textSecondary)
+                    }
+
+                    Spacer()
+                }
+
+                HStack(spacing: 8) {
+                    if app.sizeBytes > 0 {
+                        NSStatusChip(
+                            text: ByteCountFormatter.string(fromByteCount: app.sizeBytes, countStyle: .file),
+                            systemImage: "shippingbox.fill",
+                            tint: NSTheme.blue
+                        )
+                    }
+                    NSStatusChip(
+                        text: app.minimumOS,
+                        systemImage: "iphone",
+                        tint: NSTheme.violet
+                    )
+                }
+
+                Text("Signed \(app.signedAt.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.caption2)
+                    .foregroundStyle(Color.white.opacity(0.40))
+
+                if local.installingID == app.id {
+                    VStack(alignment: .leading, spacing: 7) {
+                        ProgressView().tint(NSTheme.mint)
+                        Text(local.installMessage ?? "Preparing Apple OTA installation…")
+                            .font(.caption)
+                            .foregroundStyle(NSTheme.textSecondary)
+                    }
+                }
+
+                if local.publishingID == app.id {
+                    VStack(alignment: .leading, spacing: 7) {
+                        ProgressView(value: local.publishProgress)
+                            .tint(NSTheme.cyan)
+                        Text("Publishing signed IPA to site…")
+                            .font(.caption)
+                            .foregroundStyle(NSTheme.textSecondary)
+                    }
+                }
+
+                HStack(spacing: 9) {
+                    Button {
+                        local.install(app, using: store)
+                    } label: {
+                        Label("Install", systemImage: "arrow.down.app.fill")
+                    }
+                    .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.mint))
+                    .disabled(local.installingID != nil || local.publishingID != nil)
+
+                    Button {
+                        local.publish(app, using: store)
+                    } label: {
+                        Label("Publish", systemImage: "paperplane.fill")
+                    }
+                    .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.cyan))
+                    .disabled(local.publishingID != nil || local.installingID != nil)
+                }
+
+                HStack(spacing: 9) {
+                    Button {
+                        shareURL = app.ipaURL
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.blue))
+
+                    Button(role: .destructive) {
+                        deleteCandidate = app
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.danger))
+                    .disabled(local.publishingID == app.id || local.installingID == app.id)
+                }
+
+                Text("Install uses temporary Apple OTA staging. Publish is separate and only runs when you press Publish.")
+                    .font(.caption2)
+                    .foregroundStyle(Color.white.opacity(0.42))
+            }
+        }
     }
 }
 
@@ -426,63 +524,48 @@ struct NextSignerLocalProfileView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    Label("On-device signing profile", systemImage: "iphone.badge.checkmark")
-                        .font(.headline)
-                    Text("These signing credentials stay on this iPhone and are used by the local Zsign engine. Signing an IPA does not contact GitHub.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+            ZStack {
+                NSBackground()
 
-                Section("P12 certificate") {
-                    statusRow("Certificate", ready: local.hasP12)
-                    Button {
-                        pickerTarget = .p12
-                    } label: {
-                        Label(local.hasP12 ? "Replace P12" : "Import P12", systemImage: "key.fill")
-                    }
-                    if local.hasP12 {
-                        Button("Remove P12", role: .destructive) { local.removeCredential(.p12) }
-                    }
-                }
+                ScrollView {
+                    VStack(spacing: 14) {
+                        NSPageHeader(
+                            eyebrow: "Local Security",
+                            title: "Signing Profile",
+                            subtitle: "Your P12, provisioning profile and password stay on this iPhone for on-device signing.",
+                            systemImage: "person.badge.key.fill"
+                        )
 
-                Section("P12 password") {
-                    SecureField("P12 password", text: $local.p12Password)
-                        .textContentType(.password)
-                    Button("Save Password to Keychain") { local.saveP12Password() }
-                    statusRow("Password", ready: local.p12PasswordIsStored)
-                }
+                        readinessCard
+                        certificateCard
+                        passwordCard
+                        provisioningCard
 
-                Section("Provisioning profile") {
-                    statusRow("Provisioning profile", ready: local.hasProvisioningProfile)
-                    Button {
-                        pickerTarget = .provisioning
-                    } label: {
-                        Label(local.hasProvisioningProfile ? "Replace .mobileprovision" : "Import .mobileprovision", systemImage: "doc.badge.gearshape")
-                    }
-                    if local.hasProvisioningProfile {
-                        Button("Remove Provisioning Profile", role: .destructive) { local.removeCredential(.provisioning) }
-                    }
-                }
+                        if let message = local.signingSuccess {
+                            NSGlassCard {
+                                Label(message, systemImage: "checkmark.circle.fill")
+                                    .font(.footnote)
+                                    .foregroundStyle(NSTheme.mint)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
 
-                Section("Status") {
-                    if local.credentialsReady {
-                        Label("Ready for local signing", systemImage: "checkmark.shield.fill")
-                            .foregroundStyle(.green)
-                    } else {
-                        Label("Complete the missing items above", systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                        if let error = local.signingError {
+                            NSGlassCard {
+                                Label(error, systemImage: "exclamationmark.triangle.fill")
+                                    .font(.footnote)
+                                    .foregroundStyle(NSTheme.danger)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .textSelection(.enabled)
+                            }
+                        }
                     }
-                    if let message = local.signingSuccess {
-                        Text(message).font(.caption).foregroundStyle(.green)
-                    }
-                    if let error = local.signingError {
-                        Text(error).font(.caption).foregroundStyle(.red).textSelection(.enabled)
-                    }
+                    .nsPagePadding()
+                    .padding(.bottom, 16)
                 }
             }
             .navigationTitle("Profiles")
+            .navigationBarTitleDisplayMode(.inline)
             .onAppear { local.refreshCredentials() }
             .sheet(item: $pickerTarget) { target in
                 ProfileDocumentPicker(
@@ -512,15 +595,100 @@ struct NextSignerLocalProfileView: View {
         }
     }
 
-    private func statusRow(_ title: String, ready: Bool) -> some View {
-        HStack {
-            Image(systemName: ready ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(ready ? .green : .secondary)
+    private var readinessCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 13) {
+                NSSectionHeader("Readiness", subtitle: "Three items are required", systemImage: "checkmark.shield.fill")
+                profileStatus("P12 certificate", systemImage: "key.fill", ready: local.hasP12)
+                profileStatus("P12 password", systemImage: "lock.fill", ready: local.p12PasswordIsStored)
+                profileStatus("Provisioning profile", systemImage: "doc.badge.gearshape", ready: local.hasProvisioningProfile)
+
+                if local.credentialsReady {
+                    NSStatusChip(text: "Ready for local signing", systemImage: "checkmark.circle.fill", tint: NSTheme.mint)
+                }
+            }
+        }
+    }
+
+    private var certificateCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                NSSectionHeader("Certificate", subtitle: "PKCS#12 signing identity", systemImage: "key.fill")
+
+                Button {
+                    pickerTarget = .p12
+                } label: {
+                    Label(local.hasP12 ? "Replace P12 Certificate" : "Import P12 Certificate", systemImage: "folder.badge.plus")
+                }
+                .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.cyan))
+
+                if local.hasP12 {
+                    Button(role: .destructive) {
+                        local.removeCredential(.p12)
+                    } label: {
+                        Label("Remove P12", systemImage: "trash")
+                    }
+                    .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.danger))
+                }
+            }
+        }
+    }
+
+    private var passwordCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                NSSectionHeader("Certificate password", subtitle: "Stored in iOS Keychain", systemImage: "lock.fill")
+
+                SecureField("P12 password", text: $local.p12Password)
+                    .textContentType(.password)
+                    .textFieldStyle(NSModernTextFieldStyle())
+
+                Button {
+                    local.saveP12Password()
+                } label: {
+                    Label(local.p12PasswordIsStored ? "Update Keychain Password" : "Save Password to Keychain", systemImage: "key.fill")
+                }
+                .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.violet))
+            }
+        }
+    }
+
+    private var provisioningCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                NSSectionHeader("Provisioning profile", subtitle: "Ad Hoc .mobileprovision", systemImage: "doc.badge.gearshape")
+
+                Button {
+                    pickerTarget = .provisioning
+                } label: {
+                    Label(local.hasProvisioningProfile ? "Replace Provisioning Profile" : "Import Provisioning Profile", systemImage: "folder.badge.plus")
+                }
+                .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.cyan))
+
+                if local.hasProvisioningProfile {
+                    Button(role: .destructive) {
+                        local.removeCredential(.provisioning)
+                    } label: {
+                        Label("Remove Provisioning Profile", systemImage: "trash")
+                    }
+                    .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.danger))
+                }
+            }
+        }
+    }
+
+    private func profileStatus(_ title: String, systemImage: String, ready: Bool) -> some View {
+        HStack(spacing: 11) {
+            Image(systemName: systemImage)
+                .foregroundStyle(ready ? NSTheme.mint : Color.white.opacity(0.35))
+                .frame(width: 28)
             Text(title)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.white)
             Spacer()
-            Text(ready ? "Saved locally" : "Not configured")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Text(ready ? "Ready" : "Missing")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(ready ? NSTheme.mint : NSTheme.warning)
         }
     }
 }
@@ -536,101 +704,32 @@ struct NextSignerLocalSettingsView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    Text("GitHub is used only after you manually tap Publish on a signed app. Local signing, local IPA storage and TrollStore installation work without GitHub.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } header: {
-                    Text("Architecture")
-                }
+            ZStack {
+                NSBackground()
 
-                Section("GitHub publishing") {
-                    TextField("Owner", text: $store.configuration.owner)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    TextField("Repository", text: $store.configuration.repository)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    TextField("Branch", text: $store.configuration.branch)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    TextField("Workflow file", text: $store.configuration.workflowFile)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                }
+                ScrollView {
+                    VStack(spacing: 14) {
+                        NSPageHeader(
+                            eyebrow: "Configuration",
+                            title: "Settings",
+                            subtitle: "Local signing stays local. GitHub is used only for OTA staging and publishing actions you explicitly start.",
+                            systemImage: "gearshape.fill"
+                        )
 
-                Section("Fine-grained PAT") {
-                    if revealToken {
-                        TextField("github_pat_…", text: $store.token)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                    } else {
-                        SecureField("github_pat_…", text: $store.token)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
+                        architectureCard
+                        publishingCard
+                        tokenCard
+                        backupCard
+                        securityCard
+                        aboutCard
                     }
-                    Toggle("Show token", isOn: $revealToken)
-                    Button("Save Token to Keychain") { store.saveToken() }
-                    Label(store.tokenIsStored ? "PAT stored on this device" : "PAT not configured",
-                          systemImage: store.tokenIsStored ? "lock.fill" : "lock.open")
-                        .font(.caption)
-                        .foregroundStyle(store.tokenIsStored ? .green : .secondary)
-                }
-
-                Section("Backup & Restore") {
-                    Button {
-                        do {
-                            store.persistConfiguration()
-                            shareURL = try NextSignerConfigBackupManager.createBackup(store: store)
-                            backupMessage = "Backup created. Save it somewhere secure."
-                            backupError = nil
-                        } catch {
-                            backupError = error.localizedDescription
-                        }
-                    } label: {
-                        Label("Backup Current Config", systemImage: "externaldrive.badge.plus")
-                    }
-
-                    Button {
-                        restorePicker = true
-                    } label: {
-                        Label("Restore Config Backup", systemImage: "arrow.clockwise.icloud")
-                    }
-
-                    Text("The config backup includes the saved GitHub PAT and repository/settings. It does not contain the P12 certificate or provisioning profile.")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-
-                    if let backupMessage {
-                        Label(backupMessage, systemImage: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.green)
-                    }
-                    if let backupError {
-                        Label(backupError, systemImage: "exclamationmark.triangle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                    }
-                }
-
-                Section("Publishing PAT permissions") {
-                    Label("Contents: Read and write", systemImage: "doc.badge.gearshape")
-                    Text("The PAT is only needed to upload the already-signed IPA to the private inbox and request the site/R2 publishing workflow. Secrets permission is no longer needed for local signing.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Section("Local signing security") {
-                    Label(local.hasP12 ? "P12 stored locally" : "P12 not stored", systemImage: "key.fill")
-                    Label(local.hasProvisioningProfile ? "Provisioning profile stored locally" : "Provisioning profile not stored", systemImage: "doc.badge.gearshape")
-                    Label(local.p12PasswordIsStored ? "P12 password in Keychain" : "P12 password not stored", systemImage: "lock.fill")
-                    Text("Signing credentials are kept in the app's protected local storage/Keychain and are not uploaded when you sign an IPA.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    .nsPagePadding()
+                    .padding(.bottom, 16)
                 }
             }
             .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear { local.refreshCredentials() }
             .onDisappear { store.persistConfiguration() }
             .sheet(isPresented: $restorePicker) {
                 ManualDocumentPicker(
@@ -657,6 +756,193 @@ struct NextSignerLocalSettingsView: View {
             )) {
                 if let shareURL { NextSignerShareSheet(items: [shareURL]) }
             }
+        }
+    }
+
+    private var architectureCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 13) {
+                NSSectionHeader("Architecture", subtitle: "Local first, cloud only when requested", systemImage: "cpu.fill")
+
+                settingStatus(
+                    "Local signing",
+                    detail: local.credentialsReady ? "Ready on this iPhone" : "Complete Profiles setup",
+                    systemImage: "iphone",
+                    ready: local.credentialsReady
+                )
+
+                settingStatus(
+                    "Publishing connection",
+                    detail: store.tokenIsStored ? "GitHub PAT saved" : "PAT not configured",
+                    systemImage: "cloud.fill",
+                    ready: store.tokenIsStored
+                )
+            }
+        }
+    }
+
+    private var publishingCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 11) {
+                NSSectionHeader("Publishing repository", subtitle: "Used only when staging or publishing", systemImage: "arrow.triangle.branch")
+
+                TextField("Owner", text: $store.configuration.owner)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .textFieldStyle(NSModernTextFieldStyle())
+
+                TextField("Repository", text: $store.configuration.repository)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .textFieldStyle(NSModernTextFieldStyle())
+
+                TextField("Branch", text: $store.configuration.branch)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .textFieldStyle(NSModernTextFieldStyle())
+
+                TextField("Workflow file", text: $store.configuration.workflowFile)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .textFieldStyle(NSModernTextFieldStyle())
+            }
+        }
+    }
+
+    private var tokenCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                NSSectionHeader("Fine-grained GitHub PAT", subtitle: "Contents: Read and write", systemImage: "lock.shield.fill")
+
+                if revealToken {
+                    TextField("github_pat_…", text: $store.token)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .textFieldStyle(NSModernTextFieldStyle())
+                } else {
+                    SecureField("github_pat_…", text: $store.token)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .textFieldStyle(NSModernTextFieldStyle())
+                }
+
+                Toggle("Show token", isOn: $revealToken)
+                    .tint(NSTheme.cyan)
+                    .foregroundStyle(.white)
+
+                Button {
+                    store.saveToken()
+                } label: {
+                    Label("Save PAT to Keychain", systemImage: "lock.fill")
+                }
+                .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.cyan))
+
+                NSStatusChip(
+                    text: store.tokenIsStored ? "PAT saved" : "PAT not configured",
+                    systemImage: store.tokenIsStored ? "checkmark.circle.fill" : "exclamationmark.triangle.fill",
+                    tint: store.tokenIsStored ? NSTheme.mint : NSTheme.warning
+                )
+            }
+        }
+    }
+
+    private var backupCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                NSSectionHeader("Backup & Restore", subtitle: "Repository settings and PAT", systemImage: "externaldrive.fill")
+
+                Button {
+                    do {
+                        store.persistConfiguration()
+                        shareURL = try NextSignerConfigBackupManager.createBackup(store: store)
+                        backupMessage = "Backup created. Save it somewhere secure."
+                        backupError = nil
+                    } catch {
+                        backupError = error.localizedDescription
+                    }
+                } label: {
+                    Label("Backup Current Config", systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.blue))
+
+                Button {
+                    restorePicker = true
+                } label: {
+                    Label("Restore Config Backup", systemImage: "arrow.clockwise.icloud")
+                }
+                .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.violet))
+
+                Text("Config backups contain your GitHub PAT. They do not contain the P12 certificate or provisioning profile.")
+                    .font(.caption)
+                    .foregroundStyle(NSTheme.warning)
+
+                if let backupMessage {
+                    Label(backupMessage, systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(NSTheme.mint)
+                }
+
+                if let backupError {
+                    Label(backupError, systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(NSTheme.danger)
+                }
+            }
+        }
+    }
+
+    private var securityCard: some View {
+        NSGlassCard {
+            VStack(alignment: .leading, spacing: 11) {
+                NSSectionHeader("Local signing security", subtitle: "Credential storage status", systemImage: "shield.lefthalf.filled")
+
+                settingStatus("P12 certificate", detail: local.hasP12 ? "Stored locally" : "Not stored", systemImage: "key.fill", ready: local.hasP12)
+                settingStatus("Provisioning profile", detail: local.hasProvisioningProfile ? "Stored locally" : "Not stored", systemImage: "doc.badge.gearshape", ready: local.hasProvisioningProfile)
+                settingStatus("P12 password", detail: local.p12PasswordIsStored ? "Stored in Keychain" : "Not stored", systemImage: "lock.fill", ready: local.p12PasswordIsStored)
+
+                Text("Signing credentials are not uploaded when you sign an IPA.")
+                    .font(.caption)
+                    .foregroundStyle(NSTheme.textSecondary)
+            }
+        }
+    }
+
+    private var aboutCard: some View {
+        NSGlassCard {
+            HStack(spacing: 13) {
+                NSIconBadge(systemImage: "signature", size: 54, tint: NSTheme.violet)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Next Signer")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Text("Version 1.5.0  •  Build 26")
+                        .font(.caption)
+                        .foregroundStyle(NSTheme.textSecondary)
+                    Text("Local signing + Apple OTA + private publishing")
+                        .font(.caption2)
+                        .foregroundStyle(Color.white.opacity(0.42))
+                }
+                Spacer()
+            }
+        }
+    }
+
+    private func settingStatus(_ title: String, detail: String, systemImage: String, ready: Bool) -> some View {
+        HStack(spacing: 11) {
+            Image(systemName: systemImage)
+                .foregroundStyle(ready ? NSTheme.mint : NSTheme.warning)
+                .frame(width: 27)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.white)
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(NSTheme.textSecondary)
+            }
+            Spacer()
+            Image(systemName: ready ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(ready ? NSTheme.mint : Color.white.opacity(0.25))
         }
     }
 }
