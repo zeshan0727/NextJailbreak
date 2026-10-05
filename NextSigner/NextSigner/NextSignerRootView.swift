@@ -110,16 +110,16 @@ private struct NSFloatingTabBar: View {
                     .foregroundStyle(selection == tab ? Color.white : Color.white.opacity(0.52))
                     .frame(height: 42)
                     .padding(.horizontal, selection == tab ? 11 : 8)
-                    .background(
+                    .background {
                         Group {
                             if selection == tab {
                                 NSTheme.accentGradient
                             } else {
                                 LinearGradient(colors: [.clear, .clear], startPoint: .top, endPoint: .bottom)
                             }
-                        },
-                        in: Capsule()
-                    )
+                        }
+                        .clipShape(Capsule())
+                    }
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(tab.title)
