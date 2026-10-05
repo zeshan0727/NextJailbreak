@@ -37,10 +37,8 @@ jobs:
           grep -q '<key>CADisableMinimumFrameDurationOnPhone</key>' NextSigner/Info.plist
           grep -A1 '<key>CADisableMinimumFrameDurationOnPhone</key>' NextSigner/Info.plist | grep -q '<true/>'
 
-          git show origin/feature/nextsigner-1.4.2-ota-install:NextSigner/NextSigner/LocalSignerService.swift > "$RUNNER_TEMP/working-142-LocalSignerService.swift"
-          cmp -s "$RUNNER_TEMP/working-142-LocalSignerService.swift" NextSigner/NextSigner/LocalSignerService.swift || {
+          test "$(git hash-object NextSigner/NextSigner/LocalSignerService.swift)" = "a5797f6fd3b8c41345ed0bd78fa75d088ec159ec" || {
             echo 'LocalSignerService no longer matches proven 1.4.2 signing core' >&2
-            diff -u "$RUNNER_TEMP/working-142-LocalSignerService.swift" NextSigner/NextSigner/LocalSignerService.swift || true
             exit 1
           }
 
