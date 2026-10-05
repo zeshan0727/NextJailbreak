@@ -1,0 +1,1 @@
+Publish Next Signer 1.5.1 build 27 performance build to NS Transfer from artifact NextSigner-1.5.1-120FPS.
