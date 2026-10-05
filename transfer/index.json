@@ -1,19 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T14:16:08Z",
+  "updatedAt": "2026-10-05T14:50:29Z",
   "files": [
     {
-      "id": "nextsigner-1.5.2",
-      "name": "Next Signer 1.5.2",
-      "fileName": "NextSigner-1.5.2.tipa",
+      "id": "nextsigner-1.5.3",
+      "name": "Next Signer 1.5.3",
+      "fileName": "NextSigner-1.5.3.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
-      "version": "1.5.2",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.2/NextSigner-1.5.2.tipa",
-      "sha256": "257fc08f2183a8844896b56527ea1e39fb8b52604da1a3dafec3e7f979794d88",
-      "sizeBytes": 3403156,
+      "version": "1.5.3",
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.3/NextSigner-1.5.3.tipa",
+      "sha256": "bdaf726c7164e969f8c05ca8763dc3cbcfc884f10928f8bf9cb3c8e57c36ed65",
+      "sizeBytes": 3403557,
       "storage": "Cloudflare R2",
-      "notes": "Fixes local signing embedded.mobileprovision handling by embedding the selected profile before Zsign signs the app. Also removes remaining custom animations, live material blur, shadows and heavy compositing while retaining ProMotion high-refresh support."
+      "notes": "Regression fix: restores the exact proven 1.4.2 local signing service and the Zsign embedded.mobileprovision write-condition correction that was lost during the modern UI rebuild. Keeps the modern lightweight UI and ProMotion support."
     },
     {
       "id": "netmirror-1.0.9-startup-network-diagnostic",
