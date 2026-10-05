@@ -224,7 +224,7 @@ struct NSPrimaryButtonStyle: ButtonStyle {
             .foregroundStyle(.white)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, minHeight: 54)
-            .background(
+            .background {
                 Group {
                     if destructive {
                         LinearGradient(
@@ -235,9 +235,9 @@ struct NSPrimaryButtonStyle: ButtonStyle {
                     } else {
                         NSTheme.accentGradient
                     }
-                },
-                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
-            )
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(Color.white.opacity(0.20), lineWidth: 1)
