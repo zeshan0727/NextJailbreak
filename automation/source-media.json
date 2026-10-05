@@ -1,6 +1,16 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.roothide.Bootstrap": {
+      "credit_label": "RootHide Bootstrap official project icon",
+      "source_page_url": "https://github.com/roothide/Bootstrap/blob/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+        "alt": "Official RootHide Bootstrap app icon from the project source repository"
+      },
+      "screenshots": []
+    },
     "com.besiktasliseba.macstatusbaranddock": {
       "credit_label": "MacStatusBar&Dock official developer package depiction",
       "source_page_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",

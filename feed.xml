@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Rootless vs Rootful vs RootHide Jailbreaks: How to Identify Your Setup</title>
+      <link>https://nextjailbreak.com/tutorial-rootless-basics/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/tutorial-rootless-basics/</guid>
+      <pubDate>Mon, 05 Oct 2026 04:56:07 GMT</pubDate>
+      <description>Compare jailbreak filesystem environments, recognize package architecture clues and avoid confusing tweak support with device jailbreak availability.</description>
+      <category>Jailbreak Guide</category>
+    </item>
+    <item>
       <title>MacStatusBar&amp;Dock 1.3.6 Expands Stage Manager to Seven Windows</title>
       <link>https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</guid>

@@ -1,6 +1,29 @@
 {
   "entries": [
     {
+      "category": {"id": "jailbreak-guide", "label": "Jailbreak Guide"},
+      "compat": "Concept guide covering rootful, conventional rootless and RootHide environments; package compatibility does not establish jailbreak availability",
+      "description": "Compare jailbreak filesystem environments, recognize package architecture clues and avoid confusing tweak support with device jailbreak availability.",
+      "developer": "Theos; RootHide; opa334",
+      "entry_type": "evergreen-guide",
+      "href": "tutorial-rootless-basics/",
+      "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
+      "media_credit": "Official RootHide Bootstrap icon from the project source repository",
+      "media_source_url": "https://github.com/roothide/Bootstrap/blob/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "modified_at": "2026-10-05T04:56:07Z",
+      "name": "Rootless vs Rootful vs RootHide",
+      "package": "com.roothide.Bootstrap",
+      "published_at": "2026-07-30T00:00:00Z",
+      "release": "2026-10-05",
+      "selection_pool": "evergreen-search-intent-guide",
+      "source_name": "Official project documentation",
+      "source_page_url": "https://theos.dev/docs/rootless",
+      "source_url": "https://theos.dev/docs/rootless",
+      "source_visual_origin": "official-project-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "title": "Rootless vs Rootful vs RootHide Jailbreaks: How to Identify Your Setup"
+    },
+    {
       "additional_media": [
         {
           "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",

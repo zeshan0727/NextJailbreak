@@ -1,117 +1,74 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#06101d">
-  <title>Rootless iOS Customization Explained | Next Jailbreak</title>
-  <meta name="description" content="Understand rootless iOS customization, package architecture, file paths, compatibility checks and safer installation habits.">
-  <link rel="canonical" href="https://nextjailbreak.com/tutorial-rootless-basics/">
-  <link rel="stylesheet" href="/site.css">
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="Next Jailbreak">
-  <meta property="og:url" content="https://nextjailbreak.com/tutorial-rootless-basics/">
-  <meta property="og:title" content="Rootless iOS Customization Explained | Next Jailbreak">
-  <meta property="og:description" content="Understand rootless iOS customization, package architecture, file paths, compatibility checks and safer installation habits.">
-  <meta property="og:image" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card.png">
-  <meta property="og:image:secure_url" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card.png">
-  <meta property="og:image:alt" content="Rootless iOS Customization Explained | Next Jailbreak">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:site" content="@nextjailbreak">
-  <meta name="twitter:title" content="Rootless iOS Customization Explained | Next Jailbreak">
-  <meta name="twitter:description" content="Understand rootless iOS customization, package architecture, file paths, compatibility checks and safer installation habits.">
-  <meta name="twitter:image" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card.png">
-  <meta name="twitter:image:alt" content="Rootless iOS Customization Explained | Next Jailbreak">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <script data-clean-url-redirect>
-    (function () {
-      var path = window.location.pathname;
-      if (/\.html$/i.test(path) && path.toLowerCase() !== '/index.html') {
-        window.location.replace(path.slice(0, -5) + '/' + window.location.search + window.location.hash);
-      }
-    }());
-  </script>
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f3f5f6">
+<title>Rootless vs Rootful vs RootHide Jailbreaks: Identify Your Setup | Next Jailbreak</title><meta name="description" content="Compare rootless, rootful and RootHide jailbreak environments, identify your setup, and choose compatible iOS tweak packages without confusing package support with jailbreak availability."><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="https://nextjailbreak.com/tutorial-rootless-basics/"><link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml"><link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg"><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/community-comments.css">
+<meta property="og:type" content="article"><meta property="og:site_name" content="Next Jailbreak"><meta property="og:url" content="https://nextjailbreak.com/tutorial-rootless-basics/"><meta property="og:title" content="Rootless vs Rootful vs RootHide Jailbreaks: Identify Your Setup"><meta property="og:description" content="Compare rootless, rootful and RootHide environments, identify your setup, and choose the correct jailbreak tweak package build."><meta property="og:image" content="https://nextjailbreak.com/assets/articles/source-media/roothide-bootstrap-official-icon.png"><meta property="og:image:width" content="1024"><meta property="og:image:height" content="1024"><meta property="og:image:alt" content="Official RootHide Bootstrap app icon from the project source repository"><meta name="twitter:card" content="summary"><meta name="twitter:site" content="@nextjailbreak"><meta name="twitter:title" content="Rootless vs Rootful vs RootHide Jailbreaks: Identify Your Setup"><meta name="twitter:description" content="Compare rootless, rootful and RootHide environments, identify your setup, and choose the correct jailbreak tweak package build."><meta name="twitter:image" content="https://nextjailbreak.com/assets/articles/source-media/roothide-bootstrap-official-icon.png"><meta name="twitter:image:alt" content="Official RootHide Bootstrap app icon from the project source repository">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"Rootless vs Rootful vs RootHide Jailbreaks: How to Identify Your Setup","description":"Compare rootless, rootful and RootHide jailbreak environments, identify your setup, and choose compatible iOS tweak packages without confusing package support with jailbreak availability.","datePublished":"2026-07-30T00:00:00Z","dateModified":"2026-10-05T04:56:07Z","image":"https://nextjailbreak.com/assets/articles/source-media/roothide-bootstrap-official-icon.png","author":{"@type":"Person","name":"Zeeshan Barvi"},"publisher":{"@type":"Organization","name":"Next Jailbreak","url":"https://nextjailbreak.com"},"mainEntityOfPage":"https://nextjailbreak.com/tutorial-rootless-basics/","articleSection":"Jailbreak Guide","citation":["https://theos.dev/docs/rootless","https://theos.dev/docs/packaging","https://github.com/roothide/Bootstrap","https://github.com/roothide/Developer/blob/main/roothide.md","https://github.com/opa334/Dopamine"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nextjailbreak.com/"},{"@type":"ListItem","position":2,"name":"Jailbreak Guides","item":"https://nextjailbreak.com/tutorials/#jailbreak-guides"},{"@type":"ListItem","position":3,"name":"Rootless vs Rootful vs RootHide","item":"https://nextjailbreak.com/tutorial-rootless-basics/"}]}]}</script>
 <!-- google-analytics-auto:start -->
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-7GJ4N0HV92"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-7GJ4N0HV92');
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-7GJ4N0HV92');</script>
 <!-- google-analytics-auto:end -->
-<link rel="stylesheet" href="/assets/community-comments.css">
-  <!-- legacy-route-noindex:start -->
-  <meta name="robots" content="noindex,follow,max-image-preview:large">
-  <!-- legacy-route-noindex:end -->
+<meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324">
 </head>
-<body>
-  <a class="skip" href="#content">Skip to content</a>
-  <header class="site-header"><nav class="nav" aria-label="Main navigation"><a class="brand" href="/"><span class="brand-mark">N</span>Next Jailbreak</a><div class="nav-links"><a href="/">Home</a><a href="/tutorials/" aria-current="page">Tutorials</a><a href="/videos/">Videos</a><a href="/repo/">Repository</a><a href="/about/">About</a><a href="/contact/">Contact</a></div></nav></header>
-  <main id="content">
-    <article class="article">
-      <span class="eyebrow">Rootless fundamentals</span>
-      <h1>Rootless iOS customization: what changes and why compatibility matters</h1>
-      <p class="meta">Updated 30 July 2026 · Approximately 7 minutes</p>
-      <p class="lead">Modern jailbreak environments often avoid writing directly to the sealed system volume. Instead, packages and their supporting files are stored in separate locations. This changes how tweaks are packaged, loaded and repaired.</p>
+<body><div class="topline"><div class="topline-inner"><span>iPhone jailbreak guides, tweak reviews and practical fixes</span><span class="topline-status"><i aria-hidden="true"></i> Direct links to original sources</span></div></div><header class="site-header"><div class="nav-shell"><a class="brand" href="/" aria-label="Next Jailbreak home"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><nav aria-label="Primary navigation"><ul class="nav-links"><li><a href="/">Blog</a></li><li><a href="/tutorials/#verified-articles">Tweaks</a></li><li><a href="/tutorials/#jailbreak-guides">Jailbreak</a></li><li><a href="/videos/">Videos</a></li><li><a href="https://repo.nextjailbreak.com/">Repo</a></li></ul></nav></div></header>
+<main class="container article-main"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/tutorials/#jailbreak-guides">Jailbreak guides</a><span>/</span><span>Rootless, rootful and RootHide</span></nav><article><header class="article-hero"><span class="article-kicker">Jailbreak basics · Environment guide</span><h1>Rootless vs Rootful vs RootHide Jailbreaks: How to Identify Your Setup</h1><p class="article-summary">Rootful, conventional rootless and RootHide packages are not interchangeable labels. Identify the jailbreak environment first, then check the package build, iOS range and dependencies before installing a tweak.</p><p class="article-footnote">By Zeeshan Barvi · Updated October 5, 2026 · Verified against Theos, RootHide and Dopamine documentation</p></header>
+<div class="article-layout"><div class="article-content"><figure style="margin:0 auto 2rem;max-width:360px"><a href="/assets/articles/source-media/roothide-bootstrap-official-icon.png"><img src="/assets/articles/source-media/roothide-bootstrap-official-icon.png" alt="Official RootHide Bootstrap app icon from the project source repository" width="1024" height="1024" style="display:block;width:100%;height:auto;margin:0 auto" fetchpriority="high"></a><figcaption>Official RootHide Bootstrap icon from the <a href="https://github.com/roothide/Bootstrap/blob/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png" rel="noopener noreferrer">project source repository</a>. It is used here to identify the RootHide environment, not as a generic jailbreak image.</figcaption></figure>
 
-      <nav class="toc" aria-label="On this page"><b>On this page</b><a href="#meaning">What “rootless” means</a><a href="#architecture">Package architecture</a><a href="#paths">Why file paths differ</a><a href="#checklist">Compatibility checklist</a><a href="#safety">Safer installation habits</a></nav>
+<h2>The short answer</h2>
+<p><strong>Rootful</strong> is the traditional jailbreak layout and normally uses packages marked <code>iphoneos-arm</code>. <strong>Rootless</strong> keeps jailbreak files under a separate prefix—Theos documents <code>/var/jb</code>—and normally uses <code>iphoneos-arm64</code> packages. <strong>RootHide</strong> is also rootless in principle, but it uses a randomized jailbreak-root directory and RootHide-specific loader paths and packages.</p>
+<p>Those labels describe the package and filesystem environment. They do <strong>not</strong> prove that a jailbreak exists for your iPhone, chip or iOS version. Determine device support from the jailbreak project first; only then evaluate tweak compatibility.</p>
 
-      <h2 id="meaning">What “rootless” means</h2>
-      <p>On recent iOS versions, the operating-system volume is protected and designed to remain read-only during normal use. A rootless customization environment works around that design by keeping jailbreak-related files in a separate writable area rather than replacing original system files.</p>
-      <p>This approach has practical advantages: system files remain closer to their original state, removal can be cleaner, and multiple customization environments can organize their files independently. It also means an old package built for a traditional rootful layout may look for files in the wrong place.</p>
+<h2>Rootless, rootful and RootHide compared</h2>
+<div style="overflow-x:auto"><table><thead><tr><th>Environment</th><th>Package clue</th><th>Filesystem model</th><th>What it means when choosing a tweak</th></tr></thead><tbody>
+<tr><td><strong>Rootful</strong></td><td><code>iphoneos-arm</code></td><td>Traditional jailbreak paths rooted in the normal filesystem layout</td><td>Use a package explicitly built for rootful. An old rootful package is not automatically safe on a modern rootless jailbreak.</td></tr>
+<tr><td><strong>Rootless</strong></td><td><code>iphoneos-arm64</code></td><td>Theos uses <code>/var/jb</code> as the rootless install prefix; binaries and libraries use adjusted loader paths</td><td>Look for explicit rootless support, the correct iOS range and compatible dependencies.</td></tr>
+<tr><td><strong>RootHide</strong></td><td>RootHide build or explicit RootHide support</td><td>A randomized jailbreak-root directory with RootHide <code>.jbroot</code> links and APIs rather than a fixed <code>/var/jb</code> assumption</td><td>Do not treat every ordinary rootless package as RootHide-compatible unless the developer or repository says so.</td></tr>
+</tbody></table></div>
+<p>The architecture field is useful, but it is only one filter. A package can have the right architecture and still fail because its supported iOS range, dependencies, injection target or hard-coded paths do not match your setup.</p>
 
-      <h2 id="architecture">Package architecture labels</h2>
-      <p>A package manager uses architecture information to decide whether a package is intended for the current environment. Common modern labels include <code>iphoneos-arm64</code> and <code>iphoneos-arm64e</code>. The label alone does not guarantee compatibility, but a mismatch is an immediate warning sign.</p>
-      <p>Before installing a package, confirm all three items:</p>
-      <ul>
-        <li>The developer explicitly supports your iOS range.</li>
-        <li>The package supports your jailbreak type, such as rootless or RootHide.</li>
-        <li>The package was built for your device architecture.</li>
-      </ul>
+<h2>How to identify your jailbreak environment</h2>
+<ol>
+<li><strong>Start with the jailbreak or bootstrap name.</strong> Read its official documentation. Dopamine describes itself as a rootless jailbreak. RootHide Bootstrap identifies a RootHide environment and is installed through TrollStore.</li>
+<li><strong>Check the package description.</strong> Reputable repositories normally state rootful, rootless or RootHide support. Prefer an explicit statement over an icon, screenshot or community guess.</li>
+<li><strong>Inspect package details in Sileo or Zebra.</strong> A package architecture of <code>iphoneos-arm64</code> indicates a rootless build; Theos documents <code>iphoneos-arm</code> for rootful iOS packages.</li>
+<li><strong>Use paths only as a supporting clue.</strong> A conventional rootless jailbreak commonly exposes <code>/var/jb</code>. RootHide deliberately uses a randomized jailbreak root, so a tutorial that assumes a fixed <code>/var/jb</code> path may be wrong for it.</li>
+<li><strong>Do not probe by deleting or moving files.</strong> If the environment is still unclear, check the project documentation or ask the tweak developer with your exact jailbreak, device and iOS version.</li>
+</ol>
 
-      <h2 id="paths">Why file paths differ</h2>
-      <p>Traditional packages often expect jailbreak files to exist directly under familiar Unix-style paths. Rootless packages usually use a redirected prefix managed by the jailbreak. The exact prefix can differ by environment, so manually copying files based on an old tutorial is risky.</p>
-      <p>A correctly converted package must update more than a visible installation path. Scripts, preference bundles, dynamic libraries, dependencies and hard-coded resource locations may all need adjustment. Renaming a folder without checking those references does not create a reliable conversion.</p>
+<h2>Why ordinary rootless and RootHide are different</h2>
+<p>Theos’s conventional rootless scheme relocates packages under <code>/var/jb</code> and adjusts linking so binaries can find rootless libraries. RootHide avoids a fixed public jailbreak path: its developer documentation says each jailbreak uses a randomized jailbreak-root directory, with generated <code>.jbroot</code> links and a <code>jbroot</code> API for code that must locate jailbreak files.</p>
+<p>That is why “supports rootless” is not always enough. A tweak that assumes <code>/var/jb</code>, ships incompatible install scripts or accesses jailbreak files without RootHide’s path handling may need a separate RootHide build. RootHide’s official Theos instructions use <code>THEOS_PACKAGE_SCHEME=roothide</code>; conventional rootless projects use <code>THEOS_PACKAGE_SCHEME=rootless</code>.</p>
 
-      <h2 id="checklist">Compatibility checklist</h2>
-      <ol>
-        <li><strong>Record your setup.</strong> Note the exact iOS version, device model, jailbreak name and package-manager version.</li>
-        <li><strong>Read the package description.</strong> Look for an explicit supported-version range and rootless or RootHide support.</li>
-        <li><strong>Review dependencies.</strong> A compatible main package can still fail when a required library is missing or outdated.</li>
-        <li><strong>Check recent reports.</strong> Prefer feedback from users with the same iOS and jailbreak combination.</li>
-        <li><strong>Install one package at a time.</strong> This makes any new problem much easier to identify.</li>
-      </ol>
+<h2>RootHide Bootstrap injection is opt-in</h2>
+<p>RootHide Bootstrap’s official README says it does not inject tweaks into third-party apps by default. The user enables injection for selected apps in Bootstrap’s <strong>App List</strong>. If a RootHide tweak installs but does nothing inside an app, first confirm that the package supports RootHide and that injection is enabled for the intended target. Do not assume the missing behavior proves the package is broken.</p>
+<p>The project currently documents Bootstrap for iOS 15.0 through 17.0 on A8 through A17 Pro and M1/M2 devices, installed with TrollStore. That is Bootstrap’s own stated range, not a promise that every tweak supports every device or firmware in it.</p>
 
-      <h2 id="safety">Safer installation habits</h2>
-      <p>Use reputable repositories, avoid pirated packages and keep a list of recently installed items. If a package causes repeated crashes, disable or remove it before adding more changes. Do not keep retrying an incompatible installation because repeated post-install scripts can leave partial files or broken preferences.</p>
-      <div class="notice"><h3>Remember</h3><p>Rootless does not mean risk-free. Customization still changes how apps or system processes behave. Maintain backups, use tools only on devices you own, and keep a clear recovery route.</p></div>
+<h2>Choose the correct package build</h2>
+<ul>
+<li><strong>Match the environment:</strong> rootful, rootless or RootHide must be stated by the developer or package repository.</li>
+<li><strong>Match the iOS range:</strong> a rootless build may still target only certain iOS versions.</li>
+<li><strong>Check dependencies:</strong> every required library must also exist for the same environment.</li>
+<li><strong>Check app versions:</strong> app-specific tweaks may depend on a particular version of the target app.</li>
+<li><strong>Avoid blind conversion:</strong> changing a package label or moving files does not repair hard-coded paths, install scripts, dynamic-library references or incompatible code.</li>
+</ul>
+<p>If a repository offers multiple files, install through a current package manager and let it choose the declared compatible build. Do not install a rootful <code>.deb</code> on rootless merely because its package name is familiar, and do not assume a generic rootless <code>.deb</code> works on RootHide.</p>
 
-      <h2>Related reading</h2>
-      <p><a href="/tutorial-tweak-troubleshooting/">Troubleshoot a tweak conflict safely</a> · <a href="/tutorials/">View all tutorials</a></p>
-    </article>
-  
-  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_START -->
-  <section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title">
-    <div class="nj-comments-head">
-      <div><h2 id="community-comments-title">Community comments</h2><p>Questions, setup notes and experiences from Next Jailbreak readers. Be respectful and do not post personal information.</p></div>
-      <span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span>
-    </div>
-    <form class="nj-comment-form" data-comment-form>
-      <label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label>
-      <label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
-      <label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful comment or ask a question…" required></textarea></label>
-      <div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div>
-    </form>
-    <div class="nj-comment-list" data-comment-list></div>
-  </section>
-  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_END -->
+<h2>Package compatibility is not jailbreak availability</h2>
+<p>A listing that says “iOS 16–18” describes the package developer’s intended software range. It does not mean every device on those versions can be jailbroken. Jailbreak availability also depends on the device chip, exact firmware and the official project’s support matrix.</p>
+<p>For example, Dopamine’s official README calls Dopamine rootless and publishes separate device-and-firmware ranges. A tweak can support Dopamine’s rootless environment while your particular device or iOS build remains outside Dopamine’s supported range. Check both layers independently.</p>
 
-</main>
-  <footer class="footer"><div class="footer-inner"><span>© 2026 Next Jailbreak.</span><div class="footer-links"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/about/">About</a><a href="/contact/">Contact</a></div></div></footer>
-  <script src="/assets/community-comments.js" defer></script>
-</body>
-</html>
+<h2>Five checks before installing any tweak</h2>
+<ol>
+<li>Record the exact iPhone or iPad model, iOS version and jailbreak or bootstrap name.</li>
+<li>Confirm the environment: rootful, conventional rootless or RootHide.</li>
+<li>Read the tweak developer’s stated iOS, environment and target-app requirements.</li>
+<li>Verify that dependencies come from trusted repositories and match the same environment.</li>
+<li>Install one change at a time and keep a removal or recovery path.</li>
+</ol>
+<p>For a broader pre-install process, use the <a href="/jailbreak-tweak-compatibility-checklist/">jailbreak tweak compatibility checklist</a>. To compare modern package managers, see <a href="/sileo-vs-zebra-package-manager/">Sileo vs Zebra</a>. If you use Dopamine, the <a href="/dopamine-3-jailbreak.html">current Dopamine compatibility guide</a> separates jailbreak availability from tweak support.</p>
+
+<p class="article-footnote">Sources checked October 5, 2026. This guide is based on current official Theos, RootHide and Dopamine documentation and does not claim hands-on testing of every package or environment.</p></div>
+<aside class="article-sidebar" aria-label="Official rootless and RootHide sources"><h2>Official sources</h2><div class="button-stack"><a class="button button-primary" href="https://theos.dev/docs/rootless" rel="noopener noreferrer">Theos rootless guide</a><a class="button" href="https://theos.dev/docs/packaging" rel="noopener noreferrer">Theos package architectures</a><a class="button" href="https://github.com/roothide/Bootstrap" rel="noopener noreferrer">RootHide Bootstrap</a><a class="button" href="https://github.com/roothide/Developer/blob/main/roothide.md" rel="noopener noreferrer">RootHide differences</a><a class="button" href="https://github.com/opa334/Dopamine" rel="noopener noreferrer">Dopamine project</a></div><h2>Quick rule</h2><p>Match the jailbreak environment, package architecture, iOS range and dependencies. No single label replaces all four checks.</p><p class="source-note">Do not manually move or delete jailbreak files merely to identify a setup.</p></aside></div></article>
+<section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title"><div class="nj-comments-head"><div><h2 id="community-comments-title">Community comments</h2><p>Questions, setup notes and experiences from Next Jailbreak readers.</p></div><span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span></div><form class="nj-comment-form" data-comment-form><label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label><label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label><label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful comment or ask a question…" required></textarea></label><div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div></form><div class="nj-comment-list" data-comment-list></div></section></main>
+<footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="brand" href="/"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><p>Jailbreak news, useful tweak information, practical guides, and original videos.</p></div></div><div class="footer-bottom"><div class="container"><span>© 2026 Next Jailbreak</span></div></div></footer><script src="/assets/community-comments.js" defer></script><script defer src="/assets/adsterra.js?v=20260910-1" data-ns-monetag-loader="1"></script><script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>
+</body></html>
