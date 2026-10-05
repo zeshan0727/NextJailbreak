@@ -915,7 +915,7 @@ struct NextSignerLocalSettingsView: View {
                     Text("Next Signer")
                         .font(.headline)
                         .foregroundStyle(.white)
-                    Text("Version 1.5.0  •  Build 26")
+                    Text("Version 1.5.1  •  Build 27")
                         .font(.caption)
                         .foregroundStyle(NSTheme.textSecondary)
                     Text("Local signing + Apple OTA + private publishing")
