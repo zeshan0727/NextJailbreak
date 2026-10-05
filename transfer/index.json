@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T12:55:08Z",
+  "updatedAt": "2026-10-05T13:27:33Z",
   "files": [
+    {
+      "id": "netmirror-1.0.8-statusbar-android-compat",
+      "name": "NetMirror 1.0.8 \u2014 Android StatusBar Compatibility",
+      "fileName": "NetMirror-1.0.8-StatusBar-Android-Compat.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.8",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.8/NetMirror-1.0.8-StatusBar-Android-Compat.tipa",
+      "sha256": "e0040b719f445058fa8f58d9be2e11f083f8f43caff6ea56bac2cd3e82718584",
+      "sizeBytes": 6410758,
+      "notes": "Fixes the v7 startup Hermes TypeError identified at StatusBarManager.setColor. Preserves the stock iOS status-bar module as StatusBarManagerIOS and exposes an Android-compatible StatusBarManager with getConstants, setColor, setTranslucent, setStyle, and setHidden. Retains ImageLoader, Android Networking/BlobManager, AndroidProgressBar, brightness compatibility, and full Hermes fatal diagnostics. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.7-hermes-fatal-stack-capture",
       "name": "NetMirror 1.0.7 \u2014 Hermes Fatal Stack Capture",
