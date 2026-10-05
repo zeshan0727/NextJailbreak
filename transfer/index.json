@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T14:50:29Z",
+  "updatedAt": "2026-10-05T15:10:58Z",
   "files": [
+    {
+      "id": "netmirror-1.0.10-android-network-events-fix",
+      "name": "NetMirror 1.0.10 \u2014 Android Network Events Fix",
+      "fileName": "NetMirror-1.0.10-Android-Network-Events-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.10",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.10/NetMirror-1.0.10-Android-Network-Events-Fix.tipa",
+      "sha256": "6388988885652e032ceb92679772f41f800c09f77e5fb1bd7bd2033976ca03c8",
+      "sizeBytes": 6413911,
+      "notes": "Fixes the startup hang after 1.0.9 by making the custom Android-compatible Networking module emit through React Native's global DeviceEventEmitter path even when RCTEventEmitter's own listener count is zero. This allows didReceiveNetworkResponse, didReceiveNetworkData, and didCompleteNetworkResponse to reach the recovered Android XHR/Axios code. Keeps all previous StatusBar, ImageLoader, BlobManager, AndroidProgressBar, brightness, and runtime diagnostic fixes; original Hermes bundle remains unchanged."
+    },
     {
       "id": "nextsigner-1.5.3",
       "name": "Next Signer 1.5.3",
