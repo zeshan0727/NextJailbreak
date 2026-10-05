@@ -2,6 +2,35 @@
   "entries": [
     {
       "additional_media": [
+        {"credit":"Official Dynamic120hz 3.3.3-3 settings screenshot by zqbb","image":"assets/articles/source-media/dynamic120hz-3-3-3-3-official-settings.png","source_url":"https://media.havoc.app/6a45f87e3c99d317b705dbe0"},
+        {"credit":"Official Hello CPU companion screenshot by zqbb","image":"assets/articles/source-media/dynamic120hz-3-3-3-3-official-hello-cpu.jpg","source_url":"https://media.havoc.app/66e4ffad535641239ecf538b"}
+      ],
+      "category":{"id":"individual-tweak-update","label":"Individual Tweak Update"},
+      "compat":"Havoc package range iOS 15.0–17.3.1; jailbreak required; rootless supported; developer lists iPhone 13/14/15 Pro and Pro Max hardware",
+      "description":"Dynamic120hz 3.3.3-3 adds 120-FPS screen recording and improves dynamic refresh-rate unlocking on supported jailbroken ProMotion iPhones.",
+      "developer":"zqbb",
+      "entry_type":"tweak-update",
+      "href":"dynamic120hz-3-3-3-3-120fps-screen-recording/",
+      "image":"assets/articles/source-media/dynamic120hz-3-3-3-3-official-banner.png",
+      "media_credit":"Official Dynamic120hz Havoc banner by zqbb",
+      "media_source_url":"https://havoc.app/package/dynamic120hz",
+      "modified_at":"2026-10-05T14:03:02Z",
+      "name":"Dynamic120hz",
+      "package":"com.zqbb.dynamic120hz",
+      "published_at":"2026-10-05T14:03:02Z",
+      "release":"2026-10-03",
+      "selection_pool":"official-havoc-individual-update",
+      "slug":"dynamic120hz-3-3-3-3-120fps-screen-recording",
+      "source_name":"Havoc",
+      "source_page_url":"https://havoc.app/package/dynamic120hz",
+      "source_url":"https://havoc.app/package/dynamic120hz",
+      "source_visual_origin":"official-havoc-banner-and-screenshots",
+      "source_visual_url":"https://media.havoc.app/666c5c6deb47fe1b609512c1",
+      "title":"Dynamic120hz 3.3.3-3 Adds 120 FPS Screen Recording",
+      "version":"3.3.3-3"
+    },
+    {
+      "additional_media": [
         {"credit": "Official Dopamine app icon from the 3.0.10 source tag", "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png", "source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"},
         {"credit": "Official RootHide Bootstrap app icon", "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png", "source_url": "https://github.com/roothide/Bootstrap/blob/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png"}
       ],
@@ -5526,8 +5555,16 @@
       "package": "comparison.dopamine-palera1n",
       "published_at": "2026-10-04T08:57:29Z",
       "version": "2026-10-04"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "dynamic120hz-3-3-3-3-120fps-screen-recording/",
+      "package": "com.zqbb.dynamic120hz",
+      "published_at": "2026-10-05T14:03:02Z",
+      "version": "3.3.3-3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-04T08:57:29Z"
+  "updated_at": "2026-10-05T14:03:02Z"
 }
