@@ -39,35 +39,14 @@ jobs:
           grep -q 'local.install(app, using: store)' NextSigner/NextSigner/NextSignerLocalViews.swift
           grep -q 'itms-services://?action=download-manifest' NextSigner/NextSigner/LocalSigningController.swift
 
-      - name: Prepare patched Zsign sources
+      - name: Prepare Zsign package
         shell: bash
         run: |
           set -euo pipefail
           rm -rf NextSigner/Vendor/Zsign-Package
           git clone --depth 1 --branch package https://github.com/claration/Zsign-Package.git NextSigner/Vendor/Zsign-Package
-          python3 - <<'PY'
-          from pathlib import Path
-
-          bridge = Path('NextSigner/Vendor/Zsign-Package/swift/zsign.mm')
-          s = bridge.read_text()
-          s = s.replace('void(^completionHandler)(BOOL success, NSError *error)',
-                        'void(^completionHandler)(BOOL success)')
-          old_call = 'bundle.SignFolder(&zsa, strFolder, strBundleId, strBundleVersion, strDisplayName, arrDylibFiles, bForce, bWeakInject, bEnableCache, excludeprovion)'
-          new_call = 'bundle.SignFolder(&zsa, strFolder, strBundleId, strBundleVersion, strDisplayName, arrDylibFiles, arrDisDylibFiles, bForce, bWeakInject, bEnableCache, excludeprovion)'
-          if old_call not in s:
-              raise SystemExit('Expected stale SignFolder bridge call not found')
-          s = s.replace(old_call, new_call)
-          s = s.replace('completionHandler(bRet);', 'if (completionHandler) { completionHandler(bRet); }')
-          bridge.write_text(s)
-
-          bundle = Path('NextSigner/Vendor/Zsign-Package/src/bundle.cpp')
-          b = bundle.read_text()
-          stale = 'if (bRemoveProvision) {'
-          fixed = 'if (!bRemoveProvision) {'
-          if stale not in b:
-              raise SystemExit('Expected embedded.mobileprovision condition not found')
-          bundle.write_text(b.replace(stale, fixed, 1))
-          PY
+          test -f NextSigner/Vendor/Zsign-Package/Package.swift
+          echo "Using current Zsign package source."
 
       - name: Generate app icon
         run: python3 NextSigner/generate_app_icon.py
