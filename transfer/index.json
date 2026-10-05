@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T15:10:58Z",
+  "updatedAt": "2026-10-05T15:49:17Z",
   "files": [
+    {
+      "id": "netmirror-1.0.11-direct-deviceeventemitter-fix",
+      "name": "NetMirror 1.0.11 \u2014 Direct Android Network Events",
+      "fileName": "NetMirror-1.0.11-Direct-DeviceEventEmitter-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.11",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.11/NetMirror-1.0.11-Direct-DeviceEventEmitter-Fix.tipa",
+      "sha256": "be2e68d5c17b7cc49096709fbd8c085d757db037ffb8519a2f2b35ff01d9f0d0",
+      "sizeBytes": 6413174,
+      "notes": "Startup-network compatibility build. Native bootstrap transport already returned HTTP 200/311 bytes; this version emits didReceiveNetworkResponse, didReceiveNetworkData, and didCompleteNetworkResponse directly through the React bridge's global RCTDeviceEventEmitter, matching the recovered Android RCTNetworking/XHR contract. It also normalizes response headers and records EMIT response/data/complete diagnostics. StatusBar, ImageLoader, BlobManager/Networking, AndroidProgressBar, brightness compatibility, and Hermes fatal diagnostics remain enabled. Original Hermes bundle is unchanged."
+    },
     {
       "id": "netmirror-1.0.10-android-network-events-fix",
       "name": "NetMirror 1.0.10 \u2014 Android Network Events Fix",
