@@ -562,6 +562,19 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .article-content ul, .article-content ol { padding-left: 1.35rem; }
 .article-content li + li { margin-top: .58rem; }
 .article-content code { padding: 2px 6px; border: 1px solid var(--line); border-radius: 7px; background: #f2f4f5; color: #263039; overflow-wrap: anywhere; }
+/* Comparison and data tables: clear grid lines, readable headers, mobile scrolling. */
+.article-content table { width: 100%; min-width: 640px; margin: 1.15rem 0 1.8rem; border: 1px solid var(--line-dark); border-collapse: collapse; background: #fff; font-size: .92rem; line-height: 1.5; }
+.article-content th, .article-content td { padding: 13px 15px; border: 1px solid #c3cbd0; text-align: left; vertical-align: top; }
+.article-content thead th { color: #172027; background: #eef2f4; font-weight: 900; }
+.article-content tbody th, .article-content tbody td:first-child { color: #283239; background: #f7f9fa; font-weight: 800; }
+.article-content tbody tr:nth-child(even) td:not(:first-child) { background: #fbfcfc; }
+.article-content .comparison-table-wrap { max-width: 100%; overflow-x: auto; margin: 1.15rem 0 1.8rem; border-radius: 14px; -webkit-overflow-scrolling: touch; }
+.article-content .comparison-table-wrap table { margin: 0; }
+.article-content > div[style*="overflow-x:auto"] { max-width: 100%; -webkit-overflow-scrolling: touch; }
+@media (max-width: 600px) {
+  .article-content table { min-width: 600px; font-size: .86rem; }
+  .article-content th, .article-content td { padding: 11px 12px; }
+}
 .article-sidebar { position: sticky; top: calc(var(--header-height) + 20px); padding: 22px; color: #fff; border-color: var(--ink); background: var(--ink); }
 .article-sidebar h2 { margin: 0 0 8px; font-size: 1.1rem; }
 .article-sidebar p { margin: 0; color: #b7bec3; font-size: .86rem; }
