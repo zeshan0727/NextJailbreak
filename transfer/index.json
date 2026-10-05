@@ -1,10 +1,23 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T11:58:00Z",
+  "updatedAt": "2026-10-05T12:21:48Z",
   "files": [
     {
+      "id": "nextsigner-1.5.0",
+      "name": "Next Signer 1.5.0",
+      "fileName": "NextSigner-1.5.0.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.0",
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.0/NextSigner-1.5.0.tipa",
+      "sha256": "185755a4f2b76b36b88c1767a24d3047013f59d2ab920a0c77f72567c1b5779c",
+      "sizeBytes": 3411669,
+      "storage": "Cloudflare R2",
+      "notes": "Full modern interface redesign with floating glass navigation, redesigned Sign, Signed Apps, Library, Activity, Profiles and Settings while preserving local signing and Apple OTA workflows."
+    },
+    {
       "id": "netmirror-1.0.5-brightness-startup-fix",
-      "name": "NetMirror 1.0.5 — Brightness Startup Fix",
+      "name": "NetMirror 1.0.5 \u2014 Brightness Startup Fix",
       "fileName": "NetMirror-1.0.5-Brightness-Startup-Fix.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 15.1+",
@@ -16,7 +29,7 @@
     },
     {
       "id": "husk-0.6.1-android-translation-layer",
-      "name": "Husk 0.6.1 — Android Translation Layer",
+      "name": "Husk 0.6.1 \u2014 Android Translation Layer",
       "fileName": "Husk.ipa",
       "type": "ipa",
       "platform": "TrollStore / SideStore / AltStore / iOS",
@@ -25,11 +38,11 @@
       "sha256": "9ffa67b07e3d7a3f7faa261b5ec44bb6279180478cc5fc43daa6824e0d633509",
       "sizeBytes": 40885768,
       "storage": "Official GitHub Release",
-      "notes": "Official Husk 0.6.1 IPA from Leviidev/Husk. Updates the experimental Android Translation Layer with Minecraft support, Geometry Dash support, and Wi‑Fi support for Unity games. The fully emulated Android OS path is unchanged in this release."
+      "notes": "Official Husk 0.6.1 IPA from Leviidev/Husk. Updates the experimental Android Translation Layer with Minecraft support, Geometry Dash support, and Wi\u2011Fi support for Unity games. The fully emulated Android OS path is unchanged in this release."
     },
     {
       "id": "next-agent-current-0.7.20-roothide",
-      "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
+      "name": "Next Agent 0.7.20 \u2014 Internal Stability + Session Recovery",
       "fileName": "NextAgent-0.7.20.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 16+",
@@ -41,7 +54,7 @@
     },
     {
       "id": "next-agent-daemon-current-0.7.20-roothide",
-      "name": "Next Agent Daemon 0.7.20 — RootHide",
+      "name": "Next Agent Daemon 0.7.20 \u2014 RootHide",
       "fileName": "NextAgentDaemon-0.7.20-RootHide.deb",
       "type": "deb",
       "platform": "RootHide / iphoneos-arm64e",
@@ -53,7 +66,7 @@
     },
     {
       "id": "nextapp-1.0.2-duplicate-apps",
-      "name": "Next App 1.0.2 — Duplicate Apps",
+      "name": "Next App 1.0.2 \u2014 Duplicate Apps",
       "fileName": "NextApp-1.0.2.ipa",
       "type": "ipa",
       "platform": "TrollStore / iOS 16+",
@@ -61,11 +74,11 @@
       "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.2/NextApp-1.0.2.ipa",
       "sha256": "270927dbf67912aa18c43388fc810111dc88a3c34518781fe15810b81db3ab1e",
       "sizeBytes": 1650217,
-      "notes": "Adds More → Duplicate App. Enter 1–10 copies and Next App downloads the IPA once, creates unique bundle IDs, repackages each duplicate locally, then shows individual TrollStore Install buttons with a Share fallback. Existing OTA install and fast glass performance are preserved."
+      "notes": "Adds More \u2192 Duplicate App. Enter 1\u201310 copies and Next App downloads the IPA once, creates unique bundle IDs, repackages each duplicate locally, then shows individual TrollStore Install buttons with a Share fallback. Existing OTA install and fast glass performance are preserved."
     },
     {
       "id": "ns-transfers-1.1.7-glass-performance",
-      "name": "NS Transfers 1.1.7 — Glass Performance",
+      "name": "NS Transfers 1.1.7 \u2014 Glass Performance",
       "fileName": "NS-Transfers-1.1.7.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -77,7 +90,7 @@
     },
     {
       "id": "tipa-qatar-marketplace-current-0.4.1",
-      "name": "TIPA 0.4.1 — Qatar Marketplace Search",
+      "name": "TIPA 0.4.1 \u2014 Qatar Marketplace Search",
       "fileName": "TIPA-0.4.1.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -89,7 +102,7 @@
     },
     {
       "id": "nextreminder-1.3.32-missed-daily-gmail-persistence",
-      "name": "Next Reminder 1.3.32 — Daily Missed Alerts & Gmail Persistence",
+      "name": "Next Reminder 1.3.32 \u2014 Daily Missed Alerts & Gmail Persistence",
       "fileName": "NextReminder_1.3.32_Unsigned.tipa",
       "type": "tipa",
       "platform": "Unsigned TIPA / iOS 16+",
@@ -101,7 +114,7 @@
     },
     {
       "id": "nextquickreminder-1.0.17-missed-daily-roothide",
-      "name": "Next Quick Reminder 1.0.17 — Missed Daily Alerts RootHide",
+      "name": "Next Quick Reminder 1.0.17 \u2014 Missed Daily Alerts RootHide",
       "fileName": "NextQuickReminder_1.0.17_RootHide.deb",
       "type": "deb",
       "platform": "RootHide",
@@ -113,7 +126,7 @@
     },
     {
       "id": "nextpost-1.0.14-no-ads-no-repeats",
-      "name": "Next Post 1.0.14 — No Ads + No Repeats",
+      "name": "Next Post 1.0.14 \u2014 No Ads + No Repeats",
       "fileName": "NextPost-1.0.14-No-Ads-No-Repeats.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -125,7 +138,7 @@
     },
     {
       "id": "nextpost-1.0.13-selectable-remaining",
-      "name": "Next Post 1.0.13 — Selectable Remaining",
+      "name": "Next Post 1.0.13 \u2014 Selectable Remaining",
       "fileName": "NextPost-1.0.13-Selectable-Remaining.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -137,7 +150,7 @@
     },
     {
       "id": "nextpost-1.0.12-protected-queue-your-take",
-      "name": "Next Post 1.0.12 — Protected Queue + Your Take",
+      "name": "Next Post 1.0.12 \u2014 Protected Queue + Your Take",
       "fileName": "NextPost-1.0.12-Protected-Queue-Your-Take.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -149,7 +162,7 @@
     },
     {
       "id": "nextpost-1.0.11-original-content-refresh",
-      "name": "Next Post 1.0.11 — Original Content + Refresh",
+      "name": "Next Post 1.0.11 \u2014 Original Content + Refresh",
       "fileName": "NextPost-1.0.11-Original-Content-Refresh.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -161,7 +174,7 @@
     },
     {
       "id": "livetouch-0.1.7-final-cleanup",
-      "name": "LiveTouch 0.1.7 — Final Cleanup",
+      "name": "LiveTouch 0.1.7 \u2014 Final Cleanup",
       "fileName": "LiveTouch-0.1.7-final-cleanup.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide iOS 15+",
@@ -198,21 +211,8 @@
       "notes": "Offline chat + photos. Fast SD-Turbo mode with 1/2/4 steps. Requires separate SD-Turbo GGUF download. Install over existing Next AI."
     },
     {
-      "id": "nextsigner-1.4.1",
-      "name": "Next Signer 1.4.1",
-      "fileName": "NextSigner-1.4.1.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "1.4.1",
-      "url": "https://github.com/zeshan0727/NextJailbreak/releases/download/nextsigner-1.4.1/NextSigner-1.4.1.tipa",
-      "sha256": "693bd0bd59e74b56b81e9c3ca2ae3c40ce41ed72a0ee0e45b0916549f60aa0d8",
-      "sizeBytes": 3279798,
-      "storage": "GitHub Release fallback",
-      "notes": "Fixes Signed Apps save failure after successful local signing. Keeps on-device signing, Signed Apps, Install, Publish, Share and Delete."
-    },
-    {
       "id": "aspire-maintenance-1.1.4-dashboard-test",
-      "name": "Aspire Maintenance 1.1.4 — Dashboard Test",
+      "name": "Aspire Maintenance 1.1.4 \u2014 Dashboard Test",
       "fileName": "AspireMaintenance-1.1.4-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+ / Test",
@@ -368,7 +368,7 @@
     },
     {
       "id": "nextmultibrowser-1.1.10-device-category-modes",
-      "name": "Next Multi Browser 1.1.10 — Device Category Modes",
+      "name": "Next Multi Browser 1.1.10 \u2014 Device Category Modes",
       "fileName": "NextMultiBrowser_1.1.10_Device_Category_Modes.tipa",
       "type": "tipa",
       "platform": "TrollStore / RootHide / iOS 15+",
@@ -403,7 +403,7 @@
     },
     {
       "id": "nextaccounts-1.0.6-search-swipe-delete",
-      "name": "Next Accounts 1.0.6 — Search & Swipe Delete",
+      "name": "Next Accounts 1.0.6 \u2014 Search & Swipe Delete",
       "fileName": "NextAccounts-1.0.6-Search-Swipe-Delete.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -415,7 +415,7 @@
     },
     {
       "id": "nextaccounts-1.0.5-independent-browser",
-      "name": "Next Accounts 1.0.5 — Independent Browser",
+      "name": "Next Accounts 1.0.5 \u2014 Independent Browser",
       "fileName": "NextAccounts-1.0.5-Independent-Browser.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -427,7 +427,7 @@
     },
     {
       "id": "nextaccounts-1.0.4-in-app-signup-browser",
-      "name": "Next Accounts 1.0.4 — In-App Signup Browser",
+      "name": "Next Accounts 1.0.4 \u2014 In-App Signup Browser",
       "fileName": "NextAccounts-1.0.4-In-App-Signup-Browser.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -439,7 +439,7 @@
     },
     {
       "id": "nextaccounts-1.0.3-platform-signup-links",
-      "name": "Next Accounts 1.0.3 — Platform Signup Links",
+      "name": "Next Accounts 1.0.3 \u2014 Platform Signup Links",
       "fileName": "NextAccounts-1.0.3-Platform-Signup-Links.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -451,7 +451,7 @@
     },
     {
       "id": "nextaccounts-1.0.2-automatic-emails",
-      "name": "Next Accounts 1.0.2 — Automatic Emails",
+      "name": "Next Accounts 1.0.2 \u2014 Automatic Emails",
       "fileName": "NextAccounts-1.0.2-Automatic-Emails.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -463,7 +463,7 @@
     },
     {
       "id": "nextaccounts-1.0.1-private-slots-platform-status",
-      "name": "Next Accounts 1.0.1 — Private Slots & Platform Status",
+      "name": "Next Accounts 1.0.1 \u2014 Private Slots & Platform Status",
       "fileName": "NextAccounts-1.0.1-PrivateSlots-PlatformStatus.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -508,7 +508,7 @@
     },
     {
       "id": "nextmockupstudio-0.4-live3d",
-      "name": "Next Mockup Studio 0.4 — Live 3D iPhone Test",
+      "name": "Next Mockup Studio 0.4 \u2014 Live 3D iPhone Test",
       "fileName": "NextMockupStudio-iPhone17ProMax-Live3D-v0.4.tipa",
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
@@ -600,7 +600,7 @@
       "id": "nextpost-1.0.2-levelplay-diagnostic",
       "fileName": "NextPost-1.0.2-LevelPlay-Diagnostic.tipa",
       "platform": "TrollStore / iOS 16+",
-      "notes": "LevelPlay diagnostic build. Enables Unity’s official iOS integration test suite before SDK init, adds the required ATS network configuration, and exposes LevelPlay initialization/load errors instead of silently ignoring them. Use this build to verify test ad delivery while the account is pending approval.",
+      "notes": "LevelPlay diagnostic build. Enables Unity\u2019s official iOS integration test suite before SDK init, adds the required ATS network configuration, and exposes LevelPlay initialization/load errors instead of silently ignoring them. Use this build to verify test ad delivery while the account is pending approval.",
       "version": "1.0.2",
       "type": "tipa",
       "name": "Next Post 1.0.2 LevelPlay Diagnostic",
