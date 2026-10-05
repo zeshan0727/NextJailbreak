@@ -3,6 +3,18 @@
   "updatedAt": "2026-10-05T12:21:48Z",
   "files": [
     {
+      "id": "netmirror-1.0.6-hermes-stack-diagnostic",
+      "name": "NetMirror 1.0.6 \u2014 Hermes Stack Diagnostic",
+      "fileName": "NetMirror-1.0.6-Hermes-Stack-Diagnostic.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.6",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.6/NetMirror-1.0.6-Hermes-Stack-Diagnostic.tipa",
+      "sha256": "c3e837f081a4032e33978941d029629642aba231d5d12d6ff5f25f5b0a1c09b8",
+      "sizeBytes": 6407038,
+      "notes": "Diagnostic build for the remaining startup TypeError. Keeps all previous Android-to-iOS compatibility fixes and changes fatal error reporting so the full Hermes JavaScript stack/function location is shown instead of the generic runtime error."
+    },
+    {
       "id": "nextsigner-1.5.0",
       "name": "Next Signer 1.5.0",
       "fileName": "NextSigner-1.5.0.tipa",
