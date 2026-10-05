@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T15:49:17Z",
+  "updatedAt": "2026-10-05T16:19:03Z",
   "files": [
+    {
+      "id": "netmirror-1.0.12-bridge-delivery-fix",
+      "name": "NetMirror 1.0.12 \u2014 Bridge Delivery Fix",
+      "fileName": "NetMirror-1.0.12-Bridge-Delivery-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.12",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.12/NetMirror-1.0.12-Bridge-Delivery-Fix.tipa",
+      "sha256": "e32c10f0f738619daffdb681788b155989a00bd362590aec660343632566146c",
+      "sizeBytes": 6414068,
+      "notes": "Targets the remaining bootstrap hang after 1.0.11 proved the first mobiledetect check succeeds and native response/data/complete events are constructed. Network event delivery now resolves the active React Native bridge via self.bridge with RCTBridge.currentBridge fallback and reports BRIDGE/QUEUE diagnostics. Original Hermes bundle and all previous compatibility shims remain unchanged."
+    },
     {
       "id": "netmirror-1.0.11-direct-deviceeventemitter-fix",
       "name": "NetMirror 1.0.11 \u2014 Direct Android Network Events",
