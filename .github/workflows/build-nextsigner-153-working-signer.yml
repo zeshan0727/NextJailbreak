@@ -54,38 +54,50 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           bundle = Path('NextSigner/Vendor/Zsign-Package/src/bundle.cpp')
           text = bundle.read_text()
 
-          marker = 'embedded.mobileprovision'
-          pos = text.find(marker)
-          if pos < 0:
-              raise SystemExit('embedded.mobileprovision code not found in current Zsign bundle.cpp')
+          old = '''if (!pSignAsset->m_strProvData.empty()) {
+		if (bRemoveProvision) {
+			if (!ZFile::WriteFileV(pSignAsset->m_strProvData, "%s/embedded.mobileprovision", m_strAppFolder.c_str())) { // embedded.mobileprovision'''
+          fixed = '''if (!pSignAsset->m_strProvData.empty()) {
+		if (!bRemoveProvision) {
+			if (!ZFile::WriteFileV(pSignAsset->m_strProvData, "%s/embedded.mobileprovision", m_strAppFolder.c_str())) { // embedded.mobileprovision'''
 
-          start = max(0, pos - 900)
-          end = min(len(text), pos + 500)
-          window = text[start:end]
-
-          broken = 'if (bRemoveProvision)'
-          fixed = 'if (!bRemoveProvision)'
-
-          if fixed in window:
-              print('Zsign provisioning condition is already fixed upstream.')
-          elif broken in window:
-              absolute = start + window.index(broken)
-              text = text[:absolute] + fixed + text[absolute + len(broken):]
+          if fixed in text:
+              print('Zsign provisioning write condition is already fixed upstream.')
+          elif old in text:
+              text = text.replace(old, fixed, 1)
               bundle.write_text(text)
-              print('Restored proven 1.4.2 embedded.mobileprovision condition fix.')
+              print('Restored exact proven 1.4.2 provisioning write fix.')
           else:
-              print(window)
-              raise SystemExit('Could not identify Zsign provisioning condition near embedded.mobileprovision')
+              pattern = re.compile(
+                  r'(if\s*\(!pSignAsset->m_strProvData\.empty\(\)\)\s*\{\s*)'
+                  r'if\s*\(\s*bRemoveProvision\s*\)'
+                  r'(\s*\{\s*if\s*\(!ZFile::WriteFileV\(pSignAsset->m_strProvData,\s*"%s/embedded\.mobileprovision")',
+                  re.S
+              )
+              match = pattern.search(text)
+              if not match:
+                  for m in re.finditer(r'm_strProvData|embedded\.mobileprovision', text):
+                      lo=max(0,m.start()-450); hi=min(len(text),m.start()+650)
+                      print('\n--- candidate ---\n' + text[lo:hi])
+                  raise SystemExit('Could not locate the Zsign provisioning write condition')
+              text = text[:match.start()] + match.group(1) + 'if (!bRemoveProvision)' + match.group(2) + text[match.end():]
+              bundle.write_text(text)
+              print('Restored provisioning write fix using structural match.')
 
           verify = bundle.read_text()
-          pos = verify.find(marker)
-          check = verify[max(0, pos - 900):min(len(verify), pos + 500)]
-          if fixed not in check:
-              raise SystemExit('Provisioning condition verification failed')
+          if 'pSignAsset->m_strProvData' not in verify or 'embedded.mobileprovision' not in verify:
+              raise SystemExit('Provisioning source verification failed')
+          if fixed not in verify and not re.search(
+              r'if\s*\(!pSignAsset->m_strProvData\.empty\(\)\).*?if\s*\(\s*!bRemoveProvision\s*\).*?embedded\.mobileprovision',
+              verify,
+              re.S
+          ):
+              raise SystemExit('Corrected !bRemoveProvision write condition not found')
           PY
 
       - name: Generate app icon
