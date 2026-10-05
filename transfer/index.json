@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-01T13:42:32Z",
+  "updatedAt": "2026-10-05T11:58:00Z",
   "files": [
+    {
+      "id": "husk-0.6.1-android-translation-layer",
+      "name": "Husk 0.6.1 — Android Translation Layer",
+      "fileName": "Husk.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / SideStore / AltStore / iOS",
+      "version": "0.6.1",
+      "url": "https://github.com/Leviidev/Husk/releases/download/0.6.1/Husk.ipa",
+      "sha256": "9ffa67b07e3d7a3f7faa261b5ec44bb6279180478cc5fc43daa6824e0d633509",
+      "sizeBytes": 40885768,
+      "storage": "Official GitHub Release",
+      "notes": "Official Husk 0.6.1 IPA from Leviidev/Husk. Updates the experimental Android Translation Layer with Minecraft support, Geometry Dash support, and Wi‑Fi support for Unity games. The fully emulated Android OS path is unchanged in this release."
+    },
     {
       "id": "next-agent-current-0.7.20-roothide",
       "name": "Next Agent 0.7.20 — Internal Stability + Session Recovery",
