@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T12:21:48Z",
+  "updatedAt": "2026-10-05T12:42:21Z",
   "files": [
+    {
+      "id": "nextsigner-1.5.1",
+      "name": "Next Signer 1.5.1",
+      "fileName": "NextSigner-1.5.1.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.1",
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.1/NextSigner-1.5.1.tipa",
+      "sha256": "7c8a2d229ac74f381e2f8abeb0a06c8d19554bac68c1733aba178bc652155443",
+      "sizeBytes": 3407839,
+      "storage": "Cloudflare R2",
+      "notes": "Performance build: adaptive 60-120 Hz ProMotion support on compatible iPhones, reduced live blur/material rendering, lighter shadows, and simplified tab transitions for smoother scrolling while preserving local signing and OTA workflows."
+    },
     {
       "id": "netmirror-1.0.6-hermes-stack-diagnostic",
       "name": "NetMirror 1.0.6 \u2014 Hermes Stack Diagnostic",
@@ -13,19 +26,6 @@
       "sha256": "c3e837f081a4032e33978941d029629642aba231d5d12d6ff5f25f5b0a1c09b8",
       "sizeBytes": 6407038,
       "notes": "Diagnostic build for the remaining startup TypeError. Keeps all previous Android-to-iOS compatibility fixes and changes fatal error reporting so the full Hermes JavaScript stack/function location is shown instead of the generic runtime error."
-    },
-    {
-      "id": "nextsigner-1.5.0",
-      "name": "Next Signer 1.5.0",
-      "fileName": "NextSigner-1.5.0.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "1.5.0",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.0/NextSigner-1.5.0.tipa",
-      "sha256": "185755a4f2b76b36b88c1767a24d3047013f59d2ab920a0c77f72567c1b5779c",
-      "sizeBytes": 3411669,
-      "storage": "Cloudflare R2",
-      "notes": "Full modern interface redesign with floating glass navigation, redesigned Sign, Signed Apps, Library, Activity, Profiles and Settings while preserving local signing and Apple OTA workflows."
     },
     {
       "id": "netmirror-1.0.5-brightness-startup-fix",
