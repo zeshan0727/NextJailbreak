@@ -1,0 +1,49 @@
+name: Publish NetMirror v5 To NS Transfer
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - ".github/workflows/import-netmirror-v5.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Reconstruct and verify NetMirror TIPA
+        shell: bash
+        run: |
+          set -euxo pipefail
+          STAGE=".ns-transfer-staging/netmirror-v5"
+          DEST="transfer/files/NetMirror/1.0.5"
+          FILE="$DEST/NetMirror-1.0.5-Brightness-Startup-Fix.tipa"
+
+          test "$(find "$STAGE" -maxdepth 1 -name 'part*.txt' | wc -l | tr -d ' ')" = "13"
+          mkdir -p "$DEST"
+          cat "$STAGE"/part*.txt | base64 --decode > "$FILE"
+
+          test "$(stat -c%s "$FILE")" = "6406553"
+          echo "847972e35ae1da41d00be34f9bcf6ec9a3c4f0eb7252a9b6061adeb2334c700a  $FILE" | sha256sum -c -
+
+          file "$FILE"
+          ls -lh "$FILE"
+
+      - name: Commit to NS Transfer
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add transfer/files/NetMirror/1.0.5/NetMirror-1.0.5-Brightness-Startup-Fix.tipa
+          git rm -r .ns-transfer-staging/netmirror-v5
+          git commit -m "Publish NetMirror 1.0.5 to NS Transfer"
+          git push origin HEAD:main
