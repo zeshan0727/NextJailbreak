@@ -36,7 +36,8 @@ jobs:
           grep -q 'CURRENT_PROJECT_VERSION: "27"' NextSigner/project.yml
           grep -q 'struct NSFloatingTabBar' NextSigner/NextSigner/NextSignerRootView.swift
           grep -q 'struct NSGlassCard' NextSigner/NextSigner/NextSignerDesignSystem.swift
-          grep -q 'INFOPLIST_KEY_CADisableMinimumFrameDurationOnPhone: "YES"' NextSigner/project.yml
+          grep -q '<key>CADisableMinimumFrameDurationOnPhone</key>' NextSigner/Info.plist
+          grep -A1 '<key>CADisableMinimumFrameDurationOnPhone</key>' NextSigner/Info.plist | grep -q '<true/>'
           ! grep -q '\.fill(.ultraThinMaterial)' NextSigner/NextSigner/NextSignerDesignSystem.swift
           grep -q 'local.install(app, using: store)' NextSigner/NextSigner/NextSignerLocalViews.swift
           grep -q 'itms-services://?action=download-manifest' NextSigner/NextSigner/LocalSigningController.swift
