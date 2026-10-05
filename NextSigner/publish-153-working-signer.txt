@@ -1,0 +1,1 @@
+Publish Next Signer 1.5.3 build 29 with restored 1.4.2 signer to NS Transfer.
