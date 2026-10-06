@@ -17,6 +17,7 @@ jobs:
           sparse-checkout: |
             transfer/index.json
             transfer/files/NetMirror/1.0.24/NetMirror-1.0.24-Stable-Player-Downloads-Tabs.tipa
+            transfer/files/NetMirror/1.0.25/NetMirror-1.0.25-Player-Back-UI-Fix.tipa
             .github/workflows/build-nextmedia-v13-temp.yml
           sparse-checkout-cone-mode: false
       - name: Patch and publish
