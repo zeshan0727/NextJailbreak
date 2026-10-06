@@ -3,6 +3,35 @@
     {
       "additional_media": [],
       "category": {
+        "id": "jailbreak-guide",
+        "label": "Jailbreak Guide"
+      },
+      "compat": "Existing Dopamine jailbreak environment; recovery steps do not expand device or firmware support",
+      "description": "Recover a Dopamine jailbreak after a bad tweak, Safe Mode or SpringBoard crash loop by disabling tweak injection, removing the package and restoring cautiously.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-10-06T00:55:26Z",
+      "name": "Dopamine bad-tweak recovery",
+      "package": "guide.dopamine.crash-loop-recovery",
+      "published_at": "2026-10-06T00:55:26Z",
+      "release": "2026-10-06",
+      "selection_pool": "official-source-evergreen-guide",
+      "slug": "dopamine-bad-tweak-crash-loop-recovery-guide",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop",
+      "version": "Dopamine 3.0.10"
+    },
+    {
+      "additional_media": [],
+      "category": {
         "id": "jailbreak-development",
         "label": "Jailbreak Development"
       },
@@ -5628,8 +5657,16 @@
       "package": "com.johndie.begonecia",
       "published_at": "2026-10-05T21:00:41Z",
       "version": "0.2.0-rootless5"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-guide",
+      "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
+      "package": "guide.dopamine.crash-loop-recovery",
+      "published_at": "2026-10-06T00:55:26Z",
+      "version": "Dopamine 3.0.10"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-05T21:00:41Z"
+  "updated_at": "2026-10-06T00:55:26Z"
 }

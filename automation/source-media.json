@@ -287,6 +287,16 @@
         "alt": "Official BegoneCIA crossed-out CIA Control Center icon"
       },
       "screenshots": []
+    },
+    "guide.dopamine.crash-loop-recovery": {
+      "credit_label": "opa334 — official Dopamine 3.0.10 app icon",
+      "source_page_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "official_source": true,
+      "hero": {
+        "url": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+        "alt": "Official green Dopamine 3.0.10 app icon"
+      },
+      "screenshots": []
     }
   }
 }
