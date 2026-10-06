@@ -297,6 +297,21 @@
         "alt": "Official green Dopamine 3.0.10 app icon"
       },
       "screenshots": []
+    },
+    "com.snail.always120.global": {
+      "credit_label": "Snail — official Always120 Havoc listing",
+      "source_page_url": "https://havoc.app/package/always120",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/64b7346dc37886fd6a614a11",
+        "alt": "Official Always120 banner showing adaptive and locked 120Hz modes"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/64ab7446d8f6312267aeec01",
+          "alt": "Always120 settings showing refresh-rate label, global adaptive mode and per-app adaptive and locked modes"
+        }
+      ]
     }
   }
 }

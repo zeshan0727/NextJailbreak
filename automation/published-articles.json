@@ -1,6 +1,46 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "credit": "Official Always120 1.2.0 settings screenshot by Snail",
+          "image": "assets/articles/source-media/always120-1-2-0-official-settings.png",
+          "source_url": "https://media.havoc.app/64ab7446d8f6312267aeec01"
+        },
+        {
+          "credit": "Official Dynamic120hz 3.3.3-3 settings screenshot by zqbb",
+          "image": "assets/articles/source-media/dynamic120hz-3-3-3-3-official-settings.png",
+          "source_url": "https://media.havoc.app/6a45f87e3c99d317b705dbe0"
+        }
+      ],
+      "category": {
+        "id": "tweak-comparison",
+        "label": "Tweak Comparison"
+      },
+      "compat": "Dynamic120hz: Havoc iOS 15.0–17.3.1, rootless, developer lists iPhone 13/14/15 Pro families; Always120: Havoc iOS 14.0–16.5.1, rootless, description focuses iPhone 13/14 Pro families; compatible jailbreak still required",
+      "description": "Compare Dynamic120hz 3.3.3-3 and Always120 1.2.0 by iOS range, ProMotion controls, 120-FPS recording, battery options and price.",
+      "developer": "zqbb; Snail",
+      "entry_type": "roundup-comparison",
+      "href": "dynamic120hz-vs-always120-comparison/",
+      "image": "assets/articles/source-media/always120-1-2-0-official-banner.png",
+      "media_credit": "Official Always120 Havoc banner by Snail",
+      "media_source_url": "https://havoc.app/package/always120",
+      "modified_at": "2026-10-06T09:04:31Z",
+      "name": "Dynamic120hz vs Always120",
+      "package": "comparison.dynamic120hz-always120",
+      "published_at": "2026-10-06T09:04:31Z",
+      "release": "2026-10-06",
+      "selection_pool": "official-havoc-tweak-comparison",
+      "slug": "dynamic120hz-vs-always120-comparison",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/dynamic120hz",
+      "source_url": "https://havoc.app/package/dynamic120hz",
+      "source_visual_origin": "official-havoc-banner-and-screenshots",
+      "source_visual_url": "https://media.havoc.app/64b7346dc37886fd6a614a11",
+      "title": "Dynamic120hz vs Always120: Which 120Hz Tweak Should You Use?",
+      "version": "Dynamic120hz 3.3.3-3 / Always120 1.2.0"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "jailbreak-guide",
@@ -5673,8 +5713,16 @@
       "package": "com.johndie.begonecia",
       "published_at": "2026-10-06T05:02:50Z",
       "version": "1.0.0"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-tweak-comparison",
+      "href": "dynamic120hz-vs-always120-comparison/",
+      "package": "comparison.dynamic120hz-always120",
+      "published_at": "2026-10-06T09:04:31Z",
+      "version": "Dynamic120hz 3.3.3-3 / Always120 1.2.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-06T05:02:50Z"
+  "updated_at": "2026-10-06T09:04:31Z"
 }
