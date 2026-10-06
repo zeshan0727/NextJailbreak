@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-06T06:14:03Z",
+  "updatedAt": "2026-10-06T06:28:46Z",
   "files": [
+    {
+      "id": "netmirror-1.0.16-android-webview-newsource-headers-fix",
+      "name": "NetMirror 1.0.16 \u2014 Android WebView Header Bridge Fix",
+      "fileName": "NetMirror-1.0.16-Android-WebView-newSource-Headers-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.16",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.16/NetMirror-1.0.16-Android-WebView-newSource-Headers-Fix.tipa",
+      "sha256": "f093baf49a7b3aa58461fec9547cd0d5d1c269846f1bee5e86341aef6ba606d0",
+      "sizeBytes": 6416129,
+      "notes": "Normalizes the recovered Android react-native-webview newSource header array back into the NSDictionary shape required by the iOS RNCWebViewImpl before setSource. Retains the 1.0.15 newSource bridge and WebView boundary tracing. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.15-android-webview-newsource-fix",
       "name": "NetMirror 1.0.15 \u2014 Android WebView newSource Fix",
