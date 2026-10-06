@@ -13,7 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 1
+          sparse-checkout: |
+            transfer/index.json
+            transfer/files/NetMirror/1.0.24/NetMirror-1.0.24-Stable-Player-Downloads-Tabs.tipa
+            .github/workflows/build-nextmedia-v13-temp.yml
+          sparse-checkout-cone-mode: false
       - name: Patch and publish
         shell: bash
         env:
@@ -64,7 +69,7 @@ jobs:
           d["updatedAt"]=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
           p.write_text(json.dumps(d,indent=2)+"\n")
           PY
-          git checkout HEAD^ -- .github/workflows/build-nextmedia-v13-temp.yml
+          curl -fsSL "https://raw.githubusercontent.com/zeshan0727/NextJailbreak/6fba0855fe8146a365083d739d0fccf4e511d3d5/.github/workflows/build-nextmedia-v13-temp.yml" -o .github/workflows/build-nextmedia-v13-temp.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$OUT" transfer/index.json .github/workflows/build-nextmedia-v13-temp.yml
