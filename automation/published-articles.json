@@ -35,19 +35,19 @@
         "id": "jailbreak-development",
         "label": "Jailbreak Development"
       },
-      "compat": "Rootless package; developer-tested with Dopamine on iOS 15.8.6, 16.7 and 17.5.1; jailbreak availability remains device-specific",
-      "description": "BegoneCIA 0.2.0-rootless5 adds iOS 17 microphone handling and confirms A12+ operation on an iPhone SE 2 running iOS 17.5.1.",
+      "compat": "Rootless package; developer lists iOS 15–18 on arm64 and arm64e; named test devices remain iOS 15.8.6, 16.7 and 17.5.1",
+      "description": "BegoneCIA 1.0.0 adds iOS 18 support by silencing Siri’s AVVoiceController microphone path while retaining rootless iOS 15–17 coverage.",
       "developer": "Jond-ie",
       "entry_type": "current-development",
       "href": "begonecia-rootless-ios-17-a12-support/",
       "image": "assets/articles/source-media/begonecia-rootless5-official-cc-icon.png",
       "media_credit": "Official BegoneCIA Control Center icon by Jond-ie",
       "media_source_url": "https://github.com/Jond-ie/begonecia/blob/main/Module/Resources/Icon@2x.png",
-      "modified_at": "2026-10-05T21:00:41Z",
+      "modified_at": "2026-10-06T05:02:50Z",
       "name": "BegoneCIA",
       "package": "com.johndie.begonecia",
       "published_at": "2026-10-05T21:00:41Z",
-      "release": "2026-10-04",
+      "release": "2026-10-06",
       "selection_pool": "official-github-development",
       "slug": "begonecia-rootless-ios-17-a12-support",
       "source_name": "GitHub",
@@ -55,8 +55,8 @@
       "source_url": "https://github.com/Jond-ie/begonecia",
       "source_visual_origin": "official-repository-asset",
       "source_visual_url": "https://raw.githubusercontent.com/Jond-ie/begonecia/main/Module/Resources/Icon@2x.png",
-      "title": "BegoneCIA 0.2.0-rootless5 Adds iOS 17 and A12+ Support",
-      "version": "0.2.0-rootless5"
+      "title": "BegoneCIA 1.0.0 Adds iOS 18 Support and Silences Siri’s New Mic Path",
+      "version": "1.0.0"
     },
     {
       "additional_media": [
@@ -5665,8 +5665,16 @@
       "package": "guide.dopamine.crash-loop-recovery",
       "published_at": "2026-10-06T00:55:26Z",
       "version": "Dopamine 3.0.10"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-current-development",
+      "href": "begonecia-rootless-ios-17-a12-support/",
+      "package": "com.johndie.begonecia",
+      "published_at": "2026-10-06T05:02:50Z",
+      "version": "1.0.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-06T00:55:26Z"
+  "updated_at": "2026-10-06T05:02:50Z"
 }

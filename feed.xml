@@ -6,19 +6,11 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
-      <title>How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop</title>
-      <link>https://nextjailbreak.com/dopamine-bad-tweak-crash-loop-recovery-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-bad-tweak-crash-loop-recovery-guide/</guid>
-      <pubDate>Tue, 06 Oct 2026 00:55:26 GMT</pubDate>
-      <description>Recover a Dopamine jailbreak after a bad tweak, Safe Mode or SpringBoard crash loop by disabling tweak injection, removing the package and restoring cautiously.</description>
-      <category>Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>BegoneCIA 0.2.0-rootless5 Adds iOS 17 and A12+ Support</title>
+      <title>BegoneCIA 1.0.0 Adds iOS 18 Support and Silences Siri’s New Mic Path</title>
       <link>https://nextjailbreak.com/begonecia-rootless-ios-17-a12-support/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/begonecia-rootless-ios-17-a12-support/</guid>
-      <pubDate>Mon, 05 Oct 2026 21:00:41 GMT</pubDate>
-      <description>BegoneCIA 0.2.0-rootless5 adds iOS 17 microphone handling and confirms A12+ operation on an iPhone SE 2 running iOS 17.5.1.</description>
+      <pubDate>Tue, 06 Oct 2026 05:02:50 GMT</pubDate>
+      <description>BegoneCIA 1.0.0 adds iOS 18 support by silencing Siri’s AVVoiceController microphone path while retaining rootless iOS 15–17 coverage.</description>
       <category>Jailbreak Development</category>
     </item>
     <item>
