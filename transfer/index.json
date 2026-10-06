@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-06T05:39:00Z",
+  "updatedAt": "2026-10-06T06:14:03Z",
   "files": [
+    {
+      "id": "netmirror-1.0.15-android-webview-newsource-fix",
+      "name": "NetMirror 1.0.15 \u2014 Android WebView newSource Fix",
+      "fileName": "NetMirror-1.0.15-Android-WebView-newSource-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.15",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.15/NetMirror-1.0.15-Android-WebView-newSource-Fix.tipa",
+      "sha256": "71f107fee157433a866742715012bbcfacb42c304798ec7511a1e8664cc26d39",
+      "sizeBytes": 6415189,
+      "notes": "Backports the missing react-native-webview 13.13.5 iOS newSource setter so the recovered Android WebView wrapper's native newSource prop is routed into RNCWebViewImpl setSource. Adds WEB newSource diagnostics and retains the existing WebView boundary tracing. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.14-android-network-contract-fix",
       "name": "NetMirror 1.0.14 \u2014 Android Network Contract Fix",
