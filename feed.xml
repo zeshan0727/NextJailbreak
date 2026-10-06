@@ -6,6 +6,15 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Enable JIT in Husk 0.7.0 with StikJIT, StikDebug or TrollStore</title>
+      <link>https://nextjailbreak.com/enable-jit-husk-stikjit-stikdebug-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/enable-jit-husk-stikjit-stikdebug-guide/</guid>
+      <pubDate>Tue, 06 Oct 2026 17:03:14 GMT</pubDate>
+      <description>Enable JIT in Husk 0.7.0 using built-in StikJIT on iOS 26–27, StikDebug, or TrollStore, with pairing, LocalDevVPN and troubleshooting steps.</description>
+      <category>Evergreen Guide</category>
+    </item>
+
+    <item>
       <title>Husk 0.7.0 Adds Built-In StikJIT, Wi-Fi for All Games and a Swift UI</title>
       <link>https://nextjailbreak.com/husk-0-7-0-built-in-stikjit-ios-android-runtime/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/husk-0-7-0-built-in-stikjit-ios-android-runtime/</guid>

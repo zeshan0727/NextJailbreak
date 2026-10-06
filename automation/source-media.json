@@ -331,6 +331,18 @@
         "url": "https://raw.githubusercontent.com/Jond-ie/triggr/8508c66d24fcb66e494192646fb40bcad5823b19/App/Resources/AppIcon60x60%403x.png",
         "alt": "Triggr app icon"
       }
+    },
+    "github.leviidev.husk": {
+      "credit_label": "Leviidev — official Husk source repository",
+      "source_page_url": "https://github.com/Leviidev/Husk",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/Leviidev/Husk/0.7.0/src/app/Husk/Resources/icon-default.png",
+        "alt": "Official Husk app icon",
+        "local_path": "assets/articles/source-media/husk-official-icon.png",
+        "git_blob_sha": "69fb13b8c21a85b38793efe7b61dc01b8df5e268"
+      },
+      "screenshots": []
     }
   }
 }
