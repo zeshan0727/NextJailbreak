@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-05T16:56:20Z",
+  "updatedAt": "2026-10-06T05:39:00Z",
   "files": [
+    {
+      "id": "netmirror-1.0.14-android-network-contract-fix",
+      "name": "NetMirror 1.0.14 \u2014 Android Network Contract Fix",
+      "fileName": "NetMirror-1.0.14-Android-Network-Contract-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.14",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.14/NetMirror-1.0.14-Android-Network-Contract-Fix.tipa",
+      "sha256": "758694b072be4f600b6e147efe52293104398a0b845f43253cdc1ca81f02ebbb",
+      "sizeBytes": 6415207,
+      "notes": "Matches React Native 0.79 Android didCompleteNetworkResponse payload semantics exactly: successful requests emit [requestId, null], non-timeout failures emit [requestId, error], and timeout failures emit [requestId, error, true]. Retains WebView boundary tracing and adds the exact bootstrap response payload type/preview. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.13-webview-boundary-diagnostic",
       "name": "NetMirror 1.0.13 \u2014 WebView Boundary Diagnostic",
