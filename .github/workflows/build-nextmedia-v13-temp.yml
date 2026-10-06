@@ -1,76 +1,72 @@
-name: Temporary Build Next Media 1.4.6
-
+name: Temporary Publish NetMirror 1.0.25
 on:
   push:
     branches: [main]
     paths:
       - ".github/workflows/build-nextmedia-v13-temp.yml"
-  workflow_dispatch:
-
 permissions:
   contents: write
-
-concurrency:
-  group: nextmedia-1.4.6-build
-  cancel-in-progress: true
-
 jobs:
-  build:
+  publish:
     runs-on: macos-15
-    timeout-minutes: 45
-
+    timeout-minutes: 15
     steps:
-      - name: Checkout Next Media 1.4.6 branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: next-media-v146-package-ready
-
-      - name: Build and verify expanded controls and resume mode
-        id: compile
-        continue-on-error: true
-        run: |
-          mkdir -p diagnostics
-          set -o pipefail
-          bash -x NextMediaApp/build146fix.sh 2>&1 | tee diagnostics/build146.log
-
-      - name: Upload build artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: NextMedia-1.4.6
-          if-no-files-found: warn
-          path: |
-            projects/NextMedia/dist/NextMedia-1.4.6.ipa
-            projects/NextMedia/dist/NextMedia-1.4.6.tipa
-            projects/NextMedia/dist/NextMedia-1.4.6-source.zip
-            projects/NextMedia/dist/SHA256SUMS.txt
-            projects/NextMedia/xcodebuild.log
-            projects/NextMedia/xcodegen.log
-            projects/NextMedia/icon-step.log
-            diagnostics/**
-
-      - name: Publish exact run status
-        if: always()
+          fetch-depth: 2
+      - name: Patch V24 to V25
+        shell: bash
         env:
-          BUILD_OUTCOME: ${{ steps.compile.outcome }}
+          PATCH_JS: '(()=>{if(!/net52\\.cc$/i.test(location.hostname)||!location.pathname.startsWith('\''/mobile/home'\'')||window.z)return;window.z=1;let d=document,H='\''https://net52.cc/mobile/home?app=1'\'',K='\''nmD'\'',G=()=>{try{return JSON.parse(localStorage[K]||'\''[]'\'')}catch(e){return[]}},P=u=>{let a=G().filter(x=>x!=u);a.unshift(u);localStorage[K]=JSON.stringify(a.slice(0,20))},X=()=>{d.querySelectorAll('\''video'\'').forEach(v=>v.pause());try{d.fullscreenElement&&d.exitFullscreen()}catch(e){}location.href=H+'\''&r='\''+Date.now()};d.addEventListener('\''click'\'',e=>{let a=e.target.closest&&e.target.closest('\''a'\'');if(!a)return;let u=a.href||'\'''\'',t=a.textContent||'\'''\'';if(a.download||/download/i.test(t)||/\\.(ipa|tipa|zip|apk|pdf|mp4|mkv|mov)([?#]|$)/i.test(u)){P(u);a.target='\''_blank'\''}},1);function Q(){let B=d.body,T=B?.innerText||'\'''\'';if(/We\\s*Need\\s*Support/i.test(T)&&/Click\\s*Here/i.test(T)){let a=[...B.children].find(e=>/We\\s*Need\\s*Support/i.test(e.innerText||'\'''\''));a&&(a.style.display='\''none'\'')}}function U(){if(!d.body)return;if(!d.getElementById('\''i'\'')){d.head.insertAdjacentHTML('\''beforeend'\'','\''<style>#i{position:fixed;left:14px;right:14px;bottom:10px;height:56px;z-index:2147483000;background:#161618e8;display:flex}#i button{flex:1;border:0;background:0;color:#fff;font:600 12px -apple-system}#x{position:fixed;left:12px;top:12px;z-index:2147483647;border:0;border-radius:18px;background:#111d;color:#fff;padding:10px 14px;font:600 15px -apple-system}#s{display:none;position:fixed;inset:0;z-index:2147483500;background:#0009;align-items:flex-end}#b{width:100%;max-height:70vh;overflow:auto;background:#1c1c1e;color:#fff;padding:18px 16px 28px;font:15px -apple-system}#l a{display:block;background:#2c2c2e;color:#fff;padding:12px;margin:8px 0;text-decoration:none;overflow:hidden}</style>'\'');d.body.insertAdjacentHTML('\''beforeend'\'','\''<button id=x>‹ Home</button><div id=i><button id=h>⌂<br>Home</button><button id=n>⇩<br>Downloads</button></div><div id=s><div id=b><b>Downloads</b><div id=l></div><button id=c>Done</button></div></div>'\'');let s=d.getElementById('\''s'\''),l=d.getElementById('\''l'\'');d.getElementById('\''x'\'').onclick=X;d.getElementById('\''h'\'').onclick=X;d.getElementById('\''n'\'').onclick=()=>{l.innerHTML='\'''\'';G().forEach(v=>{let a=d.createElement('\''a'\'');a.href=v;a.target='\''_blank'\'';a.textContent=v.split('\''/'\'').pop().split('\''?'\'')[0]||'\''Download'\'';l.appendChild(a)});s.style.display='\''flex'\''};d.getElementById('\''c'\'').onclick=()=>s.style.display='\''none'\''}let x=d.getElementById('\''x'\'');x.style.display=d.querySelector('\''video'\'')||d.fullscreenElement?'\''block'\'':'\''none'\'';if(d.fullscreenElement)try{d.fullscreenElement.appendChild(x)}catch(e){}else x.parentNode!=d.body&&d.body.appendChild(x)}function R(){Q();U();d.querySelectorAll('\''a[download]'\'').forEach(a=>a.target='\''_blank'\'')}R();d.addEventListener('\''fullscreenchange'\'',U);new MutationObserver(R).observe(d.documentElement,{subtree:1,childList:1});setInterval(U,1000)})();'
         run: |
           set -euo pipefail
-          STATUS_DIR="/tmp/nextmedia-run-status"
-          rm -rf "$STATUS_DIR"
-          mkdir -p "$STATUS_DIR"
-          printf 'run_id=%s\noutcome=%s\ncommit=%s\nversion=1.4.6\n' \
-            "$GITHUB_RUN_ID" "$BUILD_OUTCOME" "$GITHUB_SHA" > "$STATUS_DIR/latest-run.txt"
+          SRC="transfer/files/NetMirror/1.0.24/NetMirror-1.0.24-Stable-Player-Downloads-Tabs.tipa"
+          OUT="transfer/files/NetMirror/1.0.25/NetMirror-1.0.25-Player-Back-UI-Fix.tipa"
+          rm -rf /tmp/nm25
+          mkdir -p /tmp/nm25 "$(dirname "$OUT")"
+          unzip -q "$SRC" -d /tmp/nm25
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,plistlib,hashlib
+          app=next(Path("/tmp/nm25/Payload").glob("*.app"))
+          bpath=app/"NetMirrorPort"
+          b=bytearray(bpath.read_bytes())
+          k=bytes(b).find(b"window._n24")
+          if k<0: raise SystemExit("V24 JS slot not found")
+          s=bytes(b).rfind(b"\0",0,k)+1
+          e=bytes(b).find(b"\0",k)
+          n=e-s
+          js=os.environ["PATCH_JS"].encode()
+          if len(js)>=n: raise SystemExit(f"patch too long {len(js)} >= {n}")
+          b[s:s+n]=js+b"\0"+b"\0"*(n-len(js)-1)
+          bpath.write_bytes(b)
+          pl=app/"Info.plist"
+          with pl.open("rb") as f:i=plistlib.load(f)
+          i["CFBundleShortVersionString"]="1.0.25";i["CFBundleVersion"]="25"
+          with pl.open("wb") as f:plistlib.dump(i,f,fmt=plistlib.FMT_BINARY)
+          hb=(app/"main.jsbundle").read_bytes()
+          assert len(hb)==1215512
+          assert hashlib.sha256(hb).hexdigest()=="42f96376c8971aee304f6806471dbee0b7f94e3de5f329f6365e83088aea2ca6"
+          PY
+          (cd /tmp/nm25 && zip -qry "$GITHUB_WORKSPACE/$OUT" Payload)
+          unzip -t "$OUT" >/dev/null
+          export TIPA_SHA="$(shasum -a 256 "$OUT" | awk '{print $1}')"
+          export TIPA_SIZE="$(stat -f%z "$OUT")"
+          python3 - <<'PY'
+          import json,os
+          from datetime import datetime,timezone
+          from pathlib import Path
+          p=Path("transfer/index.json")
+          d=json.loads(p.read_text())
+          e={"id":"netmirror-1.0.25-player-back-ui-fix","name":"NetMirror 1.0.25 — Player Back + UI Fix","fileName":"NetMirror-1.0.25-Player-Back-UI-Fix.tipa","type":"tipa","platform":"TrollStore / iOS 15.1+","version":"1.0.25","url":"https://nextjailbreak.com/transfer/files/NetMirror/1.0.25/NetMirror-1.0.25-Player-Back-UI-Fix.tipa","sha256":os.environ["TIPA_SHA"],"sizeBytes":int(os.environ["TIPA_SIZE"]),"notes":"Keeps the confirmed-working V24/V20 playback path unchanged while refining the iOS-style Home/Downloads interface and adding a persistent Home/Back control whenever video or fullscreen playback is active. The control pauses video, exits fullscreen when possible, and returns cleanly to NetMirror Home. Original recovered Hermes bundle remains unchanged."}
+          d["files"]=[x for x in d.get("files",[]) if x.get("id")!=e["id"]]
+          d["files"].insert(0,e)
+          d["updatedAt"]=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+          p.write_text(json.dumps(d,indent=2)+"\n")
+          PY
+          git checkout HEAD^ -- .github/workflows/build-nextmedia-v13-temp.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan nextmedia-status-output
-          git rm -rf .
-          cp "$STATUS_DIR/latest-run.txt" latest-run.txt
-          git add latest-run.txt
-          git commit -m "Publish Next Media 1.4.6 build status"
-          git push --force origin HEAD:next-media-v146-status
-
-      - name: Fail when compilation failed
-        if: steps.compile.outcome != 'success'
-        run: exit 1
-
-# Trigger Next Media 1.4.6 fixed verified build.
+          git add "$OUT" transfer/index.json .github/workflows/build-nextmedia-v13-temp.yml
+          git commit -m "Publish NetMirror 1.0.25 to NS Transfer [skip ci]"
+          git push origin HEAD:main
