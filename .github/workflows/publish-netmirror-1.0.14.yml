@@ -1,0 +1,69 @@
+name: Publish NetMirror 1.0.14 To NS Transfer
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - ".github/workflows/publish-netmirror-1.0.14.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild TIPA from transfer chunks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p transfer/files/NetMirror/1.0.14
+          cat transfer/builds/NetMirror-1.0.14-chunks/part*.txt | base64 -d > transfer/files/NetMirror/1.0.14/NetMirror-1.0.14-Android-Network-Contract-Fix.tipa
+          test "$(stat -c%s transfer/files/NetMirror/1.0.14/NetMirror-1.0.14-Android-Network-Contract-Fix.tipa)" = "6415207"
+          echo "758694b072be4f600b6e147efe52293104398a0b845f43253cdc1ca81f02ebbb  transfer/files/NetMirror/1.0.14/NetMirror-1.0.14-Android-Network-Contract-Fix.tipa" | sha256sum -c -
+
+      - name: Add NetMirror v14 to NS Transfer feed
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          p=Path("transfer/index.json")
+          j=json.loads(p.read_text())
+          files=[x for x in j.get("files",[]) if x.get("id")!="netmirror-1.0.14-android-network-contract-fix"]
+          files.insert(0,{
+            "id":"netmirror-1.0.14-android-network-contract-fix",
+            "name":"NetMirror 1.0.14 — Android Network Contract Fix",
+            "fileName":"NetMirror-1.0.14-Android-Network-Contract-Fix.tipa",
+            "type":"tipa",
+            "platform":"TrollStore / iOS 15.1+",
+            "version":"1.0.14",
+            "url":"https://nextjailbreak.com/transfer/files/NetMirror/1.0.14/NetMirror-1.0.14-Android-Network-Contract-Fix.tipa",
+            "sha256":"758694b072be4f600b6e147efe52293104398a0b845f43253cdc1ca81f02ebbb",
+            "sizeBytes":6415207,
+            "notes":"Matches React Native 0.79 Android didCompleteNetworkResponse payload semantics exactly: successful requests emit [requestId, null], non-timeout failures emit [requestId, error], and timeout failures emit [requestId, error, true]. Retains WebView boundary tracing and adds the exact bootstrap response payload type/preview. Original recovered Hermes bundle remains unchanged."
+          })
+          j["files"]=files
+          j["updatedAt"]=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+          p.write_text(json.dumps(j,indent=2)+"\n")
+          PY
+
+      - name: Commit NS Transfer package
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add transfer/files/NetMirror/1.0.14/NetMirror-1.0.14-Android-Network-Contract-Fix.tipa transfer/index.json
+          if git diff --cached --quiet; then
+            echo "No publish changes"
+          else
+            git commit -m "Publish NetMirror 1.0.14 to NS Transfer [skip ci]"
+            git push origin HEAD:main
+          fi
