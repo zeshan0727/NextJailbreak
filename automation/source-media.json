@@ -312,6 +312,25 @@
           "alt": "Always120 settings showing refresh-rate label, global adaptive mode and per-app adaptive and locked modes"
         }
       ]
+    },
+    "com.johndie.triggr": {
+      "credit_label": "Jond-ie — official Triggr project repository",
+      "source_page_url": "https://github.com/Jond-ie/triggr",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/Jond-ie/triggr/8508c66d24fcb66e494192646fb40bcad5823b19/screenshots/1-main.png",
+        "alt": "Triggr 1.0.4 app showing trigger categories"
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/Jond-ie/triggr/8508c66d24fcb66e494192646fb40bcad5823b19/screenshots/4-statusbar.png",
+          "alt": "Triggr 1.0.4 status-bar trigger list"
+        }
+      ],
+      "icon": {
+        "url": "https://raw.githubusercontent.com/Jond-ie/triggr/8508c66d24fcb66e494192646fb40bcad5823b19/App/Resources/AppIcon60x60%403x.png",
+        "alt": "Triggr app icon"
+      }
     }
   }
 }

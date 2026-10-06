@@ -3,6 +3,46 @@
     {
       "additional_media": [
         {
+          "credit": "Official Triggr 1.0.4 status-bar trigger screenshot by Jond-ie",
+          "image": "assets/articles/source-media/triggr-1-0-4-official-statusbar.png",
+          "source_url": "https://github.com/Jond-ie/triggr/blob/8508c66d24fcb66e494192646fb40bcad5823b19/screenshots/4-statusbar.png"
+        },
+        {
+          "credit": "Official Triggr app icon by Jond-ie",
+          "image": "assets/articles/source-media/triggr-1-0-4-official-app-icon.png",
+          "source_url": "https://github.com/Jond-ie/triggr/blob/8508c66d24fcb66e494192646fb40bcad5823b19/App/Resources/AppIcon60x60%403x.png"
+        }
+      ],
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Stable package: rootless Dopamine on iOS 15–18, arm64 and arm64e; named developer tests on A10/iOS 15.8.6, A11/iOS 16.7, A13/iOS 17.5.1 and A13/iOS 18.6.2; RootHide build is separate and experimental",
+      "description": "Triggr 1.0.4 adds an app, iOS 18 side-button triggers, per-app assignments and extensible automation for rootless Dopamine on iOS 15–18.",
+      "developer": "Jond-ie",
+      "entry_type": "tweak-update",
+      "href": "triggr-1-0-4-activator-automation-dopamine/",
+      "image": "assets/articles/source-media/triggr-1-0-4-official-main.png",
+      "media_credit": "Official Triggr 1.0.4 app screenshot by Jond-ie",
+      "media_source_url": "https://github.com/Jond-ie/triggr/blob/8508c66d24fcb66e494192646fb40bcad5823b19/screenshots/1-main.png",
+      "modified_at": "2026-10-06T13:08:32Z",
+      "name": "Triggr",
+      "package": "com.johndie.triggr",
+      "published_at": "2026-10-06T13:08:32Z",
+      "release": "2026-10-06",
+      "selection_pool": "official-developer-release",
+      "slug": "triggr-1-0-4-activator-automation-dopamine",
+      "source_name": "Jond-ie GitHub and official package repository",
+      "source_page_url": "https://github.com/Jond-ie/triggr",
+      "source_url": "https://github.com/Jond-ie/triggr",
+      "source_visual_origin": "official-project-screenshots-and-app-icon",
+      "source_visual_url": "https://github.com/Jond-ie/triggr/blob/8508c66d24fcb66e494192646fb40bcad5823b19/screenshots/1-main.png",
+      "title": "Triggr 1.0.4 Brings Activator-Style Automation to Rootless Dopamine",
+      "version": "1.0.4"
+    },
+    {
+      "additional_media": [
+        {
           "credit": "Official Always120 1.2.0 settings screenshot by Snail",
           "image": "assets/articles/source-media/always120-1-2-0-official-settings.png",
           "source_url": "https://media.havoc.app/64ab7446d8f6312267aeec01"
