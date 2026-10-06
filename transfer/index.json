@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-06T09:16:28Z",
+  "updatedAt": "2026-10-06T13:43:56Z",
   "files": [
+    {
+      "id": "netmirror-1.0.24-stable-player-downloads-tabs",
+      "name": "NetMirror 1.0.24 \u2014 Stable Player + Downloads",
+      "fileName": "NetMirror-1.0.24-Stable-Player-Downloads-Tabs.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.24",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.24/NetMirror-1.0.24-Stable-Player-Downloads-Tabs.tipa",
+      "sha256": "30d26f9869b622211b32bf36d1b389d2dcd37681b099c29958db8249e6eb1b31",
+      "sizeBytes": 6418489,
+      "notes": "Rebased on confirmed-working V20 playback and removes the experimental Cast/player changes. Adds iOS-style Home/Downloads tabs, records download links, and opens downloads through the normal iOS browser/Files flow. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.20-support-gate-bypass",
       "name": "NetMirror 1.0.20 \u2014 Support Gate Bypass",
