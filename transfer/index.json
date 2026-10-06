@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-06T08:35:08Z",
+  "updatedAt": "2026-10-06T09:01:42Z",
   "files": [
+    {
+      "id": "netmirror-1.0.19-android-webview-popup-reload-fix",
+      "name": "NetMirror 1.0.19 \u2014 Android WebView Popup + Reload Fix",
+      "fileName": "NetMirror-1.0.19-Android-WebView-Popup-Reload-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.19",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.19/NetMirror-1.0.19-Android-WebView-Popup-Reload-Fix.tipa",
+      "sha256": "7dd5b5181b5f0080af4d736022b12c0e9b7fd1c9d418047915b2e095cf405cd7",
+      "sizeBytes": 6418136,
+      "notes": "Adds iOS compatibility for the recovered Android WebView interaction flow: enables JavaScript popup windows, routes target=_blank/window.open HTTP(S) requests to the device browser when no JS onOpenWindow callback is installed, and upgrades the native reload command to a cache-bypassing reload-from-origin. Retains direct load-event bridging from 1.0.18. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.18-android-webview-direct-events-fix",
       "name": "NetMirror 1.0.18 \u2014 Android WebView Direct Events Fix",
