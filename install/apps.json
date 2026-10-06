@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-husk",
+      "name": "Husk Android",
+      "version": "0.7.0",
+      "build": "17",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.4+",
+      "bundleId": "com.nextsolution.husk",
+      "icon": "/install/icons/com-nextsolution-husk-79a9a91ad7ac.png",
+      "manifest": "/install/com-nextsolution-husk.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-husk/0.7.0/com-nextsolution-husk-0.7.0-17.ipa",
+      "sha256": "79a9a91ad7acd2252906e94dbfc2e15edd90039c48596ee933496171b6c66168",
+      "sizeBytes": 45656911,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-ac",
       "name": "AirCard",
       "version": "1.3.2",
@@ -15,27 +36,6 @@
       "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-ac/1.3.2/com-nextsolution-ac-1.3.2-1.3.2.ipa",
       "sha256": "f547b47b6304f2709a5d8dd48e9eb95e4cf940e0810d33d16c8f749ebfe99466",
       "sizeBytes": 4836694,
-      "storage": "Cloudflare R2",
-      "duplicateSigned": false,
-      "tweakCount": 0,
-      "customIcon": false,
-      "signedByNextSigner": false
-    },
-    {
-      "id": "com-nextsolution-husk",
-      "name": "Husk Android 0.6.1",
-      "version": "0.6.1",
-      "build": "9",
-      "platform": "iPhone",
-      "minimumOS": "iOS 16.4+",
-      "bundleId": "com.nextsolution.husk",
-      "icon": "/install/icons/com-nextsolution-husk-da5aae1622fa.png",
-      "manifest": "/install/com-nextsolution-husk.plist",
-      "available": true,
-      "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-husk/0.6.1/com-nextsolution-husk-0.6.1-9.ipa",
-      "sha256": "da5aae1622fa79525a5631e9cebaba4abb1f469fcd0fe58199fed94f1c5fffc1",
-      "sizeBytes": 41415502,
       "storage": "Cloudflare R2",
       "duplicateSigned": false,
       "tweakCount": 0,
@@ -283,5 +283,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-10-05"
+  "updated": "2026-10-06"
 }
