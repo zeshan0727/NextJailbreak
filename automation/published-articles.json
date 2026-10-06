@@ -2,6 +2,34 @@
   "entries": [
     {
       "category": {
+        "id": "current-development",
+        "label": "iOS Personalization Development"
+      },
+      "compat": "arm64e; primarily verified on iPhone 16 Pro with iOS 18.6.2; Prepare has limited iOS 16.7.2 testing and accepted iOS 17.0–18.7.1 / 26.0–26.0.1 ranges, while live Island/Dock changes remain limited to verified iOS 17/18 SpringBoard routes",
+      "description": "Eagle 1.0.5 build 92 refreshes its Dynamic Island and Dock galleries, adds precise positioning and tightens safety checks. See verified compatibility and limits.",
+      "developer": "Leonardo B.; Eagle contributors",
+      "entry_type": "development",
+      "href": "eagle-1-0-5-darksword-island-dock-galleries/",
+      "image": "assets/articles/source-media/eagle-1-0-5-official-icon.webp",
+      "media_credit": "Official Eagle Light app icon from the Eagle 1.0.5 source tree",
+      "media_source_url": "https://github.com/leonardob8777-bit/Eagle/blob/823ab22c/lara/other/media.xcassets/AppIcon.appiconset/Eagle-Light.png",
+      "modified_at": "2026-10-06T20:55:53Z",
+      "name": "Eagle",
+      "package": "app.eagle",
+      "published_at": "2026-10-06T20:55:53Z",
+      "release": "2026-09-26",
+      "selection_pool": "official-developer-release",
+      "slug": "eagle-1-0-5-darksword-island-dock-galleries",
+      "source_name": "Eagle official GitHub repository",
+      "source_page_url": "https://github.com/leonardob8777-bit/Eagle/releases/tag/v1.0.5",
+      "source_url": "https://github.com/leonardob8777-bit/Eagle/releases/tag/v1.0.5",
+      "source_visual_origin": "official-project-app-icon",
+      "source_visual_url": "https://github.com/leonardob8777-bit/Eagle/blob/823ab22c/lara/other/media.xcassets/AppIcon.appiconset/Eagle-Light.png",
+      "title": "Eagle 1.0.5 Refines DarkSword Island and Dock Personalization",
+      "version": "1.0.5 (92)"
+    },
+    {
+      "category": {
         "id": "evergreen-guide",
         "label": "Evergreen Guide"
       },
@@ -5789,8 +5817,16 @@
       "package": "comparison.dynamic120hz-always120",
       "published_at": "2026-10-06T09:04:31Z",
       "version": "Dynamic120hz 3.3.3-3 / Always120 1.2.0"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-current-development",
+      "href": "eagle-1-0-5-darksword-island-dock-galleries/",
+      "package": "app.eagle",
+      "published_at": "2026-10-06T20:55:53Z",
+      "version": "1.0.5 (92)"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-06T09:04:31Z"
+  "updated_at": "2026-10-06T20:55:53Z"
 }

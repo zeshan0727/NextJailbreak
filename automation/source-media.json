@@ -343,6 +343,18 @@
         "git_blob_sha": "69fb13b8c21a85b38793efe7b61dc01b8df5e268"
       },
       "screenshots": []
+    },
+    "app.eagle": {
+      "credit_label": "Leonardo B. — official Eagle project repository",
+      "source_page_url": "https://github.com/leonardob8777-bit/Eagle",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/leonardob8777-bit/Eagle/823ab22c/lara/other/media.xcassets/AppIcon.appiconset/Eagle-Light.png",
+        "alt": "Official Eagle app icon",
+        "local_path": "assets/articles/source-media/eagle-1-0-5-official-icon.webp",
+        "git_blob_sha": "98ed8f1cde69416b72f6a4b2a0fd110a548876b0"
+      },
+      "screenshots": []
     }
   }
 }
