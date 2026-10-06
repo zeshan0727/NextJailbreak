@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-06T09:01:42Z",
+  "updatedAt": "2026-10-06T09:16:28Z",
   "files": [
+    {
+      "id": "netmirror-1.0.20-support-gate-bypass",
+      "name": "NetMirror 1.0.20 \u2014 Support Gate Bypass",
+      "fileName": "NetMirror-1.0.20-Android-WebView-Support-Gate-Bypass.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.20",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.20/NetMirror-1.0.20-Android-WebView-Support-Gate-Bypass.tipa",
+      "sha256": "23159fc7f9c7eb75b3d75c7dc110c47420685e0a55e4e4a05948131e7aeea16a",
+      "sizeBytes": 6418808,
+      "notes": "Bypasses the initial NetMirror 'We Need Support / Click Here / Open 1 ADS per Day' screen on net52.cc/mobile/home at the iOS WebView layer. The bypass removes the support gate and associated blur/interaction lock and keeps a MutationObserver active if the page recreates the gate. Retains the direct WebView event bridge, popup handling and hard reload compatibility from prior builds. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.19-android-webview-popup-reload-fix",
       "name": "NetMirror 1.0.19 \u2014 Android WebView Popup + Reload Fix",
