@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-06T08:22:25Z",
+  "updatedAt": "2026-10-06T08:35:08Z",
   "files": [
+    {
+      "id": "netmirror-1.0.18-android-webview-direct-events-fix",
+      "name": "NetMirror 1.0.18 \u2014 Android WebView Direct Events Fix",
+      "fileName": "NetMirror-1.0.18-Android-WebView-Direct-Events-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.18",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.18/NetMirror-1.0.18-Android-WebView-Direct-Events-Fix.tipa",
+      "sha256": "f55a9fa7bd481813412abdd6e933923bedf57953cd712ece69c59a40b7f924b1",
+      "sizeBytes": 6415800,
+      "notes": "Adds a legacy React component-event fallback for WebView onLoadingStart/onLoadingFinish when react-native-webview 13.13.5's iOS native RCTDirectEventBlock props are absent. Events are dispatched by reactTag through RCTComponentEvent so the recovered Android JS receives its original onLoadStart/onLoadEnd callbacks and can release the splash normally. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.17-android-webview-mainframe-events-fix",
       "name": "NetMirror 1.0.17 \u2014 Android WebView Main-Frame Events Fix",
