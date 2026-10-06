@@ -1,0 +1,88 @@
+name: Publish NetMirror 1.0.18 to NS Transfer
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - ".github/workflows/publish-netmirror-1.0.18.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HANDOFF_URL: "https://sdmntprindiasocentral.oaiusercontent.com/files/00000000-5214-8211-9850-fd42b3de12de/raw?se=2026-10-06T08%3A39%3A35Z&sp=r&sv=2026-02-06&sr=b&scid=274e53af-9a71-50cd-afd6-19eb3667a8e2&skoid=37f774a3-b6f2-4e56-9fdd-339e5d6e97f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-06T01%3A52%3A02Z&ske=2026-10-07T01%3A52%3A02Z&sks=b&skv=2026-02-06&sig=xROSAGDeeGLdBZNnluLbQoVOJkASPDXRLvvkyFJfQVQ%3D"
+      EXPECTED_TIPA_SHA256: "f55a9fa7bd481813412abdd6e933923bedf57953cd712ece69c59a40b7f924b1"
+      EXPECTED_HERMES_SHA256: "42f96376c8971aee304f6806471dbee0b7f94e3de5f329f6365e83088aea2ca6"
+      EXPECTED_HERMES_SIZE: "1215512"
+      DEST_DIR: "transfer/files/NetMirror/1.0.18"
+      DEST_NAME: "NetMirror-1.0.18-Android-WebView-Direct-Events-Fix.tipa"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download validated private build handoff
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl --fail --location --retry 3 "$HANDOFF_URL" -o /tmp/netmirror-v18.zip
+          rm -rf /tmp/netmirror-v18 /tmp/netmirror-payload
+          mkdir -p /tmp/netmirror-v18 /tmp/netmirror-payload
+          unzip -q /tmp/netmirror-v18.zip -d /tmp/netmirror-v18
+          SRC="$(find /tmp/netmirror-v18 -maxdepth 1 -type f -name '*.tipa' | head -n1)"
+          test -n "$SRC"
+          test "$(sha256sum "$SRC" | awk '{print $1}')" = "$EXPECTED_TIPA_SHA256"
+
+          unzip -q "$SRC" -d /tmp/netmirror-payload
+          BUNDLE="$(find /tmp/netmirror-payload -path '*/Payload/*.app/main.jsbundle' | head -n1)"
+          test -n "$BUNDLE"
+          test "$(stat -c '%s' "$BUNDLE")" = "$EXPECTED_HERMES_SIZE"
+          test "$(sha256sum "$BUNDLE" | awk '{print $1}')" = "$EXPECTED_HERMES_SHA256"
+
+          mkdir -p "$DEST_DIR"
+          cp "$SRC" "$DEST_DIR/$DEST_NAME"
+          test "$(sha256sum "$DEST_DIR/$DEST_NAME" | awk '{print $1}')" = "$EXPECTED_TIPA_SHA256"
+
+      - name: Update NS Transfer feed
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          p=Path("transfer/index.json")
+          data=json.loads(p.read_text())
+          entry={
+            "id":"netmirror-1.0.18-android-webview-direct-events-fix",
+            "name":"NetMirror 1.0.18 — Android WebView Direct Events Fix",
+            "fileName":"NetMirror-1.0.18-Android-WebView-Direct-Events-Fix.tipa",
+            "type":"tipa",
+            "platform":"TrollStore / iOS 15.1+",
+            "version":"1.0.18",
+            "url":"https://nextjailbreak.com/transfer/files/NetMirror/1.0.18/NetMirror-1.0.18-Android-WebView-Direct-Events-Fix.tipa",
+            "sha256":"f55a9fa7bd481813412abdd6e933923bedf57953cd712ece69c59a40b7f924b1",
+            "sizeBytes":6415800,
+            "notes":"Adds a legacy React component-event fallback for WebView onLoadingStart/onLoadingFinish when react-native-webview 13.13.5's iOS native RCTDirectEventBlock props are absent. Events are dispatched by reactTag through RCTComponentEvent so the recovered Android JS receives its original onLoadStart/onLoadEnd callbacks and can release the splash normally. Original recovered Hermes bundle remains unchanged."
+          }
+          data["files"]=[x for x in data.get("files",[]) if x.get("id")!=entry["id"]]
+          data["files"].insert(0,entry)
+          data["updatedAt"]=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+          p.write_text(json.dumps(data,indent=2,ensure_ascii=True)+"\n")
+          PY
+
+      - name: Commit publication and remove one-shot handoff
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/publish-netmirror-1.0.18.yml
+          git add "$DEST_DIR/$DEST_NAME" transfer/index.json
+          git commit -m "Publish NetMirror 1.0.18 to NS Transfer [skip ci]"
+          git push origin HEAD:main
