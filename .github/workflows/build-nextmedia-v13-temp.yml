@@ -1,78 +1,76 @@
-name: Temporary Publish NetMirror 1.0.25
+name: Temporary Build Next Media 1.4.6
+
 on:
   push:
     branches: [main]
     paths:
       - ".github/workflows/build-nextmedia-v13-temp.yml"
+  workflow_dispatch:
+
 permissions:
   contents: write
+
+concurrency:
+  group: nextmedia-1.4.6-build
+  cancel-in-progress: true
+
 jobs:
-  publish:
+  build:
     runs-on: macos-15
-    timeout-minutes: 15
+    timeout-minutes: 45
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Next Media 1.4.6 branch
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-          sparse-checkout: |
-            transfer/index.json
-            transfer/files/NetMirror/1.0.24/NetMirror-1.0.24-Stable-Player-Downloads-Tabs.tipa
-            transfer/files/NetMirror/1.0.25/NetMirror-1.0.25-Player-Back-UI-Fix.tipa
-            .github/workflows/build-nextmedia-v13-temp.yml
-          sparse-checkout-cone-mode: false
-      - name: Patch and publish
-        shell: bash
+          ref: next-media-v146-package-ready
+
+      - name: Build and verify expanded controls and resume mode
+        id: compile
+        continue-on-error: true
+        run: |
+          mkdir -p diagnostics
+          set -o pipefail
+          bash -x NextMediaApp/build146fix.sh 2>&1 | tee diagnostics/build146.log
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextMedia-1.4.6
+          if-no-files-found: warn
+          path: |
+            projects/NextMedia/dist/NextMedia-1.4.6.ipa
+            projects/NextMedia/dist/NextMedia-1.4.6.tipa
+            projects/NextMedia/dist/NextMedia-1.4.6-source.zip
+            projects/NextMedia/dist/SHA256SUMS.txt
+            projects/NextMedia/xcodebuild.log
+            projects/NextMedia/xcodegen.log
+            projects/NextMedia/icon-step.log
+            diagnostics/**
+
+      - name: Publish exact run status
+        if: always()
         env:
-          PATCH_B64: "KCgpPT57aWYoIS9uZXQ1MlwuY2MkL2kudGVzdChsb2NhdGlvbi5ob3N0bmFtZSl8fCFsb2NhdGlvbi5wYXRobmFtZS5zdGFydHNXaXRoKCcvbW9iaWxlL2hvbWUnKXx8d2luZG93LnopcmV0dXJuO3dpbmRvdy56PTE7bGV0IGQ9ZG9jdW1lbnQsSD0naHR0cHM6Ly9uZXQ1Mi5jYy9tb2JpbGUvaG9tZT9hcHA9MScsSz0nbm1EJyxHPSgpPT57dHJ5e3JldHVybiBKU09OLnBhcnNlKGxvY2FsU3RvcmFnZVtLXXx8J1tdJyl9Y2F0Y2goZSl7cmV0dXJuW119fSxQPXU9PntsZXQgYT1HKCkuZmlsdGVyKHg9PnghPXUpO2EudW5zaGlmdCh1KTtsb2NhbFN0b3JhZ2VbS109SlNPTi5zdHJpbmdpZnkoYS5zbGljZSgwLDIwKSl9LFg9KCk9PntkLnF1ZXJ5U2VsZWN0b3JBbGwoJ3ZpZGVvJykuZm9yRWFjaCh2PT52LnBhdXNlKCkpO3RyeXtkLmZ1bGxzY3JlZW5FbGVtZW50JiZkLmV4aXRGdWxsc2NyZWVuKCl9Y2F0Y2goZSl7fWxvY2F0aW9uLmhyZWY9SCsnJnI9JytEYXRlLm5vdygpfTtkLmFkZEV2ZW50TGlzdGVuZXIoJ2NsaWNrJyxlPT57bGV0IGE9ZS50YXJnZXQuY2xvc2VzdCYmZS50YXJnZXQuY2xvc2VzdCgnYScpO2lmKCFhKXJldHVybjtsZXQgdT1hLmhyZWZ8fCcnLHQ9YS50ZXh0Q29udGVudHx8Jyc7aWYoYS5kb3dubG9hZHx8L2Rvd25sb2FkL2kudGVzdCh0KXx8L1wuKGlwYXx0aXBhfHppcHxhcGt8cGRmfG1wNHxta3Z8bW92KShbPyNdfCQpL2kudGVzdCh1KSl7UCh1KTthLnRhcmdldD0nX2JsYW5rJ319LDEpO2Z1bmN0aW9uIFEoKXtsZXQgQj1kLmJvZHksVD1CPy5pbm5lclRleHR8fCcnO2lmKC9XZVxzKk5lZWRccypTdXBwb3J0L2kudGVzdChUKSYmL0NsaWNrXHMqSGVyZS9pLnRlc3QoVCkpe2xldCBhPVsuLi5CLmNoaWxkcmVuXS5maW5kKGU9Pi9XZVxzKk5lZWRccypTdXBwb3J0L2kudGVzdChlLmlubmVyVGV4dHx8JycpKTthJiYoYS5zdHlsZS5kaXNwbGF5PSdub25lJyl9fWZ1bmN0aW9uIFUoKXtpZighZC5ib2R5KXJldHVybjtpZighZC5nZXRFbGVtZW50QnlJZCgnaScpKXtkLmhlYWQuaW5zZXJ0QWRqYWNlbnRIVE1MKCdiZWZvcmVlbmQnLCc8c3R5bGU+I2l7cG9zaXRpb246Zml4ZWQ7bGVmdDoxNHB4O3JpZ2h0OjE0cHg7Ym90dG9tOjEwcHg7aGVpZ2h0OjU2cHg7ei1pbmRleDoyMTQ3NDgzMDAwO2JhY2tncm91bmQ6IzE2MTYxOGU4O2Rpc3BsYXk6ZmxleH0jaSBidXR0b257ZmxleDoxO2JvcmRlcjowO2JhY2tncm91bmQ6MDtjb2xvcjojZmZmO2ZvbnQ6NjAwIDEycHggLWFwcGxlLXN5c3RlbX0jeHtwb3NpdGlvbjpmaXhlZDtsZWZ0OjEycHg7dG9wOjEycHg7ei1pbmRleDoyMTQ3NDgzNjQ3O2JvcmRlcjowO2JvcmRlci1yYWRpdXM6MThweDtiYWNrZ3JvdW5kOiMxMTFkO2NvbG9yOiNmZmY7cGFkZGluZzoxMHB4IDE0cHg7Zm9udDo2MDAgMTVweCAtYXBwbGUtc3lzdGVtfSNze2Rpc3BsYXk6bm9uZTtwb3NpdGlvbjpmaXhlZDtpbnNldDowO3otaW5kZXg6MjE0NzQ4MzUwMDtiYWNrZ3JvdW5kOiMwMDA5O2FsaWduLWl0ZW1zOmZsZXgtZW5kfSNie3dpZHRoOjEwMCU7bWF4LWhlaWdodDo3MHZoO292ZXJmbG93OmF1dG87YmFja2dyb3VuZDojMWMxYzFlO2NvbG9yOiNmZmY7cGFkZGluZzoxOHB4IDE2cHggMjhweDtmb250OjE1cHggLWFwcGxlLXN5c3RlbX0jbCBhe2Rpc3BsYXk6YmxvY2s7YmFja2dyb3VuZDojMmMyYzJlO2NvbG9yOiNmZmY7cGFkZGluZzoxMnB4O21hcmdpbjo4cHggMDt0ZXh0LWRlY29yYXRpb246bm9uZTtvdmVyZmxvdzpoaWRkZW59PC9zdHlsZT4nKTtkLmJvZHkuaW5zZXJ0QWRqYWNlbnRIVE1MKCdiZWZvcmVlbmQnLCc8YnV0dG9uIGlkPXg+4oC5IEhvbWU8L2J1dHRvbj48ZGl2IGlkPWk+PGJ1dHRvbiBpZD1oPuKMgjxicj5Ib21lPC9idXR0b24+PGJ1dHRvbiBpZD1uPuKHqDxicj5Eb3dubG9hZHM8L2J1dHRvbj48L2Rpdj48ZGl2IGlkPXM+PGRpdiBpZD1iPjxiPkRvd25sb2FkczwvYj48ZGl2IGlkPWw+PC9kaXY+PGJ1dHRvbiBpZD1jPkRvbmU8L2J1dHRvbj48L2Rpdj48L2Rpdj4nKTtsZXQgcz1kLmdldEVsZW1lbnRCeUlkKCdzJyksbD1kLmdldEVsZW1lbnRCeUlkKCdsJyk7ZC5nZXRFbGVtZW50QnlJZCgneCcpLm9uY2xpY2s9WDtkLmdldEVsZW1lbnRCeUlkKCdoJykub25jbGljaz1YO2QuZ2V0RWxlbWVudEJ5SWQoJ24nKS5vbmNsaWNrPSgpPT57bC5pbm5lckhUTUw9Jyc7RygpLmZvckVhY2godj0+e2xldCBhPWQuY3JlYXRlRWxlbWVudCgnYScpO2EuaHJlZj12O2EudGFyZ2V0PSdfYmxhbmsnO2EudGV4dENvbnRlbnQ9di5zcGxpdCgnLycpLnBvcCgpLnNwbGl0KCc/JylbMF18fCdEb3dubG9hZCc7bC5hcHBlbmRDaGlsZChhKX0pO3Muc3R5bGUuZGlzcGxheT0nZmxleCd9O2QuZ2V0RWxlbWVudEJ5SWQoJ2MnKS5vbmNsaWNrPSgpPT5zLnN0eWxlLmRpc3BsYXk9J25vbmUnfWxldCB4PWQuZ2V0RWxlbWVudEJ5SWQoJ3gnKTt4LnN0eWxlLmRpc3BsYXk9ZC5xdWVyeVNlbGVjdG9yKCd2aWRlbycpfHxkLmZ1bGxzY3JlZW5FbGVtZW50PydibG9jayc6J25vbmUnO2lmKGQuZnVsbHNjcmVlbkVsZW1lbnQpdHJ5e2QuZnVsbHNjcmVlbkVsZW1lbnQuYXBwZW5kQ2hpbGQoeCl9Y2F0Y2goZSl7fWVsc2UgeC5wYXJlbnROb2RlIT1kLmJvZHkmJmQuYm9keS5hcHBlbmRDaGlsZCh4KX1mdW5jdGlvbiBSKCl7USgpO1UoKTtkLnF1ZXJ5U2VsZWN0b3JBbGwoJ2FbZG93bmxvYWRdJykuZm9yRWFjaChhPT5hLnRhcmdldD0nX2JsYW5rJyl9UigpO2QuYWRkRXZlbnRMaXN0ZW5lcignZnVsbHNjcmVlbmNoYW5nZScsVSk7bmV3IE11dGF0aW9uT2JzZXJ2ZXIoUikub2JzZXJ2ZShkLmRvY3VtZW50RWxlbWVudCx7c3VidHJlZToxLGNoaWxkTGlzdDoxfSk7c2V0SW50ZXJ2YWwoVSwxMDAwKX0pKCk7"
+          BUILD_OUTCOME: ${{ steps.compile.outcome }}
         run: |
           set -euo pipefail
-          SRC="transfer/files/NetMirror/1.0.24/NetMirror-1.0.24-Stable-Player-Downloads-Tabs.tipa"
-          OUT="transfer/files/NetMirror/1.0.25/NetMirror-1.0.25-Player-Back-UI-Fix.tipa"
-          rm -rf /tmp/nm25
-          mkdir -p /tmp/nm25 "$(dirname "$OUT")"
-          unzip -q "$SRC" -d /tmp/nm25
-          python3 - <<'PY'
-          from pathlib import Path
-          import os,plistlib,hashlib,base64
-          app=next(Path("/tmp/nm25/Payload").glob("*.app"))
-          bp=app/"NetMirrorPort"
-          b=bytearray(bp.read_bytes())
-          k=bytes(b).find(b"window._n24")
-          if k<0: raise SystemExit("V24 slot missing")
-          s=bytes(b).rfind(b"\0",0,k)+1
-          e=bytes(b).find(b"\0",k)
-          n=e-s
-          js=base64.b64decode(os.environ["PATCH_B64"])
-          if len(js)>=n: raise SystemExit(f"patch too long {len(js)} >= {n}")
-          b[s:s+n]=js+b"\0"+b"\0"*(n-len(js)-1)
-          bp.write_bytes(b)
-          pl=app/"Info.plist"
-          with pl.open("rb") as f:i=plistlib.load(f)
-          i["CFBundleShortVersionString"]="1.0.25";i["CFBundleVersion"]="25"
-          with pl.open("wb") as f:plistlib.dump(i,f,fmt=plistlib.FMT_BINARY)
-          hb=(app/"main.jsbundle").read_bytes()
-          assert len(hb)==1215512
-          assert hashlib.sha256(hb).hexdigest()=="42f96376c8971aee304f6806471dbee0b7f94e3de5f329f6365e83088aea2ca6"
-          PY
-          (cd /tmp/nm25 && zip -qry "$GITHUB_WORKSPACE/$OUT" Payload)
-          unzip -t "$OUT" >/dev/null
-          export TIPA_SHA="$(shasum -a 256 "$OUT" | awk '{print $1}')"
-          export TIPA_SIZE="$(stat -f%z "$OUT")"
-          python3 - <<'PY'
-          import json,os
-          from datetime import datetime,timezone
-          from pathlib import Path
-          p=Path("transfer/index.json")
-          d=json.loads(p.read_text())
-          e={"id":"netmirror-1.0.25-player-back-ui-fix","name":"NetMirror 1.0.25 — Player Back + UI Fix","fileName":"NetMirror-1.0.25-Player-Back-UI-Fix.tipa","type":"tipa","platform":"TrollStore / iOS 15.1+","version":"1.0.25","url":"https://nextjailbreak.com/transfer/files/NetMirror/1.0.25/NetMirror-1.0.25-Player-Back-UI-Fix.tipa","sha256":os.environ["TIPA_SHA"],"sizeBytes":int(os.environ["TIPA_SIZE"]),"notes":"Keeps the confirmed-working V24/V20 playback path unchanged while refining the iOS-style Home/Downloads interface and adding a persistent Home/Back control whenever video or fullscreen playback is active. The control pauses video, exits fullscreen when possible, and returns cleanly to NetMirror Home. Original recovered Hermes bundle remains unchanged."}
-          d["files"]=[x for x in d.get("files",[]) if x.get("id")!=e["id"]]
-          d["files"].insert(0,e)
-          d["updatedAt"]=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
-          p.write_text(json.dumps(d,indent=2)+"\n")
-          PY
-          curl -fsSL "https://raw.githubusercontent.com/zeshan0727/NextJailbreak/6fba0855fe8146a365083d739d0fccf4e511d3d5/.github/workflows/build-nextmedia-v13-temp.yml" -o .github/workflows/build-nextmedia-v13-temp.yml
+          STATUS_DIR="/tmp/nextmedia-run-status"
+          rm -rf "$STATUS_DIR"
+          mkdir -p "$STATUS_DIR"
+          printf 'run_id=%s\noutcome=%s\ncommit=%s\nversion=1.4.6\n' \
+            "$GITHUB_RUN_ID" "$BUILD_OUTCOME" "$GITHUB_SHA" > "$STATUS_DIR/latest-run.txt"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$OUT" transfer/index.json .github/workflows/build-nextmedia-v13-temp.yml
-          git commit -m "Publish NetMirror 1.0.25 to NS Transfer [skip ci]"
-          git push origin HEAD:main
+          git checkout --orphan nextmedia-status-output
+          git rm -rf .
+          cp "$STATUS_DIR/latest-run.txt" latest-run.txt
+          git add latest-run.txt
+          git commit -m "Publish Next Media 1.4.6 build status"
+          git push --force origin HEAD:next-media-v146-status
+
+      - name: Fail when compilation failed
+        if: steps.compile.outcome != 'success'
+        run: exit 1
+
+# Trigger Next Media 1.4.6 fixed verified build.

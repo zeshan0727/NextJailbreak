@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-06T13:43:56Z",
+  "updatedAt": "2026-10-06T15:06:05Z",
   "files": [
+    {
+      "id": "netmirror-1.0.25-player-back-ui-fix",
+      "name": "NetMirror 1.0.25 \u2014 Player Back + UI Fix",
+      "fileName": "NetMirror-1.0.25-Player-Back-UI-Fix.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 15.1+",
+      "version": "1.0.25",
+      "url": "https://nextjailbreak.com/transfer/files/NetMirror/1.0.25/NetMirror-1.0.25-Player-Back-UI-Fix.tipa",
+      "sha256": "82f2d49428de27d33eb01407b66d4dc308947d348664992b91705c90054ab7f8",
+      "sizeBytes": 6417785,
+      "notes": "Keeps the confirmed-working V24/V20 playback path unchanged while refining the iOS-style Home/Downloads interface and adding a persistent Home/Back control whenever video or fullscreen playback is active. The control pauses video, exits fullscreen when possible, and returns cleanly to NetMirror Home. Original recovered Hermes bundle remains unchanged."
+    },
     {
       "id": "netmirror-1.0.24-stable-player-downloads-tabs",
       "name": "NetMirror 1.0.24 \u2014 Stable Player + Downloads",
