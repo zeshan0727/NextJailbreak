@@ -1,6 +1,25 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.aronsz26.lockscreenrestore": {
+      "credit_label": "aronsz26 — official LockScreenRestore Havoc listing",
+      "source_page_url": "https://havoc.app/package/lockscreenrstr",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
+        "alt": "Official LockScreenRestore banner showing the iOS 15-style clock, music player and notifications on three iPhones",
+        "local_path": "assets/articles/source-media/lockscreenrestore-1-9-4-official-banner.jpg",
+        "git_blob_sha": "9b3daeaef54e24271c501d8a3aba2a772f7bd297"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ac0f7b8058feb85f94fabb3",
+          "alt": "Official LockScreenRestore screenshot showing the iOS 15-style music player with large artwork, transport controls and a volume slider",
+          "local_path": "assets/articles/source-media/lockscreenrestore-1-9-4-official-music-player.png",
+          "git_blob_sha": "ca5d1b07e817ec49aa9c43cc5d8112cbe1288041"
+        }
+      ]
+    },
     "com.blacknoisy.prism": {
       "credit_label": "blacknoisy — official Prism Havoc listing",
       "source_page_url": "https://havoc.app/package/prism",
