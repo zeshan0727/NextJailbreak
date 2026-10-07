@@ -6,6 +6,15 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Install a .deb File with Sileo on a Rootless Jailbreak</title>
+      <link>https://nextjailbreak.com/install-deb-file-sileo-rootless-jailbreak-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/install-deb-file-sileo-rootless-jailbreak-guide/</guid>
+      <pubDate>Wed, 07 Oct 2026 04:55:14 GMT</pubDate>
+      <description>Install a local .deb file with Sileo 2.5.1, check rootless architecture and dependencies, fix Bad Deb errors, and remove the package safely.</description>
+      <category>Evergreen Guide</category>
+    </item>
+
+    <item>
       <title>How to Add Repositories to Sileo and Fix Source Refresh Errors</title>
       <link>https://nextjailbreak.com/add-repositories-sileo-fix-source-refresh-errors/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/add-repositories-sileo-fix-source-refresh-errors/</guid>
