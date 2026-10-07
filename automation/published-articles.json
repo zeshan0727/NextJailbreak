@@ -2,6 +2,34 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-guide",
+        "label": "Evergreen Guide"
+      },
+      "compat": "Sileo 2.5.1 source-management workflow; requires an existing compatible jailbreak environment; repository or package compatibility does not establish jailbreak availability",
+      "description": "Add trusted APT repositories to Sileo 2.5.1, refresh one source, remove broken repos, and interpret 404, signature, hash and architecture errors safely.",
+      "developer": "Sileo Team",
+      "entry_type": "guide",
+      "href": "add-repositories-sileo-fix-source-refresh-errors/",
+      "image": "assets/articles/source-media/sileo-2-5-1-official-icon.png",
+      "media_credit": "Official Sileo app icon from the Sileo 2.5.1 source tree",
+      "media_source_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "modified_at": "2026-10-07T01:04:26Z",
+      "name": "Sileo repository troubleshooting",
+      "package": "guide.sileo-repositories",
+      "published_at": "2026-10-07T01:04:26Z",
+      "release": "2026-10-07",
+      "selection_pool": "evergreen-search-intent",
+      "slug": "add-repositories-sileo-fix-source-refresh-errors",
+      "source_name": "Sileo official source repository",
+      "source_page_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/UI/SourcesViewController/SourcesViewController.swift",
+      "source_url": "https://github.com/Sileo/Sileo/tree/2.5.1",
+      "source_visual_origin": "official-project-app-icon",
+      "source_visual_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "title": "How to Add Repositories to Sileo and Fix Source Refresh Errors",
+      "version": "Sileo 2.5.1"
+    },
+    {
+      "category": {
         "id": "current-development",
         "label": "iOS Personalization Development"
       },
@@ -5825,8 +5853,16 @@
       "package": "app.eagle",
       "published_at": "2026-10-06T20:55:53Z",
       "version": "1.0.5 (92)"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-guide",
+      "href": "add-repositories-sileo-fix-source-refresh-errors/",
+      "package": "guide.sileo-repositories",
+      "published_at": "2026-10-07T01:04:26Z",
+      "version": "Sileo 2.5.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-06T20:55:53Z"
+  "updated_at": "2026-10-07T01:04:26Z"
 }

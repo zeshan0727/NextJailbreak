@@ -355,6 +355,18 @@
         "git_blob_sha": "98ed8f1cde69416b72f6a4b2a0fd110a548876b0"
       },
       "screenshots": []
+    },
+    "github.sileo.sileo": {
+      "credit_label": "Sileo Team — official Sileo source repository",
+      "source_page_url": "https://github.com/Sileo/Sileo/tree/2.5.1",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+        "alt": "Official Sileo app icon",
+        "local_path": "assets/articles/source-media/sileo-2-5-1-official-icon.png",
+        "git_blob_sha": "36cd9e65a3366498097ba3e53d929a1ba947c669"
+      },
+      "screenshots": []
     }
   }
 }
