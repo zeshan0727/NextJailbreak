@@ -1,6 +1,37 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.mathelord.infobar": {
+      "credit_label": "Mathelord — official InfoBar Havoc listing",
+      "source_page_url": "https://havoc.app/package/infobar",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac3922bb1793125b6521e02",
+        "alt": "Official InfoBar banner showing the rootless iOS system monitor overlay",
+        "local_path": "assets/articles/source-media/infobar-1-3-0-official-banner.png",
+        "git_blob_sha": "caba9793d6f0748f1b4084a90098df1f5af2b04a"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ac390e0b1793125b65214be",
+          "alt": "InfoBar expanded list showing CPU, RAM, temperature, battery and network data",
+          "local_path": "assets/articles/source-media/infobar-1-3-0-official-overlay.png",
+          "git_blob_sha": "cdc6660719ff66082dc4da127dab01b146cdb846"
+        },
+        {
+          "url": "https://media.havoc.app/6ac390f2b1793125b6521509",
+          "alt": "InfoBar compact row with CPU, RAM and battery percentages",
+          "local_path": "assets/articles/source-media/infobar-1-3-0-official-settings.png",
+          "git_blob_sha": "2d6a1a17466c2bb499a664b1233dd258ab123d59"
+        },
+        {
+          "url": "https://media.havoc.app/6ac390f7b1793125b6521548",
+          "alt": "InfoBar full row showing CPU frequency, RAM, temperature, battery and network speed",
+          "local_path": "assets/articles/source-media/infobar-1-3-0-official-details.png",
+          "git_blob_sha": "03fdddfc5d2738a789f786a151489ca668ce1a23"
+        }
+      ]
+    },
     "com.aronsz26.lockscreenrestore": {
       "credit_label": "aronsz26 — official LockScreenRestore Havoc listing",
       "source_page_url": "https://havoc.app/package/lockscreenrstr",
@@ -418,3 +449,4 @@
     }
   }
 }
+
