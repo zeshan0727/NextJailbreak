@@ -1,6 +1,41 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "credit": "Official Circle to Search 0.6.0 screenshot by WeWaffles",
+          "image": "assets/articles/source-media/circle-to-search-0-6-0-official-screenshot.png",
+          "source_url": "https://media.havoc.app/6a871037324f05e66ad20a37"
+        }
+      ],
+      "category": {
+        "id": "tweak-comparison",
+        "label": "Tweak Comparison"
+      },
+      "compat": "Prism: Havoc iOS 15.0–17.3.1, rootless; Circle to Search: Havoc iOS 16.0–26.0.1, rootless, with developer testing limited to iOS 17.0 and iPad; both require a compatible jailbreak",
+      "description": "Compare Prism 1.6.3 and Circle to Search 0.6.0 by OCR, translation, screenshots, privacy, price, iOS range and jailbreak requirements.",
+      "developer": "blacknoisy; WeWaffles",
+      "entry_type": "roundup-comparison",
+      "href": "prism-vs-circle-to-search-comparison/",
+      "image": "assets/articles/source-media/prism-1-6-3-official-banner.png",
+      "media_credit": "Official Prism banner by blacknoisy",
+      "media_source_url": "https://media.havoc.app/6a7835029e5377f2c5170dce",
+      "modified_at": "2026-10-07T08:55:03Z",
+      "name": "Prism vs Circle to Search",
+      "package": "comparison.prism-circle-to-search",
+      "published_at": "2026-10-07T08:55:03Z",
+      "release": "2026-10-07",
+      "selection_pool": "scheduled-tweak-comparison",
+      "slug": "prism-vs-circle-to-search-comparison",
+      "source_name": "Official Havoc package listings",
+      "source_page_url": "https://havoc.app/package/prism",
+      "source_url": "https://havoc.app/package/prism",
+      "source_visual_origin": "official-havoc-banner-and-screenshot",
+      "source_visual_url": "https://media.havoc.app/6a7835029e5377f2c5170dce",
+      "title": "Prism vs Circle to Search: Which iOS Visual Search Tweak Should You Use?",
+      "version": "Prism 1.6.3 / Circle to Search 0.6.0"
+    },
+    {
       "category": {
         "id": "evergreen-guide",
         "label": "Evergreen Guide"
@@ -5897,8 +5932,16 @@
       "package": "guide.sileo.local-deb",
       "published_at": "2026-10-07T04:55:14Z",
       "version": "Sileo 2.5.1"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-tweak-comparison",
+      "href": "prism-vs-circle-to-search-comparison/",
+      "package": "comparison.prism-circle-to-search",
+      "published_at": "2026-10-07T08:55:03Z",
+      "version": "Prism 1.6.3 / Circle to Search 0.6.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-07T04:55:14Z"
+  "updated_at": "2026-10-07T08:55:03Z"
 }

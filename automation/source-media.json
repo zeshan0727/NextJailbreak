@@ -1,6 +1,35 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.blacknoisy.prism": {
+      "credit_label": "blacknoisy — official Prism Havoc listing",
+      "source_page_url": "https://havoc.app/package/prism",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6a7835029e5377f2c5170dce",
+        "alt": "Official Prism artwork with a pen inside a multicolor capture frame",
+        "local_path": "assets/articles/source-media/prism-1-6-3-official-banner.png",
+        "git_blob_sha": "22b1a6933accb68eb04c0f3f0742298b2b66520e"
+      },
+      "screenshots": []
+    },
+    "com.chloe.circlesearch": {
+      "credit_label": "WeWaffles — official Circle to Search Havoc listing",
+      "source_page_url": "https://havoc.app/package/circletosearch",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6a871062324f05e66ad20b82",
+        "alt": "Official Circle to Search banner"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6a871037324f05e66ad20a37",
+          "alt": "Circle to Search overlay on an iPad Home Screen with Feedback and Discord circled",
+          "local_path": "assets/articles/source-media/circle-to-search-0-6-0-official-screenshot.png",
+          "git_blob_sha": "5803e74f6f49fb28dd9bf203216ec25888abb850"
+        }
+      ]
+    },
     "com.zqbb.dynamic120hz": {
       "credit_label": "zqbb — official Dynamic120hz Havoc listing",
       "source_page_url": "https://havoc.app/package/dynamic120hz",
