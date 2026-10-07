@@ -13,13 +13,13 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/bigboss/package/com.cydiageek.gyration/": {
-      "checked_at": "2026-10-06T12:20:10.262792+00:00",
+      "checked_at": "2026-10-07T12:11:18.987679+00:00",
       "package": "com.cydiageek.gyration",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/bigboss/package/com.cydiageek.gyrationapps/": {
-      "checked_at": "2026-10-06T12:20:10.262792+00:00",
+      "checked_at": "2026-10-07T12:11:18.987679+00:00",
       "package": "com.cydiageek.gyrationapps",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -82,14 +82,14 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-10-06T22:28:16.665471+00:00",
+      "checked_at": "2026-10-07T12:11:18.987679+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-6-3-update/",
       "version": "6.3"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-10-06T22:28:16.665471+00:00",
+      "checked_at": "2026-10-07T12:11:18.987679+00:00",
       "package": "com.fouadraheb.watusi3",
       "status": "duplicate",
       "target_path": "watusi-3-for-whatsapp-1-3-26-update/",
@@ -131,7 +131,7 @@
       "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
-      "checked_at": "2026-10-06T22:28:16.665471+00:00",
+      "checked_at": "2026-10-07T12:11:18.987679+00:00",
       "package": "com.cercube.ios",
       "status": "duplicate",
       "target_path": "cercube-for-youtube-6-1-3-update/",
@@ -190,7 +190,7 @@
       "version": "1.0.3"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.zqbb.hello.keyboard.ai/": {
-      "checked_at": "2026-10-06T22:28:16.665471+00:00",
+      "checked_at": "2026-10-07T12:11:18.987679+00:00",
       "package": "com.zqbb.hello.keyboard.ai",
       "status": "duplicate",
       "target_path": "hellokeyboardai-2-1-0-1-update/",
@@ -237,13 +237,13 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/ipg-s-cydia-repo/package/moe.cadence.nosafariformkeyboard/": {
-      "checked_at": "2026-10-06T12:20:10.262792+00:00",
+      "checked_at": "2026-10-07T12:11:18.987679+00:00",
       "package": "moe.cadence.nosafariformkeyboard",
       "reason": "original source material is too thin for a high-value article",
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/majd-alfhaily/package/me.alfhaily.rocket/": {
-      "checked_at": "2026-10-06T22:28:16.665471+00:00",
+      "checked_at": "2026-10-07T12:11:18.987679+00:00",
       "package": "me.alfhaily.rocket",
       "status": "duplicate",
       "target_path": "rocket-for-instagram-3-8-38-update/",
@@ -2124,6 +2124,16 @@
       "action": "no-op",
       "at": "2026-10-06T22:28:16.665471+00:00",
       "failures": [],
+      "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "no-op",
+      "at": "2026-10-07T12:11:18.987679+00:00",
+      "failures": [
+        "moe.cadence.nosafariformkeyboard: original source material is too thin for a high-value article",
+        "com.cydiageek.gyration: resolved source does not independently identify the discovered package",
+        "com.cydiageek.gyrationapps: resolved source does not independently identify the discovered package"
+      ],
       "reason": "no-high-quality-original-source-candidate"
     }
   ],
