@@ -1,6 +1,31 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.pitroytech.5rowpro": {
+      "credit_label": "pitroytech — official 5Row Pro Havoc listing",
+      "source_page_url": "https://havoc.app/package/5rowpro",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac27358d021b0f97081fff7",
+        "alt": "Official 5Row Pro artwork showing number and symbol rows above the stock iPhone keyboard",
+        "local_path": "assets/articles/source-media/5row-pro-1-19-0-official-banner.png",
+        "git_blob_sha": "a0d30dd7ce45eeedfdd0e979c3493b0907708034"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ac26340d021b0f970817b97",
+          "alt": "Official 5Row Pro screenshot showing a number row above the stock iPhone keyboard",
+          "local_path": "assets/articles/source-media/5row-pro-1-19-0-official-number-row.jpg",
+          "git_blob_sha": "e41c4a9f31af5fbb1899c115cbf70e53ba4caf1d"
+        },
+        {
+          "url": "https://media.havoc.app/6ac2550d97b6b9e779412b99",
+          "alt": "Official 5Row Pro settings showing keyboard height and number and symbol row controls",
+          "local_path": "assets/articles/source-media/5row-pro-1-19-0-official-settings.jpg",
+          "git_blob_sha": "af2c7e724d36cc0ccd8190fd5998f95a0a6d38d5"
+        }
+      ]
+    },
     "comparison.livecontainer-feather": {
       "credit_label": "LiveContainer contributors and Samara — official project repositories",
       "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",

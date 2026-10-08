@@ -3,6 +3,46 @@
     {
       "additional_media": [
         {
+          "credit": "Official 5Row Pro number-row screenshot by pitroytech",
+          "image": "assets/articles/source-media/5row-pro-1-19-0-official-number-row.jpg",
+          "source_url": "https://media.havoc.app/6ac26340d021b0f970817b97"
+        },
+        {
+          "credit": "Official 5Row Pro settings screenshot by pitroytech",
+          "image": "assets/articles/source-media/5row-pro-1-19-0-official-settings.jpg",
+          "source_url": "https://media.havoc.app/6ac2550d97b6b9e779412b99"
+        }
+      ],
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc package range iOS 15.0–26.0.1; rootless and RootHide builds; iPhone portrait stock keyboard only; developer-tested on iOS 15.0.2 RootHide and iOS 17.2.1 Dopamine rootless; requires an existing compatible jailbreak",
+      "description": "5Row Pro 1.19.0 adds a remappable fifth number or symbol row to Apple’s stock iPhone keyboard, with rootless and RootHide builds.",
+      "developer": "pitroytech",
+      "entry_type": "tweak-update",
+      "href": "5row-pro-1-19-0-stock-keyboard-number-row/",
+      "image": "assets/articles/source-media/5row-pro-1-19-0-official-banner.png",
+      "media_credit": "Official 5Row Pro Havoc banner by pitroytech",
+      "media_source_url": "https://media.havoc.app/6ac27358d021b0f97081fff7",
+      "modified_at": "2026-10-08T16:58:24Z",
+      "name": "5Row Pro",
+      "package": "com.pitroytech.5rowpro",
+      "published_at": "2026-10-08T16:58:24Z",
+      "release": "2026-10-08",
+      "selection_pool": "official-developer-release",
+      "slug": "5row-pro-1-19-0-stock-keyboard-number-row",
+      "source_name": "pitroytech official Havoc listing and developer release post",
+      "source_page_url": "https://havoc.app/package/5rowpro",
+      "source_url": "https://havoc.app/package/5rowpro",
+      "source_visual_origin": "official-havoc-banner-and-screenshots",
+      "source_visual_url": "https://media.havoc.app/6ac27358d021b0f97081fff7",
+      "title": "5Row Pro 1.19.0 Adds a Custom Number and Symbol Row to the Stock iPhone Keyboard",
+      "version": "1.19.0"
+    },
+    {
+      "additional_media": [
+        {
           "credit": "Official Feather Library screenshot from the project repository",
           "image": "assets/articles/source-media/feather-2-9-0-official-library.png",
           "source_url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Library.png"
