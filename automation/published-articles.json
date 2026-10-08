@@ -1,6 +1,34 @@
 {
   "entries": [
     {
+      "article_sha256": "d1c0161400ca2107fb20856ceeed9d626b99267fb75f2c1167d284f3939893b6",
+      "candidate_fingerprint": "abcb648d7522372d8b38b289b3b62b2e688136bb586d270138e579da237c7c59",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "New in 8.1.0: iOS 12.5.6–12.5.8 on the legacy devices Apple shipped those builds for; existing unc0ver device-specific limits still apply to other firmware, including A12/A13 iPhones only on iOS 14.6–14.8",
+      "description": "unc0ver 8.1.0 adds official jailbreak support for iOS 12.5.6 through 12.5.8 on legacy iPhones and iPads without expanding support to modern iOS.",
+      "developer": "unc0ver Team",
+      "entry_type": "jailbreak-development",
+      "href": "unc0ver-8-1-0-ios-12-5-8-support/",
+      "image": "assets/articles/source-media/unc0ver-official-device-interface.png",
+      "media_credit": "Official unc0ver project artwork from unc0ver.dev",
+      "media_source_url": "https://unc0ver.dev/img/device.png",
+      "modified_at": "2026-10-08T20:56:24Z",
+      "name": "unc0ver",
+      "package": "science.xnu.undecimus",
+      "published_at": "2026-10-08T20:56:24Z",
+      "release": "2026-10-01",
+      "selection_pool": "official-project-release",
+      "slug": "unc0ver-8-1-0-ios-12-5-8-support",
+      "source_name": "unc0ver official release feed, project site and Apple support",
+      "source_page_url": "https://unc0ver.dev/releases.json",
+      "source_url": "https://unc0ver.dev/",
+      "title": "unc0ver 8.1.0 Adds iOS 12.5.6–12.5.8 Jailbreak Support",
+      "version": "8.1.0"
+    },
+    {
       "additional_media": [
         {
           "credit": "Official 5Row Pro number-row screenshot by pitroytech",
@@ -6154,9 +6182,17 @@
       "package": "guide.sidestore.refresh",
       "published_at": "2026-10-08T04:56:16Z",
       "version": "SideStore 0.7.0-alpha"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "unc0ver-8-1-0-ios-12-5-8-support/",
+      "package": "science.xnu.undecimus",
+      "published_at": "2026-10-08T20:56:24Z",
+      "version": "8.1.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-08T04:56:16Z"
+  "updated_at": "2026-10-08T20:56:24Z"
 }
 

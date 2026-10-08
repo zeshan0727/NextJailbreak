@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "packages": {
+    "science.xnu.undecimus": {
+      "credit_label": "unc0ver Team — official unc0ver project site",
+      "source_page_url": "https://unc0ver.dev/",
+      "official_source": true,
+      "hero": {
+        "url": "https://unc0ver.dev/img/device.png",
+        "alt": "Official unc0ver website artwork showing the app interface on an iPhone",
+        "local_path": "assets/articles/source-media/unc0ver-official-device-interface.png",
+        "git_blob_sha": "70dcb65201130c91d4ed72cd3d7fe90e44ac8f93"
+      },
+      "screenshots": []
+    },
     "com.pitroytech.5rowpro": {
       "credit_label": "pitroytech — official 5Row Pro Havoc listing",
       "source_page_url": "https://havoc.app/package/5rowpro",
