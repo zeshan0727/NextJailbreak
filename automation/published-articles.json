@@ -1,6 +1,46 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "credit": "Official Feather Library screenshot from the project repository",
+          "image": "assets/articles/source-media/feather-2-9-0-official-library.png",
+          "source_url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Library.png"
+        },
+        {
+          "credit": "Official Feather signing customization screenshot from the project repository",
+          "image": "assets/articles/source-media/feather-2-9-0-official-sign.png",
+          "source_url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Sign.png"
+        }
+      ],
+      "category": {
+        "id": "comparison",
+        "label": "IPA Installer Comparison"
+      },
+      "compat": "LiveContainer 3.8.0: iOS/iPadOS 15+, multitasking 16+; Feather 2.9.0: iOS deployment target 16.0; neither core workflow requires a jailbreak, but both require a supported host-installation and signing path",
+      "description": "Compare LiveContainer 3.8.0 and Feather 2.9.0 by app model, certificates, App IDs, extensions, notifications, JIT and isolation.",
+      "developer": "LiveContainer contributors and Samara (Feather)",
+      "entry_type": "comparison",
+      "href": "livecontainer-vs-feather-ipa-installer-comparison/",
+      "image": "assets/articles/source-media/livecontainer-3-8-0-official-interface.png",
+      "media_credit": "Official LiveContainer 3.8.0 release artwork",
+      "media_source_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/3.8.0/screenshots/release.png",
+      "modified_at": "2026-10-08T13:03:11Z",
+      "name": "LiveContainer vs Feather",
+      "package": "comparison.livecontainer-feather",
+      "published_at": "2026-10-08T13:03:11Z",
+      "release": "2026-07-17 and 2026-07-05",
+      "selection_pool": "roundup-comparison",
+      "slug": "livecontainer-vs-feather-ipa-installer-comparison",
+      "source_name": "Official LiveContainer and Feather releases, documentation and source assets",
+      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "source_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "source_visual_origin": "official-project-release-artwork",
+      "source_visual_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/3.8.0/screenshots/release.png",
+      "title": "LiveContainer vs Feather: Which IPA Installer Fits Your iPhone?",
+      "version": "LiveContainer 3.8.0 vs Feather 2.9.0"
+    },
+    {
       "category": {
         "id": "evergreen-guide",
         "label": "Evergreen Guide"

@@ -1,6 +1,31 @@
 {
   "schema_version": 1,
   "packages": {
+    "comparison.livecontainer-feather": {
+      "credit_label": "LiveContainer contributors and Samara — official project repositories",
+      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/3.8.0/screenshots/release.png",
+        "alt": "Official LiveContainer release artwork showing the Apps, Tweaks and Settings interface",
+        "local_path": "assets/articles/source-media/livecontainer-3-8-0-official-interface.png",
+        "git_blob_sha": "5b60bcf74e7be88e67242e82175380ed90cedbec"
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Library.png",
+          "alt": "Official Feather Library interface showing signed and downloaded apps",
+          "local_path": "assets/articles/source-media/feather-2-9-0-official-library.png",
+          "git_blob_sha": "b847027e33a731480bbd026159d1a7acf0584954"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Sign.png",
+          "alt": "Official Feather signing customization screen",
+          "local_path": "assets/articles/source-media/feather-2-9-0-official-sign.png",
+          "git_blob_sha": "f5928b9b0274cd5ad9cdc20690dd64ca51f545e2"
+        }
+      ]
+    },
     "com.SideStore.SideStore": {
       "credit_label": "SideStore Team — official 0.7.0-alpha source tag",
       "source_page_url": "https://github.com/SideStore/SideStore/tree/0.7.0-alpha",
