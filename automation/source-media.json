@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.SideStore.SideStore": {
+      "credit_label": "SideStore Team — official 0.7.0-alpha source tag",
+      "source_page_url": "https://github.com/SideStore/SideStore/tree/0.7.0-alpha",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/SideStore/SideStore/0.7.0-alpha/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/1024.png",
+        "alt": "Official SideStore app icon",
+        "local_path": "assets/articles/source-media/sidestore-0-7-0-alpha-official-icon.png",
+        "git_blob_sha": "5e20d8e0aeb9eb845fa60b0148a9aed6d771dc70"
+      },
+      "screenshots": []
+    },
     "com.opa334.trollstorelite": {
       "credit_label": "opa334 — official TrollStore Lite Havoc listing",
       "source_page_url": "https://havoc.app/package/trollstorelite",

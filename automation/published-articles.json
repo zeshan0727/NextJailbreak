@@ -1,6 +1,34 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "evergreen-guide",
+        "label": "Evergreen Guide"
+      },
+      "compat": "Official project target iOS 14+; free Apple Account apps normally expire after seven days and require Wi-Fi, LocalDevVPN, a valid pairing file and an authenticated signing session to refresh",
+      "description": "Refresh SideStore apps before their seven-day certificate expires, then fix LocalDevVPN, pairing-file, Anisette and App ID errors safely.",
+      "developer": "SideStore Team",
+      "entry_type": "guide",
+      "href": "refresh-sidestore-apps-7-day-expiry-guide/",
+      "image": "assets/articles/source-media/sidestore-0-7-0-alpha-official-icon.png",
+      "media_credit": "Official SideStore app icon from the 0.7.0-alpha source tag",
+      "media_source_url": "https://raw.githubusercontent.com/SideStore/SideStore/0.7.0-alpha/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/1024.png",
+      "modified_at": "2026-10-08T04:56:16Z",
+      "name": "SideStore seven-day refresh",
+      "package": "guide.sidestore.refresh",
+      "published_at": "2026-10-08T04:56:16Z",
+      "release": "2026-09-15",
+      "selection_pool": "evergreen-search-intent",
+      "slug": "refresh-sidestore-apps-7-day-expiry-guide",
+      "source_name": "Official SideStore release, documentation and tagged source",
+      "source_page_url": "https://github.com/SideStore/SideStore-Docs/blob/main/docs/troubleshooting/error-codes.mdx",
+      "source_url": "https://github.com/SideStore/SideStore/releases/tag/0.7.0-alpha",
+      "source_visual_origin": "official-project-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/SideStore/SideStore/0.7.0-alpha/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/1024.png",
+      "title": "How to Refresh SideStore Apps Before the 7-Day Expiry",
+      "version": "SideStore 0.7.0-alpha"
+    },
+    {
       "additional_media": [
         {
           "credit": "Official TrollStore Lite 2.1.1 Apps screenshot by opa334",
@@ -6038,9 +6066,17 @@
       "package": "guide.trollstore-lite-migration",
       "published_at": "2026-10-08T00:56:27Z",
       "version": "TrollStore Lite 2.1.1"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-guide",
+      "href": "refresh-sidestore-apps-7-day-expiry-guide/",
+      "package": "guide.sidestore.refresh",
+      "published_at": "2026-10-08T04:56:16Z",
+      "version": "SideStore 0.7.0-alpha"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-08T00:56:27Z"
+  "updated_at": "2026-10-08T04:56:16Z"
 }
 
