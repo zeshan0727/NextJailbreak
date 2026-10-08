@@ -1,6 +1,31 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.opa334.trollstorelite": {
+      "credit_label": "opa334 — official TrollStore Lite Havoc listing",
+      "source_page_url": "https://havoc.app/package/trollstorelite",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/66d4ede04ce732df1fd8a347",
+        "alt": "Official TrollStore Lite Settings screen with transfer and registration utilities",
+        "local_path": "assets/articles/source-media/trollstore-lite-2-1-1-official-settings.png",
+        "git_blob_sha": "90c3cddf27dded174d7d0ec742bce5ac936877cc"
+      },
+      "icon": {
+        "url": "https://media.havoc.app/66d4ecc6e95a6f1dee4b898c",
+        "alt": "Official TrollStore Lite app icon",
+        "local_path": "assets/articles/source-media/trollstore-lite-2-1-1-official-icon.png",
+        "git_blob_sha": "7cc36d2c82b47baf42de1d49117f1a1a452f033d"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/66d4eddc4ce732df1fd8a27f",
+          "alt": "Official TrollStore Lite Apps tab listing installed apps",
+          "local_path": "assets/articles/source-media/trollstore-lite-2-1-1-official-apps.png",
+          "git_blob_sha": "fe16058964a29c569f721812be6009f23c4d1cd1"
+        }
+      ]
+    },
     "com.mathelord.infobar": {
       "credit_label": "Mathelord — official InfoBar Havoc listing",
       "source_page_url": "https://havoc.app/package/infobar",

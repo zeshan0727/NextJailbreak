@@ -3,6 +3,46 @@
     {
       "additional_media": [
         {
+          "credit": "Official TrollStore Lite 2.1.1 Apps screenshot by opa334",
+          "image": "assets/articles/source-media/trollstore-lite-2-1-1-official-apps.png",
+          "source_url": "https://media.havoc.app/66d4eddc4ce732df1fd8a27f"
+        },
+        {
+          "credit": "Official TrollStore Lite app icon by opa334",
+          "image": "assets/articles/source-media/trollstore-lite-2-1-1-official-icon.png",
+          "source_url": "https://media.havoc.app/66d4ecc6e95a6f1dee4b898c"
+        }
+      ],
+      "category": {
+        "id": "evergreen-guide",
+        "label": "Evergreen Guide"
+      },
+      "compat": "Havoc package range iOS 14.0–26.0.1, rootless; requires an existing compatible jailbreak and its code-signing bypass; package compatibility does not establish jailbreak availability",
+      "description": "Move apps from full TrollStore to TrollStore Lite 2.1.1, understand AppSync registration, and fix missing icons or partial transfer failures.",
+      "developer": "opa334",
+      "entry_type": "guide",
+      "href": "move-trollstore-apps-to-trollstore-lite-guide/",
+      "image": "assets/articles/source-media/trollstore-lite-2-1-1-official-settings.png",
+      "media_credit": "Official TrollStore Lite 2.1.1 Settings screenshot by opa334",
+      "media_source_url": "https://media.havoc.app/66d4ede04ce732df1fd8a347",
+      "modified_at": "2026-10-08T00:56:27Z",
+      "name": "TrollStore Lite migration",
+      "package": "guide.trollstore-lite-migration",
+      "published_at": "2026-10-08T00:56:27Z",
+      "release": "2026-04-02",
+      "selection_pool": "evergreen-search-intent",
+      "slug": "move-trollstore-apps-to-trollstore-lite-guide",
+      "source_name": "Official TrollStore GitHub repository and Havoc package listing",
+      "source_page_url": "https://havoc.app/package/trollstorelite",
+      "source_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_visual_origin": "official-havoc-screenshots",
+      "source_visual_url": "https://media.havoc.app/66d4ede04ce732df1fd8a347",
+      "title": "How to Move TrollStore Apps to TrollStore Lite on a Jailbroken iPhone",
+      "version": "TrollStore Lite 2.1.1"
+    },
+    {
+      "additional_media": [
+        {
           "credit": "Official InfoBar expanded list screenshot by Mathelord",
           "image": "assets/articles/source-media/infobar-1-3-0-official-overlay.png",
           "source_url": "https://media.havoc.app/6ac390e0b1793125b65214be"
@@ -5990,9 +6030,17 @@
       "previous_version": "2.4.0",
       "published_at": "2026-10-07T20:55:30Z",
       "version": "2.7.0"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-guide",
+      "href": "move-trollstore-apps-to-trollstore-lite-guide/",
+      "package": "guide.trollstore-lite-migration",
+      "published_at": "2026-10-08T00:56:27Z",
+      "version": "TrollStore Lite 2.1.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-07T20:55:30Z"
+  "updated_at": "2026-10-08T00:56:27Z"
 }
 
