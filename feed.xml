@@ -6,6 +6,15 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Fix “dpkg Was Interrupted” and Sileo Lock Errors</title>
+      <link>https://nextjailbreak.com/fix-sileo-dpkg-interrupted-package-manager-lock-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/fix-sileo-dpkg-interrupted-package-manager-lock-guide/</guid>
+      <pubDate>Fri, 09 Oct 2026 04:57:11 GMT</pubDate>
+      <description>Fix Sileo dpkg interrupted, broken dependency and package-manager lock errors safely on rootless and RootHide jailbreaks without deleting lock files.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+
+    <item>
       <title>vphone-cli 2.8.0 Adds Host Location Sync and Restores Xcode Installs on iOS 27</title>
       <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
