@@ -2,6 +2,34 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Sileo 2.5.1 and APT/dpkg-based jailbreak environments; inventory must be captured inside the active rootful, conventional rootless or RootHide environment",
+      "description": "Export Sileo repository URLs and record installed package IDs, versions and architectures before updating, removing or switching a jailbreak.",
+      "developer": "Sileo Team; Debian dpkg maintainers",
+      "entry_type": "guide",
+      "href": "backup-sileo-sources-installed-tweaks-before-jailbreak-update/",
+      "image": "assets/articles/source-media/sileo-2-5-1-official-icon.png",
+      "media_credit": "Official Sileo app icon from the 2.5.1 source tag",
+      "media_source_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "modified_at": "2026-10-09T20:58:06Z",
+      "name": "Sileo source and package backup",
+      "package": "guide.sileo.backup",
+      "published_at": "2026-10-09T20:58:06Z",
+      "release": "2026-10-09",
+      "selection_pool": "evergreen-search-intent-fallback",
+      "slug": "backup-sileo-sources-installed-tweaks-before-jailbreak-update",
+      "source_name": "Official Sileo source and Debian dpkg-query manual",
+      "source_page_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/UI/SourcesViewController/SourcesViewController.swift",
+      "source_url": "https://manpages.debian.org/bookworm/dpkg/dpkg-query.1.en.html",
+      "source_visual_origin": "official-project-app-icon-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "title": "How to Back Up Sileo Sources and Installed Tweaks Before a Jailbreak Update",
+      "version": "Sileo 2.5.1"
+    },
+    {
+      "category": {
         "id": "tweak-update",
         "label": "Individual Tweak Update"
       },

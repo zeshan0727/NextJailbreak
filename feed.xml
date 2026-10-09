@@ -5,6 +5,8 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
+    <item><title>How to Back Up Sileo Sources and Installed Tweaks Before a Jailbreak Update</title><link>https://nextjailbreak.com/backup-sileo-sources-installed-tweaks-before-jailbreak-update/</link><guid isPermaLink="true">https://nextjailbreak.com/backup-sileo-sources-installed-tweaks-before-jailbreak-update/</guid><pubDate>Fri, 09 Oct 2026 20:58:06 GMT</pubDate><description>Export Sileo repository URLs and record installed package IDs, versions and architectures before updating, removing or switching a jailbreak.</description><category>Evergreen Jailbreak Guide</category></item>
+
     <item>
       <title>NowLyrics 1.1.2 Fixes Dynamic Island Lyrics and Improves Musixmatch Matching</title><link>https://nextjailbreak.com/nowlyrics-1-0-synced-lyrics-lock-screen/</link><guid isPermaLink="true">https://nextjailbreak.com/nowlyrics-1-0-synced-lyrics-lock-screen/</guid>
       <pubDate>Fri, 09 Oct 2026 17:03:52 GMT</pubDate><description>NowLyrics 1.1.2 improves Dynamic Island lyric timing, matches Musixmatch lyrics to the played release, and restores settings access on iOS 18 and newer.</description><category>Individual Tweak Update</category>
