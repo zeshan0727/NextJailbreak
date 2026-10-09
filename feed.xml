@@ -6,6 +6,11 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>NowLyrics 1.1.2 Fixes Dynamic Island Lyrics and Improves Musixmatch Matching</title><link>https://nextjailbreak.com/nowlyrics-1-0-synced-lyrics-lock-screen/</link><guid isPermaLink="true">https://nextjailbreak.com/nowlyrics-1-0-synced-lyrics-lock-screen/</guid>
+      <pubDate>Fri, 09 Oct 2026 17:03:52 GMT</pubDate><description>NowLyrics 1.1.2 improves Dynamic Island lyric timing, matches Musixmatch lyrics to the played release, and restores settings access on iOS 18 and newer.</description><category>Individual Tweak Update</category>
+    </item>
+
+    <item>
       <title>Jikan 1.0.0 Adds Lock-Screen Charge-Time Estimates and ChargeLimiter Sync</title><link>https://nextjailbreak.com/jikan-1-0-0-lock-screen-charge-time-estimate/</link><guid isPermaLink="true">https://nextjailbreak.com/jikan-1-0-0-lock-screen-charge-time-estimate/</guid>
       <pubDate>Fri, 09 Oct 2026 13:04:59 GMT</pubDate><description>Jikan 1.0.0 shows charge-time estimates on the Lock Screen, offers Apple and learned on-device algorithms, and supports rootful, rootless and RootHide builds.</description><category>Individual Tweak Update</category>
     </item>
@@ -313,14 +318,7 @@
       <description>The official PS5 Relapse repository removed incompatible etaHEN, kstuff and shadowmountplus payloads plus the R2 auto-load flow; firmware support remains 7.00–13.60.</description>
       <category>Jailbreak Development</category>
     </item>
-    <item>
-      <title>NowLyrics 1.0 Brings Synced Lyrics to the Lock Screen, Control Center and CarPlay</title>
-      <link>https://nextjailbreak.com/nowlyrics-1-0-synced-lyrics-lock-screen/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/nowlyrics-1-0-synced-lyrics-lock-screen/</guid>
-      <pubDate>Thu, 01 Oct 2026 15:04:37 GMT</pubDate>
-      <description>NowLyrics 1.0 shows line-synced lyrics in place of the track title across the Lock Screen, Control Center, Dynamic Island and CarPlay.</description>
-      <category>Music</category>
-    </item>
+    
     <item>
       <title>lilywhite 1.1.0 Adds Dual-SIM Signal Rows and Custom Status Bar Time</title>
       <link>https://nextjailbreak.com/lilywhite-1-0-1-status-bar-capsule/</link>

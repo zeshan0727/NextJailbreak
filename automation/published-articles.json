@@ -1126,32 +1126,42 @@
     },
     {
       "category": {
-        "id": "music",
-        "label": "Music"
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
       },
-      "compat": "iOS 15.0–26.0.1; rootless only",
-      "description": "NowLyrics 1.0 shows line-synced lyrics in place of the track title across the Lock Screen, Control Center, Dynamic Island and CarPlay.",
+      "compat": "Havoc header: iOS 15.0–26.0.1, rootless only; developer description discusses iOS 26.1 testing and requires PreferenceLoader 2.2.8 for settings on iOS 18+",
+      "description": "NowLyrics 1.1.2 improves Dynamic Island lyric timing, matches Musixmatch lyrics to the played release, and restores settings access on iOS 18 and newer.",
       "developer": "tuonghoa2k7",
-      "entry_type": "source-news",
+      "entry_type": "tweak-update",
       "href": "nowlyrics-1-0-synced-lyrics-lock-screen/",
-      "image": "assets/articles/source-media/nowlyrics-1-0-official.png",
-      "media_credit": "tuonghoa2k7 official Havoc screenshot",
-      "media_source_url": "https://havoc.app/package/nowlyrics",
-      "modified_at": "2026-10-01T15:04:37Z",
+      "image": "assets/articles/source-media/nowlyrics-1-1-2-official-banner.png",
+      "media_credit": "Official NowLyrics 1.1.2 Havoc banner and Dynamic Island settings screenshot by tuonghoa2k7",
+      "media_source_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "modified_at": "2026-10-09T17:03:52Z",
       "name": "NowLyrics",
       "package": "com.c3x14n.nowlyrics",
-      "price": "1.99",
+      "price": "2.99",
       "published_at": "2026-10-01T15:04:37Z",
-      "release": "2026-09-28",
-      "selection_pool": "manual-original-source",
+      "release": "2026-10-07",
+      "selection_pool": "official-havoc-individual-update",
       "slug": "nowlyrics-1-0-synced-lyrics-lock-screen",
       "source": "https://havoc.app/package/nowlyrics",
-      "sourceImage": "https://media.havoc.app/6ab48859f6c599af739689a3",
+      "sourceImage": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
       "source_name": "Havoc",
       "source_page_url": "https://havoc.app/package/nowlyrics",
-      "source_visual_url": "https://media.havoc.app/6ab48859f6c599af739689a3",
-      "title": "NowLyrics 1.0 Brings Synced Lyrics to the Lock Screen, Control Center and CarPlay",
-      "version": "1.0.0"
+      "source_visual_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "title": "NowLyrics 1.1.2 Fixes Dynamic Island Lyrics and Improves Musixmatch Matching",
+      "version": "1.1.2",
+      "media_sha256": "48a478baf634fdc336018c2d1e1bfa82c07e6a87d3b570ed5ca0ffcf288ae6a1",
+      "source_visual_origin": "official-havoc-banner",
+      "additional_media": [
+        {
+          "path": "assets/articles/source-media/nowlyrics-1-1-2-dynamic-island-settings.jpg",
+          "credit": "Official NowLyrics 1.1.2 Dynamic Island settings screenshot by tuonghoa2k7",
+          "source_url": "https://media.havoc.app/6ac156483ccac01238803380",
+          "sha256": "4af92c9dfab80d72099498543fbdaa2a6f569f5d13ff4823d8a5537d776008cd"
+        }
+      ]
     },
     {
       "category": {
