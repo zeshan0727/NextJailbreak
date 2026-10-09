@@ -2,6 +2,46 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-comparison",
+        "label": "Jailbreak Detection Comparison"
+      },
+      "compat": "Shadow current source: rootful iOS 9+, rootless iOS 15+, RootHide iOS 15–17 package lanes; Choicy project: iOS 10+ with environment-specific builds; vnodebypass 0.2.9 metadata: iOS 12–14",
+      "description": "Compare Shadow, vnodebypass and Choicy by purpose, iOS range, rootless and RootHide support, setup risk and the safest troubleshooting order.",
+      "developer": "jjolano; opa334; XsF1re and ichitaso",
+      "entry_type": "roundup-comparison",
+      "href": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/",
+      "image": "assets/articles/source-media/shadow-official-settings-icon.png",
+      "media_credit": "Official Shadow settings icon from jjolano’s source repository",
+      "media_source_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
+      "additional_media": [
+        {
+          "credit": "Official Choicy settings icon from opa334’s source repository",
+          "image": "assets/articles/source-media/choicy-official-settings-icon.png",
+          "source_url": "https://github.com/opa334/Choicy/blob/master/ChoicyPrefs/Resources/ChoicyIcon%403x.png"
+        },
+        {
+          "credit": "Official vnodebypass app icon from the project source",
+          "image": "assets/articles/source-media/vnodebypass-official-app-icon.png",
+          "source_url": "https://github.com/ichitaso/vnodebypass/blob/master/app/Resources/AppIcon60x60%402x.png"
+        }
+      ],
+      "modified_at": "2026-10-09T08:56:13Z",
+      "name": "Shadow vs vnodebypass vs Choicy",
+      "package": "comparison.shadow-vnodebypass-choicy",
+      "published_at": "2026-10-09T08:56:13Z",
+      "release": "2026-10-09",
+      "selection_pool": "scheduled-tweak-comparison",
+      "slug": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison",
+      "source_name": "Official Shadow, Choicy, vnodebypass and RootHide repositories",
+      "source_page_url": "https://github.com/jjolano/shadow",
+      "source_url": "https://github.com/jjolano/shadow",
+      "source_visual_origin": "official-project-icons",
+      "source_visual_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
+      "title": "Shadow vs vnodebypass vs Choicy: Which Jailbreak Detection Tool Should You Try?",
+      "version": "Shadow 3.7.6 tagged / Choicy 1.5.4 source / vnodebypass 0.2.9"
+    },
+    {
+      "category": {
         "id": "evergreen-guide",
         "label": "Evergreen Jailbreak Guide"
       },
@@ -6221,5 +6261,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-08T20:56:24Z"
+  "updated_at": "2026-10-09T08:56:13Z"
 }
