@@ -2,6 +2,35 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "iOS 14.0–26.0.1 package range; requires a compatible jailbreak and the matching rootful, rootless or RootHide build",
+      "description": "Jikan 1.0.0 shows charge-time estimates on the Lock Screen, offers Apple and learned on-device algorithms, and supports rootful, rootless and RootHide builds.",
+      "developer": "waruhachi",
+      "entry_type": "individual-tweak-update",
+      "href": "jikan-1-0-0-lock-screen-charge-time-estimate/",
+      "image": "assets/articles/source-media/jikan-1-0-0-official-havoc-banner.jpg",
+      "media_credit": "Official Jikan Havoc banner by waruhachi",
+      "media_source_url": "https://media.havoc.app/6ac415a8bbf13962ea54071c",
+      "media_sha256": "7aa333eb16e774cc0376e7a1c94b9a597c04f5298c9d767cb07f79612af4ed6c",
+      "modified_at": "2026-10-09T13:04:59Z",
+      "name": "Jikan",
+      "package": "moe.waru.jikan",
+      "published_at": "2026-10-09T13:04:59Z",
+      "release": "2026-10-09",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "jikan-1-0-0-lock-screen-charge-time-estimate",
+      "source_name": "Official Havoc listing and waruhachi Jikan repository",
+      "source_page_url": "https://havoc.app/package/jikan",
+      "source_url": "https://github.com/waruhachi/Jikan/releases/tag/1.0.0",
+      "source_visual_origin": "official-havoc-banner",
+      "source_visual_url": "https://media.havoc.app/6ac415a8bbf13962ea54071c",
+      "title": "Jikan 1.0.0 Adds Lock-Screen Charge-Time Estimates and ChargeLimiter Sync",
+      "version": "1.0.0"
+    },
+    {
+      "category": {
         "id": "tweak-comparison",
         "label": "Jailbreak Detection Comparison"
       },

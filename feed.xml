@@ -6,6 +6,12 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Jikan 1.0.0 Adds Lock-Screen Charge-Time Estimates and ChargeLimiter Sync</title><link>https://nextjailbreak.com/jikan-1-0-0-lock-screen-charge-time-estimate/</link><guid isPermaLink="true">https://nextjailbreak.com/jikan-1-0-0-lock-screen-charge-time-estimate/</guid>
+      <pubDate>Fri, 09 Oct 2026 13:04:59 GMT</pubDate><description>Jikan 1.0.0 shows charge-time estimates on the Lock Screen, offers Apple and learned on-device algorithms, and supports rootful, rootless and RootHide builds.</description><category>Individual Tweak Update</category>
+    </item>
+
+
+    <item>
       <title>Shadow vs vnodebypass vs Choicy: Which Jailbreak Detection Tool Should You Try?</title><link>https://nextjailbreak.com/shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/</guid>
       <pubDate>Fri, 09 Oct 2026 08:56:13 GMT</pubDate><description>Compare Shadow, vnodebypass and Choicy by purpose, iOS range, rootless and RootHide support, setup risk and the safest troubleshooting order.</description><category>Jailbreak Detection Comparison</category>
     </item>
