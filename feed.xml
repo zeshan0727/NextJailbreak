@@ -5,7 +5,16 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
-    <item>
+        <item>
+      <title>How to Downgrade a Jailbreak Tweak in Sileo Safely</title>
+      <link>https://nextjailbreak.com/downgrade-jailbreak-tweak-sileo-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/downgrade-jailbreak-tweak-sileo-guide/</guid>
+      <pubDate>Sat, 10 Oct 2026 05:02:49 GMT</pubDate>
+      <description>Use Sileo’s built-in version selector to roll back a problematic tweak while protecting dependencies and jailbreak-environment compatibility.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+
+<item>
       <title>vphone-cli 2.9.2 Adds Space-Saving VM Templates and Safer Imports</title>
       <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>

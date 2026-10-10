@@ -2,6 +2,34 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Sileo 2.5.1 on an active APT/dpkg-based jailbreak environment; the selected package version must match the device firmware and rootful, conventional rootless or RootHide package layout",
+      "description": "Use Sileo’s built-in version selector to roll back a problematic tweak while protecting dependencies and jailbreak-environment compatibility.",
+      "developer": "Sileo Team",
+      "entry_type": "guide",
+      "href": "downgrade-jailbreak-tweak-sileo-guide/",
+      "image": "assets/articles/source-media/sileo-2-5-1-official-icon.png",
+      "media_credit": "Official Sileo app icon from the 2.5.1 source tag",
+      "media_source_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "modified_at": "2026-10-10T05:02:49Z",
+      "name": "Sileo package downgrade",
+      "package": "guide.sileo.package-downgrade",
+      "published_at": "2026-10-10T05:02:49Z",
+      "release": "2026-10-10",
+      "selection_pool": "evergreen-search-intent",
+      "slug": "downgrade-jailbreak-tweak-sileo-guide",
+      "source_name": "Official Sileo 2.5.1 source",
+      "source_page_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/UI/PackageViewController/PackageButton/PackageQueueButton.swift",
+      "source_url": "https://github.com/Sileo/Sileo/releases/tag/2.5.1",
+      "source_visual_origin": "official-project-app-icon-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "title": "How to Downgrade a Jailbreak Tweak in Sileo Safely",
+      "version": "Sileo 2.5.1"
+    },
+    {
+      "category": {
         "id": "jailbreak-development",
         "label": "Current Jailbreak Development"
       },
