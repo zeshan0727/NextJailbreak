@@ -2,6 +2,55 @@
   "entries": [
     {
       "category": {
+        "id": "app-update",
+        "label": "Individual App Update"
+      },
+      "compat": "iOS/iPadOS 14 or later; JIT required; official 1.1.2 assets include rootful, conventional rootless, RootHide and IPA builds, but device/firmware support still depends on a compatible environment",
+      "description": "JESSI 1.1.2 adds rootful, rootless and RootHide packages, PumpkinMC support and revised JIT detection for hosting Minecraft Java servers on iOS.",
+      "developer": "Baconium",
+      "entry_type": "individual-app-update",
+      "href": "jessi-1-1-2-minecraft-java-server-ios/",
+      "image": "assets/articles/source-media/jessi-1-1-2-official-launch-console.png",
+      "media_credit": "Official JESSI 1.1.2 interface screenshots and app icon from Baconium’s Havoc listing",
+      "media_source_url": "https://media.havoc.app/6ac5ff0165b615395d1b4f54",
+      "media_sha256": "7fd618c16ea99d605cedf9e13997c01880d245f3e9bc5215b8671b2510cef331",
+      "additional_media": [
+        {
+          "credit": "Official JESSI app icon",
+          "image": "assets/articles/source-media/jessi-1-1-2-official-icon.png",
+          "source_url": "https://media.havoc.app/6ac5fef865b615395d1b4f1a",
+          "sha256": "bbb1d15a8fb92aeaa8a48d3c938a8f909bf74d9b9ad11a293af47c20b3cfc8a1"
+        },
+        {
+          "credit": "Official JESSI JVM and networking settings screenshot",
+          "image": "assets/articles/source-media/jessi-1-1-2-official-jvm-settings.png",
+          "source_url": "https://media.havoc.app/6ac5ff0665b615395d1b4f61",
+          "sha256": "4ba83d1feb2165beedc70c4a937edea9863af64514bba21e28f2013933c8faee"
+        },
+        {
+          "credit": "Official JESSI server setup screenshot",
+          "image": "assets/articles/source-media/jessi-1-1-2-official-server-setup.png",
+          "source_url": "https://media.havoc.app/6ac5ff1565b615395d1b4fd2",
+          "sha256": "d7ef0a5d7be476e4830ce6a07a417c4a9318b8b18f958d1eebb3756c6eae349a"
+        }
+      ],
+      "modified_at": "2026-10-10T13:03:56Z",
+      "name": "JESSI",
+      "package": "com.baconmania.jessi",
+      "published_at": "2026-10-10T13:03:56Z",
+      "release": "2026-10-06",
+      "selection_pool": "scheduled-individual-app-update",
+      "slug": "jessi-1-1-2-minecraft-java-server-ios",
+      "source_name": "Official JESSI GitHub release, tagged source and Havoc listing",
+      "source_page_url": "https://github.com/Baconium/JESSI/releases/tag/1.1.2",
+      "source_url": "https://havoc.app/package/jessi",
+      "source_visual_origin": "official-havoc-interface-screenshots",
+      "source_visual_url": "https://media.havoc.app/6ac5ff0165b615395d1b4f54",
+      "title": "JESSI 1.1.2 Adds Jailbreak Packages for Native Minecraft Java Servers on iPhone",
+      "version": "1.1.2 / Havoc 1.1.2-1"
+    },
+    {
+      "category": {
         "id": "tweak-comparison",
         "label": "TrollStore Comparison"
       },

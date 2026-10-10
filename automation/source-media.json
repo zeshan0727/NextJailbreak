@@ -582,6 +582,37 @@
           "git_blob_sha": "fe16058964a29c569f721812be6009f23c4d1cd1"
         }
       ]
+    },
+    "com.baconmania.jessi": {
+      "credit_label": "Baconium — official JESSI Havoc listing",
+      "source_page_url": "https://havoc.app/package/jessi",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac5ff0165b615395d1b4f54",
+        "alt": "Official JESSI Launch screen showing a running Minecraft Java server console, playit.gg address and quick settings",
+        "local_path": "assets/articles/source-media/jessi-1-1-2-official-launch-console.png",
+        "git_blob_sha": "6d293603fee917759ce46fc9a0c245043d1a48b6"
+      },
+      "icon": {
+        "url": "https://media.havoc.app/6ac5fef865b615395d1b4f1a",
+        "alt": "Official JESSI app icon showing a Minecraft grass block and an iPhone",
+        "local_path": "assets/articles/source-media/jessi-1-1-2-official-icon.png",
+        "git_blob_sha": "2a5cb4f6df4cbfa58f4ed5224c317bae19dab3fe"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ac5ff0665b615395d1b4f61",
+          "alt": "Official JESSI Settings screen showing Java versions and playit.gg networking controls",
+          "local_path": "assets/articles/source-media/jessi-1-1-2-official-jvm-settings.png",
+          "git_blob_sha": "cec0220332cd6e5ea7fe9b58851ed42e7f01575d"
+        },
+        {
+          "url": "https://media.havoc.app/6ac5ff1565b615395d1b4fd2",
+          "alt": "Official JESSI Server Setup screen showing software, version, player and world controls",
+          "local_path": "assets/articles/source-media/jessi-1-1-2-official-server-setup.png",
+          "git_blob_sha": "b2ce1e2dd6225ae780fda22e98ad549f370d0bac"
+        }
+      ]
     }
   }
 }
