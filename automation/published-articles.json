@@ -2,6 +2,36 @@
   "entries": [
     {
       "category": {
+        "id": "jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "description": "vphone-cli 2.9.2 completes the 2.9 series with compact VM templates, motion simulation, lower idle wakeups and safer queued imports.",
+      "entry_type": "development-update",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
+      "modified_at": "2026-10-10T00:58:26Z",
+      "name": "vphone-cli",
+      "package": "project.vphone-cli",
+      "published_at": "2026-09-15T08:07:38+00:00",
+      "quality_target": 9,
+      "selection_pool": "official-project-current-development",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.9.2",
+      "source_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.9.2",
+      "title": "vphone-cli 2.9.2 Adds Space-Saving VM Templates and Safer Imports",
+      "version": "2.9.2",
+      "additional_media": [],
+      "compat": "Physical Apple Silicon Mac running macOS 15 or later; virtual iPhone guest only; not a physical-device jailbreak",
+      "developer": "Lakr Aream",
+      "media_credit": "Official vphone-cli project demo from the 2.9.2 source tag",
+      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.9.2/Documents/demo.jpeg",
+      "release": "2026-10-09",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.9.2/Documents/demo.jpeg",
+      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon"
+    },
+    {
+      "category": {
         "id": "evergreen-guide",
         "label": "Evergreen Jailbreak Guide"
       },
@@ -2194,35 +2224,6 @@
       "source_url": "https://havoc.app/",
       "title": "Nations 1.0: Lock-Screen Audio Spectrum Tweak Explained",
       "version": "1.0"
-    },
-    {
-      "category": {
-        "id": "jailbreak-development",
-        "label": "Jailbreak Development"
-      },
-      "description": "vphone-cli 2.8.0 adds per-VM host location sync, fixes iOS 27 location hangs, restores Xcode app installs and improves package registration.",
-      "entry_type": "development-update",
-      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
-      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
-      "modified_at": "2026-10-09T01:05:04Z",
-      "name": "vphone-cli",
-      "package": "project.vphone-cli",
-      "published_at": "2026-09-15T08:07:38+00:00",
-      "quality_target": 9,
-      "selection_pool": "official-project-current-development",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.8.0",
-      "source_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.8.0",
-      "title": "vphone-cli 2.8.0 Adds Host Location Sync and Restores Xcode Installs on iOS 27",
-      "version": "2.8.0",
-      "additional_media": [],
-      "compat": "Apple Silicon Mac; macOS 15 or later; virtual iPhone guest (not a physical-device jailbreak)",
-      "developer": "Lakr Aream",
-      "media_credit": "Official vphone-cli project demo from the 2.8.0 source tag",
-      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.8.0/Documents/demo.jpeg",
-      "release": "2026-10-08",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.8.0/Documents/demo.jpeg"
     },
     {
       "category": {

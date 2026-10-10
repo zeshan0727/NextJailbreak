@@ -535,11 +535,11 @@
       "screenshots": []
     },
     "project.vphone-cli": {
-      "credit_label": "Lakr Aream — official vphone-cli source repository",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/blob/2.7.0/Documents/demo.jpeg",
+      "credit_label": "Lakr Aream — official vphone-cli 2.9.2 source repository",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/blob/2.9.2/Documents/demo.jpeg",
       "official_source": true,
       "hero": {
-        "url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.7.0/Documents/demo.jpeg",
+        "url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.9.2/Documents/demo.jpeg",
         "alt": "Official vphone-cli demo showing virtual iPhone instances running on an Apple Silicon Mac",
         "local_path": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
         "git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7"
@@ -560,4 +560,3 @@
     }
   }
 }
-
