@@ -557,6 +557,31 @@
         "git_blob_sha": "36cd9e65a3366498097ba3e53d929a1ba947c669"
       },
       "screenshots": []
+    },
+    "comparison.trollstore-trollstore-lite": {
+      "credit_label": "opa334 — official TrollStore 2.1.1 source and TrollStore Lite Havoc listing",
+      "source_page_url": "https://havoc.app/package/trollstorelite",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/66d4ede04ce732df1fd8a347",
+        "alt": "Official TrollStore Lite Settings screen with app registration and transfer controls",
+        "local_path": "assets/articles/source-media/trollstore-lite-2-1-1-official-settings.png",
+        "git_blob_sha": "90c3cddf27dded174d7d0ec742bce5ac936877cc"
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+          "alt": "Official TrollStore app icon from the 2.1.1 source",
+          "local_path": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+          "git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c"
+        },
+        {
+          "url": "https://media.havoc.app/66d4eddc4ce732df1fd8a27f",
+          "alt": "Official TrollStore Lite Apps tab listing installed applications",
+          "local_path": "assets/articles/source-media/trollstore-lite-2-1-1-official-apps.png",
+          "git_blob_sha": "fe16058964a29c569f721812be6009f23c4d1cd1"
+        }
+      ]
     }
   }
 }

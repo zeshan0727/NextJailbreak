@@ -2,6 +2,46 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-comparison",
+        "label": "TrollStore Comparison"
+      },
+      "compat": "Full TrollStore: iOS/iPadOS 14.0 beta 2–16.6.1, 16.7 RC (20H18), and 17.0; TrollStore Lite package: iOS 14.0–26.0.1, rootless, requires a compatible jailbreak",
+      "description": "Compare TrollStore 2.1.1 and TrollStore Lite 2.1.1 by iOS support, jailbreak requirements, signing model, persistence, AppSync behavior and app transfer.",
+      "developer": "opa334",
+      "entry_type": "roundup-comparison",
+      "href": "trollstore-vs-trollstore-lite-comparison/",
+      "image": "assets/articles/source-media/trollstore-lite-2-1-1-official-settings.png",
+      "media_credit": "Official TrollStore Lite settings screenshot from Havoc and official TrollStore app icon from opa334’s 2.1.1 source",
+      "media_source_url": "https://media.havoc.app/66d4ede04ce732df1fd8a347",
+      "additional_media": [
+        {
+          "credit": "Official TrollStore app icon from opa334’s 2.1.1 source",
+          "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+          "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png"
+        },
+        {
+          "credit": "Official TrollStore Lite Apps screenshot from Havoc",
+          "image": "assets/articles/source-media/trollstore-lite-2-1-1-official-apps.png",
+          "source_url": "https://media.havoc.app/66d4eddc4ce732df1fd8a27f"
+        }
+      ],
+      "modified_at": "2026-10-10T09:00:58Z",
+      "name": "TrollStore vs TrollStore Lite",
+      "package": "comparison.trollstore-trollstore-lite",
+      "published_at": "2026-10-10T09:00:58Z",
+      "release": "2026-04-02",
+      "selection_pool": "scheduled-tweak-comparison",
+      "slug": "trollstore-vs-trollstore-lite-comparison",
+      "source_name": "Official TrollStore repository and TrollStore Lite Havoc listing",
+      "source_page_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_url": "https://havoc.app/package/trollstorelite",
+      "source_visual_origin": "official-project-and-havoc-assets-reused",
+      "source_visual_url": "https://media.havoc.app/66d4ede04ce732df1fd8a347",
+      "title": "TrollStore vs TrollStore Lite: Which One Should You Use?",
+      "version": "TrollStore 2.1.1 / TrollStore Lite 2.1.1"
+    },
+    {
+      "category": {
         "id": "evergreen-guide",
         "label": "Evergreen Jailbreak Guide"
       },
