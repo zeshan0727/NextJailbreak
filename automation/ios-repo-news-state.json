@@ -94,11 +94,11 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-10-09T12:11:52.230980+00:00",
+      "checked_at": "2026-10-10T21:18:20+00:00",
       "package": "com.fouadraheb.regram",
-      "status": "duplicate",
-      "target_path": "regram-for-instagram-6-3-update/",
-      "version": "6.3"
+      "status": "published",
+      "target_path": "regram-for-instagram-6-4-update/",
+      "version": "6.4"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
       "checked_at": "2026-10-10T11:29:14.164284+00:00",
@@ -143,7 +143,7 @@
       "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
-      "checked_at": "2026-10-10T11:29:14.164284+00:00",
+      "checked_at": "2026-10-10T21:18:20.788563+00:00",
       "package": "com.cercube.ios",
       "status": "duplicate",
       "target_path": "cercube-for-youtube-6-1-3-update/",
@@ -2191,6 +2191,47 @@
         "me.afhook.app: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_035deba56760e14a016acaabc4dc8487d1867e32f5991ddc01",
+          "usage": {
+            "input_tokens": 23753,
+            "input_tokens_details": {
+              "cache_write_tokens": 23750,
+              "cached_tokens": 0
+            },
+            "output_tokens": 395,
+            "output_tokens_details": {
+              "reasoning_tokens": 292
+            },
+            "total_tokens": 24148
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0369eeed1fd29ee0016acaabac4d0c87d1838365b5f0448756",
+          "usage": {
+            "input_tokens": 21514,
+            "input_tokens_details": {
+              "cache_write_tokens": 21511,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2498,
+            "output_tokens_details": {
+              "reasoning_tokens": 52
+            },
+            "total_tokens": 24012
+          }
+        }
+      },
+      "at": "2026-10-10T21:18:20+00:00",
+      "package": "com.fouadraheb.regram",
+      "target_path": "regram-for-instagram-6-4-update/",
+      "version": "6.4"
     }
   ],
   "schema_version": 1

@@ -2,6 +2,51 @@
   "entries": [
     {
       "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Regram for Instagram 6.4 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "regram-for-instagram-6-4-update/",
+      "image": "assets/articles/source-media/regram-for-instagram-6-4-update-e3a656c16f.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Regram-for-Instagram/commit/9020d9dca3220e801247ed9df5075bcd17c6e9fc",
+      "modified_at": "2026-10-10T21:18:20+00:00",
+      "name": "Regram for Instagram",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-10-10T21:18:20+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/47ff0534fb8e92d11907a6db02220224b79956ce90c21cea1a054892ebf0211f/FouadRaheb/Regram-for-Instagram/commit/9020d9dca3220e801247ed9df5075bcd17c6e9fc",
+      "title": "Regram 6.4 Adds Story and Reels Playback Controls, Profile Media Watch, and Instagram 450.1 Support",
+      "version": "6.4"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official JESSI app icon",
+          "image": "assets/articles/source-media/jessi-1-1-2-official-icon.png",
+          "sha256": "bbb1d15a8fb92aeaa8a48d3c938a8f909bf74d9b9ad11a293af47c20b3cfc8a1",
+          "source_url": "https://media.havoc.app/6ac5fef865b615395d1b4f1a"
+        },
+        {
+          "credit": "Official JESSI JVM and networking settings screenshot",
+          "image": "assets/articles/source-media/jessi-1-1-2-official-jvm-settings.png",
+          "sha256": "4ba83d1feb2165beedc70c4a937edea9863af64514bba21e28f2013933c8faee",
+          "source_url": "https://media.havoc.app/6ac5ff0665b615395d1b4f61"
+        },
+        {
+          "credit": "Official JESSI server setup screenshot",
+          "image": "assets/articles/source-media/jessi-1-1-2-official-server-setup.png",
+          "sha256": "d7ef0a5d7be476e4830ce6a07a417c4a9318b8b18f958d1eebb3756c6eae349a",
+          "source_url": "https://media.havoc.app/6ac5ff1565b615395d1b4fd2"
+        }
+      ],
+      "category": {
         "id": "app-update",
         "label": "Individual App Update"
       },
@@ -12,28 +57,8 @@
       "href": "jessi-1-1-2-minecraft-java-server-ios/",
       "image": "assets/articles/source-media/jessi-1-1-2-official-launch-console.png",
       "media_credit": "Official JESSI 1.1.2 interface screenshots and app icon from Baconium’s Havoc listing",
-      "media_source_url": "https://media.havoc.app/6ac5ff0165b615395d1b4f54",
       "media_sha256": "7fd618c16ea99d605cedf9e13997c01880d245f3e9bc5215b8671b2510cef331",
-      "additional_media": [
-        {
-          "credit": "Official JESSI app icon",
-          "image": "assets/articles/source-media/jessi-1-1-2-official-icon.png",
-          "source_url": "https://media.havoc.app/6ac5fef865b615395d1b4f1a",
-          "sha256": "bbb1d15a8fb92aeaa8a48d3c938a8f909bf74d9b9ad11a293af47c20b3cfc8a1"
-        },
-        {
-          "credit": "Official JESSI JVM and networking settings screenshot",
-          "image": "assets/articles/source-media/jessi-1-1-2-official-jvm-settings.png",
-          "source_url": "https://media.havoc.app/6ac5ff0665b615395d1b4f61",
-          "sha256": "4ba83d1feb2165beedc70c4a937edea9863af64514bba21e28f2013933c8faee"
-        },
-        {
-          "credit": "Official JESSI server setup screenshot",
-          "image": "assets/articles/source-media/jessi-1-1-2-official-server-setup.png",
-          "source_url": "https://media.havoc.app/6ac5ff1565b615395d1b4fd2",
-          "sha256": "d7ef0a5d7be476e4830ce6a07a417c4a9318b8b18f958d1eebb3756c6eae349a"
-        }
-      ],
+      "media_source_url": "https://media.havoc.app/6ac5ff0165b615395d1b4f54",
       "modified_at": "2026-10-10T13:03:56Z",
       "name": "JESSI",
       "package": "com.baconmania.jessi",
@@ -50,18 +75,6 @@
       "version": "1.1.2 / Havoc 1.1.2-1"
     },
     {
-      "category": {
-        "id": "tweak-comparison",
-        "label": "TrollStore Comparison"
-      },
-      "compat": "Full TrollStore: iOS/iPadOS 14.0 beta 2–16.6.1, 16.7 RC (20H18), and 17.0; TrollStore Lite package: iOS 14.0–26.0.1, rootless, requires a compatible jailbreak",
-      "description": "Compare TrollStore 2.1.1 and TrollStore Lite 2.1.1 by iOS support, jailbreak requirements, signing model, persistence, AppSync behavior and app transfer.",
-      "developer": "opa334",
-      "entry_type": "roundup-comparison",
-      "href": "trollstore-vs-trollstore-lite-comparison/",
-      "image": "assets/articles/source-media/trollstore-lite-2-1-1-official-settings.png",
-      "media_credit": "Official TrollStore Lite settings screenshot from Havoc and official TrollStore app icon from opa334’s 2.1.1 source",
-      "media_source_url": "https://media.havoc.app/66d4ede04ce732df1fd8a347",
       "additional_media": [
         {
           "credit": "Official TrollStore app icon from opa334’s 2.1.1 source",
@@ -74,6 +87,18 @@
           "source_url": "https://media.havoc.app/66d4eddc4ce732df1fd8a27f"
         }
       ],
+      "category": {
+        "id": "tweak-comparison",
+        "label": "TrollStore Comparison"
+      },
+      "compat": "Full TrollStore: iOS/iPadOS 14.0 beta 2–16.6.1, 16.7 RC (20H18), and 17.0; TrollStore Lite package: iOS 14.0–26.0.1, rootless, requires a compatible jailbreak",
+      "description": "Compare TrollStore 2.1.1 and TrollStore Lite 2.1.1 by iOS support, jailbreak requirements, signing model, persistence, AppSync behavior and app transfer.",
+      "developer": "opa334",
+      "entry_type": "roundup-comparison",
+      "href": "trollstore-vs-trollstore-lite-comparison/",
+      "image": "assets/articles/source-media/trollstore-lite-2-1-1-official-settings.png",
+      "media_credit": "Official TrollStore Lite settings screenshot from Havoc and official TrollStore app icon from opa334’s 2.1.1 source",
+      "media_source_url": "https://media.havoc.app/66d4ede04ce732df1fd8a347",
       "modified_at": "2026-10-10T09:00:58Z",
       "name": "TrollStore vs TrollStore Lite",
       "package": "comparison.trollstore-trollstore-lite",
@@ -118,34 +143,34 @@
       "version": "Sileo 2.5.1"
     },
     {
+      "additional_media": [],
       "category": {
         "id": "jailbreak-development",
         "label": "Current Jailbreak Development"
       },
+      "compat": "Physical Apple Silicon Mac running macOS 15 or later; virtual iPhone guest only; not a physical-device jailbreak",
       "description": "vphone-cli 2.9.2 completes the 2.9 series with compact VM templates, motion simulation, lower idle wakeups and safer queued imports.",
+      "developer": "Lakr Aream",
       "entry_type": "development-update",
       "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
       "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
+      "media_credit": "Official vphone-cli project demo from the 2.9.2 source tag",
+      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.9.2/Documents/demo.jpeg",
       "modified_at": "2026-10-10T00:58:26Z",
       "name": "vphone-cli",
       "package": "project.vphone-cli",
       "published_at": "2026-09-15T08:07:38+00:00",
       "quality_target": 9,
+      "release": "2026-10-09",
       "selection_pool": "official-project-current-development",
+      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
       "source_name": "GitHub",
       "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.9.2",
       "source_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.9.2",
-      "title": "vphone-cli 2.9.2 Adds Space-Saving VM Templates and Safer Imports",
-      "version": "2.9.2",
-      "additional_media": [],
-      "compat": "Physical Apple Silicon Mac running macOS 15 or later; virtual iPhone guest only; not a physical-device jailbreak",
-      "developer": "Lakr Aream",
-      "media_credit": "Official vphone-cli project demo from the 2.9.2 source tag",
-      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.9.2/Documents/demo.jpeg",
-      "release": "2026-10-09",
       "source_visual_origin": "official-repository-asset",
       "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.9.2/Documents/demo.jpeg",
-      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon"
+      "title": "vphone-cli 2.9.2 Adds Space-Saving VM Templates and Safer Imports",
+      "version": "2.9.2"
     },
     {
       "category": {
@@ -176,6 +201,45 @@
       "version": "Sileo 2.5.1"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Official NowLyrics 1.1.2 Dynamic Island settings screenshot by tuonghoa2k7",
+          "path": "assets/articles/source-media/nowlyrics-1-1-2-dynamic-island-settings.jpg",
+          "sha256": "4af92c9dfab80d72099498543fbdaa2a6f569f5d13ff4823d8a5537d776008cd",
+          "source_url": "https://media.havoc.app/6ac156483ccac01238803380"
+        }
+      ],
+      "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc header: iOS 15.0–26.0.1, rootless only; developer description discusses iOS 26.1 testing and requires PreferenceLoader 2.2.8 for settings on iOS 18+",
+      "description": "NowLyrics 1.1.2 improves Dynamic Island lyric timing, matches Musixmatch lyrics to the played release, and restores settings access on iOS 18 and newer.",
+      "developer": "tuonghoa2k7",
+      "entry_type": "tweak-update",
+      "href": "nowlyrics-1-0-synced-lyrics-lock-screen/",
+      "image": "assets/articles/source-media/nowlyrics-1-1-2-official-banner.png",
+      "media_credit": "Official NowLyrics 1.1.2 Havoc banner and Dynamic Island settings screenshot by tuonghoa2k7",
+      "media_sha256": "48a478baf634fdc336018c2d1e1bfa82c07e6a87d3b570ed5ca0ffcf288ae6a1",
+      "media_source_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "modified_at": "2026-10-09T17:03:52Z",
+      "name": "NowLyrics",
+      "package": "com.c3x14n.nowlyrics",
+      "price": "2.99",
+      "published_at": "2026-10-01T15:04:37Z",
+      "release": "2026-10-07",
+      "selection_pool": "official-havoc-individual-update",
+      "slug": "nowlyrics-1-0-synced-lyrics-lock-screen",
+      "source": "https://havoc.app/package/nowlyrics",
+      "sourceImage": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/nowlyrics",
+      "source_visual_origin": "official-havoc-banner",
+      "source_visual_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "title": "NowLyrics 1.1.2 Fixes Dynamic Island Lyrics and Improves Musixmatch Matching",
+      "version": "1.1.2"
+    },
+    {
       "category": {
         "id": "tweak-update",
         "label": "Individual Tweak Update"
@@ -187,8 +251,8 @@
       "href": "jikan-1-0-0-lock-screen-charge-time-estimate/",
       "image": "assets/articles/source-media/jikan-1-0-0-official-havoc-banner.jpg",
       "media_credit": "Official Jikan Havoc banner by waruhachi",
-      "media_source_url": "https://media.havoc.app/6ac415a8bbf13962ea54071c",
       "media_sha256": "7aa333eb16e774cc0376e7a1c94b9a597c04f5298c9d767cb07f79612af4ed6c",
+      "media_source_url": "https://media.havoc.app/6ac415a8bbf13962ea54071c",
       "modified_at": "2026-10-09T13:04:59Z",
       "name": "Jikan",
       "package": "moe.waru.jikan",
@@ -205,18 +269,6 @@
       "version": "1.0.0"
     },
     {
-      "category": {
-        "id": "tweak-comparison",
-        "label": "Jailbreak Detection Comparison"
-      },
-      "compat": "Shadow current source: rootful iOS 9+, rootless iOS 15+, RootHide iOS 15–17 package lanes; Choicy project: iOS 10+ with environment-specific builds; vnodebypass 0.2.9 metadata: iOS 12–14",
-      "description": "Compare Shadow, vnodebypass and Choicy by purpose, iOS range, rootless and RootHide support, setup risk and the safest troubleshooting order.",
-      "developer": "jjolano; opa334; XsF1re and ichitaso",
-      "entry_type": "roundup-comparison",
-      "href": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/",
-      "image": "assets/articles/source-media/shadow-official-settings-icon.png",
-      "media_credit": "Official Shadow settings icon from jjolano’s source repository",
-      "media_source_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
       "additional_media": [
         {
           "credit": "Official Choicy settings icon from opa334’s source repository",
@@ -229,6 +281,18 @@
           "source_url": "https://github.com/ichitaso/vnodebypass/blob/master/app/Resources/AppIcon60x60%402x.png"
         }
       ],
+      "category": {
+        "id": "tweak-comparison",
+        "label": "Jailbreak Detection Comparison"
+      },
+      "compat": "Shadow current source: rootful iOS 9+, rootless iOS 15+, RootHide iOS 15–17 package lanes; Choicy project: iOS 10+ with environment-specific builds; vnodebypass 0.2.9 metadata: iOS 12–14",
+      "description": "Compare Shadow, vnodebypass and Choicy by purpose, iOS range, rootless and RootHide support, setup risk and the safest troubleshooting order.",
+      "developer": "jjolano; opa334; XsF1re and ichitaso",
+      "entry_type": "roundup-comparison",
+      "href": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/",
+      "image": "assets/articles/source-media/shadow-official-settings-icon.png",
+      "media_credit": "Official Shadow settings icon from jjolano’s source repository",
+      "media_source_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
       "modified_at": "2026-10-09T08:56:13Z",
       "name": "Shadow vs vnodebypass vs Choicy",
       "package": "comparison.shadow-vnodebypass-choicy",
@@ -489,6 +553,32 @@
       "version": "1.3.0"
     },
     {
+      "category": {
+        "id": "customization",
+        "label": "Customization"
+      },
+      "compat": "Havoc lists iOS 16.0–16.7.16 and rootless support; the developer describes Dopamine testing, does not support iPad, and warns that Dynamic Island iPhones are not optimized",
+      "description": "LockScreenRestore 1.9.4 lets music artwork open the playing app, makes the date follow Text Size, and refines the Focus pill on rootless iOS 16 jailbreaks.",
+      "entry_type": "individual-update",
+      "href": "lockscreenrestore-1-8-2-update/",
+      "image": "assets/articles/source-media/lockscreenrestore-1-9-4-official-banner.jpg",
+      "media_credit": "Official LockScreenRestore banner by aronsz26",
+      "media_source_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
+      "modified_at": "2026-10-07T13:02:18Z",
+      "name": "LockScreenRestore",
+      "package": "com.aronsz26.lockscreenrestore",
+      "published_at": "2026-09-28T18:52:07+00:00",
+      "quality_target": 9,
+      "selection_pool": "scheduled-individual-update",
+      "source_name": "Official Havoc listing and GitHub release",
+      "source_page_url": "https://havoc.app/package/lockscreenrstr",
+      "source_url": "https://github.com/aronsz26/LockScreenRestore/releases/tag/v1.9.4",
+      "source_visual_origin": "official-havoc-banner",
+      "source_visual_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
+      "title": "LockScreenRestore 1.9.4 Makes Music Artwork Tappable and Refines the iOS 15 Date Layout",
+      "version": "1.9.4"
+    },
+    {
       "additional_media": [
         {
           "credit": "Official Circle to Search 0.6.0 screenshot by WeWaffles",
@@ -718,35 +808,6 @@
     {
       "additional_media": [],
       "category": {
-        "id": "jailbreak-guide",
-        "label": "Jailbreak Guide"
-      },
-      "compat": "Existing Dopamine jailbreak environment; recovery steps do not expand device or firmware support",
-      "description": "Recover a Dopamine jailbreak after a bad tweak, Safe Mode or SpringBoard crash loop by disabling tweak injection, removing the package and restoring cautiously.",
-      "developer": "opa334",
-      "entry_type": "evergreen-guide",
-      "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-10-06T00:55:26Z",
-      "name": "Dopamine bad-tweak recovery",
-      "package": "guide.dopamine.crash-loop-recovery",
-      "published_at": "2026-10-06T00:55:26Z",
-      "release": "2026-10-06",
-      "selection_pool": "official-source-evergreen-guide",
-      "slug": "dopamine-bad-tweak-crash-loop-recovery-guide",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop",
-      "version": "Dopamine 3.0.10"
-    },
-    {
-      "additional_media": [],
-      "category": {
         "id": "jailbreak-development",
         "label": "Jailbreak Development"
       },
@@ -772,6 +833,35 @@
       "source_visual_url": "https://raw.githubusercontent.com/Jond-ie/begonecia/main/Module/Resources/Icon@2x.png",
       "title": "BegoneCIA 1.0.0 Adds iOS 18 Support and Silences Siri’s New Mic Path",
       "version": "1.0.0"
+    },
+    {
+      "additional_media": [],
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Jailbreak Guide"
+      },
+      "compat": "Existing Dopamine jailbreak environment; recovery steps do not expand device or firmware support",
+      "description": "Recover a Dopamine jailbreak after a bad tweak, Safe Mode or SpringBoard crash loop by disabling tweak injection, removing the package and restoring cautiously.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-10-06T00:55:26Z",
+      "name": "Dopamine bad-tweak recovery",
+      "package": "guide.dopamine.crash-loop-recovery",
+      "published_at": "2026-10-06T00:55:26Z",
+      "release": "2026-10-06",
+      "selection_pool": "official-source-evergreen-guide",
+      "slug": "dopamine-bad-tweak-crash-loop-recovery-guide",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop",
+      "version": "Dopamine 3.0.10"
     },
     {
       "additional_media": [
@@ -918,6 +1008,7 @@
         "id": "apps",
         "label": "YouTube Tweak"
       },
+      "compat": "iOS 15.0–26.0.1 package range; jailbreak required; rootless supported; YouTube app required",
       "description": "Cercube 6.3.0 redesigns its iPad settings and cache interfaces, adds an All cache filter, and refreshes thumbnails, duration badges and the settings icon.",
       "entry_type": "tweak-update",
       "href": "cercube-for-youtube-6-1-3-update/",
@@ -929,6 +1020,7 @@
       "package": "com.cercube.ios",
       "published_at": "2026-09-18T20:35:19+00:00",
       "quality_target": 9,
+      "release": "2026-10-01",
       "selection_pool": "official-havoc-individual-update",
       "source_name": "Havoc",
       "source_page_url": "https://havoc.app/package/cercube",
@@ -936,32 +1028,30 @@
       "source_visual_origin": "official-havoc-banner",
       "source_visual_url": "https://media.havoc.app/6aa7fe6ca92a9a59adbc26f5",
       "title": "Cercube 6.3.0 Adds iPad Sidebar Layouts and a Cache “All” Filter",
-      "version": "6.3.0",
-      "compat": "iOS 15.0–26.0.1 package range; jailbreak required; rootless supported; YouTube app required",
-      "release": "2026-10-01"
+      "version": "6.3.0"
     },
     {
-      "name": "QuickRing",
-      "title": "QuickRing 1.1.0 Adds Time and Date Circles, Fixes iOS 26 Safe Mode",
-      "version": "1.1.0",
-      "package": "com.moondr1.quickring",
-      "href": "quickring-1-1-0-time-date-circles/",
-      "description": "QuickRing 1.1.0 adds time and date circles, independent colors and layout controls, with a battery-monitoring Safe Mode fix for iOS 26.",
-      "image": "assets/articles/source-media/quickring-1-1-0-official-banner.png?v=ab26aaca",
       "category": {
         "id": "system-utilities",
         "label": "Status Bar Tweaks"
       },
-      "published_at": "2026-10-04T11:32:04.766Z",
+      "description": "QuickRing 1.1.0 adds time and date circles, independent colors and layout controls, with a battery-monitoring Safe Mode fix for iOS 26.",
+      "entry_type": "source-news",
+      "href": "quickring-1-1-0-time-date-circles/",
+      "image": "assets/articles/source-media/quickring-1-1-0-official-banner.png?v=ab26aaca",
+      "media_credit": "moondr1 — official QuickRing Havoc images",
+      "media_source_url": "https://havoc.app/package/quickring",
       "modified_at": "2026-10-04T11:32:04.766Z",
+      "name": "QuickRing",
+      "package": "com.moondr1.quickring",
+      "published_at": "2026-10-04T11:32:04.766Z",
+      "selection_pool": "manual-original-source",
       "source_name": "Havoc",
       "source_page_url": "https://havoc.app/package/quickring",
       "source_url": "https://havoc.app/package/quickring",
-      "media_source_url": "https://havoc.app/package/quickring",
       "source_visual_url": "https://media.havoc.app/6aad9c48d0f9c7b80d3c88e1",
-      "media_credit": "moondr1 — official QuickRing Havoc images",
-      "entry_type": "source-news",
-      "selection_pool": "manual-original-source"
+      "title": "QuickRing 1.1.0 Adds Time and Date Circles, Fixes iOS 26 Safe Mode",
+      "version": "1.1.0"
     },
     {
       "additional_media": [
@@ -1026,6 +1116,42 @@
       "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
       "title": "How to Remove Dopamine Jailbreak Safely Without Erasing Your iPhone",
       "version": "3.0.10"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official current lilywhite screenshot by tako3s",
+          "path": "assets/articles/source-media/lilywhite-1-0-1-official.png",
+          "source_url": "https://media.havoc.app/6ab8f730f180aae7681e3c3e"
+        }
+      ],
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "compat": "iOS 16.0–26.0; rootless; notch or Dynamic Island iPhones",
+      "description": "lilywhite 1.1.0 adds Dual-SIM signal rows, network-type labels, custom time formats and notification-app filtering for supported rootless iPhones.",
+      "developer": "tako3s",
+      "entry_type": "tweak-update",
+      "href": "lilywhite-1-0-1-status-bar-capsule/",
+      "image": "assets/articles/source-media/lilywhite-1-1-0-official-banner.png",
+      "media_credit": "Official lilywhite 1.1.0 banner and current screenshot by tako3s",
+      "media_source_url": "https://havoc.app/package/lilywhite",
+      "modified_at": "2026-10-03T15:04:01Z",
+      "name": "lilywhite",
+      "package": "com.karin722.lilywhite",
+      "price": "2.49",
+      "published_at": "2026-10-01T11:15:55.839Z",
+      "release": "2026-10-02",
+      "selection_pool": "official-havoc-individual-update",
+      "slug": "lilywhite-1-0-1-status-bar-capsule",
+      "source": "https://havoc.app/package/lilywhite",
+      "sourceImage": "https://media.havoc.app/6ab8f760f180aae7681e3db5",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/lilywhite",
+      "source_visual_url": "https://media.havoc.app/6ab8f760f180aae7681e3db5",
+      "title": "lilywhite 1.1.0 Adds Dual-SIM Signal Rows and Custom Status Bar Time",
+      "version": "1.1.0"
     },
     {
       "article_sha256": "db122ba9056cd111364f3a21e4f999fc8772233da034ca75e84d982900208b54",
@@ -1298,81 +1424,6 @@
         "https://github.com/ntfargo/Relapse-Exploit/commit/dd8e4e0914c5e9d066ee1f9b056be76cb992c8e0"
       ],
       "version": "repository update 2026-09-30"
-    },
-    {
-      "category": {
-        "id": "tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Havoc header: iOS 15.0–26.0.1, rootless only; developer description discusses iOS 26.1 testing and requires PreferenceLoader 2.2.8 for settings on iOS 18+",
-      "description": "NowLyrics 1.1.2 improves Dynamic Island lyric timing, matches Musixmatch lyrics to the played release, and restores settings access on iOS 18 and newer.",
-      "developer": "tuonghoa2k7",
-      "entry_type": "tweak-update",
-      "href": "nowlyrics-1-0-synced-lyrics-lock-screen/",
-      "image": "assets/articles/source-media/nowlyrics-1-1-2-official-banner.png",
-      "media_credit": "Official NowLyrics 1.1.2 Havoc banner and Dynamic Island settings screenshot by tuonghoa2k7",
-      "media_source_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
-      "modified_at": "2026-10-09T17:03:52Z",
-      "name": "NowLyrics",
-      "package": "com.c3x14n.nowlyrics",
-      "price": "2.99",
-      "published_at": "2026-10-01T15:04:37Z",
-      "release": "2026-10-07",
-      "selection_pool": "official-havoc-individual-update",
-      "slug": "nowlyrics-1-0-synced-lyrics-lock-screen",
-      "source": "https://havoc.app/package/nowlyrics",
-      "sourceImage": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
-      "source_name": "Havoc",
-      "source_page_url": "https://havoc.app/package/nowlyrics",
-      "source_visual_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
-      "title": "NowLyrics 1.1.2 Fixes Dynamic Island Lyrics and Improves Musixmatch Matching",
-      "version": "1.1.2",
-      "media_sha256": "48a478baf634fdc336018c2d1e1bfa82c07e6a87d3b570ed5ca0ffcf288ae6a1",
-      "source_visual_origin": "official-havoc-banner",
-      "additional_media": [
-        {
-          "path": "assets/articles/source-media/nowlyrics-1-1-2-dynamic-island-settings.jpg",
-          "credit": "Official NowLyrics 1.1.2 Dynamic Island settings screenshot by tuonghoa2k7",
-          "source_url": "https://media.havoc.app/6ac156483ccac01238803380",
-          "sha256": "4af92c9dfab80d72099498543fbdaa2a6f569f5d13ff4823d8a5537d776008cd"
-        }
-      ]
-    },
-    {
-      "category": {
-        "id": "system-utilities",
-        "label": "System & Utilities"
-      },
-      "compat": "iOS 16.0–26.0; rootless; notch or Dynamic Island iPhones",
-      "description": "lilywhite 1.1.0 adds Dual-SIM signal rows, network-type labels, custom time formats and notification-app filtering for supported rootless iPhones.",
-      "developer": "tako3s",
-      "entry_type": "tweak-update",
-      "href": "lilywhite-1-0-1-status-bar-capsule/",
-      "image": "assets/articles/source-media/lilywhite-1-1-0-official-banner.png",
-      "media_credit": "Official lilywhite 1.1.0 banner and current screenshot by tako3s",
-      "media_source_url": "https://havoc.app/package/lilywhite",
-      "modified_at": "2026-10-03T15:04:01Z",
-      "name": "lilywhite",
-      "package": "com.karin722.lilywhite",
-      "price": "2.49",
-      "published_at": "2026-10-01T11:15:55.839Z",
-      "release": "2026-10-02",
-      "selection_pool": "official-havoc-individual-update",
-      "slug": "lilywhite-1-0-1-status-bar-capsule",
-      "source": "https://havoc.app/package/lilywhite",
-      "sourceImage": "https://media.havoc.app/6ab8f760f180aae7681e3db5",
-      "source_name": "Havoc",
-      "source_page_url": "https://havoc.app/package/lilywhite",
-      "source_visual_url": "https://media.havoc.app/6ab8f760f180aae7681e3db5",
-      "title": "lilywhite 1.1.0 Adds Dual-SIM Signal Rows and Custom Status Bar Time",
-      "version": "1.1.0",
-      "additional_media": [
-        {
-          "path": "assets/articles/source-media/lilywhite-1-0-1-official.png",
-          "credit": "Official current lilywhite screenshot by tako3s",
-          "source_url": "https://media.havoc.app/6ab8f730f180aae7681e3c3e"
-        }
-      ]
     },
     {
       "category": {
@@ -1744,32 +1795,6 @@
       "source_visual_url": "https://opengraph.githubassets.com/8b73f2a4cde2539ee81b8074ea129536d42e9878d0a15d29a0113f8cd8726e48/Gokuencinar/GokuEnREPO/commit/b546426feb185618b38bcc634e8d64758d215f22",
       "title": "BandLock 1.3 brings LTE, 5G NR and country-based modem controls to iOS jailbreak users",
       "version": "1.3"
-    },
-    {
-      "category": {
-        "id": "customization",
-        "label": "Customization"
-      },
-      "compat": "Havoc lists iOS 16.0–16.7.16 and rootless support; the developer describes Dopamine testing, does not support iPad, and warns that Dynamic Island iPhones are not optimized",
-      "description": "LockScreenRestore 1.9.4 lets music artwork open the playing app, makes the date follow Text Size, and refines the Focus pill on rootless iOS 16 jailbreaks.",
-      "entry_type": "individual-update",
-      "href": "lockscreenrestore-1-8-2-update/",
-      "image": "assets/articles/source-media/lockscreenrestore-1-9-4-official-banner.jpg",
-      "media_credit": "Official LockScreenRestore banner by aronsz26",
-      "media_source_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
-      "modified_at": "2026-10-07T13:02:18Z",
-      "name": "LockScreenRestore",
-      "package": "com.aronsz26.lockscreenrestore",
-      "published_at": "2026-09-28T18:52:07+00:00",
-      "quality_target": 9,
-      "selection_pool": "scheduled-individual-update",
-      "source_name": "Official Havoc listing and GitHub release",
-      "source_page_url": "https://havoc.app/package/lockscreenrstr",
-      "source_url": "https://github.com/aronsz26/LockScreenRestore/releases/tag/v1.9.4",
-      "source_visual_origin": "official-havoc-banner",
-      "source_visual_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
-      "title": "LockScreenRestore 1.9.4 Makes Music Artwork Tappable and Refines the iOS 15 Date Layout",
-      "version": "1.9.4"
     },
     {
       "category": {
@@ -6443,8 +6468,17 @@
       "package": "science.xnu.undecimus",
       "published_at": "2026-10-08T20:56:24Z",
       "version": "8.1.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "regram-for-instagram-6-4-update/",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-10-10T21:18:20+00:00",
+      "run_id": "38087071774",
+      "version": "6.4"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-09T08:56:13Z"
+  "updated_at": "2026-10-10T21:18:20+00:00"
 }
