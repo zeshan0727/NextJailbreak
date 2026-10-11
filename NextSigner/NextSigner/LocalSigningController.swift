@@ -23,6 +23,11 @@ final class LocalSigningController: ObservableObject {
     @Published var publishMessage: String?
     @Published var publishError: String?
 
+    @Published var resigningID: UUID?
+    @Published var resignMessage: String?
+    @Published var resignError: String?
+    @Published var resignCompletedApp: LocalSignedApp?
+
     private let p12PasswordAccount = "p12-password"
 
     init() {
@@ -161,6 +166,65 @@ final class LocalSigningController: ObservableObject {
         }
     }
 
+    func resign(_ app: LocalSignedApp) {
+        guard resigningID == nil, publishingID == nil, installingID == nil, !isSigning else { return }
+        guard FileManager.default.fileExists(atPath: app.ipaURL.path) else {
+            resignError = "The signed IPA is missing from this device."
+            refreshSignedApps()
+            return
+        }
+        guard hasP12 else {
+            resignError = LocalSignerError.missingCertificate.localizedDescription
+            return
+        }
+        guard hasProvisioningProfile else {
+            resignError = LocalSignerError.missingProvisioningProfile.localizedDescription
+            return
+        }
+
+        let password = KeychainStore.load(account: p12PasswordAccount) ?? p12Password
+        guard !password.isEmpty else {
+            resignError = LocalSignerError.missingPassword.localizedDescription
+            return
+        }
+
+        let sourceURL = app.ipaURL
+        let appName = app.appName
+        let bundleID = app.bundleID
+        let p12URL = CredentialStore.url(for: .p12)
+        let provisioningURL = CredentialStore.url(for: .provisioning)
+
+        resigningID = app.id
+        resignMessage = "Re-signing with the current certificate and provisioning profile…"
+        resignError = nil
+        resignCompletedApp = nil
+        publishMessage = nil
+        publishError = nil
+
+        Task {
+            do {
+                let result = try await LocalSignerService().sign(
+                    ipaURL: sourceURL,
+                    requestedName: appName,
+                    requestedBundleID: bundleID,
+                    p12URL: p12URL,
+                    provisioningURL: provisioningURL,
+                    p12Password: password
+                )
+                resignMessage = "Saving re-signed IPA…"
+                let record = try LocalSignedAppsRepository.register(result)
+                refreshSignedApps()
+                resigningID = nil
+                resignMessage = "\(record.appName) re-signed successfully."
+                resignCompletedApp = record
+            } catch {
+                resignError = error.localizedDescription
+                resignMessage = "Re-sign failed"
+                resigningID = nil
+            }
+        }
+    }
+
     func install(_ app: LocalSignedApp, using store: SignerStore) {
         guard installingID == nil, publishingID == nil, !isSigning else { return }
         guard FileManager.default.fileExists(atPath: app.ipaURL.path) else {
@@ -231,7 +295,7 @@ final class LocalSigningController: ObservableObject {
     }
 
     func publish(_ app: LocalSignedApp, using store: SignerStore) {
-        guard publishingID == nil, installingID == nil else { return }
+        guard publishingID == nil, installingID == nil, resigningID == nil else { return }
         guard FileManager.default.fileExists(atPath: app.ipaURL.path) else {
             publishError = "The signed IPA is missing from this device."
             refreshSignedApps()
