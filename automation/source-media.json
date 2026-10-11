@@ -656,6 +656,19 @@
         "git_blob_sha": "33dc343768f0504de3923f32982ae5d6aad304d3"
       },
       "screenshots": []
+    },
+    "github.dr-sauce.trollstorechecker": {
+      "credit_label": "Dr-Sauce — official TrollStore Checker project",
+      "source_page_url": "https://github.com/Dr-Sauce/TrollStoreChecker",
+      "official_source": true,
+      "hero": {
+        "url": "https://user-images.githubusercontent.com/82555878/197333210-428913ba-c8d0-476b-9ae8-c3b981e73f2f.png",
+        "alt": "Official TrollStore Checker icon showing a laughing white face on a blue background",
+        "local_path": "assets/articles/source-media/trollstore-checker-official-icon.png",
+        "sha256": "a4788edb15c93155bb64fa972dea52da7321582b4e82119627c03dbc7c1b8d95",
+        "git_blob_sha": "fe4eb1d4b937c5be1f64977e85409227559d9466"
+      },
+      "screenshots": []
     }
   }
 }

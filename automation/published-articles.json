@@ -2,6 +2,35 @@
   "entries": [
     {
       "category": {
+        "id": "development",
+        "label": "Jailbreak Development"
+      },
+      "compat": "Checker database covers build-specific TrollStore routes across iOS 14 through selected iOS 17.0 builds; availability varies by device architecture, exact build and install method",
+      "description": "TrollStore Checker 2.0.7 rewrites its workflow, updates the TrollStore compatibility database and now requires a-Shell mini to identify an official install route.",
+      "developer": "Dr-Sauce",
+      "entry_type": "development",
+      "href": "trollstore-checker-2-0-7-compatibility-database-ashell-mini/",
+      "image": "assets/articles/source-media/trollstore-checker-official-icon.png",
+      "media_credit": "Official TrollStore Checker project icon by Dr-Sauce",
+      "media_sha256": "a4788edb15c93155bb64fa972dea52da7321582b4e82119627c03dbc7c1b8d95",
+      "media_source_url": "https://github.com/Dr-Sauce/TrollStoreChecker",
+      "modified_at": "2026-10-11T21:01:49Z",
+      "name": "TrollStore Checker",
+      "package": "github.dr-sauce.trollstorechecker",
+      "published_at": "2026-10-11T21:01:49Z",
+      "release": "2026-08-03",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "trollstore-checker-2-0-7-compatibility-database-ashell-mini",
+      "source_name": "Official TrollStore Checker 2.0.7 GitHub release and project README",
+      "source_page_url": "https://github.com/Dr-Sauce/TrollStoreChecker/releases/tag/2.0.7",
+      "source_url": "https://github.com/Dr-Sauce/TrollStoreChecker",
+      "source_visual_origin": "official-project-icon",
+      "source_visual_url": "https://user-images.githubusercontent.com/82555878/197333210-428913ba-c8d0-476b-9ae8-c3b981e73f2f.png",
+      "title": "TrollStore Checker 2.0.7 Updates Its Compatibility Database and Moves to a-Shell mini",
+      "version": "2.0.7"
+    },
+    {
+      "category": {
         "id": "tweak-update",
         "label": "Individual Tweak Update"
       },
