@@ -42,6 +42,10 @@
   </main>
 
   <script>
+    // Keep OTA manifest URLs secure even if the page was opened from an old HTTP link.
+    if(location.protocol==='http:' && location.hostname==='nextjailbreak.com'){
+      location.replace('https://nextjailbreak.com'+location.pathname+location.search+location.hash);
+    }
     async function loadCatalog(){
       const root=document.getElementById('catalog');
       try{
@@ -52,7 +56,9 @@
         for(const app of data.apps||[]){
           const card=document.createElement('article');
           card.className='card';
-          const manifest=new URL(app.manifest,location.origin).href;
+          const manifestURL=new URL(app.manifest,'https://nextjailbreak.com/');
+          if(manifestURL.protocol!=='https:') throw new Error('Install manifest must use HTTPS');
+          const manifest=manifestURL.href;
           const installURL='itms-services://?action=download-manifest&url='+encodeURIComponent(manifest);
           const statusClass=app.available?'status':'status wait';
           const button=app.available
