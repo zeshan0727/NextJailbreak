@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-watusi",
+      "name": "Whatsapp",
+      "version": "26.30.78",
+      "build": "1032792803",
+      "platform": "iPhone",
+      "minimumOS": "iOS 15.1+",
+      "bundleId": "com.nextsolution.watusi",
+      "icon": "/install/icons/com-nextsolution-watusi-48c4a31c3d4d.png",
+      "manifest": "/install/com-nextsolution-watusi.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-watusi/26.30.78/com-nextsolution-watusi-26.30.78-1032792803.ipa",
+      "sha256": "48c4a31c3d4d920ed75d3d04e68e6b452a9f5cdf6abbcb0409dd057b688f867c",
+      "sizeBytes": 151430356,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-njapps",
       "name": "Zee App Library",
       "version": "1.0.2",
