@@ -2,6 +2,34 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "RootHide Bootstrap 2.2.1; official project README lists iOS 15.0–17.0 on A8–A17 Pro and M1/M2, requires TrollStore, and individual tweak/app compatibility must still be verified",
+      "description": "Enable or disable tweak injection for individual apps in RootHide Bootstrap 2.2.1, understand App List defaults, and fix common server or icon-cache errors.",
+      "developer": "RootHide",
+      "entry_type": "guide",
+      "href": "enable-tweak-injection-roothide-bootstrap-guide/",
+      "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
+      "media_credit": "Official RootHide Bootstrap 2.2.1 app icon from the project source repository",
+      "media_source_url": "https://github.com/roothide/Bootstrap/blob/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "modified_at": "2026-10-11T05:03:56Z",
+      "name": "RootHide App List",
+      "package": "guide.roothide.app-injection",
+      "published_at": "2026-10-11T05:03:56Z",
+      "release": "2026-06-12",
+      "selection_pool": "evergreen-search-intent",
+      "slug": "enable-tweak-injection-roothide-bootstrap-guide",
+      "source_name": "Official RootHide Bootstrap 2.2.1 repository",
+      "source_page_url": "https://github.com/roothide/Bootstrap/blob/2.2.1/README.md",
+      "source_url": "https://github.com/roothide/Bootstrap/releases/tag/2.2.1",
+      "source_visual_origin": "official-project-app-icon-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "title": "How to Enable Tweak Injection in RootHide Bootstrap Safely",
+      "version": "RootHide Bootstrap 2.2.1"
+    },
+    {
+      "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
       },
@@ -6480,5 +6508,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-10T21:18:20+00:00"
+  "updated_at": "2026-10-11T05:03:56Z"
 }
