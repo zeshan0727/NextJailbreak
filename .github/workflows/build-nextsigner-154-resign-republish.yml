@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - feature/nextsigner-1.5.4-restore-working-signer
+      - feature/nextsigner-1.5.4-resign-republish
     paths:
       - 'NextSigner/**'
       - '.github/workflows/build-nextsigner-154-resign-republish.yml'
