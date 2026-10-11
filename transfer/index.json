@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-06T15:06:05Z",
+  "updatedAt": "2026-10-11T09:04:15Z",
   "files": [
+    {
+      "id": "nextsigner-1.5.4",
+      "name": "Next Signer 1.5.4",
+      "fileName": "NextSigner-1.5.4.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.4",
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.4/NextSigner-1.5.4.tipa",
+      "sha256": "d79ee1fb231b6759bf028de1d2e1e7e39026874d39329bd83aa5cce397f72685",
+      "sizeBytes": 3413657,
+      "storage": "Cloudflare R2",
+      "notes": "Signed Apps Manage now includes Re-sign using the saved local P12/profile, Publish/Re-publish, Share and Delete. After Re-sign completes, the app offers Re-publish Now for the newly signed IPA. Restored 1.4.2 signing core and Zsign provisioning fix remain intact."
+    },
     {
       "id": "netmirror-1.0.25-player-back-ui-fix",
       "name": "NetMirror 1.0.25 \u2014 Player Back + UI Fix",
@@ -157,19 +170,6 @@
       "sha256": "6388988885652e032ceb92679772f41f800c09f77e5fb1bd7bd2033976ca03c8",
       "sizeBytes": 6413911,
       "notes": "Fixes the startup hang after 1.0.9 by making the custom Android-compatible Networking module emit through React Native's global DeviceEventEmitter path even when RCTEventEmitter's own listener count is zero. This allows didReceiveNetworkResponse, didReceiveNetworkData, and didCompleteNetworkResponse to reach the recovered Android XHR/Axios code. Keeps all previous StatusBar, ImageLoader, BlobManager, AndroidProgressBar, brightness, and runtime diagnostic fixes; original Hermes bundle remains unchanged."
-    },
-    {
-      "id": "nextsigner-1.5.3",
-      "name": "Next Signer 1.5.3",
-      "fileName": "NextSigner-1.5.3.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "1.5.3",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.5.3/NextSigner-1.5.3.tipa",
-      "sha256": "bdaf726c7164e969f8c05ca8763dc3cbcfc884f10928f8bf9cb3c8e57c36ed65",
-      "sizeBytes": 3403557,
-      "storage": "Cloudflare R2",
-      "notes": "Regression fix: restores the exact proven 1.4.2 local signing service and the Zsign embedded.mobileprovision write-condition correction that was lost during the modern UI rebuild. Keeps the modern lightweight UI and ProMotion support."
     },
     {
       "id": "netmirror-1.0.9-startup-network-diagnostic",
