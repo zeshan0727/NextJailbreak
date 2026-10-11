@@ -1,6 +1,43 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "credit": "Official Santander app icon from NSAntoine's source repository",
+          "image": "assets/articles/source-media/santander-official-app-icon.png",
+          "sha256": "317afc97e8864a360c588176f50b41dfa688a99d1caf6c71719dd661a75e9aff",
+          "source_url": "https://github.com/NSAntoine/Santander/blob/main/Santander/Assets.xcassets/AppIcon.appiconset/1024.png"
+        }
+      ],
+      "category": {
+        "id": "roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Filza metadata lists iOS 7+ for the main package and iOS 11+ for its 64-bit-only package; Santander targets iOS 14.0, but unsandboxed access depends on a compatible privilege environment",
+      "description": "Compare Filza and Santander by maturity, jailbreak and TrollStore requirements, file editing, package tools, network features, source availability and risk.",
+      "developer": "TIGI Software / NSAntoine",
+      "entry_type": "comparison",
+      "href": "filza-vs-santander-iphone-file-manager-comparison/",
+      "image": "assets/articles/source-media/filza-official-apps-manager.png",
+      "media_credit": "Official Filza interface artwork from TIGI Software",
+      "media_sha256": "0ba40e56270c7d0dd89d0d64deda03edc5668075c5d75516658a9d4d9d95b5af",
+      "media_source_url": "https://www.tigisoftware.com/default/wp-content/uploads/2015/07/IMG_0878-copy-1024x606.png",
+      "modified_at": "2026-10-11T09:04:02Z",
+      "name": "Filza vs Santander",
+      "package": "comparison.filza-santander",
+      "published_at": "2026-10-11T09:04:02Z",
+      "release": "Filza packages checked 2026-10-11; Santander latest commit 2024-09-28",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "filza-vs-santander-iphone-file-manager-comparison",
+      "source_name": "TIGI Software and NSAntoine official sources",
+      "source_page_url": "https://www.tigisoftware.com/default/?p=439",
+      "source_url": "https://github.com/NSAntoine/Santander",
+      "source_visual_origin": "official-project-interface-and-app-icon",
+      "source_visual_url": "https://www.tigisoftware.com/default/wp-content/uploads/2015/07/IMG_0878-copy-1024x606.png",
+      "title": "Filza vs Santander: Which iPhone File Manager Should You Use?",
+      "version": "Filza 4.0.1-2 / 4.0.1-4 packages; 4.0.2 TrollStore variant; Santander beta"
+    },
+    {
       "category": {
         "id": "evergreen-guide",
         "label": "Evergreen Jailbreak Guide"
@@ -6508,5 +6545,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-11T05:03:56Z"
+  "updated_at": "2026-10-11T09:04:02Z"
 }

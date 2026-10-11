@@ -625,6 +625,25 @@
         "git_blob_sha": "8c0def0017af33dc1f3e14ed07dbf4be25630e7c"
       },
       "screenshots": []
+    },
+    "comparison.filza-santander": {
+      "credit_label": "TIGI Software and NSAntoine — official project sources",
+      "source_page_url": "https://www.tigisoftware.com/default/?p=439",
+      "official_source": true,
+      "hero": {
+        "url": "https://www.tigisoftware.com/default/wp-content/uploads/2015/07/IMG_0878-copy-1024x606.png",
+        "alt": "Official Filza screenshot showing Apps Manager and the root file system",
+        "local_path": "assets/articles/source-media/filza-official-apps-manager.png",
+        "git_blob_sha": "159bbcb69c5f060f82d88bb412d415b9d06a867e"
+      },
+      "screenshots": [
+        {
+          "url": "https://github.com/NSAntoine/Santander/blob/main/Santander/Assets.xcassets/AppIcon.appiconset/1024.png",
+          "alt": "Official Santander app icon with a white folder and magnifying glass on a blue and pink gradient",
+          "local_path": "assets/articles/source-media/santander-official-app-icon.png",
+          "git_blob_sha": "f79547be21eca220c06debd2802b6fd9d4517c8a"
+        }
+      ]
     }
   }
 }
