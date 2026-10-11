@@ -1,6 +1,34 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Officially tested only on iPhone XS running iOS 14.4.2 with Taurine rootful; iphoneos-arm64 rootless package exists but rootless support is explicitly untested",
+      "description": "AntiNotch 0.0.1 adds a configurable on-screen Home button with tap, hold, swipe and haptic controls, but this first beta was only tested on Taurine rootful.",
+      "developer": "TheArma",
+      "entry_type": "individual-tweak-update",
+      "href": "antinotch-0-0-1-virtual-home-button-jailbreak-tweak/",
+      "image": null,
+      "media_credit": null,
+      "media_source_url": null,
+      "modified_at": "2026-10-11T12:55:17Z",
+      "name": "AntiNotch",
+      "package": "com.thearma.antinotch",
+      "published_at": "2026-10-11T12:55:17Z",
+      "release": "2026-10-10",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "antinotch-0-0-1-virtual-home-button-jailbreak-tweak",
+      "source_name": "Official AntiNotch GitHub release, README and inspected DEB packages",
+      "source_page_url": "https://github.com/TheArma11/AntiNotch/releases/tag/0.0.1",
+      "source_url": "https://github.com/TheArma11/AntiNotch",
+      "source_visual_origin": "retrieval-blocked-developer-demo",
+      "source_visual_url": null,
+      "title": "AntiNotch 0.0.1 Adds a Virtual Home Button to Notched iPhones",
+      "version": "0.0.1 (package builds 0.0.1-509+debug rootful / 0.0.1-510+debug rootless)"
+    },
+    {
       "additional_media": [
         {
           "credit": "Official Santander app icon from NSAntoine's source repository",
@@ -6545,5 +6573,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-11T09:04:02Z"
+  "updated_at": "2026-10-11T12:55:17Z"
 }
