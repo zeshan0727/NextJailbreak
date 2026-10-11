@@ -1,0 +1,1 @@
+Publish Next Signer 1.5.4 build 30 with Re-sign and Re-publish to NS Transfer.
