@@ -311,7 +311,7 @@ struct NextSignerSignedAppsView: View {
                         NSPageHeader(
                             eyebrow: "Local Vault",
                             title: "Signed Apps",
-                            subtitle: "Install, publish, share or remove signed IPAs saved on this iPhone.",
+                            subtitle: "Install or manage signed IPAs, including re-sign and re-publish.",
                             systemImage: "checkmark.seal.fill"
                         )
 
@@ -324,7 +324,7 @@ struct NextSignerSignedAppsView: View {
                             }
                         }
 
-                        if let error = local.publishError {
+                        if let error = local.publishError ?? local.resignError {
                             NSGlassCard {
                                 Label(error, systemImage: "exclamationmark.triangle.fill")
                                     .font(.footnote)
@@ -371,6 +371,26 @@ struct NextSignerSignedAppsView: View {
                 set: { if !$0 { shareURL = nil } }
             )) {
                 if let shareURL { NextSignerShareSheet(items: [shareURL]) }
+            }
+            .confirmationDialog(
+                "Re-sign completed",
+                isPresented: Binding(
+                    get: { local.resignCompletedApp != nil },
+                    set: { if !$0 { local.resignCompletedApp = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Re-publish Now") {
+                    if let app = local.resignCompletedApp {
+                        local.resignCompletedApp = nil
+                        local.publish(app, using: store)
+                    }
+                }
+                Button("Done", role: .cancel) {
+                    local.resignCompletedApp = nil
+                }
+            } message: {
+                Text("The app was re-signed successfully with your current certificate and provisioning profile. Re-publish the new signed IPA to your site/R2 now?")
             }
             .confirmationDialog(
                 "Delete signed IPA from this iPhone?",
@@ -469,6 +489,16 @@ struct NextSignerSignedAppsView: View {
                     }
                 }
 
+                if local.resigningID == app.id {
+                    VStack(alignment: .leading, spacing: 7) {
+                        ProgressView()
+                            .tint(NSTheme.violet)
+                        Text(local.resignMessage ?? "Re-signing with current profile…")
+                            .font(.caption)
+                            .foregroundStyle(NSTheme.textSecondary)
+                    }
+                }
+
                 HStack(spacing: 9) {
                     Button {
                         local.install(app, using: store)
@@ -476,35 +506,42 @@ struct NextSignerSignedAppsView: View {
                         Label("Install", systemImage: "arrow.down.app.fill")
                     }
                     .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.mint))
-                    .disabled(local.installingID != nil || local.publishingID != nil)
+                    .disabled(local.installingID != nil || local.publishingID != nil || local.resigningID != nil)
 
-                    Button {
-                        local.publish(app, using: store)
+                    Menu {
+                        Button {
+                            local.resign(app)
+                        } label: {
+                            Label("Re-sign", systemImage: "signature")
+                        }
+
+                        Button {
+                            local.publish(app, using: store)
+                        } label: {
+                            Label("Publish / Re-publish", systemImage: "paperplane.fill")
+                        }
+
+                        Button {
+                            shareURL = app.ipaURL
+                        } label: {
+                            Label("Share IPA", systemImage: "square.and.arrow.up")
+                        }
+
+                        Divider()
+
+                        Button(role: .destructive) {
+                            deleteCandidate = app
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     } label: {
-                        Label("Publish", systemImage: "paperplane.fill")
+                        Label("Manage", systemImage: "ellipsis.circle.fill")
                     }
                     .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.cyan))
-                    .disabled(local.publishingID != nil || local.installingID != nil)
+                    .disabled(local.publishingID != nil || local.installingID != nil || local.resigningID != nil)
                 }
 
-                HStack(spacing: 9) {
-                    Button {
-                        shareURL = app.ipaURL
-                    } label: {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                    }
-                    .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.blue))
-
-                    Button(role: .destructive) {
-                        deleteCandidate = app
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                    .buttonStyle(NSSecondaryButtonStyle(tint: NSTheme.danger))
-                    .disabled(local.publishingID == app.id || local.installingID == app.id)
-                }
-
-                Text("Install uses temporary Apple OTA staging. Publish is separate and only runs when you press Publish.")
+                Text("Manage includes Re-sign, Re-publish, Share and Delete. After a successful Re-sign, Next Signer will offer to Re-publish the new IPA immediately.")
                     .font(.caption2)
                     .foregroundStyle(Color.white.opacity(0.42))
             }
