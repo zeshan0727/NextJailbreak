@@ -5,6 +5,34 @@
         "id": "tweak-update",
         "label": "Individual Tweak Update"
       },
+      "compat": "Developer lists iOS 13.0–14.8 for legacy rootful; iOS 15.0–17.0 for modern rootless, rootful and TrollFools builds; jailbreak availability still depends on device and firmware",
+      "description": "AntiDarkSword 4.9.3 adds configurable WebKit and iMessage hardening for jailbreaks and a limited TrollFools dylib, with separate rootless, rootful and legacy builds.",
+      "developer": "EolnMsuk",
+      "entry_type": "individual-tweak-update",
+      "href": "antidarksword-4-9-3-webkit-imessage-hardening-tweak/",
+      "image": "assets/articles/source-media/antidarksword-4-9-3-official-banner.png",
+      "media_credit": "Official AntiDarkSword project banner by EolnMsuk",
+      "media_source_url": "https://github.com/EolnMsuk/AntiDarkSword/blob/main/antidarkswordprefs/Resources/banner.png",
+      "modified_at": "2026-10-11T16:55:52Z",
+      "name": "AntiDarkSword",
+      "package": "com.eolnmsuk.antidarksword",
+      "published_at": "2026-10-11T16:55:52Z",
+      "release": "2026-05-15",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "antidarksword-4-9-3-webkit-imessage-hardening-tweak",
+      "source_name": "Official AntiDarkSword 4.9.3 GitHub release, README, compatibility guide and package metadata",
+      "source_page_url": "https://github.com/EolnMsuk/AntiDarkSword/releases/tag/4.9.3",
+      "source_url": "https://github.com/EolnMsuk/AntiDarkSword",
+      "source_visual_origin": "official-project-banner",
+      "source_visual_url": "https://raw.githubusercontent.com/EolnMsuk/AntiDarkSword/main/antidarkswordprefs/Resources/banner.png",
+      "title": "AntiDarkSword 4.9.3: What Its WebKit and iMessage Mitigations Cover",
+      "version": "4.9.3"
+    },
+    {
+      "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
       "compat": "Officially tested only on iPhone XS running iOS 14.4.2 with Taurine rootful; iphoneos-arm64 rootless package exists but rootless support is explicitly untested",
       "description": "AntiNotch 0.0.1 adds a configurable on-screen Home button with tap, hold, swipe and haptic controls, but this first beta was only tested on Taurine rootful.",
       "developer": "TheArma",
@@ -6570,8 +6598,16 @@
       "published_at": "2026-10-10T21:18:20+00:00",
       "run_id": "38087071774",
       "version": "6.4"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "antidarksword-4-9-3-webkit-imessage-hardening-tweak/",
+      "package": "com.eolnmsuk.antidarksword",
+      "published_at": "2026-10-11T16:55:52Z",
+      "version": "4.9.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-11T12:55:17Z"
+  "updated_at": "2026-10-11T16:55:52Z"
 }

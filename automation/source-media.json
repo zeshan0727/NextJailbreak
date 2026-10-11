@@ -644,6 +644,18 @@
           "git_blob_sha": "f79547be21eca220c06debd2802b6fd9d4517c8a"
         }
       ]
+    },
+    "com.eolnmsuk.antidarksword": {
+      "credit_label": "EolnMsuk — official AntiDarkSword source repository",
+      "source_page_url": "https://github.com/EolnMsuk/AntiDarkSword/blob/main/antidarkswordprefs/Resources/banner.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/EolnMsuk/AntiDarkSword/main/antidarkswordprefs/Resources/banner.png",
+        "alt": "Official AntiDarkSword banner identifying it as a WebKit and iMessage mitigation tweak",
+        "local_path": "assets/articles/source-media/antidarksword-4-9-3-official-banner.png",
+        "git_blob_sha": "33dc343768f0504de3923f32982ae5d6aad304d3"
+      },
+      "screenshots": []
     }
   }
 }
