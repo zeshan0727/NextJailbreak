@@ -1,6 +1,43 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/crane-lite-1-3-18-2-official-settings.png",
+          "media_credit": "Official Crane Lite settings screenshot from opa334’s Havoc listing",
+          "media_sha256": "198737865b36c7b5a8be23a411c55592cd8d0efec8a77b48ef52eec2da5634a9",
+          "media_source_url": "https://media.havoc.app/62444d4c1bb82643436119b9"
+        }
+      ],
+      "category": {
+        "id": "tweak-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Both packages: iOS 11.0–26.0.1 per Havoc; jailbreak required; rootless supported; actual availability depends on device, firmware and jailbreak",
+      "description": "Compare Crane 1.3.18-2 and Crane Lite 1.3.18-2 by price, app limits, backups, integrations, Game Center support, migration and rootless compatibility.",
+      "developer": "opa334",
+      "entry_type": "comparison",
+      "href": "crane-vs-crane-lite-app-container-comparison/",
+      "image": "assets/articles/source-media/crane-1-3-18-2-official-banner.png",
+      "media_credit": "Official Crane release artwork from opa334’s Havoc listing",
+      "media_sha256": "88a8a658e330518fb6c7a720d4c50e07672f545ea5fad11ae344309e877a4784",
+      "media_source_url": "https://media.havoc.app/6207ce8f7a62c3812d9ace29",
+      "modified_at": "2026-10-12T09:08:38Z",
+      "name": "Crane vs Crane Lite",
+      "package": "comparison.crane-crane-lite",
+      "published_at": "2026-10-12T09:08:38Z",
+      "release": "2026-08-15",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "crane-vs-crane-lite-app-container-comparison",
+      "source_name": "Official Crane and Crane Lite Havoc listings plus opa334 Crane resources",
+      "source_page_url": "https://havoc.app/package/crane",
+      "source_url": "https://github.com/opa334/Crane-Resources",
+      "source_visual_origin": "official-havoc-artwork-and-screenshot",
+      "source_visual_url": "https://media.havoc.app/6207ce8f7a62c3812d9ace29",
+      "title": "Crane vs Crane Lite: Which App Container Tweak Should You Use?",
+      "version": "1.3.18-2"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "jailbreak-guide",
@@ -6703,8 +6740,16 @@
       "package": "guide.dopamine.passwords",
       "published_at": "2026-10-12T05:01:49Z",
       "version": "Dopamine 3.0.10"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "crane-vs-crane-lite-app-container-comparison/",
+      "package": "comparison.crane-crane-lite",
+      "published_at": "2026-10-12T09:08:38Z",
+      "version": "1.3.18-2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-12T05:01:49Z"
+  "updated_at": "2026-10-12T09:08:38Z"
 }

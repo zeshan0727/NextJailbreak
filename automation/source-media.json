@@ -695,6 +695,25 @@
         "sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d"
       },
       "screenshots": []
+    },
+    "comparison.crane-crane-lite": {
+      "credit_label": "opa334 — official Crane and Crane Lite Havoc listings",
+      "source_page_url": "https://havoc.app/package/crane",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6207ce8f7a62c3812d9ace29",
+        "alt": "Official Crane artwork showing a crane lifting three colored application containers",
+        "local_path": "assets/articles/source-media/crane-1-3-18-2-official-banner.png",
+        "git_blob_sha": "9ba7726f8c7edecbb7be40be30b3977cb043340b"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/62444d4c1bb82643436119b9",
+          "alt": "Official Crane Lite settings showing Discord as the selected application, a Configure Application option and a Buy Crane migration note",
+          "local_path": "assets/articles/source-media/crane-lite-1-3-18-2-official-settings.png",
+          "git_blob_sha": "0b36afedec505520167cc724b88ce7a3490cb37c"
+        }
+      ]
     }
   }
 }
