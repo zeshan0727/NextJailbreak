@@ -1,6 +1,36 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.x official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
+      "description": "Re-jailbreak Dopamine 3 after a full iPhone reboot, restore tweak injection safely, and fix common package-manager or respring issues without removing the jailbreak.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "rejailbreak-dopamine-after-reboot-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-10-12T00:56:11Z",
+      "name": "Dopamine re-jailbreak after reboot",
+      "package": "guide.dopamine.rejailbreak-after-reboot",
+      "published_at": "2026-10-12T00:56:11Z",
+      "release": "2026-09-23",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "rejailbreak-dopamine-after-reboot-guide",
+      "source_name": "Official Dopamine 3.x README, 3.0.10 release and tagged interface strings",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.x/README.md",
+      "source_url": "https://github.com/opa334/Dopamine",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Re-Jailbreak Dopamine After Reboot and Restore Tweaks",
+      "version": "Dopamine 3.0.10"
+    },
+    {
       "category": {
         "id": "development",
         "label": "Jailbreak Development"
