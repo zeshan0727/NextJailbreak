@@ -1,6 +1,35 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "development",
+        "label": "Jailbreak Development"
+      },
+      "compat": "All devices on iOS 12.0–13.7; semi-untethered; re-signing and re-jailbreak method vary by device and firmware",
+      "description": "Amethyst v1.1 fixes delayed app-launch crashes, A8X support, iOS 13 patchfinder issues on A9/A10 devices, tweak loading and A9 exploit reliability.",
+      "developer": "staturnz",
+      "entry_type": "development",
+      "href": "amethyst-v1-1-ios-12-13-jailbreak-stability-fixes/",
+      "image": "assets/articles/source-media/amethyst-v1-1-official-logo.png",
+      "media_credit": "Official Amethyst project logo designed by xerus and published in staturnz’s repository",
+      "media_sha256": "b401651082312540aa2802cbda79c6c77cad5ecd677547eef45bf0445391bd45",
+      "media_source_url": "https://raw.githubusercontent.com/staturnzz/amethyst/main/logo.png",
+      "modified_at": "2026-10-12T20:55:10Z",
+      "name": "Amethyst",
+      "package": "github.staturnzz.amethyst",
+      "published_at": "2026-10-12T20:55:10Z",
+      "release": "2026-10-12",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "amethyst-v1-1-ios-12-13-jailbreak-stability-fixes",
+      "source_name": "Official Amethyst v1.1 GitHub release, repository README and iOS CFW Guide",
+      "source_page_url": "https://github.com/staturnzz/amethyst/releases/tag/v1.1",
+      "source_url": "https://github.com/staturnzz/amethyst",
+      "source_visual_origin": "official-repository-logo",
+      "source_visual_url": "https://raw.githubusercontent.com/staturnzz/amethyst/main/logo.png",
+      "title": "Amethyst v1.1 Fixes App Crashes, A8X Support and A9/A10 Reliability",
+      "version": "1.1"
+    },
+    {
       "additional_media": [
         {
           "image": "assets/articles/source-media/legacyfolder26-1-0-1-official-translucent-folder.png",

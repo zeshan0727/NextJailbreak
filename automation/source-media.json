@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "packages": {
+    "github.staturnzz.amethyst": {
+      "credit_label": "staturnz / xerus — official Amethyst project logo",
+      "source_page_url": "https://github.com/staturnzz/amethyst",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/staturnzz/amethyst/main/logo.png",
+        "alt": "Official Amethyst jailbreak logo with a purple faceted gem",
+        "local_path": "assets/articles/source-media/amethyst-v1-1-official-logo.png",
+        "git_blob_sha": "c008a9e852204ba5fafb6c80c530c08ad7b337b2"
+      },
+      "screenshots": []
+    },
     "meow.bakera1n.legacyfolder26": {
       "credit_label": "bakera1n — official LegacyFolder26 Havoc listing",
       "source_page_url": "https://havoc.app/package/legacyfolder26",
