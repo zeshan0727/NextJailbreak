@@ -7,6 +7,36 @@
         "label": "Evergreen Jailbreak Guide"
       },
       "compat": "Dopamine 3.x official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
+      "description": "Change the mobile password in Dopamine 3, set a separate root password from a mobile shell, and avoid common credential mistakes on a rootless jailbreak.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "change-mobile-root-password-dopamine-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-10-12T05:01:49Z",
+      "name": "Dopamine password hardening",
+      "package": "guide.dopamine.passwords",
+      "published_at": "2026-10-12T05:01:49Z",
+      "release": "2026-09-23",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "change-mobile-root-password-dopamine-jailbreak-guide",
+      "source_name": "Official Dopamine 3.x README, 3.0.10 release and tagged interface strings",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.10/Application/Dopamine/en.lproj/Localizable.strings",
+      "source_url": "https://github.com/opa334/Dopamine",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Change Mobile and Root Passwords on a Dopamine Jailbreak",
+      "version": "Dopamine 3.0.10"
+    },
+    {
+      "additional_media": [],
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.x official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
       "description": "Re-jailbreak Dopamine 3 after a full iPhone reboot, restore tweak injection safely, and fix common package-manager or respring issues without removing the jailbreak.",
       "developer": "opa334",
       "entry_type": "evergreen-guide",
@@ -6665,8 +6695,16 @@
       "package": "com.eolnmsuk.antidarksword",
       "published_at": "2026-10-11T16:55:52Z",
       "version": "4.9.3"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-guide",
+      "href": "change-mobile-root-password-dopamine-jailbreak-guide/",
+      "package": "guide.dopamine.passwords",
+      "published_at": "2026-10-12T05:01:49Z",
+      "version": "Dopamine 3.0.10"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-11T16:55:52Z"
+  "updated_at": "2026-10-12T05:01:49Z"
 }
