@@ -714,6 +714,31 @@
           "git_blob_sha": "0b36afedec505520167cc724b88ce7a3490cb37c"
         }
       ]
+    },
+    "com.aadios.anxietea": {
+      "credit_label": "AADiOS — official AnxieTea Havoc listing",
+      "source_page_url": "https://havoc.app/package/anxietea",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac1f45d0553270455d37d42",
+        "alt": "Official AnxieTea artwork showing its app icon over a world map with network routes",
+        "local_path": "assets/articles/source-media/anxietea-1-0-2-official-banner.png",
+        "git_blob_sha": "bfe028a835755b0b335c0007b33ee1e52c17acd0"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ac7e42152e2be116d311350",
+          "alt": "Official AnxieTea screenshot showing Safari asking to connect to gnome.org with Allow and Block buttons",
+          "local_path": "assets/articles/source-media/anxietea-1-0-2-official-ask-banner.png",
+          "git_blob_sha": "f8e53658d34b953e24aad1f1d0c8ab3398391887"
+        },
+        {
+          "url": "https://media.havoc.app/6ac7e42952e2be116d31138c",
+          "alt": "Official AnxieTea Connections screen listing recent iCloud and Safari network requests with protocol, network and traffic data",
+          "local_path": "assets/articles/source-media/anxietea-1-0-2-official-connections.png",
+          "git_blob_sha": "ddca3534e0cfea702ef629bf7e3e29b7130bca0e"
+        }
+      ]
     }
   }
 }
