@@ -3,6 +3,49 @@
     {
       "additional_media": [
         {
+          "image": "assets/articles/source-media/legacyfolder26-1-0-1-official-translucent-folder.png",
+          "media_credit": "Official LegacyFolder26 translucent folder-panel screenshot from bakera1n’s Havoc listing",
+          "media_sha256": "621c8682c300b8c4ad7c20a6d0f929f190584a410082e73cc51a26e2a93597e9",
+          "media_source_url": "https://media.havoc.app/6ac7ee2b52e2be116d314291"
+        },
+        {
+          "image": "assets/articles/source-media/legacyfolder26-1-0-1-official-dark-folder.png",
+          "media_credit": "Official LegacyFolder26 dark folder-panel screenshot from bakera1n’s Havoc listing",
+          "media_sha256": "3e2510064ec86ebe4e6f9ee654065529e4b2b074b61bc7ca735aee236052e4d2",
+          "media_source_url": "https://media.havoc.app/6ac7ee4a52e2be116d31436c"
+        }
+      ],
+      "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "iOS 26.0–26.0.1 package range; jailbreak required; rootless supported; actual availability depends on device, firmware and jailbreak",
+      "description": "LegacyFolder26 1.0.1 fixes a folder icon overlap bug and clarifies license errors while adding iOS 6-style folder panels to jailbroken iOS 26.",
+      "developer": "bakera1n",
+      "entry_type": "individual-update",
+      "href": "legacyfolder26-1-0-1-ios-26-folder-tweak/",
+      "image": "assets/articles/source-media/legacyfolder26-1-0-1-official-banner.png",
+      "media_credit": "Official LegacyFolder26 banner from bakera1n’s Havoc listing",
+      "media_sha256": "e07d2807c2c23c5f5bf01bb219da6f95ec8cf3336dfa137ea235c0a6d47d25d0",
+      "media_source_url": "https://media.havoc.app/6ac7ee1652e2be116d314202",
+      "modified_at": "2026-10-12T17:04:42Z",
+      "name": "LegacyFolder26",
+      "package": "meow.bakera1n.legacyfolder26",
+      "published_at": "2026-10-12T17:04:42Z",
+      "release": "2026-10-10",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "legacyfolder26-1-0-1-ios-26-folder-tweak",
+      "source_name": "Official LegacyFolder26 Havoc listing, version history and repository metadata",
+      "source_page_url": "https://havoc.app/package/legacyfolder26",
+      "source_url": "https://havoc.app/package/legacyfolder26",
+      "source_visual_origin": "official-havoc-banner-and-screenshots",
+      "source_visual_url": "https://media.havoc.app/6ac7ee1652e2be116d314202",
+      "title": "LegacyFolder26 1.0.1 Fixes Folder Icon Overlap on Jailbroken iOS 26",
+      "version": "1.0.1"
+    },
+    {
+      "additional_media": [
+        {
           "image": "assets/articles/source-media/anxietea-1-0-2-official-ask-banner.png",
           "media_credit": "Official AnxieTea Ask-mode screenshot from AADiOS’s Havoc listing",
           "media_sha256": "cbeaeec3a35a80a6b9f4daa05fa24d58ae01df62d94bde4b8d52681211fab90e",

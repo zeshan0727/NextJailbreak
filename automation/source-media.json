@@ -1,6 +1,31 @@
 {
   "schema_version": 1,
   "packages": {
+    "meow.bakera1n.legacyfolder26": {
+      "credit_label": "bakera1n — official LegacyFolder26 Havoc listing",
+      "source_page_url": "https://havoc.app/package/legacyfolder26",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac7ee1652e2be116d314202",
+        "alt": "Official LegacyFolder26 artwork showing modern iOS 6-style folder panels",
+        "local_path": "assets/articles/source-media/legacyfolder26-1-0-1-official-banner.png",
+        "git_blob_sha": "da978b93d3b2585d13ab40266a567826db98643c"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ac7ee2b52e2be116d314291",
+          "alt": "Official LegacyFolder26 screenshot showing a wide translucent Utilities folder panel on an iPhone",
+          "local_path": "assets/articles/source-media/legacyfolder26-1-0-1-official-translucent-folder.png",
+          "git_blob_sha": "0f6bf107e2df127e1df431f72fcbeac15b67f846"
+        },
+        {
+          "url": "https://media.havoc.app/6ac7ee4a52e2be116d31436c",
+          "alt": "Official LegacyFolder26 screenshot showing a dark blurred Utilities folder panel on an iPhone",
+          "local_path": "assets/articles/source-media/legacyfolder26-1-0-1-official-dark-folder.png",
+          "git_blob_sha": "73a7c4c3d90675874ca0afa0f72473b4f0fbff1c"
+        }
+      ]
+    },
     "science.xnu.undecimus": {
       "credit_label": "unc0ver Team — official unc0ver project site",
       "source_page_url": "https://unc0ver.dev/",
