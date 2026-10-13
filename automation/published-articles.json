@@ -3,6 +3,36 @@
     {
       "additional_media": [],
       "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.0.11 official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
+      "description": "Update Dopamine using its built-in updater, TrollStore or the official GitHub release, then refresh the jailbreak environment without removing installed tweaks.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "update-dopamine-jailbreak-safely-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_credit": "Official Dopamine app icon from the 3.0.11 source tag",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-10-13T04:58:13Z",
+      "name": "Dopamine update guide",
+      "package": "guide.dopamine.update-safely",
+      "published_at": "2026-10-13T04:58:13Z",
+      "release": "2026-10-12",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "update-dopamine-jailbreak-safely-guide",
+      "source_name": "Official Dopamine 3.0.11 updater, release-selection and environment-update source",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.11/Application/Dopamine/UI/Update/DOUpdateViewController.m",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.11",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Update Dopamine Safely Without Losing Your Tweaks",
+      "version": "Dopamine 3.0.11"
+    },
+    {
+      "additional_media": [],
+      "category": {
         "id": "development",
         "label": "Jailbreak Development"
       },
