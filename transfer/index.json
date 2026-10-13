@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-13T11:47:19Z",
+  "updatedAt": "2026-10-13T18:10:29Z",
   "files": [
+    {
+      "id": "nextpost-1.0.16-clean-posts-no-ads",
+      "name": "Next Post 1.0.16 — Clean Posts, No Ads",
+      "fileName": "NextPost-1.0.16-Clean-Posts-No-Ads.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.16 (16)",
+      "url": "https://nextjailbreak.com/transfer/files/NextPost/1.0.16/NextPost-1.0.16-Clean-Posts-No-Ads.tipa",
+      "sha256": "bb41c25a33c16b304a80bc8a3c428d3daaf0c97bb8619f18fe51a68e47348591",
+      "sizeBytes": 648331,
+      "notes": "Four-line original X article posts: emoji and exact article title, concise source description, 1–3 hashtags, and direct article link. No generic commentary or duplicated X URLs. Retains ad-free build, searchable newest-first All Articles tab, history and no-repeat behavior."
+    },
     {
       "id": "nextpost-1.0.15-no-ads-all-articles",
       "name": "Next Post 1.0.15 — Ad Free + All Articles",
