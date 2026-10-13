@@ -817,6 +817,34 @@
           "sha256": "8ebf08199a2642de089b83b7c2d04ea18b9a9570b22233e778f122791ce17558"
         }
       ]
+    },
+    "com.t4mag0.vidgrab": {
+      "credit_label": "T4MAG0 — official VidGrab Havoc listing artwork",
+      "source_page_url": "https://havoc.app/package/t4mag0vidgrab",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac36575c1ab0912479692fb",
+        "alt": "Official VidGrab banner with pink lettering on a dark gradient background",
+        "local_path": "assets/articles/source-media/vidgrab-1-3-6c-official-banner.jpg",
+        "git_blob_sha": "07ad94eff28da56a4a15bee2373a6a21976008f3",
+        "sha256": "c3dce93652247a24c04e536972aaeaf2cf6cf72729d6dc2bca67a674207cb964"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ac364abc1ab091247968d88",
+          "alt": "Official VidGrab interface showing link input, quality choices and the built-in browser",
+          "local_path": "assets/articles/source-media/vidgrab-1-3-6c-official-interface.jpg",
+          "git_blob_sha": "80de960430786345cb812e529f09a6f408fc2fd2",
+          "sha256": "1f0e2104c195e46b2faf261d5f8f58380d97c419f697bf3e1daffbf381e07558"
+        },
+        {
+          "url": "https://media.havoc.app/6ac8599e3c41b4ceabd4a7b9",
+          "alt": "Official VidGrab Private Vault interface showing protected downloads and saved media",
+          "local_path": "assets/articles/source-media/vidgrab-1-3-6c-official-private-vault.png",
+          "git_blob_sha": "7263688f520cec00d9656b0afa5e2f7ce6b88a3e",
+          "sha256": "109ea6a6a37d7a81443b595b7d1aa382b52aa401c60a57cfd350e84282db163f"
+        }
+      ]
     }
   }
 }
