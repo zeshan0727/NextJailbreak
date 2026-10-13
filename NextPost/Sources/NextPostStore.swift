@@ -7,6 +7,7 @@ final class NextPostStore: ObservableObject {
     @Published var selectedArticle: PublishedArticle?
     @Published var selectedRemainingArticle: PublishedArticle?
     @Published var remainingArticles: [PublishedArticle] = []
+    @Published var allArticles: [PublishedArticle] = []
     @Published var isLoading = false
     @Published var isRefreshing = false
     @Published var statusText = "Ready"
@@ -73,6 +74,7 @@ final class NextPostStore: ObservableObject {
             let currentLinks = Set(articles.map(articleKey))
             let newLinks = knownLinks.isEmpty ? Set<String>() : currentLinks.subtracting(knownLinks)
 
+            allArticles = articles
             totalArticles = articles.count
             knownLinks = currentLinks
             defaults.set(Array(knownLinks), forKey: Key.knownLinks)
@@ -98,6 +100,10 @@ final class NextPostStore: ObservableObject {
         }
     }
 
+    func isGenerated(_ article: PublishedArticle) -> Bool {
+        usedLinks.contains(articleKey(article))
+    }
+
     func selectRemainingArticle(_ article: PublishedArticle) {
         guard !usedLinks.contains(articleKey(article)) else { return }
         selectedRemainingArticle = article
@@ -121,6 +127,7 @@ final class NextPostStore: ObservableObject {
             let articles = try await service.fetchArticles(forceRefresh: true)
             guard !articles.isEmpty else { throw ArticleServiceError.noArticles }
 
+            allArticles = articles
             totalArticles = articles.count
             knownLinks.formUnion(articles.map(articleKey))
             defaults.set(Array(knownLinks), forKey: Key.knownLinks)

@@ -35,7 +35,7 @@ struct ArticleService {
             }
 
             let manifest = try JSONDecoder().decode(ArticleManifest.self, from: data)
-            let articles = unique(manifest.entries)
+            let articles = newestFirst(unique(manifest.entries))
             if !articles.isEmpty { return articles }
         } catch {
             // Fall back to the public RSS feed if the automation manifest is unavailable.
@@ -66,7 +66,7 @@ struct ArticleService {
             throw parser.parserError ?? ArticleServiceError.invalidResponse
         }
 
-        let articles = unique(delegate.articles)
+        let articles = newestFirst(unique(delegate.articles))
         guard !articles.isEmpty else { throw ArticleServiceError.noArticles }
         return articles
     }
@@ -82,6 +82,14 @@ struct ArticleService {
         items.append(URLQueryItem(name: "nextpost_refresh", value: String(Int(Date().timeIntervalSince1970))))
         components.queryItems = items
         return components.url ?? baseURL
+    }
+
+    private func newestFirst(_ articles: [PublishedArticle]) -> [PublishedArticle] {
+        articles.enumerated().sorted { lhs, rhs in
+            let left = lhs.element.publishedAt ?? ""
+            let right = rhs.element.publishedAt ?? ""
+            return left == right ? lhs.offset < rhs.offset : left > right
+        }.map { $0.element }
     }
 
     private func unique(_ articles: [PublishedArticle]) -> [PublishedArticle] {

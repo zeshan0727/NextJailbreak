@@ -3,8 +3,43 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var store = NextPostStore()
     @State private var showRemainingArticles = false
+    @State private var selectedTab = 0
 
     var body: some View {
+        TabView(selection: $selectedTab) {
+            composerPage
+                .tabItem { Label("Create Post", systemImage: "square.and.pencil") }
+                .tag(0)
+
+            AllArticlesView(store: store) {
+                selectedTab = 0
+            }
+            .tabItem { Label("All Articles", systemImage: "list.number") }
+            .tag(1)
+        }
+        .tint(.blue)
+        .task {
+            await store.refreshStats()
+        }
+        .sheet(isPresented: $showRemainingArticles) {
+            RemainingArticlesSheet(store: store, isPresented: $showRemainingArticles)
+                .preferredColorScheme(.dark)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .alert("Next Post", isPresented: Binding(
+            get: { store.errorMessage != nil },
+            set: { if !$0 { store.errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {
+                store.errorMessage = nil
+            }
+        } message: {
+            Text(store.errorMessage ?? "")
+        }
+    }
+
+    private var composerPage: some View {
         ZStack {
             LinearGradient(
                 colors: [
@@ -33,26 +68,6 @@ struct ContentView: View {
                 .padding(.bottom, 30)
             }
         }
-        .task {
-            await store.refreshStats()
-        }
-        .sheet(isPresented: $showRemainingArticles) {
-            RemainingArticlesSheet(store: store, isPresented: $showRemainingArticles)
-                .preferredColorScheme(.dark)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
-        .alert("Next Post", isPresented: Binding(
-            get: { store.errorMessage != nil },
-            set: { if !$0 { store.errorMessage = nil } }
-        )) {
-            Button("OK", role: .cancel) {
-                store.errorMessage = nil
-            }
-        } message: {
-            Text(store.errorMessage ?? "")
-        }
-    }
 
     private var header: some View {
         HStack(spacing: 14) {

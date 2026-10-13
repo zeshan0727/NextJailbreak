@@ -16,6 +16,22 @@ struct PublishedArticle: Decodable, Identifiable, Hashable {
     let href: String
     let version: String?
     let category: ArticleCategory?
+    let publishedAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case name, title, description, href, version, category
+        case publishedAt = "published_at"
+    }
+
+    init(name: String, title: String, description: String, href: String, version: String?, category: ArticleCategory?, publishedAt: String? = nil) {
+        self.name = name
+        self.title = title
+        self.description = description
+        self.href = href
+        self.version = version
+        self.category = category
+        self.publishedAt = publishedAt
+    }
 
     var id: String { cleanURL.absoluteString }
 

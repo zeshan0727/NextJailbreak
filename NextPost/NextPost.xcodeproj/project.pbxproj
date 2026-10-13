@@ -7,18 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0BB29A295EBB8D0E6140001F /* UnityAdsAdapter in Frameworks */ = {isa = PBXBuildFile; productRef = 22B98D53F8731A89A80950A9 /* UnityAdsAdapter */; };
 		43E3B14DA55A9482ECA6756B /* NextPostApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D50FCC20385789155ACB263 /* NextPostApp.swift */; };
 		4EF3D3FC5CA25FFAB926287A /* ArticleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C54FC8D11AFE05795ADAFA1 /* ArticleService.swift */; };
 		64320E9640DDDB8464AB7167 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28A9998F0F6CFDDEC8E0BF67 /* ContentView.swift */; };
-		6CD3E6F2DFD16EF60FA83B23 /* AdTestDeviceHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76E50962D0554F95B517FE7 /* AdTestDeviceHelper.swift */; };
 		6CE095C5E396ABAAADD3D550 /* NextPostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAA9F0F56EBDEF9E1BA4B585 /* NextPostStore.swift */; };
 		A0956FFDE0F19AC747A694B1 /* PostComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E122E0B75DF982DF22898F00 /* PostComposer.swift */; };
-		A6FEFEDA93765E48316A7472 /* UnityMediationSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 16C635C2E24DFB76D0EE0A62 /* UnityMediationSDK */; };
-		ADB5AA8C2A336C0861DF8642 /* AdsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E56DD426F9162578DB33D132 /* AdsManager.swift */; };
 		C356BD5623C7FFFC0A07819C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E04C96CC3719CD43B17CAE50 /* PrivacyInfo.xcprivacy */; };
 		C9B3F778EF69D4BB3A9C57EA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 114CDF5E3B009B27FB96F238 /* Assets.xcassets */; };
 		D11708F0D2364282572BAD30 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB39ED861AFD0F1FEBB29FB /* Models.swift */; };
+		A11111111111111111111111 /* AllArticlesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22222222222222222222222 /* AllArticlesView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,12 +24,11 @@
 		28A9998F0F6CFDDEC8E0BF67 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5D50FCC20385789155ACB263 /* NextPostApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextPostApp.swift; sourceTree = "<group>"; };
 		6DD7612DC69C7AA1B4A92873 /* NextPost.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NextPost.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A76E50962D0554F95B517FE7 /* AdTestDeviceHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdTestDeviceHelper.swift; sourceTree = "<group>"; };
 		CAA9F0F56EBDEF9E1BA4B585 /* NextPostStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextPostStore.swift; sourceTree = "<group>"; };
 		E04C96CC3719CD43B17CAE50 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E122E0B75DF982DF22898F00 /* PostComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostComposer.swift; sourceTree = "<group>"; };
-		E56DD426F9162578DB33D132 /* AdsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdsManager.swift; sourceTree = "<group>"; };
 		FCB39ED861AFD0F1FEBB29FB /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		A22222222222222222222222 /* AllArticlesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllArticlesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,8 +36,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A6FEFEDA93765E48316A7472 /* UnityMediationSDK in Frameworks */,
-				0BB29A295EBB8D0E6140001F /* UnityAdsAdapter in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -51,10 +45,9 @@
 		9B800BB801FCF80A1BABBA5D /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				E56DD426F9162578DB33D132 /* AdsManager.swift */,
-				A76E50962D0554F95B517FE7 /* AdTestDeviceHelper.swift */,
 				1C54FC8D11AFE05795ADAFA1 /* ArticleService.swift */,
 				28A9998F0F6CFDDEC8E0BF67 /* ContentView.swift */,
+				A22222222222222222222222 /* AllArticlesView.swift */,
 				FCB39ED861AFD0F1FEBB29FB /* Models.swift */,
 				5D50FCC20385789155ACB263 /* NextPostApp.swift */,
 				CAA9F0F56EBDEF9E1BA4B585 /* NextPostStore.swift */,
@@ -98,8 +91,6 @@
 			);
 			name = NextPost;
 			packageProductDependencies = (
-				16C635C2E24DFB76D0EE0A62 /* UnityMediationSDK */,
-				22B98D53F8731A89A80950A9 /* UnityAdsAdapter */,
 			);
 			productName = NextPost;
 			productReference = 6DD7612DC69C7AA1B4A92873 /* NextPost.app */;
@@ -129,8 +120,6 @@
 			mainGroup = 9F61D269A689031A00CFF3D5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				EF6F1E4E57D61F08682138D7 /* XCRemoteSwiftPackageReference "LevelPlay-Swift-Package" */,
-				873C22F18167BAC36334F0CC /* XCRemoteSwiftPackageReference "LevelPlay-UnityAds-Adapter-Swift-Package" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D647209C43174BF40EE95F45 /* Products */;
@@ -159,10 +148,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6CD3E6F2DFD16EF60FA83B23 /* AdTestDeviceHelper.swift in Sources */,
-				ADB5AA8C2A336C0861DF8642 /* AdsManager.swift in Sources */,
 				4EF3D3FC5CA25FFAB926287A /* ArticleService.swift in Sources */,
 				64320E9640DDDB8464AB7167 /* ContentView.swift in Sources */,
+				A11111111111111111111111 /* AllArticlesView.swift in Sources */,
 				D11708F0D2364282572BAD30 /* Models.swift in Sources */,
 				43E3B14DA55A9482ECA6756B /* NextPostApp.swift in Sources */,
 				6CE095C5E396ABAAADD3D550 /* NextPostStore.swift in Sources */,
@@ -208,7 +196,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 15;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -221,7 +209,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0.8;
+				MARKETING_VERSION = 1.0.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = "$(inherited) -ObjC -lz -lsqlite3 -framework JavaScriptCore -framework WebKit -framework AdSupport -framework SystemConfiguration";
@@ -270,7 +258,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 15;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -289,7 +277,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				MARKETING_VERSION = 1.0.8;
+				MARKETING_VERSION = 1.0.15;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -363,37 +351,9 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		873C22F18167BAC36334F0CC /* XCRemoteSwiftPackageReference "LevelPlay-UnityAds-Adapter-Swift-Package" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ironsource-mobile/LevelPlay-UnityAds-Adapter-Swift-Package";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		EF6F1E4E57D61F08682138D7 /* XCRemoteSwiftPackageReference "LevelPlay-Swift-Package" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ironsource-mobile/LevelPlay-Swift-Package";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 
-/* Begin XCSwiftPackageProductDependency section */
-		16C635C2E24DFB76D0EE0A62 /* UnityMediationSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = EF6F1E4E57D61F08682138D7 /* XCRemoteSwiftPackageReference "LevelPlay-Swift-Package" */;
-			productName = UnityMediationSDK;
-		};
-		22B98D53F8731A89A80950A9 /* UnityAdsAdapter */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 873C22F18167BAC36334F0CC /* XCRemoteSwiftPackageReference "LevelPlay-UnityAds-Adapter-Swift-Package" */;
-			productName = UnityAdsAdapter;
-		};
-/* End XCSwiftPackageProductDependency section */
+
+
 	};
 	rootObject = EDA611B0D01D387AC2C55FFF /* Project object */;
 }
