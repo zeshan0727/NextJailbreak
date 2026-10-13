@@ -845,6 +845,19 @@
           "sha256": "109ea6a6a37d7a81443b595b7d1aa382b52aa401c60a57cfd350e84282db163f"
         }
       ]
+    },
+    "com.gokuencinar.bandlock": {
+      "credit_label": "Gokuencinar — official BandLock application icon",
+      "source_page_url": "https://github.com/Gokuencinar/GokuEnREPO/tree/main/tweaks/BandLock/assets",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/Gokuencinar/GokuEnREPO/main/tweaks/BandLock/assets/icon.png",
+        "alt": "Official BandLock app icon with orange wireless arcs and BL lettering",
+        "local_path": "assets/articles/source-media/bandlock-1-5-official-icon.png",
+        "git_blob_sha": "a3b46c1c45fed96d55037f0375a3e3ab7169f869",
+        "sha256": "d66d49343f712456f322a226b63ae7fa4b66ae4373c2dc0087e2ffbc1c8d1ed0"
+      },
+      "screenshots": []
     }
   }
 }
