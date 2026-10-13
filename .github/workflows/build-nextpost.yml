@@ -82,7 +82,7 @@ jobs:
           shasum -a 256 NextPost-1.0.15-No-Ads-All-Articles.tipa > NextPost-1.0.15-No-Ads-All-Articles.sha256
 
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.0.15"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "14"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "15"
           /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$APP_PATH/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist"
           test -f "$APP_PATH/PrivacyInfo.xcprivacy"
