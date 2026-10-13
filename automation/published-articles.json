@@ -1,6 +1,34 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "category": {
+        "id": "development",
+        "label": "Jailbreak Development"
+      },
+      "compat": "arm64e: iOS 15.0–17.3.1; A12/A13: iOS 15.0–18.7.1 and 26.0–26.0.1; arm64: iOS 15.0–18.7.1",
+      "description": "Dopamine 3.0.11 restores iOS 26.0 beta 1 support, fixes boot-logo framebuffer freezes during sbreload, and updates opainject and litehook.",
+      "developer": "opa334",
+      "entry_type": "development-update",
+      "href": "dopamine-3-0-9-jailbreak-removal-fixes/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_credit": "Official Dopamine app icon from the 3.0.11 source tag",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-10-13T01:01:43Z",
+      "name": "Dopamine",
+      "package": "org.coolstar.dopamine",
+      "published_at": "2026-09-22T06:21:04+00:00",
+      "release": "2026-10-12",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.11",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.11",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Dopamine 3.0.11 Restores iOS 26 Beta 1 Support and Fixes Boot-Logo Resprings",
+      "version": "3.0.11"
+    },
+    {
       "category": {
         "id": "development",
         "label": "Jailbreak Development"
@@ -1603,34 +1631,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
       "title": "How to Install IPA Files with TrollStore Safely",
       "version": "2.1.1"
-    },
-    {
-      "additional_media": [],
-      "category": {
-        "id": "jailbreak",
-        "label": "Jailbreak"
-      },
-      "compat": "arm64e: iOS 15.0–17.3.1; A12/A13: iOS 15.0–18.7.1 and 26.0–26.0.1; arm64: iOS 15.0–18.7.1",
-      "description": "Dopamine 3.0.10 fixes Frida-related panics on supported iOS 26 systems and restores an Xcode debugging workflow on iOS 17 and newer.",
-      "developer": "opa334",
-      "entry_type": "development-update",
-      "href": "dopamine-3-0-9-jailbreak-removal-fixes/",
-      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-10-02T21:03:56Z",
-      "name": "Dopamine",
-      "package": "org.coolstar.dopamine",
-      "published_at": "2026-09-22T06:21:04+00:00",
-      "release": "2026-09-23",
-      "selection_pool": "official-project-current-development",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "Dopamine 3.0.10 Adds Frida Hooking API and Fixes Xcode Debugging on iOS 17+",
-      "version": "3.0.10"
     },
     {
       "additional_media": [
