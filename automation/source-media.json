@@ -789,6 +789,34 @@
           "git_blob_sha": "ddca3534e0cfea702ef629bf7e3e29b7130bca0e"
         }
       ]
+    },
+    "comparison.reo-lslyrics-nextup3": {
+      "credit_label": "Mysteryexe and Yves — official Havoc listing screenshots",
+      "source_page_url": "https://havoc.app/package/reo",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6aa96a1ffdc54452af0eefdd",
+        "alt": "Official Reo screenshot showing a colorful customized Lock Screen music player",
+        "local_path": "assets/articles/source-media/reo-vs-lslyrics-vs-nextup3-reo-official.jpg",
+        "git_blob_sha": "6171afe919d7bff625219b2d31ed89f59f2348b7",
+        "sha256": "84426473154b040770a8f5ebd6fe75dfa47a6c1ba6970ac75a2541c2539e2833"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6894e332883fc026adf8b658",
+          "alt": "Official LSLyrics artwork showing synchronized lyrics behind the Lock Screen player",
+          "local_path": "assets/articles/source-media/reo-vs-lslyrics-vs-nextup3-lslyrics-official.webp",
+          "git_blob_sha": "eaa1e7a60b5344b08e339166cb6b40d77a2a46a9",
+          "sha256": "fd4c166545657067642bb1b749b4fc982affe2c4f35fa06e0b4f22e44e2eda64"
+        },
+        {
+          "url": "https://media.havoc.app/6a76e7680cb765625f224503",
+          "alt": "Official NextUp 3 screenshot showing an Up Next row beneath the Lock Screen music controls",
+          "local_path": "assets/articles/source-media/reo-vs-lslyrics-vs-nextup3-nextup3-official.jpg",
+          "git_blob_sha": "dbad4f9151fecc580913cd6442b15b252847e721",
+          "sha256": "8ebf08199a2642de089b83b7c2d04ea18b9a9570b22233e778f122791ce17558"
+        }
+      ]
     }
   }
 }

@@ -1,6 +1,49 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "path": "assets/articles/source-media/reo-vs-lslyrics-vs-nextup3-lslyrics-official.webp",
+          "source_url": "https://media.havoc.app/6894e332883fc026adf8b658",
+          "sha256": "fd4c166545657067642bb1b749b4fc982affe2c4f35fa06e0b4f22e44e2eda64",
+          "credit": "Official LSLyrics screenshot from Havoc"
+        },
+        {
+          "path": "assets/articles/source-media/reo-vs-lslyrics-vs-nextup3-nextup3-official.jpg",
+          "source_url": "https://media.havoc.app/6a76e7680cb765625f224503",
+          "sha256": "8ebf08199a2642de089b83b7c2d04ea18b9a9570b22233e778f122791ce17558",
+          "credit": "Official NextUp 3 screenshot from Havoc"
+        }
+      ],
+      "category": {
+        "id": "comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Reo: iOS 14.0–18.7.9; LSLyrics: iOS 14.0–26.0; NextUp 3: iOS 14.2–26.0.1; jailbreak required; rootless supported",
+      "description": "Compare Reo 4.2.0, LSLyrics 2.0 and NextUp 3 1.2 by purpose, price, iOS range, rootless support, music-app coverage and current release details.",
+      "developer": "Mysteryexe / Yves",
+      "entry_type": "tweak-comparison",
+      "href": "reo-vs-lslyrics-vs-nextup3-lock-screen-music-tweaks/",
+      "image": "assets/articles/source-media/reo-vs-lslyrics-vs-nextup3-reo-official.jpg",
+      "media_credit": "Official Reo, LSLyrics and NextUp 3 screenshots from their Havoc listings",
+      "media_sha256": "84426473154b040770a8f5ebd6fe75dfa47a6c1ba6970ac75a2541c2539e2833",
+      "media_source_url": "https://havoc.app/package/reo",
+      "modified_at": "2026-10-13T08:55:43Z",
+      "name": "Reo vs LSLyrics vs NextUp 3",
+      "package": "comparison.reo-lslyrics-nextup3",
+      "published_at": "2026-10-13T08:55:43Z",
+      "release": "2026-09-16",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "reo-vs-lslyrics-vs-nextup3-lock-screen-music-tweaks",
+      "source_name": "Official Reo, LSLyrics and NextUp 3 Havoc listings",
+      "source_page_url": "https://havoc.app/package/reo",
+      "source_url": "https://havoc.app/package/reo",
+      "source_visual_origin": "official-listing-assets-reused",
+      "source_visual_url": "https://media.havoc.app/6aa96a1ffdc54452af0eefdd",
+      "title": "Reo vs LSLyrics vs NextUp 3: Which Lock Screen Music Tweak Fits You?",
+      "version": "Reo 4.2.0 / LSLyrics 2.0 / NextUp 3 1.2"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "jailbreak-guide",
