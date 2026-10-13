@@ -1,6 +1,6 @@
 name: Build Next Post TIPA
 
-# 1.0.15 retains the fully ad-free app and adds the newest-first All Articles catalogue.
+# 1.0.16 adds verified clean four-line posts while retaining the ad-free All Articles UI.
 on:
   workflow_dispatch:
   pull_request:
@@ -52,6 +52,11 @@ jobs:
             exit 1
           fi
 
+      - name: Verify composer formatting
+        run: |
+          swiftc NextPost/Sources/Models.swift NextPost/Sources/PostComposer.swift NextPost/Tests/PostComposerSmokeTests.swift -o "$RUNNER_TEMP/nextpost-composer-checks"
+          "$RUNNER_TEMP/nextpost-composer-checks"
+
       - name: Generate Xcode project
         run: |
           cd NextPost
@@ -78,11 +83,11 @@ jobs:
           rm -rf Payload
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextPost-1.0.15-No-Ads-All-Articles.tipa
-          shasum -a 256 NextPost-1.0.15-No-Ads-All-Articles.tipa > NextPost-1.0.15-No-Ads-All-Articles.sha256
+          ditto -c -k --sequesterRsrc --keepParent Payload NextPost-1.0.16-Clean-Posts-No-Ads.tipa
+          shasum -a 256 NextPost-1.0.16-Clean-Posts-No-Ads.tipa > NextPost-1.0.16-Clean-Posts-No-Ads.sha256
 
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.0.15"
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "15"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.0.16"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Info.plist")" = "16"
           /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$APP_PATH/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist"
           test -f "$APP_PATH/PrivacyInfo.xcprivacy"
@@ -91,10 +96,10 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextPost-1.0.15-No-Ads-All-Articles
+          name: NextPost-1.0.16-Clean-Posts-No-Ads
           path: |
-            NextPost-1.0.15-No-Ads-All-Articles.tipa
-            NextPost-1.0.15-No-Ads-All-Articles.sha256
+            NextPost-1.0.16-Clean-Posts-No-Ads.tipa
+            NextPost-1.0.16-Clean-Posts-No-Ads.sha256
           if-no-files-found: error
 
       - name: Publish TIPA to repository
@@ -104,8 +109,8 @@ jobs:
           set -euo pipefail
           RELEASE_DIR="$RUNNER_TEMP/nextpost-release"
           mkdir -p "$RELEASE_DIR"
-          cp NextPost-1.0.15-No-Ads-All-Articles.tipa "$RELEASE_DIR/"
-          cp NextPost-1.0.15-No-Ads-All-Articles.sha256 "$RELEASE_DIR/"
+          cp NextPost-1.0.16-Clean-Posts-No-Ads.tipa "$RELEASE_DIR/"
+          cp NextPost-1.0.16-Clean-Posts-No-Ads.sha256 "$RELEASE_DIR/"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -114,11 +119,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             mkdir -p applications
-            cp "$RELEASE_DIR/NextPost-1.0.15-No-Ads-All-Articles.tipa" applications/
-            cp "$RELEASE_DIR/NextPost-1.0.15-No-Ads-All-Articles.sha256" applications/
-            git add applications/NextPost-1.0.15-No-Ads-All-Articles.tipa applications/NextPost-1.0.15-No-Ads-All-Articles.sha256
+            cp "$RELEASE_DIR/NextPost-1.0.16-Clean-Posts-No-Ads.tipa" applications/
+            cp "$RELEASE_DIR/NextPost-1.0.16-Clean-Posts-No-Ads.sha256" applications/
+            git add applications/NextPost-1.0.16-Clean-Posts-No-Ads.tipa applications/NextPost-1.0.16-Clean-Posts-No-Ads.sha256
             if git diff --cached --quiet; then exit 0; fi
-            git commit -m "Publish Next Post 1.0.15 selectable Remaining TIPA"
+            git commit -m "Publish Next Post 1.0.16 clean four-line posts TIPA"
             if git push origin HEAD:main; then exit 0; fi
             sleep $((attempt * 3))
           done

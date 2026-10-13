@@ -83,7 +83,7 @@ struct ContentView: View {
                 Text("Next Post")
                     .font(.system(size: 30, weight: .bold, design: .rounded))
 
-                Text("Original X commentary → Next Jailbreak")
+                Text("Clean article posts → Next Jailbreak")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

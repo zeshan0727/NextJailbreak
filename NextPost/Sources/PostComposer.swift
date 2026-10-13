@@ -1,197 +1,118 @@
 import Foundation
 
+/// Turns published article metadata into a clean four-line X post.
+/// Format: emoji + title, article summary, hashtags, original article URL.
 struct PostComposer {
     static let maximumCharacters = 280
 
     func compose(for article: PublishedArticle, variation: Int = 0) -> String {
-        let link = article.socialShareURL.absoluteString
+        // Never vary an article's wording with generic editorial templates.
+        _ = variation
+
+        let url = article.publishedURL.absoluteString
+        let sourceTitle = clean(article.title)
+        var headline = "\(emoji(for: article)) \(sourceTitle.isEmpty ? clean(article.name) : sourceTitle)"
         var tags = hashtags(for: article)
-        let header = editorialHeader(for: article, variation: variation)
-        let originalCommentary = commentary(for: article, variation: variation)
+        let originalSummary = summary(for: article)
 
-        var footer = footerText(link: link, tags: tags)
-        var available = Self.maximumCharacters - header.count - footer.count - 4
+        // Protect the headline, hashtags, and actual URL; shorten only when
+        // necessary to stay within X's 280-character text limit.
+        func summaryRoom() -> Int {
+            Self.maximumCharacters - headline.count - tags.joined(separator: " ").count - url.count - 3
+        }
 
-        while available < 72 && tags.count > 2 {
+        while tags.count > 1 && summaryRoom() < 45 {
             tags.removeLast()
-            footer = footerText(link: link, tags: tags)
-            available = Self.maximumCharacters - header.count - footer.count - 4
+        }
+        if summaryRoom() < 35 {
+            let budget = max(12, headline.count + summaryRoom() - 45)
+            headline = trim(headline, to: budget)
         }
 
-        let commentary = trim(originalCommentary, to: max(0, available))
-        var result = "\(header)\n\n\(commentary)\n\n\(footer)"
+        let summaryLine = trim(originalSummary, to: max(1, min(160, summaryRoom())))
+        let hashtagLine = tags.joined(separator: " ")
+        return "\(headline)\n\(summaryLine)\n\(hashtagLine)\n\(url)"
+    }
 
-        if result.count > Self.maximumCharacters {
-            let overflow = result.count - Self.maximumCharacters
-            let shortened = trim(commentary, to: max(0, commentary.count - overflow - 1))
-            result = "\(header)\n\n\(shortened)\n\n\(footer)"
+    private func summary(for article: PublishedArticle) -> String {
+        var value = clean(article.description)
+        let genericLeads = [
+            "Quick context:", "Quick context —", "Update context:",
+            "Update context —", "Why this matters:", "What matters:",
+            "What matters here:", "Worth knowing:", "In short:"
+        ]
+        for lead in genericLeads where value.lowercased().hasPrefix(lead.lowercased()) {
+            value = String(value.dropFirst(lead.count))
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            break
         }
 
-        return result
-    }
-
-    private func editorialHeader(for article: PublishedArticle, variation: Int) -> String {
-        let labels = [
-            "🧭 Next Jailbreak take",
-            "🔎 What matters",
-            "⚡ Quick context",
-            "📌 Update context"
-        ]
-        let index = positiveModulo(stableSeed(for: article) + variation, labels.count)
-        return "\(labels[index]) — \(productLabel(for: article))"
-    }
-
-    private func commentary(for article: PublishedArticle, variation: Int) -> String {
-        let factLine = headlineFact(for: article)
-        let templates = [
-            "What matters here: \(factLine). Before updating, check the compatibility and install notes against your exact setup.",
-            "\(factLine). The headline is useful, but the compatibility details are the part to verify before you install.",
-            "Quick context: \(factLine). If this affects your setup, read the compatibility section first rather than updating from the headline alone.",
-            "Why this matters: \(factLine). We broke down the release details and the compatibility points worth checking before you make changes.",
-            "Using \(clean(article.name))? \(factLine). Check the documented requirements for your exact iOS and jailbreak setup before updating."
-        ]
-        let index = positiveModulo(stableSeed(for: article) + variation, templates.count)
-        return templates[index]
-    }
-
-    private func headlineFact(for article: PublishedArticle) -> String {
-        let subject = productLabel(for: article)
-        var title = clean(article.title)
-        let name = clean(article.name)
-        let version = article.version.map(clean) ?? ""
-
-        let removablePrefixes = [
-            version.isEmpty ? "" : "\(name) v\(version)",
-            version.isEmpty ? "" : "\(name) \(version)",
-            name
-        ]
-        .filter { !$0.isEmpty }
-        .sorted { $0.count > $1.count }
-
-        for prefix in removablePrefixes {
-            if title.lowercased().hasPrefix(prefix.lowercased()) {
-                title = String(title.dropFirst(prefix.count))
-                    .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: ":–—-")))
-                break
+        // Keep only the first complete sentence if the source has several.
+        // Dots inside version numbers (e.g. 1.0.7) are not sentence breaks.
+        let characters = Array(value)
+        if characters.count > 50 {
+            for index in 40..<(characters.count - 1) {
+                if ".!?".contains(characters[index]) && characters[index + 1].isWhitespace {
+                    return String(characters[...index])
+                }
             }
         }
-
-        if title.isEmpty {
-            return "\(subject) has a newly documented update"
-        }
-
-        return "\(subject) \(lowercaseFirstCharacter(title))"
+        return value.isEmpty ? clean(article.title) : value
     }
 
-    private func productLabel(for article: PublishedArticle) -> String {
-        let name = clean(article.name)
-        guard let version = article.version.map(clean), !version.isEmpty else {
-            return name
-        }
-
-        let loweredName = name.lowercased()
-        let loweredVersion = version.lowercased()
-        if loweredName.contains(loweredVersion) {
-            return name
-        }
-        return "\(name) \(version)"
-    }
-
-    private func footerText(link: String, tags: [String]) -> String {
-        "🔗 \(link)\n\(tags.joined(separator: " "))"
+    private func emoji(for article: PublishedArticle) -> String {
+        let text = "\(article.title) \(article.category?.label ?? "")".lowercased()
+        if text.contains("ps5") || text.contains("playstation") { return "🎮" }
+        if text.contains("guide") || text.contains("how to") || text.contains("tutorial") { return "📌" }
+        if text.contains("compare") || text.contains("comparison") || text.contains(" vs ") { return "🔍" }
+        if text.contains("release") || text.contains("update") { return "🆕" }
+        if text.contains("tweak") || text.contains("jailbreak") { return "⚡" }
+        return "📰"
     }
 
     private func hashtags(for article: PublishedArticle) -> [String] {
-        let combined = "\(article.title) \(article.description) \(article.category?.label ?? "")".lowercased()
+        let text = "\(article.title) \(article.description) \(article.category?.label ?? "")".lowercased()
         var tags: [String] = []
-
-        if let nameTag = hashtag(article.name), nameTag.count <= 28 {
-            tags.append(nameTag)
+        if let specific = hashtag(article.name), specific.count <= 28 {
+            tags.append(specific)
         }
-
-        if combined.contains("jailbreak") || combined.contains("tweak") || combined.contains("rootless") {
-            tags.append("#Jailbreak")
-        } else {
-            tags.append("#iOS")
-        }
-
-        if combined.contains("ios 27") || combined.contains("ios27") {
-            tags.append("#iOS27")
-        } else if combined.contains("ios 26") || combined.contains("ios26") {
-            tags.append("#iOS26")
-        } else if combined.contains("ios 17") || combined.contains("ios17") {
-            tags.append("#iOS17")
-        } else if combined.contains("ios 16") || combined.contains("ios16") {
-            tags.append("#iOS16")
-        } else {
-            tags.append("#iPhone")
-        }
-
-        if combined.contains("rootless") {
-            tags.append("#Rootless")
-        } else if combined.contains("home screen") {
-            tags.append("#HomeScreen")
-        } else if combined.contains("lock screen") {
-            tags.append("#LockScreen")
-        } else if combined.contains("control center") {
-            tags.append("#ControlCenter")
-        } else if combined.contains("airpods") {
-            tags.append("#AirPods")
-        } else if combined.contains("keyboard") {
-            tags.append("#Keyboard")
-        }
-
-        if !tags.contains("#iPhone") && tags.count < 4 {
-            tags.append("#iPhone")
-        }
+        tags.append(text.contains("jailbreak") || text.contains("tweak") || text.contains("rootless") ? "#Jailbreak" : "#iOS")
+        if text.contains("iphone") { tags.append("#iPhone") }
+        else if text.contains("ios 26") { tags.append("#iOS26") }
+        else if text.contains("ios 17") { tags.append("#iOS17") }
+        else if text.contains("ios 16") { tags.append("#iOS16") }
 
         var seen = Set<String>()
-        return tags.filter { seen.insert($0.lowercased()).inserted }.prefix(4).map { $0 }
+        return Array(tags.filter { seen.insert($0.lowercased()).inserted }.prefix(3))
     }
 
     private func hashtag(_ value: String) -> String? {
-        let result = String(value.filter { $0.isLetter || $0.isNumber })
-        guard result.count >= 2 else { return nil }
-        return "#\(result)"
+        let word = String(value.filter { $0.isLetter || $0.isNumber })
+        return word.count >= 2 ? "#\(word)" : nil
     }
 
-    private func stableSeed(for article: PublishedArticle) -> Int {
-        article.cleanURL.absoluteString.unicodeScalars.reduce(0) { partial, scalar in
-            (partial &* 31) &+ Int(scalar.value)
-        }
+    private func trim(_ text: String, to limit: Int) -> String {
+        guard limit > 0 else { return "" }
+        guard text.count > limit else { return text }
+        guard limit > 1 else { return "…" }
+        let prefix = String(text.prefix(limit - 1))
+        let lastWord = prefix.lastIndex(of: " ").map { String(prefix[..<$0]) } ?? prefix
+        let clipped = (lastWord.count >= limit / 2 ? lastWord : prefix)
+            .trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
+        return clipped + "…"
     }
 
-    private func positiveModulo(_ value: Int, _ divisor: Int) -> Int {
-        guard divisor > 0 else { return 0 }
-        let remainder = value % divisor
-        return remainder >= 0 ? remainder : remainder + divisor
-    }
-
-    private func lowercaseFirstCharacter(_ value: String) -> String {
-        guard let first = value.first else { return value }
-        return first.lowercased() + value.dropFirst()
-    }
-
-    private func trim(_ value: String, to maxLength: Int) -> String {
-        guard maxLength > 0 else { return "" }
-        guard value.count > maxLength else { return value }
-        guard maxLength > 1 else { return "…" }
-
-        var cut = String(value.prefix(maxLength - 1))
-        if let lastSpace = cut.lastIndex(of: " "), cut.distance(from: cut.startIndex, to: lastSpace) > maxLength / 2 {
-            cut = String(cut[..<lastSpace])
-        }
-        cut = cut.trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
-        return cut + "…"
-    }
-
-    private func clean(_ value: String) -> String {
-        value
-            .replacingOccurrences(of: "##?", with: "details")
+    private func clean(_ text: String) -> String {
+        let decoded = text
+            .replacingOccurrences(of: "<[^>]*>", with: " ", options: .regularExpression)
             .replacingOccurrences(of: "&amp;", with: "&")
             .replacingOccurrences(of: "&quot;", with: "\"")
             .replacingOccurrences(of: "&#39;", with: "'")
-            .split(whereSeparator: { $0.isWhitespace })
+            .replacingOccurrences(of: "&apos;", with: "'")
+            .replacingOccurrences(of: "&nbsp;", with: " ")
+            .replacingOccurrences(of: "&lt;", with: "<")
+            .replacingOccurrences(of: "&gt;", with: ">")
+        return decoded.split(whereSeparator: { $0.isWhitespace })
             .joined(separator: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }

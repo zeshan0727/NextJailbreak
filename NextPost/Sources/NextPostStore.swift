@@ -34,6 +34,7 @@ final class NextPostStore: ObservableObject {
         static let generatedCount = "NextPost.generatedCount"
         static let cycleNumber = "NextPost.cycleNumber"
         static let generatedPost = "NextPost.generatedPost"
+        static let composerFormatVersion = "NextPost.composerFormatVersion"
         static let selectedTitle = "NextPost.selectedTitle"
         static let selectedURL = "NextPost.selectedURL"
     }
@@ -45,6 +46,13 @@ final class NextPostStore: ObservableObject {
         generatedCount = defaults.integer(forKey: Key.generatedCount)
         cycleNumber = max(1, defaults.integer(forKey: Key.cycleNumber))
         generatedPost = defaults.string(forKey: Key.generatedPost) ?? ""
+
+        // Clear only the cached pre-1.0.16 noisy text, never used-article history.
+        if defaults.integer(forKey: Key.composerFormatVersion) < 2 {
+            generatedPost = ""
+            defaults.removeObject(forKey: Key.generatedPost)
+            defaults.set(2, forKey: Key.composerFormatVersion)
+        }
 
         if let title = defaults.string(forKey: Key.selectedTitle),
            let url = defaults.string(forKey: Key.selectedURL) {
@@ -197,12 +205,23 @@ final class NextPostStore: ObservableObject {
         }
 
         let shareURL = article.socialShareURL
-        let linkedLine = "🔗 \(shareURL.absoluteString)\n"
-        let textOnly = generatedPost
-            .replacingOccurrences(of: linkedLine, with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let displayedURL = article.publishedURL.absoluteString
+        var textOnly = generatedPost
 
-        openXWebIntent(text: textOnly, url: shareURL)
+        // A preview uses the human-readable direct link. X gets that URL in
+        // its dedicated url parameter to preserve cards without double links.
+        let trailingURL = "\n" + displayedURL
+        if textOnly.hasSuffix(trailingURL) {
+            textOnly.removeLast(trailingURL.count)
+        } else {
+            // Support an older cached post's link format as well.
+            let legacySuffix = "\n🔗 " + shareURL.absoluteString
+            if textOnly.hasSuffix(legacySuffix) {
+                textOnly.removeLast(legacySuffix.count)
+            }
+        }
+
+        openXWebIntent(text: textOnly.trimmingCharacters(in: .whitespacesAndNewlines), url: shareURL)
     }
 
     func openArticle() {
