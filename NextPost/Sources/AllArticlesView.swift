@@ -75,7 +75,17 @@ struct AllArticlesView: View {
                         .padding(25)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else if visibleArticles.isEmpty {
-                        ContentUnavailableView.search(text: searchText)
+                        VStack(spacing: 10) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 34))
+                                .foregroundStyle(.secondary)
+                            Text("No matching articles")
+                                .font(.headline)
+                            Text("Try a different title, version, or category.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         List(visibleArticles) { row in
                             HStack(alignment: .top, spacing: 12) {
