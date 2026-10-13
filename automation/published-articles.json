@@ -1,6 +1,35 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "category": {
+        "id": "jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Package control declares iOS 15.0+ and MobileSubstrate; 2.3-series fixes target iOS 18 and later. Separate rootful iphoneos-arm, rootless iphoneos-arm64 and RootHide iphoneos-arm64e assets; jailbreak availability remains device- and firmware-specific.",
+      "description": "PreferenceLoader fork 2.3.3 keeps tweak preferences on the main Settings screen and fixes AirPods, switch-row and iPad navigation bugs on iOS 18 and later.",
+      "developer": "Yves000 fork; upstream by dhinakg and Dustin Howett",
+      "entry_type": "development-update",
+      "href": "preferenceloader-2-3-3-ios-18-26-settings-fix/",
+      "image": null,
+      "media_credit": null,
+      "media_source_url": null,
+      "modified_at": "2026-10-13T20:56:06Z",
+      "name": "PreferenceLoader fork",
+      "package": "preferenceloader",
+      "published_at": "2026-10-13T20:56:06Z",
+      "release": "2026-08-27",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "preferenceloader-2-3-3-ios-18-26-settings-fix",
+      "source_name": "Official Yves000 PreferenceLoader fork releases and repository",
+      "source_page_url": "https://github.com/Yves000/preferenceloader/releases/tag/2.3.3",
+      "source_url": "https://github.com/Yves000/preferenceloader/releases/tag/2.3.3",
+      "source_visual_origin": "no-official-visual-available",
+      "source_visual_url": null,
+      "title": "PreferenceLoader 2.3.3 Fixes Tweak Settings on iOS 18 and iOS 26",
+      "version": "2.3.3"
+    },
+    {
       "category": {
         "id": "tweak-update",
         "label": "Individual Tweak Update"
@@ -6993,8 +7022,16 @@
       "package": "com.aadios.anxietea",
       "published_at": "2026-10-12T13:29:33Z",
       "version": "1.0.2"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "preferenceloader-2-3-3-ios-18-26-settings-fix/",
+      "package": "preferenceloader",
+      "published_at": "2026-10-13T20:56:06Z",
+      "version": "2.3.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-12T13:29:33Z"
+  "updated_at": "2026-10-13T20:56:06Z"
 }
