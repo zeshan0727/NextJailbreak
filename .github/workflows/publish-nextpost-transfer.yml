@@ -1,14 +1,14 @@
 name: Publish Next Post to Transfer
 
-# 1.0.16 removes all advertising code/SDKs and permanently prevents article repeats.
-# Trigger publication after the verified 1.0.16 build artifact is committed.
-# Verified 1.0.16 build ready.
+# 1.0.17 removes all advertising code/SDKs and permanently prevents article repeats.
+# Trigger publication after the verified 1.0.17 build artifact is committed.
+# Verified 1.0.17 build ready.
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'applications/NextPost-1.0.16-Clean-Posts-No-Ads.tipa'
+      - 'applications/NextPost-1.0.17-Professional-X-Posts.tipa'
       - '.github/workflows/publish-nextpost-transfer.yml'
 
 permissions:
@@ -31,9 +31,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SRC='applications/NextPost-1.0.16-Clean-Posts-No-Ads.tipa'
-          DEST_DIR='transfer/files/NextPost/1.0.16'
-          DEST="$DEST_DIR/NextPost-1.0.16-Clean-Posts-No-Ads.tipa"
+          SRC='applications/NextPost-1.0.17-Professional-X-Posts.tipa'
+          DEST_DIR='transfer/files/NextPost/1.0.17'
+          DEST="$DEST_DIR/NextPost-1.0.17-Professional-X-Posts.tipa"
           INDEX='transfer/index.json'
 
           test -s "$SRC"
@@ -53,19 +53,19 @@ jobs:
           index_path = Path('transfer/index.json')
           data = json.loads(index_path.read_text())
           files = data.get('files', [])
-          entry_id = 'nextpost-1.0.16-no-ads-all-articles'
+          entry_id = 'nextpost-1.0.17-professional-x-posts'
           files = [item for item in files if item.get('id') != entry_id]
           entry = {
               'id': entry_id,
-              'name': 'Next Post 1.0.16 — Clean Posts, No Ads',
-              'fileName': 'NextPost-1.0.16-Clean-Posts-No-Ads.tipa',
+              'name': 'Next Post 1.0.17 — Professional X Posts, No Ads',
+              'fileName': 'NextPost-1.0.17-Professional-X-Posts.tipa',
               'type': 'tipa',
               'platform': 'TrollStore / iOS 16+',
-              'version': '1.0.16 (16)',
-              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.16/NextPost-1.0.16-Clean-Posts-No-Ads.tipa',
+              'version': '1.0.17 (17)',
+              'url': 'https://nextjailbreak.com/transfer/files/NextPost/1.0.17/NextPost-1.0.17-Professional-X-Posts.tipa',
               'sha256': os.environ['SHA256'],
               'sizeBytes': int(os.environ['SIZE']),
-              'notes': 'Clean four-line original article posts with no editorial filler: emoji and article title, short original summary, hashtags, and direct URL. Ad-free, All Articles newest-first tab, X previews and no-repeat history retained.'
+              'notes': 'Professional X posts with emoji titles, readable paragraphs, short article summaries and hashtags, and a separate clean URL link. Retains ad-free All Articles and previous no-repeat history.'
           }
           data['files'] = [entry] + files
           data['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
@@ -73,7 +73,7 @@ jobs:
           PY
 
           python3 -m json.tool "$INDEX" >/dev/null
-          grep -q 'nextpost-1.0.16-no-ads-all-articles' "$INDEX"
+          grep -q 'nextpost-1.0.17-no-ads-all-articles' "$INDEX"
           grep -q "$SHA256" "$INDEX"
           test "$(sha256sum "$DEST" | awk '{print $1}')" = "$SHA256"
 
@@ -83,7 +83,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add transfer/files/NextPost/1.0.16/NextPost-1.0.16-Clean-Posts-No-Ads.tipa transfer/index.json
-          git commit -m 'Publish Next Post 1.0.16 to Transfer' || true
+          git add transfer/files/NextPost/1.0.17/NextPost-1.0.17-Professional-X-Posts.tipa transfer/index.json
+          git commit -m 'Publish Next Post 1.0.17 to Transfer' || true
           git pull --rebase origin main
           git push origin HEAD:main

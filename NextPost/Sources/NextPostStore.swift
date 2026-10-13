@@ -48,10 +48,10 @@ final class NextPostStore: ObservableObject {
         generatedPost = defaults.string(forKey: Key.generatedPost) ?? ""
 
         // Clear only the cached pre-1.0.16 noisy text, never used-article history.
-        if defaults.integer(forKey: Key.composerFormatVersion) < 2 {
+        if defaults.integer(forKey: Key.composerFormatVersion) < 3 {
             generatedPost = ""
             defaults.removeObject(forKey: Key.generatedPost)
-            defaults.set(2, forKey: Key.composerFormatVersion)
+            defaults.set(3, forKey: Key.composerFormatVersion)
         }
 
         if let title = defaults.string(forKey: Key.selectedTitle),
@@ -204,24 +204,14 @@ final class NextPostStore: ObservableObject {
             return
         }
 
-        let shareURL = article.socialShareURL
-        let displayedURL = article.publishedURL.absoluteString
-        var textOnly = generatedPost
-
-        // A preview uses the human-readable direct link. X gets that URL in
-        // its dedicated url parameter to preserve cards without double links.
-        let trailingURL = "\n" + displayedURL
-        if textOnly.hasSuffix(trailingURL) {
-            textOnly.removeLast(trailingURL.count)
-        } else {
-            // Support an older cached post's link format as well.
-            let legacySuffix = "\n🔗 " + shareURL.absoluteString
-            if textOnly.hasSuffix(legacySuffix) {
-                textOnly.removeLast(legacySuffix.count)
-            }
-        }
-
-        openXWebIntent(text: textOnly.trimmingCharacters(in: .whitespacesAndNewlines), url: shareURL)
+        // Use the clean published route (no long UTM tracking query).
+        // Retain the separate X URL parameter for link card previews.
+        let articleURL = article.publishedURL
+        let xText = PostComposer.xIntentText(
+            generatedPost: generatedPost,
+            articleURL: articleURL
+        )
+        openXWebIntent(text: xText, url: articleURL)
     }
 
     func openArticle() {

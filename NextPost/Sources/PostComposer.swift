@@ -6,32 +6,78 @@ struct PostComposer {
     static let maximumCharacters = 280
 
     func compose(for article: PublishedArticle, variation: Int = 0) -> String {
-        // Never vary an article's wording with generic editorial templates.
-        _ = variation
-
+        _ = variation // No editorial filler or random changes.
         let url = article.publishedURL.absoluteString
-        let sourceTitle = clean(article.title)
-        var headline = "\(emoji(for: article)) \(sourceTitle.isEmpty ? clean(article.name) : sourceTitle)"
-        var tags = hashtags(for: article)
-        let originalSummary = summary(for: article)
-
-        // Protect the headline, hashtags, and actual URL; shorten only when
-        // necessary to stay within X's 280-character text limit.
-        func summaryRoom() -> Int {
-            Self.maximumCharacters - headline.count - tags.joined(separator: " ").count - url.count - 3
+        var title = clean(article.title)
+        if title.isEmpty { title = clean(article.name) }
+        let suffix = " on a Jailbroken iPhone"
+        if title.lowercased().hasSuffix(suffix.lowercased()) {
+            title = String(title.dropLast(suffix.count))
         }
+        var heading = "\(emoji(for: article)) \(title)"
+        var tags = hashtags(for: article)
 
-        while tags.count > 1 && summaryRoom() < 45 {
+        // Three blank-line separators plus the link emoji belong in the budget.
+        func summaryRoom() -> Int {
+            Self.maximumCharacters - heading.count - tags.joined(separator: " ").count
+                - "🔗 ".count - url.count - 6
+        }
+        while tags.count > 1 && summaryRoom() < 50 {
             tags.removeLast()
         }
-        if summaryRoom() < 35 {
-            let budget = max(12, headline.count + summaryRoom() - 45)
-            headline = trim(headline, to: budget)
+        if summaryRoom() < 40 {
+            heading = trim(heading, to: max(30, heading.count + summaryRoom() - 40))
         }
 
-        let summaryLine = trim(originalSummary, to: max(1, min(160, summaryRoom())))
-        let hashtagLine = tags.joined(separator: " ")
-        return "\(headline)\n\(summaryLine)\n\(hashtagLine)\n\(url)"
+        let summaryLine = tidySummary(summary(for: article),
+                                      to: max(1, min(130, summaryRoom())))
+        return "\(heading)\n\n\(summaryLine)\n\n\(tags.joined(separator: " "))\n\n🔗 \(url)"
+    }
+
+    /// X appends the separate url parameter after text. Keep a visible link
+    /// marker as its own paragraph, so the URL cannot stick to the hashtags.
+    static func xIntentText(generatedPost: String, articleURL: URL) -> String {
+        let url = articleURL.absoluteString
+        let newSuffix = "\n\n🔗 \(url)"
+        if generatedPost.hasSuffix(newSuffix) {
+            return String(generatedPost.dropLast(url.count + 1))
+        }
+        let oldSuffix = "\n\(url)"
+        if generatedPost.hasSuffix(oldSuffix) {
+            let text = String(generatedPost.dropLast(oldSuffix.count))
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return text + "\n\n🔗"
+        }
+        return generatedPost.trimmingCharacters(in: .whitespacesAndNewlines) + "\n\n🔗"
+    }
+
+    private func tidySummary(_ input: String, to maxLength: Int) -> String {
+        guard maxLength > 0 else { return "" }
+        var summary = input
+        if summary.count > maxLength {
+            let prefix = String(summary.prefix(maxLength))
+            if let lastSpace = prefix.lastIndex(of: " "),
+               prefix.distance(from: prefix.startIndex, to: lastSpace) > maxLength / 2 {
+                summary = String(prefix[..<lastSpace])
+            } else {
+                summary = prefix
+            }
+        }
+
+        summary = summary.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !summary.isEmpty,
+           !summary.hasSuffix("."), !summary.hasSuffix("!"), !summary.hasSuffix("?") {
+            summary = summary.trimmingCharacters(in: .punctuationCharacters)
+            let dangling = ["and", "or", "with", "the", "a", "for", "of", "in", "to", "by"]
+            while let last = summary.split(separator: " ").last,
+                  dangling.contains(last.lowercased()),
+                  let space = summary.lastIndex(of: " ") {
+                summary = String(summary[..<space])
+            }
+            if summary.count >= maxLength { summary = String(summary.prefix(max(1, maxLength - 1))) }
+            summary += "."
+        }
+        return summary
     }
 
     private func summary(for article: PublishedArticle) -> String {
@@ -62,6 +108,7 @@ struct PostComposer {
 
     private func emoji(for article: PublishedArticle) -> String {
         let text = "\(article.title) \(article.category?.label ?? "")".lowercased()
+        if text.contains("trollstore") { return "📲" }
         if text.contains("ps5") || text.contains("playstation") { return "🎮" }
         if text.contains("guide") || text.contains("how to") || text.contains("tutorial") { return "📌" }
         if text.contains("compare") || text.contains("comparison") || text.contains(" vs ") { return "🔍" }
@@ -73,7 +120,11 @@ struct PostComposer {
     private func hashtags(for article: PublishedArticle) -> [String] {
         let text = "\(article.title) \(article.description) \(article.category?.label ?? "")".lowercased()
         var tags: [String] = []
-        if let specific = hashtag(article.name), specific.count <= 28 {
+        if text.contains("trollstore") {
+            tags.append("#TrollStore")
+        } else if text.contains("husk") {
+            tags.append("#Husk")
+        } else if let specific = hashtag(article.name), specific.count <= 22 {
             tags.append(specific)
         }
         tags.append(text.contains("jailbreak") || text.contains("tweak") || text.contains("rootless") ? "#Jailbreak" : "#iOS")

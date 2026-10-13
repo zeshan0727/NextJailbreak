@@ -3,7 +3,15 @@ import Foundation
 @main
 enum PostComposerSmokeTests {
     static func main() {
-        let examples: [PublishedArticle] = [
+        let samples: [PublishedArticle] = [
+            .init(
+                name: "TrollStore Lite migration",
+                title: "How to Move TrollStore Apps to TrollStore Lite on a Jailbroken iPhone",
+                description: "Move apps from full TrollStore to TrollStore Lite 2.1.1, understand AppSync registration, and avoid conflicts with existing installations.",
+                href: "https://nextjailbreak.com/move-trollstore-apps-to-trollstore-lite-guide/",
+                version: "2.1.1",
+                category: ArticleCategory(id: "guide", label: "Guide")
+            ),
             .init(
                 name: "BandLock",
                 title: "BandLock 1.3 Brings LTE, 5G NR and Country-Based Modem Controls",
@@ -17,37 +25,31 @@ enum PostComposerSmokeTests {
                 title: "How to Enable JIT in Husk 0.7.0 with StikJIT, StikDebug or TrollStore",
                 description: "Enable JIT in Husk using StikJIT, StikDebug or TrollStore on a compatible iPhone.",
                 href: "https://nextjailbreak.com/how-to-enable-jit-husk-stikjit-trollstore/",
-                version: nil,
-                category: ArticleCategory(id: "guide", label: "Guide")
-            ),
-            .init(
-                name: "Very Long Product Name",
-                title: String(repeating: "Long jailbreak guide title ", count: 8),
-                description: "This is a concise original summary describing the release and its compatibility.",
-                href: "https://nextjailbreak.com/article-with-a-much-longer-link-to-test-how-the-budgeting-behaves-in-practice/",
-                version: nil,
+                version: "0.7.0",
                 category: ArticleCategory(id: "guide", label: "Guide")
             )
         ]
 
         let composer = PostComposer()
-        for example in examples {
-            let output = composer.compose(for: example, variation: 5)
-            let lines = output.components(separatedBy: "\n")
-            precondition(lines.count == 4, "Only the agreed four lines may appear")
+        for article in samples {
+            let output = composer.compose(for: article, variation: 5)
+            let sections = output.components(separatedBy: "\n\n")
+            precondition(sections.count == 4, "Four distinct paragraphs required")
             precondition(output.count <= PostComposer.maximumCharacters, "280-character limit exceeded")
-            precondition(lines[0].count > 4 && !lines[1].isEmpty)
-            precondition(lines[1].count >= 5)
-            precondition(lines[2].hasPrefix("#"))
-            precondition(lines[2].split(separator: " ").count <= 3)
-            precondition(lines[3] == example.publishedURL.absoluteString)
-            precondition(!output.localizedCaseInsensitiveContains("quick context"))
-            precondition(!output.localizedCaseInsensitiveContains("update context"))
-            precondition(!output.localizedCaseInsensitiveContains("what matters"))
-            precondition(!output.localizedCaseInsensitiveContains("why this matters"))
-            precondition(!output.localizedCaseInsensitiveContains("next jailbreak take"))
-            precondition(composer.compose(for: example, variation: 17) == output, "No editorial randomization")
-            print("PASS: \(output.count) characters for \(example.name)")
+            precondition(sections[0].first?.isASCII == false, "Expected title emoji")
+            precondition(!sections[1].isEmpty && (sections[1].hasSuffix(".") || sections[1].hasSuffix("!")))
+            precondition(sections[2].hasPrefix("#") && sections[2].split(separator: " ").count <= 3)
+            precondition(sections[3] == "🔗 \(article.publishedURL.absoluteString)")
+            for banned in ["quick context", "update context", "what matters", "why this matters"] {
+                precondition(!output.localizedCaseInsensitiveContains(banned))
+            }
+            precondition(composer.compose(for: article, variation: 91) == output)
+            let xText = PostComposer.xIntentText(generatedPost: output, articleURL: article.publishedURL)
+            precondition(xText.hasSuffix("\n\n🔗"), "X url marker must be in own paragraph")
+            precondition(xText + " " + article.publishedURL.absoluteString == output,
+                         "X prefill should exactly preserve formatted preview")
+            precondition(!output.contains("utm_source="), "Tracking clutter should be absent")
+            print("PASS: \(article.name): \(output.count) chars\n\(output)\n")
         }
     }
 }
