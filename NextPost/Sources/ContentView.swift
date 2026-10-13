@@ -68,6 +68,7 @@ struct ContentView: View {
                 .padding(.bottom, 30)
             }
         }
+    }
 
     private var header: some View {
         HStack(spacing: 14) {
