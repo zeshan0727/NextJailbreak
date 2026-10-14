@@ -1,6 +1,34 @@
 {
   "entries": [
     {
+      "additional_media": [
+        "assets/articles/source-media/sileo-2-5-1-official-icon.png"
+      ],
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Irisin 4.6.1 supports conventional rootless and RootHide environments on iOS/iPadOS 15 or later; Sileo 2.5.1 is an APT frontend for compatible jailbreak environments. Package-manager support does not establish jailbreak availability for an exact device and firmware.",
+      "description": "Compare Irisin 4.6.1 and Sileo 2.5.1 by jailbreak environment, iOS range, package handling, repositories, RootHide support, updates and setup.",
+      "developer": "Lakr233 / Sileo Team",
+      "entry_type": "comparison",
+      "href": "irisin-vs-sileo-package-manager-comparison/",
+      "image": "assets/articles/source-media/irisin-4-6-1-official-app-icon.jpg",
+      "media_credit": "Lakr233 — official Irisin 4.6.1 app icon; Sileo Team — official Sileo 2.5.1 app icon",
+      "media_source_url": "https://raw.githubusercontent.com/Lakr233/Irisin/v4.6.1/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
+      "name": "Irisin vs Sileo",
+      "package": "comparison.irisin-sileo",
+      "published_at": "2026-10-14T09:03:43Z",
+      "release": "Irisin 4.6.1 released 2026-10-13; Sileo 2.5.1 released 2024-10-08",
+      "slug": "irisin-vs-sileo-package-manager-comparison",
+      "source_name": "Official Irisin 4.6.1 and Sileo 2.5.1 releases and source documentation",
+      "source_page_url": "https://github.com/Lakr233/Irisin/releases/tag/v4.6.1",
+      "source_url": "https://github.com/Sileo/Sileo/releases/tag/2.5.1",
+      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/Irisin/v4.6.1/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
+      "title": "Irisin vs Sileo: Which Jailbreak Package Manager Should You Use?",
+      "version": "Irisin 4.6.1 / Sileo 2.5.1"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "jailbreak-guide",

@@ -858,6 +858,18 @@
         "sha256": "d66d49343f712456f322a226b63ae7fa4b66ae4373c2dc0087e2ffbc1c8d1ed0"
       },
       "screenshots": []
+    },
+    "github.lakr233.irisin": {
+      "credit_label": "Lakr233 — official Irisin 4.6.1 app icon",
+      "source_page_url": "https://github.com/Lakr233/Irisin/tree/v4.6.1/Irisin/Resources/Assets.xcassets/AppIcon.appiconset",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/Lakr233/Irisin/v4.6.1/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
+        "alt": "Official Irisin 4.6.1 app icon",
+        "local_path": "assets/articles/source-media/irisin-4-6-1-official-app-icon.jpg",
+        "git_blob_sha": "c41d8012a052bdae5f340a372dac6fdbb308a48e"
+      },
+      "screenshots": []
     }
   }
 }
