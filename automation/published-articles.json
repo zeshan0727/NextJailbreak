@@ -1,6 +1,49 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/anxietea-1-0-2-official-ask-banner.png",
+          "media_credit": "Official AnxieTea Ask-mode screenshot from AADiOS’s Havoc listing",
+          "media_sha256": "cbeaeec3a35a80a6b9f4daa05fa24d58ae01df62d94bde4b8d52681211fab90e",
+          "media_source_url": "https://media.havoc.app/6ac7e42152e2be116d311350"
+        },
+        {
+          "image": "assets/articles/source-media/anxietea-1-0-2-official-connections.png",
+          "media_credit": "Official AnxieTea Connections screenshot from AADiOS’s Havoc listing",
+          "media_sha256": "1c1c4ec12384394c5c847f9ac737fb8df9620cb412d70667affedfb102ec33cc",
+          "media_source_url": "https://media.havoc.app/6ac7e42952e2be116d31138c"
+        }
+      ],
+      "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "iOS 15.0–26.0.1 package range; jailbreak required; rootless supported; actual availability depends on device, firmware and jailbreak",
+      "description": "AnxieTea 1.0.3 extends its status-bar traffic meter to notchless iPhones, adds horizontal positioning, an About page, report copying and performance fixes.",
+      "developer": "AADiOS",
+      "entry_type": "individual-update",
+      "href": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/",
+      "image": "assets/articles/source-media/anxietea-1-0-2-official-banner.png",
+      "media_credit": "Official AnxieTea banner from AADiOS’s Havoc listing",
+      "media_sha256": "7d403cf87bc55d784625c5d5f33496adcb6b0127d072e1ca0fc33e42674b0d6c",
+      "media_source_url": "https://media.havoc.app/6ac1f45d0553270455d37d42",
+      "modified_at": "2026-10-14T17:04:22Z",
+      "name": "AnxieTea",
+      "package": "com.aadios.anxietea",
+      "published_at": "2026-10-12T13:29:33Z",
+      "release": "2026-10-13",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak",
+      "source_name": "Official AnxieTea Havoc listing, version history and interface media",
+      "source_page_url": "https://havoc.app/package/anxietea",
+      "source_url": "https://havoc.app/package/anxietea",
+      "source_visual_origin": "official-havoc-banner-and-screenshots",
+      "source_visual_url": "https://media.havoc.app/6ac1f45d0553270455d37d42",
+      "title": "AnxieTea 1.0.3 Adds Notchless iPhone Meter Support and Position Controls",
+      "version": "1.0.3"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "individual-tweak-update",
@@ -387,49 +430,6 @@
       "source_visual_url": "https://media.havoc.app/6ac7ee1652e2be116d314202",
       "title": "LegacyFolder26 1.0.1 Fixes Folder Icon Overlap on Jailbroken iOS 26",
       "version": "1.0.1"
-    },
-    {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/anxietea-1-0-2-official-ask-banner.png",
-          "media_credit": "Official AnxieTea Ask-mode screenshot from AADiOS’s Havoc listing",
-          "media_sha256": "cbeaeec3a35a80a6b9f4daa05fa24d58ae01df62d94bde4b8d52681211fab90e",
-          "media_source_url": "https://media.havoc.app/6ac7e42152e2be116d311350"
-        },
-        {
-          "image": "assets/articles/source-media/anxietea-1-0-2-official-connections.png",
-          "media_credit": "Official AnxieTea Connections screenshot from AADiOS’s Havoc listing",
-          "media_sha256": "1c1c4ec12384394c5c847f9ac737fb8df9620cb412d70667affedfb102ec33cc",
-          "media_source_url": "https://media.havoc.app/6ac7e42952e2be116d31138c"
-        }
-      ],
-      "category": {
-        "id": "tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "iOS 15.0–26.0.1 package range; jailbreak required; rootless supported; actual availability depends on device, firmware and jailbreak",
-      "description": "AnxieTea 1.0.2 monitors live iPhone connections, adds per-app Allow, Ask and Deny rules, blocklists, leak protections, network alerts and a status-bar traffic meter.",
-      "developer": "AADiOS",
-      "entry_type": "individual-update",
-      "href": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/",
-      "image": "assets/articles/source-media/anxietea-1-0-2-official-banner.png",
-      "media_credit": "Official AnxieTea banner from AADiOS’s Havoc listing",
-      "media_sha256": "7d403cf87bc55d784625c5d5f33496adcb6b0127d072e1ca0fc33e42674b0d6c",
-      "media_source_url": "https://media.havoc.app/6ac1f45d0553270455d37d42",
-      "modified_at": "2026-10-12T13:29:33Z",
-      "name": "AnxieTea",
-      "package": "com.aadios.anxietea",
-      "published_at": "2026-10-12T13:29:33Z",
-      "release": "2026-10-10",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak",
-      "source_name": "Official AnxieTea Havoc listing and version history",
-      "source_page_url": "https://havoc.app/package/anxietea",
-      "source_url": "https://havoc.app/package/anxietea",
-      "source_visual_origin": "official-havoc-banner-and-screenshots",
-      "source_visual_url": "https://media.havoc.app/6ac1f45d0553270455d37d42",
-      "title": "AnxieTea 1.0.2 Brings Per-App Firewall Rules and Live Network Monitoring to Jailbroken iPhones",
-      "version": "1.0.2"
     },
     {
       "additional_media": [
@@ -7158,8 +7158,17 @@
       "package": "guide.trollstore.persistence-helper",
       "published_at": "2026-10-14T05:03:10Z",
       "version": "TrollStore 2.1.1"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/",
+      "package": "com.aadios.anxietea",
+      "published_at": "2026-10-14T17:04:22Z",
+      "previous_version": "1.0.2",
+      "version": "1.0.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-14T05:03:10Z"
+  "updated_at": "2026-10-14T17:04:22Z"
 }
