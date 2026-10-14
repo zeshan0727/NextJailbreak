@@ -1,6 +1,19 @@
 {
   "schema_version": 1,
   "packages": {
+    "utmapp.UTM": {
+      "credit_label": "UTM contributors — official UTM interface image from the v5.0.6 source tag",
+      "source_page_url": "https://github.com/utmapp/UTM/blob/v5.0.6/screen.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/utmapp/UTM/v5.0.6/screen.png",
+        "alt": "Official UTM interface showing a Windows virtual machine running on an iPhone",
+        "local_path": "assets/articles/source-media/utm-5-0-6-official-interface.png",
+        "git_blob_sha": "2fddc70e118cd59c16b2d0c25474e458ee620f09",
+        "sha256": "dbbc85820624d1c24a57eb1c20b287d7cf372c871bd6dd540a6a94999da45fd6"
+      },
+      "screenshots": []
+    },
     "org.coolstar.dopamine": {
       "credit_label": "opa334 — official Dopamine 3.0.11 app icon",
       "source_page_url": "https://github.com/opa334/Dopamine/tree/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
