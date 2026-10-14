@@ -6,6 +6,35 @@
         "id": "jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
+      "compat": "Full TrollStore supports iOS/iPadOS 14.0 beta 2–16.6.1, iOS 16.7 RC (20H18), and iOS 17.0. Registration recovery does not expand this firmware range or establish jailbreak availability.",
+      "description": "Fix TrollStore and permasigned apps that stop opening after an icon-cache reload by restoring System registration with the official Persistence Helper.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "fix-trollstore-apps-not-opening-persistence-helper/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_credit": "Official TrollStore app icon from opa334’s 2.1.1 source tag",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "modified_at": "2026-10-14T05:03:10Z",
+      "name": "TrollStore Persistence Helper recovery",
+      "package": "guide.trollstore.persistence-helper",
+      "published_at": "2026-10-14T05:03:10Z",
+      "release": "2026-04-01",
+      "selection_pool": "scheduled-evergreen-guide",
+      "slug": "fix-trollstore-apps-not-opening-persistence-helper",
+      "source_name": "Official TrollStore README and 2.1–2.1.1 releases",
+      "source_page_url": "https://github.com/opa334/TrollStore/blob/main/README.md",
+      "source_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "title": "How to Fix TrollStore Apps Not Opening with the Persistence Helper",
+      "version": "TrollStore 2.1.1"
+    },
+    {
+      "additional_media": [],
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
       "compat": "Sileo 2.5.1 in compatible rootful, conventional rootless and RootHide jailbreak environments. Package availability depends on the active device, firmware, jailbreak, repository and declared architecture.",
       "description": "Fix Sileo unmet dependencies, version conflicts and rootless architecture errors safely—without force-installing incompatible jailbreak packages.",
       "developer": "Next Jailbreak editorial guide; Sileo Team software",
@@ -7067,8 +7096,16 @@
       "package": "guide.sileo.dependencies",
       "published_at": "2026-10-14T00:58:54Z",
       "version": "Sileo 2.5.1"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-guide",
+      "href": "fix-trollstore-apps-not-opening-persistence-helper/",
+      "package": "guide.trollstore.persistence-helper",
+      "published_at": "2026-10-14T05:03:10Z",
+      "version": "TrollStore 2.1.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-14T00:58:54Z"
+  "updated_at": "2026-10-14T05:03:10Z"
 }
