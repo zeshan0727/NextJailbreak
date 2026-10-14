@@ -1,6 +1,32 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "EeveeSpotify 7.0.0 lists iOS/iPadOS 16.1 or later and Spotify 9.1.x; native Liquid Glass requires iOS 26 and an app restart. Jailbroken installs require the architecture-matched DEB, while signed-IPA installs follow the signer’s requirements.",
+      "description": "EeveeSpotify 7.0.0 overhauls the Spotify tweak with native iOS 26 Liquid Glass, custom tabs, word-synced lyrics, remote flags and privacy fixes.",
+      "developer": "SideloadLabs",
+      "entry_type": "individual-update",
+      "href": "eeveespotify-7-liquid-glass-custom-tabs-lyrics/",
+      "image": "assets/articles/source-media/eeveespotify-7-official-interface-banner.png",
+      "media_credit": "SideloadLabs — official EeveeSpotify interface banner from the v7.0.0 source tag",
+      "media_source_url": "https://raw.githubusercontent.com/SideloadLabs/EeveeSpotifyReincarnated/v7.0.0/Images/banner.png",
+      "name": "EeveeSpotifyReincarnated",
+      "package": "com.eeveespotify.eeveespotify",
+      "published_at": "2026-10-14T12:55:56Z",
+      "release": "7.0.0 released 2026-10-05",
+      "slug": "eeveespotify-7-liquid-glass-custom-tabs-lyrics",
+      "source_name": "Official EeveeSpotify 7.0.0 release notes and tagged source",
+      "source_page_url": "https://github.com/SideloadLabs/EeveeSpotifyReincarnated/releases/tag/v7.0.0",
+      "source_url": "https://github.com/SideloadLabs/EeveeSpotifyReincarnated",
+      "source_visual_url": "https://raw.githubusercontent.com/SideloadLabs/EeveeSpotifyReincarnated/v7.0.0/Images/banner.png",
+      "title": "EeveeSpotify 7.0.0 Adds iOS 26 Liquid Glass, Custom Tabs and Word-Synced Lyrics",
+      "version": "7.0.0"
+    },
+    {
       "additional_media": [
         "assets/articles/source-media/sileo-2-5-1-official-icon.png"
       ],

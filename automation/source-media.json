@@ -870,6 +870,18 @@
         "git_blob_sha": "c41d8012a052bdae5f340a372dac6fdbb308a48e"
       },
       "screenshots": []
+    },
+    "com.eeveespotify.eeveespotify": {
+      "credit_label": "SideloadLabs — official EeveeSpotify interface banner from v7.0.0",
+      "source_page_url": "https://github.com/SideloadLabs/EeveeSpotifyReincarnated/blob/v7.0.0/Images/banner.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/SideloadLabs/EeveeSpotifyReincarnated/v7.0.0/Images/banner.png",
+        "alt": "Official EeveeSpotify interface banner showing the Eevee Premium benefits screen",
+        "local_path": "assets/articles/source-media/eeveespotify-7-official-interface-banner.png",
+        "git_blob_sha": "e785d4f8a8276a412a8c93618e954b45d1dd3e82"
+      },
+      "screenshots": []
     }
   }
 }
