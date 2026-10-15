@@ -3,6 +3,35 @@
     {
       "additional_media": [],
       "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Verified against Dopamine 3.0.11. Removal applies only to a device with an existing Dopamine bootstrap; the supported path differs for TrollStore and non-TrollStore app installations.",
+      "description": "Remove the Dopamine 3 jailbreak safely using its official TrollStore or sideloaded-app workflow while keeping regular iPhone apps, files and personal data.",
+      "developer": "opa334",
+      "entry_type": "guide",
+      "href": "remove-dopamine-3-jailbreak-safely-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_credit": "opa334 — official Dopamine 3.0.11 app icon",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "name": "Remove Dopamine 3 Jailbreak Safely",
+      "package": "guide.dopamine.remove-jailbreak",
+      "published_at": "2026-10-15T01:00:01Z",
+      "release": "Guide verified against Dopamine 3.0.11",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "remove-dopamine-3-jailbreak-safely-guide",
+      "source_name": "Official Dopamine 3.0.11 removal controls, routine and warning text",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.11/Application/Dopamine/UI/Settings/DOSettingsController.m",
+      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.11/Application/Dopamine/UI/Settings/DOSettingsController.m",
+      "source_visual_origin": "official-tagged-repository-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Remove Dopamine 3 Jailbreak Safely",
+      "version": "Dopamine 3.0.11"
+    },
+    {
+      "additional_media": [],
+      "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
@@ -7204,8 +7233,16 @@
       "package": "utmapp.UTM",
       "published_at": "2026-10-14T21:02:56Z",
       "version": "5.0.6 beta"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "remove-dopamine-3-jailbreak-safely-guide/",
+      "package": "guide.dopamine.remove-jailbreak",
+      "published_at": "2026-10-15T01:00:01Z",
+      "version": "Dopamine 3.0.11"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-14T21:02:56Z"
+  "updated_at": "2026-10-15T01:00:01Z"
 }
