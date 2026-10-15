@@ -1,6 +1,36 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "No compatibility expansion. Dopamine 3.0.11 official ranges remain arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1.",
+      "description": "Two Dopamine commits fix touch after userspace reboot on some replacement screens and stop three system plists from being redirected into /var/jb.",
+      "developer": "opa334 and contributors",
+      "entry_type": "development-update",
+      "href": "dopamine-main-branch-replacement-screen-rootless-plist-fixes/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_credit": "opa334 — official Dopamine 3.0.11 app icon",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified_at": "2026-10-15T16:56:13Z",
+      "name": "Dopamine development fixes",
+      "package": "org.coolstar.dopamine",
+      "published_at": "2026-10-15T16:56:13Z",
+      "release": "Unreleased 3.x branch commits from 2026-10-14; latest tagged release is 3.0.11",
+      "selection_pool": "fallback-current-jailbreak-development",
+      "slug": "dopamine-main-branch-replacement-screen-rootless-plist-fixes",
+      "source_name": "Official Dopamine GitHub commits and 3.0.11 release",
+      "source_page_url": "https://github.com/opa334/Dopamine/commit/9ba02094107373001da3327e5730e79975d79cff",
+      "source_url": "https://github.com/opa334/Dopamine/commit/995c7009603f56fbbfcde8be615f9f18f967bc9d",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Dopamine Main Branch Fixes Replacement-Screen Touch and Rootless Plists",
+      "version": "3.x development branch after 3.0.11"
+    },
+    {
       "article_sha256": "29d7d2d3ac5b456a0149cab5fc2f019c489dcf7b6e2ad6b974ef7336961a617b",
       "candidate_fingerprint": "b42b027f8a9ec453aa94c1efeeda1d61ac3ff8baa2e8e02a343aa087aa94f94d",
       "category": {
