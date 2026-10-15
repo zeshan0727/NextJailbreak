@@ -1,6 +1,39 @@
 {
   "entries": [
     {
+      "article_sha256": "29d7d2d3ac5b456a0149cab5fc2f019c489dcf7b6e2ad6b974ef7336961a617b",
+      "candidate_fingerprint": "b42b027f8a9ec453aa94c1efeeda1d61ac3ff8baa2e8e02a343aa087aa94f94d",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "description": "Bloom 1.4.1 fixes loading failures mainly on iOS 18, assigns Dynamic Island animations to iPhone 16 models, and repairs LastLook integration.",
+      "href": "bloom-tweak.html",
+      "image": "assets/articles/source-media/bloom-1-4-1-official-banner.jpg",
+      "media_credit": "yandevelop — official Bloom Havoc banner and notification showcase",
+      "media_source_url": "https://media.havoc.app/66146485f290ffddc2a30df8",
+      "modified_at": "2026-10-15T13:01:14Z",
+      "name": "Bloom 1.4.1",
+      "package": "com.yan.bloom",
+      "published_at": "2026-08-30T14:42:46+00:00",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Havoc Bloom 1.4.1 product data, description, screenshots and changelog",
+      "source_page_url": "https://havoc.app/package/bloom",
+      "source_url": "https://havoc.app/package/bloom/changes",
+      "title": "Bloom 1.4.1 Fixes iOS 18 Loading and iPhone 16 Dynamic Island Animations",
+      "version": "1.4.1",
+      "additional_media": [
+        "assets/articles/source-media/bloom-1-4-1-official-notification-showcase.jpg"
+      ],
+      "compat": "Bloom 1.4.1 is marked rootless-compatible. Havoc's structured field lists iOS 14.0–17.7.11, while the developer description says iOS 14 or newer and the 1.4/1.4.1 changelogs explicitly address iOS 18; a compatible rootful or rootless jailbreak is still required.",
+      "developer": "yandevelop",
+      "entry_type": "update",
+      "media_sha256": "e25f191078cb7792d2d74d9d52719be950fcd7e5ed59ac23139850c5bf335538",
+      "release": "Bloom 1.4.1 released 2026-10-09",
+      "source_visual_origin": "official-havoc-banner-and-screenshot",
+      "source_visual_url": "https://media.havoc.app/66146485f290ffddc2a30df8"
+    },
+    {
       "additional_media": [
         "assets/articles/source-media/atria-1-4-1-official-layout-showcase.jpg"
       ],
@@ -3768,29 +3801,6 @@
       "source_url": "https://havoc.app/",
       "title": "Prism 1.2.0-2: Capture, Annotate, and Pin On-Screen Content",
       "version": "1.2.0-2"
-    },
-    {
-      "article_sha256": "29d7d2d3ac5b456a0149cab5fc2f019c489dcf7b6e2ad6b974ef7336961a617b",
-      "candidate_fingerprint": "b42b027f8a9ec453aa94c1efeeda1d61ac3ff8baa2e8e02a343aa087aa94f94d",
-      "category": {
-        "id": "notifications",
-        "label": "Notifications"
-      },
-      "description": "Bloom 1.4 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
-      "href": "bloom-tweak.html",
-      "image": "https://media.havoc.app/66146485f290ffddc2a30df8",
-      "media_credit": "Bloom official package listing",
-      "media_source_url": "https://havoc.app/package/bloom",
-      "modified_at": "2026-08-30T14:42:46+00:00",
-      "name": "Bloom",
-      "package": "com.yan.bloom",
-      "published_at": "2026-08-30T14:42:46+00:00",
-      "selection_pool": "pending",
-      "source_name": "Havoc",
-      "source_page_url": "https://havoc.app/package/bloom",
-      "source_url": "https://havoc.app/",
-      "title": "Bloom 1.4: Animated Notifications Package Overview",
-      "version": "1.4"
     },
     {
       "article_sha256": "5d23a23cdaccb0d7d8e32a2ad5f6c9b7c9fa87ce255b93d52095cdd6fb830c7d",
