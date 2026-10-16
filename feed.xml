@@ -5,6 +5,7 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
+    <item><title>vphone-cli 2.9.5 Adds Apple TV Guests and tvOS 27 Research Support</title><link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link><guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid><pubDate>Fri, 16 Oct 2026 21:00:04 GMT</pubDate><description>vphone-cli 2.9.5 adds Apple TV HD and experimental Apple TV 4K guests, tvOS 27 support, a Unity GPU fix and more reliable virtual-device setup.</description><category>Current Jailbreak Development</category></item>
     <item><title>Battman 1.1.0 Adds Battery Analytics and Native Plug-ins</title><link>https://nextjailbreak.com/battman-1-1-0-battery-analytics-plugins-update/</link><guid isPermaLink="true">https://nextjailbreak.com/battman-1-1-0-battery-analytics-plugins-update/</guid><pubDate>Fri, 16 Oct 2026 17:03:39 GMT</pubDate><description>Battman 1.1.0 adds configurable battery analytics, native plug-ins, powerlog export and charging fixes for supported jailbroken or TrollStore-enabled iPhones.</description><category>Individual App Update</category></item>
     <item><title>TransLux 1.6 Adds Live Translation Inside iOS Apps</title><link>https://nextjailbreak.com/translux-1-6-live-app-translation-update/</link><guid isPermaLink="true">https://nextjailbreak.com/translux-1-6-live-app-translation-update/</guid><pubDate>Fri, 16 Oct 2026 13:00:49 GMT</pubDate><description>TransLux 1.6 adds on-the-fly translation in App Store, Telegram, Discord, X, Sileo and Saily on compatible rootless jailbreaks running iOS 15–26.</description><category>Individual Tweak Update</category></item>
     <item><title>CarBridge vs CarCast: Which CarPlay Tweak Fits Your Jailbreak?</title><link>https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</guid><pubDate>Fri, 16 Oct 2026 09:00:31 GMT</pubDate><description>Compare CarBridge 2.0.15 and CarCast 1.2 by supported iOS versions, jailbreak requirements, Airaw dependency, price, features and CarPlay limitations.</description></item>
@@ -83,14 +84,7 @@
       <description>Use Sileo’s built-in version selector to roll back a problematic tweak while protecting dependencies and jailbreak-environment compatibility.</description>
       <category>Evergreen Jailbreak Guide</category>
     </item>
-    <item>
-      <title>vphone-cli 2.9.2 Adds Space-Saving VM Templates and Safer Imports</title>
-      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
-      <pubDate>Sat, 10 Oct 2026 00:58:26 GMT</pubDate>
-      <description>vphone-cli 2.9.2 completes the 2.9 series with compact VM templates, motion simulation, lower idle wakeups and safer queued imports.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
+    
     <item>
       <title>How to Back Up Sileo Sources and Installed Tweaks Before a Jailbreak Update</title>
       <link>https://nextjailbreak.com/backup-sileo-sources-installed-tweaks-before-jailbreak-update/</link>
