@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "additional_media": [
+        "assets/articles/source-media/roothide-bootstrap-official-icon.png"
+      ],
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Restart behavior verified against Dopamine 3.x and RootHide Bootstrap source. Device and firmware support still follows each project's official compatibility ranges.",
+      "description": "Learn when to respring, perform a userspace reboot or fully restart a jailbroken iPhone, and what each action does to tweaks and the jailbreak state.",
+      "developer": "opa334 and RootHide team",
+      "entry_type": "guide",
+      "href": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_credit": "opa334 — official Dopamine 3.0.11 app icon; RootHide team — official Bootstrap 2.2.1 app icon referenced in the comparison",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified_at": "2026-10-16T00:58:53Z",
+      "name": "Respring vs Userspace Reboot vs Full Reboot",
+      "package": "guide.jailbreak.restart-types",
+      "published_at": "2026-10-16T00:58:53Z",
+      "release": "Evergreen guide verified against current Dopamine 3.x and RootHide Bootstrap source",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide",
+      "source_name": "Official Dopamine 3.x and RootHide Bootstrap source",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.x/BaseBin/jbctl/src/main.m",
+      "source_url": "https://github.com/opa334/Dopamine",
+      "source_visual_origin": "official-tagged-repository-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Respring vs Userspace Reboot vs Full Reboot on a Jailbroken iPhone",
+      "version": "Dopamine 3.x / RootHide Bootstrap 2.2.1"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "current-jailbreak-development",
@@ -7373,5 +7405,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-15T01:00:01Z"
+  "updated_at": "2026-10-16T00:58:53Z"
 }
