@@ -1,6 +1,42 @@
 {
   "entries": [
     {
+      "article_sha256": "65ef9aac88d31353a570072d3dc72fa913bf83fc9df6251eebe46d76b18ce265",
+      "candidate_fingerprint": "65ef9aac88d31353a570072d3dc72fa913bf83fc9df6251eebe46d76b18ce265",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual App Update"
+      },
+      "description": "Battman 1.1.0 adds configurable battery analytics, native plug-ins, powerlog export and charging fixes for supported jailbroken or TrollStore-enabled iPhones.",
+      "href": "battman-1-1-0-battery-analytics-plugins-update/",
+      "image": "assets/articles/source-media/battman-1-1-0-official-main-screen.png",
+      "media_credit": "Torrekie — official Battman 1.1.0 dashboard and charging-limit screenshots from the tagged repository",
+      "media_source_url": "https://github.com/Torrekie/Battman/tree/v1.1.0/Screenshots",
+      "modified_at": "2026-10-16T17:03:39Z",
+      "name": "Battman 1.1.0",
+      "package": "com.torrekie.battman",
+      "published_at": "2026-10-16T17:03:39Z",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Battman v1.1.0 release, tagged README and repository screenshots",
+      "source_page_url": "https://github.com/Torrekie/Battman/releases/tag/v1.1.0",
+      "source_url": "https://github.com/Torrekie/Battman",
+      "title": "Battman 1.1.0 Adds Battery Analytics and Native Plug-ins",
+      "version": "1.1.0",
+      "additional_media": [
+        "assets/articles/source-media/battman-1-1-0-official-charging-limit.png"
+      ],
+      "compat": "Battman's tagged README lists iOS 12+ and A11+ as the baseline, with rootful iphoneos-arm builds typically for iOS 12–14, rootless iphoneos-arm64 builds typically for iOS 15+, and a TrollStore TIPA. iOS 17+ is marked untested and RootHide is not considered; package compatibility does not establish jailbreak availability for every device or firmware.",
+      "developer": "Torrekie",
+      "entry_type": "update",
+      "media_sha256": "873bc226b9a1231c3fb41d7828c9568b9dfbcda45be149b4b9c7e7226c8350d4",
+      "additional_media_sha256": [
+        "3cd5e7d6f372f6da48eb762ab95a7690ed25f760f8e735125990a3c4df1800df"
+      ],
+      "release": "Battman 1.1.0 released 2026-10-14",
+      "source_visual_origin": "official-tagged-repository-screenshots",
+      "source_visual_url": "https://github.com/Torrekie/Battman/blob/v1.1.0/Screenshots/Main.png"
+    },
+    {
       "article_sha256": "ce3d6079fbad5edb6e84b05bb752fe36146b4a53dbec01d8e0a7e69893e5426f",
       "candidate_fingerprint": "32e05c54eb51f0384564f453e94d16203e024a31f5c69f41d666cd2ec73e42f4",
       "category": {
@@ -7526,8 +7562,17 @@
       "published_at": "2026-10-16T13:00:49Z",
       "run_id": "scheduled-2026-10-16T13:00:49Z",
       "version": "1.6"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "65ef9aac88d31353a570072d3dc72fa913bf83fc9df6251eebe46d76b18ce265",
+      "href": "battman-1-1-0-battery-analytics-plugins-update/",
+      "package": "com.torrekie.battman",
+      "published_at": "2026-10-16T17:03:39Z",
+      "run_id": "scheduled-2026-10-16T17:03:39Z",
+      "version": "1.1.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-16T13:00:49Z"
+  "updated_at": "2026-10-16T17:03:39Z"
 }
