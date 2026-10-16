@@ -1,6 +1,44 @@
 {
   "entries": [
     {
+      "article_sha256": "ce3d6079fbad5edb6e84b05bb752fe36146b4a53dbec01d8e0a7e69893e5426f",
+      "candidate_fingerprint": "32e05c54eb51f0384564f453e94d16203e024a31f5c69f41d666cd2ec73e42f4",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "description": "TransLux 1.6 adds on-the-fly translation in App Store, Telegram, Discord, X, Sileo and Saily on compatible rootless jailbreaks running iOS 15–26.",
+      "href": "translux-1-6-live-app-translation-update/",
+      "image": "assets/articles/source-media/translux-1-6-official-selected-text.png",
+      "media_credit": "AnubisTweaks/Havoc — official TransLux selected-text, engine panel and settings screenshots",
+      "media_source_url": "https://media.havoc.app/696da600b6eddb6483b3c87f",
+      "modified_at": "2026-10-16T13:00:49Z",
+      "name": "TransLux 1.6",
+      "package": "eg.anubistweaks.translux",
+      "published_at": "2026-10-16T13:00:49Z",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Havoc TransLux 1.6 product data, screenshots and version history; AnubisTweaks release announcement",
+      "source_page_url": "https://havoc.app/package/translux",
+      "source_url": "https://x.com/AnubisTweaks",
+      "title": "TransLux 1.6 Adds Live Translation Inside iOS Apps",
+      "version": "1.6",
+      "additional_media": [
+        "assets/articles/source-media/translux-1-6-official-engine-panel.png",
+        "assets/articles/source-media/translux-1-6-official-settings.png"
+      ],
+      "compat": "Havoc lists iOS 15.0–26.0.1, jailbreak required and rootless support; the developer also identifies RootHide compatibility. Package compatibility does not establish jailbreak availability for every device or firmware.",
+      "developer": "AnubisTweaks",
+      "entry_type": "update",
+      "media_sha256": "a158b4f62dc63350f31d6f74f3f3f4b638480e9f19d189f288c476545d4edd05",
+      "additional_media_sha256": [
+        "51cb6f83dea13b3cb6bc331bc4b3d3c31149de93e034d4c646f7831c9646c454",
+        "614e631de01eb8e406c99342a57b51d344e851b291f603688f187bca55002544"
+      ],
+      "release": "TransLux 1.6 released 2026-10-14",
+      "source_visual_origin": "official-havoc-screenshots",
+      "source_visual_url": "https://media.havoc.app/696da600b6eddb6483b3c87f"
+    },
+    {
       "additional_media": [
         "assets/articles/source-media/carcast-1-2-official-settings.jpg"
       ],
@@ -7479,8 +7517,17 @@
       "package": "comparison.carbridge-carcast",
       "published_at": "2026-10-16T09:00:31Z",
       "version": "CarBridge 2.0.15 / CarCast 1.2"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "32e05c54eb51f0384564f453e94d16203e024a31f5c69f41d666cd2ec73e42f4",
+      "href": "translux-1-6-live-app-translation-update/",
+      "package": "eg.anubistweaks.translux",
+      "published_at": "2026-10-16T13:00:49Z",
+      "run_id": "scheduled-2026-10-16T13:00:49Z",
+      "version": "1.6"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-16T09:00:31Z"
+  "updated_at": "2026-10-16T13:00:49Z"
 }
