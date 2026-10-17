@@ -1,6 +1,39 @@
 {
   "entries": [
     {
+      "additional_media": [
+        "assets/articles/source-media/bloom-1-4-1-official-banner.jpg",
+        "assets/articles/source-media/velvet-2-official-notification-example.jpg"
+      ],
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Bloom 1.4.1: iPhone on iOS 14 or newer per developer description, rootful or rootless; Havoc metadata lists 14.0–17.7.11 while official 1.4/1.4.1 changelogs document iOS 18. Velvet 2 2.1.2-3: iPhone, iPad and iPod touch on iOS 15.0–16.3, jailbreak required; rootless support added in 2.0.2/2.1.0. Jailbreak availability still depends on device and exact firmware.",
+      "description": "Compare Bloom 1.4.1 and Velvet 2 2.1.2-3 by purpose, iOS compatibility, jailbreak environment, price, customization depth and current support.",
+      "developer": "yandevelop; NoisyFlake",
+      "entry_type": "comparison",
+      "href": "bloom-vs-velvet-2-notification-tweak-comparison/",
+      "image": "assets/articles/source-media/velvet-2-official-banner.jpg",
+      "media_credit": "NoisyFlake/Chariz — official Velvet 2 notification-style banner and screenshot; yandevelop/Havoc — official Bloom notification-animation banner",
+      "media_sha256": "a7dfaa8985431b99bb7bb1a7c46dfaaeb4ed0e955f42eb96dcc11a21afc1f9ed",
+      "media_source_url": "https://cdn.chariz.cloud/asset/velvet-2/pTGVgBLBjgWEKGH-xqJmKYtHuSF6T1JQ/assets/b_HbJT3NsF9oW47yt90Njo9t9PIZdxsWic9UiTK0rGqtigAiZkhDZk-2pqC42udMwQ-HCuvcbuSACb9WsM99iw.jpg",
+      "modified_at": "2026-10-17T08:56:05Z",
+      "name": "Bloom vs Velvet 2",
+      "package": "comparison.bloom-velvet2",
+      "published_at": "2026-10-17T08:56:05Z",
+      "release": "Bloom 1.4.1 (2026-10-09) / Velvet 2 2.1.2-3 (2024-01-13)",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "bloom-vs-velvet-2-notification-tweak-comparison",
+      "source_name": "Official Havoc Bloom and Chariz Velvet 2 product pages, descriptions, media and version histories",
+      "source_page_url": "https://havoc.app/package/bloom",
+      "source_url": "https://chariz.com/get/velvet-2",
+      "source_visual_origin": "official-marketplace-artwork-and-screenshots",
+      "source_visual_url": "https://cdn.chariz.cloud/asset/velvet-2/pTGVgBLBjgWEKGH-xqJmKYtHuSF6T1JQ/assets/b_HbJT3NsF9oW47yt90Njo9t9PIZdxsWic9UiTK0rGqtigAiZkhDZk-2pqC42udMwQ-HCuvcbuSACb9WsM99iw.jpg",
+      "title": "Bloom vs Velvet 2: Animation or Full Notification Styling?",
+      "version": "Bloom 1.4.1 / Velvet 2 2.1.2-3"
+    },
+    {
       "article_sha256": "695388e86b73b964db972aa9621fcee7ab600d4b0432906b776a45bd5845378f",
       "candidate_fingerprint": "695388e86b73b964db972aa9621fcee7ab600d4b0432906b776a45bd5845378f",
       "category": {
@@ -7665,8 +7698,16 @@
       "published_at": "2026-10-17T04:55:13Z",
       "run_id": "scheduled-2026-10-17T04:55:13Z",
       "version": "2.5.1"
+    },
+    {
+      "action": "create",
+      "href": "bloom-vs-velvet-2-notification-tweak-comparison/",
+      "package": "comparison.bloom-velvet2",
+      "published_at": "2026-10-17T08:56:05Z",
+      "run_id": "scheduled-2026-10-17T08:56:05Z",
+      "version": "Bloom 1.4.1 / Velvet 2 2.1.2-3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-17T04:55:13Z"
+  "updated_at": "2026-10-17T08:56:05Z"
 }
