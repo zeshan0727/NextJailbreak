@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-njapps",
+      "name": "Zee App Library",
+      "version": "1.0.2",
+      "build": "3",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.njapps",
+      "icon": "/install/icons/com-nextsolution-njapps-195ccef7df0a.png",
+      "manifest": "/install/com-nextsolution-njapps.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/1.0.2/com-nextsolution-njapps-1.0.2-3.ipa",
+      "sha256": "195ccef7df0ac7807004095c37898e52711c3ea5c246f70966b556b78eafe521",
+      "sizeBytes": 1679160,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-watusi",
       "name": "Whatsapp",
       "version": "26.30.78",
@@ -15,27 +36,6 @@
       "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-watusi/26.30.78/com-nextsolution-watusi-26.30.78-1032792803.ipa",
       "sha256": "48c4a31c3d4d920ed75d3d04e68e6b452a9f5cdf6abbcb0409dd057b688f867c",
       "sizeBytes": 151430356,
-      "storage": "Cloudflare R2",
-      "duplicateSigned": false,
-      "tweakCount": 0,
-      "customIcon": false,
-      "signedByNextSigner": false
-    },
-    {
-      "id": "com-nextsolution-njapps",
-      "name": "Zee App Library",
-      "version": "1.0.2",
-      "build": "3",
-      "platform": "iPhone",
-      "minimumOS": "iOS 16.0+",
-      "bundleId": "com.nextsolution.njapps",
-      "icon": "/install/icons/com-nextsolution-njapps-2e34ad2f9b33.png",
-      "manifest": "/install/com-nextsolution-njapps.plist",
-      "available": true,
-      "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/1.0.2/com-nextsolution-njapps-1.0.2-3.ipa",
-      "sha256": "2e34ad2f9b3335252cc2172d7fca007e24420004a580fa1423d8066143767283",
-      "sizeBytes": 1679131,
       "storage": "Cloudflare R2",
       "duplicateSigned": false,
       "tweakCount": 0,
@@ -304,5 +304,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-10-11"
+  "updated": "2026-10-17"
 }
