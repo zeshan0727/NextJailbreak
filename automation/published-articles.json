@@ -2,6 +2,43 @@
   "entries": [
     {
       "additional_media": [
+        "assets/articles/source-media/horythia-1-0-0-official-app-list.png",
+        "assets/articles/source-media/horythia-1-0-0-official-per-app-settings.png"
+      ],
+      "additional_media_sha256": [
+        "f05402722187ebdd3d299490649e57e1b5375f226ca1b67dc82997286a72cdbc",
+        "60d7fdc979dd2edbb9a8bca779d554fb9429e97619ab19b45755a8e2775caf3a"
+      ],
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 15.0–26.0.1 and rootless support. The developer also describes rootful and a separately supplied RootHide build, with tests on Dopamine, Dopamine RootHide and palera1n across selected iOS/iPadOS versions. Package compatibility does not establish jailbreak availability for every device or firmware.",
+      "description": "Horythia 1.0.0 switches Wi-Fi, cellular, brightness, volume, DND, VPN and app-scoped location settings automatically on supported jailbreaks.",
+      "developer": "ichitaso",
+      "entry_type": "release",
+      "href": "horythia-1-0-0-per-app-system-settings-automation/",
+      "image": "assets/articles/source-media/horythia-1-0-0-official-banner.jpg",
+      "media_credit": "ichitaso/Havoc — official Horythia 1.0.0 banner, configured-app list and per-app settings screenshots",
+      "media_sha256": "8fb399d5f3600fb789f2d29fdaa116c915d0dac03fee690746fa733859476c3c",
+      "media_source_url": "https://media.havoc.app/6acf6580369d1108a55ce3cc",
+      "modified_at": "2026-10-17T13:02:46Z",
+      "name": "Horythia 1.0.0",
+      "package": "com.ichitaso.horythia",
+      "published_at": "2026-10-17T13:02:46Z",
+      "release": "Horythia 1.0.0 released 2026-10-17",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "horythia-1-0-0-per-app-system-settings-automation",
+      "source_name": "Official Horythia Havoc product data, description, screenshots and ichitaso developer documentation",
+      "source_page_url": "https://havoc.app/package/horythia",
+      "source_url": "https://ichitaso.com/jailbreak/horythia-ios-tweak/",
+      "source_visual_origin": "official-havoc-banner-and-screenshots",
+      "source_visual_url": "https://media.havoc.app/6acf6580369d1108a55ce3cc",
+      "title": "Horythia 1.0.0 Automates System Settings Per App on iOS 15–26",
+      "version": "1.0.0"
+    },
+    {
+      "additional_media": [
         "assets/articles/source-media/bloom-1-4-1-official-banner.jpg",
         "assets/articles/source-media/velvet-2-official-notification-example.jpg"
       ],
@@ -7706,8 +7743,16 @@
       "published_at": "2026-10-17T08:56:05Z",
       "run_id": "scheduled-2026-10-17T08:56:05Z",
       "version": "Bloom 1.4.1 / Velvet 2 2.1.2-3"
+    },
+    {
+      "action": "create",
+      "href": "horythia-1-0-0-per-app-system-settings-automation/",
+      "package": "com.ichitaso.horythia",
+      "published_at": "2026-10-17T13:02:46Z",
+      "run_id": "scheduled-2026-10-17T13:02:46Z",
+      "version": "1.0.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-17T08:56:05Z"
+  "updated_at": "2026-10-17T13:02:46Z"
 }
