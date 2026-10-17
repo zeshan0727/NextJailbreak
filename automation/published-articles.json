@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "article_sha256": "695388e86b73b964db972aa9621fcee7ab600d4b0432906b776a45bd5845378f",
+      "candidate_fingerprint": "695388e86b73b964db972aa9621fcee7ab600d4b0432906b776a45bd5845378f",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "description": "Install a repository-hosted jailbreak tweak with Sileo 2.5.1, verify its source and compatibility, review dependencies, and choose the correct restart action.",
+      "href": "install-jailbreak-tweak-sileo-guide/",
+      "image": "assets/articles/source-media/sileo-2-5-1-official-icon.png",
+      "media_credit": "Sileo Team — official Sileo app icon from the 2.5.1 tagged source",
+      "media_source_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "modified_at": "2026-10-17T04:55:13Z",
+      "name": "Sileo 2.5.1 safe tweak installation guide",
+      "package": "guide.sileo.install-tweak-safely",
+      "published_at": "2026-10-17T04:55:13Z",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Official Sileo 2.5.1 release, package queue, downloads controller and download-manager source",
+      "source_page_url": "https://github.com/Sileo/Sileo/releases/tag/2.5.1",
+      "source_url": "https://github.com/Sileo/Sileo",
+      "title": "How to Install a Jailbreak Tweak Safely with Sileo",
+      "version": "2.5.1",
+      "additional_media": [],
+      "compat": "Requires a working jailbreak environment with Sileo. The tweak must separately support the exact device, iOS version, jailbreak and rootful/rootless/RootHide package environment; an iOS compatibility label alone does not establish jailbreak availability.",
+      "developer": "Sileo Team",
+      "entry_type": "guide",
+      "media_sha256": "fe6ee8587edf29f5a0992385d5dcf6272dab1ce948838dd8ddba2c84cba5094d",
+      "media_git_blob_sha": "36cd9e65a3366498097ba3e53d929a1ba947c669",
+      "release": "Sileo 2.5.1 released 2024-10-08",
+      "source_visual_origin": "official-tagged-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png"
+    },
+    {
       "article_sha256": "26e6fa74800253222ac93cb0e002964b94ca6e6b81499ea8cf11621d0750ee01",
       "candidate_fingerprint": "26e6fa74800253222ac93cb0e002964b94ca6e6b81499ea8cf11621d0750ee01",
       "category": {
@@ -7624,8 +7656,17 @@
       "published_at": "2026-10-17T01:00:27Z",
       "run_id": "scheduled-2026-10-17T01:00:27Z",
       "version": "2.1.1"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "695388e86b73b964db972aa9621fcee7ab600d4b0432906b776a45bd5845378f",
+      "href": "install-jailbreak-tweak-sileo-guide/",
+      "package": "guide.sileo.install-tweak-safely",
+      "published_at": "2026-10-17T04:55:13Z",
+      "run_id": "scheduled-2026-10-17T04:55:13Z",
+      "version": "2.5.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-17T01:00:27Z"
+  "updated_at": "2026-10-17T04:55:13Z"
 }
