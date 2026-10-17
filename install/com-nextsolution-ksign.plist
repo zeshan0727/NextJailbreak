@@ -11,7 +11,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-ksign/1.2.1/com-nextsolution-ksign-1.2.1-2.ipa</string>
+					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-ksign/1.1.2/com-nextsolution-ksign-1.1.2-5.ipa</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -19,7 +19,7 @@
 					<key>needs-shine</key>
 					<false/>
 					<key>url</key>
-					<string>https://nextjailbreak.com/install/icons/com-nextsolution-ksign-411e9d7d232a.png</string>
+					<string>https://nextjailbreak.com/install/icons/com-nextsolution-ksign-36260066b97a.png</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -27,7 +27,7 @@
 					<key>needs-shine</key>
 					<false/>
 					<key>url</key>
-					<string>https://nextjailbreak.com/install/icons/com-nextsolution-ksign-411e9d7d232a.png</string>
+					<string>https://nextjailbreak.com/install/icons/com-nextsolution-ksign-36260066b97a.png</string>
 				</dict>
 			</array>
 			<key>metadata</key>
@@ -35,11 +35,11 @@
 				<key>bundle-identifier</key>
 				<string>com.nextsolution.ksign</string>
 				<key>bundle-version</key>
-				<string>2</string>
+				<string>5</string>
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
-				<string>KSign</string>
+				<string>Ksign</string>
 			</dict>
 		</dict>
 	</array>
