@@ -3460,28 +3460,41 @@
     },
     {
       "category": {
-        "id": "system-utilities",
-        "label": "System & Utilities"
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
       },
-      "description": "Rocket for Instagram 4.18.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
-      "entry_type": "source-news",
+      "description": "Rocket for Instagram 4.24.0 adds a Reels friend-suggestion control and fixes OLED-theme toggles after a run of feed, profile-watching and iPad updates.",
+      "entry_type": "update",
       "href": "rocket-for-instagram-4-18-0-update/",
-      "image": "assets/articles/source-media/rocket-for-instagram-4-18-0-update-e3aa43068d.webp",
-      "media_credit": "Source visual from apt.getrocketapp.io",
-      "media_source_url": "https://apt.getrocketapp.io/",
-      "modified_at": "2026-09-16T07:03:33+00:00",
-      "name": "Rocket for Instagram",
+      "image": "assets/articles/source-media/rocket-4-24-0-official-banner.jpg",
+      "media_credit": "Rocket — official current social banner, Reels action menu and post action menu from the developer website",
+      "media_source_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
+      "modified_at": "2026-10-17T17:01:52Z",
+      "name": "Rocket for Instagram 4.24.0",
       "package": "me.alfhaily.rocket",
       "published_at": "2026-09-16T07:03:33+00:00",
       "quality_target": 9,
-      "selection_pool": "manual-verified-original-source-batch",
-      "source_name": "apt.getrocketapp.io",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Rocket APT package page, package index, changelog and project documentation",
       "source_page_url": "https://apt.getrocketapp.io/",
-      "source_url": "https://apt.getrocketapp.io/",
-      "source_visual_origin": "img",
-      "source_visual_url": "https://cdn.getrocketapp.io/metadata/screenshots/01-post-action-menu.webp",
-      "title": "Rocket for Instagram 4.18.0 adds sticker copying, Stories tray controls and link-sharing privacy",
-      "version": "4.18.0"
+      "source_url": "https://apt.getrocketapp.io/changelogs/4EYOXC",
+      "source_visual_origin": "official-developer-banner-and-interface-screenshots",
+      "source_visual_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
+      "title": "Rocket for Instagram 4.24.0 Adds Reels Controls and OLED Fixes",
+      "version": "4.24.0",
+      "additional_media": [
+        "assets/articles/source-media/rocket-4-24-0-official-reels-menu.webp",
+        "assets/articles/source-media/rocket-for-instagram-4-18-0-update-e3aa43068d.webp"
+      ],
+      "additional_media_sha256": [
+        "daeea2c05a9d75930534ad58dd8ea6f22658a84e89d7025e61d2afe14095f341",
+        "7593cb363eb59f19644e0fe622993d8390e677f7dc7a5d0ab56542c369e5bb46"
+      ],
+      "compat": "The official Rocket page and APT metadata require iOS 15.0 or later and the App Store Instagram app. The project repository says Rocket APT serves rootful, rootless and RootHide builds. Package compatibility does not establish jailbreak availability for every device or firmware.",
+      "developer": "Rocket",
+      "media_sha256": "3debfb5ae7d3a6b01906512ff54cf99c120b9adb276353be56cf9b51bd7f7a49",
+      "release": "Official Rocket APT index dated 2026-10-16T21:41:23Z lists version 4.24.0",
+      "slug": "rocket-for-instagram-4-18-0-update"
     },
     {
       "article_sha256": "57dc254c909d2c5096d1706a7f1fa36a07e8e352c6094a268a19159d78e8dc6b",
@@ -7751,8 +7764,17 @@
       "published_at": "2026-10-17T13:02:46Z",
       "run_id": "scheduled-2026-10-17T13:02:46Z",
       "version": "1.0.0"
+    },
+    {
+      "action": "update",
+      "href": "rocket-for-instagram-4-18-0-update/",
+      "package": "me.alfhaily.rocket",
+      "previous_version": "4.18.0",
+      "published_at": "2026-10-17T17:01:52Z",
+      "run_id": "scheduled-2026-10-17T17:01:52Z",
+      "version": "4.24.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-17T13:02:46Z"
+  "updated_at": "2026-10-17T17:01:52Z"
 }
