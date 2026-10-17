@@ -11,7 +11,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-watusi/26.30.78/com-nextsolution-watusi-26.30.78-1032792803.ipa</string>
+					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-watusi/26.38.74/com-nextsolution-watusi-26.38.74-1077478047.ipa</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -19,7 +19,7 @@
 					<key>needs-shine</key>
 					<false/>
 					<key>url</key>
-					<string>https://nextjailbreak.com/install/icons/com-nextsolution-watusi-7b2f250ee0e3.png</string>
+					<string>https://nextjailbreak.com/install/icons/com-nextsolution-watusi-967794852684.png</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -27,7 +27,7 @@
 					<key>needs-shine</key>
 					<false/>
 					<key>url</key>
-					<string>https://nextjailbreak.com/install/icons/com-nextsolution-watusi-7b2f250ee0e3.png</string>
+					<string>https://nextjailbreak.com/install/icons/com-nextsolution-watusi-967794852684.png</string>
 				</dict>
 			</array>
 			<key>metadata</key>
@@ -35,11 +35,11 @@
 				<key>bundle-identifier</key>
 				<string>com.nextsolution.watusi</string>
 				<key>bundle-version</key>
-				<string>1032792803</string>
+				<string>1077478047</string>
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
-				<string>Whatsapp</string>
+				<string>Whatsapp+</string>
 			</dict>
 		</dict>
 	</array>
