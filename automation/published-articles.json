@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "article_sha256": "26e6fa74800253222ac93cb0e002964b94ca6e6b81499ea8cf11621d0750ee01",
+      "candidate_fingerprint": "26e6fa74800253222ac93cb0e002964b94ca6e6b81499ea8cf11621d0750ee01",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "description": "Update TrollStore to 2.1.1 through Settings or the official TrollStore.tar fallback, preserve installed apps, and repair registrations if icons disappear.",
+      "href": "update-trollstore-safely-without-losing-apps/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_credit": "opa334 — official TrollStore app icon from the 2.1.1 tagged repository",
+      "media_source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76@2x.png",
+      "modified_at": "2026-10-17T01:00:27Z",
+      "name": "TrollStore 2.1.1 update guide",
+      "package": "guide.trollstore.update-safely",
+      "published_at": "2026-10-17T01:00:27Z",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Official TrollStore 2.1.1 release, README, Settings controller and shared update implementation",
+      "source_page_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_url": "https://github.com/opa334/TrollStore",
+      "title": "How to Update TrollStore Safely Without Losing Installed Apps",
+      "version": "2.1.1",
+      "additional_media": [],
+      "compat": "TrollStore supports iOS/iPadOS 14.0 beta 2–16.6.1, iOS 16.7 RC build 20H18 and iOS 17.0. It does not support other iOS 16.7.x builds or iOS 17.0.1 and later absent another CoreTrust bug.",
+      "developer": "opa334",
+      "entry_type": "guide",
+      "media_sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
+      "media_git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+      "release": "TrollStore 2.1.1 released 2026-04-01",
+      "source_visual_origin": "official-tagged-repository-asset",
+      "source_visual_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76@2x.png"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "jailbreak-development",
@@ -7583,8 +7615,17 @@
       "published_at": "2026-10-16T21:00:04Z",
       "run_id": "scheduled-2026-10-16T21:00:04Z",
       "version": "2.9.5"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "26e6fa74800253222ac93cb0e002964b94ca6e6b81499ea8cf11621d0750ee01",
+      "href": "update-trollstore-safely-without-losing-apps/",
+      "package": "guide.trollstore.update-safely",
+      "published_at": "2026-10-17T01:00:27Z",
+      "run_id": "scheduled-2026-10-17T01:00:27Z",
+      "version": "2.1.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-16T21:00:04Z"
+  "updated_at": "2026-10-17T01:00:27Z"
 }
