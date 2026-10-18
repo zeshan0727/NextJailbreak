@@ -10,9 +10,9 @@
       "developer": "foxfortmobile; NightwindDev; Apple",
       "entry_type": "guide",
       "href": "read-share-jailbreak-crash-logs-krashkop-guide/",
-      "image": "https://media.havoc.app/63edc5070a347a438decacfb",
-      "media_credit": "foxfortmobile/Havoc — official KrashKop interface screenshot from the package listing",
-      "media_source_url": "https://media.havoc.app/63edc5070a347a438decacfb",
+      "image": "assets/articles/source-media/krashkop-official-crashlogs-list.png",
+      "media_credit": "foxfortmobile/Havoc — official KrashKop Crashlogs interface screenshot",
+      "media_source_url": "https://media.havoc.app/63edc5960a347a438decb4da",
       "modified_at": "2026-10-18T05:01:35Z",
       "name": "KrashKop crash log collection and reading guide",
       "package": "guide.krashkop.crash-logs",
@@ -24,9 +24,11 @@
       "source_page_url": "https://havoc.app/package/krashkop",
       "source_url": "https://developer.apple.com/documentation/xcode/analyzing-a-crash-report",
       "source_visual_origin": "official-havoc-interface-screenshot",
-      "source_visual_url": "https://media.havoc.app/63edc5070a347a438decacfb",
+      "source_visual_url": "https://media.havoc.app/63edc5960a347a438decb4da",
       "title": "How to Read and Share Jailbreak Crash Logs with KrashKop",
-      "version": "KrashKop 1.0.2"
+      "version": "KrashKop 1.0.2",
+      "media_sha256": "7ab9a7e79399c2f17da3ce413c0916f896f44e5968e3ba480edfc8d1491889e8",
+      "media_git_blob_sha": "55a04065313a14d913fd950f37aa03d8da5f151b"
     },
     {
       "article_sha256": "06166f75acf6b79aaf0be78fb2ce70168a4062afad968b20926facb30bd92c93",
