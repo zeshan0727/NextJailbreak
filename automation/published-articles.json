@@ -2,6 +2,42 @@
   "entries": [
     {
       "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "PowerTrace 1.0.2b is listed by Havoc for iOS 15.0–18.5, arm64e and rootless jailbreaks. The listing does not claim rootful or RootHide support. Package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "PowerTrace 1.0.2b fixes rootless data saving, improves crash-loop protection, and adds Lock Screen controls for its live battery HUD.",
+      "developer": "T4MAG0",
+      "entry_type": "individual-tweak-update",
+      "href": "powertrace-1-0-2b-rootless-battery-hud-update/",
+      "image": "assets/articles/source-media/powertrace-1-0-2b-official-banner.png",
+      "media_credit": "T4MAG0/Havoc — official PowerTrace banner and settings screenshot",
+      "media_source_url": "https://media.havoc.app/6acb431c78427fe0502bf073",
+      "modified_at": "2026-10-18T12:55:06Z",
+      "name": "PowerTrace 1.0.2b",
+      "package": "com.t4mag0.powertrace",
+      "published_at": "2026-10-18T12:55:06Z",
+      "quality_target": 9,
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Havoc package page and embedded __NEXT_DATA__ metadata",
+      "source_page_url": "https://havoc.app/package/powertrace",
+      "source_url": "https://havoc.app/package/powertrace",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshot",
+      "source_visual_url": "https://media.havoc.app/6acb431c78427fe0502bf073",
+      "title": "PowerTrace 1.0.2b Fixes Rootless Saving and Adds Lock Screen Controls",
+      "version": "1.0.2b",
+      "additional_media": [
+        "assets/articles/source-media/powertrace-1-0-2b-official-settings.png"
+      ],
+      "additional_media_sha256": [
+        "73ad1b408db0155c4af3a74d050209fd7d39d6fa0f7873764b25e90cdeb4ea45"
+      ],
+      "media_sha256": "abbfcff64640a82f1f7299e675652eeb41b6ea6b03d121331309ea5d35d2da61",
+      "release": "PowerTrace 1.0.2b released October 17, 2026",
+      "slug": "powertrace-1-0-2b-rootless-battery-hud-update"
+    },
+    {
+      "category": {
         "id": "tweak-comparison",
         "label": "Tweak Comparison"
       },

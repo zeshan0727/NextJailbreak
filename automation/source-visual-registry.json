@@ -79,5 +79,7 @@
   "https://raw.githubusercontent.com/SideStore/SideStore/0.7.0-alpha/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/1024.png": "refresh-sidestore-apps-7-day-expiry-guide",
   "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Library.png": "livecontainer-vs-feather-ipa-installer-comparison",
   "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Sign.png": "livecontainer-vs-feather-ipa-installer-comparison",
-  "https://unc0ver.dev/img/device.png": "unc0ver-8-1-0-ios-12-5-8-support"
+  "https://unc0ver.dev/img/device.png": "unc0ver-8-1-0-ios-12-5-8-support",
+  "https://media.havoc.app/6acb431c78427fe0502bf073": "powertrace-1-0-2b-rootless-battery-hud-update",
+  "https://media.havoc.app/6acb42ac78427fe0502beccc": "powertrace-1-0-2b-rootless-battery-hud-update"
 }
