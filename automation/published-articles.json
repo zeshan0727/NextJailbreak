@@ -3652,24 +3652,28 @@
     },
     {
       "category": {
-        "id": "jailbreak",
-        "label": "Jailbreak"
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
       },
-      "description": "iOS 27 shipped with more than 120 security fixes. Here is what the kernel and root bugs plus the usbliter8 iPhone 11 Pro beta jailbreak demo mean for jailbreak users.",
-      "entry_type": "editorial-news",
+      "compat": "The public demonstration identifies only an iPhone 18 Pro on iOS 27.0.1. Calif has not published support for other devices or versions, a package-manager environment, a public download or a release date.",
+      "description": "Calif showed jailbreak-level access surviving a reboot on an iPhone 18 Pro running iOS 27.0.1, but no public tool, support list or release date exists yet.",
+      "developer": "Calif",
+      "entry_type": "editorial-news-update",
       "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
-      "image": "assets/articles/editorial/ios-27-jailbreak-status-hero.svg",
-      "modified_at": "2026-09-15T07:47:49+00:00",
-      "name": "iOS 27 Jailbreak Status",
+      "modified_at": "2026-10-18T17:01:39Z",
+      "name": "Calif iOS 27.0.1 jailbreak demonstration",
       "package": "editorial.ios27-jailbreak-status",
-      "published_at": "2026-09-15T07:47:49+00:00",
+      "published_at": "2026-09-15T07:47:49Z",
       "quality_target": 9,
-      "selection_pool": "editorial-current-news",
-      "source_name": "Apple + security research",
-      "source_page_url": "https://developer.apple.com/news/releases/?id=03312025e",
-      "source_url": "https://developer.apple.com/news/releases/?id=03312025e",
-      "title": "iOS 27 Jailbreak Status: 120+ Security Fixes, Kernel Bugs and the usbliter8 iPhone 11 Pro Demo",
-      "version": "27.0"
+      "release": "Demonstrated at Hexacon on October 16, 2026; no public release or ETA",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Calif official Hexacon post and Billy Ellis on-site demo report",
+      "source_page_url": "https://blog.calif.io/p/iphone",
+      "source_url": "https://blog.calif.io/p/iphone",
+      "source_visual_origin": "official-embedded-demo-video-retrieval-blocked",
+      "source_visual_url": "https://www.youtube-nocookie.com/embed/_GJVKVNMczM",
+      "title": "Calif Demos Untethered iOS 27.0.1 Jailbreak on iPhone 18 Pro",
+      "version": "iOS 27.0.1 demo"
     },
     {
       "category": {
@@ -7923,8 +7927,18 @@
       "published_at": "2026-10-18T05:01:35Z",
       "run_id": "scheduled-2026-10-18T05:01:35Z",
       "version": "KrashKop 1.0.2"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "package": "editorial.ios27-jailbreak-status",
+      "previous_version": "iOS 27.0 / usbliter8 beta research",
+      "published_at": "2026-10-18T17:01:39Z",
+      "run_id": "scheduled-2026-10-18T17:01:39Z",
+      "version": "iOS 27.0.1 Calif demo"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-18T05:01:35Z"
+  "updated_at": "2026-10-18T17:01:39Z"
 }
