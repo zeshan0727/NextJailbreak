@@ -13,7 +13,7 @@
       "image": "assets/articles/source-media/powertrace-1-0-2b-official-banner.png",
       "media_credit": "T4MAG0/Havoc — official PowerTrace banner and settings screenshot",
       "media_source_url": "https://media.havoc.app/6acb431c78427fe0502bf073",
-      "modified_at": "2026-10-18T12:55:06Z",
+      "modified_at": "2026-10-18T13:05:00Z",
       "name": "PowerTrace 1.0.2b",
       "package": "com.t4mag0.powertrace",
       "published_at": "2026-10-18T12:55:06Z",
@@ -27,10 +27,10 @@
       "title": "PowerTrace 1.0.2b Fixes Rootless Saving and Adds Lock Screen Controls",
       "version": "1.0.2b",
       "additional_media": [
-        "assets/articles/source-media/powertrace-1-0-2b-official-settings.png"
+        "assets/articles/source-media/powertrace-1-0-2b-official-settings.webp"
       ],
       "additional_media_sha256": [
-        "73ad1b408db0155c4af3a74d050209fd7d39d6fa0f7873764b25e90cdeb4ea45"
+        "1ecc8add4f9d9f7cbcf6ec930ddc717196f13989f276d61d4e09fc7c56a8eef1"
       ],
       "media_sha256": "abbfcff64640a82f1f7299e675652eeb41b6ea6b03d121331309ea5d35d2da61",
       "release": "PowerTrace 1.0.2b released October 17, 2026",
