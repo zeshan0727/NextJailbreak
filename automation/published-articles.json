@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "article_sha256": "06166f75acf6b79aaf0be78fb2ce70168a4062afad968b20926facb30bd92c93",
+      "candidate_fingerprint": "06166f75acf6b79aaf0be78fb2ce70168a4062afad968b20926facb30bd92c93",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Requires an active APT/dpkg-based jailbreak environment and a terminal. dpkg-query ownership searches are read-only; paths and package architecture still depend on the active rootful, rootless or RootHide environment.",
+      "description": "Use dpkg-query to identify which installed jailbreak tweak owns a file, confirm the package and version, and remove it safely through Sileo or Zebra.",
+      "developer": "dpkg maintainers; Sileo Team",
+      "entry_type": "guide",
+      "href": "find-jailbreak-tweak-file-owner-dpkg-guide/",
+      "image": "assets/articles/source-media/sileo-2-5-1-official-icon.png",
+      "media_credit": "Sileo Team — official Sileo app icon from the 2.5.1 tagged source",
+      "media_source_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "modified_at": "2026-10-18T01:02:32Z",
+      "name": "dpkg-query file ownership guide",
+      "package": "guide.dpkg.file-owner",
+      "published_at": "2026-10-18T01:02:32Z",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Official Debian dpkg-query and dpkg 1.23.11 manuals; official Sileo 2.5.1 tagged source",
+      "source_page_url": "https://manpages.debian.org/unstable/dpkg/dpkg-query.1.en.html",
+      "source_url": "https://git.dpkg.org/cgit/dpkg/dpkg.git/",
+      "title": "How to Find Which Jailbreak Tweak Installed a File with dpkg",
+      "version": "dpkg 1.23.11 documentation",
+      "additional_media": [],
+      "media_sha256": "fe6ee8587edf29f5a0992385d5dcf6272dab1ce948838dd8ddba2c84cba5094d",
+      "media_git_blob_sha": "36cd9e65a3366498097ba3e53d929a1ba947c669",
+      "release": "dpkg-query 1.23.11 manual dated 2026-09-09",
+      "source_visual_origin": "official-tagged-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png"
+    },
+    {
       "additional_media": [
         "assets/articles/source-media/horythia-1-0-0-official-app-list.png",
         "assets/articles/source-media/horythia-1-0-0-official-per-app-settings.png"
@@ -7774,8 +7806,18 @@
       "published_at": "2026-10-17T17:01:52Z",
       "run_id": "scheduled-2026-10-17T17:01:52Z",
       "version": "4.24.0"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "06166f75acf6b79aaf0be78fb2ce70168a4062afad968b20926facb30bd92c93",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "find-jailbreak-tweak-file-owner-dpkg-guide/",
+      "package": "guide.dpkg.file-owner",
+      "published_at": "2026-10-18T01:02:32Z",
+      "run_id": "scheduled-2026-10-18T01:02:32Z",
+      "version": "dpkg 1.23.11 documentation"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-17T17:01:52Z"
+  "updated_at": "2026-10-18T01:02:32Z"
 }
