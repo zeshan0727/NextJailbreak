@@ -1,6 +1,19 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.opa334.trollstore.permission-guide": {
+      "credit_label": "opa334/TrollStore — official TrollStore app icon from the 2.1.1 source tag",
+      "source_page_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon60x60%403x.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon60x60%403x.png",
+        "alt": "Official TrollStore troll-face app icon on a blue background from the 2.1.1 source tag",
+        "local_path": "assets/articles/source-media/trollstore-2-1-1-official-icon.jpg",
+        "git_blob_sha": "743db4fab0b86a8ed5db479e805e3e0c1f00bbe9",
+        "sha256": "f2d2931f6be7fea1662d5d7069bf35ca6f7c43ca715b1edebb92f184a7c42b82"
+      },
+      "screenshots": []
+    },
     "utmapp.UTM": {
       "credit_label": "UTM contributors — official UTM interface image from the v5.0.6 source tag",
       "source_page_url": "https://github.com/utmapp/UTM/blob/v5.0.6/screen.png",

@@ -2,6 +2,36 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "TrollStore 2.1.1 officially lists iOS 14.0 beta 2–16.6.1, iOS 16.7 RC (20H18), and iOS 17.0. Firmware support does not guarantee an installation method for every device, and IPA compatibility does not extend TrollStore to unsupported firmware.",
+      "description": "Read TrollStore’s sandbox, root, privacy, container and keychain warnings before trusting a permanently signed IPA.",
+      "developer": "opa334 and TrollStore contributors",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "check-trollstore-ipa-permissions-before-installing/",
+      "image": "assets/articles/source-media/trollstore-2-1-1-official-icon.jpg",
+      "media_credit": "opa334/TrollStore — official TrollStore app icon from the 2.1.1 source tag",
+      "media_sha256": "f2d2931f6be7fea1662d5d7069bf35ca6f7c43ca715b1edebb92f184a7c42b82",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon60x60%403x.png",
+      "modified_at": "2026-10-18T21:04:49Z",
+      "name": "TrollStore IPA permission review",
+      "package": "com.opa334.trollstore",
+      "published_at": "2026-10-18T21:04:49Z",
+      "quality_target": 9,
+      "release": "Verified against TrollStore 2.1.1, released April 1, 2026",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide-fallback",
+      "slug": "check-trollstore-ipa-permissions-before-installing",
+      "source_name": "Official TrollStore 2.1.1 tagged source and release",
+      "source_page_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/TSAppInfo.m",
+      "source_visual_origin": "official-tagged-source-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon60x60%403x.png",
+      "title": "How to Check TrollStore IPA Permissions Before Installing",
+      "version": "TrollStore 2.1.1"
+    },
+    {
+      "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
       },
