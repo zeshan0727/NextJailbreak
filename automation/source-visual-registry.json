@@ -36,6 +36,8 @@
   "https://media.havoc.app/6ac2550d97b6b9e779412b99": "5row-pro-1-19-0-stock-keyboard-number-row",
   "https://media.havoc.app/6ac26340d021b0f970817b97": "5row-pro-1-19-0-stock-keyboard-number-row",
   "https://media.havoc.app/6ac27358d021b0f97081fff7": "5row-pro-1-19-0-stock-keyboard-number-row",
+  "https://media.havoc.app/6acb42ac78427fe0502beccc": "powertrace-1-0-2b-rootless-battery-hud-update",
+  "https://media.havoc.app/6acb431c78427fe0502bf073": "powertrace-1-0-2b-rootless-battery-hud-update",
   "https://opengraph.githubassets.com/00a3d2c2a4ea5ab0f8b648ac55a4e9b015aa37b8f7e74ebe4bfdf8e85560967d/PoomSmart/AppColorClose/commit/4681f3888eb8ae5bfdbc48c9ac354cbd68abba3d": "appcolorclose-1-2-2-update",
   "https://opengraph.githubassets.com/042b9563d085721994e696c12e2e2851d7d74d7467deefae7a280e2ce0ebcb54/Yves000/Crescendo/commit/33c60a69d76454c268709b381ad987832403e534": "crescendo-1-1-1-update",
   "https://opengraph.githubassets.com/12ca73b6beb873fab7d31dc9ecc62b7176bb90b40f57db52ce41abf549ba671b/pisknk/twenty-one-reborn/commit/ab1332c703bce30e8004d2ae7de7dfcd5dbba758": "twentyone-2-0-update",
@@ -66,6 +68,7 @@
   "https://opengraph.githubassets.com/8696974cc13c7691ed71889df3af88bb03a172a7b7c0cc714e395ff3865cede7/palera1n/palera1n/releases/tag/v3.0.0-beta.2": "palera1n-3-0-0-beta-2-gui-dfu-fixes-detail",
   "https://opengraph.githubassets.com/8b73f2a4cde2539ee81b8074ea129536d42e9878d0a15d29a0113f8cd8726e48/Gokuencinar/GokuEnREPO/commit/b546426feb185618b38bcc634e8d64758d215f22": "bandlock-1-3-update",
   "https://opengraph.githubassets.com/8fa5b4ee8fe01ca884d36e933b8a7cf2abf6797e2ca9e20a2b53c99911f67fb5/FrizzleM/SideInstaller": "sideinstaller-1-0-0-update",
+  "https://opengraph.githubassets.com/99ed696d841b216cb43b47e8cb439f29ab6fd8e4cead18e50709425f0a39b0c6/meloDu/MusicLRC/commit/a6f84e3c590d9b7d48c66b714cd413225cc9fc53": "musiclrc-1-0-update",
   "https://opengraph.githubassets.com/9c0af71fb07c83d6b6084acce70d0c0debabf5033f0d1afafce7a7a2b56d509c/LiveContainer/LiveContainer": "livecontainer-3-8-0-stable-vs-nightly-detail",
   "https://opengraph.githubassets.com/9cc7e9c507b9a1c378ebebeaf0d82a493eb11a1bf4981df9a135b8e51c1bcb39/witchan/ios-mcp": "ios-mcp-1-2-8-update",
   "https://opengraph.githubassets.com/aaf7ce244adb6018f81cac16a2697009ff9b2f5821376fbc8b43f50f1029e36c/SideStore/SideStore": "sidestore-0-7-0-alpha-sign-in-error-503",
@@ -79,7 +82,5 @@
   "https://raw.githubusercontent.com/SideStore/SideStore/0.7.0-alpha/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/1024.png": "refresh-sidestore-apps-7-day-expiry-guide",
   "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Library.png": "livecontainer-vs-feather-ipa-installer-comparison",
   "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Sign.png": "livecontainer-vs-feather-ipa-installer-comparison",
-  "https://unc0ver.dev/img/device.png": "unc0ver-8-1-0-ios-12-5-8-support",
-  "https://media.havoc.app/6acb431c78427fe0502bf073": "powertrace-1-0-2b-rootless-battery-hud-update",
-  "https://media.havoc.app/6acb42ac78427fe0502beccc": "powertrace-1-0-2b-rootless-battery-hud-update"
+  "https://unc0ver.dev/img/device.png": "unc0ver-8-1-0-ios-12-5-8-support"
 }

@@ -5,296 +5,245 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
-    <item><title>Calif Demos Untethered iOS 27.0.1 Jailbreak on iPhone 18 Pro</title><link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link><guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/?updated=2026-10-18</guid><pubDate>Sun, 18 Oct 2026 17:01:39 GMT</pubDate><description>Calif showed jailbreak-level access surviving a reboot on an iPhone 18 Pro running iOS 27.0.1, but no public tool, support list or release date exists yet.</description><category>Current Jailbreak Development</category></item>
-    <item><title>PowerTrace 1.0.2b Fixes Rootless Saving and Adds Lock Screen Controls</title><link>https://nextjailbreak.com/powertrace-1-0-2b-rootless-battery-hud-update/</link><guid isPermaLink="true">https://nextjailbreak.com/powertrace-1-0-2b-rootless-battery-hud-update/</guid><pubDate>Sun, 18 Oct 2026 12:55:06 GMT</pubDate><description>PowerTrace 1.0.2b fixes rootless data saving, improves crash-loop protection, and adds Lock Screen controls for its live battery HUD.</description></item>
-    <item><title>Regram vs Rocket for Instagram: Which Tweak Should You Use?</title><link>https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</guid><pubDate>Sun, 18 Oct 2026 08:58:53 GMT</pubDate><description>Regram 6.4 vs Rocket 4.24.0 compared: Reels, Stories, downloads, privacy, customization, jailbreak support and sideloading options.</description></item>
-    <item><title>How to Read and Share Jailbreak Crash Logs with KrashKop</title><link>https://nextjailbreak.com/read-share-jailbreak-crash-logs-krashkop-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/read-share-jailbreak-crash-logs-krashkop-guide/</guid><pubDate>Sun, 18 Oct 2026 05:01:35 GMT</pubDate><description>Collect the right jailbreak crash report, read its process, exception and backtrace clues, redact private data, and send developers a reproducible report.</description><category>Evergreen Jailbreak Guide</category></item>
-
-    <item><title>How to Find Which Jailbreak Tweak Installed a File with dpkg</title><link>https://nextjailbreak.com/find-jailbreak-tweak-file-owner-dpkg-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/find-jailbreak-tweak-file-owner-dpkg-guide/</guid><pubDate>Sun, 18 Oct 2026 01:02:32 GMT</pubDate><description>Use dpkg-query to identify which installed jailbreak tweak owns a file, confirm the package and version, and remove it safely through Sileo or Zebra.</description><category>Evergreen Jailbreak Guide</category></item>
-
-    <item><title>UTM 5.0.8 Stable Fixes Snapshots and Windows VM Stalls</title><link>https://nextjailbreak.com/utm-5-0-6-beta-ios-26-snapshots-disk-tools/</link><guid isPermaLink="true">https://nextjailbreak.com/utm-5-0-6-beta-ios-26-snapshots-disk-tools/</guid><pubDate>Sat, 17 Oct 2026 21:00:38 GMT</pubDate><description>UTM 5.0.8 is the stable UTM 5 release, fixing compressed-disk snapshots, Windows USB-install stalls and high-refresh display issues while retaining iOS 26 snapshots.</description><category>Current Jailbreak Development</category></item>
-    <item><title>Rocket for Instagram 4.24.0 Adds Reels Controls and OLED Fixes</title><link>https://nextjailbreak.com/rocket-for-instagram-4-18-0-update/</link><guid isPermaLink="true">https://nextjailbreak.com/rocket-for-instagram-4-18-0-update/</guid><pubDate>Sat, 17 Oct 2026 17:01:52 GMT</pubDate><description>Rocket for Instagram 4.24.0 adds a Reels friend-suggestion control and fixes OLED-theme toggles after a run of feed, profile-watching and iPad updates.</description><category>Individual Tweak Update</category></item>
-    <item><title>Horythia 1.0.0 Automates System Settings Per App on iOS 15–26</title><link>https://nextjailbreak.com/horythia-1-0-0-per-app-system-settings-automation/</link><guid isPermaLink="true">https://nextjailbreak.com/horythia-1-0-0-per-app-system-settings-automation/</guid><pubDate>Sat, 17 Oct 2026 13:02:46 GMT</pubDate><description>Horythia 1.0.0 switches Wi-Fi, cellular, brightness, volume, DND, VPN and app-scoped location settings automatically on supported jailbreaks.</description><category>Individual Tweak Update</category></item>
-    <item><title>Bloom vs Velvet 2: Animation or Full Notification Styling?</title><link>https://nextjailbreak.com/bloom-vs-velvet-2-notification-tweak-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/bloom-vs-velvet-2-notification-tweak-comparison/</guid><pubDate>Sat, 17 Oct 2026 08:56:05 GMT</pubDate><description>Compare Bloom 1.4.1 and Velvet 2 2.1.2-3 by purpose, iOS compatibility, jailbreak environment, price, customization depth and current support.</description><category>Tweak Roundup &amp; Comparison</category></item>
-    <item><title>How to Install a Jailbreak Tweak Safely with Sileo</title><link>https://nextjailbreak.com/install-jailbreak-tweak-sileo-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/install-jailbreak-tweak-sileo-guide/</guid><pubDate>Sat, 17 Oct 2026 04:55:13 GMT</pubDate><description>Install a repository-hosted jailbreak tweak with Sileo 2.5.1, verify its source and compatibility, review dependencies, and choose the correct restart action.</description><category>Evergreen Jailbreak Guide</category></item>
-    <item><title>How to Update TrollStore Safely Without Losing Installed Apps</title><link>https://nextjailbreak.com/update-trollstore-safely-without-losing-apps/</link><guid isPermaLink="true">https://nextjailbreak.com/update-trollstore-safely-without-losing-apps/</guid><pubDate>Sat, 17 Oct 2026 01:00:27 GMT</pubDate><description>Update TrollStore to 2.1.1 through Settings or the official TrollStore.tar fallback, preserve installed apps, and repair registrations if icons disappear.</description><category>Evergreen Jailbreak Guide</category></item>
-    <item><title>vphone-cli 2.9.5 Adds Apple TV Guests and tvOS 27 Research Support</title><link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link><guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid><pubDate>Fri, 16 Oct 2026 21:00:04 GMT</pubDate><description>vphone-cli 2.9.5 adds Apple TV HD and experimental Apple TV 4K guests, tvOS 27 support, a Unity GPU fix and more reliable virtual-device setup.</description><category>Current Jailbreak Development</category></item>
-    <item><title>Battman 1.1.0 Adds Battery Analytics and Native Plug-ins</title><link>https://nextjailbreak.com/battman-1-1-0-battery-analytics-plugins-update/</link><guid isPermaLink="true">https://nextjailbreak.com/battman-1-1-0-battery-analytics-plugins-update/</guid><pubDate>Fri, 16 Oct 2026 17:03:39 GMT</pubDate><description>Battman 1.1.0 adds configurable battery analytics, native plug-ins, powerlog export and charging fixes for supported jailbroken or TrollStore-enabled iPhones.</description><category>Individual App Update</category></item>
-    <item><title>TransLux 1.6 Adds Live Translation Inside iOS Apps</title><link>https://nextjailbreak.com/translux-1-6-live-app-translation-update/</link><guid isPermaLink="true">https://nextjailbreak.com/translux-1-6-live-app-translation-update/</guid><pubDate>Fri, 16 Oct 2026 13:00:49 GMT</pubDate><description>TransLux 1.6 adds on-the-fly translation in App Store, Telegram, Discord, X, Sileo and Saily on compatible rootless jailbreaks running iOS 15–26.</description><category>Individual Tweak Update</category></item>
-    <item><title>CarBridge vs CarCast: Which CarPlay Tweak Fits Your Jailbreak?</title><link>https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</guid><pubDate>Fri, 16 Oct 2026 09:00:31 GMT</pubDate><description>Compare CarBridge 2.0.15 and CarCast 1.2 by supported iOS versions, jailbreak requirements, Airaw dependency, price, features and CarPlay limitations.</description></item>
-    <item><title>How to Uninstall a Jailbreak Tweak Safely in Sileo</title><link>https://nextjailbreak.com/uninstall-jailbreak-tweak-sileo-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/uninstall-jailbreak-tweak-sileo-guide/</guid><pubDate>Fri, 16 Oct 2026 04:56:57 GMT</pubDate><description>Uninstall a jailbreak tweak safely in Sileo 2.5.1, review queued dependency removals, choose the correct restart action, and avoid deleting the jailbreak environment.</description></item>
-    <item><title>Respring vs Userspace Reboot vs Full Reboot on a Jailbroken iPhone</title><link>https://nextjailbreak.com/respring-vs-userspace-reboot-full-reboot-jailbreak-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/respring-vs-userspace-reboot-full-reboot-jailbreak-guide/</guid><pubDate>Fri, 16 Oct 2026 00:58:53 GMT</pubDate><description>Learn when to respring, perform a userspace reboot or fully restart a jailbroken iPhone, and what each action does to tweaks and the jailbreak state.</description></item>
-    <item><title>RootHide Bootstrap Main Branch Preserves Core Functions When Tweaks Are Disabled</title><link>https://nextjailbreak.com/roothide-bootstrap-main-branch-tweaks-disabled-core-fix/</link><guid isPermaLink="true">https://nextjailbreak.com/roothide-bootstrap-main-branch-tweaks-disabled-core-fix/</guid><pubDate>Thu, 15 Oct 2026 20:57:03 GMT</pubDate><description>A RootHide Bootstrap development commit keeps core bootstrap functions available when tweak injection is disabled after a problematic Substrate package.</description></item>
-    <item><title>Dopamine Main Branch Fixes Replacement-Screen Touch and Rootless Plists</title><link>https://nextjailbreak.com/dopamine-main-branch-replacement-screen-rootless-plist-fixes/</link><guid isPermaLink="true">https://nextjailbreak.com/dopamine-main-branch-replacement-screen-rootless-plist-fixes/</guid><pubDate>Thu, 15 Oct 2026 16:56:13 GMT</pubDate><description>Two Dopamine commits fix touch after userspace reboot on some replacement screens and stop three system plists from being redirected into /var/jb.</description></item>
-    <item><title>Bloom 1.4.1 Fixes iOS 18 Loading and iPhone 16 Dynamic Island Animations</title><link>https://nextjailbreak.com/bloom-tweak/</link><guid isPermaLink="true">https://nextjailbreak.com/bloom-tweak/?updated=2026-10-15</guid><pubDate>Thu, 15 Oct 2026 13:01:14 GMT</pubDate><description>Bloom 1.4.1 fixes loading failures mainly on iOS 18, selects Dynamic Island animations on iPhone 16 models, and repairs LastLook integration.</description></item>
-    <item><title>Atria vs Lynx 2: Which iOS 16 Customization Tweak Should You Use?</title><link>https://nextjailbreak.com/atria-vs-lynx-2-ios-16-customization-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/atria-vs-lynx-2-ios-16-customization-comparison/</guid><pubDate>Thu, 15 Oct 2026 08:58:45 GMT</pubDate><description>Compare Atria 1.4.1 and Lynx 2 2.5.4 by Home Screen controls, system-wide customization, iOS range, rootless support, price and update history.</description></item>
-    <item><title>How to Disable Tweaks for One App with Choicy</title><link>https://nextjailbreak.com/disable-tweaks-one-app-choicy-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/disable-tweaks-one-app-choicy-guide/</guid><pubDate>Thu, 15 Oct 2026 04:56:20 GMT</pubDate><description>Use Choicy 1.5.4-2 to disable all tweak injection or allow only selected tweaks for one app, without treating it as a jailbreak-detection bypass.</description><category>Evergreen Jailbreak Guide</category></item>
-    <item><title>AnxieTea 1.0.3 Adds Notchless iPhone Meter Support and Position Controls</title><link>https://nextjailbreak.com/anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/</link><guid isPermaLink="true">https://nextjailbreak.com/anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/</guid><pubDate>Wed, 14 Oct 2026 17:04:22 GMT</pubDate><description>AnxieTea 1.0.3 extends its status-bar traffic meter to notchless iPhones, adds horizontal positioning, an About page, report copying and performance fixes.</description><category>Individual Tweak Update</category></item>
-    <item><title>EeveeSpotify 7.0.0 Adds iOS 26 Liquid Glass, Custom Tabs and Word-Synced Lyrics</title><link>https://nextjailbreak.com/eeveespotify-7-liquid-glass-custom-tabs-lyrics/</link><guid isPermaLink="true">https://nextjailbreak.com/eeveespotify-7-liquid-glass-custom-tabs-lyrics/</guid><pubDate>Wed, 14 Oct 2026 12:55:56 GMT</pubDate><description>EeveeSpotify 7.0.0 overhauls the Spotify tweak with native iOS 26 Liquid Glass, custom tabs, word-synced lyrics, remote flags and privacy fixes.</description><category>Individual Tweak Update</category></item>
-    <item><title>Irisin vs Sileo: Which Jailbreak Package Manager Should You Use?</title><link>https://nextjailbreak.com/irisin-vs-sileo-package-manager-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/irisin-vs-sileo-package-manager-comparison/</guid><pubDate>Wed, 14 Oct 2026 09:03:43 GMT</pubDate><description>Compare Irisin 4.6.1 and Sileo 2.5.1 by jailbreak environment, iOS range, package handling, repositories, RootHide support, updates and setup.</description><category>Tweak Roundup &amp; Comparison</category></item>
-    <item><title>How to Fix TrollStore Apps Not Opening with the Persistence Helper</title><link>https://nextjailbreak.com/fix-trollstore-apps-not-opening-persistence-helper/</link><guid isPermaLink="true">https://nextjailbreak.com/fix-trollstore-apps-not-opening-persistence-helper/</guid><pubDate>Wed, 14 Oct 2026 05:03:10 GMT</pubDate><description>Fix TrollStore and permasigned apps that stop opening after an icon-cache reload by restoring System registration with the official Persistence Helper.</description><category>Evergreen Jailbreak Guide</category></item>
-    <item><title>How to Fix Sileo Dependency Errors on a Rootless Jailbreak</title><link>https://nextjailbreak.com/fix-sileo-dependency-errors-rootless-jailbreak/</link><guid isPermaLink="true">https://nextjailbreak.com/fix-sileo-dependency-errors-rootless-jailbreak/</guid><pubDate>Wed, 14 Oct 2026 00:58:54 GMT</pubDate><description>Fix Sileo unmet dependencies, version conflicts and rootless architecture errors safely—without force-installing incompatible jailbreak packages.</description><category>Evergreen Jailbreak Guide</category></item>
-    <item><title>PreferenceLoader 2.3.3 Fixes Tweak Settings on iOS 18 and iOS 26</title><link>https://nextjailbreak.com/preferenceloader-2-3-3-ios-18-26-settings-fix/</link><guid isPermaLink="true">https://nextjailbreak.com/preferenceloader-2-3-3-ios-18-26-settings-fix/</guid><pubDate>Tue, 13 Oct 2026 20:56:06 GMT</pubDate><description>PreferenceLoader fork 2.3.3 keeps tweak preferences on the main Settings screen and fixes AirPods, switch-row and iPad navigation bugs on iOS 18 and later.</description><category>Jailbreak Development</category></item>
-    <item><title>BandLock 1.5 Fixes iOS 17 Dopamine Daemon Restarts and Adds A9 Support</title><link>https://nextjailbreak.com/bandlock-1-3-update/</link><guid isPermaLink="true">https://nextjailbreak.com/bandlock-1-3-update/</guid><pubDate>Tue, 13 Oct 2026 17:04:56 GMT</pubDate><description>BandLock 1.5 fixes daemon restarts on iOS 17 with Dopamine and improves connection retries; version 1.4 also added A9 support on iOS 16.</description><category>Individual Tweak Update</category></item>
-    <item><title>VidGrab 1.3.6c Adds Custom Themes, Backups and Automatic Engine Updates</title><link>https://nextjailbreak.com/vidgrab-1-3-6c-custom-themes-backup-engine-updates/</link><guid isPermaLink="true">https://nextjailbreak.com/vidgrab-1-3-6c-custom-themes-backup-engine-updates/</guid><pubDate>Tue, 13 Oct 2026 12:58:12 GMT</pubDate><description>VidGrab 1.3.6c adds a theme gallery, custom themes, backup and restore, automatic download-engine updates, Arabic and an iOS 27.2 settings-crash fix.</description><category>Individual App Update</category></item>
-
-    <item><title>Reo vs LSLyrics vs NextUp 3: Which Lock Screen Music Tweak Fits You?</title><link>https://nextjailbreak.com/reo-vs-lslyrics-vs-nextup3-lock-screen-music-tweaks/</link><guid isPermaLink="true">https://nextjailbreak.com/reo-vs-lslyrics-vs-nextup3-lock-screen-music-tweaks/</guid><pubDate>Tue, 13 Oct 2026 08:55:43 GMT</pubDate><description>Compare Reo 4.2.0, LSLyrics 2.0 and NextUp 3 1.2 by purpose, price, iOS range, rootless support, music-app coverage and current release details.</description><category>Tweak Roundup &amp; Comparison</category></item>
-
-    <item><title>How to Update Dopamine Safely Without Losing Your Tweaks</title><link>https://nextjailbreak.com/update-dopamine-jailbreak-safely-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/update-dopamine-jailbreak-safely-guide/</guid><pubDate>Tue, 13 Oct 2026 04:58:13 GMT</pubDate><description>Update Dopamine using its built-in updater, TrollStore or the official GitHub release, then refresh the jailbreak environment without removing installed tweaks.</description><category>Evergreen Jailbreak Guide</category></item>
-    <item><title>Dopamine 3.0.11 Restores iOS 26 Beta 1 Support and Fixes Boot-Logo Resprings</title><link>https://nextjailbreak.com/dopamine-3-0-9-jailbreak-removal-fixes/</link><guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-0-9-jailbreak-removal-fixes/</guid><pubDate>Tue, 13 Oct 2026 01:01:43 GMT</pubDate><description>Dopamine 3.0.11 restores iOS 26.0 beta 1 support, fixes boot-logo framebuffer freezes during sbreload, and updates opainject and litehook.</description><category>Jailbreak Development</category></item>
-    <item><title>Amethyst v1.1 Fixes App Crashes, A8X Support and A9/A10 Reliability</title><link>https://nextjailbreak.com/amethyst-v1-1-ios-12-13-jailbreak-stability-fixes/</link><guid isPermaLink="true">https://nextjailbreak.com/amethyst-v1-1-ios-12-13-jailbreak-stability-fixes/</guid><pubDate>Mon, 12 Oct 2026 20:55:10 GMT</pubDate><description>Amethyst v1.1 fixes delayed app-launch crashes, A8X support, iOS 13 patchfinder issues on A9/A10 devices, tweak loading and A9 exploit reliability.</description><category>Jailbreak Development</category></item>
-    <item><title>LegacyFolder26 1.0.1 Fixes Folder Icon Overlap on Jailbroken iOS 26</title><link>https://nextjailbreak.com/legacyfolder26-1-0-1-ios-26-folder-tweak/</link><guid isPermaLink="true">https://nextjailbreak.com/legacyfolder26-1-0-1-ios-26-folder-tweak/</guid><pubDate>Mon, 12 Oct 2026 17:04:42 GMT</pubDate><description>LegacyFolder26 1.0.1 fixes a folder icon overlap bug and clarifies license errors while adding iOS 6-style folder panels to jailbroken iOS 26.</description><category>Individual Tweak Update</category></item>
-        <item><title>Crane vs Crane Lite: Which App Container Tweak Should You Use?</title><link>https://nextjailbreak.com/crane-vs-crane-lite-app-container-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/crane-vs-crane-lite-app-container-comparison/</guid><pubDate>Mon, 12 Oct 2026 09:08:38 GMT</pubDate><description>Compare Crane 1.3.18-2 and Crane Lite 1.3.18-2 by price, app limits, backups, integrations, Game Center support, migration and rootless compatibility.</description><category>Tweak Roundup &amp; Comparison</category></item>
-    <item><title>How to Change Mobile and Root Passwords on a Dopamine Jailbreak</title><link>https://nextjailbreak.com/change-mobile-root-password-dopamine-jailbreak-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/change-mobile-root-password-dopamine-jailbreak-guide/</guid><pubDate>Mon, 12 Oct 2026 05:01:49 GMT</pubDate><description>Change the mobile password in Dopamine 3, set a separate root password from a mobile shell, and avoid common credential mistakes on a rootless jailbreak.</description><category>Evergreen Jailbreak Guide</category></item>
-    <item><title>How to Re-Jailbreak Dopamine After Reboot and Restore Tweaks</title><link>https://nextjailbreak.com/rejailbreak-dopamine-after-reboot-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/rejailbreak-dopamine-after-reboot-guide/</guid><pubDate>Mon, 12 Oct 2026 00:56:11 GMT</pubDate><description>Re-jailbreak Dopamine 3 after a full iPhone reboot, restore tweak injection safely, and fix common package-manager or respring issues without removing the jailbreak.</description><category>Evergreen Jailbreak Guide</category></item>
-    <item><title>TrollStore Checker 2.0.7 Updates Its Compatibility Database and Moves to a-Shell mini</title><link>https://nextjailbreak.com/trollstore-checker-2-0-7-compatibility-database-ashell-mini/</link><guid isPermaLink="true">https://nextjailbreak.com/trollstore-checker-2-0-7-compatibility-database-ashell-mini/</guid><pubDate>Sun, 11 Oct 2026 21:01:49 GMT</pubDate><description>TrollStore Checker 2.0.7 rewrites its workflow, updates the TrollStore compatibility database and now requires a-Shell mini to identify an official install route.</description><category>Jailbreak Development</category></item>
-    <item><title>AntiDarkSword 4.9.3: What Its WebKit and iMessage Mitigations Cover</title><link>https://nextjailbreak.com/antidarksword-4-9-3-webkit-imessage-hardening-tweak/</link><guid isPermaLink="true">https://nextjailbreak.com/antidarksword-4-9-3-webkit-imessage-hardening-tweak/</guid><pubDate>Sun, 11 Oct 2026 16:55:52 GMT</pubDate><description>AntiDarkSword 4.9.3 adds configurable WebKit and iMessage hardening for jailbreaks and a limited TrollFools dylib, with separate rootless, rootful and legacy builds.</description><category>Individual Tweak Update</category></item>
-
-    <item><title>AntiNotch 0.0.1 Adds a Virtual Home Button to Notched iPhones</title><link>https://nextjailbreak.com/antinotch-0-0-1-virtual-home-button-jailbreak-tweak/</link><guid isPermaLink="true">https://nextjailbreak.com/antinotch-0-0-1-virtual-home-button-jailbreak-tweak/</guid><pubDate>Sun, 11 Oct 2026 12:55:17 GMT</pubDate><description>AntiNotch 0.0.1 adds a configurable on-screen Home button with tap, hold, swipe and haptic controls, but this first beta was only tested on Taurine rootful.</description><category>Individual Tweak Update</category></item>
     <item>
-      <title>Filza vs Santander: Which iPhone File Manager Should You Use?</title><link>https://nextjailbreak.com/filza-vs-santander-iphone-file-manager-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/filza-vs-santander-iphone-file-manager-comparison/</guid>
-      <pubDate>Sun, 11 Oct 2026 09:04:02 GMT</pubDate><description>Compare Filza and Santander by maturity, jailbreak and TrollStore requirements, file editing, package tools, network features, source availability and risk.</description><category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Enable Tweak Injection in RootHide Bootstrap Safely</title>
-      <link>https://nextjailbreak.com/enable-tweak-injection-roothide-bootstrap-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/enable-tweak-injection-roothide-bootstrap-guide/</guid>
-      <pubDate>Sun, 11 Oct 2026 05:03:56 GMT</pubDate>
-      <description>Enable or disable tweak injection for individual apps in RootHide Bootstrap 2.2.1, understand App List defaults, and fix common server or icon-cache errors.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Regram 6.4 Adds Story and Reels Playback Controls, Profile Media Watch, and Instagram 450.1 Support</title>
-      <link>https://nextjailbreak.com/regram-for-instagram-6-4-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/regram-for-instagram-6-4-update/</guid>
-      <pubDate>Sat, 10 Oct 2026 21:18:20 GMT</pubDate>
-      <description>Regram for Instagram 6.4 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <title>MusicLRC Adds Time-Synced Lyrics for Local Songs in Apple Music</title>
+      <link>https://nextjailbreak.com/musiclrc-1-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/musiclrc-1-0-update/</guid>
+      <pubDate>Sun, 18 Oct 2026 20:16:08 GMT</pubDate>
+      <description>MusicLRC 1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
     </item>
     <item>
-      <title>JESSI 1.1.2 Adds Jailbreak Packages for Native Minecraft Java Servers on iPhone</title>
-      <link>https://nextjailbreak.com/jessi-1-1-2-minecraft-java-server-ios/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/jessi-1-1-2-minecraft-java-server-ios/</guid>
-      <pubDate>Sat, 10 Oct 2026 13:03:56 GMT</pubDate>
-      <description>JESSI 1.1.2 adds rootful, rootless and RootHide packages, PumpkinMC support and revised JIT detection for hosting Minecraft Java servers on iOS.</description>
-      <category>Individual App Update</category>
-    </item>
-    <item>
-      <title>TrollStore vs TrollStore Lite: Which One Should You Use?</title>
-      <link>https://nextjailbreak.com/trollstore-vs-trollstore-lite-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/trollstore-vs-trollstore-lite-comparison/</guid>
-      <pubDate>Sat, 10 Oct 2026 09:00:58 GMT</pubDate>
-      <description>Compare TrollStore 2.1.1 and TrollStore Lite 2.1.1 by iOS support, jailbreak requirements, signing model, persistence, AppSync behavior and app transfer.</description>
-      <category>TrollStore Comparison</category>
-    </item>
-    <item>
-      <title>How to Downgrade a Jailbreak Tweak in Sileo Safely</title>
-      <link>https://nextjailbreak.com/downgrade-jailbreak-tweak-sileo-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/downgrade-jailbreak-tweak-sileo-guide/</guid>
-      <pubDate>Sat, 10 Oct 2026 05:02:49 GMT</pubDate>
-      <description>Use Sileo’s built-in version selector to roll back a problematic tweak while protecting dependencies and jailbreak-environment compatibility.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    
-    <item>
-      <title>How to Back Up Sileo Sources and Installed Tweaks Before a Jailbreak Update</title>
-      <link>https://nextjailbreak.com/backup-sileo-sources-installed-tweaks-before-jailbreak-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/backup-sileo-sources-installed-tweaks-before-jailbreak-update/</guid>
-      <pubDate>Fri, 09 Oct 2026 20:58:06 GMT</pubDate>
-      <description>Export Sileo repository URLs and record installed package IDs, versions and architectures before updating, removing or switching a jailbreak.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>NowLyrics 1.1.2 Fixes Dynamic Island Lyrics and Improves Musixmatch Matching</title>
-      <link>https://nextjailbreak.com/nowlyrics-1-0-synced-lyrics-lock-screen/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/nowlyrics-1-0-synced-lyrics-lock-screen/</guid>
-      <pubDate>Fri, 09 Oct 2026 17:03:52 GMT</pubDate>
-      <description>NowLyrics 1.1.2 improves Dynamic Island lyric timing, matches Musixmatch lyrics to the played release, and restores settings access on iOS 18 and newer.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>Jikan 1.0.0 Adds Lock-Screen Charge-Time Estimates and ChargeLimiter Sync</title>
-      <link>https://nextjailbreak.com/jikan-1-0-0-lock-screen-charge-time-estimate/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/jikan-1-0-0-lock-screen-charge-time-estimate/</guid>
-      <pubDate>Fri, 09 Oct 2026 13:04:59 GMT</pubDate>
-      <description>Jikan 1.0.0 shows charge-time estimates on the Lock Screen, offers Apple and learned on-device algorithms, and supports rootful, rootless and RootHide builds.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>Shadow vs vnodebypass vs Choicy: Which Jailbreak Detection Tool Should You Try?</title>
-      <link>https://nextjailbreak.com/shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/</guid>
-      <pubDate>Fri, 09 Oct 2026 08:56:13 GMT</pubDate>
-      <description>Compare Shadow, vnodebypass and Choicy by purpose, iOS range, rootless and RootHide support, setup risk and the safest troubleshooting order.</description>
-      <category>Jailbreak Detection Comparison</category>
-    </item>
-    <item>
-      <title>How to Fix “dpkg Was Interrupted” and Sileo Lock Errors</title>
-      <link>https://nextjailbreak.com/fix-sileo-dpkg-interrupted-package-manager-lock-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/fix-sileo-dpkg-interrupted-package-manager-lock-guide/</guid>
-      <pubDate>Fri, 09 Oct 2026 04:57:11 GMT</pubDate>
-      <description>Fix Sileo dpkg interrupted, broken dependency and package-manager lock errors safely on rootless and RootHide jailbreaks without deleting lock files.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>unc0ver 8.1.0 Adds iOS 12.5.6–12.5.8 Jailbreak Support</title>
-      <link>https://nextjailbreak.com/unc0ver-8-1-0-ios-12-5-8-support/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/unc0ver-8-1-0-ios-12-5-8-support/</guid>
-      <pubDate>Thu, 08 Oct 2026 20:56:24 GMT</pubDate>
-      <description>unc0ver 8.1.0 adds official jailbreak support for iOS 12.5.6 through 12.5.8 on legacy iPhones and iPads without expanding support to modern iOS.</description>
+      <title>Calif Demos Untethered iOS 27.0.1 Jailbreak on iPhone 18 Pro</title>
+      <link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid>
+      <pubDate>Sun, 18 Oct 2026 17:01:39 GMT</pubDate>
+      <description>Calif showed jailbreak-level access surviving a reboot on an iPhone 18 Pro running iOS 27.0.1, but no public tool, support list or release date exists yet.</description>
       <category>Current Jailbreak Development</category>
     </item>
     <item>
-      <title>5Row Pro 1.19.0 Adds a Custom Number and Symbol Row to the Stock iPhone Keyboard</title>
-      <link>https://nextjailbreak.com/5row-pro-1-19-0-stock-keyboard-number-row/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/5row-pro-1-19-0-stock-keyboard-number-row/</guid>
-      <pubDate>Thu, 08 Oct 2026 16:58:24 GMT</pubDate>
-      <description>5Row Pro 1.19.0 adds a remappable fifth number or symbol row to Apple’s stock iPhone keyboard, with rootless and RootHide builds.</description>
+      <title>PowerTrace 1.0.2b Fixes Rootless Saving and Adds Lock Screen Controls</title>
+      <link>https://nextjailbreak.com/powertrace-1-0-2b-rootless-battery-hud-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/powertrace-1-0-2b-rootless-battery-hud-update/</guid>
+      <pubDate>Sun, 18 Oct 2026 13:05:00 GMT</pubDate>
+      <description>PowerTrace 1.0.2b fixes rootless data saving, improves crash-loop protection, and adds Lock Screen controls for its live battery HUD.</description>
       <category>Individual Tweak Update</category>
     </item>
     <item>
-      <title>LiveContainer vs Feather: Which IPA Installer Fits Your iPhone?</title>
-      <link>https://nextjailbreak.com/livecontainer-vs-feather-ipa-installer-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/livecontainer-vs-feather-ipa-installer-comparison/</guid>
-      <pubDate>Thu, 08 Oct 2026 13:03:11 GMT</pubDate>
-      <description>Compare LiveContainer 3.8.0 and Feather 2.9.0 by app model, certificates, App IDs, extensions, notifications, JIT and isolation.</description>
-      <category>IPA Installer Comparison</category>
-    </item>
-    <item>
-      <title>How to Refresh SideStore Apps Before the 7-Day Expiry</title>
-      <link>https://nextjailbreak.com/refresh-sidestore-apps-7-day-expiry-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/refresh-sidestore-apps-7-day-expiry-guide/</guid>
-      <pubDate>Thu, 08 Oct 2026 04:56:16 GMT</pubDate>
-      <description>Refresh SideStore apps before their seven-day certificate expires, then fix LocalDevVPN, pairing-file, Anisette and App ID errors safely.</description>
-      <category>Evergreen Guide</category>
-    </item>
-    <item>
-      <title>How to Move TrollStore Apps to TrollStore Lite on a Jailbroken iPhone</title>
-      <link>https://nextjailbreak.com/move-trollstore-apps-to-trollstore-lite-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/move-trollstore-apps-to-trollstore-lite-guide/</guid>
-      <pubDate>Thu, 08 Oct 2026 00:56:27 GMT</pubDate>
-      <description>Move apps from full TrollStore to TrollStore Lite 2.1.1, understand AppSync registration, and fix missing icons or partial transfer failures.</description>
-      <category>Evergreen Guide</category>
-    </item>
-    <item>
-      <title>InfoBar 1.3.0 Adds 13-Language Settings to the iOS System Monitor Overlay</title>
-      <link>https://nextjailbreak.com/infobar-1-3-0-system-monitor-overlay-localization/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/infobar-1-3-0-system-monitor-overlay-localization/</guid>
-      <pubDate>Wed, 07 Oct 2026 16:55:40 GMT</pubDate>
-      <description>InfoBar 1.3.0 localizes its Settings bundle into 13 languages while keeping its movable CPU, RAM, battery and network overlay for rootless iOS 15–18.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>LockScreenRestore 1.9.4 Makes Music Artwork Tappable and Refines the iOS 15 Date Layout</title>
-      <link>https://nextjailbreak.com/lockscreenrestore-1-8-2-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/lockscreenrestore-1-8-2-update/</guid>
-      <pubDate>Wed, 07 Oct 2026 13:02:18 GMT</pubDate>
-      <description>LockScreenRestore 1.9.4 lets music artwork open the playing app, makes the date follow Text Size, and refines the Focus pill on rootless iOS 16 jailbreaks.</description>
-      <category>Customization</category>
-    </item>
-    <item>
-      <title>Prism vs Circle to Search: Which iOS Visual Search Tweak Should You Use?</title>
-      <link>https://nextjailbreak.com/prism-vs-circle-to-search-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/prism-vs-circle-to-search-comparison/</guid>
-      <pubDate>Wed, 07 Oct 2026 08:55:03 GMT</pubDate>
-      <description>Compare Prism 1.6.3 and Circle to Search 0.6.0 by OCR, translation, screenshots, privacy, price, iOS range and jailbreak requirements.</description>
+      <title>Regram vs Rocket for Instagram: Which Tweak Should You Use?</title>
+      <link>https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</guid>
+      <pubDate>Sun, 18 Oct 2026 08:58:53 GMT</pubDate>
+      <description>Regram 6.4 vs Rocket 4.24.0 compared: Reels, Stories, downloads, privacy, customization, jailbreak support and sideloading options.</description>
       <category>Tweak Comparison</category>
     </item>
     <item>
-      <title>How to Install a .deb File with Sileo on a Rootless Jailbreak</title>
-      <link>https://nextjailbreak.com/install-deb-file-sileo-rootless-jailbreak-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/install-deb-file-sileo-rootless-jailbreak-guide/</guid>
-      <pubDate>Wed, 07 Oct 2026 04:55:14 GMT</pubDate>
-      <description>Install a local .deb file with Sileo 2.5.1, check rootless architecture and dependencies, fix Bad Deb errors, and remove the package safely.</description>
-      <category>Evergreen Guide</category>
+      <title>How to Read and Share Jailbreak Crash Logs with KrashKop</title>
+      <link>https://nextjailbreak.com/read-share-jailbreak-crash-logs-krashkop-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/read-share-jailbreak-crash-logs-krashkop-guide/</guid>
+      <pubDate>Sun, 18 Oct 2026 05:01:35 GMT</pubDate>
+      <description>Collect the right jailbreak crash report, read its process, exception and backtrace clues, redact private data, and send developers a reproducible report.</description>
+      <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
-      <title>How to Add Repositories to Sileo and Fix Source Refresh Errors</title>
-      <link>https://nextjailbreak.com/add-repositories-sileo-fix-source-refresh-errors/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/add-repositories-sileo-fix-source-refresh-errors/</guid>
-      <pubDate>Wed, 07 Oct 2026 01:04:26 GMT</pubDate>
-      <description>Add trusted APT repositories to Sileo 2.5.1, refresh one source, remove broken repos, and interpret 404, signature, hash and architecture errors safely.</description>
-      <category>Evergreen Guide</category>
+      <title>How to Find Which Jailbreak Tweak Installed a File with dpkg</title>
+      <link>https://nextjailbreak.com/find-jailbreak-tweak-file-owner-dpkg-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/find-jailbreak-tweak-file-owner-dpkg-guide/</guid>
+      <pubDate>Sun, 18 Oct 2026 01:02:32 GMT</pubDate>
+      <description>Use dpkg-query to identify which installed jailbreak tweak owns a file, confirm the package and version, and remove it safely through Sileo or Zebra.</description>
+      <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
-      <title>Eagle 1.0.5 Refines DarkSword Island and Dock Personalization</title>
-      <link>https://nextjailbreak.com/eagle-1-0-5-darksword-island-dock-galleries/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/eagle-1-0-5-darksword-island-dock-galleries/</guid>
-      <pubDate>Tue, 06 Oct 2026 20:55:53 GMT</pubDate>
-      <description>Eagle 1.0.5 build 92 refreshes its Dynamic Island and Dock galleries, adds precise positioning and tightens safety checks. See verified compatibility and limits.</description>
-      <category>iOS Personalization Development</category>
+      <title>UTM 5.0.8 Stable Fixes Snapshots and Windows VM Stalls</title>
+      <link>https://nextjailbreak.com/utm-5-0-6-beta-ios-26-snapshots-disk-tools/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/utm-5-0-6-beta-ios-26-snapshots-disk-tools/</guid>
+      <pubDate>Sat, 17 Oct 2026 21:00:38 GMT</pubDate>
+      <description>UTM 5.0.8 is the stable UTM 5 release, fixing compressed-disk snapshots, Windows USB-install stalls and high-refresh display issues while retaining iOS 26 snapshots.</description>
+      <category>Current Jailbreak Development</category>
     </item>
     <item>
-      <title>How to Enable JIT in Husk 0.7.0 with StikJIT, StikDebug or TrollStore</title>
-      <link>https://nextjailbreak.com/enable-jit-husk-stikjit-stikdebug-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/enable-jit-husk-stikjit-stikdebug-guide/</guid>
-      <pubDate>Tue, 06 Oct 2026 17:03:14 GMT</pubDate>
-      <description>Enable JIT in Husk 0.7.0 using built-in StikJIT on iOS 26–27, StikDebug, or TrollStore, with pairing, LocalDevVPN and troubleshooting steps.</description>
-      <category>Evergreen Guide</category>
-    </item>
-    <item>
-      <title>Triggr 1.0.4 Brings Activator-Style Automation to Rootless Dopamine</title>
-      <link>https://nextjailbreak.com/triggr-1-0-4-activator-automation-dopamine/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/triggr-1-0-4-activator-automation-dopamine/</guid>
-      <pubDate>Tue, 06 Oct 2026 13:08:32 GMT</pubDate>
-      <description>Triggr 1.0.4 adds an app, iOS 18 side-button triggers, per-app assignments and extensible automation for rootless Dopamine on iOS 15–18.</description>
+      <title>Rocket for Instagram 4.24.0 Adds Reels Controls and OLED Fixes</title>
+      <link>https://nextjailbreak.com/rocket-for-instagram-4-18-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/rocket-for-instagram-4-18-0-update/</guid>
+      <pubDate>Sat, 17 Oct 2026 17:01:52 GMT</pubDate>
+      <description>Rocket for Instagram 4.24.0 adds a Reels friend-suggestion control and fixes OLED-theme toggles after a run of feed, profile-watching and iPad updates.</description>
       <category>Individual Tweak Update</category>
     </item>
     <item>
-      <title>Dynamic120hz vs Always120: Which 120Hz Tweak Should You Use?</title>
-      <link>https://nextjailbreak.com/dynamic120hz-vs-always120-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dynamic120hz-vs-always120-comparison/</guid>
-      <pubDate>Tue, 06 Oct 2026 09:04:31 GMT</pubDate>
-      <description>Compare Dynamic120hz 3.3.3-3 and Always120 1.2.0 by iOS range, ProMotion controls, 120-FPS recording, battery options and price.</description>
-      <category>Tweak Comparison</category>
-    </item>
-    <item>
-      <title>BegoneCIA 1.0.0 Adds iOS 18 Support and Silences Siri’s New Mic Path</title>
-      <link>https://nextjailbreak.com/begonecia-rootless-ios-17-a12-support/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/begonecia-rootless-ios-17-a12-support/</guid>
-      <pubDate>Tue, 06 Oct 2026 05:02:50 GMT</pubDate>
-      <description>BegoneCIA 1.0.0 adds iOS 18 support by silencing Siri’s AVVoiceController microphone path while retaining rootless iOS 15–17 coverage.</description>
-      <category>Jailbreak Development</category>
-    </item>
-    <item>
-      <title>How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop</title>
-      <link>https://nextjailbreak.com/dopamine-bad-tweak-crash-loop-recovery-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-bad-tweak-crash-loop-recovery-guide/</guid>
-      <pubDate>Tue, 06 Oct 2026 00:55:26 GMT</pubDate>
-      <description>Recover a Dopamine jailbreak after a bad tweak, Safe Mode or SpringBoard crash loop by disabling tweak injection, removing the package and restoring cautiously.</description>
-      <category>Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Dynamic120hz 3.3.3-3 Adds 120 FPS Screen Recording</title>
-      <link>https://nextjailbreak.com/dynamic120hz-3-3-3-3-120fps-screen-recording/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dynamic120hz-3-3-3-3-120fps-screen-recording/</guid>
-      <pubDate>Mon, 05 Oct 2026 14:03:02 GMT</pubDate>
-      <description>Dynamic120hz 3.3.3-3 adds 120-FPS screen recording and improves dynamic refresh-rate unlocking on supported jailbroken ProMotion iPhones.</description>
+      <title>Horythia 1.0.0 Automates System Settings Per App on iOS 15–26</title>
+      <link>https://nextjailbreak.com/horythia-1-0-0-per-app-system-settings-automation/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/horythia-1-0-0-per-app-system-settings-automation/</guid>
+      <pubDate>Sat, 17 Oct 2026 13:02:46 GMT</pubDate>
+      <description>Horythia 1.0.0 switches Wi-Fi, cellular, brightness, volume, DND, VPN and app-scoped location settings automatically on supported jailbreaks.</description>
       <category>Individual Tweak Update</category>
     </item>
     <item>
-      <title>Dopamine vs NathanLR vs RootHide Bootstrap: Which Should You Use?</title>
-      <link>https://nextjailbreak.com/dopamine-vs-nathanlr-vs-roothide-bootstrap/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-vs-nathanlr-vs-roothide-bootstrap/</guid>
-      <pubDate>Mon, 05 Oct 2026 09:00:14 GMT</pubDate>
-      <description>Compare a full rootless jailbreak, an archived semi-jailbreak and the distinct RootHide environment by support, packages and current recommendation.</description>
-      <category>Jailbreak Comparison</category>
+      <title>Bloom vs Velvet 2: Animation or Full Notification Styling?</title>
+      <link>https://nextjailbreak.com/bloom-vs-velvet-2-notification-tweak-comparison/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/bloom-vs-velvet-2-notification-tweak-comparison/</guid>
+      <pubDate>Sat, 17 Oct 2026 08:56:05 GMT</pubDate>
+      <description>Compare Bloom 1.4.1 and Velvet 2 2.1.2-3 by purpose, iOS compatibility, jailbreak environment, price, customization depth and current support.</description>
+      <category>Tweak Roundup &amp; Comparison</category>
     </item>
     <item>
-      <title>Rootless vs Rootful vs RootHide Jailbreaks: How to Identify Your Setup</title>
-      <link>https://nextjailbreak.com/tutorial-rootless-basics/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/tutorial-rootless-basics/</guid>
-      <pubDate>Mon, 05 Oct 2026 04:56:07 GMT</pubDate>
-      <description>Compare jailbreak filesystem environments, recognize package architecture clues and avoid confusing tweak support with device jailbreak availability.</description>
-      <category>Jailbreak Guide</category>
+      <title>How to Install a Jailbreak Tweak Safely with Sileo</title>
+      <link>https://nextjailbreak.com/install-jailbreak-tweak-sileo-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/install-jailbreak-tweak-sileo-guide/</guid>
+      <pubDate>Sat, 17 Oct 2026 04:55:13 GMT</pubDate>
+      <description>Install a repository-hosted jailbreak tweak with Sileo 2.5.1, verify its source and compatibility, review dependencies, and choose the correct restart action.</description>
+      <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
-      <title>MacStatusBar&amp;Dock 1.3.6 Expands Stage Manager to Seven Windows</title>
-      <link>https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</guid>
-      <pubDate>Mon, 05 Oct 2026 01:00:26 GMT</pubDate>
-      <description>The open-source iPad tweak now supports seven Stage Manager windows and fixes closing, minimizing and engine-switching bugs.</description>
-      <category>Jailbreak Development</category>
+      <title>How to Update TrollStore Safely Without Losing Installed Apps</title>
+      <link>https://nextjailbreak.com/update-trollstore-safely-without-losing-apps/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/update-trollstore-safely-without-losing-apps/</guid>
+      <pubDate>Sat, 17 Oct 2026 01:00:27 GMT</pubDate>
+      <description>Update TrollStore to 2.1.1 through Settings or the official TrollStore.tar fallback, preserve installed apps, and repair registrations if icons disappear.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>vphone-cli 2.9.5 Adds Apple TV Guests and tvOS 27 Research Support</title>
+      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
+      <pubDate>Fri, 16 Oct 2026 21:00:04 GMT</pubDate>
+      <description>vphone-cli 2.9.5 adds Apple TV HD and experimental Apple TV 4K guests, tvOS 27 support, a Unity GPU fix and more reliable virtual-device setup.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
+      <title>Battman 1.1.0 Adds Battery Analytics and Native Plug-ins</title>
+      <link>https://nextjailbreak.com/battman-1-1-0-battery-analytics-plugins-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/battman-1-1-0-battery-analytics-plugins-update/</guid>
+      <pubDate>Fri, 16 Oct 2026 17:03:39 GMT</pubDate>
+      <description>Battman 1.1.0 adds configurable battery analytics, native plug-ins, powerlog export and charging fixes for supported jailbroken or TrollStore-enabled iPhones.</description>
+      <category>Individual App Update</category>
+    </item>
+    <item>
+      <title>TransLux 1.6 Adds Live Translation Inside iOS Apps</title>
+      <link>https://nextjailbreak.com/translux-1-6-live-app-translation-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/translux-1-6-live-app-translation-update/</guid>
+      <pubDate>Fri, 16 Oct 2026 13:00:49 GMT</pubDate>
+      <description>TransLux 1.6 adds on-the-fly translation in App Store, Telegram, Discord, X, Sileo and Saily on compatible rootless jailbreaks running iOS 15–26.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
+      <title>CarBridge vs CarCast: Which CarPlay Tweak Fits Your Jailbreak?</title>
+      <link>https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</guid>
+      <pubDate>Fri, 16 Oct 2026 09:00:31 GMT</pubDate>
+      <description>Compare CarBridge 2.0.15 and CarCast 1.2 by supported iOS versions, jailbreak requirements, Airaw dependency, price, features and CarPlay limitations.</description>
+      <category>Tweak Roundup &amp; Comparison</category>
+    </item>
+    <item>
+      <title>How to Uninstall a Jailbreak Tweak Safely in Sileo</title>
+      <link>https://nextjailbreak.com/uninstall-jailbreak-tweak-sileo-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/uninstall-jailbreak-tweak-sileo-guide/</guid>
+      <pubDate>Fri, 16 Oct 2026 04:56:57 GMT</pubDate>
+      <description>Uninstall a jailbreak tweak safely in Sileo 2.5.1, review queued dependency removals, choose the correct restart action, and avoid deleting the jailbreak environment.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>Respring vs Userspace Reboot vs Full Reboot on a Jailbroken iPhone</title>
+      <link>https://nextjailbreak.com/respring-vs-userspace-reboot-full-reboot-jailbreak-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/respring-vs-userspace-reboot-full-reboot-jailbreak-guide/</guid>
+      <pubDate>Fri, 16 Oct 2026 00:58:53 GMT</pubDate>
+      <description>Learn when to respring, perform a userspace reboot or fully restart a jailbroken iPhone, and what each action does to tweaks and the jailbreak state.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>RootHide Bootstrap Main Branch Preserves Core Functions When Tweaks Are Disabled</title>
+      <link>https://nextjailbreak.com/roothide-bootstrap-main-branch-tweaks-disabled-core-fix/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/roothide-bootstrap-main-branch-tweaks-disabled-core-fix/</guid>
+      <pubDate>Thu, 15 Oct 2026 20:57:03 GMT</pubDate>
+      <description>A RootHide Bootstrap development commit keeps core bootstrap functions available when tweak injection is disabled after a problematic Substrate package.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
+      <title>Dopamine Main Branch Fixes Replacement-Screen Touch and Rootless Plists</title>
+      <link>https://nextjailbreak.com/dopamine-main-branch-replacement-screen-rootless-plist-fixes/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-main-branch-replacement-screen-rootless-plist-fixes/</guid>
+      <pubDate>Thu, 15 Oct 2026 16:56:13 GMT</pubDate>
+      <description>Two Dopamine commits fix touch after userspace reboot on some replacement screens and stop three system plists from being redirected into /var/jb.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
+      <title>Bloom 1.4.1 Fixes iOS 18 Loading and iPhone 16 Dynamic Island Animations</title>
+      <link>https://nextjailbreak.com/bloom-tweak.html</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/bloom-tweak.html</guid>
+      <pubDate>Thu, 15 Oct 2026 13:01:14 GMT</pubDate>
+      <description>Bloom 1.4.1 fixes loading failures mainly on iOS 18, assigns Dynamic Island animations to iPhone 16 models, and repairs LastLook integration.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
+      <title>Atria vs Lynx 2: Which iOS 16 Customization Tweak Should You Use?</title>
+      <link>https://nextjailbreak.com/atria-vs-lynx-2-ios-16-customization-comparison/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/atria-vs-lynx-2-ios-16-customization-comparison/</guid>
+      <pubDate>Thu, 15 Oct 2026 08:58:45 GMT</pubDate>
+      <description>Compare Atria 1.4.1 and Lynx 2 2.5.4 by Home Screen controls, system-wide customization, iOS range, rootless support, price and update history.</description>
+      <category>Tweak Roundup &amp; Comparison</category>
+    </item>
+    <item>
+      <title>How to Disable Tweaks for One App with Choicy</title>
+      <link>https://nextjailbreak.com/disable-tweaks-one-app-choicy-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/disable-tweaks-one-app-choicy-guide/</guid>
+      <pubDate>Thu, 15 Oct 2026 04:56:20 GMT</pubDate>
+      <description>Use Choicy 1.5.4-2 to disable all tweak injection or allow only selected tweaks for one app, without treating it as a jailbreak-detection bypass.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>How to Remove Dopamine 3 Jailbreak Safely</title>
+      <link>https://nextjailbreak.com/remove-dopamine-3-jailbreak-safely-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/remove-dopamine-3-jailbreak-safely-guide/</guid>
+      <pubDate>Thu, 15 Oct 2026 01:00:01 GMT</pubDate>
+      <description>Remove the Dopamine 3 jailbreak safely using its official TrollStore or sideloaded-app workflow while keeping regular iPhone apps, files and personal data.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>AnxieTea 1.0.3 Adds Notchless iPhone Meter Support and Position Controls</title>
+      <link>https://nextjailbreak.com/anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/</guid>
+      <pubDate>Wed, 14 Oct 2026 17:04:22 GMT</pubDate>
+      <description>AnxieTea 1.0.3 extends its status-bar traffic meter to notchless iPhones, adds horizontal positioning, an About page, report copying and performance fixes.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
+      <title>EeveeSpotify 7.0.0 Adds iOS 26 Liquid Glass, Custom Tabs and Word-Synced Lyrics</title>
+      <link>https://nextjailbreak.com/eeveespotify-7-liquid-glass-custom-tabs-lyrics/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/eeveespotify-7-liquid-glass-custom-tabs-lyrics/</guid>
+      <pubDate>Wed, 14 Oct 2026 12:55:56 GMT</pubDate>
+      <description>EeveeSpotify 7.0.0 overhauls the Spotify tweak with native iOS 26 Liquid Glass, custom tabs, word-synced lyrics, remote flags and privacy fixes.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
+      <title>Irisin vs Sileo: Which Jailbreak Package Manager Should You Use?</title>
+      <link>https://nextjailbreak.com/irisin-vs-sileo-package-manager-comparison/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/irisin-vs-sileo-package-manager-comparison/</guid>
+      <pubDate>Wed, 14 Oct 2026 09:03:43 GMT</pubDate>
+      <description>Compare Irisin 4.6.1 and Sileo 2.5.1 by jailbreak environment, iOS range, package handling, repositories, RootHide support, updates and setup.</description>
+      <category>Tweak Roundup &amp; Comparison</category>
+    </item>
+    <item>
+      <title>How to Fix TrollStore Apps Not Opening with the Persistence Helper</title>
+      <link>https://nextjailbreak.com/fix-trollstore-apps-not-opening-persistence-helper/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/fix-trollstore-apps-not-opening-persistence-helper/</guid>
+      <pubDate>Wed, 14 Oct 2026 05:03:10 GMT</pubDate>
+      <description>Fix TrollStore and permasigned apps that stop opening after an icon-cache reload by restoring System registration with the official Persistence Helper.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>How to Fix Sileo Dependency Errors on a Rootless Jailbreak</title>
+      <link>https://nextjailbreak.com/fix-sileo-dependency-errors-rootless-jailbreak/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/fix-sileo-dependency-errors-rootless-jailbreak/</guid>
+      <pubDate>Wed, 14 Oct 2026 00:58:54 GMT</pubDate>
+      <description>Fix Sileo unmet dependencies, version conflicts and rootless architecture errors safely—without force-installing incompatible jailbreak packages.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>PreferenceLoader 2.3.3 Fixes Tweak Settings on iOS 18 and iOS 26</title>
+      <link>https://nextjailbreak.com/preferenceloader-2-3-3-ios-18-26-settings-fix/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/preferenceloader-2-3-3-ios-18-26-settings-fix/</guid>
+      <pubDate>Tue, 13 Oct 2026 20:56:06 GMT</pubDate>
+      <description>PreferenceLoader fork 2.3.3 keeps tweak preferences on the main Settings screen and fixes AirPods, switch-row and iPad navigation bugs on iOS 18 and later.</description>
+      <category>Current Jailbreak Development</category>
     </item>
   </channel>
 </rss>
