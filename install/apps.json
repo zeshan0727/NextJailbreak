@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-wcp",
+      "name": "Wallcraft Pro",
+      "version": "3.42",
+      "build": "192",
+      "platform": "iPhone",
+      "minimumOS": "iOS 15.0+",
+      "bundleId": "com.nextsolution.wcp",
+      "icon": "/install/icons/com-nextsolution-wcp-f6b32f383169.png",
+      "manifest": "/install/com-nextsolution-wcp.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-wcp/3.42/com-nextsolution-wcp-3.42-192.ipa",
+      "sha256": "f6b32f383169683ec22edfbf54cf0f8e01c05e174a4c0ca7f0a330be3c348adf",
+      "sizeBytes": 124923591,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-watusi",
       "name": "Whatsapp+",
       "version": "26.38.74",
@@ -305,5 +326,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-10-17"
+  "updated": "2026-10-18"
 }
