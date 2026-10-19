@@ -72,12 +72,27 @@ struct FixedPlanItem: Identifiable, Codable, Equatable {
     }
 }
 
+struct SavedCycleBudget: Codable, Equatable {
+    var cycleStart: Date
+    var groceryPercent: Int
+    var fuelPercent: Int
+    var eatOutPercent: Int
+}
+
 struct MonthlyFixedBudget: Codable, Equatable {
     var items: [FixedPlanItem] = []
     var groceryPercent: Int = 45
     var fuelPercent: Int = 25
     var eatOutPercent: Int = 15
     var appliedCycle: Date?
+    var cycleAllocations: [SavedCycleBudget] = []
+
+    func savedAllocation(in cycle: Date) -> SavedCycleBudget? {
+        let start = BudgetCycle.start(containing: cycle)
+        return cycleAllocations.first {
+            BudgetCycle.start(containing: $0.cycleStart) == start
+        }
+    }
 
     var otherPercent: Int {
         max(0, 100 - groceryPercent - fuelPercent - eatOutPercent)
@@ -106,6 +121,17 @@ struct MonthlyFixedBudget: Codable, Equatable {
         groceryPercent = grocery
         fuelPercent = fuel
         eatOutPercent = eatOut
-        appliedCycle = BudgetCycle.start(containing: cycle)
+        let start = BudgetCycle.start(containing: cycle)
+        appliedCycle = start
+        let saved = SavedCycleBudget(
+            cycleStart: start, groceryPercent: grocery, fuelPercent: fuel, eatOutPercent: eatOut
+        )
+        if let index = cycleAllocations.firstIndex(where: {
+            BudgetCycle.start(containing: $0.cycleStart) == start
+        }) {
+            cycleAllocations[index] = saved
+        } else {
+            cycleAllocations.append(saved)
+        }
     }
 }
