@@ -1,0 +1,114 @@
+name: Build Next Ledger 1.3.78 Budget TIPA (Recovery-Safe)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-nextledger-178-recovery-safe.yml"
+  workflow_dispatch:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextledger-178-budget-recovery-safe
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name != 'issues' || github.event.issue.title == 'build-nextledger-178-budget-safe'
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - name: Check out the isolated 1.3.76-derived update branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/next-ledger-1.3.78-budget-rebuild
+          fetch-depth: 1
+
+      - name: Verify source and backup guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f DailyLedger/Views/FixedBudgetDashboardView.swift
+          test -f DailyLedger/Views/BudgetSettingsView.swift
+          test -f DailyLedger/Services/LedgerDiskStore.swift
+          grep -q 'loadForMutationUnlocked' DailyLedger/Services/LedgerDiskStore.swift
+          grep -q 'fixedBudget: incoming.fixedBudget' DailyLedger/Services/LedgerStore.swift
+          grep -q 'Fixed Monthly Budget' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -q 'com.nextsolution.dailyledger' project.yml
+          test "$(grep -c 'version: Int = 5' DailyLedger/Models/LedgerTransaction.swift)" -ge 1
+          xcodebuild -version
+
+      - name: Budget expiry, cycle and JSON persistence tests
+        run: |
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/nextledger-178-budget-tests
+          /tmp/nextledger-178-budget-tests
+
+      - name: Install XcodeGen and generate native project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build iOS 16+ device app unsigned for TrollStore
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project DailyLedger.xcodeproj \
+            -scheme DailyLedger \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath /tmp/nextledger-178-recovery-safe \
+            PRODUCT_BUNDLE_IDENTIFIER=com.nextsolution.dailyledger \
+            MARKETING_VERSION=1.3.78 \
+            CURRENT_PROJECT_VERSION=87 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Validate binary, sign ad hoc and package TIPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find /tmp/nextledger-178-recovery-safe/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP_PATH"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP_PATH/Info.plist")" = "com.nextsolution.dailyledger"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP_PATH/Info.plist")" = "1.3.78"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP_PATH/Info.plist")" = "87"
+          /usr/bin/codesign --force --deep --sign - "$APP_PATH"
+          /usr/bin/codesign --verify --deep --verbose=2 "$APP_PATH"
+          rm -rf Payload
+          mkdir Payload
+          cp -R "$APP_PATH" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.78-Budget.tipa
+          shasum -a 256 NextLedger-1.3.78-Budget.tipa > NextLedger-1.3.78-Budget.sha256
+          unzip -t NextLedger-1.3.78-Budget.tipa
+          ls -lh NextLedger-1.3.78-Budget.tipa
+
+      - name: Upload verified TIPA as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.78-Budget-TIPA
+          path: |
+            NextLedger-1.3.78-Budget.tipa
+            NextLedger-1.3.78-Budget.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish isolated build output (do not change the site)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build-output/nextledger-1.3.78
+          cp NextLedger-1.3.78-Budget.tipa NextLedger-1.3.78-Budget.sha256 build-output/nextledger-1.3.78/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add build-output/nextledger-1.3.78/NextLedger-1.3.78-Budget.tipa build-output/nextledger-1.3.78/NextLedger-1.3.78-Budget.sha256
+          if ! git diff --cached --quiet; then
+            git commit -m "Package Next Ledger 1.3.78 fixed budget for TrollStore"
+            git push origin HEAD:fix/next-ledger-1.3.78-budget-rebuild
+          fi
