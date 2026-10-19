@@ -97,8 +97,10 @@ jobs:
           BYTES="$(stat -f %z "$EXE")"
           echo "Full app binary bytes: $BYTES"
           test "$BYTES" -gt 12000000
+          # Materialize string output first: grep -q otherwise causes SIGPIPE with pipefail.
+          strings "$EXE" > /tmp/nextledger179-strings.txt
           for REQUIRED in "Fetch Latest 15 SMS" "Review Fetched SMS" "SMS Import Console" "Loan Summary Comparison" "Fixed Monthly Budget" "Available to Spend"; do
-            if ! strings "$EXE" | grep -Fq "$REQUIRED"; then
+            if ! grep -Fq "$REQUIRED" /tmp/nextledger179-strings.txt; then
               echo "Expected full-original or fixed-budget module missing: $REQUIRED" >&2
               exit 1
             fi
