@@ -1,11 +1,12 @@
 import SwiftUI
 
 enum AppTab: Hashable, CaseIterable {
-    case home, accounts, transactions, insights, reports, settings
+    case home, budget, accounts, transactions, insights, reports, settings
 
     var title: String {
         switch self {
         case .home: return "Home"
+        case .budget: return "Budget"
         case .accounts: return "Accounts"
         case .transactions: return "Trans"
         case .insights: return "AI"
@@ -17,6 +18,7 @@ enum AppTab: Hashable, CaseIterable {
     var icon: String {
         switch self {
         case .home: return "house.fill"
+        case .budget: return "chart.pie.fill"
         case .accounts: return "creditcard.fill"
         case .transactions: return "list.bullet.rectangle.fill"
         case .insights: return "sparkles"
