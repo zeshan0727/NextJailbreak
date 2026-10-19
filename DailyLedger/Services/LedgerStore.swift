@@ -6,6 +6,7 @@ final class LedgerStore: ObservableObject {
     @Published private(set) var transactions: [LedgerTransaction] = []
     @Published private(set) var accounts: [LedgerAccount] = []
     @Published private(set) var settings = LedgerSettings()
+    @Published private(set) var fixedBudget = MonthlyFixedBudget()
     @Published var errorMessage: String?
     @Published private(set) var recordingCards: [LedgerTransaction] = []
     private(set) var runningBalances: [UUID: Decimal] = [:]
@@ -57,6 +58,7 @@ final class LedgerStore: ObservableObject {
         accountsByID = Dictionary(uniqueKeysWithValues: ledger.accounts.map { ($0.id, $0) })
         currentBalances = accountBalances
         settings = ledger.settings
+        fixedBudget = ledger.fixedBudget
         runningBalances = running
         runningBalancesByAccount = accountRunning
         transactions = Array(ordered.reversed())
@@ -67,6 +69,43 @@ final class LedgerStore: ObservableObject {
             }
         }
         hasLoaded = true
+    }
+
+    func saveFixedPlanItem(_ item: FixedPlanItem) {
+        guard item.amount > 0,
+              !item.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              item.durationCycles == nil || (item.durationCycles ?? 0) > 0 else {
+            errorMessage = "Enter a name, positive amount and valid duration."
+            return
+        }
+        var normalized = item
+        normalized.firstCycle = BudgetCycle.start(containing: item.firstCycle)
+        updateLedger(failureMessage: "Unable to save the fixed budget item.") { ledger in
+            if let index = ledger.fixedBudget.items.firstIndex(where: { $0.id == normalized.id }) {
+                ledger.fixedBudget.items[index] = normalized
+            } else {
+                ledger.fixedBudget.items.append(normalized)
+            }
+        }
+    }
+
+    func deleteFixedPlanItem(_ id: UUID) {
+        updateLedger(failureMessage: "Unable to delete the fixed budget item.") { ledger in
+            ledger.fixedBudget.items.removeAll { $0.id == id }
+        }
+    }
+
+    func applyFixedBudget(grocery: Int, fuel: Int, eatOut: Int, cycle: Date) {
+        guard [grocery, fuel, eatOut].allSatisfy({ 0...100 ~= $0 }),
+              grocery + fuel + eatOut <= 100 else {
+            errorMessage = "Budget percentages must total no more than 100%."
+            return
+        }
+        updateLedger(failureMessage: "Unable to save the monthly budget plan.") { ledger in
+            ledger.fixedBudget.setAllocation(
+                grocery: grocery, fuel: fuel, eatOut: eatOut, cycle: cycle
+            )
+        }
     }
 
     func add(
