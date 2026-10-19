@@ -43,6 +43,10 @@ enum AccountNature: String, Codable, CaseIterable, Identifiable {
     case asset
     case dailyExpense
     case bank
+    case receivable
+    case payable
+    case fixedAsset
+    case fixedLiability
 
     var id: String { rawValue }
     var title: String {
