@@ -294,6 +294,9 @@ struct ChartOfAccountsView: View {
         case .control: return "arrow.left.arrow.right.circle.fill"
         case .dailyExpense: return "cart.fill"
         case .unassigned: return "questionmark.folder.fill"
+        case .receivable, .payable: return "arrow.left.arrow.right.circle.fill"
+        case .fixedAsset: return "building.2.fill"
+        case .fixedLiability: return "creditcard.trianglebadge.exclamationmark"
         }
     }
 
@@ -305,6 +308,10 @@ struct ChartOfAccountsView: View {
         case .control: return "CONTROL"
         case .dailyExpense: return "EXPENSE"
         case .unassigned: return "OTHER"
+        case .receivable: return "RECV"
+        case .payable: return "PAY"
+        case .fixedAsset: return "ASSET"
+        case .fixedLiability: return "LIAB"
         }
     }
 
@@ -363,6 +370,10 @@ private struct ChartAccountRow: View {
         case .control: return "CONTROL"
         case .dailyExpense: return "EXPENSE"
         case .unassigned: return "OTHER"
+        case .receivable: return "RECV"
+        case .payable: return "PAY"
+        case .fixedAsset: return "ASSET"
+        case .fixedLiability: return "LIAB"
         }
     }
 }
