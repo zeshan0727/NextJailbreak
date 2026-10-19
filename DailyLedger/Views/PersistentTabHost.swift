@@ -11,6 +11,7 @@ struct PersistentTabHost: UIViewControllerRepresentable {
         let controller = PersistentTabViewController()
         controller.install([
             .home: host(DashboardView(onAdd: onAdd, onTransfer: onTransfer)),
+            .budget: host(MonthlyBudgetView()),
             .accounts: host(AccountsView()),
             .transactions: host(TransactionsView(onAdd: onAdd, onTransfer: onTransfer)),
             .insights: host(InsightsView()),

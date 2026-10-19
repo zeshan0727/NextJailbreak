@@ -381,7 +381,8 @@ struct SettingsView: View {
         BackupDocument(data: ImportExportCodec.backupData(
             transactions: store.transactions,
             accounts: store.accounts,
-            settings: store.settings
+            settings: store.settings,
+            fixedBudget: store.fixedBudget
         ))
     }
 

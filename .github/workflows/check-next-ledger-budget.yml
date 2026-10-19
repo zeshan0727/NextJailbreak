@@ -1,0 +1,36 @@
+name: Next Ledger Budget Build Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "DailyLedger/**"
+      - "NextLedger.xcodeproj/**"
+      - "Tests/NextLedgerBudget/**"
+      - ".github/workflows/check-next-ledger-budget.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify 26th-to-25th recurrence and saved allocations
+        run: |
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/budget-check
+          /tmp/budget-check
+      - name: Build native iOS app for simulator
+        run: |
+          xcodebuild \
+            -project NextLedger.xcodeproj \
+            -scheme NextLedger \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath /tmp/nextledger-budget-check \
+            CODE_SIGNING_ALLOWED=NO \
+            build
