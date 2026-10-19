@@ -270,13 +270,15 @@ private struct FixedPlanItemEditor: View {
                 }
                 DatePicker("First active month", selection: $firstCycle, displayedComponents: .date)
             }
-            Section("Recurrence") {
+            Section {
                 Toggle("Limited number of months", isOn: $isLimited)
                 if isLimited {
                     Stepper("\(duration) monthly cycles", value: $duration, in: 1...120)
                 } else {
                     Label("Ongoing each month", systemImage: "repeat")
                 }
+            } header: {
+                Text("Recurrence")
             } footer: {
                 Text("Each cycle runs from the 26th to the following 25th. Limited entries automatically stop when the selected cycles finish.")
             }
