@@ -56,8 +56,11 @@ struct AppRootView: View {
                                 .font(.system(size: 18, weight: .semibold))
                             Text(tab.title)
                                 .font(.caption2.weight(.medium))
+                            Capsule()
+                                .fill(selectedTab == tab ? Color(red: 0.21, green: 0.26, blue: 0.94) : .clear)
+                                .frame(width: 30, height: 2)
                         }
-                        .foregroundStyle(selectedTab == tab ? AppTheme.purple : .secondary)
+                        .foregroundStyle(selectedTab == tab ? Color(red: 0.21, green: 0.26, blue: 0.94) : .secondary)
                         .frame(maxWidth: .infinity)
                         .contentShape(Rectangle())
                     }
