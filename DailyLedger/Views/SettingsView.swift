@@ -57,6 +57,17 @@ struct SettingsView: View {
                             Text(theme.rawValue).tag(theme.rawValue)
                         }
                     }
+
+                    NavigationLink {
+                        TabOrderSettingsView()
+                    } label: {
+                        SettingsRow(
+                            title: "Rearrange Tabs",
+                            subtitle: "Drag to change bottom navigation order",
+                            icon: "arrow.up.arrow.down",
+                            color: AppTheme.blue
+                        )
+                    }
                 } header: {
                     Label("Display", systemImage: "circle.lefthalf.filled")
                 } footer: {
