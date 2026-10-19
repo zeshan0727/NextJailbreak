@@ -1,0 +1,140 @@
+name: Build Next Ledger 1.3.81 ProMotion Theme and Tab Order
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-nextledger-181-promotions-theme-tabs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextledger-full-181-theme-tabs
+  cancel-in-progress: false
+
+jobs:
+  full-original-budget:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Checkout verified original 1.3.76 source plus budget-only changes
+        uses: actions/checkout@v4
+        with:
+          ref: fix/next-ledger-1.3.81-theme-tabs-120hz
+          fetch-depth: 1
+
+      - name: Materialize authentic 1.3.76 full feature set from original build chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/apply_next_ledger_1_3_76.sh > /tmp/nextledger-180-original-generation.log 2>&1 || {
+            tail -n 120 /tmp/nextledger-180-original-generation.log
+            exit 1
+          }
+          tail -n 22 /tmp/nextledger-180-original-generation.log
+          grep -Fq 'MARKETING_VERSION: "1.3.76"' project.yml
+          grep -Fq 'Fetch Latest 15 SMS' DailyLedger/Views/SMSImportConsoleView.swift
+          grep -Fq 'Review Fetched SMS' DailyLedger/Views/SMSImportConsoleView.swift
+          grep -Fq 'Loan Summary Comparison' DailyLedger/Views/ReportsView.swift
+          test -f DailyLedger/Views/SMSLatest15ReviewView.swift
+          test -f DailyLedger/Services/SMSImportConsoleService.swift
+          test -f DailyLedger/Views/DeveloperLabView.swift
+          test -f DailyLedger/Views/ERPAccountingCenterView.swift
+
+      - name: Apply fixed monthly budget to FULL generated source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/add_fixed_budget_to_full_1_3_76.py
+          grep -Fq 'MARKETING_VERSION: "1.3.81"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "90"' project.yml
+          grep -Fq 'SMSImportConsoleView()' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'ModernAISettingsView()' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'FixedBudgetDashboardView()' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'loadForMutationUnlocked()' DailyLedger/Services/LedgerDiskStore.swift
+          grep -Fq 'case home, budget, ledger, reports, settings' DailyLedger/Views/AppRootView.swift
+          grep -Fq 'LedgerWorkspaceView' DailyLedger/Views/PersistentTabHost.swift
+          grep -Fq 'Monthly Fixed Income' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq '1-Click Essentials Budget' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'Available Balance This Month' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'TabOrderSettingsView()' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'LedgerTabOrder.resolve(tabOrder)' DailyLedger/Views/AppRootView.swift
+          grep -Fq 'case transactions = "Transactions"' DailyLedger/Views/LedgerWorkspaceView.swift
+          ! grep -Fq 'case insights' DailyLedger/Views/LedgerWorkspaceView.swift
+          ! grep -Fq 'preferredColorScheme(.light)' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'LazyVStack(spacing: 14)' DailyLedger/Views/FixedBudgetDashboardView.swift
+          /usr/libexec/PlistBuddy -c 'Print CADisableMinimumFrameDurationOnPhone' DailyLedger/Info.plist | grep -q true
+
+      - name: Check 26th–25th dates, expense expiry and JSON roundtrip
+        shell: bash
+        run: |
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/full-ledger-budget-reference-regression
+          /tmp/full-ledger-budget-reference-regression
+
+      - name: Generate iOS Xcode project
+        shell: bash
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build full feature app (TrollStore / iOS 16 device)
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project DailyLedger.xcodeproj \
+            -scheme DailyLedger \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath /tmp/full-ledger-181 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee /tmp/full-ledger-181-build.log
+
+      - name: Verify original modules and package updated 1.3.81 TIPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$(find /tmp/full-ledger-181/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = "com.nextsolution.dailyledger"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = "1.3.81"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = "90"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CADisableMinimumFrameDurationOnPhone' "$APP/Info.plist")" = "true"
+          EXE="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
+          test -f "$EXE"
+          BYTES="$(stat -f %z "$EXE")"
+          echo "Full app binary bytes: $BYTES"
+          test "$BYTES" -gt 12000000
+          # Materialize string output first: grep -q otherwise causes SIGPIPE with pipefail.
+          strings "$EXE" > /tmp/nextledger181-strings.txt
+          for REQUIRED in "Fetch Latest 15 SMS" "Review Fetched SMS" "SMS Import Console" "Loan Summary Comparison" "Fixed Monthly Budget" "Monthly Fixed Expenses" "1-Click Essentials Budget" "Apply Budget Plan"; do
+            if ! grep -Fq "$REQUIRED" /tmp/nextledger181-strings.txt; then
+              echo "Expected full-original or fixed-budget module missing: $REQUIRED" >&2
+              exit 1
+            fi
+          done
+          /usr/bin/codesign --force --deep --sign - "$APP"
+          /usr/bin/codesign --verify --deep --verbose=2 "$APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa
+          unzip -t NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa >/dev/null
+          shasum -a 256 NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa > NextLedger-1.3.81-Theme-ProMotion-Tabs.sha256
+          ls -lh NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa
+
+      - name: Upload verified TIPA and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.81-Theme-ProMotion-Tabs
+          path: |
+            NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa
+            NextLedger-1.3.81-Theme-ProMotion-Tabs.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+
