@@ -14,7 +14,7 @@ enum BudgetCycle {
     }
 
     static func shifted(_ start: Date, by months: Int, calendar: Calendar = .current) -> Date {
-        calendar.date(byAdding: .month, value: months, to: start(containing: start, calendar: calendar))!
+        calendar.date(byAdding: .month, value: months, to: BudgetCycle.start(containing: start, calendar: calendar))!
     }
 
     static func interval(start: Date, calendar: Calendar = .current) -> DateInterval {
@@ -25,8 +25,8 @@ enum BudgetCycle {
     static func title(start: Date, calendar: Calendar = .current) -> String {
         let range = interval(start: start, calendar: calendar)
         let finalDay = calendar.date(byAdding: .day, value: -1, to: range.end)!
-        let first = range.start.formatted(.dateTime.day().month(.abbreviated()))
-        let last = finalDay.formatted(.dateTime.day().month(.abbreviated()))
+        let first = range.start.formatted(.dateTime.day().month(.abbreviated))
+        let last = finalDay.formatted(.dateTime.day().month(.abbreviated))
         return "\(first) – \(last)"
     }
 }
