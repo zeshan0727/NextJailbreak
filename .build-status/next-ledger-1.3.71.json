@@ -1,1 +1,1 @@
-{"status":"success","run_id":"31495980984","source_sha":"2235904b9e01d3d56660c4b4f680acb191b3f16e","app_version":"1.3.71","app_build":"79","daemon_version":"2.2.3","artifact_name":"NextLedger-1.3.71-Developer-Lab"}
+{"status":"failure","run_id":"39277044960","source_sha":"0b36e7a55558aec7471a935ed701a7621ab848a5","app_version":"1.3.71","app_build":"79","daemon_version":"2.2.3","artifact_name":"NextLedger-1.3.71-Developer-Lab"}
