@@ -1,0 +1,112 @@
+name: Archive Next Ledger 1.3.81 Full Materialized Source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/archive-nextledger-1.3.81-full-source.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: archive-nextledger-1.3.81-complete-source
+  cancel-in-progress: false
+
+jobs:
+  archive-complete-source:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout permanent Next Ledger release source branch
+        uses: actions/checkout@v4
+        with:
+          ref: release/NextLedger-1.3.81-Full-Source
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Generate all historical 1.3.76 features before the 1.3.81 patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f README-NEXT-LEDGER.md
+          test -f scripts/apply_next_ledger_1_3_76.sh
+          test -f scripts/add_fixed_budget_to_full_1_3_76.py
+          bash scripts/apply_next_ledger_1_3_76.sh
+          python3 scripts/add_fixed_budget_to_full_1_3_76.py
+
+      - name: Verify materialized source, features, appearance, and ProMotion
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f DailyLedger/Views/SMSImportConsoleView.swift
+          test -f DailyLedger/Views/SMSLatest15ReviewView.swift
+          test -f DailyLedger/Services/SMSImportConsoleService.swift
+          test -f DailyLedger/Views/FixedBudgetDashboardView.swift
+          test -f DailyLedger/Views/LedgerWorkspaceView.swift
+          test -f DailyLedger/Views/TabOrderSettingsView.swift
+          grep -Fq "Fetch Latest 15 SMS" DailyLedger/Views/SMSImportConsoleView.swift
+          grep -Fq "Loan Summary Comparison" DailyLedger/Views/ReportsView.swift
+          grep -Fq "1-Click Essentials Budget" DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq "LedgerTabOrder.resolve(tabOrder)" DailyLedger/Views/AppRootView.swift
+          grep -Fq "TabOrderSettingsView()" DailyLedger/Views/SettingsView.swift
+          ! grep -Fq "case insights" DailyLedger/Views/LedgerWorkspaceView.swift
+          ! grep -Fq ".preferredColorScheme(.light)" DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'MARKETING_VERSION: "1.3.81"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "90"' project.yml
+          test "$(/usr/libexec/PlistBuddy -c 'Print CADisableMinimumFrameDurationOnPhone' DailyLedger/Info.plist)" = "true"
+          if find DailyLedger -name '*.swift' -exec grep -lE 'sk-proj-[A-Za-z0-9_-]{25,}|sk-[A-Za-z0-9]{45,}' {} + | sed -n '1p' | grep -q .; then
+            echo 'Possible embedded API key in source; refusing to archive.' >&2
+            exit 1
+          fi
+
+      - name: Compile budget expiry and JSON persistence tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/nextledger-source-check
+          /tmp/nextledger-source-check
+
+      - name: Produce the portable Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          xcodegen generate
+          test -f DailyLedger.xcodeproj/project.pbxproj
+
+      - name: Download the exact successful 1.3.81 TIPA and checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh run download 39308278483 \
+            --name NextLedger-1.3.81-Theme-ProMotion-Tabs \
+            --dir dist \
+            --repo "${{ github.repository }}"
+          test -s dist/NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa
+          test -s dist/NextLedger-1.3.81-Theme-ProMotion-Tabs.sha256
+          (cd dist && shasum -a 256 -c NextLedger-1.3.81-Theme-ProMotion-Tabs.sha256)
+          unzip -t dist/NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa >/dev/null
+          ls -lh dist/NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa
+
+      - name: Commit materialized Swift source, Xcode project and exact TIPA permanently
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A DailyLedger project.yml
+          git add -f DailyLedger.xcodeproj
+          git add -f dist/NextLedger-1.3.81-Theme-ProMotion-Tabs.tipa
+          git add -f dist/NextLedger-1.3.81-Theme-ProMotion-Tabs.sha256
+          echo "Number of source Swift files: $(find DailyLedger -name '*.swift' | wc -l)"
+          echo "Changed tracked paths:"
+          git diff --cached --stat | tail -n 40
+          git diff --cached --quiet && { echo 'All sources already archived.'; exit 0; }
+          git commit -m "Archive full generated Next Ledger 1.3.81 (90) source, Xcode project and verified TIPA"
+          git push origin HEAD:release/NextLedger-1.3.81-Full-Source
