@@ -1,0 +1,52 @@
+name: Export Next Ledger 1.3.73 Source
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/export-next-ledger-1.3.73-source.yml"
+jobs:
+  export:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Materialize exact 1.3.73 generated source
+        run: bash scripts/apply_next_ledger_1_3_73.sh
+      - name: Package source
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="$RUNNER_TEMP/NextLedger-1.3.73-Source"
+          rm -rf "$DEST"
+          mkdir -p "$DEST"
+          rsync -a ./ "$DEST/" \
+            --exclude '.git/' \
+            --exclude '.build-status/' \
+            --exclude '.debug/' \
+            --exclude 'build/' \
+            --exclude 'Payload/' \
+            --exclude '*.tipa' \
+            --exclude '*.deb' \
+            --exclude '*.zip'
+          cat > "$DEST/SOURCE_INFO.txt" <<EOF
+          Next Ledger 1.3.73 / Build 81
+          SMS daemon 2.2.4
+          Source branch: agent/next-ledger-1.3.50-chart-of-accounts
+          Materialized by: bash scripts/apply_next_ledger_1_3_73.sh
+
+          DailyLedger/ and RootHideSMSQueue/ in this archive are the generated
+          sources used for the 1.3.73 application and daemon.
+          EOF
+          ditto -c -k --sequesterRsrc --keepParent "$DEST" NextLedger-1.3.73-Source-Code.zip
+          shasum -a 256 NextLedger-1.3.73-Source-Code.zip > NextLedger-1.3.73-Source-Code.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.73-Source-Code
+          path: |
+            NextLedger-1.3.73-Source-Code.zip
+            NextLedger-1.3.73-Source-Code.sha256
+          if-no-files-found: error
