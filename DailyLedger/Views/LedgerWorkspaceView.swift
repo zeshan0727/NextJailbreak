@@ -1,12 +1,11 @@
 import SwiftUI
 
-/// Keeps every original financial screen accessible while matching the 5-tab
+/// Keeps Accounts and Transactions accessible while matching the 5-tab
 /// reference navigation: Home / Budget / Ledger / Reports / Settings.
 struct LedgerWorkspaceView: View {
     private enum Section: String, CaseIterable, Identifiable {
         case accounts = "Accounts"
         case transactions = "Transactions"
-        case insights = "AI"
         var id: String { rawValue }
     }
 
@@ -33,8 +32,6 @@ struct LedgerWorkspaceView: View {
                     AccountsView()
                 case .transactions:
                     TransactionsView(onAdd: onAdd, onTransfer: onTransfer)
-                case .insights:
-                    InsightsView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
