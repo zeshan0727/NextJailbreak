@@ -10,9 +10,22 @@
 		111111111111111111111111 /* Next Ledger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Next Ledger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		ABABABABABABABABABABABAB /* Exceptions for "DailyLedger" in "NextLedger" */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 666666666666666666666666 /* NextLedger */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		222222222222222222222222 /* DailyLedger */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				ABABABABABABABABABABABAB /* Exceptions for "DailyLedger" in "NextLedger" */,
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
