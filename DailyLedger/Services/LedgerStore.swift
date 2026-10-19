@@ -561,7 +561,8 @@ final class LedgerStore: ObservableObject {
         let ledger = try LedgerDiskStore.shared.merge(
             incoming.transactions,
             accounts: incoming.accounts,
-            restoring: incoming.settings
+            restoring: incoming.settings,
+            fixedBudget: incoming.fixedBudget
         )
         apply(ledger)
         return ImportSummary(
