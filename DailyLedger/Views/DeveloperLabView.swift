@@ -308,8 +308,8 @@ struct DeveloperActivityChart: View {
         VStack(alignment: .leading, spacing: 12) {
             if (!enabled || showLegend) {
                 HStack(spacing: 12) {
-                    if !enabled || showIncome { ChartLegend(color: AppTheme.green, title: "Income") }
-                    if !enabled || showExpense { ChartLegend(color: AppTheme.red, title: "Expense") }
+                    if !enabled || showIncome { Label("Income", systemImage: "circle.fill").foregroundStyle(AppTheme.green) }
+                    if !enabled || showExpense { Label("Expense", systemImage: "circle.fill").foregroundStyle(AppTheme.red) }
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
