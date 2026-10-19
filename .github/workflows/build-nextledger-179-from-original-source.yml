@@ -1,0 +1,136 @@
+name: Build Full Next Ledger 1.3.79 Budget TIPA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-nextledger-179-from-original-source.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextledger-full-179-budget
+  cancel-in-progress: false
+
+jobs:
+  full-original-budget:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Checkout verified original 1.3.76 source plus budget-only changes
+        uses: actions/checkout@v4
+        with:
+          ref: fix/next-ledger-1.3.79-full-source-budget
+          fetch-depth: 1
+
+      - name: Materialize authentic 1.3.76 full feature set from original build chain
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/apply_next_ledger_1_3_76.sh > /tmp/nextledger-179-original-generation.log 2>&1 || {
+            tail -n 120 /tmp/nextledger-179-original-generation.log
+            exit 1
+          }
+          tail -n 22 /tmp/nextledger-179-original-generation.log
+          grep -Fq 'MARKETING_VERSION: "1.3.76"' project.yml
+          grep -Fq 'Fetch Latest 15 SMS' DailyLedger/Views/SMSImportConsoleView.swift
+          grep -Fq 'Review Fetched SMS' DailyLedger/Views/SMSImportConsoleView.swift
+          grep -Fq 'Loan Summary Comparison' DailyLedger/Views/ReportsView.swift
+          test -f DailyLedger/Views/SMSLatest15ReviewView.swift
+          test -f DailyLedger/Services/SMSImportConsoleService.swift
+          test -f DailyLedger/Views/DeveloperLabView.swift
+          test -f DailyLedger/Views/ERPAccountingCenterView.swift
+
+      - name: Apply fixed monthly budget to FULL generated source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/add_fixed_budget_to_full_1_3_76.py
+          grep -Fq 'MARKETING_VERSION: "1.3.79"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "88"' project.yml
+          grep -Fq 'SMSImportConsoleView()' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'ModernAISettingsView()' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'FixedBudgetDashboardView()' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'loadForMutationUnlocked()' DailyLedger/Services/LedgerDiskStore.swift
+
+      - name: Check 26th–25th dates, expense expiry and JSON roundtrip
+        shell: bash
+        run: |
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/full-ledger-budget-regression
+          /tmp/full-ledger-budget-regression
+
+      - name: Generate iOS Xcode project
+        shell: bash
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build full feature app (TrollStore / iOS 16 device)
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project DailyLedger.xcodeproj \
+            -scheme DailyLedger \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath /tmp/full-ledger-179 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee /tmp/full-ledger-179-build.log
+
+      - name: Verify original modules and package updated 1.3.79 TIPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$(find /tmp/full-ledger-179/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = "com.nextsolution.dailyledger"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = "1.3.79"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = "88"
+          EXE="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
+          test -f "$EXE"
+          BYTES="$(stat -f %z "$EXE")"
+          echo "Full app binary bytes: $BYTES"
+          test "$BYTES" -gt 12000000
+          for REQUIRED in "Fetch Latest 15 SMS" "Review Fetched SMS" "SMS Import Console" "Loan Summary Comparison" "Fixed Monthly Budget" "Available to Spend"; do
+            if ! strings "$EXE" | grep -Fq "$REQUIRED"; then
+              echo "Expected full-original or fixed-budget module missing: $REQUIRED" >&2
+              exit 1
+            fi
+          done
+          /usr/bin/codesign --force --deep --sign - "$APP"
+          /usr/bin/codesign --verify --deep --verbose=2 "$APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.79-Full-Original-Budget.tipa
+          unzip -t NextLedger-1.3.79-Full-Original-Budget.tipa >/dev/null
+          shasum -a 256 NextLedger-1.3.79-Full-Original-Budget.tipa > NextLedger-1.3.79-Full-Original-Budget.sha256
+          ls -lh NextLedger-1.3.79-Full-Original-Budget.tipa
+
+      - name: Upload verified TIPA and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.79-FULL-BUDGET
+          path: |
+            NextLedger-1.3.79-Full-Original-Budget.tipa
+            NextLedger-1.3.79-Full-Original-Budget.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish to isolated source branch (no site changes)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build-output/nextledger-1.3.79
+          cp NextLedger-1.3.79-Full-Original-Budget.tipa NextLedger-1.3.79-Full-Original-Budget.sha256 build-output/nextledger-1.3.79/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add build-output/nextledger-1.3.79/NextLedger-1.3.79-Full-Original-Budget.tipa build-output/nextledger-1.3.79/NextLedger-1.3.79-Full-Original-Budget.sha256
+          git diff --cached --quiet && exit 0
+          git commit -m "Build full original Next Ledger 1.3.79 with fixed budget"
+          git push origin HEAD:fix/next-ledger-1.3.79-full-source-budget
