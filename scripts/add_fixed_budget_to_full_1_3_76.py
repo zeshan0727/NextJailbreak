@@ -88,12 +88,12 @@ patch(v,'''                        NavigationLink {
                         NavigationLink {
                             BudgetSettingsView()
                         } label: {''')
-patch(v,'LabeledContent("Version", value: "1.3.76")','LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.79") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "88") + ")")')
+patch(v,'LabeledContent("Version", value: "1.3.76")','LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.80") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "89") + ")")')
 
 p="project.yml"
-patch(p,'MARKETING_VERSION: "1.3.76"','MARKETING_VERSION: "1.3.79"')
-patch(p,'CURRENT_PROJECT_VERSION: "84"','CURRENT_PROJECT_VERSION: "88"')
+patch(p,'MARKETING_VERSION: "1.3.76"','MARKETING_VERSION: "1.3.80"')
+patch(p,'CURRENT_PROJECT_VERSION: "84"','CURRENT_PROJECT_VERSION: "89"')
 for feature in ("SMSImportConsoleView()","ModernAISettingsView()","FixedBudgetDashboardView()","BudgetSettingsView()"):
     if feature not in get(v): raise RuntimeError("Lost feature "+feature)
-assert "1.3.79" in get(p)
-print("PASS: Full generated Next Ledger 1.3.76 upgraded to 1.3.79, all core screens retained.")
+assert "1.3.80" in get(p)
+print("PASS: Full generated Next Ledger 1.3.76 upgraded to 1.3.80, all core screens retained.")
