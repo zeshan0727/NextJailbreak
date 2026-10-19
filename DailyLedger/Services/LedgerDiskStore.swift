@@ -63,7 +63,8 @@ final class LedgerDiskStore {
     func merge(
         _ incoming: [LedgerTransaction],
         accounts incomingAccounts: [LedgerAccount] = [],
-        restoring settings: LedgerSettings? = nil
+        restoring settings: LedgerSettings? = nil,
+        fixedBudget incomingBudget: MonthlyFixedBudget? = nil
     ) throws -> LedgerData {
         try queue.sync {
             try withFileLock {
@@ -84,6 +85,9 @@ final class LedgerDiskStore {
                 ledger.transactions.append(contentsOf: incoming.filter { !existingIDs.contains($0.id) })
                 if let settings {
                     ledger.settings = settings
+                }
+                if let incomingBudget {
+                    ledger.fixedBudget = incomingBudget
                 }
                 ledger.normalize()
                 try saveUnlocked(ledger)
