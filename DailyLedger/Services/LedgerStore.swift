@@ -11,6 +11,7 @@ final class LedgerStore: ObservableObject {
     @Published private(set) var transactions: [LedgerTransaction] = []
     @Published private(set) var accounts: [LedgerAccount] = []
     @Published private(set) var settings = LedgerSettings()
+    @Published private(set) var fixedBudget = MonthlyFixedBudget()
     @Published var errorMessage: String?
     @Published private(set) var recordingCards: [LedgerTransaction] = []
     private(set) var runningBalances: [UUID: Decimal] = [:]
@@ -70,6 +71,7 @@ final class LedgerStore: ObservableObject {
         currentBalances = accountBalances
         historicalBalanceCache.removeAll(keepingCapacity: true)
         settings = ledger.settings
+        fixedBudget = ledger.fixedBudget
         runningBalances = running
         runningBalancesByAccount = accountRunning
         transactions = Array(ordered.reversed())
@@ -861,13 +863,20 @@ final class LedgerStore: ObservableObject {
         let ledger = try LedgerDiskStore.shared.merge(
             incoming.transactions,
             accounts: incoming.accounts,
-            restoring: incoming.settings
+            restoring: incoming.settings,
+            fixedBudget: incoming.fixedBudget
         )
         apply(ledger)
         return ImportSummary(
             transactionCount: ledger.transactions.count - oldLedger.transactions.count,
             accountCount: ledger.accounts.count - oldLedger.accounts.count
         )
+    }
+
+    func saveFixedBudget(_ plan: MonthlyFixedBudget) {
+        updateLedger(failureMessage: "Fixed budget could not be saved.") { ledger in
+            ledger.fixedBudget = plan
+        }
     }
 
     func syncBackupNow() {
