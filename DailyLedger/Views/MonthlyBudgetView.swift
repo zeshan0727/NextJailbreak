@@ -380,7 +380,7 @@ struct MonthlyBudgetView: View {
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
                     if let duration = item.durationCycles, let last = item.finalDay() {
-                        Text("Until \(last.formatted(.dateTime.day().month(.abbreviated()).year()))")
+                        Text("Until \(last.formatted(.dateTime.day().month(.abbreviated).year()))")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                         ProgressView(
@@ -630,7 +630,7 @@ private struct FixedPlanEditorView: View {
                             BudgetCycle.start(containing: firstCycle), by: cycles
                         ).addingTimeInterval(-24 * 60 * 60)
                         LabeledContent("Last active month",
-                            value: end.formatted(.dateTime.day().month(.abbreviated()).year()))
+                            value: end.formatted(.dateTime.day().month(.abbreviated).year()))
                     }
                 }
                 Section {
