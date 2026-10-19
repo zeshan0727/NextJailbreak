@@ -417,17 +417,20 @@ struct LedgerData: Codable {
     var transactions: [LedgerTransaction]
     var accounts: [LedgerAccount]
     var settings: LedgerSettings
+    var fixedBudget: MonthlyFixedBudget
 
     init(
         version: Int = 5,
         transactions: [LedgerTransaction] = [],
         accounts: [LedgerAccount] = [LedgerAccount.legacyMain],
-        settings: LedgerSettings = LedgerSettings()
+        settings: LedgerSettings = LedgerSettings(),
+        fixedBudget: MonthlyFixedBudget = MonthlyFixedBudget()
     ) {
         self.version = version
         self.transactions = transactions
         self.accounts = accounts
         self.settings = settings
+        self.fixedBudget = fixedBudget
         normalize()
     }
 
@@ -436,6 +439,7 @@ struct LedgerData: Codable {
         case transactions
         case accounts
         case settings
+        case fixedBudget
     }
 
     init(from decoder: Decoder) throws {
@@ -444,6 +448,7 @@ struct LedgerData: Codable {
         transactions = try values.decodeIfPresent([LedgerTransaction].self, forKey: .transactions) ?? []
         accounts = try values.decodeIfPresent([LedgerAccount].self, forKey: .accounts) ?? []
         settings = try values.decodeIfPresent(LedgerSettings.self, forKey: .settings) ?? LedgerSettings()
+        fixedBudget = try values.decodeIfPresent(MonthlyFixedBudget.self, forKey: .fixedBudget) ?? MonthlyFixedBudget()
         normalize()
     }
 
