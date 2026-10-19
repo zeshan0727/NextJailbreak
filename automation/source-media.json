@@ -1,6 +1,26 @@
 {
   "schema_version": 1,
   "packages": {
+    "comparison.nowlyrics-musiclrc": {
+      "credit_label": "tuonghoa2k7 and iCraze/Havoc — official NowLyrics banner and MusicLRC interface comparison",
+      "source_page_url": "https://havoc.app/package/nowlyrics",
+      "secondary_source_page_url": "https://havoc.app/package/musiclrc",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+        "alt": "Official NowLyrics artwork showing synchronized lyrics in the Now Playing title area",
+        "local_path": "assets/articles/source-media/nowlyrics-1-2-1-official-banner.png",
+        "sha256": "4ab07afbe665800b8a1d2d05fce8ba57bdadc36d72ca7cdccbf8d43f7104848a"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ad5cc5e461af13726ca4878",
+          "alt": "Official MusicLRC comparison showing raw timed lyric tags without the tweak and synchronized local-file lyrics with the tweak",
+          "local_path": "assets/articles/source-media/musiclrc-1-1-official-local-lyrics.jpg",
+          "sha256": "12915ec7a2140a9b00d1a81b0fc8d4bf68c374264a768d4b12e33cb0cc3bd6bb"
+        }
+      ]
+    },
     "org.theos.dpkg-deb-inspection-guide": {
       "credit_label": "Theos project — official project logo",
       "source_page_url": "https://github.com/theos/theos.dev/blob/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",

@@ -2,6 +2,42 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "NowLyrics 1.2.1 is listed for iOS 15.0–26.0.1 with rootless support; MusicLRC 1.1 is listed for iOS 13.0–18.7.9 with rootless support. Neither listing guarantees jailbreak availability for every device and firmware combination or explicitly claims RootHide support.",
+      "description": "Compare NowLyrics 1.2.1 and MusicLRC 1.1 by music source, lyric format, display surfaces, compatibility and price.",
+      "developer": "tuonghoa2k7 and iCraze",
+      "entry_type": "tweak-comparison",
+      "href": "nowlyrics-vs-musiclrc-jailbreak-lyrics-comparison/",
+      "image": "assets/articles/source-media/nowlyrics-1-2-1-official-banner.png",
+      "additional_media": [
+        "assets/articles/source-media/musiclrc-1-1-official-local-lyrics.jpg"
+      ],
+      "media_credit": "tuonghoa2k7 and iCraze/Havoc — official NowLyrics banner and MusicLRC local-lyrics comparison screenshot",
+      "media_sha256": "4ab07afbe665800b8a1d2d05fce8ba57bdadc36d72ca7cdccbf8d43f7104848a",
+      "additional_media_sha256": [
+        "12915ec7a2140a9b00d1a81b0fc8d4bf68c374264a768d4b12e33cb0cc3bd6bb"
+      ],
+      "media_source_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "modified_at": "2026-10-19T09:04:53Z",
+      "name": "NowLyrics vs MusicLRC",
+      "package": "comparison.nowlyrics-musiclrc",
+      "published_at": "2026-10-19T09:04:53Z",
+      "quality_target": 9,
+      "release": "NowLyrics 1.2.1 and MusicLRC 1.1, both released October 17, 2026",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "nowlyrics-vs-musiclrc-jailbreak-lyrics-comparison",
+      "source_name": "Official NowLyrics and MusicLRC Havoc pages, version histories and embedded product media",
+      "source_page_url": "https://havoc.app/package/nowlyrics",
+      "source_url": "https://havoc.app/package/musiclrc",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshot",
+      "source_visual_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "title": "NowLyrics vs MusicLRC: Which Jailbreak Lyrics Tweak Should You Use?",
+      "version": "NowLyrics 1.2.1 / MusicLRC 1.1"
+    },
+    {
+      "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
