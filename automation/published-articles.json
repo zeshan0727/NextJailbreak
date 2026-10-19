@@ -2,6 +2,42 @@
   "entries": [
     {
       "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "SideDock 1.0.1 is listed for iOS 17.0–18.7.9 on rootless jailbreaks, with Dopamine and palera1n named by the developer. Package compatibility does not establish jailbreak availability for every device and firmware, and the listing does not explicitly claim RootHide support.",
+      "description": "SideDock 1.0.1 makes Home Screen icons and widgets fit beside its floating vertical Dock on rootless iOS 17–18 jailbreaks.",
+      "developer": "eknv",
+      "entry_type": "individual-tweak-update",
+      "href": "sidedock-1-0-1-floating-vertical-dock-update/",
+      "image": "assets/articles/source-media/sidedock-1-0-1-official-banner.png",
+      "additional_media": [
+        "assets/articles/source-media/sidedock-1-0-1-official-home-screen.jpg"
+      ],
+      "media_credit": "eknv/Havoc — official SideDock banner and Home Screen interface screenshot",
+      "media_sha256": "289423c3c37a96de6c3b35a8180300f919f40dbe41fa5cec48b0b56b0ead748e",
+      "additional_media_sha256": [
+        "697098d60a1cd61776ce93c2dd47722d2ff84427030f68a1c8d3e4b19ced7bfa"
+      ],
+      "media_source_url": "https://media.havoc.app/6acdd37d6e6af822fe19efc0",
+      "modified_at": "2026-10-19T14:00:39Z",
+      "name": "SideDock 1.0.1",
+      "package": "com.koh.sidedock",
+      "published_at": "2026-10-19T14:00:39Z",
+      "quality_target": 9,
+      "release": "SideDock 1.0.1 released October 19, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "sidedock-1-0-1-floating-vertical-dock-update",
+      "source_name": "Official SideDock Havoc page, version history and embedded product media",
+      "source_page_url": "https://havoc.app/package/sidedock",
+      "source_url": "https://havoc.app/package/sidedock/changes",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshot",
+      "source_visual_url": "https://media.havoc.app/6acdd37d6e6af822fe19efc0",
+      "title": "SideDock 1.0.1 Fixes Home Screen Icon Overlap",
+      "version": "1.0.1"
+    },
+    {
+      "category": {
         "id": "tweak-roundup-comparison",
         "label": "Tweak Roundup & Comparison"
       },

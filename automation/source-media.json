@@ -1,6 +1,25 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.koh.sidedock": {
+      "credit_label": "eknv/Havoc — official SideDock banner and Home Screen interface screenshot",
+      "source_page_url": "https://havoc.app/package/sidedock",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6acdd37d6e6af822fe19efc0",
+        "alt": "Official SideDock artwork showing a vertical Dock beside a Home Screen grid",
+        "local_path": "assets/articles/source-media/sidedock-1-0-1-official-banner.png",
+        "sha256": "289423c3c37a96de6c3b35a8180300f919f40dbe41fa5cec48b0b56b0ead748e"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ad5a55e461af13726c95bad",
+          "alt": "Official SideDock screenshot showing a vertical floating Dock on the right side of an iPhone Home Screen",
+          "local_path": "assets/articles/source-media/sidedock-1-0-1-official-home-screen.jpg",
+          "sha256": "697098d60a1cd61776ce93c2dd47722d2ff84427030f68a1c8d3e4b19ced7bfa"
+        }
+      ]
+    },
     "comparison.nowlyrics-musiclrc": {
       "credit_label": "tuonghoa2k7 and iCraze/Havoc — official NowLyrics banner and MusicLRC interface comparison",
       "source_page_url": "https://havoc.app/package/nowlyrics",
