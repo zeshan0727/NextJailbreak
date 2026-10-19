@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "packages": {
+    "github.0xjohnnydev.cryptsn0w": {
+      "credit_label": "0xjohnnydev/cryptsn0w — official historical CryptSn0w macOS GUI screenshot",
+      "source_page_url": "https://github.com/0xjohnnydev/cryptsn0w/blob/dd635116cb627075dcef37b14faf2266fcc41bf3/docs/images/cryptsn0w-gui.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/0xjohnnydev/cryptsn0w/dd635116cb627075dcef37b14faf2266fcc41bf3/docs/images/cryptsn0w-gui.png",
+        "alt": "Official historical CryptSn0w macOS interface showing device selection, SSH access and a disabled Jailbreak button",
+        "local_path": "assets/articles/source-media/cryptsn0w-official-macos-gui.png",
+        "sha256": "39c551eb04dcf10907bb780789ef43819f2f8c4025becc6a5f246d5af055f142"
+      },
+      "screenshots": []
+    },
     "com.opa334.trollstore.permission-guide": {
       "credit_label": "opa334/TrollStore — official TrollStore app icon from the 2.1.1 source tag",
       "source_page_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon60x60%403x.png",
