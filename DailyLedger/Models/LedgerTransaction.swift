@@ -57,6 +57,10 @@ enum AccountNature: String, Codable, CaseIterable, Identifiable {
         case .asset: return "Asset"
         case .dailyExpense: return "Daily Expense"
         case .bank: return "Bank"
+        case .receivable: return "Receivable"
+        case .payable: return "Payable"
+        case .fixedAsset: return "Fixed Asset"
+        case .fixedLiability: return "Fixed Liability"
         }
     }
 }
