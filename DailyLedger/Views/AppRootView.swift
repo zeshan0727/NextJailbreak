@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum AppTab: Hashable, CaseIterable {
+enum AppTab: String, Hashable, CaseIterable {
     case home, budget, ledger, reports, settings
 
     var title: String {
@@ -35,6 +35,7 @@ struct AppRootView: View {
     @State private var selectedTab: AppTab = .home
     @State private var addSheet: AddSheet?
     @State private var showingTransfer = false
+    @AppStorage("DailyLedgerTabOrder") private var tabOrder = LedgerTabOrder.defaultValue
 
     var body: some View {
         VStack(spacing: 0) {
@@ -47,7 +48,7 @@ struct AppRootView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             Divider()
             HStack(spacing: 0) {
-                ForEach(AppTab.allCases, id: \.self) { tab in
+                ForEach(LedgerTabOrder.resolve(tabOrder), id: \.self) { tab in
                     Button {
                         select(tab)
                     } label: {
