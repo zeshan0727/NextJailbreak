@@ -34,7 +34,7 @@ final class LedgerDiskStore {
     func mutate(_ changes: (inout LedgerData) -> Void) throws -> LedgerData {
         try queue.sync {
             try withFileLock {
-                var ledger = loadUnlocked()
+                var ledger = try loadForMutationUnlocked()
                 changes(&ledger)
                 ledger.normalize()
                 try saveUnlocked(ledger)
@@ -47,7 +47,7 @@ final class LedgerDiskStore {
     func add(_ transaction: LedgerTransaction) throws -> LedgerData {
         try queue.sync {
             try withFileLock {
-                var ledger = loadUnlocked()
+                var ledger = try loadForMutationUnlocked()
                 guard !ledger.transactions.contains(where: { $0.id == transaction.id }) else {
                     return ledger
                 }
@@ -63,11 +63,12 @@ final class LedgerDiskStore {
     func merge(
         _ incoming: [LedgerTransaction],
         accounts incomingAccounts: [LedgerAccount] = [],
-        restoring settings: LedgerSettings? = nil
+        restoring settings: LedgerSettings? = nil,
+        fixedBudget: MonthlyFixedBudget? = nil
     ) throws -> LedgerData {
         try queue.sync {
             try withFileLock {
-                var ledger = loadUnlocked()
+                var ledger = try loadForMutationUnlocked()
                 if !incomingAccounts.isEmpty,
                    ledger.transactions.isEmpty,
                    ledger.accounts.count == 1,
@@ -85,6 +86,7 @@ final class LedgerDiskStore {
                 if let settings {
                     ledger.settings = settings
                 }
+                if let fixedBudget { ledger.fixedBudget = fixedBudget }
                 ledger.normalize()
                 try saveUnlocked(ledger)
                 return ledger
@@ -127,6 +129,13 @@ final class LedgerDiskStore {
             try? saveUnlocked(decoded)
         }
         return decoded
+    }
+
+    // Refuse to overwrite a corrupted or future-schema ledger on a write.
+    private func loadForMutationUnlocked() throws -> LedgerData {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return LedgerData() }
+        let data = try Data(contentsOf: fileURL)
+        return try decoder.decode(LedgerData.self, from: data)
     }
 
     private func saveUnlocked(_ ledger: LedgerData) throws {
