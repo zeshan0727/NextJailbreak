@@ -127,7 +127,7 @@ struct MonthlyBudgetView: View {
                 Spacer(minLength: 4)
                 HStack(spacing: 8) {
                     Button {
-                        selectedCycle = BudgetCycle.shift(selectedCycle, by: -1)
+                        selectedCycle = BudgetCycle.shifted(selectedCycle, by: -1)
                     } label: {
                         Image(systemName: "chevron.left")
                             .frame(width: 28, height: 36)
@@ -137,7 +137,7 @@ struct MonthlyBudgetView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                     Button {
-                        selectedCycle = BudgetCycle.shift(selectedCycle, by: 1)
+                        selectedCycle = BudgetCycle.shifted(selectedCycle, by: 1)
                     } label: {
                         Image(systemName: "chevron.right")
                             .frame(width: 28, height: 36)
@@ -626,7 +626,7 @@ private struct FixedPlanEditorView: View {
                     }
                     if durationChoice != -1 {
                         let cycles = durationChoice == 0 ? customDuration : durationChoice
-                        let end = BudgetCycle.shift(
+                        let end = BudgetCycle.shifted(
                             BudgetCycle.start(containing: firstCycle), by: cycles
                         ).addingTimeInterval(-24 * 60 * 60)
                         LabeledContent("Last active month",
