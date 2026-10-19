@@ -39,8 +39,12 @@ enum AccountGroup: String, Codable, CaseIterable, Identifiable {
 enum AccountNature: String, Codable, CaseIterable, Identifiable {
     case unassigned
     case loan
+    case receivable
+    case payable
     case control
     case asset
+    case fixedAsset
+    case fixedLiability
     case dailyExpense
     case bank
 
@@ -49,8 +53,12 @@ enum AccountNature: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .unassigned: return "Unassigned"
         case .loan: return "Loan"
+        case .receivable: return "Receivable"
+        case .payable: return "Payable"
         case .control: return "Control"
         case .asset: return "Asset"
+        case .fixedAsset: return "Fixed Asset"
+        case .fixedLiability: return "Fixed Liability"
         case .dailyExpense: return "Daily Expense"
         case .bank: return "Bank"
         }
@@ -67,6 +75,7 @@ struct LedgerAccount: Identifiable, Codable, Hashable {
     var isArchived: Bool
     var nature: AccountNature?
     var chartCode: String?
+    var parentAccountID: UUID?
     let createdAt: Date
 
     init(
@@ -79,6 +88,7 @@ struct LedgerAccount: Identifiable, Codable, Hashable {
         isArchived: Bool = false,
         nature: AccountNature? = nil,
         chartCode: String? = nil,
+        parentAccountID: UUID? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -90,6 +100,7 @@ struct LedgerAccount: Identifiable, Codable, Hashable {
         self.isArchived = isArchived
         self.nature = nature
         self.chartCode = chartCode
+        self.parentAccountID = parentAccountID
         self.createdAt = createdAt
     }
 
@@ -103,6 +114,17 @@ struct LedgerAccount: Identifiable, Codable, Hashable {
     )
 }
 
+struct ERPTransactionDimension: Codable, Hashable, Identifiable {
+    var id: String { name.lowercased() }
+    var name: String
+    var value: String
+
+    init(name: String, value: String) {
+        self.name = name
+        self.value = value
+    }
+}
+
 struct LedgerTransaction: Identifiable, Codable, Hashable {
     let id: UUID
     var type: TransactionType
@@ -114,6 +136,8 @@ struct LedgerTransaction: Identifiable, Codable, Hashable {
     var accountID: UUID?
     var destinationAccountID: UUID?
     var destinationAmount: Decimal?
+    var dimensions: [ERPTransactionDimension]?
+    var refundOfTransactionID: UUID?
     let createdAt: Date
 
     init(
@@ -127,6 +151,8 @@ struct LedgerTransaction: Identifiable, Codable, Hashable {
         accountID: UUID? = nil,
         destinationAccountID: UUID? = nil,
         destinationAmount: Decimal? = nil,
+        dimensions: [ERPTransactionDimension]? = nil,
+        refundOfTransactionID: UUID? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -139,6 +165,8 @@ struct LedgerTransaction: Identifiable, Codable, Hashable {
         self.accountID = accountID
         self.destinationAccountID = destinationAccountID
         self.destinationAmount = destinationAmount
+        self.dimensions = dimensions
+        self.refundOfTransactionID = refundOfTransactionID
         self.createdAt = createdAt
     }
 }
@@ -303,16 +331,233 @@ struct ExpenseBudget: Identifiable, Codable, Equatable, Hashable {
     }
 }
 
+enum FixedAssetStatus: String, Codable, CaseIterable, Identifiable {
+    case active
+    case sold
+    case disposed
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .active: return "Active"
+        case .sold: return "Sold"
+        case .disposed: return "Disposed"
+        }
+    }
+}
+
+enum FixedAssetDepreciationMethod: String, Codable, CaseIterable, Identifiable {
+    case straightLineRate
+    case straightLineLife
+    case none
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .straightLineRate: return "Straight Line %"
+        case .straightLineLife: return "Straight Line Life"
+        case .none: return "No Depreciation"
+        }
+    }
+}
+
+struct FixedAssetRecord: Identifiable, Codable, Equatable, Hashable {
+    let id: UUID
+    var assetNumber: String
+    var name: String
+    var category: String
+    var currencyCode: String
+    var linkedAccountID: UUID?
+    var purchaseDate: Date
+    var cost: Decimal
+    var residualValue: Decimal
+    var depreciationStartDate: Date
+    var depreciationMethod: FixedAssetDepreciationMethod
+    var annualDepreciationRate: Decimal
+    var usefulLifeMonths: Int
+    var openingAccumulatedDepreciation: Decimal
+    var status: FixedAssetStatus
+    var disposalDate: Date?
+    var disposalProceeds: Decimal?
+    var disposalReason: String
+    var notes: String
+    let createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        assetNumber: String = "",
+        name: String = "",
+        category: String = "Furniture & Fixtures",
+        currencyCode: String = "QAR",
+        linkedAccountID: UUID? = nil,
+        purchaseDate: Date = Date(),
+        cost: Decimal = 0,
+        residualValue: Decimal = 0,
+        depreciationStartDate: Date = Date(),
+        depreciationMethod: FixedAssetDepreciationMethod = .straightLineRate,
+        annualDepreciationRate: Decimal = 15,
+        usefulLifeMonths: Int = 60,
+        openingAccumulatedDepreciation: Decimal = 0,
+        status: FixedAssetStatus = .active,
+        disposalDate: Date? = nil,
+        disposalProceeds: Decimal? = nil,
+        disposalReason: String = "",
+        notes: String = "",
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.assetNumber = assetNumber
+        self.name = name
+        self.category = category
+        self.currencyCode = currencyCode
+        self.linkedAccountID = linkedAccountID
+        self.purchaseDate = purchaseDate
+        self.cost = cost
+        self.residualValue = residualValue
+        self.depreciationStartDate = depreciationStartDate
+        self.depreciationMethod = depreciationMethod
+        self.annualDepreciationRate = annualDepreciationRate
+        self.usefulLifeMonths = usefulLifeMonths
+        self.openingAccumulatedDepreciation = openingAccumulatedDepreciation
+        self.status = status
+        self.disposalDate = disposalDate
+        self.disposalProceeds = disposalProceeds
+        self.disposalReason = disposalReason
+        self.notes = notes
+        self.createdAt = createdAt
+    }
+
+    static let defaultCategories = [
+        "Furniture & Fixtures", "Computers & IT Equipment", "Office Equipment",
+        "Motor Vehicles", "Machinery & Equipment", "Leasehold Improvements",
+        "Buildings", "Right-of-Use Assets", "Other Fixed Assets"
+    ]
+
+    var depreciableAmount: Decimal { max(0, cost - max(0, residualValue)) }
+
+    func accumulatedDepreciation(asOf requestedDate: Date, calendar: Calendar = .current) -> Decimal {
+        let terminalDate: Date
+        if status != .active, let disposalDate {
+            terminalDate = min(requestedDate, disposalDate)
+        } else {
+            terminalDate = requestedDate
+        }
+        let opening = min(max(0, openingAccumulatedDepreciation), depreciableAmount)
+        guard terminalDate >= depreciationStartDate, depreciationMethod != .none else { return opening }
+        let startComponents = calendar.dateComponents([.year, .month], from: depreciationStartDate)
+        let endComponents = calendar.dateComponents([.year, .month], from: terminalDate)
+        guard let startMonth = calendar.date(from: startComponents),
+              let endMonth = calendar.date(from: endComponents) else { return opening }
+        let elapsed = max(0, calendar.dateComponents([.month], from: startMonth, to: endMonth).month ?? 0)
+        let depreciationFactor: Decimal
+        if ERPAccountingEngine.isEnabled {
+            let convention = ERPDepreciationConvention(
+                rawValue: ERPStorage.string(ERPKey.fixedAssetDepreciationConvention, ERPDepreciationConvention.fullMonth.rawValue)
+            ) ?? .fullMonth
+            switch convention {
+            case .fullMonth: depreciationFactor = Decimal(elapsed + 1)
+            case .nextMonth: depreciationFactor = Decimal(elapsed)
+            case .halfMonth: depreciationFactor = Decimal(elapsed) + Decimal(string: "0.5")!
+            }
+        } else {
+            depreciationFactor = Decimal(elapsed + 1)
+        }
+        let monthly: Decimal
+        switch depreciationMethod {
+        case .straightLineRate:
+            monthly = cost * max(0, annualDepreciationRate) / Decimal(100) / Decimal(12)
+        case .straightLineLife:
+            monthly = usefulLifeMonths > 0 ? depreciableAmount / Decimal(usefulLifeMonths) : 0
+        case .none:
+            monthly = 0
+        }
+        let calculated = min(depreciableAmount, opening + monthly * depreciationFactor)
+        guard ERPAccountingEngine.isEnabled else { return calculated }
+        return ERPAccountingEngine.round(
+            calculated,
+            scale: max(0, min(6, ERPStorage.int(ERPKey.fixedAssetDepreciationDecimals, 2)))
+        )
+    }
+
+    func netBookValue(asOf date: Date) -> Decimal {
+        max(0, cost - accumulatedDepreciation(asOf: date))
+    }
+
+    var disposalGainLoss: Decimal? {
+        guard status != .active, let disposalDate else { return nil }
+        return (disposalProceeds ?? 0) - netBookValue(asOf: disposalDate)
+    }
+}
+
+enum FixedLiabilityStatus: String, Codable, CaseIterable, Identifiable {
+    case active
+    case settled
+    var id: String { rawValue }
+    var title: String { self == .active ? "Active" : "Settled" }
+}
+
+struct FixedLiabilityRecord: Identifiable, Codable, Equatable, Hashable {
+    let id: UUID
+    var reference: String
+    var name: String
+    var category: String
+    var lender: String
+    var currencyCode: String
+    var linkedAccountID: UUID?
+    var startDate: Date
+    var maturityDate: Date?
+    var originalPrincipal: Decimal
+    var annualInterestRate: Decimal
+    var currentPortion: Decimal
+    var status: FixedLiabilityStatus
+    var settledDate: Date?
+    var notes: String
+    let createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        reference: String = "",
+        name: String = "",
+        category: String = "Bank Loan",
+        lender: String = "",
+        currencyCode: String = "QAR",
+        linkedAccountID: UUID? = nil,
+        startDate: Date = Date(),
+        maturityDate: Date? = nil,
+        originalPrincipal: Decimal = 0,
+        annualInterestRate: Decimal = 0,
+        currentPortion: Decimal = 0,
+        status: FixedLiabilityStatus = .active,
+        settledDate: Date? = nil,
+        notes: String = "",
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.reference = reference
+        self.name = name
+        self.category = category
+        self.lender = lender
+        self.currencyCode = currencyCode
+        self.linkedAccountID = linkedAccountID
+        self.startDate = startDate
+        self.maturityDate = maturityDate
+        self.originalPrincipal = originalPrincipal
+        self.annualInterestRate = annualInterestRate
+        self.currentPortion = currentPortion
+        self.status = status
+        self.settledDate = settledDate
+        self.notes = notes
+        self.createdAt = createdAt
+    }
+
+    static let defaultCategories = [
+        "Bank Loan", "Finance Lease / Lease Liability", "Vehicle Finance",
+        "Related Party / Shareholder Loan", "Long-Term Payable", "Other Long-Term Liability"
+    ]
+}
+
 struct LedgerSettings: Codable, Equatable {
     var currencyCode: String
     var vendorRules: [VendorCategoryRule]
-    var smsAutoImportEnabled: Bool
     var defaultAccountID: UUID?
-    var smsMatchText: String
-    var smsDestinationAccountID: UUID?
-    var smsRescanRequestID: Int
-    var smsImporterLastCheck: Date?
-    var smsImporterLastResult: String?
     var expenseBudgets: [ExpenseBudget]
     var customExpenseCategories: [String]
     var customIncomeCategories: [String]
@@ -321,17 +566,15 @@ struct LedgerSettings: Codable, Equatable {
     var expenseCategoryCodes: [String: String]
     var incomeCategoryCodes: [String: String]
     var chartOfAccountsMigrationVersion: Int
+    var fixedAssetRecords: [FixedAssetRecord]
+    var fixedAssetCategories: [String]
+    var fixedLiabilityRecords: [FixedLiabilityRecord]
+    var fixedLiabilityCategories: [String]
 
     init(
         currencyCode: String = "QAR",
         vendorRules: [VendorCategoryRule] = VendorCategoryRule.defaults,
-        smsAutoImportEnabled: Bool = true,
         defaultAccountID: UUID? = nil,
-        smsMatchText: String = "**6760",
-        smsDestinationAccountID: UUID? = nil,
-        smsRescanRequestID: Int = 0,
-        smsImporterLastCheck: Date? = nil,
-        smsImporterLastResult: String? = nil,
         expenseBudgets: [ExpenseBudget] = [],
         customExpenseCategories: [String] = [],
         customIncomeCategories: [String] = [],
@@ -339,17 +582,15 @@ struct LedgerSettings: Codable, Equatable {
         hiddenIncomeCategories: [String] = [],
         expenseCategoryCodes: [String: String] = LedgerTransaction.defaultExpenseCategoryCodes,
         incomeCategoryCodes: [String: String] = LedgerTransaction.defaultIncomeCategoryCodes,
-        chartOfAccountsMigrationVersion: Int = 0
+        chartOfAccountsMigrationVersion: Int = 0,
+        fixedAssetRecords: [FixedAssetRecord] = [],
+        fixedAssetCategories: [String] = FixedAssetRecord.defaultCategories,
+        fixedLiabilityRecords: [FixedLiabilityRecord] = [],
+        fixedLiabilityCategories: [String] = FixedLiabilityRecord.defaultCategories
     ) {
         self.currencyCode = currencyCode
         self.vendorRules = vendorRules
-        self.smsAutoImportEnabled = smsAutoImportEnabled
         self.defaultAccountID = defaultAccountID
-        self.smsMatchText = smsMatchText
-        self.smsDestinationAccountID = smsDestinationAccountID
-        self.smsRescanRequestID = smsRescanRequestID
-        self.smsImporterLastCheck = smsImporterLastCheck
-        self.smsImporterLastResult = smsImporterLastResult
         self.expenseBudgets = expenseBudgets
         self.customExpenseCategories = customExpenseCategories
         self.customIncomeCategories = customIncomeCategories
@@ -358,18 +599,16 @@ struct LedgerSettings: Codable, Equatable {
         self.expenseCategoryCodes = expenseCategoryCodes
         self.incomeCategoryCodes = incomeCategoryCodes
         self.chartOfAccountsMigrationVersion = chartOfAccountsMigrationVersion
+        self.fixedAssetRecords = fixedAssetRecords
+        self.fixedAssetCategories = fixedAssetCategories
+        self.fixedLiabilityRecords = fixedLiabilityRecords
+        self.fixedLiabilityCategories = fixedLiabilityCategories
     }
 
     private enum CodingKeys: String, CodingKey {
         case currencyCode
         case vendorRules
-        case smsAutoImportEnabled
         case defaultAccountID
-        case smsMatchText
-        case smsDestinationAccountID
-        case smsRescanRequestID
-        case smsImporterLastCheck
-        case smsImporterLastResult
         case expenseBudgets
         case customExpenseCategories
         case customIncomeCategories
@@ -378,6 +617,10 @@ struct LedgerSettings: Codable, Equatable {
         case expenseCategoryCodes
         case incomeCategoryCodes
         case chartOfAccountsMigrationVersion
+        case fixedAssetRecords
+        case fixedAssetCategories
+        case fixedLiabilityRecords
+        case fixedLiabilityCategories
     }
 
     init(from decoder: Decoder) throws {
@@ -385,13 +628,7 @@ struct LedgerSettings: Codable, Equatable {
         currencyCode = try values.decodeIfPresent(String.self, forKey: .currencyCode) ?? "QAR"
         vendorRules = try values.decodeIfPresent([VendorCategoryRule].self, forKey: .vendorRules)
             ?? VendorCategoryRule.defaults
-        smsAutoImportEnabled = try values.decodeIfPresent(Bool.self, forKey: .smsAutoImportEnabled) ?? true
         defaultAccountID = try values.decodeIfPresent(UUID.self, forKey: .defaultAccountID)
-        smsMatchText = try values.decodeIfPresent(String.self, forKey: .smsMatchText) ?? "**6760"
-        smsDestinationAccountID = try values.decodeIfPresent(UUID.self, forKey: .smsDestinationAccountID)
-        smsRescanRequestID = try values.decodeIfPresent(Int.self, forKey: .smsRescanRequestID) ?? 0
-        smsImporterLastCheck = try values.decodeIfPresent(Date.self, forKey: .smsImporterLastCheck)
-        smsImporterLastResult = try values.decodeIfPresent(String.self, forKey: .smsImporterLastResult)
         expenseBudgets = try values.decodeIfPresent([ExpenseBudget].self, forKey: .expenseBudgets) ?? []
         customExpenseCategories = try values.decodeIfPresent([String].self, forKey: .customExpenseCategories) ?? []
         customIncomeCategories = try values.decodeIfPresent([String].self, forKey: .customIncomeCategories) ?? []
@@ -409,6 +646,12 @@ struct LedgerSettings: Codable, Equatable {
             Int.self,
             forKey: .chartOfAccountsMigrationVersion
         ) ?? 0
+        fixedAssetRecords = try values.decodeIfPresent([FixedAssetRecord].self, forKey: .fixedAssetRecords) ?? []
+        fixedAssetCategories = try values.decodeIfPresent([String].self, forKey: .fixedAssetCategories)
+            ?? FixedAssetRecord.defaultCategories
+        fixedLiabilityRecords = try values.decodeIfPresent([FixedLiabilityRecord].self, forKey: .fixedLiabilityRecords) ?? []
+        fixedLiabilityCategories = try values.decodeIfPresent([String].self, forKey: .fixedLiabilityCategories)
+            ?? FixedLiabilityRecord.defaultCategories
     }
 }
 
@@ -417,17 +660,20 @@ struct LedgerData: Codable {
     var transactions: [LedgerTransaction]
     var accounts: [LedgerAccount]
     var settings: LedgerSettings
+    var fixedBudget: MonthlyFixedBudget
 
     init(
         version: Int = 5,
         transactions: [LedgerTransaction] = [],
         accounts: [LedgerAccount] = [LedgerAccount.legacyMain],
-        settings: LedgerSettings = LedgerSettings()
+        settings: LedgerSettings = LedgerSettings(),
+        fixedBudget: MonthlyFixedBudget = MonthlyFixedBudget()
     ) {
         self.version = version
         self.transactions = transactions
         self.accounts = accounts
         self.settings = settings
+        self.fixedBudget = fixedBudget
         normalize()
     }
 
@@ -436,6 +682,7 @@ struct LedgerData: Codable {
         case transactions
         case accounts
         case settings
+        case fixedBudget
     }
 
     init(from decoder: Decoder) throws {
@@ -444,6 +691,7 @@ struct LedgerData: Codable {
         transactions = try values.decodeIfPresent([LedgerTransaction].self, forKey: .transactions) ?? []
         accounts = try values.decodeIfPresent([LedgerAccount].self, forKey: .accounts) ?? []
         settings = try values.decodeIfPresent(LedgerSettings.self, forKey: .settings) ?? LedgerSettings()
+        fixedBudget = try values.decodeIfPresent(MonthlyFixedBudget.self, forKey: .fixedBudget) ?? MonthlyFixedBudget()
         normalize()
     }
 
@@ -456,12 +704,6 @@ struct LedgerData: Codable {
             activeAccounts.contains(where: { $0.id == id }) ? id : nil
         } ?? activeAccounts.first?.id ?? accounts[0].id
         settings.defaultAccountID = fallbackID
-        if settings.smsDestinationAccountID == nil ||
-            !activeAccounts.contains(where: { $0.id == settings.smsDestinationAccountID }) {
-            settings.smsDestinationAccountID = activeAccounts.first(where: {
-                $0.name.caseInsensitiveCompare("Credit Card") == .orderedSame
-            })?.id ?? fallbackID
-        }
         for index in transactions.indices where transactions[index].accountID == nil {
             transactions[index].accountID = fallbackID
         }

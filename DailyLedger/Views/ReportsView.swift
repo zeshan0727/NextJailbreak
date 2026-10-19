@@ -35,6 +35,16 @@ private enum ReportKind: String, CaseIterable, Identifiable {
         case .categories: return "square.grid.2x2.fill"
         }
     }
+
+    var exportType: ProfessionalReportType {
+        switch self {
+        case .summary: return .financialSummary
+        case .income: return .incomeTransactions
+        case .expenses: return .expenseTransactions
+        case .loans: return .transfers
+        case .categories: return .categorySummary
+        }
+    }
 }
 
 private struct ReportBucket: Identifiable {
@@ -129,11 +139,35 @@ private enum ClosingBalanceAccountStorage {
 
 struct ReportsView: View {
     @State private var searchText = ""
+    @AppStorage("ReportPeriodSelection") private var storedPeriod = ReportPeriod.month.rawValue
+    @AppStorage("ReportCustomStart") private var storedCustomStart = Date().timeIntervalSince1970
+    @AppStorage("ReportCustomEnd") private var storedCustomEnd = Date().timeIntervalSince1970
+    @AppStorage("ProfessionalReportStartDateV1") private var professionalStart = Calendar.current.date(byAdding: .month, value: -1, to: Date())?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
+    @AppStorage("ProfessionalReportEndDateV1") private var professionalEnd = Date().timeIntervalSince1970
+    @AppStorage(DeveloperLabKey.enabled) private var devEnabled = true
+    @AppStorage(DeveloperLabKey.showReportsRegisters) private var devShowRegisters = true
+    @AppStorage(DeveloperLabKey.showReportsPlanning) private var devShowPlanning = true
+    @AppStorage(DeveloperLabKey.showReportsCore) private var devShowCore = true
+    @AppStorage(DeveloperLabKey.showReportsStatements) private var devShowStatements = true
 
     var body: some View {
         NavigationStack {
             List {
+                if !devEnabled || devShowRegisters {
+                Section("Accounting Registers") {
+                    NavigationLink { FixedAssetRegisterView() } label: {
+                        Label("Fixed Asset Register", systemImage: "building.2.crop.circle.fill")
+                    }
+                    NavigationLink { FixedLiabilityRegisterView() } label: {
+                        Label("Fixed Liabilities Register", systemImage: "calendar.badge.minus")
+                    }
+                }
+                }
+                if !devEnabled || devShowPlanning {
                 Section("Planning & Comparison") {
+                    NavigationLink { ProfessionalReportExportView() } label: {
+                        Label("Export PDF & Excel Reports", systemImage: "doc.badge.arrow.up.fill")
+                    }
                     NavigationLink { ChartOfAccountsView() } label: {
                         Label("Chart of Accounts", systemImage: "list.bullet.rectangle.portrait.fill")
                     }
@@ -152,6 +186,9 @@ struct ReportsView: View {
                     NavigationLink { LoanMovementReportView() } label: {
                         Label("Loan Movement by Currency", systemImage: "banknote.fill")
                     }
+                    NavigationLink { LoanSummaryComparisonView() } label: {
+                        Label("Loan Summary Comparison", systemImage: "chart.bar.doc.horizontal.fill")
+                    }
                     NavigationLink { AccountNatureReportView() } label: {
                         Label("Account Nature Report", systemImage: "folder.badge.gearshape")
                     }
@@ -159,6 +196,8 @@ struct ReportsView: View {
                         Label("Books vs Message Balance", systemImage: "checkmark.arrow.trianglehead.counterclockwise")
                     }
                 }
+                }
+                if !devEnabled || devShowCore {
                 Section {
                     ForEach(filteredReportKinds) { kind in
                         NavigationLink {
@@ -181,13 +220,69 @@ struct ReportsView: View {
                 } header: {
                     Text("Choose a report")
                 } footer: {
-                    Text("Select a report first, then choose its month or year.")
+                    Text("Open a report or tap its download icon for PDF or Excel.")
+                }
+                }
+
+                Section("ERP Accounting") {
+                    NavigationLink { ERPReportDesignerView() } label: {
+                        Label("Custom ERP Report Designer", systemImage: "slider.horizontal.3")
+                    }
+                    NavigationLink { ERPTaxReportView() } label: {
+                        Label("Tax / VAT Report", systemImage: "percent")
+                    }
+                    NavigationLink { ERPAccountingCenterView() } label: {
+                        Label("ERP / Accounting Center", systemImage: "building.columns.fill")
+                    }
+                }
+
+                if !devEnabled || devShowStatements {
+                Section("Statements & Aging") {
+                    ForEach([
+                        ProfessionalReportType.incomeStatement,
+                        .balanceSheet,
+                        .payablesAging,
+                        .payablesSummary,
+                        .receivablesAging,
+                        .receivablesSummary
+                    ]) { type in
+                        NavigationLink {
+                            ProfessionalReportTypeView(type: type)
+                        } label: {
+                            Label(type.rawValue, systemImage: type.icon)
+                        }
+                    }
+                }
                 }
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Reports")
             .searchable(text: $searchText, prompt: "Search reports")
         }
+    }
+
+    private var quickReportInterval: DateInterval {
+        let period = ReportPeriod(rawValue: storedPeriod) ?? .month
+        if period == .custom {
+            let start = Calendar.current.startOfDay(for: Date(timeIntervalSince1970: storedCustomStart))
+            let end = Calendar.current.date(
+                byAdding: .day,
+                value: 1,
+                to: Calendar.current.startOfDay(for: Date(timeIntervalSince1970: storedCustomEnd))
+            ) ?? Date()
+            return DateInterval(start: start, end: end)
+        }
+        let component: Calendar.Component
+        switch period {
+        case .day: component = .day
+        case .year: component = .year
+        default: component = .month
+        }
+        return Calendar.current.dateInterval(of: component, for: Date()) ?? DateInterval(start: Date(), duration: 1)
+    }
+
+    private var quickReportEndDate: Date {
+        Calendar.current.date(byAdding: .day, value: -1, to: quickReportInterval.end) ?? quickReportInterval.end
     }
 
     private var filteredReportKinds: [ReportKind] {
@@ -255,13 +350,13 @@ private struct ReportComparisonView: View {
         store.transactions.lazy.filter {
             guard interval.contains($0.date) else { return false }
             if type == .income {
-                return store.isReportIncome($0) &&
-                    store.account(withID: store.reportIncomeAccountID($0))?.currencyCode == store.currencyCode
+                return store.convertedReportIncomeAmount($0) != nil
             }
-            return $0.type == type &&
-                store.account(withID: $0.accountID)?.currencyCode == store.currencyCode
+            return store.convertedReportExpenseAmount($0) != nil
         }.reduce(Decimal.zero) {
-            $0 + (type == .income ? store.reportIncomeAmount($1) : $1.amount)
+            $0 + (type == .income
+                ? (store.convertedReportIncomeAmount($1) ?? 0)
+                : (store.convertedReportExpenseAmount($1) ?? 0))
         }
     }
     private var comparisonHeader: some View {
@@ -286,19 +381,22 @@ private struct ReportComparisonView: View {
         HStack {
             Text(title).font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
             Text(DisplayFormat.currency(income, code: store.currencyCode))
-                .font(.caption.bold()).frame(width: 100, alignment: .trailing)
+                .font(.caption.bold())
+                .foregroundStyle(AppTheme.green)
+                .frame(width: 100, alignment: .trailing)
             Text(DisplayFormat.currency(expense, code: store.currencyCode))
-                .font(.caption.bold()).frame(width: 100, alignment: .trailing)
+                .font(.caption.bold())
+                .foregroundStyle(AppTheme.red)
+                .frame(width: 100, alignment: .trailing)
         }.minimumScaleFactor(0.65)
     }
     private func transactionCount(in interval: DateInterval) -> Int {
         store.transactions.lazy.filter {
             guard interval.contains($0.date) else { return false }
             if store.isReportIncome($0) {
-                return store.account(withID: store.reportIncomeAccountID($0))?.currencyCode == store.currencyCode
+                return store.convertedReportIncomeAmount($0) != nil
             }
-            return $0.type == .expense &&
-                store.account(withID: $0.accountID)?.currencyCode == store.currencyCode
+            return store.convertedReportExpenseAmount($0) != nil
         }.count
     }
 }
@@ -357,6 +455,18 @@ private struct CustomAccountReportView: View {
         }
         .navigationTitle("Custom Account Report")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                ReportDownloadButton(
+                    type: .financialSummary,
+                    startDate: interval.start,
+                    endDate: Calendar.current.date(byAdding: .day, value: -1, to: interval.end) ?? interval.end,
+                    transactionIDs: exportTransactionIDs,
+                    accountIDs: Array(selected),
+                    reportTitle: "Custom Account Report"
+                )
+            }
+        }
         .onAppear {
             guard !initialized else { return }
             initialized = true
@@ -375,9 +485,18 @@ private struct CustomAccountReportView: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text(formatted(total(type, in: interval))).font(.subheadline.bold())
+                Text(formatted(total(type, in: interval)))
+                    .font(.subheadline.bold())
+                    .foregroundStyle(type == .income ? AppTheme.green : AppTheme.red)
             }
         }
+    }
+
+    private var exportTransactionIDs: [UUID] {
+        Array(Set(
+            matchingTransactions(.income, in: interval).map(\.id) +
+            matchingTransactions(.expense, in: interval).map(\.id)
+        ))
     }
 
     private var interval: DateInterval {
@@ -394,14 +513,19 @@ private struct CustomAccountReportView: View {
         transactions(in: interval).filter {
             if type == .income {
                 return store.isReportIncome($0) &&
-                    selected.contains(store.reportIncomeAccountID($0) ?? LedgerAccount.legacyMainID)
+                    selected.contains(store.reportIncomeAccountID($0) ?? LedgerAccount.legacyMainID) &&
+                    store.convertedReportIncomeAmount($0) != nil
             }
-            return $0.type == type && selected.contains($0.accountID ?? LedgerAccount.legacyMainID)
+            return $0.type == .expense &&
+                selected.contains($0.accountID ?? LedgerAccount.legacyMainID) &&
+                store.convertedReportExpenseAmount($0) != nil
         }
     }
     private func total(_ type: TransactionType, in interval: DateInterval) -> Decimal {
         matchingTransactions(type, in: interval).reduce(0) {
-            $0 + (type == .income ? store.reportIncomeAmount($1) : $1.amount)
+            $0 + (type == .income
+                ? (store.convertedReportIncomeAmount($1) ?? 0)
+                : (store.convertedReportExpenseAmount($1) ?? 0))
         }
     }
     private func formatted(_ value: Decimal) -> String { DisplayFormat.currency(value, code: store.currencyCode) }
@@ -447,6 +571,28 @@ private struct LoanMovementReportView: View {
         }
         .navigationTitle("Loan Movement")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                ReportDownloadButton(
+                    type: .transfers,
+                    startDate: interval.start,
+                    endDate: Calendar.current.date(byAdding: .day, value: -1, to: interval.end) ?? interval.end,
+                    transactionIDs: exportTransactionIDs,
+                    accountIDs: loanAccounts.map(\.id),
+                    reportTitle: "Loan Movement"
+                )
+            }
+        }
+    }
+
+    private var exportTransactionIDs: [UUID] {
+        store.transactions.filter { transaction in
+            guard interval.contains(transaction.date) else { return false }
+            let source = transaction.accountID ?? LedgerAccount.legacyMainID
+            let destination = transaction.destinationAccountID ?? LedgerAccount.legacyMainID
+            let ids = Set(loanAccounts.map(\.id))
+            return ids.contains(source) || ids.contains(destination)
+        }.map(\.id)
     }
 
     private var interval: DateInterval {
@@ -465,7 +611,10 @@ private struct LoanMovementReportView: View {
         Binding(get: { Date(timeIntervalSince1970: storedEnd) }, set: { storedEnd = $0.timeIntervalSince1970 })
     }
     private var loanAccounts: [LedgerAccount] {
-        store.accounts.filter { $0.group == .payments || $0.nature == .loan }
+        store.accounts.filter {
+            ($0.group == .payments && store.balance(for: $0) < 0) ||
+                ($0.group != .payments && $0.nature == .loan)
+        }
     }
     private var currencies: [String] {
         let values = Set(loanAccounts.map(\.currencyCode))
@@ -506,31 +655,62 @@ private struct ReportDetailView: View {
     @State private var cachedExpenseTransactions: [LedgerTransaction] = []
     @State private var editingSummaryCard: FinanceSummaryCustomCard?
     @State private var editingClosingBalance = false
+    @AppStorage(DeveloperLabKey.enabled) private var devEnabled = true
+    @AppStorage(DeveloperLabKey.density) private var devDensity = DeveloperDensity.standard.rawValue
+    @AppStorage(DeveloperLabKey.reportBlockSpacing) private var devReportBlockSpacing = 18.0
+    @AppStorage(DeveloperLabKey.reportPagePadding) private var devReportPagePadding = 16.0
+    @AppStorage(DeveloperLabKey.showReportPeriodPicker) private var devShowPeriodPicker = true
+    @AppStorage(DeveloperLabKey.showReportPeriodNavigator) private var devShowPeriodNavigator = true
+    @AppStorage(DeveloperLabKey.showReportActivityChart) private var devShowActivityChart = true
+    @AppStorage(DeveloperLabKey.showReportCategoryBreakdown) private var devShowCategoryBreakdown = true
+    @AppStorage(DeveloperLabKey.showReportTransactionList) private var devShowTransactionList = true
+    @AppStorage(DeveloperLabKey.showReportDownload) private var devShowReportDownload = true
+    @AppStorage(DeveloperLabKey.showReportFooterTotal) private var devShowFooterTotal = true
+    @AppStorage(DeveloperLabKey.showReportTransactionCount) private var devShowTransactionCount = true
+    @AppStorage(DeveloperLabKey.reportTransactionOrder) private var devTransactionOrder = DeveloperTransactionOrder.newest.rawValue
+    @AppStorage(DeveloperLabKey.reportCategoryLimit) private var devCategoryLimit = 20
+    @AppStorage(DeveloperLabKey.showCategoryProgress) private var devShowCategoryProgress = true
+    @AppStorage(DeveloperLabKey.showSummaryNetBalance) private var devShowSummaryNet = true
+    @AppStorage(DeveloperLabKey.showSummaryRateNote) private var devShowSummaryRate = true
+    @AppStorage(DeveloperLabKey.showSummaryConnectors) private var devShowSummaryConnectors = true
+    @AppStorage(DeveloperLabKey.showSummaryIncomeColumn) private var devShowIncomeColumn = true
+    @AppStorage(DeveloperLabKey.showSummaryExpenseColumn) private var devShowExpenseColumn = true
+    @AppStorage(DeveloperLabKey.showSummaryPrimaryCards) private var devShowPrimaryCards = true
+    @AppStorage(DeveloperLabKey.showSummaryRefunds) private var devShowRefunds = true
+    @AppStorage(DeveloperLabKey.showSummaryLoans) private var devShowLoans = true
+    @AppStorage(DeveloperLabKey.showSummaryOperators) private var devShowSummaryOperators = true
+    @AppStorage(DeveloperLabKey.showSummaryOpeningBalance) private var devShowOpeningBalance = true
+    @AppStorage(DeveloperLabKey.showSummaryCustomBalanceCards) private var devShowCustomBalanceCards = true
+    @AppStorage(DeveloperLabKey.showSummaryPKRConversion) private var devShowPKRConversion = true
+    @AppStorage(DeveloperLabKey.summaryCompactCards) private var devSummaryCompactCards = true
+    @AppStorage(DeveloperLabKey.summaryLoanSort) private var devSummaryLoanSort = DeveloperLoanSort.alphabetical.rawValue
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 18) {
-                    Picker("Report period", selection: $storedPeriod) {
-                        ForEach(ReportPeriod.allCases) { value in
-                            Text(value.rawValue).tag(value.rawValue)
+                    if !devEnabled || devShowPeriodPicker {
+                        Picker("Report period", selection: $storedPeriod) {
+                            ForEach(ReportPeriod.allCases) { value in
+                                Text(value.rawValue).tag(value.rawValue)
+                            }
                         }
+                        .pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
 
-                    periodNavigator
+                    if !devEnabled || devShowPeriodNavigator { periodNavigator }
                     if kind == .summary { totalCards }
-                    if kind == .summary || kind == .income {
+                    if (kind == .summary || kind == .income) && (!devEnabled || devShowActivityChart) {
                         activityChart
                     }
-                    if kind == .summary || kind == .categories {
+                    if (kind == .summary || kind == .categories) && (!devEnabled || devShowCategoryBreakdown) {
                         categoryBreakdown
                     }
-                    if kind == .income || kind == .expenses || kind == .loans {
+                    if (kind == .income || kind == .expenses || kind == .loans) && (!devEnabled || devShowTransactionList) {
                         transactionList
                     }
                 }
-                .padding(16)
+                .padding(effectiveReportPagePadding)
                 .padding(.bottom, 24)
             }
             .background(AppTheme.page)
@@ -547,6 +727,18 @@ private struct ReportDetailView: View {
                             Image(systemName: "plus.circle.fill")
                         }
                         .accessibilityLabel("Add custom account balance card")
+                    }
+                }
+                if !devEnabled || devShowReportDownload {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        ReportDownloadButton(
+                            type: kind.exportType,
+                            startDate: selectedInterval.start,
+                            endDate: reportExportEndDate,
+                            transactionIDs: selectedTransactions.map(\.id),
+                            currencyCode: store.currencyCode,
+                            reportTitle: kind.rawValue
+                        )
                     }
                 }
             }
@@ -613,6 +805,10 @@ private struct ReportDetailView: View {
         }
     }
 
+    private var reportExportEndDate: Date {
+        Calendar.current.date(byAdding: .day, value: -1, to: selectedInterval.end) ?? selectedInterval.end
+    }
+
     private var transactionList: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(kind.rawValue)
@@ -623,7 +819,7 @@ private struct ReportDetailView: View {
                     message: "Nothing is available for this report period."
                 )
             } else {
-                ForEach(selectedTransactions.sorted { $0.date > $1.date }) { transaction in
+                ForEach(orderedReportTransactions) { transaction in
                     Button {
                         selectedTransaction = transaction
                     } label: {
@@ -633,26 +829,44 @@ private struct ReportDetailView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .transactionSwipeActions(transaction)
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            store.delete(transaction)
+                        } label: {
+                            Label("Delete Transaction", systemImage: "trash")
+                        }
+                    }
                     if transaction.id != selectedTransactions.last?.id { Divider() }
                 }
-                Divider()
-                HStack {
-                    Text("Total · \(selectedTransactions.count) transactions")
-                        .font(.subheadline.weight(.semibold))
-                    Spacer()
-                    Text(DisplayFormat.currency(transactionListTotal, code: store.currencyCode))
-                        .font(.headline)
+                if !devEnabled || devShowFooterTotal {
+                    Divider()
+                    HStack {
+                        Text((!devEnabled || devShowTransactionCount) ? "Total · \(selectedTransactions.count) transactions" : "Total")
+                            .font(.subheadline.weight(.semibold))
+                        Spacer()
+                        Text(DisplayFormat.currency(transactionListTotal, code: store.currencyCode))
+                            .font(.headline)
+                    }
+                    .padding(.top, 4)
                 }
-                .padding(.top, 4)
             }
         }
         .padding(16)
         .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .developerSurface()
     }
 
     private var transactionListTotal: Decimal {
         selectedTransactions.reduce(Decimal.zero) {
-            $0 + (kind == .income ? store.reportIncomeAmount($1) : $1.amount)
+            switch kind {
+            case .income:
+                return $0 + (store.convertedReportIncomeAmount($1) ?? 0)
+            case .expenses:
+                return $0 + (store.convertedReportExpenseAmount($1) ?? 0)
+            default:
+                return $0 + $1.amount
+            }
         }
     }
 
@@ -669,9 +883,11 @@ private struct ReportDetailView: View {
             VStack(spacing: 2) {
                 Text(periodTitle)
                     .font(.headline)
-                Text("\(selectedTransactions.count) transactions")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if !devEnabled || devShowTransactionCount {
+                    Text("\(selectedTransactions.count) transactions")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             Spacer()
             Button { movePeriod(1) } label: {
@@ -685,114 +901,137 @@ private struct ReportDetailView: View {
     }
 
     private var totalCards: some View {
-        VStack(spacing: 16) {
-            ReportTotalCard(
-                title: "Net Balance",
-                value: financeSummaryNetBalance,
-                currencyCode: store.currencyCode,
-                icon: "equal.circle.fill",
-                color: financeSummaryNetBalance >= 0 ? AppTheme.purple : AppTheme.red,
-                secondaryText: closingBalanceAccounts.isEmpty
-                    ? nil
-                    : "Includes opening balance: \(DisplayFormat.currency(qatarClosingBalance, code: "QAR"))"
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 19, style: .continuous)
-                    .stroke(financeSummaryNetBalance >= 0 ? AppTheme.purple : AppTheme.red, lineWidth: 2.5)
-            }
-            Text("PKR loan movement converted at fixed rate: PKR 77 = QAR 1.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            SummaryConnectorLines()
-                .frame(height: 38)
-                .padding(.horizontal, 46)
-                .accessibilityHidden(true)
-            HStack(alignment: .top, spacing: 12) {
-                summaryColumn(
-                    title: "Added",
-                    color: AppTheme.green,
-                    primaryTitle: "Income",
-                    primaryValue: totals.income,
-                    primaryKind: .income,
-                    movements: loanIncreaseMovements
-                )
-                summaryColumn(
-                    title: "Deducted",
-                    color: AppTheme.red,
-                    primaryTitle: "Expenses",
-                    primaryValue: totals.expense,
-                    primaryKind: .expenses,
-                    movements: loanDecreaseMovements
-                )
-            }
-
-            HStack {
-                Rectangle().frame(height: 2).foregroundStyle(AppTheme.purple)
-                Text("Opening Balance")
-                    .font(.caption.bold())
-                    .foregroundStyle(AppTheme.purple)
-                Rectangle().frame(height: 2).foregroundStyle(AppTheme.purple)
-            }
-            .padding(.top, 2)
-
-            ForEach(customSummaryCards) { card in
-                let accountCount = validAccountCount(card)
-                let timingLabel = customSummaryTimingLabel(card)
-                HStack(spacing: 8) {
-                    Button {
-                        editingSummaryCard = card
-                    } label: {
-                        FinanceSummaryBalanceCard(
-                            title: customSummaryTitle(card),
-                            value: customSummaryBalance(card),
-                            currencyCode: card.currencyCode,
-                            accountCount: accountCount,
-                            timingLabel: timingLabel
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    Menu {
-                        Button {
-                            editingSummaryCard = card
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        Button(role: .destructive) {
-                            deleteCustomSummaryCard(card.id)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle.fill")
-                            .font(.title2)
-                            .frame(width: 42, height: 42)
-                    }
-                    .accessibilityLabel("Options for \(customSummaryTitle(card))")
-                }
-            }
-
-            Button {
-                editingClosingBalance = true
-            } label: {
+        VStack(spacing: effectiveReportBlockSpacing) {
+            if !devEnabled || devShowSummaryNet {
                 ReportTotalCard(
-                    title: "Opening Balance as of \(selectedInterval.start.formatted(date: .abbreviated, time: .omitted))",
-                    value: qatarClosingBalance,
-                    currencyCode: "QAR",
-                    icon: "calendar.badge.clock",
-                    color: AppTheme.purple,
+                    title: "Net Balance",
+                    value: financeSummaryNetBalance,
+                    currencyCode: store.currencyCode,
+                    icon: "equal.circle.fill",
+                    color: financeSummaryNetBalance >= 0 ? AppTheme.purple : AppTheme.red,
                     secondaryText: closingBalanceAccounts.isEmpty
-                        ? "Select Qatar accounts"
-                        : closingBalanceAccounts.map(\.name).joined(separator: " + ")
+                        ? nil
+                        : "Includes opening balance: \(DisplayFormat.currency(qatarClosingBalance, code: "QAR"))"
                 )
                 .overlay {
                     RoundedRectangle(cornerRadius: 19, style: .continuous)
-                        .stroke(AppTheme.purple, lineWidth: 2.5)
+                        .stroke(financeSummaryNetBalance >= 0 ? AppTheme.purple : AppTheme.red, lineWidth: 2.5)
                 }
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Edit Qatar opening balance accounts")
+
+            if !devEnabled || devShowSummaryRate {
+                Text(store.erpRateSummaryText())
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            if !devEnabled || devShowSummaryConnectors {
+                SummaryConnectorLines()
+                    .frame(height: 38)
+                    .padding(.horizontal, 46)
+                    .accessibilityHidden(true)
+            }
+
+            if !devEnabled || devShowIncomeColumn || devShowExpenseColumn {
+                HStack(alignment: .top, spacing: 12) {
+                    if !devEnabled || devShowIncomeColumn {
+                        moneyFlowColumn(
+                            title: "Total Income",
+                            color: AppTheme.green,
+                            totalValue: totalMoneyIn,
+                            primaryTitle: "Income",
+                            primaryValue: financialSummaryDirectIncomeTotal,
+                            primaryKind: .income,
+                            movementTitle: "Loans Increased",
+                            movements: loanIncreaseMovements
+                        )
+                    }
+                    if !devEnabled || devShowExpenseColumn {
+                        moneyFlowColumn(
+                            title: "Total Money Out",
+                            color: AppTheme.red,
+                            totalValue: totalMoneyOut,
+                            primaryTitle: "Expenses",
+                            primaryValue: financialSummaryDirectExpenseTotal,
+                            primaryKind: .expenses,
+                            movementTitle: "Loans Paid",
+                            movements: loanDecreaseMovements
+                        )
+                    }
+                }
+            }
+
+            if !devEnabled || devShowCustomBalanceCards {
+                ForEach(customSummaryCards) { card in
+                    let accountCount = validAccountCount(card)
+                    let timingLabel = customSummaryTimingLabel(card)
+                    HStack(spacing: 8) {
+                        Button {
+                            editingSummaryCard = card
+                        } label: {
+                            FinanceSummaryBalanceCard(
+                                title: customSummaryTitle(card),
+                                value: customSummaryBalance(card),
+                                currencyCode: card.currencyCode,
+                                accountCount: accountCount,
+                                timingLabel: timingLabel
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        Menu {
+                            Button {
+                                editingSummaryCard = card
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            Button(role: .destructive) {
+                                deleteCustomSummaryCard(card.id)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle.fill")
+                                .font(.title2)
+                                .frame(width: 42, height: 42)
+                        }
+                        .accessibilityLabel("Options for \(customSummaryTitle(card))")
+                    }
+                }
+            }
+
+            if !devEnabled || devShowOpeningBalance {
+                HStack {
+                    Rectangle().frame(height: 2).foregroundStyle(AppTheme.purple)
+                    Text("Opening Balance")
+                        .font(.caption.bold())
+                        .foregroundStyle(AppTheme.purple)
+                    Rectangle().frame(height: 2).foregroundStyle(AppTheme.purple)
+                }
+                .padding(.top, 2)
+
+                Button {
+                    editingClosingBalance = true
+                } label: {
+                    ReportTotalCard(
+                        title: "Opening Balance as of \(selectedInterval.start.formatted(date: .abbreviated, time: .omitted))",
+                        value: qatarClosingBalance,
+                        currencyCode: "QAR",
+                        icon: "calendar.badge.clock",
+                        color: AppTheme.purple,
+                        secondaryText: closingBalanceAccounts.isEmpty
+                            ? "Select Qatar accounts"
+                            : closingBalanceAccounts.map(\.name).joined(separator: " + ")
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 19, style: .continuous)
+                            .stroke(AppTheme.purple, lineWidth: 2.5)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Edit Qatar opening balance accounts")
+            }
         }
     }
 
@@ -807,95 +1046,310 @@ private struct ReportDetailView: View {
     }
 
     private var qatarClosingBalance: Decimal {
-        store.combinedBalance(for: closingBalanceAccounts, before: closingBalanceCutoff)
+        store.erpSummaryOpeningBalance(existingAccounts: closingBalanceAccounts, interval: selectedInterval)
+    }
+
+    private var financialSummaryDirectIncomeTotal: Decimal {
+        store.transactions.lazy
+            .filter { selectedInterval.contains($0.date) && store.isFinancialSummaryDirectIncome($0) }
+            .reduce(Decimal.zero) { $0 + (store.convertedReportIncomeAmount($1) ?? 0) }
+    }
+
+    private var financialSummaryRefundTotal: Decimal {
+        store.transactions.lazy
+            .filter { selectedInterval.contains($0.date) && store.isFinancialSummaryRefund($0) }
+            .reduce(Decimal.zero) { $0 + (store.convertedReportIncomeAmount($1) ?? 0) }
+    }
+
+    private var financialSummaryDirectExpenseTotal: Decimal {
+        store.transactions.lazy
+            .filter { selectedInterval.contains($0.date) && store.isFinancialSummaryDirectExpense($0) }
+            .reduce(Decimal.zero) { $0 + (store.convertedReportExpenseAmount($1) ?? 0) }
     }
 
     private var loanIncreaseMovements: [LoanNetMovement] {
-        store.loanNetMovements(in: selectedInterval).filter { $0.netAmount > 0 }
+        financialLoanMovements(increase: true)
     }
 
     private var loanDecreaseMovements: [LoanNetMovement] {
-        store.loanNetMovements(in: selectedInterval).filter { $0.netAmount < 0 }
+        financialLoanMovements(increase: false)
     }
 
-    private func summaryColumn(
+    private func financialLoanMovements(increase: Bool) -> [LoanNetMovement] {
+        var totalsByCurrency: [String: Decimal] = [:]
+        for transaction in store.transactions where selectedInterval.contains(transaction.date) {
+            let value = increase
+                ? store.financialSummaryLoanIncreaseAmount(transaction)
+                : store.financialSummaryLoanPaidAmount(transaction)
+            guard value > 0,
+                  let source = store.account(withID: transaction.accountID) else { continue }
+            totalsByCurrency[source.currencyCode.uppercased(), default: 0] += value
+        }
+        return movementRows(totalsByCurrency)
+    }
+
+    private func movementRows(_ totals: [String: Decimal]) -> [LoanNetMovement] {
+        let values = totals.compactMap { currency, amount -> LoanNetMovement? in
+            guard amount > 0 else { return nil }
+            return LoanNetMovement(currencyCode: currency, netAmount: amount)
+        }
+        guard devEnabled else {
+            return values.sorted { $0.currencyCode < $1.currencyCode }
+        }
+        switch DeveloperLoanSort(rawValue: devSummaryLoanSort) ?? .alphabetical {
+        case .alphabetical:
+            return values.sorted { $0.currencyCode < $1.currencyCode }
+        case .qarFirst:
+            return values.sorted {
+                if $0.currencyCode.uppercased() == "QAR" { return true }
+                if $1.currencyCode.uppercased() == "QAR" { return false }
+                return $0.currencyCode < $1.currencyCode
+            }
+        case .largestFirst:
+            return values.sorted { $0.netAmount > $1.netAmount }
+        }
+    }
+
+    private func convertedMovementTotal(_ movements: [LoanNetMovement]) -> Decimal {
+        movements.reduce(Decimal.zero) { total, movement in
+            guard let rate = store.fixedReportConversionRate(
+                from: movement.currencyCode,
+                to: store.currencyCode
+            ) else { return total }
+            return total + movement.netAmount * rate
+        }
+    }
+
+    private var financialSummaryLoanIncreaseConvertedTotal: Decimal {
+        store.transactions.lazy
+            .filter { selectedInterval.contains($0.date) }
+            .reduce(Decimal.zero) { $0 + (store.convertedFinancialSummaryLoanIncreaseAmount($1) ?? 0) }
+    }
+
+    private var financialSummaryLoanPaidConvertedTotal: Decimal {
+        store.transactions.lazy
+            .filter { selectedInterval.contains($0.date) }
+            .reduce(Decimal.zero) { $0 + (store.convertedFinancialSummaryLoanPaidAmount($1) ?? 0) }
+    }
+
+    private var financialSummaryReceivableCollectionTotal: Decimal {
+        guard ERPAccountingEngine.isEnabled, ERPStorage.bool(ERPKey.summaryIncludeReceivableCollections, false) else { return 0 }
+        return store.transactions.lazy.filter { selectedInterval.contains($0.date) }.reduce(Decimal.zero) { total, transaction in
+            let amount = store.receivableCollectionAmount(transaction)
+            guard amount > 0 else { return total }
+            return total + (store.convertedReportAmount(amount, accountID: transaction.accountID, to: store.currencyCode, date: transaction.date) ?? 0)
+        }
+    }
+
+    private var financialSummaryAssetToBankTotal: Decimal {
+        guard ERPAccountingEngine.isEnabled, ERPStorage.bool(ERPKey.summaryIncludeAssetToBank, false) else { return 0 }
+        return store.transactions.lazy.filter { selectedInterval.contains($0.date) }.reduce(Decimal.zero) { total, transaction in
+            guard transaction.type == .transfer,
+                  let source = store.account(withID: transaction.accountID),
+                  let destination = store.account(withID: transaction.destinationAccountID),
+                  (source.nature == .asset || source.nature == .fixedAsset),
+                  destination.nature == .bank else { return total }
+            return total + (store.convertedReportAmount(store.effectiveDestinationAmount(transaction), accountID: destination.id, to: store.currencyCode, date: transaction.date) ?? 0)
+        }
+    }
+
+    private var financialSummaryBankToAssetTotal: Decimal {
+        guard ERPAccountingEngine.isEnabled, ERPStorage.bool(ERPKey.summaryIncludeBankToAsset, false) else { return 0 }
+        return store.transactions.lazy.filter { selectedInterval.contains($0.date) }.reduce(Decimal.zero) { total, transaction in
+            guard transaction.type == .transfer,
+                  let source = store.account(withID: transaction.accountID),
+                  let destination = store.account(withID: transaction.destinationAccountID),
+                  source.nature == .bank,
+                  (destination.nature == .asset || destination.nature == .fixedAsset) else { return total }
+            return total + (store.convertedReportAmount(transaction.amount, accountID: source.id, to: store.currencyCode, date: transaction.date) ?? 0)
+        }
+    }
+
+    private var totalMoneyIn: Decimal {
+        financialSummaryDirectIncomeTotal
+            + financialSummaryRefundTotal
+            + financialSummaryLoanIncreaseConvertedTotal
+            + financialSummaryReceivableCollectionTotal
+            + financialSummaryAssetToBankTotal
+    }
+
+    private var totalMoneyOut: Decimal {
+        financialSummaryDirectExpenseTotal
+            + financialSummaryLoanPaidConvertedTotal
+            + financialSummaryBankToAssetTotal
+    }
+
+    private func moneyFlowColumn(
         title: String,
         color: Color,
+        totalValue: Decimal,
         primaryTitle: String,
         primaryValue: Decimal,
         primaryKind: PeriodTransactionKind,
+        movementTitle: String,
         movements: [LoanNetMovement]
     ) -> some View {
-        VStack(spacing: 8) {
+        VStack(spacing: devEnabled && devSummaryCompactCards ? 6 : 8) {
             Text(title.uppercased())
                 .font(.caption2.bold())
                 .foregroundStyle(color)
                 .frame(maxWidth: .infinity)
 
-            NavigationLink {
-                PeriodTransactionsView(kind: primaryKind, interval: selectedInterval)
-            } label: {
-                ReportTotalCard(
-                    title: primaryTitle,
-                    value: primaryValue,
-                    currencyCode: store.currencyCode,
-                    icon: primaryKind == .income ? "arrow.down.left.circle.fill" : "arrow.up.right.circle.fill",
-                    color: color,
-                    compact: true
-                )
-                .overlay {
-                    RoundedRectangle(cornerRadius: 19, style: .continuous)
-                        .stroke(color, lineWidth: 2.5)
-                }
+            ReportTotalCard(
+                title: title,
+                value: totalValue,
+                currencyCode: store.currencyCode,
+                icon: primaryKind == .income
+                    ? "arrow.down.to.line.circle.fill"
+                    : "arrow.up.to.line.circle.fill",
+                color: color,
+                compact: !devEnabled || devSummaryCompactCards
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 19, style: .continuous)
+                    .stroke(color, lineWidth: 2.4)
             }
-            .buttonStyle(.plain)
 
-            formulaOperator("+", color: color)
+            if (!devEnabled || devShowSummaryOperators) && (!devEnabled || devShowPrimaryCards) {
+                formulaOperator("=", color: color)
+            }
 
-            if movements.isEmpty {
-                ReportTotalCard(
-                    title: primaryKind == .income ? "Loan Increase" : "Loan Decrease",
-                    value: 0,
-                    currencyCode: store.currencyCode,
-                    icon: primaryKind == .income ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill",
-                    color: color,
-                    compact: true
-                )
-                .overlay {
-                    RoundedRectangle(cornerRadius: 19, style: .continuous)
-                        .stroke(color, lineWidth: 2.5)
-                }
-            } else {
-                ForEach(Array(movements.enumerated()), id: \.element.id) { index, movement in
-                    if index > 0 { formulaOperator("+", color: color) }
-                    NavigationLink { LoanMovementReportView() } label: {
-                        ReportTotalCard(
-                            title: primaryKind == .income ? "Loan Increase" : "Loan Decrease",
-                            value: abs(movement.netAmount),
-                            currencyCode: movement.currencyCode,
-                            icon: primaryKind == .income ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill",
-                            color: color,
-                            compact: true,
-                            secondaryText: movement.currencyCode.uppercased() == "PKR"
-                                ? "QAR: \(DisplayFormat.currency(abs(movement.netAmount) / Decimal(77), code: "QAR"))"
-                                : nil
-                        )
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 19, style: .continuous)
-                                .stroke(color, lineWidth: 2.5)
-                        }
+            if !devEnabled || devShowPrimaryCards {
+                NavigationLink {
+                    PeriodTransactionsView(kind: primaryKind, interval: selectedInterval)
+                } label: {
+                    ReportTotalCard(
+                        title: primaryTitle,
+                        value: primaryValue,
+                        currencyCode: store.currencyCode,
+                        icon: primaryKind == .income
+                            ? "arrow.down.left.circle.fill"
+                            : "arrow.up.right.circle.fill",
+                        color: color,
+                        compact: !devEnabled || devSummaryCompactCards
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 19, style: .continuous)
+                            .stroke(color.opacity(0.65), lineWidth: 2)
                     }
-                    .buttonStyle(.plain)
+                }
+                .buttonStyle(.plain)
+            }
+
+            if primaryKind == .income && (!devEnabled || devShowRefunds) {
+                if !devEnabled || devShowSummaryOperators { formulaOperator("+", color: color) }
+                NavigationLink {
+                    PeriodTransactionsView(kind: .refunds, interval: selectedInterval)
+                } label: {
+                    ReportTotalCard(
+                        title: "Refunds",
+                        value: financialSummaryRefundTotal,
+                        currencyCode: store.currencyCode,
+                        icon: "arrow.uturn.backward.circle.fill",
+                        color: color,
+                        compact: !devEnabled || devSummaryCompactCards
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 19, style: .continuous)
+                            .stroke(color.opacity(0.65), lineWidth: 2)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !devEnabled || devShowLoans {
+                if !devEnabled || devShowSummaryOperators { formulaOperator("+", color: color) }
+                if movements.isEmpty {
+                    ReportTotalCard(
+                        title: movementTitle,
+                        value: 0,
+                        currencyCode: store.currencyCode,
+                        icon: primaryKind == .income
+                            ? "arrow.up.right.circle.fill"
+                            : "arrow.down.right.circle.fill",
+                        color: color,
+                        compact: !devEnabled || devSummaryCompactCards
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 19, style: .continuous)
+                            .stroke(color.opacity(0.65), lineWidth: 2)
+                    }
+                } else {
+                    ForEach(Array(movements.enumerated()), id: \.element.id) { index, movement in
+                        if index > 0 && (!devEnabled || devShowSummaryOperators) {
+                            formulaOperator("+", color: color)
+                        }
+                        NavigationLink {
+                            financialSummaryMovementDestination(
+                                primaryKind: primaryKind,
+                                currencyCode: movement.currencyCode
+                            )
+                        } label: {
+                            movementCard(
+                                title: movementTitle,
+                                movement: movement,
+                                icon: primaryKind == .income
+                                    ? "arrow.up.right.circle.fill"
+                                    : "arrow.down.right.circle.fill",
+                                color: color
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
         }
-        .padding(8)
-        .frame(maxWidth: .infinity)
+        .padding(devEnabled && devSummaryCompactCards ? 7 : 9)
+        .frame(maxWidth: .infinity, alignment: .top)
         .background(color.opacity(0.055), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(color.opacity(0.65), lineWidth: 2)
         }
+        .developerSurface()
+    }
+
+    private func movementCard(
+        title: String,
+        movement: LoanNetMovement,
+        icon: String,
+        color: Color
+    ) -> some View {
+        ReportTotalCard(
+            title: title,
+            value: abs(movement.netAmount),
+            currencyCode: movement.currencyCode,
+            icon: icon,
+            color: color,
+            compact: !devEnabled || devSummaryCompactCards,
+            secondaryText: movementSecondaryText(movement)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 19, style: .continuous)
+                .stroke(color.opacity(0.65), lineWidth: 2)
+        }
+    }
+
+    private func movementSecondaryText(_ movement: LoanNetMovement) -> String? {
+        guard !devEnabled || devShowPKRConversion,
+              movement.currencyCode.caseInsensitiveCompare(store.currencyCode) != .orderedSame,
+              let rate = ERPAccountingEngine.rate(from: movement.currencyCode, to: store.currencyCode),
+              rate > 0 else { return nil }
+        return "\(store.currencyCode): " + DisplayFormat.currency(
+            ERPAccountingEngine.round(abs(movement.netAmount) * rate),
+            code: store.currencyCode
+        )
+    }
+
+    private func financialSummaryMovementDestination(
+        primaryKind: PeriodTransactionKind,
+        currencyCode: String
+    ) -> PeriodTransactionsView {
+        PeriodTransactionsView(
+            kind: primaryKind == .income ? .loanIncreased : .loans,
+            interval: selectedInterval,
+            currencyCode: currencyCode
+        )
     }
 
     private func formulaOperator(_ symbol: String, color: Color) -> some View {
@@ -966,34 +1420,26 @@ private struct ReportDetailView: View {
     }
 
     private var financeSummaryNetBalance: Decimal {
-        totals.income + convertedLoanMovement - totals.expense + qatarClosingBalance
+        store.erpSummaryNetBalance(
+            interval: selectedInterval,
+            openingBalance: qatarClosingBalance,
+            totalMoneyIn: totalMoneyIn,
+            totalMoneyOut: totalMoneyOut
+        )
     }
 
     private var convertedLoanMovement: Decimal {
-        store.loanNetMovements(in: selectedInterval).reduce(Decimal.zero) {
-            result, movement in
-            switch movement.currencyCode.uppercased() {
-            case "QAR":
-                return result + movement.netAmount
-            case "PKR":
-                return result + movement.netAmount / Decimal(77)
-            default:
-                return result
-            }
+        store.loanNetMovements(in: selectedInterval).reduce(Decimal.zero) { result, movement in
+            guard let rate = ERPAccountingEngine.rate(from: movement.currencyCode, to: store.currencyCode) else { return result }
+            return result + ERPAccountingEngine.round(movement.netAmount * rate)
         }
     }
 
     private var activityChart: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text("Activity")
-                    .font(.headline)
-                Spacer()
-                HStack(spacing: 12) {
-                    ChartLegend(color: AppTheme.green, title: "Income")
-                    ChartLegend(color: AppTheme.red, title: "Expense")
-                }
-            }
+            Text("Activity")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if buckets.allSatisfy({ $0.income == 0 && $0.expense == 0 }) {
                 EmptyLedgerView(
@@ -1001,32 +1447,21 @@ private struct ReportDetailView: View {
                     message: "Transactions in this period will appear here."
                 )
             } else {
-                Chart(buckets) { bucket in
-                    BarMark(
-                        x: .value("Period", bucket.label),
-                        y: .value("Income", bucket.income)
-                    )
-                    .foregroundStyle(AppTheme.green.gradient)
-                    .position(by: .value("Type", "Income"))
-                    .cornerRadius(3)
-
-                    BarMark(
-                        x: .value("Period", bucket.label),
-                        y: .value("Expense", bucket.expense)
-                    )
-                    .foregroundStyle(AppTheme.red.gradient)
-                    .position(by: .value("Type", "Expense"))
-                    .cornerRadius(3)
-                }
-                .chartLegend(.hidden)
-                .chartYAxis {
-                    AxisMarks(position: .leading)
-                }
-                .frame(height: 230)
+                DeveloperActivityChart(
+                    points: buckets.map {
+                        DeveloperChartPoint(
+                            id: $0.id,
+                            label: $0.label,
+                            income: $0.income,
+                            expense: $0.expense
+                        )
+                    }
+                )
             }
         }
         .padding(16)
         .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .developerSurface()
     }
 
     private var categoryBreakdown: some View {
@@ -1041,7 +1476,7 @@ private struct ReportDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 24)
             } else {
-                ForEach(categoryTotals) { item in
+                ForEach(Array(categoryTotals.prefix(effectiveCategoryLimit))) { item in
                     NavigationLink {
                         CategoryTransactionsView(
                             category: item.name,
@@ -1062,8 +1497,10 @@ private struct ReportDetailView: View {
                                     Text(DisplayFormat.currency(item.amount, code: store.currencyCode))
                                         .font(.subheadline.bold())
                                 }
-                                ProgressView(value: categoryRatio(item.amount))
-                                    .tint(AppTheme.categoryColor(item.name))
+                                if !devEnabled || devShowCategoryProgress {
+                                    ProgressView(value: categoryRatio(item.amount))
+                                        .tint(AppTheme.categoryColor(item.name))
+                                }
                             }
                             Image(systemName: "chevron.right")
                                 .font(.caption.bold())
@@ -1083,6 +1520,34 @@ private struct ReportDetailView: View {
         }
         .padding(16)
         .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .developerSurface()
+    }
+
+    private var effectiveReportBlockSpacing: CGFloat {
+        guard devEnabled else { return 18 }
+        switch DeveloperDensity(rawValue: devDensity) ?? .standard {
+        case .compact: return CGFloat(min(devReportBlockSpacing, 12))
+        case .standard: return CGFloat(devReportBlockSpacing)
+        case .spacious: return CGFloat(max(devReportBlockSpacing, 24))
+        }
+    }
+
+    private var effectiveReportPagePadding: CGFloat {
+        guard devEnabled else { return 16 }
+        switch DeveloperDensity(rawValue: devDensity) ?? .standard {
+        case .compact: return CGFloat(min(devReportPagePadding, 12))
+        case .standard: return CGFloat(devReportPagePadding)
+        case .spacious: return CGFloat(max(devReportPagePadding, 20))
+        }
+    }
+
+    private var effectiveCategoryLimit: Int {
+        devEnabled ? max(1, min(50, devCategoryLimit)) : 50
+    }
+
+    private var orderedReportTransactions: [LedgerTransaction] {
+        let newestFirst = !devEnabled || devTransactionOrder == DeveloperTransactionOrder.newest.rawValue
+        return selectedTransactions.sorted { newestFirst ? ($0.date > $1.date) : ($0.date < $1.date) }
     }
 
     private var selectedInterval: DateInterval {
@@ -1109,13 +1574,12 @@ private struct ReportDetailView: View {
             let kindMatches: Bool
             switch kind {
             case .summary, .categories:
-                kindMatches = store.account(withID: $0.accountID)?.currencyCode == store.currencyCode
+                kindMatches = store.convertedReportIncomeAmount($0) != nil ||
+                    store.convertedReportExpenseAmount($0) != nil
             case .income:
-                kindMatches = store.isReportIncome($0) &&
-                    store.account(withID: store.reportIncomeAccountID($0))?.currencyCode == store.currencyCode
+                kindMatches = store.convertedReportIncomeAmount($0) != nil
             case .expenses:
-                kindMatches = $0.type == .expense &&
-                    store.account(withID: $0.accountID)?.currencyCode == store.currencyCode
+                kindMatches = store.convertedReportExpenseAmount($0) != nil
             case .loans:
                 kindMatches = $0.type == .transfer &&
                     store.account(withID: $0.accountID)?.currencyCode == store.currencyCode &&
@@ -1132,11 +1596,10 @@ private struct ReportDetailView: View {
     private func refreshExpenseCache() {
         guard kind == .expenses else { return }
         let interval = selectedInterval
-        let accountCurrency = Dictionary(uniqueKeysWithValues: store.accounts.map { ($0.id, $0.currencyCode) })
         let query = searchText
         cachedExpenseTransactions = store.transactions.filter {
-            guard $0.type == .expense, interval.contains($0.date),
-                  accountCurrency[$0.accountID ?? LedgerAccount.legacyMainID] == store.currencyCode else { return false }
+            guard interval.contains($0.date),
+                  store.convertedReportExpenseAmount($0) != nil else { return false }
             guard !query.isEmpty else { return true }
             return $0.category.localizedCaseInsensitiveContains(query) ||
                 ($0.vendor?.localizedCaseInsensitiveContains(query) ?? false) ||
@@ -1218,7 +1681,9 @@ private struct ReportDetailView: View {
             CategoryTotal(
                 id: category,
                 name: category,
-                amount: items.reduce(Decimal.zero) { $0 + $1.amount }
+                amount: items.reduce(Decimal.zero) {
+                    $0 + (store.convertedReportExpenseAmount($1) ?? 0)
+                }
             )
         }
         .sorted { $0.amount > $1.amount }
@@ -1226,9 +1691,11 @@ private struct ReportDetailView: View {
 
     private func makeBucket(id: String, label: String, items: [LedgerTransaction]) -> ReportBucket {
         let income = items.filter(store.isReportIncome).reduce(Decimal.zero) {
-            $0 + store.reportIncomeAmount($1)
+            $0 + (store.convertedReportIncomeAmount($1) ?? 0)
         }
-        let expense = items.filter { $0.type == .expense }.reduce(Decimal.zero) { $0 + $1.amount }
+        let expense = items.filter { $0.type == .expense }.reduce(Decimal.zero) {
+            $0 + (store.convertedReportExpenseAmount($1) ?? 0)
+        }
         return ReportBucket(
             id: id,
             label: label,
@@ -1272,6 +1739,8 @@ private struct ReportTotalCard: View {
     let color: Color
     var compact = false
     var secondaryText: String? = nil
+    @AppStorage(DeveloperLabKey.enabled) private var devEnabled = true
+    @AppStorage(DeveloperLabKey.cardCornerRadius) private var devCornerRadius = 20.0
 
     var body: some View {
         HStack(spacing: 12) {
@@ -1300,7 +1769,8 @@ private struct ReportTotalCard: View {
         }
         .padding(compact ? 13 : 16)
         .frame(maxWidth: .infinity)
-        .background(.background, in: RoundedRectangle(cornerRadius: 19, style: .continuous))
+        .background(.background, in: RoundedRectangle(cornerRadius: devEnabled ? CGFloat(devCornerRadius) : 19, style: .continuous))
+        .developerSurface()
     }
 }
 
@@ -1663,7 +2133,9 @@ private struct ChartLegend: View {
 
 private struct ComparisonTransactionsView: View {
     @EnvironmentObject private var store: LedgerStore
+    @State private var selectedTransaction: LedgerTransaction?
     let interval: DateInterval
+
     var body: some View {
         List {
             Section("Income") { rows(for: .income) }
@@ -1671,31 +2143,51 @@ private struct ComparisonTransactionsView: View {
         }
         .navigationTitle("Compared Transactions")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $selectedTransaction) { transaction in
+            TransactionSnapshotView(transaction: transaction)
+                .environmentObject(store)
+        }
     }
+
     @ViewBuilder private func rows(for type: TransactionType) -> some View {
         let items = transactions.filter { type == .income ? store.isReportIncome($0) : $0.type == type }
         if items.isEmpty {
             Text("No \(type.title.lowercased()) transactions.").foregroundStyle(.secondary)
         } else {
-            ForEach(items) {
-                TransactionRow(
-                    transaction: $0,
-                    accountID: type == .income ? store.reportIncomeAccountID($0) : nil
-                )
+            ForEach(items) { transaction in
+                Button {
+                    selectedTransaction = transaction
+                } label: {
+                    TransactionRow(
+                        transaction: transaction,
+                        accountID: type == .income ? store.reportIncomeAccountID(transaction) : nil
+                    )
+                }
+                .buttonStyle(.plain)
+                .transactionSwipeActions(transaction)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        store.delete(transaction)
+                    } label: {
+                        Label("Delete Transaction", systemImage: "trash")
+                    }
+                }
             }
             LabeledContent("Total", value: DisplayFormat.currency(items.reduce(0) {
-                $0 + (type == .income ? store.reportIncomeAmount($1) : $1.amount)
+                $0 + (type == .income
+                    ? (store.convertedReportIncomeAmount($1) ?? 0)
+                    : (store.convertedReportExpenseAmount($1) ?? 0))
             }, code: store.currencyCode))
         }
     }
+
     private var transactions: [LedgerTransaction] {
         store.transactions.filter {
             guard interval.contains($0.date) else { return false }
             if store.isReportIncome($0) {
-                return store.account(withID: store.reportIncomeAccountID($0))?.currencyCode == store.currencyCode
+                return store.convertedReportIncomeAmount($0) != nil
             }
-            return $0.type == .expense &&
-                store.account(withID: $0.accountID)?.currencyCode == store.currencyCode
+            return store.convertedReportExpenseAmount($0) != nil
         }.sorted { $0.date > $1.date }
     }
 }
@@ -1715,7 +2207,16 @@ private struct AccountReportTransactionsView: View {
                         transaction: transaction,
                         accountID: type == .income ? store.reportIncomeAccountID(transaction) : nil
                     )
-                }.buttonStyle(.plain)
+                }
+                .buttonStyle(.plain)
+                .transactionSwipeActions(transaction)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        store.delete(transaction)
+                    } label: {
+                        Label("Delete Transaction", systemImage: "trash")
+                    }
+                }
             }
             Section {
                 LabeledContent("\(type.title) Total", value: formatted(total))
@@ -1733,14 +2234,18 @@ private struct AccountReportTransactionsView: View {
             guard interval.contains($0.date) else { return false }
             if type == .income {
                 return store.isReportIncome($0) &&
-                    accountIDs.contains(store.reportIncomeAccountID($0) ?? LedgerAccount.legacyMainID)
+                    accountIDs.contains(store.reportIncomeAccountID($0) ?? LedgerAccount.legacyMainID) &&
+                    store.convertedReportIncomeAmount($0) != nil
             }
-            return accountIDs.contains($0.accountID ?? LedgerAccount.legacyMainID) && $0.type == type
+            return accountIDs.contains($0.accountID ?? LedgerAccount.legacyMainID) &&
+                store.convertedReportExpenseAmount($0) != nil
         }.sorted { $0.date > $1.date }
     }
     private var total: Decimal {
         transactions.reduce(0) {
-            $0 + (type == .income ? store.reportIncomeAmount($1) : $1.amount)
+            $0 + (type == .income
+                ? (store.convertedReportIncomeAmount($1) ?? 0)
+                : (store.convertedReportExpenseAmount($1) ?? 0))
         }
     }
     private func formatted(_ amount: Decimal) -> String {
@@ -1764,7 +2269,16 @@ private struct LoanTransactionsView: View {
             ForEach(transactions) { transaction in
                 Button { selectedTransaction = transaction } label: {
                     TransactionRow(transaction: transaction)
-                }.buttonStyle(.plain)
+                }
+                .buttonStyle(.plain)
+                .transactionSwipeActions(transaction)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        store.delete(transaction)
+                    } label: {
+                        Label("Delete Transaction", systemImage: "trash")
+                    }
+                }
             }
             LabeledContent("Total", value: DisplayFormat.currency(total, code: currency))
         }
@@ -1832,14 +2346,18 @@ private struct AccountNatureReportView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
     private var interval: DateInterval {
-        DateInterval(start: Calendar.current.startOfDay(for: start),
-            end: Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: end))!)
+        let startDay = Calendar.current.startOfDay(for: start)
+        let endDay = Calendar.current.startOfDay(for: end)
+        let endExclusive = Calendar.current.date(byAdding: .day, value: 1, to: endDay) ?? endDay
+        return DateInterval(start: startDay, end: endExclusive)
     }
     private var natures: [AccountNature] {
         let values = Set(store.accounts.map(effectiveNature))
         return AccountNature.allCases.filter { $0 != .unassigned && values.contains($0) }
     }
     private func effectiveNature(_ account: LedgerAccount) -> AccountNature {
+        if account.nature == .fixedAsset { return .fixedAsset }
+        if account.nature == .fixedLiability { return .fixedLiability }
         if account.group == .payments { return .loan }
         if account.group == .assets { return .asset }
         return account.nature ?? .unassigned
@@ -1863,7 +2381,9 @@ private struct AccountNatureReportView: View {
                 Text("\(items.count) transactions").font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
-            Text(currencySummary(items)).font(.caption.bold())
+            Text(currencySummary(items))
+                .font(.caption.bold())
+                .foregroundStyle(type == .income ? AppTheme.green : AppTheme.red)
         }
     }
     private func currencySummary(_ items: [LedgerTransaction]) -> String {
@@ -1899,7 +2419,15 @@ private struct NatureTransactionsView: View {
                         accountID: type == .income ? store.reportIncomeAccountID(item) : nil
                     )
                 }
-                    .buttonStyle(.plain)
+                .buttonStyle(.plain)
+                .transactionSwipeActions(item)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        store.delete(item)
+                    } label: {
+                        Label("Delete Transaction", systemImage: "trash")
+                    }
+                }
             }
         }
         .navigationTitle("\(nature.title) \(type.title)")
@@ -1978,4 +2506,411 @@ private struct BalanceReconciliationReportView: View {
         }
         return nil
     }
+}
+
+private struct LoanSummaryComparisonView: View {
+    @EnvironmentObject private var store: LedgerStore
+    @AppStorage("AccountingPeriodStartDay") private var accountingPeriodStartDay = 26
+    @AppStorage("LoanSummaryUseAccountingPeriod") private var useAccountingPeriod = true
+    @AppStorage("LoanSummaryCustomStart") private var storedStart = 0.0
+    @AppStorage("LoanSummaryCustomEnd") private var storedEnd = 0.0
+    @State private var initialized = false
+
+    var body: some View {
+        List {
+            Section("Comparison Period") {
+                Toggle("Use Accounting Period by Default", isOn: $useAccountingPeriod)
+                    .onChange(of: useAccountingPeriod) { enabled in
+                        if enabled {
+                            applyCurrentAccountingPeriod()
+                        }
+                    }
+
+                DatePicker("From", selection: startBinding, displayedComponents: .date)
+                DatePicker(
+                    "To",
+                    selection: endBinding,
+                    in: Date(timeIntervalSince1970: storedStart)...,
+                    displayedComponents: .date
+                )
+
+                Button {
+                    useAccountingPeriod = true
+                    applyCurrentAccountingPeriod()
+                } label: {
+                    Label(
+                        "Apply Current \(accountingPeriodLabel) Period",
+                        systemImage: "calendar.badge.checkmark"
+                    )
+                }
+
+                LabeledContent("Selected", value: periodTitle(currentInterval))
+                LabeledContent("Previous", value: periodTitle(previousInterval))
+            }
+
+            Section {
+                consolidatedRow(
+                    title: periodTitle(currentInterval),
+                    amount: consolidatedNetMovement(in: currentInterval)
+                )
+                consolidatedRow(
+                    title: periodTitle(previousInterval),
+                    amount: consolidatedNetMovement(in: previousInterval)
+                )
+                consolidatedRow(
+                    title: "Change",
+                    amount: consolidatedNetMovement(in: currentInterval) -
+                        consolidatedNetMovement(in: previousInterval)
+                )
+            } header: {
+                Text("Consolidated Net Movement — \(store.currencyCode.uppercased())")
+            } footer: {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Only this consolidated section is converted. Currency sections below remain in their original currencies.")
+                    Text("Conversion uses the fixed report rates configured in Next Ledger.")
+                    if !unsupportedCurrencies.isEmpty {
+                        Text("No fixed conversion rate: \(unsupportedCurrencies.joined(separator: ", ")). These currencies remain visible below but are excluded from the consolidated total.")
+                            .foregroundStyle(AppTheme.orange)
+                    }
+                }
+            }
+
+            ForEach(currencies, id: \.self) { currency in
+                Section {
+                    comparisonHeader
+                    comparisonRow(
+                        "Loan Increase",
+                        current: loanIncrease(currency: currency, in: currentInterval),
+                        previous: loanIncrease(currency: currency, in: previousInterval),
+                        currency: currency
+                    )
+                    comparisonRow(
+                        "Loan Payments",
+                        current: loanPayments(currency: currency, in: currentInterval),
+                        previous: loanPayments(currency: currency, in: previousInterval),
+                        currency: currency
+                    )
+                    comparisonRow(
+                        "Net Movement",
+                        current: netMovement(currency: currency, in: currentInterval),
+                        previous: netMovement(currency: currency, in: previousInterval),
+                        currency: currency
+                    )
+                } header: {
+                    HStack {
+                        Text(currency)
+                        Spacer()
+                        Text("Original Currency")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle("Loan Summary Comparison")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            guard !initialized else { return }
+            initialized = true
+            if useAccountingPeriod || storedStart <= 0 || storedEnd <= 0 {
+                applyCurrentAccountingPeriod()
+            }
+        }
+        .onChange(of: accountingPeriodStartDay) { _ in
+            if useAccountingPeriod {
+                applyCurrentAccountingPeriod()
+            }
+        }
+    }
+
+    private var currentInterval: DateInterval {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: Date(timeIntervalSince1970: storedStart))
+        let selectedEnd = calendar.startOfDay(for: Date(timeIntervalSince1970: storedEnd))
+        let inclusiveEnd = max(start, selectedEnd)
+        let end = calendar.date(byAdding: .day, value: 1, to: inclusiveEnd)!
+        return DateInterval(start: start, end: end)
+    }
+
+    private var previousInterval: DateInterval {
+        let calendar = Calendar.current
+        let dayCount = max(
+            1,
+            calendar.dateComponents(
+                [.day],
+                from: currentInterval.start,
+                to: currentInterval.end
+            ).day ?? 1
+        )
+        let start = calendar.date(
+            byAdding: .day,
+            value: -dayCount,
+            to: currentInterval.start
+        ) ?? currentInterval.start.addingTimeInterval(-currentInterval.duration)
+        return DateInterval(start: start, end: currentInterval.start)
+    }
+
+    private var startBinding: Binding<Date> {
+        Binding(
+            get: { Date(timeIntervalSince1970: storedStart) },
+            set: { value in
+                let start = Calendar.current.startOfDay(for: value)
+                storedStart = start.timeIntervalSince1970
+                if storedEnd < storedStart {
+                    storedEnd = storedStart
+                }
+                useAccountingPeriod = false
+            }
+        )
+    }
+
+    private var endBinding: Binding<Date> {
+        Binding(
+            get: { Date(timeIntervalSince1970: storedEnd) },
+            set: { value in
+                storedEnd = Calendar.current.startOfDay(for: value).timeIntervalSince1970
+                useAccountingPeriod = false
+            }
+        )
+    }
+
+    private func applyCurrentAccountingPeriod() {
+        let interval = currentAccountingPeriod
+        storedStart = interval.start.timeIntervalSince1970
+        storedEnd = Calendar.current.date(
+            byAdding: .day,
+            value: -1,
+            to: interval.end
+        )!.timeIntervalSince1970
+    }
+
+    private var currentAccountingPeriod: DateInterval {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let startDay = min(max(accountingPeriodStartDay, 1), 28)
+        let todayDay = calendar.component(.day, from: today)
+        let monthAnchor = todayDay >= startDay
+            ? today
+            : calendar.date(byAdding: .month, value: -1, to: today) ?? today
+        let components = calendar.dateComponents([.year, .month], from: monthAnchor)
+        let start = calendar.date(from: DateComponents(
+            year: components.year,
+            month: components.month,
+            day: startDay
+        )) ?? today
+        let end = calendar.date(byAdding: .month, value: 1, to: start) ?? start
+        return DateInterval(start: start, end: end)
+    }
+
+    private var accountingPeriodLabel: String {
+        if accountingPeriodStartDay == 1 {
+            return "1st–Month End"
+        }
+        return "\(ordinalDay(accountingPeriodStartDay))–\(ordinalDay(accountingPeriodStartDay - 1))"
+    }
+
+    private var loanAccounts: [LedgerAccount] {
+        store.accounts.filter {
+            $0.group == .payments || $0.nature == .loan
+        }
+    }
+
+    private var currencies: [String] {
+        let values = Set(loanAccounts.map { $0.currencyCode.uppercased() })
+        return values.isEmpty ? [store.currencyCode.uppercased()] : values.sorted()
+    }
+
+    private var unsupportedCurrencies: [String] {
+        currencies.filter { conversionRate(from: $0) == nil }
+    }
+
+    private var comparisonHeader: some View {
+        HStack(spacing: 8) {
+            Text("Metric")
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text("Selected")
+                .frame(width: 92, alignment: .trailing)
+            Text("Previous")
+                .frame(width: 92, alignment: .trailing)
+        }
+        .font(.caption2.bold())
+        .foregroundStyle(.secondary)
+    }
+
+    private func comparisonRow(
+        _ title: String,
+        current: Decimal,
+        previous: Decimal,
+        currency: String
+    ) -> some View {
+        let change = current - previous
+        return HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.weight(title == "Net Movement" ? .bold : .regular))
+                Text("Change: \(DisplayFormat.currency(change, code: currency))")
+                    .font(.caption2)
+                    .foregroundStyle(change >= 0 ? AppTheme.green : AppTheme.red)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.55)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(DisplayFormat.currency(current, code: currency))
+                .font(.caption.bold().monospacedDigit())
+                .frame(width: 92, alignment: .trailing)
+                .lineLimit(1)
+                .minimumScaleFactor(0.45)
+
+            Text(DisplayFormat.currency(previous, code: currency))
+                .font(.caption.bold().monospacedDigit())
+                .frame(width: 92, alignment: .trailing)
+                .lineLimit(1)
+                .minimumScaleFactor(0.45)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func consolidatedRow(title: String, amount: Decimal) -> some View {
+        HStack(spacing: 12) {
+            Text(title)
+                .font(.subheadline.weight(title == "Change" ? .bold : .regular))
+            Spacer(minLength: 8)
+            Text(DisplayFormat.currency(amount, code: store.currencyCode))
+                .font(.subheadline.bold().monospacedDigit())
+                .foregroundStyle(amount >= 0 ? AppTheme.green : AppTheme.red)
+                .multilineTextAlignment(.trailing)
+        }
+    }
+
+    private func loanIncrease(currency: String, in interval: DateInterval) -> Decimal {
+        store.transactions.reduce(Decimal.zero) { total, transaction in
+            guard interval.contains(transaction.date),
+                  let source = store.account(withID: transaction.accountID),
+                  source.currencyCode.caseInsensitiveCompare(currency) == .orderedSame else {
+                return total
+            }
+
+            if source.group == .payments,
+               transaction.type == .expense || transaction.type == .transfer {
+                return total + paymentLoanIncreasePortion(transaction, sourceID: source.id)
+            }
+
+            if source.group != .payments,
+               source.nature == .loan,
+               transaction.type == .expense || transaction.type == .transfer {
+                return total + transaction.amount
+            }
+
+            return total
+        }
+    }
+
+    private func loanPayments(currency: String, in interval: DateInterval) -> Decimal {
+        store.transactions.reduce(Decimal.zero) { total, transaction in
+            guard interval.contains(transaction.date),
+                  transaction.type == .transfer,
+                  let destination = store.account(withID: transaction.destinationAccountID),
+                  destination.currencyCode.caseInsensitiveCompare(currency) == .orderedSame else {
+                return total
+            }
+
+            let destinationAmount = transaction.destinationAmount ?? transaction.amount
+
+            if destination.group == .payments {
+                return total + paymentLoanPaymentPortion(
+                    transaction,
+                    destinationID: destination.id,
+                    destinationAmount: destinationAmount
+                )
+            }
+
+            if destination.group != .payments, destination.nature == .loan {
+                return total + destinationAmount
+            }
+
+            return total
+        }
+    }
+
+    private func paymentLoanIncreasePortion(
+        _ transaction: LedgerTransaction,
+        sourceID: UUID
+    ) -> Decimal {
+        guard let after = store.runningBalance(
+            for: transaction.id,
+            accountID: sourceID
+        ) else {
+            return transaction.amount
+        }
+
+        let before = after + transaction.amount
+        return max(Decimal.zero, transaction.amount - max(Decimal.zero, before))
+    }
+
+    private func paymentLoanPaymentPortion(
+        _ transaction: LedgerTransaction,
+        destinationID: UUID,
+        destinationAmount: Decimal
+    ) -> Decimal {
+        guard let after = store.runningBalance(
+            for: transaction.id,
+            accountID: destinationID
+        ) else {
+            return destinationAmount
+        }
+
+        let before = after - destinationAmount
+        return min(destinationAmount, max(Decimal.zero, -before))
+    }
+
+    private func netMovement(currency: String, in interval: DateInterval) -> Decimal {
+        loanIncrease(currency: currency, in: interval) -
+            loanPayments(currency: currency, in: interval)
+    }
+
+    private func consolidatedNetMovement(in interval: DateInterval) -> Decimal {
+        currencies.reduce(Decimal.zero) { total, currency in
+            guard let rate = conversionRate(from: currency) else { return total }
+            return total + netMovement(currency: currency, in: interval) * rate
+        }
+    }
+
+    private func conversionRate(from currency: String) -> Decimal? {
+        if currency.caseInsensitiveCompare(store.currencyCode) == .orderedSame {
+            return 1
+        }
+        return store.fixedReportConversionRate(
+            from: currency,
+            to: store.currencyCode
+        )
+    }
+
+    private func periodTitle(_ interval: DateInterval) -> String {
+        let end = Calendar.current.date(byAdding: .day, value: -1, to: interval.end) ?? interval.end
+        return "\(Self.periodFormatter.string(from: interval.start)) – \(Self.periodFormatter.string(from: end))"
+    }
+
+    private func ordinalDay(_ day: Int) -> String {
+        let suffix: String
+        switch day % 100 {
+        case 11, 12, 13:
+            suffix = "th"
+        default:
+            switch day % 10 {
+            case 1: suffix = "st"
+            case 2: suffix = "nd"
+            case 3: suffix = "rd"
+            default: suffix = "th"
+            }
+        }
+        return "\(day)\(suffix)"
+    }
+
+    private static let periodFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMM yyyy"
+        return formatter
+    }()
 }

@@ -20,6 +20,14 @@ struct ChartLinkedTransactionsView: View {
                         TransactionRow(transaction: transaction, accountID: accountID)
                     }
                     .buttonStyle(.plain)
+                    .transactionSwipeActions(transaction)
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            store.delete(transaction)
+                        } label: {
+                            Label("Delete Transaction", systemImage: "trash")
+                        }
+                    }
                 }
             } footer: {
                 Text("\(transactions.count) related transaction\(transactions.count == 1 ? "" : "s")")
@@ -58,9 +66,10 @@ struct ChartLinkedTransactionsView: View {
 
     private func matchesAccount(_ transaction: LedgerTransaction) -> Bool {
         guard let accountID else { return true }
-        return transaction.accountID == accountID ||
-            transaction.destinationAccountID == accountID ||
-            store.reportIncomeAccountID(transaction) == accountID
+        let relatedIDs = store.relatedAccountIDs(for: accountID)
+        return transaction.accountID.map(relatedIDs.contains) == true ||
+            transaction.destinationAccountID.map(relatedIDs.contains) == true ||
+            store.reportIncomeAccountID(transaction).map(relatedIDs.contains) == true
     }
 
     private func matchesCategory(_ transaction: LedgerTransaction) -> Bool {

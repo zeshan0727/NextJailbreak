@@ -6,11 +6,28 @@ private struct HistoricalBalanceCacheKey: Hashable {
     let cutoff: Date
 }
 
+struct FixedLiabilityLedgerSnapshot {
+    let originalPrincipal: Decimal
+    let increases: Decimal
+    let repayments: Decimal
+    let outstanding: Decimal
+    let status: FixedLiabilityStatus
+    let settledDate: Date?
+
+    var repaymentProgress: Double {
+        let total = originalPrincipal + increases
+        guard total > 0 else { return status == .settled ? 1 : 0 }
+        let ratio = NSDecimalNumber(decimal: min(total, repayments) / total).doubleValue
+        return min(max(ratio, 0), 1)
+    }
+}
+
 @MainActor
 final class LedgerStore: ObservableObject {
     @Published private(set) var transactions: [LedgerTransaction] = []
     @Published private(set) var accounts: [LedgerAccount] = []
     @Published private(set) var settings = LedgerSettings()
+    @Published private(set) var fixedBudget = MonthlyFixedBudget()
     @Published var errorMessage: String?
     @Published private(set) var recordingCards: [LedgerTransaction] = []
     private(set) var runningBalances: [UUID: Decimal] = [:]
@@ -31,7 +48,19 @@ final class LedgerStore: ObservableObject {
 
     var currencyCode: String { settings.currencyCode }
     var defaultAccountID: UUID? { settings.defaultAccountID ?? accounts.first?.id }
+
+    private func requireOpenPeriod(_ date: Date, action: String) -> Bool {
+        guard !AccountingPeriodLock.isLocked(date) else {
+            errorMessage = AccountingPeriodLock.blockedMessage(action: action, date: date)
+            return false
+        }
+        return true
+    }
     var activeAccounts: [LedgerAccount] { accounts.filter { !$0.isArchived } }
+    var fixedAssetRecords: [FixedAssetRecord] { settings.fixedAssetRecords }
+    var fixedLiabilityRecords: [FixedLiabilityRecord] { settings.fixedLiabilityRecords }
+    var fixedAssetCategories: [String] { settings.fixedAssetCategories }
+    var fixedLiabilityCategories: [String] { settings.fixedLiabilityCategories }
 
     func reload() {
         apply(LedgerDiskStore.shared.load())
@@ -47,6 +76,38 @@ final class LedgerStore: ObservableObject {
         var accountBalances = Dictionary(uniqueKeysWithValues: ledger.accounts.map {
             ($0.id, $0.openingBalance)
         })
+        let ledgerAccountsByID = Dictionary(uniqueKeysWithValues: ledger.accounts.map { ($0.id, $0) })
+
+        func legacyTransferDestinationAmount(_ item: LedgerTransaction) -> Decimal {
+            if let stored = item.destinationAmount { return stored }
+            guard item.type == .transfer,
+                  let sourceID = item.accountID,
+                  let destinationID = item.destinationAccountID,
+                  let source = ledgerAccountsByID[sourceID],
+                  let destination = ledgerAccountsByID[destinationID] else { return item.amount }
+            let from = source.currencyCode.uppercased()
+            let to = destination.currencyCode.uppercased()
+            if from == to { return item.amount }
+            let qarToPkr = Decimal(string: "77")!
+            let usdToQar = Decimal(string: "3.65")!
+            let usdToPkr = qarToPkr * usdToQar
+            let rate: Decimal?
+            switch (from, to) {
+            case ("QAR", "PKR"): rate = qarToPkr
+            case ("PKR", "QAR"): rate = Decimal(1) / qarToPkr
+            case ("USD", "QAR"): rate = usdToQar
+            case ("QAR", "USD"): rate = Decimal(1) / usdToQar
+            case ("USD", "PKR"): rate = usdToPkr
+            case ("PKR", "USD"): rate = Decimal(1) / usdToPkr
+            default: rate = nil
+            }
+            guard let rate else { return item.amount }
+            var raw = item.amount * rate
+            var rounded = Decimal.zero
+            NSDecimalRound(&rounded, &raw, 2, .plain)
+            return rounded
+        }
+
         var running: [UUID: Decimal] = [:]
         var accountRunning: [UUID: [UUID: Decimal]] = [:]
         for item in ordered {
@@ -61,7 +122,7 @@ final class LedgerStore: ObservableObject {
                 accountRunning[sourceID, default: [:]][item.id] = accountBalances[sourceID, default: 0]
             }
             if item.type == .transfer, let destinationID = item.destinationAccountID {
-                accountBalances[destinationID, default: 0] += item.destinationAmount ?? item.amount
+                accountBalances[destinationID, default: 0] += legacyTransferDestinationAmount(item)
                 accountRunning[destinationID, default: [:]][item.id] = accountBalances[destinationID, default: 0]
             }
         }
@@ -70,6 +131,7 @@ final class LedgerStore: ObservableObject {
         currentBalances = accountBalances
         historicalBalanceCache.removeAll(keepingCapacity: true)
         settings = ledger.settings
+        fixedBudget = ledger.fixedBudget
         runningBalances = running
         runningBalancesByAccount = accountRunning
         transactions = Array(ordered.reversed())
@@ -89,6 +151,7 @@ final class LedgerStore: ObservableObject {
         hasLoaded = true
     }
 
+    @discardableResult
     func add(
         type: TransactionType,
         amount: Decimal,
@@ -96,18 +159,36 @@ final class LedgerStore: ObservableObject {
         category: String,
         vendor: String = "",
         details: String,
-        accountID: UUID? = nil
-    ) {
+        accountID: UUID? = nil,
+        dimensions: [ERPTransactionDimension]? = nil
+    ) -> Bool {
+        guard requireOpenPeriod(date, action: "record") else { return false }
         let cleanedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanedVendor = vendor.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedAccountID = accountID ?? defaultAccountID
+        let normalizedAmount = ERPAccountingEngine.postingAmount(amount)
+        if let error = erpPostingError(
+            type: type,
+            amount: normalizedAmount,
+            date: date,
+            category: category,
+            vendor: cleanedVendor.nilIfEmpty,
+            details: cleanedDetails,
+            accountID: resolvedAccountID,
+            dimensions: dimensions
+        ) {
+            errorMessage = error
+            return false
+        }
         let item = LedgerTransaction(
             type: type,
-            amount: amount,
+            amount: normalizedAmount,
             date: date,
             category: category,
             vendor: (cleanedVendor.nilIfEmpty ?? LedgerTransaction.vendorFromMessage(cleanedDetails)),
             details: cleanedDetails,
-            accountID: accountID ?? defaultAccountID
+            accountID: resolvedAccountID,
+            dimensions: dimensions
         )
         do {
             let ledger = try LedgerDiskStore.shared.mutate { ledger in
@@ -121,8 +202,86 @@ final class LedgerStore: ObservableObject {
                 )
             }
             apply(ledger)
+            return true
         } catch {
             errorMessage = "The transaction could not be saved."
+            return false
+        }
+    }
+
+    func refundedAmount(for transaction: LedgerTransaction) -> Decimal {
+        transactions.reduce(Decimal.zero) { total, item in
+            item.refundOfTransactionID == transaction.id ? total + item.amount : total
+        }
+    }
+
+    func refundableAmount(for transaction: LedgerTransaction) -> Decimal {
+        max(Decimal.zero, transaction.amount - refundedAmount(for: transaction))
+    }
+
+    @discardableResult
+    func addRefund(
+        for transaction: LedgerTransaction,
+        amount: Decimal,
+        date: Date,
+        accountID: UUID,
+        details: String
+    ) -> Bool {
+        guard requireOpenPeriod(date, action: "record a refund for") else { return false }
+        guard transaction.type != .transfer, transaction.refundOfTransactionID == nil else {
+            errorMessage = "This transaction cannot be refunded."
+            return false
+        }
+        let remaining = refundableAmount(for: transaction)
+        guard amount > 0, amount <= remaining else {
+            errorMessage = "Refund amount must be greater than zero and no more than the remaining refundable amount."
+            return false
+        }
+        guard let refundAccount = account(withID: accountID),
+              !refundAccount.isArchived || refundAccount.id == transaction.accountID else {
+            errorMessage = "Choose an available refund account."
+            return false
+        }
+        let originalCurrency = account(withID: transaction.accountID)?.currencyCode ?? currencyCode
+        guard refundAccount.currencyCode == originalCurrency else {
+            errorMessage = "The refund account must use the same currency as the original transaction."
+            return false
+        }
+
+        let reverseType: TransactionType = transaction.type == .expense ? .income : .expense
+        let cleanedNote = details.trimmingCharacters(in: .whitespacesAndNewlines)
+        let originalLabel: String
+        if let vendor = transaction.vendor, !vendor.isEmpty {
+            originalLabel = vendor
+        } else if !transaction.details.isEmpty {
+            originalLabel = transaction.details
+        } else {
+            originalLabel = transaction.category
+        }
+        let refundDetails = cleanedNote.isEmpty
+            ? "Refund of \(originalLabel)"
+            : "Refund of \(originalLabel) · \(cleanedNote)"
+        let refund = LedgerTransaction(
+            type: reverseType,
+            amount: amount,
+            date: date,
+            category: transaction.category,
+            vendor: transaction.vendor,
+            details: refundDetails,
+            accountID: accountID,
+            dimensions: transaction.dimensions,
+            refundOfTransactionID: transaction.id
+        )
+
+        do {
+            let ledger = try LedgerDiskStore.shared.mutate { ledger in
+                ledger.transactions.append(refund)
+            }
+            apply(ledger)
+            return true
+        } catch {
+            errorMessage = "The refund could not be recorded."
+            return false
         }
     }
 
@@ -137,6 +296,7 @@ final class LedgerStore: ObservableObject {
         secondAccountID: UUID,
         secondAmount: Decimal
     ) {
+        guard requireOpenPeriod(transaction.date, action: "split") else { return }
         guard firstAccountID != secondAccountID, firstAmount > 0, secondAmount > 0,
               firstAmount + secondAmount == transaction.amount else {
             errorMessage = "Split amounts must equal the original amount and use two different accounts."
@@ -151,6 +311,7 @@ final class LedgerStore: ObservableObject {
                     type: transaction.type, amount: secondAmount, date: transaction.date,
                     category: transaction.category, vendor: transaction.vendor,
                     details: transaction.details, accountID: secondAccountID,
+                    dimensions: transaction.dimensions,
                     createdAt: transaction.createdAt
                 ))
             }
@@ -167,6 +328,7 @@ final class LedgerStore: ObservableObject {
         secondCategory: String,
         secondAmount: Decimal
     ) {
+        guard requireOpenPeriod(transaction.date, action: "split") else { return }
         guard transaction.type == .expense, firstAmount > 0, secondAmount > 0,
               firstAmount + secondAmount == transaction.amount,
               !firstCategory.isEmpty, !secondCategory.isEmpty else {
@@ -182,6 +344,7 @@ final class LedgerStore: ObservableObject {
                     type: .expense, amount: secondAmount, date: transaction.date,
                     category: secondCategory, vendor: transaction.vendor,
                     details: transaction.details, accountID: transaction.accountID,
+                    dimensions: transaction.dimensions,
                     createdAt: transaction.createdAt
                 ))
             }
@@ -191,32 +354,294 @@ final class LedgerStore: ObservableObject {
         }
     }
 
+    @discardableResult
     func addTransfer(
         from sourceID: UUID,
         to destinationID: UUID,
         amount: Decimal,
         destinationAmount: Decimal,
         date: Date,
-        details: String
-    ) {
+        details: String,
+        dimensions: [ERPTransactionDimension]? = nil
+    ) -> Bool {
+        guard requireOpenPeriod(date, action: "record") else { return false }
         guard sourceID != destinationID else {
             errorMessage = "Choose two different accounts."
-            return
+            return false
+        }
+        let normalizedAmount = ERPAccountingEngine.postingAmount(amount)
+        let cleanedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
+        var normalizedDestination = ERPAccountingEngine.postingAmount(destinationAmount)
+        if ERPAccountingEngine.isEnabled,
+           ERPStorage.bool(ERPKey.transferUseConfiguredRate, true),
+           let source = account(withID: sourceID),
+           let destination = account(withID: destinationID) {
+            if source.currencyCode.caseInsensitiveCompare(destination.currencyCode) == .orderedSame {
+                normalizedDestination = normalizedAmount
+            } else if let rate = ERPAccountingEngine.rate(
+                from: source.currencyCode,
+                to: destination.currencyCode,
+                on: date
+            ) {
+                normalizedDestination = ERPAccountingEngine.round(normalizedAmount * rate)
+            }
+        }
+        if let error = erpPostingError(
+            type: .transfer,
+            amount: normalizedAmount,
+            date: date,
+            category: "Transfer",
+            vendor: nil,
+            details: cleanedDetails,
+            accountID: sourceID,
+            destinationAccountID: destinationID,
+            destinationAmount: normalizedDestination,
+            dimensions: dimensions
+        ) {
+            errorMessage = error
+            return false
         }
         let item = LedgerTransaction(
             type: .transfer,
-            amount: amount,
+            amount: normalizedAmount,
             date: date,
             category: "Transfer",
-            details: details.trimmingCharacters(in: .whitespacesAndNewlines),
+            details: cleanedDetails,
             accountID: sourceID,
             destinationAccountID: destinationID,
-            destinationAmount: destinationAmount
+            destinationAmount: normalizedDestination,
+            dimensions: dimensions
         )
         do {
             apply(try LedgerDiskStore.shared.add(item))
+            return true
         } catch {
             errorMessage = "The transfer could not be saved."
+            return false
+        }
+    }
+
+    func smsDraftCategory(for draft: SMSImportDraft) -> String {
+        if draft.transactionType == .transfer { return "Transfer" }
+        if draft.kind == "cashback" || draft.kind == "reversal" { return "Refund" }
+
+        let vendorKey = normalizedSMSVendor(draft.cleanedVendor)
+        if !vendorKey.isEmpty,
+           let previous = transactions.first(where: {
+               $0.type == draft.transactionType &&
+               normalizedSMSVendor($0.vendor ?? "") == vendorKey &&
+               !$0.category.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+           }) {
+            return previous.category
+        }
+
+        guard let sourceText = SMSImportConsoleService.loadConfiguration().cardAccountIDs[draft.cardEnding],
+              let sourceID = UUID(uuidString: sourceText) else {
+            return "Other"
+        }
+        let probe = LedgerTransaction(
+            id: draft.id,
+            type: draft.transactionType,
+            amount: draft.amount,
+            date: draft.date,
+            category: "Other",
+            vendor: draft.cleanedVendor,
+            details: draft.cleanedDescription,
+            accountID: sourceID
+        )
+        return suggestedCategory(for: probe) ?? "Other"
+    }
+
+    private func normalizedSMSVendor(_ value: String) -> String {
+        value
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .lowercased()
+            .replacingOccurrences(of: "[^a-z0-9]+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    @discardableResult
+    func approveReviewedSMSDraft(
+        _ draft: SMSImportDraft,
+        transactionType: TransactionType,
+        amount: Decimal,
+        date: Date,
+        category: String,
+        vendor: String,
+        details: String,
+        accountID: UUID,
+        destinationAccountID: UUID?
+    ) -> Bool {
+        guard requireOpenPeriod(date, action: "approve") else { return false }
+        if transactions.contains(where: { $0.id == draft.id }) { return true }
+        guard amount > 0 else {
+            errorMessage = "Enter an amount greater than zero."
+            return false
+        }
+        guard let sourceAccount = accountsByID[accountID] else {
+            errorMessage = "Choose a valid account."
+            return false
+        }
+
+        let cleanCategory = category.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanVendor = vendor.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanDetails.isEmpty else {
+            errorMessage = "Description cannot be empty."
+            return false
+        }
+
+        let item: LedgerTransaction
+        if transactionType == .transfer {
+            guard let destinationAccountID,
+                  let destinationAccount = accountsByID[destinationAccountID],
+                  destinationAccountID != accountID else {
+                errorMessage = "Choose different From and To accounts for the transfer."
+                return false
+            }
+            guard sourceAccount.currencyCode == destinationAccount.currencyCode else {
+                errorMessage = "For SMS draft transfers, choose From and To accounts with the same currency."
+                return false
+            }
+            item = LedgerTransaction(
+                id: draft.id,
+                type: .transfer,
+                amount: amount,
+                date: date,
+                category: cleanCategory.isEmpty ? "Transfer" : cleanCategory,
+                vendor: cleanVendor,
+                details: cleanDetails,
+                accountID: accountID,
+                destinationAccountID: destinationAccountID,
+                destinationAmount: amount
+            )
+        } else {
+            item = LedgerTransaction(
+                id: draft.id,
+                type: transactionType,
+                amount: amount,
+                date: date,
+                category: cleanCategory.isEmpty ? "Other" : cleanCategory,
+                vendor: cleanVendor,
+                details: cleanDetails,
+                accountID: accountID
+            )
+        }
+
+        do {
+            let ledger = try LedgerDiskStore.shared.mutate { ledger in
+                guard !ledger.transactions.contains(where: { $0.id == item.id }) else { return }
+                ledger.transactions.append(item)
+            }
+            apply(ledger)
+            return true
+        } catch {
+            errorMessage = "The reviewed SMS draft could not be recorded."
+            return false
+        }
+    }
+
+    @discardableResult
+    func approveSMSDraft(_ draft: SMSImportDraft, configuration: SMSImportConfiguration) -> Bool {
+        guard requireOpenPeriod(draft.date, action: "approve") else { return false }
+        if transactions.contains(where: { $0.id == draft.id }) { return true }
+        guard let sourceText = configuration.cardAccountIDs[draft.cardEnding],
+              let sourceID = UUID(uuidString: sourceText),
+              accountsByID[sourceID] != nil else {
+            errorMessage = "Map card **\(draft.cardEnding) to an account before approval."
+            return false
+        }
+
+        let cleanVendor = draft.cleanedVendor
+        let cleanDetails = draft.cleanedDescription
+        guard !cleanDetails.isEmpty else {
+            errorMessage = "The original SMS text could not be decoded safely. Reject this draft and scan again after updating the daemon."
+            return false
+        }
+        let resolvedCategory = smsDraftCategory(for: draft)
+
+        let item: LedgerTransaction
+        switch draft.kind {
+        case "withdrawal", "billPayment":
+            let destinationText = draft.kind == "withdrawal"
+                ? configuration.cashAccountID
+                : (nil as String?)
+            guard let destinationText,
+                  let destinationID = UUID(uuidString: destinationText),
+                  accountsByID[destinationID] != nil,
+                  destinationID != sourceID else {
+                errorMessage = draft.kind == "withdrawal"
+                    ? "Choose a valid Cash destination account."
+                    : "Choose a valid Loan Payment destination account."
+                return false
+            }
+            item = LedgerTransaction(
+                id: draft.id,
+                type: .transfer,
+                amount: draft.amount,
+                date: draft.date,
+                category: "Transfer",
+                vendor: cleanVendor,
+                details: cleanDetails,
+                accountID: sourceID,
+                destinationAccountID: destinationID,
+                destinationAmount: draft.amount
+            )
+        case "cashback":
+            item = LedgerTransaction(
+                id: draft.id,
+                type: .income,
+                amount: draft.amount,
+                date: draft.date,
+                category: resolvedCategory,
+                vendor: cleanVendor,
+                details: cleanDetails,
+                accountID: sourceID
+            )
+        case "income":
+            item = LedgerTransaction(
+                id: draft.id,
+                type: .income,
+                amount: draft.amount,
+                date: draft.date,
+                category: resolvedCategory,
+                vendor: cleanVendor,
+                details: cleanDetails,
+                accountID: sourceID
+            )
+        default:
+            let probe = LedgerTransaction(
+                id: draft.id,
+                type: .expense,
+                amount: draft.amount,
+                date: draft.date,
+                category: "Other",
+                vendor: cleanVendor,
+                details: cleanDetails,
+                accountID: sourceID
+            )
+            item = LedgerTransaction(
+                id: draft.id,
+                type: .expense,
+                amount: draft.amount,
+                date: draft.date,
+                category: resolvedCategory,
+                vendor: cleanVendor,
+                details: cleanDetails,
+                accountID: sourceID
+            )
+        }
+
+        do {
+            let ledger = try LedgerDiskStore.shared.mutate { ledger in
+                guard !ledger.transactions.contains(where: { $0.id == item.id }) else { return }
+                ledger.transactions.append(item)
+            }
+            apply(ledger)
+            return true
+        } catch {
+            errorMessage = "The approved SMS draft could not be recorded."
+            return false
         }
     }
 
@@ -234,6 +659,69 @@ final class LedgerStore: ObservableObject {
         updateLedger(failureMessage: "The account could not be updated.") { ledger in
             guard let index = ledger.accounts.firstIndex(where: { $0.id == account.id }) else { return }
             ledger.accounts[index] = account
+        }
+    }
+
+
+    func saveFixedAssetRecord(_ record: FixedAssetRecord) {
+        updateLedger(failureMessage: "The fixed asset could not be saved.") { ledger in
+            var cleaned = record
+            cleaned.assetNumber = record.assetNumber.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.name = record.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.category = record.category.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.disposalReason = record.disposalReason.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.notes = record.notes.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let index = ledger.settings.fixedAssetRecords.firstIndex(where: { $0.id == record.id }) {
+                ledger.settings.fixedAssetRecords[index] = cleaned
+            } else {
+                ledger.settings.fixedAssetRecords.append(cleaned)
+            }
+            if !cleaned.category.isEmpty,
+               !ledger.settings.fixedAssetCategories.contains(where: { $0.caseInsensitiveCompare(cleaned.category) == .orderedSame }) {
+                ledger.settings.fixedAssetCategories.append(cleaned.category)
+                ledger.settings.fixedAssetCategories.sort { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+            }
+            if let linked = cleaned.linkedAccountID,
+               let index = ledger.accounts.firstIndex(where: { $0.id == linked }) {
+                ledger.accounts[index].nature = .fixedAsset
+            }
+        }
+    }
+
+    func deleteFixedAssetRecord(_ id: UUID) {
+        updateLedger(failureMessage: "The fixed asset could not be removed.") { ledger in
+            ledger.settings.fixedAssetRecords.removeAll { $0.id == id }
+        }
+    }
+
+    func saveFixedLiabilityRecord(_ record: FixedLiabilityRecord) {
+        updateLedger(failureMessage: "The fixed liability could not be saved.") { ledger in
+            var cleaned = record
+            cleaned.reference = record.reference.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.name = record.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.category = record.category.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.lender = record.lender.trimmingCharacters(in: .whitespacesAndNewlines)
+            cleaned.notes = record.notes.trimmingCharacters(in: .whitespacesAndNewlines)
+            if let index = ledger.settings.fixedLiabilityRecords.firstIndex(where: { $0.id == record.id }) {
+                ledger.settings.fixedLiabilityRecords[index] = cleaned
+            } else {
+                ledger.settings.fixedLiabilityRecords.append(cleaned)
+            }
+            if !cleaned.category.isEmpty,
+               !ledger.settings.fixedLiabilityCategories.contains(where: { $0.caseInsensitiveCompare(cleaned.category) == .orderedSame }) {
+                ledger.settings.fixedLiabilityCategories.append(cleaned.category)
+                ledger.settings.fixedLiabilityCategories.sort { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+            }
+            if let linked = cleaned.linkedAccountID,
+               let index = ledger.accounts.firstIndex(where: { $0.id == linked }) {
+                ledger.accounts[index].nature = .fixedLiability
+            }
+        }
+    }
+
+    func deleteFixedLiabilityRecord(_ id: UUID) {
+        updateLedger(failureMessage: "The fixed liability could not be removed.") { ledger in
+            ledger.settings.fixedLiabilityRecords.removeAll { $0.id == id }
         }
     }
 
@@ -316,6 +804,12 @@ final class LedgerStore: ObservableObject {
         updateLedger(failureMessage: "The account could not be archived.") { ledger in
             guard let index = ledger.accounts.firstIndex(where: { $0.id == account.id }) else { return }
             ledger.accounts[index].isArchived = true
+            if ledger.accounts[index].parentAccountID == nil {
+                for childIndex in ledger.accounts.indices
+                where ledger.accounts[childIndex].parentAccountID == account.id {
+                    ledger.accounts[childIndex].isArchived = true
+                }
+            }
             if ledger.settings.defaultAccountID == account.id {
                 ledger.settings.defaultAccountID = ledger.accounts.first(where: { !$0.isArchived })?.id
             }
@@ -327,8 +821,180 @@ final class LedgerStore: ObservableObject {
         return accountsByID[id]
     }
 
+
+    func isFinancialLiabilityAccount(_ account: LedgerAccount?) -> Bool {
+        guard let nature = account?.nature else { return false }
+        return nature == .loan || nature == .fixedLiability
+    }
+
+    func fixedLiabilitySuggestedPrincipal(for account: LedgerAccount, asOf date: Date = Date()) -> Decimal {
+        var drawdowns: Decimal = 0
+        for transaction in transactions where transaction.date <= date && transaction.type == .transfer {
+            guard transaction.accountID == account.id else { continue }
+            let destination = self.account(withID: transaction.destinationAccountID)
+            if isFinancialLiabilityAccount(destination) { continue }
+            drawdowns += transaction.amount
+        }
+        let opening = abs(account.openingBalance)
+        let current = abs(balance(for: account))
+        return max(opening, max(drawdowns, current))
+    }
+
+    func fixedLiabilitySnapshot(
+        _ record: FixedLiabilityRecord,
+        asOf requestedDate: Date = Date()
+    ) -> FixedLiabilityLedgerSnapshot {
+        let tolerance: Decimal = 0.01
+
+        guard let liabilityID = record.linkedAccountID,
+              let linkedAccount = account(withID: liabilityID) else {
+            // Unlinked/manual register records keep their manually entered principal.
+            let manualPrincipal = max(0, record.originalPrincipal)
+            let manualOutstanding = record.status == .settled ? Decimal.zero : manualPrincipal
+            return FixedLiabilityLedgerSnapshot(
+                originalPrincipal: manualPrincipal,
+                increases: 0,
+                repayments: record.status == .settled ? manualPrincipal : 0,
+                outstanding: manualOutstanding,
+                status: record.status,
+                settledDate: record.settledDate
+            )
+        }
+
+        // For a linked liability the ledger is the only source of truth.
+        // Do NOT add record.originalPrincipal on top of the account movements.
+        let openingLiability: Decimal = linkedAccount.createdAt <= requestedDate
+            ? abs(linkedAccount.openingBalance)
+            : 0
+
+        var increases: Decimal = 0
+        var repayments: Decimal = 0
+        var lastRepaymentDate: Date?
+
+        for transaction in transactions where transaction.date <= requestedDate && transaction.type == .transfer {
+            if transaction.accountID == liabilityID {
+                let destination = account(withID: transaction.destinationAccountID)
+                if isFinancialLiabilityAccount(destination) { continue }
+                // Liability -> Bank/other account = loan drawdown / liability increase.
+                increases += transaction.amount
+            } else if transaction.destinationAccountID == liabilityID {
+                let source = account(withID: transaction.accountID)
+                if isFinancialLiabilityAccount(source) { continue }
+                // Bank/other account -> Liability = installment / repayment.
+                repayments += effectiveDestinationAmount(transaction)
+                if lastRepaymentDate == nil || transaction.date > lastRepaymentDate! {
+                    lastRepaymentDate = transaction.date
+                }
+            }
+        }
+
+        let totalLoanRecorded = openingLiability + increases
+        let outstanding = max(0, totalLoanRecorded - repayments)
+        let automaticallySettled = totalLoanRecorded > 0 && outstanding <= tolerance
+        return FixedLiabilityLedgerSnapshot(
+            originalPrincipal: openingLiability,
+            increases: increases,
+            repayments: repayments,
+            outstanding: outstanding,
+            status: automaticallySettled ? .settled : .active,
+            settledDate: automaticallySettled ? (lastRepaymentDate ?? record.settledDate) : nil
+        )
+    }
+
+    func fixedLiabilityRepaymentTransactions(
+        _ record: FixedLiabilityRecord,
+        asOf requestedDate: Date = Date()
+    ) -> [LedgerTransaction] {
+        guard let liabilityID = record.linkedAccountID else { return [] }
+        return transactions.filter { transaction in
+            guard transaction.type == .transfer,
+                  transaction.date <= requestedDate,
+                  transaction.destinationAccountID == liabilityID else { return false }
+            return !isFinancialLiabilityAccount(account(withID: transaction.accountID))
+        }.sorted { $0.date > $1.date }
+    }
+
+    func fixedLiabilityIncreaseTransactions(
+        _ record: FixedLiabilityRecord,
+        asOf requestedDate: Date = Date()
+    ) -> [LedgerTransaction] {
+        guard let liabilityID = record.linkedAccountID else { return [] }
+        return transactions.filter { transaction in
+            guard transaction.type == .transfer,
+                  transaction.date <= requestedDate,
+                  transaction.accountID == liabilityID else { return false }
+            return !isFinancialLiabilityAccount(account(withID: transaction.destinationAccountID))
+        }.sorted { $0.date > $1.date }
+    }
+
+
+    func fixedLiabilityAllTransactions(
+        _ record: FixedLiabilityRecord,
+        asOf requestedDate: Date = Date()
+    ) -> [LedgerTransaction] {
+        let combined = fixedLiabilityIncreaseTransactions(record, asOf: requestedDate)
+            + fixedLiabilityRepaymentTransactions(record, asOf: requestedDate)
+        var seen = Set<UUID>()
+        return combined
+            .sorted { $0.date > $1.date }
+            .filter { seen.insert($0.id).inserted }
+    }
+
     func balance(for account: LedgerAccount) -> Decimal {
         currentBalances[account.id] ?? account.openingBalance
+    }
+
+    /// Destination-side amount used for balance/report reconciliation. Older
+    /// transfers may not contain destinationAmount, so known fixed-rate currency
+    /// pairs are reconstructed instead of incorrectly assuming a 1:1 transfer.
+    func effectiveDestinationAmount(_ transaction: LedgerTransaction) -> Decimal {
+        if let stored = transaction.destinationAmount { return stored }
+        guard transaction.type == .transfer,
+              let source = account(withID: transaction.accountID),
+              let destination = account(withID: transaction.destinationAccountID) else {
+            return transaction.amount
+        }
+        if source.currencyCode.caseInsensitiveCompare(destination.currencyCode) == .orderedSame {
+            return transaction.amount
+        }
+        guard let rate = ERPAccountingEngine.rate(
+            from: source.currencyCode,
+            to: destination.currencyCode,
+            on: transaction.date
+        ) else { return transaction.amount }
+        return ERPAccountingEngine.round(transaction.amount * rate)
+    }
+
+    func subAccounts(of accountID: UUID, includeArchived: Bool = false) -> [LedgerAccount] {
+        accounts.filter {
+            $0.parentAccountID == accountID && (includeArchived || !$0.isArchived)
+        }.sorted {
+            let left = $0.chartCode ?? "9999"
+            let right = $1.chartCode ?? "9999"
+            return left == right
+                ? $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+                : left.localizedStandardCompare(right) == .orderedAscending
+        }
+    }
+
+    func relatedAccountIDs(for accountID: UUID?) -> Set<UUID> {
+        guard let accountID else { return [] }
+        var ids: Set<UUID> = [accountID]
+        if account(withID: accountID)?.parentAccountID == nil {
+            ids.formUnion(subAccounts(of: accountID, includeArchived: true).map(\.id))
+        }
+        return ids
+    }
+
+    func consolidatedBalances(for account: LedgerAccount) -> [String: Decimal] {
+        var totals: [String: Decimal] = [
+            account.currencyCode.uppercased(): balance(for: account)
+        ]
+        guard account.parentAccountID == nil else { return totals }
+        for child in subAccounts(of: account.id, includeArchived: true) {
+            totals[child.currencyCode.uppercased(), default: 0] += balance(for: child)
+        }
+        return totals
     }
 
     /// Returns the combined closing balance immediately before `cutoff`.
@@ -362,7 +1028,7 @@ final class LedgerStore: ObservableObject {
                     result -= transaction.amount
                 }
                 if transaction.destinationAccountID.map(accountIDs.contains) == true {
-                    result += transaction.destinationAmount ?? transaction.amount
+                    result += effectiveDestinationAmount(transaction)
                 }
             }
         }
@@ -375,18 +1041,284 @@ final class LedgerStore: ObservableObject {
         return runningBalancesByAccount[accountID]?[transactionID]
     }
 
+    func isBankAccount(_ account: LedgerAccount?) -> Bool {
+        account?.nature == .bank
+    }
+
+    /// Financial Summary cash-flow classification is intentionally stricter than
+    /// the general reports. Direct income/expense must be an explicit transaction,
+    /// refunds are separated, and only Bank <-> Loan transfers affect loan cash flow.
+    func isFinancialSummaryDirectIncome(_ transaction: LedgerTransaction) -> Bool {
+        guard transaction.type == .income, transaction.refundOfTransactionID == nil else { return false }
+        guard ERPAccountingEngine.isEnabled else { return true }
+        guard ERPStorage.bool(ERPKey.summaryIncludeDirectIncome, true) else { return false }
+        if ERPStorage.bool(ERPKey.summaryDirectIncomeBankOnly, false) {
+            return isBankAccount(account(withID: transaction.accountID))
+        }
+        return true
+    }
+
+    func isFinancialSummaryRefund(_ transaction: LedgerTransaction) -> Bool {
+        guard transaction.type == .income, transaction.refundOfTransactionID != nil else { return false }
+        return !ERPAccountingEngine.isEnabled || ERPStorage.bool(ERPKey.summaryIncludeRefunds, true)
+    }
+
+    func isFinancialSummaryDirectExpense(_ transaction: LedgerTransaction) -> Bool {
+        guard transaction.type == .expense, transaction.refundOfTransactionID == nil else { return false }
+        guard ERPAccountingEngine.isEnabled else { return true }
+        guard ERPStorage.bool(ERPKey.summaryIncludeDirectExpense, true) else { return false }
+        if ERPStorage.bool(ERPKey.summaryDirectExpenseBankOnly, false) {
+            return isBankAccount(account(withID: transaction.accountID))
+        }
+        return true
+    }
+
+    func financialSummaryLoanIncreaseAmount(_ transaction: LedgerTransaction) -> Decimal {
+        guard !ERPAccountingEngine.isEnabled || ERPStorage.bool(ERPKey.summaryIncludeLoanIncrease, true) else { return 0 }
+        guard transaction.type == .transfer,
+              let source = account(withID: transaction.accountID),
+              let destination = account(withID: transaction.destinationAccountID),
+              isFinancialLoanAccount(source),
+              destination.nature == .bank else { return 0 }
+        return transaction.amount
+    }
+
+    func financialSummaryLoanPaidAmount(_ transaction: LedgerTransaction) -> Decimal {
+        guard !ERPAccountingEngine.isEnabled || ERPStorage.bool(ERPKey.summaryIncludeLoanPaid, true) else { return 0 }
+        guard transaction.type == .transfer,
+              let source = account(withID: transaction.accountID),
+              let destination = account(withID: transaction.destinationAccountID),
+              source.nature == .bank,
+              isFinancialLoanAccount(destination) else { return 0 }
+        return transaction.amount
+    }
+
+    func convertedFinancialSummaryLoanIncreaseAmount(_ transaction: LedgerTransaction) -> Decimal? {
+        let amount = financialSummaryLoanIncreaseAmount(transaction)
+        guard amount > 0,
+              let source = account(withID: transaction.accountID),
+              let rate = ERPAccountingEngine.rate(from: source.currencyCode, to: currencyCode, on: transaction.date) else {
+            return nil
+        }
+        return ERPAccountingEngine.round(amount * rate)
+    }
+
+    func convertedFinancialSummaryLoanPaidAmount(_ transaction: LedgerTransaction) -> Decimal? {
+        let amount = financialSummaryLoanPaidAmount(transaction)
+        guard amount > 0,
+              let source = account(withID: transaction.accountID),
+              let rate = ERPAccountingEngine.rate(from: source.currencyCode, to: currencyCode, on: transaction.date) else {
+            return nil
+        }
+        return ERPAccountingEngine.round(amount * rate)
+    }
+
+    func isFinancialLoanAccount(_ account: LedgerAccount?) -> Bool {
+        guard let account else { return false }
+        guard ERPAccountingEngine.isEnabled else {
+            return account.nature == .loan || account.nature == .fixedLiability || account.group == .payments
+        }
+        let mode = ERPLoanDetectionMode(
+            rawValue: ERPStorage.string(ERPKey.loanDetectionMode, ERPLoanDetectionMode.hybrid.rawValue)
+        ) ?? .hybrid
+        let natureLoan = account.nature == .loan || account.nature == .fixedLiability
+        let paymentLoan = account.group == .payments &&
+            ERPStorage.bool(ERPKey.paymentNegativeActsLoan, true) && balance(for: account) < 0
+        switch mode {
+        case .natureOnly: return natureLoan
+        case .paymentsOnly: return account.group == .payments
+        case .hybrid: return natureLoan || paymentLoan
+        }
+    }
+
+    func isPaymentToBankTransfer(_ transaction: LedgerTransaction) -> Bool {
+        guard transaction.type == .transfer,
+              let source = account(withID: transaction.accountID),
+              source.group == .payments else { return false }
+        return isBankAccount(account(withID: transaction.destinationAccountID))
+    }
+
+    func isBankToPaymentTransfer(_ transaction: LedgerTransaction) -> Bool {
+        guard transaction.type == .transfer,
+              isBankAccount(account(withID: transaction.accountID)),
+              let destination = account(withID: transaction.destinationAccountID) else {
+            return false
+        }
+        return destination.group == .payments
+    }
+
+    func paymentSourceBalanceBefore(_ transaction: LedgerTransaction) -> Decimal? {
+        guard isPaymentToBankTransfer(transaction),
+              let sourceID = transaction.accountID else { return nil }
+        guard let after = runningBalance(for: transaction.id, accountID: sourceID) else {
+            return nil
+        }
+        return after + transaction.amount
+    }
+
+    func receivableCollectionAmount(_ transaction: LedgerTransaction) -> Decimal {
+        if ERPAccountingEngine.isEnabled {
+            guard ERPStorage.bool(ERPKey.paymentPositiveActsReceivable, true),
+                  ERPStorage.bool(ERPKey.reportPaymentPositiveAsReceivable, true) else { return 0 }
+        }
+        guard let before = paymentSourceBalanceBefore(transaction), before > 0 else { return 0 }
+        return min(transaction.amount, before)
+    }
+
+    func paymentLoanIncreaseAmount(_ transaction: LedgerTransaction) -> Decimal {
+        guard isPaymentToBankTransfer(transaction) else { return 0 }
+        return max(0, transaction.amount - receivableCollectionAmount(transaction))
+    }
+
+    func paymentLoanPaymentAmount(_ transaction: LedgerTransaction) -> Decimal {
+        loanDecreaseAmount(transaction)
+    }
+
+    func transferIncomeAmount(_ transaction: LedgerTransaction) -> Decimal {
+        guard transaction.type == .transfer,
+              let source = account(withID: transaction.accountID),
+              let destination = account(withID: transaction.destinationAccountID),
+              isBankAccount(destination),
+              !isBankAccount(source) else { return 0 }
+
+        if !ERPAccountingEngine.isEnabled {
+            if source.group == .payments { return receivableCollectionAmount(transaction) }
+            guard source.nature != .loan else { return 0 }
+            return effectiveDestinationAmount(transaction)
+        }
+        if source.group == .payments {
+            guard ERPStorage.bool(ERPKey.reportReceivableCollectionsAsIncome, true) else { return 0 }
+            return receivableCollectionAmount(transaction)
+        }
+        if isFinancialLoanAccount(source) && ERPStorage.bool(ERPKey.reportExcludeLoanTransfers, true) { return 0 }
+        if source.nature == .payable && ERPStorage.bool(ERPKey.reportPayableFundingAsIncome, false) {
+            return effectiveDestinationAmount(transaction)
+        }
+        guard ERPStorage.bool(ERPKey.reportNonBankToBankAsIncome, true) else { return 0 }
+        return effectiveDestinationAmount(transaction)
+    }
+
     func isReportIncome(_ transaction: LedgerTransaction) -> Bool {
-        transaction.type == .income || isAmaraTransfer(transaction)
+        if transaction.type == .income {
+            if ERPAccountingEngine.isEnabled,
+               transaction.refundOfTransactionID != nil,
+               !ERPStorage.bool(ERPKey.reportRefundsAsIncome, true) { return false }
+            return true
+        }
+        return transferIncomeAmount(transaction) > 0
     }
 
     func reportIncomeAmount(_ transaction: LedgerTransaction) -> Decimal {
-        isAmaraTransfer(transaction)
-            ? (transaction.destinationAmount ?? transaction.amount)
-            : transaction.amount
+        let raw = transaction.type == .income ? transaction.amount : transferIncomeAmount(transaction)
+        guard ERPAccountingEngine.isEnabled,
+              transaction.type == .income,
+              ERPStorage.bool(ERPKey.reportUseNetOfTax, false) else { return raw }
+        return ERPAccountingEngine.taxBreakdown(amount: raw, category: transaction.category, type: .income).net
     }
 
     func reportIncomeAccountID(_ transaction: LedgerTransaction) -> UUID? {
-        isAmaraTransfer(transaction) ? transaction.destinationAccountID : transaction.accountID
+        transaction.type == .transfer ? transaction.destinationAccountID : transaction.accountID
+    }
+
+    func reportIncomeConversionAccountID(_ transaction: LedgerTransaction) -> UUID? {
+        if transaction.type == .transfer,
+           account(withID: transaction.accountID)?.group == .payments {
+            return transaction.accountID
+        }
+        return reportIncomeAccountID(transaction)
+    }
+
+    func isReportExpense(_ transaction: LedgerTransaction) -> Bool {
+        if transaction.type == .expense { return true }
+        guard transaction.type == .transfer,
+              let source = account(withID: transaction.accountID),
+              let destination = account(withID: transaction.destinationAccountID),
+              isBankAccount(source) else { return false }
+        guard ERPAccountingEngine.isEnabled else {
+            return !isBankAccount(destination) && !isFinancialLoanAccount(destination)
+        }
+        if isBankAccount(destination) && ERPStorage.bool(ERPKey.reportExcludeBankToBankTransfers, true) { return false }
+        if isFinancialLoanAccount(destination) && ERPStorage.bool(ERPKey.reportExcludeLoanTransfers, true) { return false }
+        switch destination.nature ?? .unassigned {
+        case .asset, .fixedAsset:
+            return ERPStorage.bool(ERPKey.reportBankToAssetAsExpense, true)
+        case .receivable:
+            return ERPStorage.bool(ERPKey.reportBankToReceivableAsExpense, true)
+        case .payable:
+            return ERPStorage.bool(ERPKey.reportBankToPayableAsExpense, true)
+        default:
+            return ERPStorage.bool(ERPKey.reportBankToNonBankAsExpense, true)
+        }
+    }
+
+    func reportExpenseAmount(_ transaction: LedgerTransaction) -> Decimal {
+        let raw = transaction.amount
+        guard ERPAccountingEngine.isEnabled,
+              transaction.type == .expense,
+              ERPStorage.bool(ERPKey.reportUseNetOfTax, false) else { return raw }
+        return ERPAccountingEngine.taxBreakdown(amount: raw, category: transaction.category, type: .expense).net
+    }
+
+    func reportExpenseAccountID(_ transaction: LedgerTransaction) -> UUID? { transaction.accountID }
+
+    func loanIncreaseAmount(_ transaction: LedgerTransaction) -> Decimal {
+        guard transaction.type == .transfer,
+              let source = account(withID: transaction.accountID),
+              isBankAccount(account(withID: transaction.destinationAccountID)) else { return 0 }
+        if source.group == .payments { return paymentLoanIncreaseAmount(transaction) }
+        return isFinancialLoanAccount(source) ? transaction.amount : 0
+    }
+
+    func loanDecreaseAmount(_ transaction: LedgerTransaction) -> Decimal {
+        guard transaction.type == .transfer,
+              isBankAccount(account(withID: transaction.accountID)),
+              isFinancialLoanAccount(account(withID: transaction.destinationAccountID)) else { return 0 }
+        return transaction.amount
+    }
+
+    func fixedReportConversionRate(from sourceCode: String, to destinationCode: String) -> Decimal? {
+        ERPAccountingEngine.rate(from: sourceCode, to: destinationCode)
+    }
+
+    func convertedReportAmount(
+        _ amount: Decimal,
+        accountID: UUID?,
+        to destinationCode: String? = nil,
+        date: Date? = nil
+    ) -> Decimal? {
+        let destination = (destinationCode ?? currencyCode).uppercased()
+        let source = account(withID: accountID)?.currencyCode.uppercased() ?? destination
+        let rateDate = date ?? Date()
+        guard let rate = ERPAccountingEngine.rate(from: source, to: destination, on: rateDate) else { return nil }
+        return ERPAccountingEngine.round(amount * rate)
+    }
+
+    func convertedReportIncomeAmount(
+        _ transaction: LedgerTransaction,
+        to destinationCode: String? = nil
+    ) -> Decimal? {
+        guard isReportIncome(transaction) else { return nil }
+        let date = ERPStorage.bool(ERPKey.useTransactionDateForRates, true) ? transaction.date : Date()
+        return convertedReportAmount(
+            reportIncomeAmount(transaction),
+            accountID: reportIncomeConversionAccountID(transaction),
+            to: destinationCode,
+            date: date
+        )
+    }
+
+    func convertedReportExpenseAmount(
+        _ transaction: LedgerTransaction,
+        to destinationCode: String? = nil
+    ) -> Decimal? {
+        guard isReportExpense(transaction) else { return nil }
+        let date = ERPStorage.bool(ERPKey.useTransactionDateForRates, true) ? transaction.date : Date()
+        return convertedReportAmount(
+            reportExpenseAmount(transaction),
+            accountID: reportExpenseAccountID(transaction),
+            to: destinationCode,
+            date: date
+        )
     }
 
     private func isAmaraTransfer(_ transaction: LedgerTransaction) -> Bool {
@@ -420,9 +1352,12 @@ final class LedgerStore: ObservableObject {
     }
 
     func delete(_ transaction: LedgerTransaction) {
+        guard requireOpenPeriod(transaction.date, action: "delete") else { return }
         do {
             let ledger = try LedgerDiskStore.shared.mutate { ledger in
-                ledger.transactions.removeAll { $0.id == transaction.id }
+                ledger.transactions.removeAll {
+                    $0.id == transaction.id || $0.refundOfTransactionID == transaction.id
+                }
             }
             apply(ledger)
         } catch {
@@ -430,23 +1365,50 @@ final class LedgerStore: ObservableObject {
         }
     }
 
-    func update(_ transaction: LedgerTransaction) {
+    @discardableResult
+    func update(_ transaction: LedgerTransaction) -> Bool {
+        if let original = transactions.first(where: { $0.id == transaction.id }),
+           !requireOpenPeriod(original.date, action: "update") {
+            return false
+        }
+        guard requireOpenPeriod(transaction.date, action: "move or update") else { return false }
+        var candidate = transaction
+        candidate.amount = ERPAccountingEngine.postingAmount(candidate.amount)
+        if candidate.type == .transfer {
+            candidate.destinationAmount = candidate.destinationAmount.map(ERPAccountingEngine.postingAmount)
+        }
+        if let error = erpPostingError(
+            type: candidate.type,
+            amount: candidate.amount,
+            date: candidate.date,
+            category: candidate.category,
+            vendor: candidate.vendor,
+            details: candidate.details,
+            accountID: candidate.accountID,
+            destinationAccountID: candidate.destinationAccountID,
+            destinationAmount: candidate.destinationAmount,
+            dimensions: candidate.dimensions,
+            excludingTransactionID: candidate.id
+        ) {
+            errorMessage = error
+            return false
+        }
         var found = false
         do {
             let ledger = try LedgerDiskStore.shared.mutate { ledger in
-                guard let index = ledger.transactions.firstIndex(where: { $0.id == transaction.id }) else {
-                    return
-                }
-                ledger.transactions[index] = transaction
+                guard let index = ledger.transactions.firstIndex(where: { $0.id == candidate.id }) else { return }
+                ledger.transactions[index] = candidate
                 found = true
             }
             guard found else {
                 errorMessage = "The original transaction could not be found."
-                return
+                return false
             }
             apply(ledger)
+            return true
         } catch {
             errorMessage = "The transaction could not be updated."
+            return false
         }
     }
 
@@ -457,25 +1419,6 @@ final class LedgerStore: ObservableObject {
         }
     }
 
-    func updateSMSAutoImport(_ enabled: Bool) {
-        guard enabled != settings.smsAutoImportEnabled else { return }
-        updateLedger(failureMessage: "The SMS auto-import setting could not be updated.") { ledger in
-            ledger.settings.smsAutoImportEnabled = enabled
-        }
-    }
-
-    func updateSMSPreferences(matchText: String, destinationAccountID: UUID?) {
-        updateLedger(failureMessage: "The SMS import preferences could not be updated.") { ledger in
-            ledger.settings.smsMatchText = matchText.trimmingCharacters(in: .whitespacesAndNewlines)
-            ledger.settings.smsDestinationAccountID = destinationAccountID
-        }
-    }
-
-    func requestSMSRescan() {
-        updateLedger(failureMessage: "The SMS rescan could not be requested.") { ledger in
-            ledger.settings.smsRescanRequestID += 1
-        }
-    }
 
     func saveVendorRule(_ rule: VendorCategoryRule) {
         updateLedger(failureMessage: "The vendor rule could not be saved.") { ledger in
@@ -659,7 +1602,7 @@ final class LedgerStore: ObservableObject {
     ) -> [UUID: Decimal] {
         let calendar = Calendar.current
         let currentMonth = calendar.dateInterval(of: .month, for: Date())?.start ?? Date()
-        guard let historyStart = calendar.date(byAdding: .month, value: -3, to: currentMonth) else {
+        guard let historyStart = calendar.date(byAdding: .month, value: -max(1, ERPStorage.int(ERPKey.budgetHistoryMonths, 3)), to: currentMonth) else {
             return Dictionary(uniqueKeysWithValues: settings.expenseBudgets.map {
                 ($0.id, $0.monthlyAmount)
             })
@@ -684,11 +1627,11 @@ final class LedgerStore: ObservableObject {
                     default: 0
                 ]
             }
-            let historicalAverage = historicalTotal / 3
+            let historicalAverage = historicalTotal / Decimal(max(1, ERPStorage.int(ERPKey.budgetHistoryMonths, 3)))
             if historicalAverage > 0 {
                 return (
                     budget.id,
-                    roundedBudget(historicalAverage * Decimal(string: "0.90")!)
+                    roundedBudget(historicalAverage * ERPStorage.decimal(ERPKey.budgetHistoricalFactorPercent, 90) / 100)
                 )
             }
             let count = max(budgetCountByCurrency[budget.currencyCode, default: 1], 1)
@@ -696,7 +1639,7 @@ final class LedgerStore: ObservableObject {
                 return (
                     budget.id,
                     roundedBudget(
-                        monthlyIncome * Decimal(string: "0.80")! / Decimal(count)
+                        monthlyIncome * ERPStorage.decimal(ERPKey.budgetIncomeAllocationPercent, 80) / 100 / Decimal(count)
                     )
                 )
             }
@@ -707,7 +1650,12 @@ final class LedgerStore: ObservableObject {
     private func roundedBudget(_ amount: Decimal) -> Decimal {
         var value = amount
         var rounded = Decimal()
-        NSDecimalRound(&rounded, &value, 0, .plain)
+        NSDecimalRound(
+            &rounded,
+            &value,
+            ERPAccountingEngine.isEnabled ? max(0, min(4, ERPStorage.int(ERPKey.budgetRoundingDecimals, 0))) : 0,
+            .plain
+        )
         return max(rounded, 1)
     }
 
@@ -738,7 +1686,10 @@ final class LedgerStore: ObservableObject {
                 .reduce(Decimal.zero) { $0 + $1.amount }
             let after = before + additions.lazy.filter(matches)
                 .reduce(Decimal.zero) { $0 + $1.amount }
-            let threshold = budget.monthlyAmount * Decimal(string: "0.80")!
+            let thresholdPercent = ERPAccountingEngine.isEnabled
+                ? ERPStorage.decimal(ERPKey.budgetAlertPercent, 80)
+                : Decimal(80)
+            let threshold = budget.monthlyAmount * thresholdPercent / 100
             if before < threshold && after >= threshold {
                 BudgetNotificationService.notifyEightyPercent(budget: budget, spent: after)
             }
@@ -861,13 +1812,20 @@ final class LedgerStore: ObservableObject {
         let ledger = try LedgerDiskStore.shared.merge(
             incoming.transactions,
             accounts: incoming.accounts,
-            restoring: incoming.settings
+            restoring: incoming.settings,
+            fixedBudget: incoming.fixedBudget
         )
         apply(ledger)
         return ImportSummary(
             transactionCount: ledger.transactions.count - oldLedger.transactions.count,
             accountCount: ledger.accounts.count - oldLedger.accounts.count
         )
+    }
+
+    func saveFixedBudget(_ plan: MonthlyFixedBudget) {
+        updateLedger(failureMessage: "Fixed budget could not be saved.") { ledger in
+            ledger.fixedBudget = plan
+        }
     }
 
     func syncBackupNow() {
@@ -952,7 +1910,8 @@ final class LedgerStore: ObservableObject {
             String(interval.start.timeIntervalSinceReferenceDate),
             String(interval.end.timeIntervalSinceReferenceDate),
             currencyCode.uppercased(),
-            accountPart
+            accountPart,
+            ERPAccountingEngine.configurationFingerprint()
         ].joined(separator: "|")
     }
 
@@ -961,37 +1920,51 @@ final class LedgerStore: ObservableObject {
         if let cached = totalsCache[cacheKey] {
             return cached
         }
-        let selected = transactions.filter {
+
+        let selectedBySourceAccount = transactions.filter {
             interval.contains($0.date) &&
-            accountsByID[$0.accountID ?? LedgerAccount.legacyMainID]?.currencyCode == currencyCode &&
             (accountIDs == nil || accountIDs?.contains($0.accountID ?? LedgerAccount.legacyMainID) == true)
         }
-        let income = transactions.lazy
-            .filter {
-                guard interval.contains($0.date), self.isReportIncome($0) else { return false }
-                let incomeAccountID = self.reportIncomeAccountID($0) ?? LedgerAccount.legacyMainID
-                return self.accountsByID[incomeAccountID]?.currencyCode == self.currencyCode &&
-                    (accountIDs == nil || accountIDs?.contains(incomeAccountID) == true)
-            }
-            .reduce(Decimal.zero) { $0 + self.reportIncomeAmount($1) }
-        let expense = selected
-            .filter { $0.type == .expense }
-            .reduce(Decimal.zero) { $0 + $1.amount }
-        let loan = selected
+        let expenseTransactions = selectedBySourceAccount.filter {
+            $0.type == .expense && convertedReportExpenseAmount($0) != nil
+        }
+        let incomeTransactions = transactions.filter {
+            guard interval.contains($0.date), isReportIncome($0) else { return false }
+            let incomeAccountID = reportIncomeAccountID($0) ?? LedgerAccount.legacyMainID
+            return (accountIDs == nil || accountIDs?.contains(incomeAccountID) == true) &&
+                convertedReportIncomeAmount($0) != nil
+        }
+        let sameCurrencySelected = selectedBySourceAccount.filter {
+            accountsByID[$0.accountID ?? LedgerAccount.legacyMainID]?.currencyCode == currencyCode
+        }
+
+        let income = incomeTransactions.reduce(Decimal.zero) {
+            $0 + (convertedReportIncomeAmount($1) ?? 0)
+        }
+        let expense = expenseTransactions.reduce(Decimal.zero) {
+            $0 + (convertedReportExpenseAmount($1) ?? 0)
+        }
+        let loan = sameCurrencySelected
             .filter {
                 $0.type == .transfer &&
                 accountsByID[$0.destinationAccountID ?? LedgerAccount.legacyMainID]?.group == .payments
             }
             .reduce(Decimal.zero) { $0 + $1.amount }
-        let transfer = selected
+        let transfer = sameCurrencySelected
             .filter { $0.type == .transfer }
             .reduce(Decimal.zero) { $0 + $1.amount }
+
+        let countedIDs = Set(
+            expenseTransactions.map(\.id) +
+            incomeTransactions.map(\.id) +
+            sameCurrencySelected.filter { $0.type == .transfer }.map(\.id)
+        )
         let result = LedgerTotals(
             income: income,
             expense: expense,
             loan: loan,
             transfer: transfer,
-            count: selected.count
+            count: countedIDs.count
         )
         totalsCache[cacheKey] = result
         return result
@@ -1006,7 +1979,8 @@ final class LedgerStore: ObservableObject {
             return cached
         }
         let loanAccountIDs = Set(accounts.filter {
-            $0.group == .payments || $0.nature == .loan
+            ($0.group == .payments && balance(for: $0) < 0) ||
+                ($0.group != .payments && $0.nature == .loan)
         }.map(\.id))
         var increases: [String: Decimal] = [:]
         var decreases: [String: Decimal] = [:]

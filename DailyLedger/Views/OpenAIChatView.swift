@@ -18,6 +18,7 @@ private struct OpenAIChatItem: Identifiable, Codable {
 
 struct OpenAIChatView: View {
     @EnvironmentObject private var store: LedgerStore
+    @StateObject private var aiContext = AITransactionContextService.shared
     @AppStorage("OpenAIModel") private var model = "gpt-4.1-nano"
     @AppStorage("OpenAIChatMode") private var chatMode = OpenAIChatMode.ledger.rawValue
     @State private var messages = OpenAIChatHistory.load()
@@ -34,7 +35,13 @@ struct OpenAIChatView: View {
                 ForEach(OpenAIChatMode.allCases) { Text($0.rawValue).tag($0.rawValue) }
             }
             .pickerStyle(.segmented)
-            .padding()
+            .padding(.horizontal)
+            .padding(.top, 10)
+
+            AITransactionContextControls()
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 10) {
@@ -52,33 +59,51 @@ struct OpenAIChatView: View {
                                                 Label("Open \(transaction.vendor ?? transaction.category)", systemImage: "arrow.up.right.square")
                                                     .font(.caption.bold())
                                                     .lineLimit(1)
-                                            }.buttonStyle(.bordered)
+                                            }
+                                            .buttonStyle(.bordered)
                                         }
                                     }
                                 }
-                                    .padding(12)
-                                    .background(message.role == "user" ? AppTheme.purple : Color.secondary.opacity(0.13),
-                                                in: RoundedRectangle(cornerRadius: 16))
-                                    .foregroundStyle(message.role == "user" ? .white : .primary)
+                                .padding(12)
+                                .background(message.role == "user" ? AppTheme.purple : Color.secondary.opacity(0.13),
+                                            in: RoundedRectangle(cornerRadius: 16))
+                                .foregroundStyle(message.role == "user" ? .white : .primary)
                                 if message.role != "user" { Spacer(minLength: 36) }
-                            }.id(message.id)
+                            }
+                            .id(message.id)
                         }
                         if sending { ProgressView("OpenAI is responding…").padding() }
-                    }.padding()
+                    }
+                    .padding()
                 }
                 .onChange(of: messages.count) { _ in
                     if let id = messages.last?.id { withAnimation { proxy.scrollTo(id, anchor: .bottom) } }
                 }
             }
-            if let error { Text(error).font(.caption).foregroundStyle(AppTheme.red).padding(.horizontal) }
+
+            if let error {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.red)
+                    .padding(.horizontal)
+            }
+
             HStack(alignment: .bottom) {
-                TextField(isLedgerMode ? "Discuss your transactions" : "Message OpenAI", text: $draft, axis: .vertical).lineLimit(1...5)
-                Button { send() } label: { Image(systemName: "arrow.up.circle.fill").font(.title2) }
-                    .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || sending)
-            }.padding().background(.ultraThinMaterial)
+                TextField(isLedgerMode ? "Search your ledger locally" : "Message OpenAI", text: $draft, axis: .vertical)
+                    .lineLimit(1...5)
+                Button { send() } label: {
+                    Image(systemName: "arrow.up.circle.fill").font(.title2)
+                }
+                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || sending)
+            }
+            .padding()
+            .background(.ultraThinMaterial)
         }
         .navigationTitle("OpenAI Chat")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            aiContext.ensureDefault(from: store.transactions)
+        }
         .onChange(of: messages.count) { _ in OpenAIChatHistory.save(messages) }
         .onChange(of: chatMode) { mode in
             error = nil
@@ -101,45 +126,60 @@ struct OpenAIChatView: View {
     private func send() {
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        let contextIDs = isLedgerMode ? [] : Array(pendingLedgerTransactionIDs.prefix(20))
-        pendingLedgerTransactionIDs = []
-        messages.append(.init(role: "user", content: text)); draft = ""; error = nil
+
         if isLedgerMode {
+            messages.append(.init(role: "user", content: text))
+            draft = ""
+            error = nil
             let result = LedgerChatSearch.run(query: text, store: store, force: true)
             messages.append(.init(role: "assistant", content: result.response, transactionIDs: result.transactionIDs))
             return
         }
+
+        let fetchedIDs = aiContext.loadedTransactionIDs
+        let allowed = Set(fetchedIDs)
+        let hadLedgerHandoff = !pendingLedgerTransactionIDs.isEmpty
+        let handoffIDs = pendingLedgerTransactionIDs.filter { allowed.contains($0) }
+        let contextIDs = hadLedgerHandoff ? handoffIDs : fetchedIDs
+        pendingLedgerTransactionIDs = []
+
+        messages.append(.init(role: "user", content: text))
+        draft = ""
+        error = nil
+
         guard OpenAIService.shared.hasAPIKey else {
             error = "Connect OpenAI in Settings first."
             return
         }
         sending = true
+
         let contextLines = contextIDs.compactMap { id -> String? in
             guard let item = store.transactions.first(where: { $0.id == id }) else { return nil }
             let account = store.account(withID: item.accountID)
             return "\(item.date.formatted(date: .abbreviated, time: .shortened)) | \(item.type.title) | \(account?.currencyCode ?? store.currencyCode) \(item.amount) | \(item.vendor ?? item.category) | \(account?.name ?? "Unknown")"
         }
         let context = contextLines.isEmpty ? "" :
-            "\nTransactions handed off from Ledger AI for this request only:\n" + contextLines.joined(separator: "\n")
-        let system = "Be concise and helpful. If transaction context is supplied, discuss only that data and do not invent missing records."
+            "\nUser-fetched Next Ledger transaction context (only this snapshot is authorized):\n" + contextLines.joined(separator: "\n")
+        let system = "Be concise and helpful. You have no automatic ledger access. If transaction context is supplied, discuss only that user-fetched data and do not invent missing records. If no transaction context is supplied, do not claim to know ledger transactions."
         let sessionMessages = messages.dropFirst(min(generalSessionStart, messages.count))
         var recent = sessionMessages.suffix(12).map { OpenAIMessage(role: $0.role, content: $0.content) }
         if !context.isEmpty, !recent.isEmpty {
             recent[recent.count - 1] = OpenAIMessage(role: "user", content: text + context)
         }
         let requestMessages = [OpenAIMessage(role: "system", content: system)] + recent
+
         Task {
             do {
                 let answer = try await OpenAIService.shared.request(messages: requestMessages, model: model)
                 await MainActor.run {
-                    messages.append(.init(
-                        role: "assistant",
-                        content: answer
-                    ))
+                    messages.append(.init(role: "assistant", content: answer))
                     sending = false
                 }
             } catch {
-                await MainActor.run { self.error = error.localizedDescription; sending = false }
+                await MainActor.run {
+                    self.error = error.localizedDescription
+                    sending = false
+                }
             }
         }
     }

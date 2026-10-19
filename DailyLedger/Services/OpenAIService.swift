@@ -33,16 +33,26 @@ final class OpenAIService: ObservableObject {
     func saveAPIKey(_ value: String) throws {
         let value = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else { deleteAPIKey(); return }
-        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: Self.service, kSecAttrAccount as String: Self.account]
+
+        // The protected app store is the reliable source of truth for TrollStore
+        // and rootless installs. If Keychain entitlement behavior differs, the
+        // OpenAI key still persists securely inside this device/app container.
+        try ProtectedSecretStore.shared.save(value, for: Self.service)
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: Self.service,
+            kSecAttrAccount as String: Self.account
+        ]
         SecItemDelete(query as CFDictionary)
         var item = query
         item[kSecValueData as String] = Data(value.utf8)
         item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-        guard SecItemAdd(item as CFDictionary, nil) == errSecSuccess else {
-            throw OpenAIServiceError.server("The OpenAI API key could not be saved securely.")
+        _ = SecItemAdd(item as CFDictionary, nil) // best-effort mirror
+
+        guard loadAPIKey() == value else {
+            throw OpenAIServiceError.server("The OpenAI API key could not be verified after saving.")
         }
-        try? ProtectedSecretStore.shared.save(value, for: Self.service)
     }
 
     func loadAPIKey() -> String? {

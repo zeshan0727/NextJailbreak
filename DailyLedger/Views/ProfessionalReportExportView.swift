@@ -10,6 +10,7 @@ struct ProfessionalReportExportView: View {
     @State private var shareFile: ReportShareFile?
     @State private var lastGeneratedURL: URL?
     @State private var lastGeneratedFormat: ProfessionalExportFormat?
+    @State private var lastGeneratedDocument: ProfessionalReportDocument?
     @State private var errorMessage: String?
 
     private var selectedType: ProfessionalReportType {
@@ -45,6 +46,13 @@ struct ProfessionalReportExportView: View {
                 exportCard
                 if let lastGeneratedURL, let lastGeneratedFormat {
                     generatedFileCard(url: lastGeneratedURL, format: lastGeneratedFormat)
+                    if let lastGeneratedDocument {
+                        ReportSnapshotCard(
+                            document: lastGeneratedDocument,
+                            url: lastGeneratedURL,
+                            format: lastGeneratedFormat
+                        )
+                    }
                 }
                 methodologyCard
             }
@@ -384,7 +392,7 @@ struct ProfessionalReportExportView: View {
             let url = try ProfessionalReportExporter.export(document, format: format)
             lastGeneratedURL = url
             lastGeneratedFormat = format
-            shareFile = ReportShareFile(url: url)
+            lastGeneratedDocument = document
         } catch {
             errorMessage = "The \(format.rawValue) report could not be generated. \(error.localizedDescription)"
         }

@@ -10,6 +10,7 @@ private struct SpendingSuggestion: Identifiable {
 
 struct InsightsView: View {
     @EnvironmentObject private var store: LedgerStore
+    @StateObject private var aiContext = AITransactionContextService.shared
     @StateObject private var deepSeekUsage = DeepSeekService.shared
     @AppStorage("DeepSeekModel") private var deepSeekModel = "deepseek-v4-flash"
     @AppStorage("DeepSeekLastRecommendation") private var serverAdvice = ""
@@ -94,6 +95,10 @@ struct InsightsView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                Section("AI Data Access") {
+                    AITransactionContextControls()
+                }
+
                 Section("DeepSeek Recommendations") {
                     if !DeepSeekService.shared.hasAPIKey {
                         Label("Connect DeepSeek in Settings to receive server-generated recommendations.", systemImage: "key.fill")
@@ -111,7 +116,7 @@ struct InsightsView: View {
                                 if loadingAdvice { ProgressView() }
                             }
                         }
-                        .disabled(loadingAdvice)
+                        .disabled(loadingAdvice || aiContext.loadedTransactionIDs.isEmpty)
                     }
 
                     if let serverError {
@@ -208,7 +213,7 @@ struct InsightsView: View {
                 }
 
                 Section {
-                    Text("Local suggestions stay on this iPhone. DeepSeek is contacted only when you press Generate or send a follow-up, using summarized categories and totals without raw SMS text, account numbers, or individual vendor descriptions.")
+                    Text("Local suggestions stay on this iPhone. DeepSeek is contacted only when you press Generate or send a follow-up, using summarized categories and totals without raw transaction descriptions, account numbers, or individual vendor descriptions.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -216,6 +221,7 @@ struct InsightsView: View {
             .navigationTitle("AI Insights")
             .listStyle(.insetGrouped)
             .onAppear {
+                aiContext.ensureDefault(from: store.transactions)
                 if fixedSuggestions.isEmpty { fixedSuggestions = makeSuggestions() }
             }
         }
@@ -378,24 +384,28 @@ struct InsightsView: View {
     }
 
     private var serverSummary: String {
-        let grouped = Dictionary(grouping: currentExpenses, by: \.category)
+        let fetched = aiContext.transactions(from: store.transactions)
+        let expenseSample = fetched.filter {
+            $0.type == .expense && store.account(withID: $0.accountID)?.currencyCode == store.currencyCode
+        }
+        let grouped = Dictionary(grouping: expenseSample, by: \.category)
         let ranked = grouped.map { category, transactions in
             (category: category, amount: expenseTotal(transactions), count: transactions.count)
         }
         .sorted { $0.amount > $1.amount }
         let categoryLines = ranked.prefix(10).map { item in
-            "- \(item.category): \(NSDecimalNumber(decimal: item.amount).stringValue) \(store.currencyCode) across \(item.count) transactions"
+            "- \(item.category): \(NSDecimalNumber(decimal: item.amount).stringValue) \(store.currencyCode) across \(item.count) fetched transactions"
         }
         .joined(separator: "\n")
+        let fetchedExpenseTotal = expenseSample.reduce(Decimal.zero) { $0 + $1.amount }
         return """
-        Analyze this aggregate Next Ledger spending summary.
+        Analyze only this user-fetched Next Ledger transaction snapshot. Do not infer or request the rest of the ledger.
         Currency: \(store.currencyCode)
-        Current month expenses: \(NSDecimalNumber(decimal: currentExpense).stringValue)
-        Previous month expenses: \(NSDecimalNumber(decimal: previousExpense).stringValue)
-        Current month expense count: \(currentExpenses.count)
-        Fixed monthly income: \(NSDecimalNumber(decimal: monthlyBudgetIncome).stringValue)
-        Categories:
-        \(categoryLines)
+        Fetched transactions: \(fetched.count)
+        Fetched expenses in selected currency: \(NSDecimalNumber(decimal: fetchedExpenseTotal).stringValue)
+        Fixed monthly income entered by user: \(NSDecimalNumber(decimal: monthlyBudgetIncome).stringValue)
+        Categories inside fetched snapshot:
+        \(categoryLines.isEmpty ? "- No fetched expenses in selected currency" : categoryLines)
         Return only 3 or 4 concise bullets and keep the complete response under 180 words.
         """
     }

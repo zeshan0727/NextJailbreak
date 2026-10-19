@@ -4,6 +4,10 @@ import UIKit
 
 enum ProfessionalReportType: String, CaseIterable, Identifiable {
     case financialSummary = "Financial Summary"
+    case incomeTransactions = "Income Report"
+    case expenseTransactions = "Expense Report"
+    case transfers = "Loans / Transfers"
+    case categorySummary = "Category Report"
     case incomeStatement = "Income Statement"
     case balanceSheet = "Balance Sheet"
     case payablesAging = "Payables Aging"
@@ -16,7 +20,15 @@ enum ProfessionalReportType: String, CaseIterable, Identifiable {
     var subtitle: String {
         switch self {
         case .financialSummary:
-            return "Income, expenses and net result by currency"
+            return "Income, expenses and net result with one QAR total"
+        case .incomeTransactions:
+            return "Detailed income transactions with native and QAR amounts"
+        case .expenseTransactions:
+            return "Detailed expenses with native and QAR amounts"
+        case .transfers:
+            return "Account and loan transfers for the selected period"
+        case .categorySummary:
+            return "Expense totals by category with one QAR total"
         case .incomeStatement:
             return "Revenue, expenses and profit or loss for a custom period"
         case .balanceSheet:
@@ -35,6 +47,10 @@ enum ProfessionalReportType: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .financialSummary: return "chart.bar.doc.horizontal.fill"
+        case .incomeTransactions: return "arrow.down.left.circle.fill"
+        case .expenseTransactions: return "arrow.up.right.circle.fill"
+        case .transfers: return "arrow.left.arrow.right.circle.fill"
+        case .categorySummary: return "square.grid.2x2.fill"
         case .incomeStatement: return "chart.line.uptrend.xyaxis"
         case .balanceSheet: return "scale.3d"
         case .payablesAging: return "calendar.badge.exclamationmark"
@@ -100,6 +116,17 @@ struct ProfessionalReportDocument {
     let notes: [String]
 }
 
+struct ProfessionalReportScope {
+    var transactionIDs: Set<UUID> = []
+    var accountIDs: Set<UUID> = []
+    var currencyCode: String? = nil
+    var reportTitle: String? = nil
+
+    var isEmpty: Bool {
+        transactionIDs.isEmpty && accountIDs.isEmpty && currencyCode == nil && reportTitle == nil
+    }
+}
+
 @MainActor
 enum ProfessionalReportBuilder {
     private struct AccountBalanceLine {
@@ -160,7 +187,8 @@ enum ProfessionalReportBuilder {
         type: ProfessionalReportType,
         startDate: Date,
         endDate: Date,
-        store: LedgerStore
+        store: LedgerStore,
+        scope: ProfessionalReportScope = ProfessionalReportScope()
     ) -> ProfessionalReportDocument {
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: min(startDate, endDate))
@@ -168,22 +196,721 @@ enum ProfessionalReportBuilder {
         let endExclusive = calendar.date(byAdding: .day, value: 1, to: endDay) ?? endDay
         let interval = DateInterval(start: start, end: endExclusive)
 
+        if !scope.isEmpty {
+            return scopedDocument(
+                type: type,
+                interval: interval,
+                endDay: endDay,
+                store: store,
+                scope: scope
+            )
+        }
+
+        let document: ProfessionalReportDocument
         switch type {
         case .financialSummary:
-            return financialSummary(interval: interval, store: store)
+            document = financialSummary(interval: interval, store: store)
+        case .incomeTransactions:
+            document = transactionReport(isIncome: true, interval: interval, store: store)
+        case .expenseTransactions:
+            document = transactionReport(isIncome: false, interval: interval, store: store)
+        case .transfers:
+            document = transferReport(interval: interval, store: store)
+        case .categorySummary:
+            document = categoryReport(interval: interval, store: store)
         case .incomeStatement:
-            return incomeStatement(interval: interval, store: store)
+            document = incomeStatement(interval: interval, store: store)
         case .balanceSheet:
-            return balanceSheet(interval: interval, store: store)
+            document = balanceSheet(interval: interval, store: store)
         case .payablesAging:
-            return agingReport(isPayable: true, detailed: true, asOf: endDay, store: store)
+            document = agingReport(isPayable: true, detailed: true, asOf: endDay, store: store)
         case .payablesSummary:
-            return agingReport(isPayable: true, detailed: false, asOf: endDay, store: store)
+            document = agingReport(isPayable: true, detailed: false, asOf: endDay, store: store)
         case .receivablesAging:
-            return agingReport(isPayable: false, detailed: true, asOf: endDay, store: store)
+            document = agingReport(isPayable: false, detailed: true, asOf: endDay, store: store)
         case .receivablesSummary:
-            return agingReport(isPayable: false, detailed: false, asOf: endDay, store: store)
+            document = agingReport(isPayable: false, detailed: false, asOf: endDay, store: store)
         }
+        return addQARConsolidation(document, type: type, interval: interval, store: store)
+    }
+
+    private static func scopedDocument(
+        type: ProfessionalReportType,
+        interval: DateInterval,
+        endDay: Date,
+        store: LedgerStore,
+        scope: ProfessionalReportScope
+    ) -> ProfessionalReportDocument {
+        let transactions = store.transactions.filter { transaction in
+            guard interval.contains(transaction.date) else { return false }
+            if !scope.transactionIDs.isEmpty, !scope.transactionIDs.contains(transaction.id) {
+                return false
+            }
+            if !scope.accountIDs.isEmpty {
+                let source = transaction.accountID ?? LedgerAccount.legacyMainID
+                let destination = transaction.destinationAccountID ?? LedgerAccount.legacyMainID
+                let incomeAccount = store.reportIncomeAccountID(transaction) ?? LedgerAccount.legacyMainID
+                if !scope.accountIDs.contains(source) &&
+                    !scope.accountIDs.contains(destination) &&
+                    !scope.accountIDs.contains(incomeAccount) {
+                    return false
+                }
+            }
+            if let currency = scope.currencyCode?.uppercased() {
+                let accountID = store.isReportIncome(transaction)
+                    ? store.reportIncomeAccountID(transaction)
+                    : transaction.accountID
+                if store.account(withID: accountID)?.currencyCode.uppercased() != currency {
+                    return false
+                }
+            }
+            return true
+        }
+
+        let accounts = store.activeAccounts.filter { account in
+            if !scope.accountIDs.isEmpty, !scope.accountIDs.contains(account.id) { return false }
+            if let currency = scope.currencyCode?.uppercased(),
+               account.currencyCode.uppercased() != currency { return false }
+            return true
+        }
+
+        let base: ProfessionalReportDocument
+        switch type {
+        case .financialSummary:
+            base = scopedFinancialSummary(interval: interval, transactions: transactions, store: store)
+        case .incomeTransactions:
+            base = scopedTransactionReport(isIncome: true, interval: interval, transactions: transactions, store: store)
+        case .expenseTransactions:
+            base = scopedTransactionReport(isIncome: false, interval: interval, transactions: transactions, store: store)
+        case .transfers:
+            base = scopedTransferReport(interval: interval, transactions: transactions, store: store)
+        case .categorySummary:
+            base = scopedCategoryReport(interval: interval, transactions: transactions, store: store)
+        case .incomeStatement:
+            base = scopedIncomeStatement(interval: interval, transactions: transactions, store: store)
+        case .balanceSheet:
+            base = scopedBalanceSheet(interval: interval, accounts: accounts, store: store)
+        case .payablesAging:
+            base = agingReport(isPayable: true, detailed: true, asOf: endDay, store: store)
+        case .payablesSummary:
+            base = agingReport(isPayable: true, detailed: false, asOf: endDay, store: store)
+        case .receivablesAging:
+            base = agingReport(isPayable: false, detailed: true, asOf: endDay, store: store)
+        case .receivablesSummary:
+            base = agingReport(isPayable: false, detailed: false, asOf: endDay, store: store)
+        }
+
+        let overview = scopedOverview(
+            type: type,
+            interval: interval,
+            transactions: transactions,
+            accounts: accounts,
+            store: store
+        )
+        return ProfessionalReportDocument(
+            title: scope.reportTitle ?? base.title,
+            subtitle: base.subtitle,
+            periodText: base.periodText,
+            generatedAt: base.generatedAt,
+            tables: (overview.map { [$0] } ?? []) + base.tables,
+            notes: base.notes
+        )
+    }
+
+    private static func scopedCurrencies(
+        _ transactions: [LedgerTransaction],
+        store: LedgerStore
+    ) -> [String] {
+        let values = transactions.compactMap { transaction -> String? in
+            let accountID = store.isReportIncome(transaction)
+                ? store.reportIncomeAccountID(transaction)
+                : transaction.accountID
+            return store.account(withID: accountID)?.currencyCode.uppercased()
+        }
+        return Array(Set(values)).sorted()
+    }
+
+    private static func scopedFinancialSummary(
+        interval: DateInterval,
+        transactions: [LedgerTransaction],
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        var tables: [ProfessionalReportTable] = []
+        for currency in scopedCurrencies(transactions, store: store) {
+            let incomeItems = transactions.filter {
+                store.isReportIncome($0) &&
+                    store.account(withID: store.reportIncomeAccountID($0))?.currencyCode.uppercased() == currency
+            }
+            let expenseItems = transactions.filter {
+                $0.type == .expense &&
+                    store.account(withID: $0.accountID)?.currencyCode.uppercased() == currency
+            }
+            let income = incomeItems.reduce(Decimal.zero) { $0 + store.reportIncomeAmount($1) }
+            let expense = expenseItems.reduce(Decimal.zero) { $0 + $1.amount }
+            guard income != 0 || expense != 0 else { continue }
+            tables.append(ProfessionalReportTable(
+                title: "Financial Summary — \(currency)",
+                subtitle: "Reviewed transactions only",
+                columns: ["Metric", "Amount", "Transactions"],
+                rows: [
+                    ProfessionalReportRow([.text("Income"), .number(income), .text("\(incomeItems.count)")]),
+                    ProfessionalReportRow([.text("Expenses"), .number(expense), .text("\(expenseItems.count)")]),
+                    ProfessionalReportRow([.text("Net Result"), .number(income - expense), .text("\(incomeItems.count + expenseItems.count)")], emphasis: .total)
+                ]
+            ))
+        }
+        return ProfessionalReportDocument(
+            title: "Financial Summary",
+            subtitle: "Same period, currency and filters currently being reviewed",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: tables,
+            notes: screenMatchedNotes
+        )
+    }
+
+    private static func scopedTransactionReport(
+        isIncome: Bool,
+        interval: DateInterval,
+        transactions: [LedgerTransaction],
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        let items = transactions.filter { isIncome ? store.isReportIncome($0) : $0.type == .expense }
+            .sorted { $0.date < $1.date }
+        var rows = items.map { transaction -> ProfessionalReportRow in
+            let accountID = isIncome ? store.reportIncomeAccountID(transaction) : transaction.accountID
+            let account = store.account(withID: accountID)
+            let currency = account?.currencyCode.uppercased() ?? "QAR"
+            let amount = isIncome ? store.reportIncomeAmount(transaction) : transaction.amount
+            let qarEquivalent: ProfessionalReportCell = currency == "QAR"
+                ? .number(amount)
+                : currency == "PKR" ? .number(amount / pkrPerQAR) : .text("—")
+            return ProfessionalReportRow([
+                .text(shortDate(transaction.date)),
+                .text(account?.name ?? "Unassigned"),
+                .text(transaction.category),
+                .text(transaction.vendor?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false ? transaction.vendor! : "—"),
+                .number(amount),
+                .text(currency),
+                qarEquivalent
+            ])
+        }
+        if rows.isEmpty {
+            rows = [ProfessionalReportRow([.text("No reviewed transactions"), .text(""), .text(""), .text(""), .number(0), .text(""), .number(0)])]
+        }
+        let title = isIncome ? "Income Report" : "Expense Report"
+        return ProfessionalReportDocument(
+            title: title,
+            subtitle: "Same transactions currently visible in the report",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: [ProfessionalReportTable(
+                title: title,
+                subtitle: "Native amount and QAR equivalent",
+                columns: ["Date", "Account", "Category", "Vendor", "Amount", "Currency", "QAR Equivalent"],
+                rows: rows
+            )],
+            notes: screenMatchedNotes
+        )
+    }
+
+    private static func scopedTransferReport(
+        interval: DateInterval,
+        transactions: [LedgerTransaction],
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        let items = transactions.filter { $0.type == .transfer }.sorted { $0.date < $1.date }
+        var rows = items.map { transaction -> ProfessionalReportRow in
+            let source = store.account(withID: transaction.accountID)
+            let destination = store.account(withID: transaction.destinationAccountID)
+            let currency = source?.currencyCode.uppercased() ?? "QAR"
+            let qarEquivalent: ProfessionalReportCell = currency == "QAR"
+                ? .number(transaction.amount)
+                : currency == "PKR" ? .number(transaction.amount / pkrPerQAR) : .text("—")
+            return ProfessionalReportRow([
+                .text(shortDate(transaction.date)),
+                .text(source?.name ?? "Unassigned"),
+                .text(destination?.name ?? "Unassigned"),
+                .number(transaction.amount),
+                .text(currency),
+                qarEquivalent
+            ])
+        }
+        if rows.isEmpty {
+            rows = [ProfessionalReportRow([.text("No reviewed transfers"), .text(""), .text(""), .number(0), .text(""), .number(0)])]
+        }
+        return ProfessionalReportDocument(
+            title: "Loans / Transfers",
+            subtitle: "Same transfers currently visible in the report",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: [ProfessionalReportTable(
+                title: "Transfer Detail",
+                subtitle: "Source, destination and QAR equivalent",
+                columns: ["Date", "From Account", "To Account", "Amount", "Currency", "QAR Equivalent"],
+                rows: rows
+            )],
+            notes: screenMatchedNotes
+        )
+    }
+
+    private static func scopedCategoryReport(
+        interval: DateInterval,
+        transactions: [LedgerTransaction],
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        var totals: [String: (qar: Decimal, pkr: Decimal)] = [:]
+        for transaction in transactions where transaction.type == .expense {
+            let currency = store.account(withID: transaction.accountID)?.currencyCode.uppercased() ?? "QAR"
+            var value = totals[transaction.category] ?? (0, 0)
+            if currency == "PKR" { value.pkr += transaction.amount }
+            else if currency == "QAR" { value.qar += transaction.amount }
+            totals[transaction.category] = value
+        }
+        let rows = totals.keys.sorted(by: localizedSort).map { category -> ProfessionalReportRow in
+            let value = totals[category] ?? (0, 0)
+            let pkrInQAR = value.pkr / pkrPerQAR
+            return ProfessionalReportRow([
+                .text(category), .number(value.qar), .number(value.pkr), .number(pkrInQAR), .number(value.qar + pkrInQAR)
+            ])
+        }
+        return ProfessionalReportDocument(
+            title: "Category Report",
+            subtitle: "Same categories currently visible in the report",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: [ProfessionalReportTable(
+                title: "Expense Categories",
+                subtitle: "QAR, PKR and consolidated QAR",
+                columns: ["Category", "QAR", "PKR", "PKR in QAR", "Consolidated QAR"],
+                rows: rows
+            )],
+            notes: screenMatchedNotes
+        )
+    }
+
+    private static func scopedIncomeStatement(
+        interval: DateInterval,
+        transactions: [LedgerTransaction],
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        var tables: [ProfessionalReportTable] = []
+        for currency in scopedCurrencies(transactions, store: store) {
+            var revenue: [String: Decimal] = [:]
+            var expenses: [String: Decimal] = [:]
+            for transaction in transactions {
+                if store.isReportIncome(transaction),
+                   store.account(withID: store.reportIncomeAccountID(transaction))?.currencyCode.uppercased() == currency {
+                    revenue[transaction.category, default: 0] += store.reportIncomeAmount(transaction)
+                } else if transaction.type == .expense,
+                          store.account(withID: transaction.accountID)?.currencyCode.uppercased() == currency {
+                    expenses[transaction.category, default: 0] += transaction.amount
+                }
+            }
+            let totalRevenue = revenue.values.reduce(Decimal.zero, +)
+            let totalExpenses = expenses.values.reduce(Decimal.zero, +)
+            guard totalRevenue != 0 || totalExpenses != 0 else { continue }
+            var rows: [ProfessionalReportRow] = [ProfessionalReportRow([.text("REVENUE"), .text("")], emphasis: .section)]
+            rows += revenue.keys.sorted(by: localizedSort).map { ProfessionalReportRow([.text($0), .number(revenue[$0, default: 0])]) }
+            rows.append(ProfessionalReportRow([.text("Total Revenue"), .number(totalRevenue)], emphasis: .subtotal))
+            rows.append(ProfessionalReportRow([.text("EXPENSES"), .text("")], emphasis: .section))
+            rows += expenses.keys.sorted(by: localizedSort).map { ProfessionalReportRow([.text($0), .number(expenses[$0, default: 0])]) }
+            rows.append(ProfessionalReportRow([.text("Total Expenses"), .number(totalExpenses)], emphasis: .subtotal))
+            rows.append(ProfessionalReportRow([
+                .text(totalRevenue >= totalExpenses ? "Net Profit" : "Net Loss"),
+                .number(totalRevenue - totalExpenses)
+            ], emphasis: .total))
+            tables.append(ProfessionalReportTable(
+                title: "Income Statement — \(currency)",
+                subtitle: "Reviewed categories in native \(currency)",
+                columns: ["Category", "Amount"],
+                rows: rows
+            ))
+        }
+        return ProfessionalReportDocument(
+            title: "Income Statement",
+            subtitle: "Revenue, expenses and profit or loss",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: tables,
+            notes: screenMatchedNotes
+        )
+    }
+
+    private static func scopedBalanceSheet(
+        interval: DateInterval,
+        accounts: [LedgerAccount],
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        var tables: [ProfessionalReportTable] = []
+        for currency in Array(Set(accounts.map { $0.currencyCode.uppercased() })).sorted() {
+            let lines = accounts.filter { $0.currencyCode.uppercased() == currency }.compactMap { account -> AccountBalanceLine? in
+                let opening = store.combinedBalance(for: [account], before: interval.start)
+                let closing = store.combinedBalance(for: [account], before: interval.end)
+                let movement = closing - opening
+                guard opening != 0 || movement != 0 || closing != 0 else { return nil }
+                return AccountBalanceLine(account: account, opening: opening, movement: movement, closing: closing, section: balanceSection(account: account, closing: closing))
+            }
+            guard !lines.isEmpty else { continue }
+            var rows: [ProfessionalReportRow] = []
+            for section in BalanceSheetSection.allCases {
+                let sectionLines = lines.filter { $0.section == section }.sorted { localizedSort($0.account.name, $1.account.name) }
+                guard !sectionLines.isEmpty else { continue }
+                rows.append(ProfessionalReportRow([.text(""), .text(section.rawValue), .text(""), .text(""), .text("")], emphasis: .section))
+                for line in sectionLines {
+                    let multiplier: Decimal = section.isLiability ? -1 : 1
+                    rows.append(ProfessionalReportRow([
+                        .text(chartCodeText(line.account)), .text(line.account.name),
+                        .number(line.opening * multiplier), .number(line.movement * multiplier), .number(line.closing * multiplier)
+                    ]))
+                }
+                let multiplier: Decimal = section.isLiability ? -1 : 1
+                rows.append(ProfessionalReportRow([
+                    .text(""), .text("Total \(section.rawValue)"),
+                    .number(sectionLines.reduce(0) { $0 + $1.opening } * multiplier),
+                    .number(sectionLines.reduce(0) { $0 + $1.movement } * multiplier),
+                    .number(sectionLines.reduce(0) { $0 + $1.closing } * multiplier)
+                ], emphasis: .subtotal))
+            }
+            tables.append(ProfessionalReportTable(
+                title: "Balance Sheet Detail — \(currency)",
+                subtitle: "Selected accounts only",
+                columns: ["Code", "Account", "Opening", "Movement", "Closing"],
+                rows: rows
+            ))
+        }
+        return ProfessionalReportDocument(
+            title: "Balance Sheet",
+            subtitle: "Opening, movement and closing balances",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: tables,
+            notes: screenMatchedNotes
+        )
+    }
+
+    private static func scopedOverview(
+        type: ProfessionalReportType,
+        interval: DateInterval,
+        transactions: [LedgerTransaction],
+        accounts: [LedgerAccount],
+        store: LedgerStore
+    ) -> ProfessionalReportTable? {
+        func income(_ currency: String) -> Decimal {
+            transactions.filter {
+                store.isReportIncome($0) && store.account(withID: store.reportIncomeAccountID($0))?.currencyCode.uppercased() == currency
+            }.reduce(0) { $0 + store.reportIncomeAmount($1) }
+        }
+        func expense(_ currency: String) -> Decimal {
+            transactions.filter {
+                $0.type == .expense && store.account(withID: $0.accountID)?.currencyCode.uppercased() == currency
+            }.reduce(0) { $0 + $1.amount }
+        }
+        func transfer(_ currency: String) -> Decimal {
+            transactions.filter {
+                $0.type == .transfer && store.account(withID: $0.accountID)?.currencyCode.uppercased() == currency
+            }.reduce(0) { $0 + $1.amount }
+        }
+        func balance(_ currency: String) -> (Decimal, Decimal, Decimal) {
+            var assets: Decimal = 0
+            var liabilities: Decimal = 0
+            for account in accounts where account.currencyCode.uppercased() == currency {
+                let closing = store.combinedBalance(for: [account], before: interval.end)
+                if balanceSection(account: account, closing: closing).isLiability { liabilities += decimalAbs(closing) }
+                else { assets += decimalAbs(closing) }
+            }
+            return (assets, liabilities, assets - liabilities)
+        }
+
+        var metrics: [(String, Decimal, Decimal)] = []
+        switch type {
+        case .financialSummary, .incomeStatement:
+            let qi = income("QAR"), pi = income("PKR"), qe = expense("QAR"), pe = expense("PKR")
+            metrics = [("Income", qi, pi), ("Expenses", qe, pe), ("Net Result", qi - qe, pi - pe)]
+        case .incomeTransactions:
+            metrics = [("Total Income", income("QAR"), income("PKR"))]
+        case .expenseTransactions, .categorySummary:
+            metrics = [("Total Expenses", expense("QAR"), expense("PKR"))]
+        case .transfers:
+            metrics = [("Transfers", transfer("QAR"), transfer("PKR"))]
+        case .balanceSheet:
+            let q = balance("QAR"), p = balance("PKR")
+            metrics = [("Total Assets", q.0, p.0), ("Total Liabilities", q.1, p.1), ("Net Equity", q.2, p.2)]
+        default:
+            return nil
+        }
+        guard metrics.contains(where: { $0.1 != 0 || $0.2 != 0 }) else { return nil }
+        return ProfessionalReportTable(
+            title: "QAR & PKR Overview",
+            subtitle: "PKR converted at the fixed rate: PKR 77 = QAR 1",
+            columns: ["Metric", "QAR", "PKR", "PKR in QAR", "Consolidated QAR"],
+            rows: metrics.map { item in
+                let converted = item.2 / pkrPerQAR
+                return ProfessionalReportRow([
+                    .text(item.0), .number(item.1), .number(item.2), .number(converted), .number(item.1 + converted)
+                ], emphasis: item.0.contains("Net") ? .total : .subtotal)
+            }
+        )
+    }
+
+    private static let screenMatchedNotes = [
+        "This export uses the same period, accounts, currency and transaction filters shown on screen.",
+        "PKR consolidated values use the fixed app rate PKR 77 = QAR 1."
+    ]
+
+    private static let pkrPerQAR = Decimal(77)
+
+    private static func addQARConsolidation(
+        _ document: ProfessionalReportDocument,
+        type: ProfessionalReportType,
+        interval: DateInterval,
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        guard let overview = consolidatedOverview(type: type, interval: interval, store: store) else {
+            return document
+        }
+        return ProfessionalReportDocument(
+            title: document.title,
+            subtitle: document.subtitle,
+            periodText: document.periodText,
+            generatedAt: document.generatedAt,
+            tables: [overview] + document.tables,
+            notes: document.notes
+        )
+    }
+
+    private static func consolidatedOverview(
+        type: ProfessionalReportType,
+        interval: DateInterval,
+        store: LedgerStore
+    ) -> ProfessionalReportTable? {
+        func income(_ currency: String) -> Decimal {
+            store.transactions.lazy.filter {
+                interval.contains($0.date) &&
+                    store.isReportIncome($0) &&
+                    store.account(withID: store.reportIncomeAccountID($0))?.currencyCode.uppercased() == currency
+            }.reduce(Decimal.zero) { $0 + store.reportIncomeAmount($1) }
+        }
+
+        func expenses(_ currency: String) -> Decimal {
+            store.transactions.lazy.filter {
+                interval.contains($0.date) && $0.type == .expense &&
+                    store.account(withID: $0.accountID)?.currencyCode.uppercased() == currency
+            }.reduce(Decimal.zero) { $0 + $1.amount }
+        }
+
+        func transfers(_ currency: String) -> Decimal {
+            store.transactions.lazy.filter {
+                interval.contains($0.date) && $0.type == .transfer &&
+                    store.account(withID: $0.accountID)?.currencyCode.uppercased() == currency
+            }.reduce(Decimal.zero) { $0 + $1.amount }
+        }
+
+        func balanceMetrics(_ currency: String) -> (assets: Decimal, liabilities: Decimal, equity: Decimal) {
+            var assets: Decimal = 0
+            var liabilities: Decimal = 0
+            for account in store.activeAccounts where account.currencyCode.uppercased() == currency {
+                let closing = store.combinedBalance(for: [account], before: interval.end)
+                let section = balanceSection(account: account, closing: closing)
+                if section.isLiability {
+                    liabilities += decimalAbs(closing)
+                } else {
+                    assets += decimalAbs(closing)
+                }
+            }
+            return (assets, liabilities, assets - liabilities)
+        }
+
+        func agingOutstanding(_ currency: String, payable: Bool) -> Decimal {
+            store.activeAccounts.lazy.filter(isAgingAccount).filter {
+                $0.currencyCode.uppercased() == currency
+            }.reduce(Decimal.zero) { total, account in
+                let balance = store.combinedBalance(for: [account], before: interval.end)
+                if payable, balance < 0 { return total + decimalAbs(balance) }
+                if !payable, balance > 0 { return total + balance }
+                return total
+            }
+        }
+
+        var metrics: [(String, Decimal, Decimal)] = []
+        switch type {
+        case .financialSummary, .incomeStatement:
+            let qarIncome = income("QAR")
+            let pkrIncome = income("PKR")
+            let qarExpense = expenses("QAR")
+            let pkrExpense = expenses("PKR")
+            metrics = [
+                ("Income", qarIncome, pkrIncome),
+                ("Expenses", qarExpense, pkrExpense),
+                ("Net Result", qarIncome - qarExpense, pkrIncome - pkrExpense)
+            ]
+        case .incomeTransactions:
+            metrics = [("Total Income", income("QAR"), income("PKR"))]
+        case .expenseTransactions, .categorySummary:
+            metrics = [("Total Expenses", expenses("QAR"), expenses("PKR"))]
+        case .transfers:
+            metrics = [("Transfers Out", transfers("QAR"), transfers("PKR"))]
+        case .balanceSheet:
+            let qar = balanceMetrics("QAR")
+            let pkr = balanceMetrics("PKR")
+            metrics = [
+                ("Total Assets", qar.assets, pkr.assets),
+                ("Total Liabilities", qar.liabilities, pkr.liabilities),
+                ("Net Equity / Balance", qar.equity, pkr.equity)
+            ]
+        case .payablesAging, .payablesSummary:
+            metrics = [("Outstanding Payables", agingOutstanding("QAR", payable: true), agingOutstanding("PKR", payable: true))]
+        case .receivablesAging, .receivablesSummary:
+            metrics = [("Outstanding Receivables", agingOutstanding("QAR", payable: false), agingOutstanding("PKR", payable: false))]
+        }
+
+        guard metrics.contains(where: { $0.1 != 0 || $0.2 != 0 }) else { return nil }
+        let rows = metrics.map { metric -> ProfessionalReportRow in
+            let pkrInQAR = metric.2 / pkrPerQAR
+            return ProfessionalReportRow([
+                .text(metric.0),
+                .number(metric.1),
+                .number(metric.2),
+                .number(pkrInQAR),
+                .number(metric.1 + pkrInQAR)
+            ], emphasis: metric.0.contains("Net") ? .total : .subtotal)
+        }
+        return ProfessionalReportTable(
+            title: "QAR & PKR Consolidated Overview",
+            subtitle: "PKR converted at the preset fixed rate: PKR 77 = QAR 1",
+            columns: ["Metric", "QAR", "PKR", "PKR in QAR", "Consolidated QAR"],
+            rows: rows
+        )
+    }
+
+    private static func transactionReport(
+        isIncome: Bool,
+        interval: DateInterval,
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        let title = isIncome ? "Income Report" : "Expense Report"
+        let items = store.transactions.filter { transaction in
+            guard interval.contains(transaction.date) else { return false }
+            return isIncome ? store.isReportIncome(transaction) : transaction.type == .expense
+        }.sorted { $0.date < $1.date }
+
+        var rows = items.map { transaction -> ProfessionalReportRow in
+            let accountID = isIncome ? store.reportIncomeAccountID(transaction) : transaction.accountID
+            let account = store.account(withID: accountID)
+            let currency = account?.currencyCode.uppercased() ?? "QAR"
+            let amount = isIncome ? store.reportIncomeAmount(transaction) : transaction.amount
+            let qarEquivalent: ProfessionalReportCell = currency == "QAR"
+                ? .number(amount)
+                : currency == "PKR" ? .number(amount / pkrPerQAR) : .text("—")
+            let vendor = transaction.vendor?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            return ProfessionalReportRow([
+                .text(shortDate(transaction.date)),
+                .text(account?.name ?? "Unassigned"),
+                .text(transaction.category),
+                .text(vendor.isEmpty ? "—" : vendor),
+                .number(amount),
+                .text(currency),
+                qarEquivalent
+            ])
+        }
+        if rows.isEmpty {
+            rows = [ProfessionalReportRow([
+                .text("—"), .text("No transactions"), .text("—"), .text("—"), .number(0), .text("QAR"), .number(0)
+            ])]
+        }
+        return ProfessionalReportDocument(
+            title: title,
+            subtitle: isIncome ? "Income transactions" : "Expense transactions",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: [ProfessionalReportTable(
+                title: title,
+                subtitle: "Native amount retained; QAR equivalent shown for QAR and PKR",
+                columns: ["Date", "Account", "Category", "Vendor", "Amount", "Currency", "QAR Eq."],
+                rows: rows
+            )],
+            notes: nativeCurrencyNotes
+        )
+    }
+
+    private static func transferReport(
+        interval: DateInterval,
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        let items = store.transactions.filter {
+            interval.contains($0.date) && $0.type == .transfer
+        }.sorted { $0.date < $1.date }
+        var rows = items.map { transaction -> ProfessionalReportRow in
+            let source = store.account(withID: transaction.accountID)
+            let destination = store.account(withID: transaction.destinationAccountID)
+            let currency = source?.currencyCode.uppercased() ?? "QAR"
+            let qarEquivalent: ProfessionalReportCell = currency == "QAR"
+                ? .number(transaction.amount)
+                : currency == "PKR" ? .number(transaction.amount / pkrPerQAR) : .text("—")
+            return ProfessionalReportRow([
+                .text(shortDate(transaction.date)),
+                .text(source?.name ?? "Unassigned"),
+                .text(destination?.name ?? "Unassigned"),
+                .number(transaction.amount),
+                .text(currency),
+                qarEquivalent
+            ])
+        }
+        if rows.isEmpty {
+            rows = [ProfessionalReportRow([
+                .text("—"), .text("No transfers"), .text("—"), .number(0), .text("QAR"), .number(0)
+            ])]
+        }
+        return ProfessionalReportDocument(
+            title: "Loans / Transfers",
+            subtitle: "Account and loan movements",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: [ProfessionalReportTable(
+                title: "Transfer Detail",
+                subtitle: "Source currency retained with QAR equivalent",
+                columns: ["Date", "From", "To", "Amount", "Currency", "QAR Eq."],
+                rows: rows
+            )],
+            notes: nativeCurrencyNotes
+        )
+    }
+
+    private static func categoryReport(
+        interval: DateInterval,
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        var totals: [String: (qar: Decimal, pkr: Decimal)] = [:]
+        for transaction in store.transactions where interval.contains(transaction.date) && transaction.type == .expense {
+            let currency = store.account(withID: transaction.accountID)?.currencyCode.uppercased() ?? "QAR"
+            var value = totals[transaction.category] ?? (0, 0)
+            if currency == "PKR" { value.pkr += transaction.amount }
+            else if currency == "QAR" { value.qar += transaction.amount }
+            totals[transaction.category] = value
+        }
+        var rows = totals.keys.sorted(by: localizedSort).map { category -> ProfessionalReportRow in
+            let value = totals[category] ?? (0, 0)
+            let pkrInQAR = value.pkr / pkrPerQAR
+            return ProfessionalReportRow([
+                .text(category), .number(value.qar), .number(value.pkr), .number(pkrInQAR), .number(value.qar + pkrInQAR)
+            ])
+        }
+        if rows.isEmpty {
+            rows = [ProfessionalReportRow([.text("No expenses"), .number(0), .number(0), .number(0), .number(0)])]
+        }
+        return ProfessionalReportDocument(
+            title: "Category Report",
+            subtitle: "Expense categories in QAR and PKR",
+            periodText: periodText(interval),
+            generatedAt: Date(),
+            tables: [ProfessionalReportTable(
+                title: "Expense Categories",
+                subtitle: "One readable table with native and consolidated QAR amounts",
+                columns: ["Category", "QAR", "PKR", "PKR in QAR", "Consolidated QAR"],
+                rows: rows
+            )],
+            notes: nativeCurrencyNotes
+        )
     }
 
     private static func financialSummary(
@@ -329,13 +1056,13 @@ enum ProfessionalReportBuilder {
                     .sorted { localizedSort($0.account.name, $1.account.name) }
                 guard !sectionLines.isEmpty else { continue }
                 rows.append(ProfessionalReportRow([
-                    .text(section.rawValue), .text(""), .text(""), .text(""), .text("")
+                    .text(""), .text(section.rawValue), .text(""), .text(""), .text("")
                 ], emphasis: .section))
 
                 for line in sectionLines {
                     let multiplier: Decimal = section.isLiability ? -1 : 1
                     rows.append(ProfessionalReportRow([
-                        .text(line.account.chartCode?.nilIfEmpty ?? "—"),
+                        .text(chartCodeText(line.account)),
                         .text(line.account.name),
                         .number(line.opening * multiplier),
                         .number(line.movement * multiplier),
@@ -540,6 +1267,11 @@ enum ProfessionalReportBuilder {
         return values.sorted()
     }
 
+    private static func chartCodeText(_ account: LedgerAccount) -> String {
+        let value = account.chartCode?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return value.isEmpty ? "—" : value
+    }
+
     private static func balanceSection(account: LedgerAccount, closing: Decimal) -> BalanceSheetSection {
         let isPaymentControl = account.group == .payments ||
             account.nature == .control ||
@@ -611,7 +1343,7 @@ enum ProfessionalReportBuilder {
             }
 
         for transaction in movements {
-            let normalized = signedMovement(transaction, accountID: account.id) * polarity
+            let normalized = signedMovement(transaction, accountID: account.id, store: store) * polarity
             if normalized > 0 {
                 addCharge(normalized, date: transaction.date, reference: transactionReference(transaction))
             } else if normalized < 0 {
@@ -634,7 +1366,7 @@ enum ProfessionalReportBuilder {
         return lots.filter { $0.amount > 0 }
     }
 
-    private static func signedMovement(_ transaction: LedgerTransaction, accountID: UUID) -> Decimal {
+    private static func signedMovement(_ transaction: LedgerTransaction, accountID: UUID, store: LedgerStore) -> Decimal {
         var movement: Decimal = 0
         if transaction.accountID == accountID {
             switch transaction.type {
@@ -645,7 +1377,7 @@ enum ProfessionalReportBuilder {
             }
         }
         if transaction.type == .transfer, transaction.destinationAccountID == accountID {
-            movement += transaction.destinationAmount ?? transaction.amount
+            movement += store.effectiveDestinationAmount(transaction)
         }
         return movement
     }
@@ -686,9 +1418,160 @@ enum ProfessionalReportBuilder {
     }
 
     private static let nativeCurrencyNotes = [
-        "Each currency is presented separately in its native amount.",
-        "The export does not force an exchange-rate conversion between QAR, PKR, USD or other currencies."
+        "QAR and PKR are shown together. Consolidated totals use the preset fixed rate PKR 77 = QAR 1.",
+        "Native QAR and PKR amounts remain visible for checking and reconciliation.",
+        "Currencies other than QAR and PKR remain in their native amount without forced conversion."
     ]
+}
+
+
+@MainActor
+extension ProfessionalReportBuilder {
+    static func accountStatement(
+        accountID: UUID,
+        startDate: Date,
+        endDate: Date,
+        store: LedgerStore
+    ) -> ProfessionalReportDocument {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: min(startDate, endDate))
+        let endDay = calendar.startOfDay(for: max(startDate, endDate))
+        let endExclusive = calendar.date(byAdding: .day, value: 1, to: endDay) ?? endDay
+        let ids = store.relatedAccountIDs(for: accountID)
+        let selectedAccounts = store.accounts.filter { ids.contains($0.id) }
+        let accountName = store.account(withID: accountID)?.name ?? "Account"
+        let currencies = Array(Set(selectedAccounts.map { $0.currencyCode.uppercased() })).sorted()
+        let dateFormatter: DateFormatter = {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.dateFormat = "dd-MMM-yyyy"
+            return formatter
+        }()
+        let period = "\(dateFormatter.string(from: start)) – \(dateFormatter.string(from: endDay))"
+        var tables: [ProfessionalReportTable] = []
+
+        for currency in currencies {
+            let currencyAccounts = selectedAccounts.filter { $0.currencyCode.uppercased() == currency }
+            let currencyIDs = Set(currencyAccounts.map(\.id))
+            let opening = store.combinedBalance(for: currencyAccounts, before: start)
+            let relevant = store.transactions.filter { tx in
+                guard tx.date >= start && tx.date < endExclusive else { return false }
+                return tx.accountID.map(currencyIDs.contains) == true ||
+                    tx.destinationAccountID.map(currencyIDs.contains) == true
+            }.sorted {
+                if $0.date != $1.date { return $0.date < $1.date }
+                return $0.createdAt < $1.createdAt
+            }
+
+            func movement(_ tx: LedgerTransaction) -> Decimal {
+                var result: Decimal = 0
+                if tx.accountID.map(currencyIDs.contains) == true {
+                    switch tx.type {
+                    case .income: result += tx.amount
+                    case .expense, .transfer: result -= tx.amount
+                    }
+                }
+                if tx.type == .transfer,
+                   tx.destinationAccountID.map(currencyIDs.contains) == true {
+                    result += store.effectiveDestinationAmount(tx)
+                }
+                return result
+            }
+
+            let income = relevant.reduce(Decimal.zero) { total, tx in
+                guard tx.type == .income, tx.accountID.map(currencyIDs.contains) == true else { return total }
+                return total + tx.amount
+            }
+            let expenses = relevant.reduce(Decimal.zero) { total, tx in
+                guard tx.type == .expense, tx.accountID.map(currencyIDs.contains) == true else { return total }
+                return total + tx.amount
+            }
+            let transfersIn = relevant.reduce(Decimal.zero) { total, tx in
+                guard tx.type == .transfer, tx.destinationAccountID.map(currencyIDs.contains) == true else { return total }
+                return total + store.effectiveDestinationAmount(tx)
+            }
+            let transfersOut = relevant.reduce(Decimal.zero) { total, tx in
+                guard tx.type == .transfer, tx.accountID.map(currencyIDs.contains) == true else { return total }
+                return total + tx.amount
+            }
+            let closing = relevant.reduce(opening) { $0 + movement($1) }
+
+            tables.append(ProfessionalReportTable(
+                title: "Account Summary — \(currency)",
+                subtitle: accountName,
+                columns: ["Measure", "Amount"],
+                rows: [
+                    ProfessionalReportRow([.text("Opening Balance"), .number(opening)]),
+                    ProfessionalReportRow([.text("Income / Refunds"), .number(income)]),
+                    ProfessionalReportRow([.text("Expenses"), .number(expenses)]),
+                    ProfessionalReportRow([.text("Transfers In"), .number(transfersIn)]),
+                    ProfessionalReportRow([.text("Transfers Out"), .number(transfersOut)]),
+                    ProfessionalReportRow([.text("Closing Balance"), .number(closing)], emphasis: .total)
+                ]
+            ))
+
+            let expenseGroups = Dictionary(grouping: relevant.filter {
+                $0.type == .expense && $0.accountID.map(currencyIDs.contains) == true
+            }, by: { $0.category })
+            let expenseRows = expenseGroups.keys.sorted().map { category in
+                ProfessionalReportRow([
+                    .text(category),
+                    .number(expenseGroups[category, default: []].reduce(Decimal.zero) { $0 + $1.amount })
+                ])
+            }
+            tables.append(ProfessionalReportTable(
+                title: "Expense Summary — \(currency)",
+                subtitle: "Expenses by category",
+                columns: ["Category", "Amount"],
+                rows: expenseRows.isEmpty
+                    ? [ProfessionalReportRow([.text("No expenses"), .number(0)])]
+                    : expenseRows + [ProfessionalReportRow([.text("Total Expenses"), .number(expenses)], emphasis: .total)]
+            ))
+
+            var running = opening
+            var detailRows: [ProfessionalReportRow] = []
+            for tx in relevant {
+                let delta = movement(tx)
+                running += delta
+                let description: String = {
+                    if let vendor = tx.vendor?.trimmingCharacters(in: .whitespacesAndNewlines), !vendor.isEmpty {
+                        return tx.details.isEmpty ? vendor : "\(vendor) · \(tx.details)"
+                    }
+                    return tx.details.isEmpty ? tx.category : tx.details
+                }()
+                detailRows.append(ProfessionalReportRow([
+                    .text(dateFormatter.string(from: tx.date)),
+                    .text(tx.type.title),
+                    .text(tx.category),
+                    .text(description),
+                    .number(delta < 0 ? -delta : 0),
+                    .number(delta > 0 ? delta : 0),
+                    .number(running)
+                ]))
+            }
+            tables.append(ProfessionalReportTable(
+                title: "Transaction Details — \(currency)",
+                subtitle: "Complete account activity",
+                columns: ["Date", "Nature", "Category", "Description", "Money Out", "Money In", "Balance"],
+                rows: detailRows.isEmpty
+                    ? [ProfessionalReportRow([.text("No transactions"), .text("—"), .text("—"), .text("—"), .number(0), .number(0), .number(opening)])]
+                    : detailRows
+            ))
+        }
+
+        return ProfessionalReportDocument(
+            title: "\(accountName) Account Statement",
+            subtitle: "Summary, expense analysis and full transaction detail",
+            periodText: period,
+            generatedAt: Date(),
+            tables: tables,
+            notes: [
+                "Balances are rebuilt from opening balances and saved ledger transactions.",
+                "Legacy QAR/PKR/USD transfers without a stored destination amount use the app's fixed conversion rates.",
+                "Main-account statements include direct sub-accounts, including archived sub-accounts with historical balances."
+            ]
+        )
+    }
 }
 
 enum ProfessionalReportExporter {
@@ -705,9 +1588,36 @@ enum ProfessionalReportExporter {
         }
     }
 
+    private static func shouldIncludeTable(_ table: ProfessionalReportTable) -> Bool {
+        if table.title.hasPrefix("Financial Summary —") || table.title.hasPrefix("Balance Sheet Summary —") {
+            return false
+        }
+        let blocked = ["no account balances", "no transactions", "no reviewed", "no data"]
+        var meaningfulText = false
+        var nonZeroNumber = false
+        for row in table.rows {
+            for cell in row.cells {
+                switch cell {
+                case .number(let value):
+                    if value != 0 { nonZeroNumber = true }
+                case .text(let value):
+                    let clean = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                    if !clean.isEmpty && !blocked.contains(where: { clean.contains($0) }) {
+                        meaningfulText = true
+                    }
+                }
+            }
+        }
+        return nonZeroNumber || (meaningfulText && !table.rows.isEmpty)
+    }
+
     private static func exportPDF(_ document: ProfessionalReportDocument) throws -> URL {
         let url = reportURL(document: document, extension: "pdf")
-        let pageRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8)
+        let visibleTables = document.tables.filter(shouldIncludeTable)
+        let isWide = visibleTables.contains { $0.columns.count >= 7 }
+        let pageRect = isWide
+            ? CGRect(x: 0, y: 0, width: 841.8, height: 595.2)
+            : CGRect(x: 0, y: 0, width: 595.2, height: 841.8)
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = [
             kCGPDFContextCreator as String: "Next Ledger",
@@ -716,10 +1626,33 @@ enum ProfessionalReportExporter {
         ]
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
         let data = renderer.pdfData { context in
-            let margin: CGFloat = 34
+            let margin: CGFloat = 30
             let contentWidth = pageRect.width - margin * 2
+            let green = UIColor(red: 0.125, green: 0.353, blue: 0.278, alpha: 1)
+            let darkGreen = UIColor(red: 0.075, green: 0.235, blue: 0.180, alpha: 1)
+            let lightGreen = UIColor(red: 0.925, green: 0.965, blue: 0.945, alpha: 1)
+            let grid = UIColor(white: 0.84, alpha: 1)
             var pageNumber = 0
             var cursorY: CGFloat = 0
+
+            func paragraphStyle(_ alignment: NSTextAlignment, lineBreak: NSLineBreakMode = .byWordWrapping) -> NSMutableParagraphStyle {
+                let style = NSMutableParagraphStyle()
+                style.alignment = alignment
+                style.lineBreakMode = lineBreak
+                style.lineSpacing = 0.8
+                return style
+            }
+
+            func textHeight(_ text: String, width: CGFloat, font: UIFont) -> CGFloat {
+                guard width > 2 else { return font.lineHeight }
+                let rect = (text as NSString).boundingRect(
+                    with: CGSize(width: width, height: 10_000),
+                    options: [.usesLineFragmentOrigin, .usesFontLeading],
+                    attributes: [.font: font, .paragraphStyle: paragraphStyle(.left)],
+                    context: nil
+                )
+                return ceil(rect.height)
+            }
 
             func drawText(
                 _ text: String,
@@ -728,36 +1661,41 @@ enum ProfessionalReportExporter {
                 color: UIColor,
                 alignment: NSTextAlignment = .left
             ) {
-                let style = NSMutableParagraphStyle()
-                style.alignment = alignment
-                style.lineBreakMode = .byTruncatingTail
                 (text as NSString).draw(
                     with: rect,
                     options: [.usesLineFragmentOrigin, .usesFontLeading],
                     attributes: [
                         .font: font,
                         .foregroundColor: color,
-                        .paragraphStyle: style
+                        .paragraphStyle: paragraphStyle(alignment)
                     ],
                     context: nil
                 )
             }
 
+            func cellString(_ cell: ProfessionalReportCell) -> String {
+                switch cell {
+                case .text(let value): return value
+                case .number(let value):
+                    return ReportNumberFormatters.decimal.string(from: NSDecimalNumber(decimal: value)) ?? "0.00"
+                }
+            }
+
             func drawFooter() {
-                let y = pageRect.height - 28
-                UIColor(white: 0.82, alpha: 1).setFill()
-                UIBezierPath(rect: CGRect(x: margin, y: y - 6, width: contentWidth, height: 0.5)).fill()
+                let lineY = pageRect.height - 24
+                grid.setFill()
+                UIBezierPath(rect: CGRect(x: margin, y: lineY - 5, width: contentWidth, height: 0.5)).fill()
                 drawText(
-                    "Next Ledger • Generated \(ReportDateFormatters.timestamp.string(from: document.generatedAt))",
-                    rect: CGRect(x: margin, y: y, width: contentWidth - 60, height: 14),
-                    font: .systemFont(ofSize: 7.5),
-                    color: UIColor(white: 0.45, alpha: 1)
+                    "Next Ledger • \(document.title) • Generated \(ReportDateFormatters.timestamp.string(from: document.generatedAt))",
+                    rect: CGRect(x: margin, y: lineY, width: contentWidth - 70, height: 14),
+                    font: .systemFont(ofSize: 7.2),
+                    color: UIColor(white: 0.40, alpha: 1)
                 )
                 drawText(
                     "Page \(pageNumber)",
-                    rect: CGRect(x: pageRect.width - margin - 54, y: y, width: 54, height: 14),
-                    font: .systemFont(ofSize: 7.5, weight: .semibold),
-                    color: UIColor(white: 0.45, alpha: 1),
+                    rect: CGRect(x: pageRect.width - margin - 65, y: lineY, width: 65, height: 14),
+                    font: .systemFont(ofSize: 7.2, weight: .semibold),
+                    color: UIColor(white: 0.40, alpha: 1),
                     alignment: .right
                 )
             }
@@ -765,180 +1703,198 @@ enum ProfessionalReportExporter {
             func beginPage() {
                 context.beginPage()
                 pageNumber += 1
-                let headerRect = CGRect(x: 0, y: 0, width: pageRect.width, height: 78)
-                UIColor(red: 0.22, green: 0.12, blue: 0.48, alpha: 1).setFill()
-                UIBezierPath(rect: headerRect).fill()
-                drawText(
-                    "NEXT LEDGER",
-                    rect: CGRect(x: margin, y: 15, width: 180, height: 18),
-                    font: .systemFont(ofSize: 10, weight: .heavy),
-                    color: .white
-                )
-                drawText(
-                    document.title,
-                    rect: CGRect(x: margin, y: 31, width: contentWidth, height: 26),
-                    font: .systemFont(ofSize: 20, weight: .bold),
-                    color: .white
-                )
-                drawText(
-                    document.periodText,
-                    rect: CGRect(x: margin, y: 58, width: contentWidth, height: 14),
-                    font: .systemFont(ofSize: 8.5, weight: .medium),
-                    color: UIColor.white.withAlphaComponent(0.82)
-                )
-                cursorY = 94
+                green.setFill()
+                UIBezierPath(rect: CGRect(x: 0, y: 0, width: pageRect.width, height: 58)).fill()
+                drawText("NEXT LEDGER", rect: CGRect(x: margin, y: 10, width: 160, height: 14), font: .systemFont(ofSize: 8.5, weight: .heavy), color: .white)
+                drawText(document.title, rect: CGRect(x: margin, y: 23, width: contentWidth, height: 24), font: .systemFont(ofSize: 17, weight: .bold), color: .white)
+                drawText(document.periodText, rect: CGRect(x: margin, y: 45, width: contentWidth, height: 12), font: .systemFont(ofSize: 7.8, weight: .medium), color: UIColor.white.withAlphaComponent(0.86))
+                cursorY = 70
             }
 
             func ensureSpace(_ height: CGFloat) {
-                if cursorY + height > pageRect.height - 42 {
+                if cursorY + height > pageRect.height - 34 {
                     drawFooter()
                     beginPage()
                 }
             }
 
-            func columnWidths(for count: Int) -> [CGFloat] {
-                let ratios: [CGFloat]
-                switch count {
-                case 2: ratios = [0.66, 0.34]
-                case 3: ratios = [0.49, 0.28, 0.23]
-                case 5: ratios = [0.10, 0.34, 0.18, 0.18, 0.20]
-                case 6: ratios = [0.34, 0.132, 0.132, 0.132, 0.132, 0.142]
-                case 8: ratios = [0.10, 0.16, 0.24, 0.10, 0.10, 0.10, 0.10, 0.10]
-                default: ratios = Array(repeating: 1 / CGFloat(max(count, 1)), count: max(count, 1))
+            func columnWidths(for table: ProfessionalReportTable) -> [CGFloat] {
+                let names = table.columns.map { $0.lowercased() }
+                if table.columns.count == 2 { return [contentWidth * 0.69, contentWidth * 0.31] }
+                if table.columns.count == 3 { return [contentWidth * 0.50, contentWidth * 0.29, contentWidth * 0.21] }
+                if table.columns.count == 5 {
+                    if names.contains("code") && names.contains("account") {
+                        return [contentWidth * 0.12, contentWidth * 0.34, contentWidth * 0.18, contentWidth * 0.18, contentWidth * 0.18]
+                    }
+                    return [contentWidth * 0.27, contentWidth * 0.16, contentWidth * 0.19, contentWidth * 0.19, contentWidth * 0.19]
                 }
-                return ratios.map { $0 * contentWidth }
+                if table.columns.count == 6 {
+                    return [contentWidth * 0.13, contentWidth * 0.22, contentWidth * 0.22, contentWidth * 0.15, contentWidth * 0.12, contentWidth * 0.16]
+                }
+                if table.columns.count == 7 {
+                    return [contentWidth * 0.10, contentWidth * 0.17, contentWidth * 0.17, contentWidth * 0.20, contentWidth * 0.13, contentWidth * 0.09, contentWidth * 0.14]
+                }
+                if table.columns.count == 8 {
+                    return [contentWidth * 0.10, contentWidth * 0.15, contentWidth * 0.22, contentWidth * 0.11, contentWidth * 0.105, contentWidth * 0.105, contentWidth * 0.105, contentWidth * 0.105]
+                }
+                return Array(repeating: contentWidth / CGFloat(max(table.columns.count, 1)), count: max(table.columns.count, 1))
             }
 
-            func cellString(_ cell: ProfessionalReportCell) -> String {
-                switch cell {
-                case .text(let value): return value
-                case .number(let value): return ReportNumberFormatters.decimal.string(from: NSDecimalNumber(decimal: value)) ?? "0.00"
+            func tableHeaderHeight(_ table: ProfessionalReportTable, widths: [CGFloat]) -> CGFloat {
+                let font = UIFont.systemFont(ofSize: 7.2, weight: .bold)
+                let heights = table.columns.enumerated().map { index, title in
+                    textHeight(title, width: widths[index] - 10, font: font)
                 }
+                return max(23, (heights.max() ?? 10) + 10)
             }
 
             func drawTableHeader(_ table: ProfessionalReportTable, widths: [CGFloat]) {
-                let height: CGFloat = 27
-                UIColor(red: 0.22, green: 0.12, blue: 0.48, alpha: 1).setFill()
-                UIBezierPath(roundedRect: CGRect(x: margin, y: cursorY, width: contentWidth, height: height), cornerRadius: 5).fill()
+                let height = tableHeaderHeight(table, widths: widths)
+                green.setFill()
+                UIBezierPath(roundedRect: CGRect(x: margin, y: cursorY, width: contentWidth, height: height), cornerRadius: 4).fill()
                 var x = margin
                 for (index, column) in table.columns.enumerated() {
                     let width = widths[index]
                     drawText(
                         column,
-                        rect: CGRect(x: x + 5, y: cursorY + 7, width: width - 10, height: 14),
-                        font: .systemFont(ofSize: 7.6, weight: .bold),
+                        rect: CGRect(x: x + 5, y: cursorY + 5, width: width - 10, height: height - 8),
+                        font: .systemFont(ofSize: 7.2, weight: .bold),
                         color: .white,
-                        alignment: index >= max(table.columns.count - 3, 1) ? .right : .left
+                        alignment: index > 0 && !["account", "category", "vendor", "from account", "to account"].contains(column.lowercased()) ? .right : .left
                     )
                     x += width
                 }
                 cursorY += height
             }
 
-            beginPage()
-            drawText(
-                document.subtitle,
-                rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 28),
-                font: .systemFont(ofSize: 11, weight: .medium),
-                color: UIColor(white: 0.28, alpha: 1)
-            )
-            cursorY += 31
-
-            for table in document.tables {
-                ensureSpace(72)
-                drawText(
-                    table.title,
-                    rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 22),
-                    font: .systemFont(ofSize: 13, weight: .bold),
-                    color: UIColor(red: 0.22, green: 0.12, blue: 0.48, alpha: 1)
-                )
-                cursorY += 20
-                if !table.subtitle.isEmpty {
-                    drawText(
-                        table.subtitle,
-                        rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 18),
-                        font: .systemFont(ofSize: 8.5),
-                        color: UIColor(white: 0.42, alpha: 1)
-                    )
-                    cursorY += 19
+            func rowHeight(_ row: ProfessionalReportRow, table: ProfessionalReportTable, widths: [CGFloat]) -> CGFloat {
+                let font = UIFont.systemFont(ofSize: table.columns.count >= 7 ? 6.6 : 7.3, weight: row.emphasis == .normal ? .regular : .semibold)
+                var height: CGFloat = 20
+                for index in table.columns.indices {
+                    let cell = index < row.cells.count ? row.cells[index] : .text("")
+                    height = max(height, textHeight(cellString(cell), width: widths[index] - 10, font: font) + 9)
                 }
+                return min(max(height, 21), 52)
+            }
 
-                let widths = columnWidths(for: table.columns.count)
+            func drawStandardTable(_ table: ProfessionalReportTable) {
+                ensureSpace(64)
+                let titleFont = UIFont.systemFont(ofSize: 11.5, weight: .bold)
+                let titleHeight = textHeight(table.title, width: contentWidth, font: titleFont)
+                drawText(table.title, rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: titleHeight + 2), font: titleFont, color: darkGreen)
+                cursorY += titleHeight + 4
+                if !table.subtitle.isEmpty {
+                    let subtitleFont = UIFont.systemFont(ofSize: 7.8)
+                    let subtitleHeight = textHeight(table.subtitle, width: contentWidth, font: subtitleFont)
+                    drawText(table.subtitle, rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: subtitleHeight + 2), font: subtitleFont, color: UIColor(white: 0.38, alpha: 1))
+                    cursorY += subtitleHeight + 5
+                }
+                let widths = columnWidths(for: table)
                 drawTableHeader(table, widths: widths)
-
                 for (rowIndex, row) in table.rows.enumerated() {
-                    let rowHeight: CGFloat = table.columns.count >= 8 ? 31 : 25
-                    if cursorY + rowHeight > pageRect.height - 42 {
+                    let height = rowHeight(row, table: table, widths: widths)
+                    if cursorY + height > pageRect.height - 34 {
                         drawFooter()
                         beginPage()
-                        drawText(
-                            "\(table.title) — continued",
-                            rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 19),
-                            font: .systemFont(ofSize: 10.5, weight: .bold),
-                            color: UIColor(red: 0.22, green: 0.12, blue: 0.48, alpha: 1)
-                        )
-                        cursorY += 22
+                        drawText("\(table.title) — continued", rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 18), font: .systemFont(ofSize: 10, weight: .bold), color: darkGreen)
+                        cursorY += 20
                         drawTableHeader(table, widths: widths)
                     }
-
-                    let fillColor: UIColor
+                    let fill: UIColor
                     switch row.emphasis {
-                    case .section:
-                        fillColor = UIColor(red: 0.94, green: 0.92, blue: 0.98, alpha: 1)
-                    case .subtotal:
-                        fillColor = UIColor(red: 0.93, green: 0.95, blue: 0.98, alpha: 1)
-                    case .total:
-                        fillColor = UIColor(red: 0.22, green: 0.12, blue: 0.48, alpha: 1)
-                    case .normal:
-                        fillColor = rowIndex.isMultiple(of: 2) ? .white : UIColor(white: 0.975, alpha: 1)
+                    case .section: fill = lightGreen
+                    case .subtotal: fill = UIColor(red: 0.90, green: 0.94, blue: 0.92, alpha: 1)
+                    case .total: fill = green
+                    case .normal: fill = rowIndex.isMultiple(of: 2) ? .white : UIColor(white: 0.975, alpha: 1)
                     }
-                    fillColor.setFill()
-                    UIBezierPath(rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: rowHeight)).fill()
-
+                    fill.setFill()
+                    UIBezierPath(rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: height)).fill()
                     var x = margin
                     for index in table.columns.indices {
                         let width = widths[index]
                         let cell = index < row.cells.count ? row.cells[index] : .text("")
-                        let isNumber: Bool
-                        if case .number = cell { isNumber = true } else { isNumber = false }
-                        let textColor: UIColor = row.emphasis == .total ? .white : UIColor(white: 0.18, alpha: 1)
-                        let font: UIFont = row.emphasis == .normal
-                            ? .systemFont(ofSize: table.columns.count >= 8 ? 6.7 : 7.6)
-                            : .systemFont(ofSize: table.columns.count >= 8 ? 6.7 : 7.6, weight: .bold)
+                        let numeric: Bool
+                        if case .number = cell { numeric = true } else { numeric = false }
+                        let font = UIFont.systemFont(ofSize: table.columns.count >= 7 ? 6.6 : 7.3, weight: row.emphasis == .normal ? .regular : .semibold)
                         drawText(
                             cellString(cell),
-                            rect: CGRect(x: x + 5, y: cursorY + 7, width: width - 10, height: rowHeight - 8),
+                            rect: CGRect(x: x + 5, y: cursorY + 4, width: width - 10, height: height - 7),
                             font: font,
-                            color: textColor,
-                            alignment: isNumber ? .right : .left
+                            color: row.emphasis == .total ? .white : UIColor(white: 0.16, alpha: 1),
+                            alignment: numeric ? .right : .left
                         )
-                        UIColor(white: 0.88, alpha: 1).setFill()
-                        UIBezierPath(rect: CGRect(x: x + width - 0.4, y: cursorY, width: 0.4, height: rowHeight)).fill()
+                        grid.setFill()
+                        UIBezierPath(rect: CGRect(x: x + width - 0.35, y: cursorY, width: 0.35, height: height)).fill()
                         x += width
                     }
-                    cursorY += rowHeight
+                    cursorY += height
                 }
-                cursorY += 16
+                cursorY += 10
             }
 
-            if !document.notes.isEmpty {
-                ensureSpace(CGFloat(document.notes.count * 19 + 36))
-                drawText(
-                    "Report Notes",
-                    rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 20),
-                    font: .systemFont(ofSize: 11, weight: .bold),
-                    color: UIColor(red: 0.22, green: 0.12, blue: 0.48, alpha: 1)
-                )
-                cursorY += 22
-                for note in document.notes {
-                    ensureSpace(19)
-                    drawText(
-                        "• \(note)",
-                        rect: CGRect(x: margin + 4, y: cursorY, width: contentWidth - 8, height: 18),
-                        font: .systemFont(ofSize: 8),
-                        color: UIColor(white: 0.38, alpha: 1)
-                    )
-                    cursorY += 19
+            func drawSampleCSummary(_ table: ProfessionalReportTable) {
+                ensureSpace(CGFloat(76 + table.rows.count * 18))
+                let heading = table.title.replacingOccurrences(of: "Consolidated ", with: "")
+                drawText(heading, rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 18), font: .systemFont(ofSize: 11.5, weight: .bold), color: darkGreen)
+                cursorY += 19
+                drawText(table.subtitle, rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 15), font: .systemFont(ofSize: 7.5), color: UIColor(white: 0.40, alpha: 1))
+                cursorY += 18
+
+                let gap: CGFloat = 10
+                let panelWidth = (contentWidth - gap) / 2
+                let panelHeight = CGFloat(28 + table.rows.count * 18)
+                for (panelIndex, currency) in ["QAR", "PKR"].enumerated() {
+                    let x = margin + CGFloat(panelIndex) * (panelWidth + gap)
+                    lightGreen.setFill()
+                    UIBezierPath(roundedRect: CGRect(x: x, y: cursorY, width: panelWidth, height: panelHeight), cornerRadius: 7).fill()
+                    drawText(currency, rect: CGRect(x: x + 10, y: cursorY + 8, width: panelWidth - 20, height: 16), font: .systemFont(ofSize: 10.5, weight: .bold), color: darkGreen)
+                    for (rowIndex, row) in table.rows.enumerated() {
+                        let label = row.cells.indices.contains(0) ? cellString(row.cells[0]) : ""
+                        let valueIndex = currency == "QAR" ? 1 : 2
+                        let value = row.cells.indices.contains(valueIndex) ? cellString(row.cells[valueIndex]) : "0.00"
+                        let y = cursorY + 27 + CGFloat(rowIndex * 18)
+                        drawText(label, rect: CGRect(x: x + 10, y: y, width: panelWidth * 0.55, height: 15), font: .systemFont(ofSize: 7.2), color: UIColor(white: 0.30, alpha: 1))
+                        drawText(value, rect: CGRect(x: x + panelWidth * 0.55, y: y, width: panelWidth * 0.45 - 10, height: 15), font: .systemFont(ofSize: 7.4, weight: .semibold), color: darkGreen, alignment: .right)
+                    }
+                }
+                cursorY += panelHeight + 8
+                if let last = table.rows.last {
+                    let label = last.cells.indices.contains(0) ? cellString(last.cells[0]) : "Consolidated Total"
+                    let value = last.cells.indices.contains(4) ? cellString(last.cells[4]) : "0.00"
+                    UIColor(red: 0.86, green: 0.94, blue: 0.90, alpha: 1).setFill()
+                    UIBezierPath(roundedRect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 32), cornerRadius: 7).fill()
+                    drawText("Consolidated QAR — \(label)", rect: CGRect(x: margin + 10, y: cursorY + 9, width: contentWidth * 0.58, height: 16), font: .systemFont(ofSize: 8, weight: .semibold), color: darkGreen)
+                    drawText("QAR \(value)", rect: CGRect(x: margin + contentWidth * 0.58, y: cursorY + 7, width: contentWidth * 0.42 - 10, height: 18), font: .systemFont(ofSize: 12, weight: .bold), color: darkGreen, alignment: .right)
+                    cursorY += 42
+                }
+            }
+
+            beginPage()
+            if !document.subtitle.isEmpty {
+                let subtitleFont = UIFont.systemFont(ofSize: 9, weight: .medium)
+                let subtitleHeight = textHeight(document.subtitle, width: contentWidth, font: subtitleFont)
+                drawText(document.subtitle, rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: subtitleHeight + 2), font: subtitleFont, color: UIColor(white: 0.25, alpha: 1))
+                cursorY += subtitleHeight + 10
+            }
+
+            for table in visibleTables {
+                if table.title.contains("QAR & PKR") && table.columns.count == 5 {
+                    drawSampleCSummary(table)
+                } else {
+                    drawStandardTable(table)
+                }
+            }
+
+            let conciseNotes = Array(document.notes.prefix(2))
+            if !conciseNotes.isEmpty {
+                ensureSpace(CGFloat(28 + conciseNotes.count * 22))
+                drawText("Report Notes", rect: CGRect(x: margin, y: cursorY, width: contentWidth, height: 18), font: .systemFont(ofSize: 10.5, weight: .bold), color: darkGreen)
+                cursorY += 20
+                for note in conciseNotes {
+                    let font = UIFont.systemFont(ofSize: 7.4)
+                    let height = textHeight("• \(note)", width: contentWidth - 8, font: font)
+                    drawText("• \(note)", rect: CGRect(x: margin + 4, y: cursorY, width: contentWidth - 8, height: height + 2), font: font, color: UIColor(white: 0.36, alpha: 1))
+                    cursorY += height + 6
                 }
             }
             drawFooter()
@@ -950,9 +1906,10 @@ enum ProfessionalReportExporter {
     private static func exportExcel(_ document: ProfessionalReportDocument) throws -> URL {
         let url = reportURL(document: document, extension: "xlsx")
         var files: [(String, Data)] = []
-        let tables = document.tables.isEmpty
+        let filteredTables = document.tables.filter(shouldIncludeTable)
+        let tables = filteredTables.isEmpty
             ? [ProfessionalReportTable(title: document.title, subtitle: document.subtitle, columns: ["Status"], rows: [ProfessionalReportRow([.text("No data")])])]
-            : document.tables
+            : filteredTables
         let sheetNames = uniqueSheetNames(tables.map(\.title))
 
         files.append(("[Content_Types].xml", Data(contentTypesXML(sheetCount: tables.count).utf8)))
@@ -1131,15 +2088,15 @@ enum ProfessionalReportExporter {
       <numFmts count="1"><numFmt numFmtId="164" formatCode="#,#0.00;[Red]-#,#0.00"/></numFmts>
       <fonts count="4">
         <font><sz val="10"/><name val="Aptos"/></font>
-        <font><b/><sz val="16"/><color rgb="FF3A1E7A"/><name val="Aptos Display"/></font>
+        <font><b/><sz val="16"/><color rgb="FF205A47"/><name val="Aptos Display"/></font>
         <font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Aptos"/></font>
-        <font><b/><sz val="10"/><color rgb="FF21163E"/><name val="Aptos"/></font>
+        <font><b/><sz val="10"/><color rgb="FF183D31"/><name val="Aptos"/></font>
       </fonts>
       <fills count="4">
         <fill><patternFill patternType="none"/></fill>
         <fill><patternFill patternType="gray125"/></fill>
-        <fill><patternFill patternType="solid"><fgColor rgb="FF3A1E7A"/><bgColor indexed="64"/></patternFill></fill>
-        <fill><patternFill patternType="solid"><fgColor rgb="FFEFEAF8"/><bgColor indexed="64"/></patternFill></fill>
+        <fill><patternFill patternType="solid"><fgColor rgb="FF205A47"/><bgColor indexed="64"/></patternFill></fill>
+        <fill><patternFill patternType="solid"><fgColor rgb="FFE8F3EE"/><bgColor indexed="64"/></patternFill></fill>
       </fills>
       <borders count="2">
         <border><left/><right/><top/><bottom/><diagonal/></border>
@@ -1147,7 +2104,7 @@ enum ProfessionalReportExporter {
       </borders>
       <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
       <cellXfs count="10">
-        <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="center"/></xf>
+        <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>
         <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
         <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"><alignment vertical="center" wrapText="1"/></xf>
         <xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>

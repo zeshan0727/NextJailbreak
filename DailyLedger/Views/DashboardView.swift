@@ -53,11 +53,23 @@ struct DashboardView: View {
     @State private var draftStartDate = Date()
     @State private var draftEndDate = Date()
     @State private var transactionSearch = ""
+    @State private var selectedTransaction: LedgerTransaction?
     @AppStorage("DashboardAccountSelection") private var selectedAccountValue = "all"
     @State private var showingAccountSelection = false
     @State private var spendingDay: SpendingDay?
     @State private var showingCardOrder = false
     @AppStorage("DashboardSpendingCardOrder") private var storedCardOrder = "yesterday,today,thisWeek,lastWeek"
+    @AppStorage(DeveloperLabKey.enabled) private var devEnabled = true
+    @AppStorage(DeveloperLabKey.dashboardShowHeader) private var devShowHeader = true
+    @AppStorage(DeveloperLabKey.dashboardShowSpending) private var devShowSpending = true
+    @AppStorage(DeveloperLabKey.dashboardShowDateFilter) private var devShowDateFilter = true
+    @AppStorage(DeveloperLabKey.dashboardShowBalance) private var devShowBalance = true
+    @AppStorage(DeveloperLabKey.dashboardShowQuickActions) private var devShowQuickActions = true
+    @AppStorage(DeveloperLabKey.dashboardShowRecent) private var devShowRecent = true
+    @AppStorage(DeveloperLabKey.dashboardColumns) private var devDashboardColumns = 2
+    @AppStorage(DeveloperLabKey.dashboardHorizontalPadding) private var devDashboardHorizontalPadding = 18.0
+    @AppStorage(DeveloperLabKey.dashboardSectionSpacing) private var devDashboardSectionSpacing = 22.0
+    @AppStorage(DeveloperLabKey.dashboardRecentLimit) private var devDashboardRecentLimit = 6
     @State private var dashboardSnapshot = DashboardSnapshot.empty
 
     private struct SpendingDay: Identifiable {
@@ -85,23 +97,25 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 22) {
-                    header
-                    dailySpending
-                    dateFilter
-                    BalanceCard(
-                        balance: dashboardSnapshot.balance,
-                        income: dashboardSnapshot.totals.income,
-                        expense: dashboardSnapshot.totals.expense,
-                        loanMovements: dashboardSnapshot.loanMovements,
-                        currencyCode: store.currencyCode,
-                        accountSummary: accountSelectionTitle,
-                        action: { showingAccountSelection = true }
-                    )
-                    quickActions
-                    recentTransactions
+                LazyVStack(alignment: .leading, spacing: effectiveDashboardSectionSpacing) {
+                    if !devEnabled || devShowHeader { header }
+                    if !devEnabled || devShowSpending { dailySpending }
+                    if !devEnabled || devShowDateFilter { dateFilter }
+                    if !devEnabled || devShowBalance {
+                        BalanceCard(
+                            balance: dashboardSnapshot.balance,
+                            income: dashboardSnapshot.totals.income,
+                            expense: dashboardSnapshot.totals.expense,
+                            loanMovements: dashboardSnapshot.loanMovements,
+                            currencyCode: store.currencyCode,
+                            accountSummary: accountSelectionTitle,
+                            action: { showingAccountSelection = true }
+                        )
+                    }
+                    if !devEnabled || devShowQuickActions { quickActions }
+                    if !devEnabled || devShowRecent { recentTransactions }
                 }
-                .padding(.horizontal, 18)
+                .padding(.horizontal, effectiveDashboardHorizontalPadding)
                 .padding(.bottom, 28)
             }
             .background(AppTheme.page)
@@ -113,6 +127,10 @@ struct DashboardView: View {
             .onChange(of: storedCustomEnd) { _ in refreshDashboardSnapshot() }
             .onChange(of: selectedAccountValue) { _ in refreshDashboardSnapshot() }
             .onChange(of: transactionSearch) { _ in refreshDashboardSnapshot() }
+            .sheet(item: $selectedTransaction) { transaction in
+                TransactionSnapshotView(transaction: transaction)
+                    .environmentObject(store)
+            }
             .sheet(isPresented: $showingCustomDates) {
                 NavigationStack {
                     Form {
@@ -208,7 +226,7 @@ struct DashboardView: View {
                         .font(.caption.bold())
                 }
             }
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            LazyVGrid(columns: effectiveDashboardGridColumns, spacing: 12) {
                 ForEach(cardOrder) { card in
                     DailySpendButton(
                         title: cardTitle(card),
@@ -396,11 +414,24 @@ struct DashboardView: View {
                 .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             } else {
                 VStack(spacing: 0) {
-                    ForEach(Array(dashboardSnapshot.recentTransactions.prefix(6).enumerated()), id: \.element.id) { index, transaction in
-                        TransactionRow(transaction: transaction)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 7)
-                        if index < min(dashboardSnapshot.recentTransactions.count, 6) - 1 {
+                    ForEach(Array(dashboardSnapshot.recentTransactions.prefix(effectiveDashboardRecentLimit).enumerated()), id: \.element.id) { index, transaction in
+                        Button {
+                            selectedTransaction = transaction
+                        } label: {
+                            TransactionRow(transaction: transaction)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 7)
+                        }
+                        .buttonStyle(.plain)
+                        .transactionSwipeActions(transaction)
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                store.delete(transaction)
+                            } label: {
+                                Label("Delete Transaction", systemImage: "trash")
+                            }
+                        }
+                        if index < min(dashboardSnapshot.recentTransactions.count, effectiveDashboardRecentLimit) - 1 {
                             Divider().padding(.leading, 68)
                         }
                     }
@@ -409,6 +440,23 @@ struct DashboardView: View {
                 .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             }
         }
+    }
+
+    private var effectiveDashboardSectionSpacing: CGFloat {
+        devEnabled ? CGFloat(max(4, min(40, devDashboardSectionSpacing))) : 22
+    }
+
+    private var effectiveDashboardHorizontalPadding: CGFloat {
+        devEnabled ? CGFloat(max(0, min(32, devDashboardHorizontalPadding))) : 18
+    }
+
+    private var effectiveDashboardGridColumns: [GridItem] {
+        let count = devEnabled ? max(1, min(3, devDashboardColumns)) : 2
+        return Array(repeating: GridItem(.flexible()), count: count)
+    }
+
+    private var effectiveDashboardRecentLimit: Int {
+        devEnabled ? max(1, min(20, devDashboardRecentLimit)) : 6
     }
 
     private var selectedDatePreset: DashboardDatePreset {
@@ -538,6 +586,7 @@ private struct DailySpendButton: View {
             if visualTheme == AppVisualTheme.glass.rawValue { cardContent.dailyLedgerGlass(tint: colors.first ?? AppTheme.purple, interactive: true) }
             else { cardContent }
         }
+        .developerSurface()
         }
         .buttonStyle(.plain)
     }
@@ -595,6 +644,7 @@ private struct QuickActionButton: View {
                 LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing),
                 in: RoundedRectangle(cornerRadius: 20, style: .continuous)
             )
+            .developerSurface()
         }
         .buttonStyle(.plain)
     }

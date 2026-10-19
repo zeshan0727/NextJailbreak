@@ -66,6 +66,12 @@ struct UncategorizedReviewView: View {
                             Label("Split Between Two Accounts", systemImage: "rectangle.split.2x1")
                                 .font(.caption.weight(.semibold))
                         }
+                        Button(role: .destructive) {
+                            store.delete(transaction)
+                            skippedIDs.remove(transaction.id)
+                        } label: {
+                            Label("Delete Transaction", systemImage: "trash")
+                        }
                     }
                 }
                 .onAppear { prepareSelection() }

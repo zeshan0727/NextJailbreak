@@ -77,13 +77,7 @@ struct TransactionsView: View {
                                         )
                                     }
                                     .buttonStyle(.plain)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                        Button(role: .destructive) {
-                                            store.delete(transaction)
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    }
+                                    .transactionSwipeActions(transaction)
                                     .contextMenu {
                                         Button {
                                             editingTransaction = transaction

@@ -20,19 +20,21 @@ struct ImportPayload {
     let transactions: [LedgerTransaction]
     let accounts: [LedgerAccount]
     let settings: LedgerSettings?
+    let fixedBudget: MonthlyFixedBudget?
 }
 
 enum ImportExportCodec {
     static func backupData(
         transactions: [LedgerTransaction],
         accounts: [LedgerAccount],
-        settings: LedgerSettings
+        settings: LedgerSettings,
+        fixedBudget: MonthlyFixedBudget = MonthlyFixedBudget()
     ) -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
         return (try? encoder.encode(
-            LedgerData(version: 5, transactions: transactions, accounts: accounts, settings: settings)
+            LedgerData(version: 5, transactions: transactions, accounts: accounts, settings: settings, fixedBudget: fixedBudget)
         )) ?? Data()
     }
 
@@ -78,11 +80,12 @@ enum ImportExportCodec {
             return ImportPayload(
                 transactions: ledger.transactions,
                 accounts: ledger.accounts,
-                settings: ledger.settings
+                settings: ledger.settings,
+                fixedBudget: ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any])?["fixedBudget"] != nil ? ledger.fixedBudget : nil
             )
         }
         if let transactions = try? decoder.decode([LedgerTransaction].self, from: data) {
-            return ImportPayload(transactions: transactions, accounts: [], settings: nil)
+            return ImportPayload(transactions: transactions, accounts: [], settings: nil, fixedBudget: nil)
         }
         guard let text = String(data: data, encoding: .utf8) else {
             throw ImportExportError.unsupportedFile
@@ -165,7 +168,7 @@ enum ImportExportCodec {
                 destinationAmount: destinationAmount.map { abs($0) }
             )
         }
-        return ImportPayload(transactions: transactions, accounts: accounts, settings: nil)
+        return ImportPayload(transactions: transactions, accounts: accounts, settings: nil, fixedBudget: nil)
     }
 
     private struct LegacyRow {
@@ -296,7 +299,7 @@ enum ImportExportCodec {
             }
         }
         transactions.sort { $0.date > $1.date }
-        return ImportPayload(transactions: transactions, accounts: accounts, settings: nil)
+        return ImportPayload(transactions: transactions, accounts: accounts, settings: nil, fixedBudget: nil)
     }
 
     private static func transferTransaction(

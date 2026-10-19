@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct BalanceCard: View {
+    @AppStorage(DeveloperLabKey.enabled) private var devEnabled = true
+    @AppStorage(DeveloperLabKey.cardCornerRadius) private var devCornerRadius = 28.0
     let balance: Decimal
     let income: Decimal
     let expense: Decimal
@@ -45,7 +47,8 @@ struct BalanceCard: View {
         .padding(22)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(AppTheme.balanceGradient)
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: devEnabled ? CGFloat(devCornerRadius) : 28, style: .continuous))
+        .developerSurface()
         .overlay(alignment: .topTrailing) {
             Circle()
                 .fill(.white.opacity(0.10))
@@ -124,53 +127,68 @@ private struct BalanceMiniStat: View {
 
 struct TransactionRow: View {
     @EnvironmentObject private var store: LedgerStore
+    @AppStorage(DeveloperLabKey.enabled) private var devEnabled = true
+    @AppStorage(DeveloperLabKey.density) private var devDensity = DeveloperDensity.standard.rawValue
+    @AppStorage(DeveloperLabKey.transactionShowIcon) private var devShowIcon = true
+    @AppStorage(DeveloperLabKey.transactionShowDate) private var devShowDate = true
+    @AppStorage(DeveloperLabKey.transactionShowSecondary) private var devShowSecondary = true
+    @AppStorage(DeveloperLabKey.transactionShowRunningBalance) private var devShowRunningBalance = true
+    @AppStorage(DeveloperLabKey.transactionShowTransferSecondary) private var devShowTransferSecondary = true
+    @AppStorage(DeveloperLabKey.transactionCompactRows) private var devCompactRows = false
     let transaction: LedgerTransaction
     var accountID: UUID? = nil
 
     var body: some View {
-        HStack(spacing: 13) {
+        HStack(spacing: effectiveCompactRow ? 9 : 13) {
+            if !devEnabled || devShowIcon {
             Image(systemName: AppTheme.categoryIcon(transaction.category))
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(AppTheme.categoryColor(transaction.category))
+                .foregroundStyle(iconColor)
                 .frame(width: 42, height: 42)
                 .background(
-                    AppTheme.categoryColor(transaction.category).opacity(0.13),
+                    iconColor.opacity(0.13),
                     in: RoundedRectangle(cornerRadius: 13, style: .continuous)
                 )
+            }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: effectiveCompactRow ? 2 : 4) {
                 Text(primaryText)
                     .font(.body.weight(.semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
-                Text(secondaryText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                if !devEnabled || devShowSecondary {
+                    Text(secondaryText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
             }
 
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text(transaction.date.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                if !devEnabled || devShowDate {
+                    Text(transaction.date.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
                 Text(amountText)
                     .font(.subheadline.bold())
                     .foregroundStyle(amountColor)
-                if accountID == nil,
+                if (!devEnabled || devShowTransferSecondary),
+                   accountID == nil,
                    transaction.type == .transfer,
-                   let destination = destinationAccount,
-                   destination.currencyCode != sourceAccount?.currencyCode {
-                    Text("+" + DisplayFormat.currency(
-                        transaction.destinationAmount ?? transaction.amount,
+                   let destination = destinationAccount {
+                    Text("IN +" + DisplayFormat.currency(
+                        store.effectiveDestinationAmount(transaction),
                         code: destination.currencyCode
                     ))
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(AppTheme.blue)
+                    .foregroundStyle(AppTheme.green)
                 }
-                if let runningBalance = store.runningBalance(
+                if (!devEnabled || devShowRunningBalance),
+                   let runningBalance = store.runningBalance(
                     for: transaction.id,
                     accountID: balanceAccountID
                 ) {
@@ -185,16 +203,30 @@ struct TransactionRow: View {
             .lineLimit(1)
             .minimumScaleFactor(0.65)
         }
-        .padding(.vertical, 5)
+        .padding(.vertical, effectiveCompactRow ? 2 : 5)
         .accessibilityElement(children: .combine)
     }
 
+    private var effectiveCompactRow: Bool {
+        guard devEnabled else { return false }
+        if devCompactRows { return true }
+        return devDensity == DeveloperDensity.compact.rawValue
+    }
+
     private var amountText: String {
-        let prefix = isDestinationTransfer || transaction.type == .income ? "+" : "−"
-        return prefix + DisplayFormat.currency(
-            isDestinationTransfer ? (transaction.destinationAmount ?? transaction.amount) : transaction.amount,
+        let incoming = transaction.type == .income || isDestinationTransfer
+        let prefix = incoming ? "+" : "−"
+        let value = isDestinationTransfer
+            ? store.effectiveDestinationAmount(transaction)
+            : transaction.amount
+        let signed = prefix + DisplayFormat.currency(
+            value,
             code: balanceAccount?.currencyCode ?? store.currencyCode
         )
+        if transaction.type == .transfer {
+            return (isDestinationTransfer ? "IN " : "OUT ") + signed
+        }
+        return (transaction.type == .income ? "IN " : "OUT ") + signed
     }
 
     private var isDestinationTransfer: Bool {
@@ -238,10 +270,19 @@ struct TransactionRow: View {
 
     private var amountColor: Color {
         switch transaction.type {
-        case .income: return AppTheme.green
-        case .expense: return AppTheme.red
-        case .transfer: return AppTheme.purple
+        case .income:
+            return AppTheme.green
+        case .expense:
+            return AppTheme.red
+        case .transfer:
+            return isDestinationTransfer ? AppTheme.green : AppTheme.red
         }
+    }
+
+    private var iconColor: Color {
+        transaction.type == .transfer
+            ? amountColor
+            : AppTheme.categoryColor(transaction.category)
     }
 }
 

@@ -278,6 +278,22 @@ struct DeveloperChartPoint: Identifiable {
     let expense: Double
 }
 
+private struct DeveloperChartLegend: View {
+    let color: Color
+    let title: String
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Circle()
+                .fill(color)
+                .frame(width: 8, height: 8)
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
 struct DeveloperActivityChart: View {
     let points: [DeveloperChartPoint]
 
@@ -308,8 +324,8 @@ struct DeveloperActivityChart: View {
         VStack(alignment: .leading, spacing: 12) {
             if (!enabled || showLegend) {
                 HStack(spacing: 12) {
-                    if !enabled || showIncome { ChartLegend(color: AppTheme.green, title: "Income") }
-                    if !enabled || showExpense { ChartLegend(color: AppTheme.red, title: "Expense") }
+                    if !enabled || showIncome { DeveloperChartLegend(color: AppTheme.green, title: "Income") }
+                    if !enabled || showExpense { DeveloperChartLegend(color: AppTheme.red, title: "Expense") }
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }

@@ -10,10 +10,13 @@ struct AddTransactionView: View {
     @State private var vendor = ""
     @State private var details = ""
     @State private var accountID: UUID?
+    @State private var erpDimensions: [String: String] = [:]
     @State private var newCategory = ""
     @State private var categorySearch = ""
+    @State private var showingTransferConversion = false
     @FocusState private var focusedField: Field?
     private let editingTransaction: LedgerTransaction?
+    private let onSaved: (() -> Void)?
 
     private enum Field: Hashable {
         case amount
@@ -23,35 +26,44 @@ struct AddTransactionView: View {
         case details
     }
 
-    init(initialType: TransactionType, accountID: UUID? = nil) {
+    init(initialType: TransactionType, accountID: UUID? = nil, onSaved: (() -> Void)? = nil) {
         editingTransaction = nil
+        self.onSaved = onSaved
         _type = State(initialValue: initialType)
         _category = State(initialValue: initialType == .expense ? "Food" : "Salary")
         _accountID = State(initialValue: accountID)
     }
 
-    init(transaction: LedgerTransaction) {
+    init(transaction: LedgerTransaction, convertTo: TransactionType? = nil, onSaved: (() -> Void)? = nil) {
         editingTransaction = transaction
-        _type = State(initialValue: transaction.type)
+        self.onSaved = onSaved
+        let initialType = convertTo ?? (transaction.type == .transfer ? .expense : transaction.type)
+        _type = State(initialValue: initialType)
         _amountText = State(initialValue: NSDecimalNumber(decimal: transaction.amount).stringValue)
         _date = State(initialValue: transaction.date)
-        _category = State(initialValue: transaction.category)
+        _category = State(initialValue: transaction.type == .transfer ? (initialType == .income ? "Salary" : "Other") : transaction.category)
         _vendor = State(initialValue: transaction.vendor ?? "")
         _details = State(initialValue: transaction.details)
         _accountID = State(initialValue: transaction.accountID)
+        _erpDimensions = State(initialValue: ERPAccountingEngine.dimensionDictionary(transaction))
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
+                    if editingTransaction != nil { transactionNatureEditor }
                     typePicker
                     accountPicker
                     amountEditor
                     categoryPicker
                     detailsEditor
                     vendorEditor
+                    ERPTransactionDimensionsEditor(values: $erpDimensions, type: type)
                     dateEditor
+                    if let editingTransaction {
+                        deleteEditor(editingTransaction)
+                    }
                 }
                 .padding(18)
                 .padding(.bottom, 82)
@@ -94,7 +106,50 @@ struct AddTransactionView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingTransferConversion) {
+            if let editingTransaction {
+                TransferView(transaction: editingTransaction, onSaved: {
+                    onSaved?()
+                    dismiss()
+                })
+                .environmentObject(store)
+            }
+        }
         .presentationDetents([.large])
+    }
+
+    private var transactionNatureEditor: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Transaction Nature")
+                .font(.headline)
+            HStack(spacing: 8) {
+                Button {
+                    type = .expense
+                } label: {
+                    Label("Expense", systemImage: type == .expense ? "checkmark.circle.fill" : "minus.circle")
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    type = .income
+                } label: {
+                    Label("Income", systemImage: type == .income ? "checkmark.circle.fill" : "plus.circle")
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    showingTransferConversion = true
+                } label: {
+                    Label("Transfer", systemImage: "arrow.left.arrow.right.circle")
+                }
+                .buttonStyle(.bordered)
+            }
+            Text("Changing the nature recalculates the affected account balances after you save.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(14)
+        .background(.background, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private var typePicker: some View {
@@ -283,6 +338,20 @@ struct AddTransactionView: View {
         }
     }
 
+    private func deleteEditor(_ transaction: LedgerTransaction) -> some View {
+        Button(role: .destructive) {
+            store.delete(transaction)
+            dismiss()
+        } label: {
+            Label("Delete Transaction", systemImage: "trash.fill")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 15)
+        }
+        .buttonStyle(.bordered)
+        .tint(AppTheme.red)
+    }
+
     private var saveButton: some View {
         Button {
             save()
@@ -394,6 +463,8 @@ struct AddTransactionView: View {
 
     private func save() {
         guard let amount = parsedAmount else { return }
+        let dimensions = ERPAccountingEngine.dimensions(from: erpDimensions)
+        let saved: Bool
         if var transaction = editingTransaction {
             transaction.type = type
             transaction.amount = amount
@@ -405,18 +476,22 @@ struct AddTransactionView: View {
             transaction.accountID = accountID ?? store.defaultAccountID
             transaction.destinationAccountID = nil
             transaction.destinationAmount = nil
-            store.update(transaction)
+            transaction.dimensions = dimensions
+            saved = store.update(transaction)
         } else {
-            store.add(
+            saved = store.add(
                 type: type,
                 amount: amount,
                 date: date,
                 category: category,
                 vendor: vendor,
                 details: details,
-                accountID: accountID
+                accountID: accountID,
+                dimensions: dimensions
             )
         }
+        guard saved else { return }
+        onSaved?()
         dismiss()
     }
 }

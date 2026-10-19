@@ -2,13 +2,17 @@ import SwiftUI
 
 enum PeriodTransactionKind {
     case income
+    case refunds
     case expenses
+    case loanIncreased
     case loans
 
     var title: String {
         switch self {
         case .income: return "Income"
+        case .refunds: return "Refunds"
         case .expenses: return "Expenses"
+        case .loanIncreased: return "Loans Increased"
         case .loans: return "Loans Paid"
         }
     }
@@ -20,6 +24,19 @@ struct PeriodTransactionsView: View {
     @State private var searchText = ""
     let kind: PeriodTransactionKind
     let interval: DateInterval
+    /// Optional currency scope supplied by a currency-specific Financial Summary card.
+    /// Nil preserves the existing all-currency behavior for other report entry points.
+    let currencyCode: String?
+
+    init(
+        kind: PeriodTransactionKind,
+        interval: DateInterval,
+        currencyCode: String? = nil
+    ) {
+        self.kind = kind
+        self.interval = interval
+        self.currencyCode = currencyCode
+    }
 
     var body: some View {
         List {
@@ -30,21 +47,31 @@ struct PeriodTransactionsView: View {
                     } label: {
                         TransactionRow(
                             transaction: transaction,
-                            accountID: kind == .income ? store.reportIncomeAccountID(transaction) : nil
+                            accountID: (kind == .income || kind == .refunds)
+                                ? store.reportIncomeAccountID(transaction)
+                                : nil
                         )
                     }
                     .buttonStyle(.plain)
+                    .transactionSwipeActions(transaction)
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            store.delete(transaction)
+                        } label: {
+                            Label("Delete Transaction", systemImage: "trash")
+                        }
+                    }
                 }
             } footer: {
                 HStack {
                     Text("Total · \(transactions.count) transactions")
                     Spacer()
-                    Text(DisplayFormat.currency(total, code: store.currencyCode)).bold()
+                    Text(DisplayFormat.currency(total, code: currencyCode ?? store.currencyCode)).bold()
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle(kind.title)
+        .navigationTitle(currencyCode.map { "\(kind.title) · \($0)" } ?? kind.title)
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search transactions")
         .overlay {
@@ -64,17 +91,26 @@ struct PeriodTransactionsView: View {
     private var transactions: [LedgerTransaction] {
         store.transactions.filter { transaction in
             guard interval.contains(transaction.date) else { return false }
+            if let currencyCode,
+               (kind == .loanIncreased || kind == .loans),
+               store.account(withID: transaction.accountID)?.currencyCode != currencyCode {
+                return false
+            }
             let kindMatches: Bool
             switch kind {
             case .income:
-                kindMatches = store.isReportIncome(transaction) &&
-                    store.account(withID: store.reportIncomeAccountID(transaction))?.currencyCode == store.currencyCode
+                kindMatches = store.isFinancialSummaryDirectIncome(transaction) &&
+                    store.convertedReportIncomeAmount(transaction) != nil
+            case .refunds:
+                kindMatches = store.isFinancialSummaryRefund(transaction) &&
+                    store.convertedReportIncomeAmount(transaction) != nil
             case .expenses:
-                kindMatches = transaction.type == .expense &&
-                    store.account(withID: transaction.accountID)?.currencyCode == store.currencyCode
+                kindMatches = store.isFinancialSummaryDirectExpense(transaction) &&
+                    store.convertedReportExpenseAmount(transaction) != nil
+            case .loanIncreased:
+                kindMatches = store.convertedFinancialSummaryLoanIncreaseAmount(transaction) != nil
             case .loans:
-                kindMatches = transaction.type == .transfer &&
-                    store.account(withID: transaction.destinationAccountID)?.group == .payments
+                kindMatches = store.convertedFinancialSummaryLoanPaidAmount(transaction) != nil
             }
             guard kindMatches, !searchText.isEmpty else { return kindMatches }
             return transaction.category.localizedCaseInsensitiveContains(searchText) ||
@@ -86,7 +122,22 @@ struct PeriodTransactionsView: View {
 
     private var total: Decimal {
         transactions.reduce(Decimal.zero) {
-            $0 + (kind == .income ? store.reportIncomeAmount($1) : $1.amount)
+            switch kind {
+            case .income, .refunds:
+                return $0 + (store.convertedReportIncomeAmount($1) ?? 0)
+            case .expenses:
+                return $0 + (store.convertedReportExpenseAmount($1) ?? 0)
+            case .loanIncreased:
+                if currencyCode != nil {
+                    return $0 + store.financialSummaryLoanIncreaseAmount($1)
+                }
+                return $0 + (store.convertedFinancialSummaryLoanIncreaseAmount($1) ?? 0)
+            case .loans:
+                if currencyCode != nil {
+                    return $0 + store.financialSummaryLoanPaidAmount($1)
+                }
+                return $0 + (store.convertedFinancialSummaryLoanPaidAmount($1) ?? 0)
+            }
         }
     }
 }
