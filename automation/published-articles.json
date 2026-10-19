@@ -2,6 +2,36 @@
   "entries": [
     {
       "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "iOS 27.2 RC is Apple system software, not a jailbreak. No public jailbreak, exploit chain, support matrix or installation tool has been announced for build 24B115. Calif’s public demonstration was identified as iOS 27.0.1 on one iPhone 18 Pro and does not establish 27.2 compatibility.",
+      "description": "Apple released iOS 27.2 RC build 24B115 on October 19. Here is what the release does—and does not—confirm for jailbreak users.",
+      "developer": "Apple",
+      "entry_type": "current-jailbreak-development",
+      "href": "ios-27-2-rc-jailbreak-status-update/",
+      "image": "assets/articles/source-media/ios-27-2-rc-official-apple-art.png",
+      "media_credit": "Apple — official iOS 27 artwork from the Apple Developer releases page",
+      "media_sha256": "1d48443343b64a4e533377591025ddbfc7924d13679b04c77d67e5cc5b923f79",
+      "media_source_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
+      "modified_at": "2026-10-19T20:56:22Z",
+      "name": "iOS 27.2 Release Candidate",
+      "package": "com.apple.ios-27.2-rc-status",
+      "published_at": "2026-10-19T20:56:22Z",
+      "quality_target": 9,
+      "release": "iOS 27.2 RC build 24B115 released October 19, 2026",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "ios-27-2-rc-jailbreak-status-update",
+      "source_name": "Apple Developer releases and iOS 27.2 release notes",
+      "source_page_url": "https://developer.apple.com/news/releases/",
+      "source_url": "https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-27_2-release-notes",
+      "source_visual_origin": "official-apple-ios-release-artwork",
+      "source_visual_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
+      "title": "iOS 27.2 RC Arrives: What It Means for Jailbreak Users",
+      "version": "27.2 RC (24B115)"
+    },
+    {
+      "category": {
         "id": "individual-tweak-update",
         "label": "Individual Tweak Update"
       },

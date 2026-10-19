@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.apple.ios-27.2-rc-status": {
+      "credit_label": "Apple — official iOS 27 artwork from the Apple Developer releases page",
+      "source_page_url": "https://developer.apple.com/news/releases/",
+      "official_source": true,
+      "hero": {
+        "url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
+        "alt": "Official Apple iOS 27 artwork showing the Lock Screen and Home Screen",
+        "local_path": "assets/articles/source-media/ios-27-2-rc-official-apple-art.png",
+        "sha256": "1d48443343b64a4e533377591025ddbfc7924d13679b04c77d67e5cc5b923f79"
+      },
+      "screenshots": []
+    },
     "com.koh.sidedock": {
       "credit_label": "eknv/Havoc — official SideDock banner and Home Screen interface screenshot",
       "source_page_url": "https://havoc.app/package/sidedock",
