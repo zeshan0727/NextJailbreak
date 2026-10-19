@@ -54,7 +54,7 @@ struct FixedPlanItem: Identifiable, Codable, Equatable {
         guard month >= first else { return false }
         guard let durationCycles else { return true }
         guard durationCycles > 0 else { return false }
-        let afterFinal = BudgetCycle.shift(first, by: durationCycles, calendar: calendar)
+        let afterFinal = BudgetCycle.shifted(first, by: durationCycles, calendar: calendar)
         return month < afterFinal
     }
 
@@ -67,7 +67,7 @@ struct FixedPlanItem: Identifiable, Codable, Equatable {
 
     func finalDay(calendar: Calendar = .current) -> Date? {
         guard let durationCycles, durationCycles > 0 else { return nil }
-        let nextCycle = BudgetCycle.shift(firstCycle, by: durationCycles, calendar: calendar)
+        let nextCycle = BudgetCycle.shifted(firstCycle, by: durationCycles, calendar: calendar)
         return calendar.date(byAdding: .day, value: -1, to: nextCycle)
     }
 }
