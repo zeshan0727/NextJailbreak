@@ -88,12 +88,39 @@ patch(v,'''                        NavigationLink {
                         NavigationLink {
                             BudgetSettingsView()
                         } label: {''')
-patch(v,'LabeledContent("Version", value: "1.3.76")','LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.80") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "89") + ")")')
+patch(v,'LabeledContent("Version", value: "1.3.76")','LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.81") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "90") + ")")')
 
 p="project.yml"
-patch(p,'MARKETING_VERSION: "1.3.76"','MARKETING_VERSION: "1.3.80"')
-patch(p,'CURRENT_PROJECT_VERSION: "84"','CURRENT_PROJECT_VERSION: "89"')
+patch(p,'MARKETING_VERSION: "1.3.76"','MARKETING_VERSION: "1.3.81"')
+patch(p,'CURRENT_PROJECT_VERSION: "84"','CURRENT_PROJECT_VERSION: "90"')
 for feature in ("SMSImportConsoleView()","ModernAISettingsView()","FixedBudgetDashboardView()","BudgetSettingsView()"):
     if feature not in get(v): raise RuntimeError("Lost feature "+feature)
-assert "1.3.80" in get(p)
-print("PASS: Full generated Next Ledger 1.3.76 upgraded to 1.3.80, all core screens retained.")
+assert "1.3.81" in get(p)
+print("PASS: Full generated Next Ledger 1.3.76 upgraded to 1.3.81, all core screens retained.")
+
+# ProMotion opt-in: let UIKit/CoreAnimation draw at the native high refresh
+# rate on supported iPhones. iOS still owns adaptive refresh and Low Power.
+import plistlib
+plist_path = ROOT / "DailyLedger/Info.plist"
+with plist_path.open("rb") as fh:
+    info = plistlib.load(fh)
+info["CADisableMinimumFrameDurationOnPhone"] = True
+with plist_path.open("wb") as fh:
+    plistlib.dump(info, fh, sort_keys=False)
+if not info["CADisableMinimumFrameDurationOnPhone"]:
+    raise RuntimeError("ProMotion opt-in missing")
+
+# Guard against accidentally restoring the old Ledger AI picker or forcing
+# the budget dashboard to light mode in this generated build.
+workspace = get("DailyLedger/Views/LedgerWorkspaceView.swift")
+if 'case insights = "AI"' in workspace or "InsightsView()" in workspace:
+    raise RuntimeError("Ledger must only contain Accounts and Transactions")
+dashboard = get("DailyLedger/Views/FixedBudgetDashboardView.swift")
+if ".preferredColorScheme(.light)" in dashboard:
+    raise RuntimeError("Budget dashboard must follow the app's color scheme")
+tabs = get("DailyLedger/Views/AppRootView.swift")
+if "LedgerTabOrder.resolve(tabOrder)" not in tabs:
+    raise RuntimeError("Rearrangeable bottom tabs missing")
+if "TabOrderSettingsView()" not in get("DailyLedger/Views/SettingsView.swift"):
+    raise RuntimeError("Tab rearrangement settings missing")
+print("PASS: ProMotion enabled, system dark theme supported, tabs reorderable, AI removed from Ledger.")
