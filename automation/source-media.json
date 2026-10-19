@@ -1,6 +1,19 @@
 {
   "schema_version": 1,
   "packages": {
+    "org.theos.dpkg-deb-inspection-guide": {
+      "credit_label": "Theos project — official project logo",
+      "source_page_url": "https://github.com/theos/theos.dev/blob/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
+        "alt": "Official purple Theos project logo",
+        "local_path": "assets/articles/source-media/theos-official-logo.png",
+        "git_blob_sha": "dc764828aa7a2c9bee367e7d5378080ad9480713",
+        "sha256": "35b663fd1a747f7d8108caa2ffe6cddb334021c001d1da2cf72763125484dadb"
+      },
+      "screenshots": []
+    },
     "github.0xjohnnydev.cryptsn0w": {
       "credit_label": "0xjohnnydev/cryptsn0w — official historical CryptSn0w macOS GUI screenshot",
       "source_page_url": "https://github.com/0xjohnnydev/cryptsn0w/blob/dd635116cb627075dcef37b14faf2266fcc41bf3/docs/images/cryptsn0w-gui.png",
