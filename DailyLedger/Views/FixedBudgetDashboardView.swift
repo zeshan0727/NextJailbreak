@@ -1,13 +1,37 @@
 import SwiftUI
+import UIKit
 
+// Match the app's System / Light / Black appearance selection, including
+// live iOS light/dark changes. Semantic colors avoid a hard-coded white UI.
 private enum LedgerBudgetStyle {
-    static let navy = Color(red: 0.052, green: 0.115, blue: 0.275)
-    static let blue = Color(red: 0.21, green: 0.26, blue: 0.94)
-    static let violet = Color(red: 0.37, green: 0.28, blue: 0.98)
-    static let canvas = Color(red: 0.942, green: 0.963, blue: 0.998)
-    static let green = Color(red: 0.0, green: 0.60, blue: 0.37)
-    static let red = Color(red: 0.80, green: 0.12, blue: 0.24)
-    static let muted = Color(red: 0.37, green: 0.45, blue: 0.60)
+    static let navy = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark
+            ? UIColor(red: 0.94, green: 0.96, blue: 1, alpha: 1)
+            : UIColor(red: 0.052, green: 0.115, blue: 0.275, alpha: 1)
+    })
+    static let blue = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark
+            ? UIColor(red: 0.53, green: 0.62, blue: 1, alpha: 1)
+            : UIColor(red: 0.21, green: 0.26, blue: 0.94, alpha: 1)
+    })
+    static let violet = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark
+            ? UIColor(red: 0.70, green: 0.57, blue: 1, alpha: 1)
+            : UIColor(red: 0.37, green: 0.28, blue: 0.98, alpha: 1)
+    })
+    static let canvas = Color(uiColor: .systemGroupedBackground)
+    static let surface = Color(uiColor: .secondarySystemGroupedBackground)
+    static let green = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark
+            ? UIColor(red: 0.30, green: 0.88, blue: 0.62, alpha: 1)
+            : UIColor(red: 0, green: 0.60, blue: 0.37, alpha: 1)
+    })
+    static let red = Color(uiColor: UIColor { t in
+        t.userInterfaceStyle == .dark
+            ? UIColor(red: 1, green: 0.45, blue: 0.54, alpha: 1)
+            : UIColor(red: 0.80, green: 0.12, blue: 0.24, alpha: 1)
+    })
+    static let muted = Color(uiColor: .secondaryLabel)
 }
 
 private extension View {
@@ -15,7 +39,7 @@ private extension View {
         self
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.white, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .background(LedgerBudgetStyle.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .stroke(LedgerBudgetStyle.blue.opacity(0.035), lineWidth: 1)
@@ -78,7 +102,7 @@ struct FixedBudgetDashboardView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 14) {
+            LazyVStack(spacing: 14) {
                 heading
                 cycleHero
                 HStack(alignment: .top, spacing: 10) {
@@ -94,7 +118,6 @@ struct FixedBudgetDashboardView: View {
         }
         .background(LedgerBudgetStyle.canvas.ignoresSafeArea())
         .foregroundStyle(LedgerBudgetStyle.navy)
-        .preferredColorScheme(.light)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $adding) {
             NavigationStack {
@@ -144,7 +167,7 @@ struct FixedBudgetDashboardView: View {
                         .font(.system(size: 18, weight: .medium))
                         .foregroundStyle(LedgerBudgetStyle.navy)
                         .frame(width: 39, height: 39)
-                        .background(.white, in: Circle())
+                        .background(LedgerBudgetStyle.surface, in: Circle())
                     Circle().fill(Color.red).frame(width: 8, height: 8)
                         .offset(x: -5, y: 3)
                 }
@@ -253,7 +276,7 @@ struct FixedBudgetDashboardView: View {
                 Text(money(income))
                     .font(.system(size: 12.2, weight: .bold))
             }
-            .foregroundStyle(Color(red: 0.00, green: 0.40, blue: 0.27))
+            .foregroundStyle(LedgerBudgetStyle.green)
             .padding(9)
             .background(LedgerBudgetStyle.green.opacity(0.08),
                         in: RoundedRectangle(cornerRadius: 10))
@@ -264,7 +287,7 @@ struct FixedBudgetDashboardView: View {
                 Label("Add Fixed Income", systemImage: "plus")
                     .font(.system(size: 11.5, weight: .semibold))
                     .frame(maxWidth: .infinity, minHeight: 34)
-                    .foregroundStyle(Color(red: 0.0, green: 0.45, blue: 0.34))
+                    .foregroundStyle(LedgerBudgetStyle.green)
                     .background(LedgerBudgetStyle.green.opacity(0.11),
                                 in: RoundedRectangle(cornerRadius: 11))
             }
@@ -303,7 +326,7 @@ struct FixedBudgetDashboardView: View {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(LedgerBudgetStyle.green)
                 Text("After fixed expenses, you have \(money(available)) to plan for this month.")
-                    .foregroundStyle(Color(red: 0.0, green: 0.43, blue: 0.31))
+                    .foregroundStyle(LedgerBudgetStyle.green)
                     .font(.system(size: 10))
                     .fixedSize(horizontal: false, vertical: true)
             }
