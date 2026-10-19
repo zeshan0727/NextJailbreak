@@ -335,7 +335,7 @@ enum ProfessionalReportBuilder {
                 for line in sectionLines {
                     let multiplier: Decimal = section.isLiability ? -1 : 1
                     rows.append(ProfessionalReportRow([
-                        .text(line.account.chartCode?.nilIfEmpty ?? "—"),
+                        .text(line.account.chartCode.flatMap { $0.isEmpty ? nil : $0 } ?? "—"),
                         .text(line.account.name),
                         .number(line.opening * multiplier),
                         .number(line.movement * multiplier),
