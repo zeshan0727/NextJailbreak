@@ -292,6 +292,11 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink {
+                        FixedBudgetDashboardView()
+                    } label: {
+                        SettingsRow(title: "Fixed Monthly Budget", subtitle: "26th–25th income, expenses and allocations", icon: "calendar.badge.clock", color: AppTheme.purple)
+                    }
+                    NavigationLink {
                         BudgetSettingsView()
                     } label: {
                         SettingsRow(
@@ -392,7 +397,8 @@ struct SettingsView: View {
         BackupDocument(data: ImportExportCodec.backupData(
             transactions: store.transactions,
             accounts: store.accounts,
-            settings: store.settings
+            settings: store.settings,
+            fixedBudget: store.fixedBudget
         ))
     }
 
