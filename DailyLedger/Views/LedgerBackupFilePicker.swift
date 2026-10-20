@@ -83,34 +83,49 @@ struct LedgerBackupImportPicker: UIViewControllerRepresentable {
                 completion(.failure(CocoaError(.fileReadNoSuchFile)))
                 return
             }
-            let result: Result<Data, Error> = Result {
-                let accessing = url.startAccessingSecurityScopedResource()
-                defer {
-                    if accessing { url.stopAccessingSecurityScopedResource() }
-                }
-                var fileCoordinationError: NSError?
-                var readData: Data?
-                var actualReadError: Error?
-                NSFileCoordinator().coordinate(readingItemAt: url,
-                                               options: [],
-                                               error: &fileCoordinationError) { file in
-                    do {
-                        readData = try Data(contentsOf: file)
-                    } catch {
-                        actualReadError = error
+
+            // File-provider / iCloud Drive coordination can block while
+            // downloading a remote copy. Never wait on UIKit's main thread.
+            // Finish the scoped read BEFORE reporting Data to the SwiftUI view.
+            let finish = completion
+            DispatchQueue.global(qos: .userInitiated).async {
+                let result: Result<Data, Error> = Result {
+                    let accessing = url.startAccessingSecurityScopedResource()
+                    defer {
+                        if accessing { url.stopAccessingSecurityScopedResource() }
                     }
+
+                    var fileCoordinationError: NSError?
+                    var readData: Data?
+                    var actualReadError: Error?
+                    NSFileCoordinator().coordinate(readingItemAt: url,
+                                                   options: [],
+                                                   error: &fileCoordinationError) { coordinatedURL in
+                        do {
+                            let fileSize = try coordinatedURL.resourceValues(
+                                forKeys: [.fileSizeKey]).fileSize ?? 0
+                            if fileSize > 50 * 1_024 * 1_024 {
+                                throw LedgerPickerError.tooLarge
+                            }
+                            readData = try Data(contentsOf: coordinatedURL)
+                        } catch {
+                            actualReadError = error
+                        }
+                    }
+                    if let fileCoordinationError { throw fileCoordinationError }
+                    if let actualReadError { throw actualReadError }
+                    guard let data = readData, !data.isEmpty else {
+                        throw CocoaError(.fileReadCorruptFile)
+                    }
+                    guard data.count <= 50 * 1_024 * 1_024 else {
+                        throw LedgerPickerError.tooLarge
+                    }
+                    return data
                 }
-                if let fileCoordinationError { throw fileCoordinationError }
-                if let actualReadError { throw actualReadError }
-                guard let data = readData, !data.isEmpty else {
-                    throw CocoaError(.fileReadCorruptFile)
+                DispatchQueue.main.async {
+                    finish(result)
                 }
-                guard data.count <= 50 * 1_024 * 1_024 else {
-                    throw LedgerPickerError.tooLarge
-                }
-                return data
             }
-            completion(result)
         }
     }
 }
