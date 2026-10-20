@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-20T09:26:35Z",
+  "updatedAt": "2026-10-20T11:18:19Z",
   "files": [
     {
       "id": "nextsigner-1.4.3",
@@ -9,9 +9,9 @@
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
       "version": "1.4.3",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.4.3/NextSigner-1.4.3.tipa",
-      "sha256": "b394dd14663bf0c799c9f0ae04b9330eaf9cbd0e552459360cdcee954e14b551",
-      "sizeBytes": 3354524,
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.4.3/artifact-12260392463/NextSigner-1.4.3.tipa",
+      "sha256": "84e90a761badd618d420c007f88b8d941097aa437a9b2e5f1e52c0b010d150be",
+      "sizeBytes": 3359467,
       "storage": "Cloudflare R2",
       "notes": "On-device and GitHub signing support explicit CloudDocuments, app-specific Ad Hoc profiles, custom entitlements and signed IPA verification."
     },
