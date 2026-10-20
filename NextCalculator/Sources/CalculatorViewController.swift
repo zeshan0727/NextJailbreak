@@ -6,6 +6,8 @@ final class CalculatorViewController: UIViewController {
     private let expressionLabel = UILabel()
     private let angleLabel = UILabel()
     private var grid = UIStackView()
+    private var rootLayout: UIStackView?
+    private var displayHeightConstraint: NSLayoutConstraint?
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask { .allButUpsideDown }
 
@@ -39,6 +41,9 @@ final class CalculatorViewController: UIViewController {
     }
 
     private func rebuildLayout() {
+        displayHeightConstraint?.isActive = false
+        rootLayout?.removeFromSuperview()
+        rootLayout = nil
         grid.arrangedSubviews.forEach { $0.removeFromSuperview() }
         grid.removeFromSuperview()
 
@@ -62,6 +67,9 @@ final class CalculatorViewController: UIViewController {
         grid.distribution = .fillEqually
         root.addArrangedSubview(grid)
         view.addSubview(root)
+        rootLayout = root
+        let displayHeight = displayLabel.heightAnchor.constraint(equalToConstant: landscape ? 62 : 116)
+        displayHeightConstraint = displayHeight
 
         let g = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
@@ -69,7 +77,7 @@ final class CalculatorViewController: UIViewController {
             root.trailingAnchor.constraint(equalTo: g.trailingAnchor, constant: landscape ? -8 : -8),
             root.topAnchor.constraint(equalTo: g.topAnchor, constant: 4),
             root.bottomAnchor.constraint(equalTo: g.bottomAnchor, constant: -4),
-            displayLabel.heightAnchor.constraint(equalToConstant: landscape ? 62 : 116)
+            displayHeight
         ])
 
         landscape ? buildLandscape() : buildPortrait()
@@ -80,12 +88,13 @@ final class CalculatorViewController: UIViewController {
         addRow(["7","8","9","×"])
         addRow(["4","5","6","−"])
         addRow(["1","2","3","+"])
-        let row = UIStackView(); row.axis = .horizontal; row.spacing = 10; row.distribution = .fillEqually
+        let row = UIStackView(); row.axis = .horizontal; row.spacing = 10; row.distribution = .fill
         let zero = makeButton("0", .number)
         let dot = makeButton(".", .number)
         let eq = makeButton("=", .op)
         row.addArrangedSubview(zero); row.addArrangedSubview(dot); row.addArrangedSubview(eq)
-        zero.widthAnchor.constraint(equalTo: dot.widthAnchor, multiplier: 2.04).isActive = true
+        dot.widthAnchor.constraint(equalTo: eq.widthAnchor).isActive = true
+        zero.widthAnchor.constraint(equalTo: dot.widthAnchor, multiplier: 2, constant: 10).isActive = true
         grid.addArrangedSubview(row)
     }
 
