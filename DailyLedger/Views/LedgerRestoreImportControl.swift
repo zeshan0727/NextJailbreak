@@ -121,6 +121,11 @@ struct LedgerRestoreImportControl: View {
             onFileImporterResult(result)
         }
         .onAppear { ensureInbox() }
+        .onDisappear {
+            // A pending provider read must never apply to a new view instance.
+            readToken = UUID()
+            reading = false
+        }
     }
 
     private func ensureInbox() {
@@ -158,70 +163,92 @@ struct LedgerRestoreImportControl: View {
     }
 
     private func loadBackupURL(_ url: URL) {
+        selectedBackup = nil
+        selectedSummary = nil
+        reading = true
+        statusIsError = false
+        statusMessage = "Selected \(url.lastPathComponent). Starting direct read…"
+        let token = UUID()
+        readToken = token
+
+        // A third-party Files provider can indefinitely block
+        // NSFileCoordinator.coordinate(), as seen with the user's 1.8 MB
+        // Google Drive backup on Build 95. Do NOT coordinate this import:
+        // fileImporter returns a security-scoped URL. Read its bytes directly
+        // while security scope is held on the worker queue.
+        //
+        // A provider might still stall on direct I/O (e.g., offline download).
+        // Bound the VISIBLE wait; late completions are discarded using token.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 12) {
+            guard readToken == token, reading else { return }
+            readToken = UUID()
+            reading = false
             selectedBackup = nil
             selectedSummary = nil
-            reading = true
-            statusIsError = false
-            statusMessage = "File selected: \(url.lastPathComponent). Reading from its provider…"
-            let token = UUID()
-            readToken = token
+            statusIsError = true
+            statusMessage = "File provider did not return the backup within 12 seconds. " +
+                "The import was NOT applied. Copy the JSON to On My iPhone → " +
+                "Next Ledger → Imports, then tap Find JSON in App Imports Folder. " +
+                "You can also retry from Files once Google Drive finishes downloading."
+        }
 
-            // File coordination can download from iCloud Drive or Google Drive.
-            // All blocking I/O and JSON decoding stay off the main thread.
-            DispatchQueue.global(qos: .userInitiated).async {
-                let outcome: Result<(Data, ImportPayload), Error> = Result {
-                    let access = url.startAccessingSecurityScopedResource()
-                    defer { if access { url.stopAccessingSecurityScopedResource() } }
-                    var coordinationError: NSError?
-                    var readError: Error?
-                    var ownedData: Data?
-                    NSFileCoordinator().coordinate(
-                        readingItemAt: url, options: [],
-                        error: &coordinationError
-                    ) { coordinatedURL in
-                        do {
-                            let count = try coordinatedURL.resourceValues(
-                                forKeys: [.fileSizeKey]).fileSize ?? 0
-                            guard count <= 50 * 1_024 * 1_024 else {
-                                throw LedgerPickerError.tooLarge
-                            }
-                            ownedData = try Data(contentsOf: coordinatedURL)
-                        } catch {
-                            readError = error
-                        }
-                    }
-                    if let coordinationError { throw coordinationError }
-                    if let readError { throw readError }
-                    guard let data = ownedData, !data.isEmpty else {
-                        throw CocoaError(.fileReadCorruptFile)
-                    }
-                    guard data.count <= 50 * 1_024 * 1_024 else {
-                        throw LedgerPickerError.tooLarge
-                    }
-                    let payload = try ImportExportCodec.decode(data: data)
-                    guard !payload.accounts.isEmpty || !payload.transactions.isEmpty else {
-                        throw CocoaError(.fileReadCorruptFile)
-                    }
-                    return (data, payload)
+        DispatchQueue.global(qos: .userInitiated).async {
+            let outcome: Result<(Data, ImportPayload), Error> = Result {
+                let needsScope = !url.path.hasPrefix(
+                    FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path + "/"
+                )
+                let accessGranted = needsScope ? url.startAccessingSecurityScopedResource() : false
+                defer {
+                    if accessGranted { url.stopAccessingSecurityScopedResource() }
+                }
+
+                // No NSFileCoordinator here: that was the blocking operation.
+                // The actual backup JSON is small (~1.8 MB), so an ordinary
+                // Data read and off-main JSON decode should complete promptly.
+                let fileSize = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize
+                if let fileSize, fileSize > 50 * 1_024 * 1_024 {
+                    throw LedgerPickerError.tooLarge
+                }
+                let data = try Data(contentsOf: url)
+                guard !data.isEmpty else {
+                    throw CocoaError(.fileReadCorruptFile)
+                }
+                guard data.count <= 50 * 1_024 * 1_024 else {
+                    throw LedgerPickerError.tooLarge
                 }
                 DispatchQueue.main.async {
-                    guard readToken == token else { return }
-                    reading = false
-                    switch outcome {
-                    case .success(let (data, payload)):
-                        selectedBackup = data
-                        selectedSummary = "\(url.lastPathComponent): \(payload.transactions.count) transactions, " +
-                            "\(payload.accounts.count) accounts."
-                        statusMessage = "File verified. Tap Merge Verified Backup to import; nothing has changed yet."
-                        statusIsError = false
-                    case .failure(let error):
-                        selectedBackup = nil
-                        selectedSummary = nil
-                        statusMessage = "File was selected but could not be imported: \(error.localizedDescription)"
-                        statusIsError = true
-                    }
+                    guard readToken == token, reading else { return }
+                    statusMessage = "Read \(data.count) bytes from \(url.lastPathComponent). " +
+                        "Validating Next Ledger records…"
+                }
+                let payload = try ImportExportCodec.decode(data: data)
+                guard !payload.accounts.isEmpty || !payload.transactions.isEmpty else {
+                    throw CocoaError(.fileReadCorruptFile)
+                }
+                return (data, payload)
+            }
+            DispatchQueue.main.async {
+                guard readToken == token, reading else { return }
+                reading = false
+                switch outcome {
+                case .success(let (data, payload)):
+                    selectedBackup = data
+                    selectedSummary = "\(url.lastPathComponent): " +
+                        "\(payload.transactions.count) transactions, " +
+                        "\(payload.accounts.count) accounts."
+                    statusMessage = "Backup verified. Review counts and tap " +
+                        "Merge Verified Backup when ready. No data has changed yet."
+                    statusIsError = false
+                case .failure(let error):
+                    selectedBackup = nil
+                    selectedSummary = nil
+                    statusMessage = "Could not read or decode selected backup: " +
+                        error.localizedDescription +
+                        ". Try On My iPhone → Next Ledger → Imports if the Google Drive provider is unavailable."
+                    statusIsError = true
                 }
             }
+        }
     }
 
     private func mergeSelectedBackup() {
