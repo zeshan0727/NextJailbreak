@@ -71,8 +71,13 @@ struct SettingsView: View {
                 guard let staged = stagedImportResult else { return }
                 stagedImportResult = nil
                 if case .failure(let error) = staged,
-                   case LedgerPickerError.cancelled = error {
-                    return
+                   let pickerError = error as? LedgerPickerError {
+                    switch pickerError {
+                    case .cancelled:
+                        return
+                    case .tooLarge:
+                        break
+                    }
                 }
                 previewImportData(staged, source: importSource)
             }) {
