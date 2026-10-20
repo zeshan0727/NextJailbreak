@@ -1,0 +1,1 @@
+Publish built and verified NextSigner 1.4.3 TIPA from GitHub Actions 39399979854 to NS Transfer via R2. Do not include signing credentials.
