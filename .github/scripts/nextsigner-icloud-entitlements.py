@@ -36,6 +36,16 @@ def permitted(actual, allowed):
     return type(actual) is type(allowed) and actual == allowed
 
 
+def has_wildcard(value):
+    if isinstance(value, str):
+        return "*" in value
+    if isinstance(value, (tuple, list)):
+        return any(has_wildcard(item) for item in value)
+    if isinstance(value, dict):
+        return any(has_wildcard(item) for item in value.values())
+    return False
+
+
 def prepare():
     profile_path = os.environ["PROFILE_PATH"]
     bundle_id = os.environ["REQUESTED_BUNDLE_ID"].strip()
@@ -72,33 +82,68 @@ def prepare():
         print("No entitlements override requested; default profile-derived signing.")
         return
 
-    ent = {
-        "application-identifier": requested_app,
-        "com.apple.developer.team-identifier": team,
-        "get-task-allow": False,
-    }
-    groups = ent_allowed.get("keychain-access-groups", [])
-    if groups and permitted([requested_app], groups):
-        ent["keychain-access-groups"] = [requested_app]
+    requested = {}
     if cloud_enabled:
-        ent[CLOUD[0]] = ["CloudDocuments"]
-        ent[CLOUD[1]] = [cloud_container]
-        ent[CLOUD[2]] = [cloud_container]
+        requested[CLOUD[0]] = ["CloudDocuments"]
+        requested[CLOUD[1]] = [cloud_container]
+        requested[CLOUD[2]] = [cloud_container]
     elif custom_path:
         payload = Path(custom_path).read_bytes()
         if len(payload) > 100_000:
             raise ValueError("Entitlements file must be smaller than 100 KB.")
-        supplied = plistlib.loads(payload)
-        if not isinstance(supplied, dict):
+        requested = plistlib.loads(payload)
+        if not isinstance(requested, dict):
             raise ValueError("Custom entitlements must be a plist dictionary.")
-        for k, val in supplied.items():
-            if k in ent and val != ent[k]:
-                raise ValueError("Custom entitlements conflict with signing identity: " + k)
-            ent[k] = val
+
+    # The explicit -e override replaces the full entitlement set. Preserve
+    # concrete capabilities allowed by the selected profile; do not silently
+    # remove other requirements such as App Groups or push notifications.
+    ent = {}
+    for key, value in ent_allowed.items():
+        if key in ("application-identifier", "com.apple.application-identifier"):
+            ent[key] = requested_app
+        elif key == "com.apple.developer.team-identifier":
+            ent[key] = team
+        elif key == "get-task-allow":
+            ent[key] = False
+        elif key == "keychain-access-groups":
+            if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+                raise ValueError("Unsupported keychain access group format.")
+            groups = []
+            for group in value:
+                if "*" in group:
+                    if not permitted(requested_app, group):
+                        raise ValueError("Cannot resolve keychain group: " + group)
+                    groups.append(requested_app)
+                else:
+                    groups.append(group)
+            ent[key] = groups
+        elif key in requested:
+            ent[key] = requested[key]
+        elif has_wildcard(value):
+            if key in CLOUD:
+                # A wildcard is a profile permission, not a concrete claim.
+                # An exact container must be chosen explicitly to sign it.
+                continue
+            raise ValueError("Profile capability needs an explicit value: " + key)
+        else:
+            ent[key] = value
+
+    ent["application-identifier"] = requested_app
+    ent["com.apple.developer.team-identifier"] = team
+    ent["get-task-allow"] = False
+    for key, value in requested.items():
+        if key in ("application-identifier", "com.apple.application-identifier",
+                   "com.apple.developer.team-identifier", "get-task-allow"):
+            if key in ent and ent[key] != value:
+                raise ValueError("Custom entitlements conflict with signing identity: " + key)
+        ent[key] = value
 
     for key, value in ent.items():
         if key not in ent_allowed and key != "com.apple.developer.team-identifier":
             raise ValueError("Provisioning profile does not permit entitlement: " + key)
+        if has_wildcard(value):
+            raise ValueError("Cannot sign unresolved wildcard entitlement: " + key)
         if key in ent_allowed and not permitted(value, ent_allowed[key]):
             raise ValueError("Provisioning profile does not authorize entitlement value: " + key)
     path_out.write_bytes(plistlib.dumps(ent, fmt=plistlib.FMT_XML, sort_keys=True))
