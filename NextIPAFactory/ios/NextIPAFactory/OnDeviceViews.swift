@@ -237,7 +237,6 @@ struct NextFactoryBuilds: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    FactoryGeneratedBuildsSection()
                     FactoryCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Label("Build Next IPA Factory", systemImage: "hammer.fill").font(.headline)
@@ -272,7 +271,7 @@ struct NextFactoryBuilds: View {
                             Label("Current capabilities", systemImage: "checklist").font(.headline)
                             Text("The iPhone can contact saved OpenAI agents, coordinate tasks, inspect responses, and trigger the configured GitHub Xcode workflow.")
                                 .font(.footnote).foregroundStyle(.secondary)
-                            Text("Generated app downloads are listed above. Factory app compilation is separate from generated app compilation. Full eight-agent integration and release QA are still being developed.")
+                            Text("Generated app downloads now have their own Downloads tab. Full eight-agent integration and release QA are still being developed.")
                                 .font(.footnote).foregroundStyle(.secondary)
                         }
                     }
@@ -292,6 +291,7 @@ struct NextFactoryOnDeviceRoot: View {
             NextFactoryHome().tabItem { Label("Agents", systemImage: "cpu") }
             FactoryCodeDeliveryView().tabItem { Label("Generate", systemImage: "wand.and.stars") }
             NextFactoryBuilds().tabItem { Label("Builds", systemImage: "hammer") }
+            FactoryDownloadsTab().tabItem { Label("Downloads", systemImage: "arrow.down.app") }
             NextFactoryConnections().tabItem { Label("Settings", systemImage: "gearshape") }
         }
         .environmentObject(factory)
