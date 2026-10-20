@@ -127,6 +127,30 @@ struct NetworkBridge {
         let value = try await openai("/agents/" + agentID)
         return (value["name"] as? String) ?? (value["id"] as? String) ?? "Connected agent"
     }
+
+    // Best-effort, read-only check: the agent endpoint may omit private tool
+    // configuration. A clean result is not a guarantee that a vault isn't needed.
+    func checkAgentVaultRequirement(agentID: String) async throws -> Bool {
+        let value = try await openai("/agents/" + agentID)
+        func hasCredentialID(_ node: Any) -> Bool {
+            if let dictionary = node as? [String: Any] {
+                if let credential = dictionary["credential_id"] as? String, !credential.isEmpty {
+                    return true
+                }
+                return dictionary.values.contains(where: { hasCredentialID($0) })
+            }
+            if let list = node as? [Any] {
+                return list.contains(where: { hasCredentialID($0) })
+            }
+            return false
+        }
+        for key in ["tools", "mcp_servers", "tool_resources", "integrations", "connections"] {
+            if let toolConfiguration = value[key], hasCredentialID(toolConfiguration) {
+                return true
+            }
+        }
+        return false
+    }
     func startSession(agentID: String, task: String) async throws -> String {
         let payload: [String: Any] = [
             "agent_id": agentID,
