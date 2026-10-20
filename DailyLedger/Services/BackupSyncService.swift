@@ -13,6 +13,7 @@ final class BackupSyncService: ObservableObject {
     @Published private(set) var status = "Automatic backup is ready."
     @Published private(set) var lastBackupDate: Date?
     @Published private(set) var lastCloudBackupDate: Date?
+    @Published private(set) var cloudDiagnostic = "iCloud connection not checked."
 
     private let backupQueue = DispatchQueue(
         label: "com.nextsolution.dailyledger.backup", qos: .utility
@@ -47,6 +48,27 @@ final class BackupSyncService: ObservableObject {
 
     /// Back up the actual on-disk data, not LedgerDiskStore.load()'s empty fallback
     /// if ledger decoding fails. This avoids reproducing the original data-loss bug.
+    /// Check account availability separately from local backup completion.
+    /// An Apple-provisioned container is mandatory for automatic iCloud backups.
+    func refreshCloudDiagnostics() {
+        backupQueue.async { [weak self] in
+            guard let self else { return }
+            let manager = FileManager.default
+            let status: String
+            if manager.ubiquityIdentityToken == nil {
+                status = "iCloud is unavailable to this app. Sign into iCloud, enable iCloud Drive, and verify the signed app's iCloud entitlement."
+            } else if manager.url(forUbiquityContainerIdentifier:
+                                    "iCloud.com.nextsolution.dailyledger") == nil {
+                status = "iCloud account detected, but Next Ledger's container is inaccessible. Verify the IPA's final signed CloudDocuments entitlement and matching provisioning profile."
+            } else {
+                status = "iCloud Documents container accessible. File creation can proceed; remote upload is not yet verified."
+            }
+            DispatchQueue.main.async {
+                self.cloudDiagnostic = status
+            }
+        }
+    }
+
     func backupOnAppOpen() {
         backupQueue.async { [weak self] in
             guard let self else { return }
