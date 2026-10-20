@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.joshuaseltzer.nextalarmsx": {
+      "credit_label": "Joshua Seltzer/Havoc — official NextAlarmSX Lock Screen interface screenshot",
+      "source_page_url": "https://havoc.app/package/nextalarmsx",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6620daa86764ac007f731106",
+        "alt": "Official NextAlarmSX screenshot showing a 6:20 AM work alarm and a seven-hour countdown beneath the Lock Screen clock",
+        "remote_embedded": true,
+        "retrieval_status": "Binary download blocked by the automation execution environment; the official media URL is embedded directly."
+      },
+      "screenshots": []
+    },
     "dev.ipad27.musicisland": {
       "credit_label": "Mzora/Havoc — official Music Island expanded-player interface screenshot",
       "source_page_url": "https://havoc.app/package/musicisland",
