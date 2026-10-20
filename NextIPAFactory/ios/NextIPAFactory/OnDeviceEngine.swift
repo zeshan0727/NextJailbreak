@@ -138,9 +138,10 @@ struct NetworkBridge {
         guard let id = value["id"] as? String, !id.isEmpty else { throw APIProblem(details: "OpenAI did not return a session ID.") }
         return id
     }
-    func pollAgent(_ sessionID: String) async throws -> String? {
+    func pollAgent(_ sessionID: String, onStatus: (@MainActor (String) -> Void)? = nil) async throws -> String? {
         let state = try await openai("/agents/sessions/" + sessionID)
         let status = (state["status"] as? String) ?? "unknown"
+        if let onStatus { await onStatus(status) }
         if status == "failed" {
             throw APIProblem(details: "Agent failed: " + String(describing: state["error"] ?? "Unknown"))
         }
@@ -164,11 +165,17 @@ struct NetworkBridge {
         return output.isEmpty ? nil : output
     }
     func runAgent(agentID: String, task: String, onStarted: @escaping @MainActor (String) -> Void) async throws -> String {
+        try await runAgentWithProgress(agentID: agentID, task: task, onStarted: onStarted, onStatus: { _ in })
+    }
+    // Reports the actual hosted session state after each API poll; no invented task milestones.
+    func runAgentWithProgress(agentID: String, task: String,
+                              onStarted: @escaping @MainActor (String) -> Void,
+                              onStatus: @escaping @MainActor (String) -> Void) async throws -> String {
         let session = try await startSession(agentID: agentID, task: task)
         await onStarted(session)
         for _ in 0..<150 {
             try Task.checkCancellation()
-            if let final = try await pollAgent(session) { return final }
+            if let final = try await pollAgent(session, onStatus: onStatus) { return final }
             try await Task.sleep(nanoseconds: 2_000_000_000)
         }
         throw APIProblem(details: "Session still running after 5 minutes. Session ID: " + session)
