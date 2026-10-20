@@ -3,57 +3,83 @@ import Combine
 import Foundation
 import UIKit
 
+/// Versioned backups; old populated snapshots are never overwritten by an empty ledger.
+/// A complete off-device backup requires a valid cloud entitlement or linked provider.
 final class BackupSyncService: ObservableObject {
     static let shared = BackupSyncService()
     static let taskIdentifier = "com.nextsolution.dailyledger.backup-refresh"
+    static let maxBackupFiles = 10
 
-    @Published private(set) var status = "Local automatic backup is ready."
+    @Published private(set) var status = "Automatic backup is ready."
     @Published private(set) var lastBackupDate: Date?
+    @Published private(set) var lastCloudBackupDate: Date?
+
     private let backupQueue = DispatchQueue(
-        label: "com.nextsolution.dailyledger.backup",
-        qos: .utility
+        label: "com.nextsolution.dailyledger.backup", qos: .utility
     )
     private var pendingBackup: DispatchWorkItem?
+    private let encoder: JSONEncoder
+    private let decoder: JSONDecoder
 
     private init() {
-        if let date = UserDefaults.standard.object(forKey: "DailyLedgerLastBackupDate") as? Date {
-            lastBackupDate = date
-        }
+        encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        lastBackupDate = UserDefaults.standard.object(forKey: "DailyLedgerLastBackupDate") as? Date
+        lastCloudBackupDate = UserDefaults.standard.object(forKey: "DailyLedgerLastCloudBackupDate") as? Date
     }
 
+    /// Called after every persisted ledger write (including SMS imports).
+    /// Coalesces rapid changes; snapshots are never written before ledger.json.
     func ledgerDidSave(_ data: Data) {
         pendingBackup?.cancel()
         let work = DispatchWorkItem { [weak self] in
             guard let self else { return }
-            self.saveSnapshot(
-                data,
-                includeICloud: UserDefaults.standard.bool(forKey: "DailyLedgerICloudSync")
-            )
+            self.saveSnapshot(data, includeICloud: UserDefaults.standard.bool(
+                forKey: "DailyLedgerICloudSync"
+            ))
         }
         pendingBackup = work
         backupQueue.asyncAfter(deadline: .now() + 0.6, execute: work)
     }
 
-    func syncNow(ledger: LedgerData) {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        encoder.dateEncodingStrategy = .iso8601
-        guard let data = try? encoder.encode(ledger) else {
-            status = "Backup could not be encoded."
-            return
+    /// Back up the actual on-disk data, not LedgerDiskStore.load()'s empty fallback
+    /// if ledger decoding fails. This avoids reproducing the original data-loss bug.
+    func backupOnAppOpen() {
+        backupQueue.async { [weak self] in
+            guard let self else { return }
+            let url = FileManager.default.urls(for: .applicationSupportDirectory,
+                                                in: .userDomainMask)[0]
+                .appendingPathComponent("DailyLedger/ledger.json")
+            guard let data = try? Data(contentsOf: url) else { return }
+            self.saveSnapshot(data, includeICloud: UserDefaults.standard.bool(
+                forKey: "DailyLedgerICloudSync"
+            ))
         }
-        saveSnapshot(data, includeICloud: true)
     }
 
+    func syncNow(ledger: LedgerData) {
+        do {
+            let data = try encoder.encode(ledger)
+            backupQueue.async { [weak self] in
+                self?.saveSnapshot(data, includeICloud: true)
+            }
+        } catch {
+            publishBackupStatus("Backup could not be encoded: \(error.localizedDescription)",
+                                localDate: nil, cloudDate: nil)
+        }
+    }
+
+    /// Keep the existing Restore Latest flow working. A legacy one-file backup
+    /// remains readable even before the first rotating snapshot.
     func restoreLatestICloudBackup() throws -> LedgerData {
         guard let url = iCloudBackupURL,
               FileManager.default.fileExists(atPath: url.path) else {
             throw BackupSyncError.iCloudBackupUnavailable
         }
-        let data = try Data(contentsOf: url)
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return try decoder.decode(LedgerData.self, from: data)
+        return try decoder.decode(LedgerData.self, from: Data(contentsOf: url))
     }
 
     func scheduleBackgroundRefresh() {
@@ -78,70 +104,129 @@ final class BackupSyncService: ObservableObject {
     }
 
     func registerBackgroundTask() {
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.taskIdentifier, using: nil) { task in
-            guard let refresh = task as? BGAppRefreshTask else { return }
-            Task { @MainActor in
-                self.syncNow(ledger: LedgerDiskStore.shared.load())
-                refresh.setTaskCompleted(success: true)
-                self.scheduleBackgroundRefresh()
-            }
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.taskIdentifier, using: nil) {
+            [weak self] task in
+            guard let self, let refresh = task as? BGAppRefreshTask else { return }
+            // Read actual JSON so a decoder error never creates a blank backup.
+            self.backupOnAppOpen()
+            refresh.setTaskCompleted(success: true)
+            self.scheduleBackgroundRefresh()
         }
     }
 
     private func saveSnapshot(_ data: Data, includeICloud: Bool) {
+        let ledger: LedgerData
         do {
-            let directory = localBackupURL.deletingLastPathComponent()
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            try data.write(to: localBackupURL, options: .atomic)
-            let completedAt = Date()
-            UserDefaults.standard.set(completedAt, forKey: "DailyLedgerLastBackupDate")
-
-            guard includeICloud else {
-                publishBackupStatus("Local backup saved automatically.", date: completedAt)
-                return
-            }
-            guard let cloudURL = iCloudBackupURL else {
-                publishBackupStatus(
-                    "Local backup saved. Automatic iCloud requires an Apple-provisioned iCloud entitlement.",
-                    date: completedAt
-                )
-                return
-            }
-            try FileManager.default.createDirectory(
-                at: cloudURL.deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
-            try data.write(to: cloudURL, options: .atomic)
-            publishBackupStatus("Local and iCloud Drive backups are up to date.", date: completedAt)
+            ledger = try decoder.decode(LedgerData.self, from: data)
         } catch {
-            publishBackupStatus("Backup failed: \(error.localizedDescription)", date: nil)
+            publishBackupStatus("Automatic backup refused: ledger JSON is unreadable.",
+                                localDate: nil, cloudDate: nil)
+            return
+        }
+        // Protect history. Do not roll off good snapshots with an accidental
+        // empty restore or fresh-app placeholder; zero transactions are not backed up.
+        guard !ledger.transactions.isEmpty else {
+            publishBackupStatus("No transactions: existing backups were preserved.",
+                                localDate: nil, cloudDate: nil)
+            return
+        }
+
+        let now = Date()
+        do {
+            try rotateAndWrite(data, in: localBackupURL.deletingLastPathComponent())
+            UserDefaults.standard.set(now, forKey: "DailyLedgerLastBackupDate")
+        } catch {
+            publishBackupStatus("Local backup failed: \(error.localizedDescription)",
+                                localDate: nil, cloudDate: nil)
+            return
+        }
+
+        guard includeICloud else {
+            publishBackupStatus("Saved locally (10-backup history). Link a cloud destination for off-device copies.",
+                                localDate: now, cloudDate: nil)
+            return
+        }
+        guard let url = iCloudBackupURL else {
+            publishBackupStatus(
+                "10 local backups retained. iCloud unavailable: Apple-provisioned CloudDocuments entitlement is required.",
+                localDate: now, cloudDate: nil
+            )
+            return
+        }
+        do {
+            try rotateAndWrite(data, in: url.deletingLastPathComponent())
+            UserDefaults.standard.set(now, forKey: "DailyLedgerLastCloudBackupDate")
+            publishBackupStatus(
+                "Saved locally and submitted to iCloud Drive (up to 10 backup files each). iCloud transfer may still be pending.",
+                localDate: now, cloudDate: now
+            )
+        } catch {
+            publishBackupStatus("Local backup saved; iCloud write failed: \(error.localizedDescription)",
+                                localDate: now, cloudDate: nil)
         }
     }
 
-    private func publishBackupStatus(_ message: String, date: Date?) {
+    /// At most one Latest + nine previous versions per destination.
+    /// Pruning happens only AFTER the new Latest passes a read/decoding check.
+    private func rotateAndWrite(_ data: Data, in directory: URL) throws {
+        let fm = FileManager.default
+        try fm.createDirectory(at: directory, withIntermediateDirectories: true)
+        let latest = directory.appendingPathComponent("Latest-DailyLedger-Backup.json")
+        let previous = try? Data(contentsOf: latest)
+        if let old = previous, old != data,
+           let oldLedger = try? decoder.decode(LedgerData.self, from: old),
+           !oldLedger.transactions.isEmpty {
+            let archiveName = "DailyLedger-History-" +
+                ISO8601DateFormatter().string(from: Date())
+                    .replacingOccurrences(of: ":", with: "-") +
+                "-" + UUID().uuidString.prefix(8) + ".json"
+            try old.write(to: directory.appendingPathComponent(archiveName), options: .atomic)
+        }
+        try data.write(to: latest, options: .atomic)
+        // Ensure the newest file exists and is readable before any deletion.
+        let verified = try decoder.decode(LedgerData.self, from: Data(contentsOf: latest))
+        guard !verified.transactions.isEmpty else {
+            throw BackupSyncError.invalidBackup
+        }
+        let histories = try fm.contentsOfDirectory(at: directory,
+                                                   includingPropertiesForKeys: nil)
+            .filter { $0.lastPathComponent.hasPrefix("DailyLedger-History-") &&
+                      $0.pathExtension == "json" }
+            .sorted { $0.lastPathComponent > $1.lastPathComponent }
+        for old in histories.dropFirst(Self.maxBackupFiles - 1) {
+            try fm.removeItem(at: old)
+        }
+    }
+
+    private func publishBackupStatus(_ message: String, localDate: Date?, cloudDate: Date?) {
         DispatchQueue.main.async {
             self.status = message
-            if let date { self.lastBackupDate = date }
+            if let localDate { self.lastBackupDate = localDate }
+            if let cloudDate { self.lastCloudBackupDate = cloudDate }
         }
     }
 
     private var localBackupURL: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("DailyLedger/Backups", isDirectory: true)
-            .appendingPathComponent("Latest-DailyLedger-Backup.json")
+            .appendingPathComponent("DailyLedger/Backups/Latest-DailyLedger-Backup.json")
     }
 
     private var iCloudBackupURL: URL? {
         FileManager.default.url(forUbiquityContainerIdentifier: nil)?
-            .appendingPathComponent("Documents/DailyLedger", isDirectory: true)
-            .appendingPathComponent("Latest-DailyLedger-Backup.json")
+            .appendingPathComponent("Documents/DailyLedger/Latest-DailyLedger-Backup.json")
     }
 }
 
 enum BackupSyncError: LocalizedError {
     case iCloudBackupUnavailable
+    case invalidBackup
 
     var errorDescription: String? {
-        "No Next Ledger backup is available in iCloud Drive, or this TrollStore build has no iCloud entitlement."
+        switch self {
+        case .iCloudBackupUnavailable:
+            return "iCloud Drive backup is missing or this signed build lacks an iCloud entitlement."
+        case .invalidBackup:
+            return "Backup failed integrity validation; older snapshots were not deleted."
+        }
     }
 }
