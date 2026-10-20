@@ -10,3 +10,4 @@ Build NextSigner 1.4.3 (27) iCloud KVS wildcard hotfix from release/nextsigner-1
 Build NextSigner 1.4.3 Build 28 from release/nextsigner-1.4.3-build28-keychain-groups-fix and test custom iCloud keychain-access-groups signatures.
 Build NextSigner 1.4.3 Build 29 from release/nextsigner-1.4.3-build29-ipa-identity; verify original IPA Info.plist identity import and local iCloud options.
 Build NextSigner 1.4.3 Build 30 from release/nextsigner-1.4.3-build30-keychain-profile-groups. Regression check exact profile authorization for com.apple.token and verify final signed entitlements.
+Build NextSigner 1.4.3 Build 31 from release/nextsigner-1.4.3-build31-icloud-profile-shapes. Fix scalar * iCloud services and Production/Development profile environment; test CloudDocuments final signature.
