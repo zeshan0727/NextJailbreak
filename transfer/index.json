@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-20T11:18:19Z",
+  "updatedAt": "2026-10-20T11:31:19Z",
   "files": [
     {
       "id": "nextsigner-1.4.3",
@@ -9,11 +9,11 @@
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
       "version": "1.4.3",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.4.3/artifact-12260392463/NextSigner-1.4.3.tipa",
-      "sha256": "84e90a761badd618d420c007f88b8d941097aa437a9b2e5f1e52c0b010d150be",
-      "sizeBytes": 3359467,
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.4.3/artifact-12261206388/NextSigner-1.4.3.tipa",
+      "sha256": "86d773ad6b30d336997773718dd3f6b5149a8eaeb6587b31b048432b0c481bda",
+      "sizeBytes": 3359202,
       "storage": "Cloudflare R2",
-      "notes": "On-device and GitHub signing support explicit CloudDocuments, app-specific Ad Hoc profiles, custom entitlements and signed IPA verification."
+      "notes": "Build 27: fixes iCloud key-value-store wildcard entitlement for Next Ledger; preserves explicit CloudDocuments, app-specific Ad Hoc profiles and verified final signed entitlements."
     },
     {
       "id": "nextpost-1.0.17-professional-x-posts",
