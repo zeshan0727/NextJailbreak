@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-20T12:15:18Z",
+  "updatedAt": "2026-10-20T12:29:50Z",
   "files": [
     {
       "id": "nextsigner-1.4.3",
@@ -9,11 +9,11 @@
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
       "version": "1.4.3",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.4.3/artifact-12262839437/NextSigner-1.4.3.tipa",
-      "sha256": "55826888a77339114090c30ae1ef4b3db97945967a79f409b1f5b7926b7ba423",
-      "sizeBytes": 3365193,
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.4.3/artifact-12264930785/NextSigner-1.4.3.tipa",
+      "sha256": "5a20f1372f46d14f640f2456dd5e6f287a538e33cf8151b40b12f8606ccee8b6",
+      "sizeBytes": 3366252,
       "storage": "Cloudflare R2",
-      "notes": "Build 30: preserves Apple-reserved keychain groups such as com.apple.token only if listed explicitly in the Ad Hoc profile; includes Build 29 IPA identity and iCloud entitlement fixes."
+      "notes": "Build 31: handles real Apple iCloud Ad Hoc profile scalar services wildcard and Production/Development permission list correctly; preserves CloudDocuments, custom profile keychain authorization, and final signed IPA verification."
     },
     {
       "id": "nextpost-1.0.17-professional-x-posts",
