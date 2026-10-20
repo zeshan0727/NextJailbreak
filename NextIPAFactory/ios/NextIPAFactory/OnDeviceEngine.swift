@@ -152,16 +152,16 @@ struct NetworkBridge {
         let entries = items["data"] as? [[String: Any]] ?? []
         var texts: [String] = []
         for entry in entries {
+            guard (entry["role"] as? String) == "assistant" else { continue }
             if let content = entry["content"] as? [[String: Any]] {
-                for piece in content {
+                for piece in content where (piece["type"] as? String) == "output_text" {
                     if let text = piece["text"] as? String { texts.append(text) }
-                    if let object = piece["text"] as? [String: Any], let text = object["value"] as? String { texts.append(text) }
                 }
             }
-            if let text = entry["output_text"] as? String { texts.append(text) }
         }
         let output = texts.joined(separator: "\n\n").trimmingCharacters(in: .whitespacesAndNewlines)
-        return output.isEmpty ? "(Session completed, but no plain text was returned. Inspect the session in OpenAI.)" : output
+        // Avoid reporting the user's input as completed agent output.
+        return output.isEmpty ? nil : output
     }
     func runAgent(agentID: String, task: String, onStarted: @escaping @MainActor (String) -> Void) async throws -> String {
         let session = try await startSession(agentID: agentID, task: task)
