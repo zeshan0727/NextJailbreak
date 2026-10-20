@@ -1,4 +1,4 @@
-name: Build Next Ledger 1.3.84 Build 97 SMS Status and Backup UI
+name: Build Next Ledger 1.3.84 Build 98 Separated Backup Rows
 
 on:
   push:
@@ -22,18 +22,28 @@ jobs:
       - name: Checkout full verified original Next Ledger 1.3.84 source
         uses: actions/checkout@v4
         with:
-          ref: fix/nextledger-1.3.84-build97-sms-backup-ui
+          ref: fix/nextledger-1.3.84-build98-backup-row-layout
 
       - name: Validate full original features and iCloud documents declarations
         shell: bash
         run: |
           set -euo pipefail
           grep -Fq 'title: "Import JSON Backup"' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'SettingsGroupedDetailPage(title: "Backup & Sync")' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'Label("iCloud Backup", systemImage: "icloud")' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'Label("Backup Activity", systemImage: "clock.arrow.circlepath")' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'Label("Export & Restore", systemImage: "externaldrive")' DailyLedger/Views/SettingsView.swift
+          grep -Fq '.listRowSeparator(.visible)' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'Group {' DailyLedger/Views/LedgerRestoreImportControl.swift
+          if grep -Fq 'SettingsSectionPage(title: "Backup & Sync")' DailyLedger/Views/SettingsView.swift; then
+            echo 'Backup page must not use nested merged-row SettingsSectionPage layout' >&2
+            exit 1
+          fi
           grep -Fq 'private var daemonHeartbeatRecent: Bool' DailyLedger/Views/SMSImportConsoleView.swift
           # One general Settings import and one Backup & Sync import; not two inside Backup.
           test "$(grep -c 'LedgerRestoreImportControl(' DailyLedger/Views/SettingsView.swift)" -eq 2
           grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
-          grep -Fq 'CURRENT_PROJECT_VERSION: "97"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "98"' project.yml
           grep -Fq 'path: DailyLedger/DailyLedger.entitlements' project.yml
           grep -Fq 'com.apple.developer.icloud-services' DailyLedger/DailyLedger.entitlements
           grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
@@ -106,7 +116,7 @@ jobs:
           test -n "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.dailyledger'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
-          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '97'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '98'
           test "$(/usr/libexec/PlistBuddy -c 'Print NSUbiquitousContainers:iCloud.com.nextsolution.dailyledger:NSUbiquitousContainerIsDocumentScopePublic' "$APP/Info.plist")" = 'true'
           BIN="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
           test "$(stat -f %z "$BIN")" -gt 12000000
