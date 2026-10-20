@@ -2,3 +2,4 @@ Trigger Next Signer 1.4.3 build with Ad Hoc iCloud Documents and custom entitlem
 Corrected source ref; rebuild with iCloud signing support.
 Valid YAML workflow start after correcting escaped indentation.
 Retry Zsign compatible patched Next Signer 1.4.3 local signing build.
+Build validation rerun after improved Zsign patch tolerance (1.4.3 Build 26), 2026-10-20.
