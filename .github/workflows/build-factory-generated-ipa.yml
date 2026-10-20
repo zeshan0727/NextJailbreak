@@ -41,11 +41,6 @@ jobs:
           set -euo pipefail
           xcodebuild -version
           brew install xcodegen
-      - name: Generate native iPhone app icon
-        shell: bash
-        run: |
-          set -euo pipefail
-          swift NextIPAFactory/scripts/make-app-icon.swift "$APP_PROJECT" "$APP_SLUG"
       - name: Generate Xcode project
         shell: bash
         run: |
@@ -60,7 +55,7 @@ jobs:
           xcodebuild -project GeneratedApp.xcodeproj -scheme GeneratedApp \
             -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath "$RUNNER_TEMP/factory-user-app" \
-            CODE_SIGNING_ALLOWED=NO ASSETCATALOG_COMPILER_APPICON_NAME=AppIcon build
+            CODE_SIGNING_ALLOWED=NO build
       - name: Package unsigned IPA and TIPA
         shell: bash
         run: |
@@ -68,7 +63,6 @@ jobs:
           APP="$RUNNER_TEMP/factory-user-app/Build/Products/Release-iphoneos/GeneratedApp.app"
           test -f "$APP/Info.plist"
           test -f "$APP/GeneratedApp"
-          test -f "$APP/Assets.car"
           mkdir -p "$RUNNER_TEMP/factory-package/Payload" "$RUNNER_TEMP/factory-output"
           cp -R "$APP" "$RUNNER_TEMP/factory-package/Payload/"
           (cd "$RUNNER_TEMP/factory-package" && zip -qry "$RUNNER_TEMP/factory-output/$APP_SLUG.ipa" Payload)
