@@ -237,9 +237,10 @@ struct NextFactoryBuilds: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    FactoryGeneratedBuildsSection()
                     FactoryCard {
                         VStack(alignment: .leading, spacing: 10) {
-                            Label("GitHub Actions build", systemImage: "hammer.fill").font(.headline)
+                            Label("Build Next IPA Factory", systemImage: "hammer.fill").font(.headline)
                             Text("Run Xcode on GitHub's macOS runner, not your iPhone or Windows PC.")
                                 .font(.caption).foregroundStyle(.secondary)
                             Text(factory.repo + "\n" + factory.branch)
@@ -271,7 +272,7 @@ struct NextFactoryBuilds: View {
                             Label("Current capabilities", systemImage: "checklist").font(.headline)
                             Text("The iPhone can contact saved OpenAI agents, coordinate tasks, inspect responses, and trigger the configured GitHub Xcode workflow.")
                                 .font(.footnote).foregroundStyle(.secondary)
-                            Text("Automatic collection of agent-generated source, commits, tests, and final IPA download are the next integration milestone. A GitHub success result verifies compilation only for the workflow's actual source tree.")
+                            Text("Generated app downloads are listed above. Factory app compilation is separate from generated app compilation. Full eight-agent integration and release QA are still being developed.")
                                 .font(.footnote).foregroundStyle(.secondary)
                         }
                     }
