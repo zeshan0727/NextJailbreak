@@ -2,3 +2,8 @@ Publish built and verified NextSigner 1.4.3 TIPA from GitHub Actions 39399979854
 Build Run ID: 39412853188
 Source Commit: b6a02fb800dc7ed8792512cc27f177c616291219
 Release branch: release/nextsigner-1.4.3-build26-icloud
+
+Build Run ID: 39414874912
+Build Number: 27
+Release branch: release/nextsigner-1.4.3-build27-icloud-kvstore-fix
+SHA-256: 86d773ad6b30d336997773718dd3f6b5149a8eaeb6587b31b048432b0c481bda
