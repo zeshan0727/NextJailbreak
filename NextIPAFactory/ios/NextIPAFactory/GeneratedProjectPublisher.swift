@@ -103,10 +103,15 @@ struct FactoryGitWriter {
     @Published var message = "Generate a native Xcode project using your Integrator agent."
     @Published var lastSession = ""
     @Published var engineeredPrompt = ""
+    @Published var agentProgress: [FactoryAgentProgress] = FactoryRoles.all.map {
+        FactoryAgentProgress(role: $0.name, duty: $0.purpose)
+    }
+    @Published var reviewSummary = ""
+    @Published var approvedByTeam = false
     @Published var activity: [FactoryGenerationEvent] = []
     @Published var startedAt: Date?
     @Published var liveState = "Ready"
-    private func report(_ text: String) {
+    func report(_ text: String) {
         liveState = text
         if activity.last?.detail != text {
             activity.append(FactoryGenerationEvent(detail: text))
@@ -114,131 +119,9 @@ struct FactoryGitWriter {
         }
     }
     func generate(using factory: LocalFactoryState, reuseEditedPrompt: Bool = false) async {
-        let integratorID = factory.agentIDs["Integrator"] ?? ""
-        let engineerID = factory.agentIDs["Prompt Engineer"] ?? ""
-        guard !integratorID.isEmpty else {
-            message = "Add the Integrator agent ID in Settings first."
-            return
-        }
-        guard reuseEditedPrompt || !engineerID.isEmpty else {
-            message = "Add the Prompt Engineer agent ID in Settings first."
-            return
-        }
-        let request = command.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !request.isEmpty else {
-            message = "Describe the app you want to create, in your own words."
-            return
-        }
-        guard !reuseEditedPrompt || !engineeredPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            message = "There is no prepared prompt to use."
-            return
-        }
-
-        running = true
-        proposed = []
-        activity = []
-        startedAt = Date()
-        lastSession = ""
-        report("Starting app development")
-        defer { running = false }
-
-        do {
-            if !reuseEditedPrompt {
-                engineeredPrompt = ""
-                let brief = """
-                You are the Next IPA Factory Prompt Engineer. Expand the user's brief into
-                a precise, implementation-ready iOS app specification for another coding agent.
-                Do not return source code, JSON, Markdown fences, or claims of compilation.
-                Preserve every user-requested behavior and restriction. Do not add unrelated
-                functionality, require payments, backend services, or privileged capabilities.
-                Do not require a custom app icon or new assets unless the user requests them.
-                If a detail is unspecified, choose an ordinary iOS default rather than inventing
-                major features. Target iOS 16 and native SwiftUI unless the user says otherwise.
-                Provide: app purpose, screens, controls/actions, data model/persistence,
-                user flows, error cases, constraints, and specific acceptance tests.
-                Explicitly distinguish required features from reasonable defaults.
-                The prompt is handed straight to an implementation agent after this step.
-
-                ORIGINAL USER IDEA:
-                \(request)
-                """
-                report("Agent 1 • Prompt Engineer: expanding your idea")
-                message = "Preparing a development specification from your instructions."
-                let refined = try await factory.gateway.runAgentWithProgress(
-                    agentID: engineerID,
-                    task: brief,
-                    onStarted: { [weak self] session in
-                        self?.lastSession = session
-                        self?.report("Prompt Engineer session created")
-                    },
-                    onStatus: { [weak self] status in
-                        self?.report("Prompt Engineer: " + status)
-                    }
-                )
-                guard !refined.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                    throw APIProblem(details: "Prompt Engineer returned an empty specification.")
-                }
-                engineeredPrompt = refined
-                report("Detailed prompt prepared; handing it to Agent 6")
-            } else {
-                report("Using your edited development prompt")
-            }
-
-            let spec = """
-            Develop this complete, working iPhone app from the original idea and
-            the detailed requirements written by the Prompt Engineer.
-
-            ORIGINAL USER IDEA (must not be contradicted):
-            \(request)
-
-            DETAILED DEVELOPMENT PROMPT:
-            \(String(engineeredPrompt.prefix(24000)))
-
-            Return exactly ONE valid JSON object of files, no commentary or code fences:
-            {"files":[{"path":"project.yml","content":"..."},{"path":"Sources/GeneratedApp.swift","content":"..."}]}
-            project.yml MUST use name: GeneratedApp; target: GeneratedApp;
-            type: application; platform: iOS; sources path: Sources.
-            Target iOS 16.0 or the user's requested compatible target.
-            Include exactly one @main struct GeneratedAppApp: App.
-            Implement requested controls, behavior, and persistence, with all imports.
-            No TODO placeholders, invented dependencies, or fabricated test results.
-            Only include app assets/icons when the user's requirements ask for them
-            and the source publishing/build pipeline supports the needed file format.
-            """
-            report("Agent 6 • Integrator: generating complete SwiftUI source")
-            message = "The detailed prompt is ready. Generating the Xcode project now."
-            let fullText = try await factory.gateway.runAgentWithProgress(
-                agentID: integratorID,
-                task: spec,
-                onStarted: { [weak self] session in
-                    self?.lastSession = session
-                    self?.report("Integrator session created")
-                },
-                onStatus: { [weak self] status in
-                    self?.report("Integrator: " + status)
-                }
-            )
-            report("Receiving and validating generated project")
-            let cleaned = Self.extractJSON(fullText)
-            guard let data = cleaned.data(using: .utf8) else {
-                throw APIProblem(details: "Integrator output is not UTF-8.")
-            }
-            let payload = try JSONDecoder().decode(FactoryGeneratedManifest.self, from: data)
-            guard !payload.files.isEmpty else {
-                throw APIProblem(details: "Integrator returned an empty project.")
-            }
-            proposed = payload.files
-            report("Ready for review: " + String(payload.files.count) + " source files")
-            message = "Agent 1 prepared the prompt; Agent 6 generated " +
-                String(payload.files.count) + " source files. Review and approve GitHub publishing."
-        } catch {
-            proposed = []
-            report("Development stopped: " + error.localizedDescription)
-            message = "Generation failed: " + error.localizedDescription +
-                (lastSession.isEmpty ? "" : ". Session: " + lastSession)
-        }
+        await runTeamPipeline(using: factory, reuseEditedPrompt: reuseEditedPrompt)
     }
-    private static func extractJSON(_ raw: String) -> String {
+    static func extractJSON(_ raw: String) -> String {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         if let start = trimmed.firstIndex(of: "{"), let end = trimmed.lastIndex(of: "}"), start <= end {
             return String(trimmed[start...end])
@@ -246,6 +129,11 @@ struct FactoryGitWriter {
         return trimmed
     }
     func publish(using factory: LocalFactoryState) async {
+        guard approvedByTeam, !proposed.isEmpty else {
+            message = "Publish blocked: QA and Release Reviewer have not approved this source."
+            report("Source publication blocked by missing review approval")
+            return
+        }
         running = true
         startedAt = Date()
         report("Starting GitHub publication")
@@ -275,7 +163,7 @@ struct FactoryCodeDeliveryView: View {
                     FactoryCard {
                         VStack(alignment: .leading, spacing: 12) {
                             Label("Generate an Xcode app", systemImage: "wand.and.stars").font(.headline)
-                            Text("Describe an app in plain language. Agent 1 writes the detailed prompt, then Agent 6 builds the source automatically. You approve GitHub publishing.")
+                            Text("Describe your idea once. All eight saved agents coordinate development, source QA and release review; you approve the final GitHub commit.")
                                 
                                 .font(.caption).foregroundStyle(.secondary)
                             TextField("App identifier (e.g. my-calculator)", text: $delivery.slug)
@@ -325,12 +213,59 @@ struct FactoryCodeDeliveryView: View {
                             Text(delivery.message).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
                         }
                     }
+                    FactoryCard {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Label("8-agent team status", systemImage: "person.3.sequence.fill")
+                                    .font(.headline)
+                                Spacer()
+                                Text(String(delivery.agentProgress.filter { $0.state == "Completed" || $0.state == "Reused" }.count) + "/8")
+                                    .font(.caption.monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                            }
+                            Text("Each row reflects an actual saved-agent session. Development roles 2–5 run in parallel.")
+                                .font(.caption).foregroundStyle(.secondary)
+                            ForEach(delivery.agentProgress) { item in
+                                Divider()
+                                HStack(alignment: .top, spacing: 9) {
+                                    Image(systemName: item.state == "Completed" || item.state == "Reused" ?
+                                          "checkmark.circle.fill" :
+                                          item.state == "Failed" || item.state == "Interrupted" ?
+                                          "xmark.circle.fill" :
+                                          item.state == "Working" ? "arrow.triangle.2.circlepath.circle" :
+                                          "circle.dotted")
+                                        .foregroundStyle(item.state == "Completed" || item.state == "Reused" ?
+                                                         Color.green :
+                                                         item.state == "Failed" || item.state == "Interrupted" ?
+                                                         Color.red :
+                                                         item.state == "Working" ? Color.indigo : Color.gray)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        HStack {
+                                            Text(item.role).font(.subheadline.weight(.semibold))
+                                            Spacer()
+                                            Text(item.state).font(.caption2.weight(.medium))
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        Text(item.duty).font(.caption2).foregroundStyle(.secondary)
+                                            .lineLimit(2)
+                                        Text(item.detail).font(.caption2).foregroundStyle(.secondary)
+                                            .lineLimit(3)
+                                    }
+                                }
+                            }
+                            if !delivery.reviewSummary.isEmpty {
+                                Divider()
+                                Text("Independent source reviews").font(.subheadline.weight(.medium))
+                                Text(delivery.reviewSummary).font(.caption).textSelection(.enabled)
+                            }
+                        }
+                    }
                     if !delivery.engineeredPrompt.isEmpty {
                         FactoryCard {
                             VStack(alignment: .leading, spacing: 10) {
                                 Label("Prompt Engineer's development prompt", systemImage: "text.book.closed")
                                     .font(.headline)
-                                Text("Automatically sent to the Integrator. You can edit and regenerate if needed.")
+                                Text("Used as the acceptance specification for all seven remaining agents. You can edit and rerun the team.")
                                     .font(.caption).foregroundStyle(.secondary)
                                 TextEditor(text: $delivery.engineeredPrompt)
                                     .font(.system(.footnote, design: .monospaced))
@@ -341,7 +276,7 @@ struct FactoryCodeDeliveryView: View {
                                 Button {
                                     Task { await delivery.generate(using: factory, reuseEditedPrompt: true) }
                                 } label: {
-                                    Label("Regenerate using edited prompt", systemImage: "arrow.clockwise")
+                                    Label("Re-run all agents with edited prompt", systemImage: "arrow.clockwise")
                                         .frame(maxWidth: .infinity)
                                 }
                                 .buttonStyle(.bordered)
@@ -371,7 +306,8 @@ struct FactoryCodeDeliveryView: View {
                                 } label: {
                                     Label("Review & approve GitHub commit", systemImage: "checkmark.shield")
                                         .frame(maxWidth: .infinity)
-                                }.buttonStyle(.borderedProminent).tint(.indigo).disabled(delivery.running)
+                                }.buttonStyle(.borderedProminent).tint(.indigo)
+                                    .disabled(delivery.running || !delivery.approvedByTeam)
                             }
                         }
                     }
