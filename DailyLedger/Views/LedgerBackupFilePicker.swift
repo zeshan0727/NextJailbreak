@@ -51,10 +51,12 @@ struct LedgerBackupImportPicker: UIViewControllerRepresentable {
     }
 
     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-        // Include generic data/content to support Google Drive and iCloud
-        // file-provider JSON files that do not advertise the .json UTType.
+        // The .json/.data/.content allow-list still greys out valid backups
+        // whose Files-provider advertises a dynamic/unknown file type.
+        // Allow every file to be selected; validate its actual bytes after
+        // the selection. .item is the supertype for unknown file extensions.
         let picker = UIDocumentPickerViewController(
-            forOpeningContentTypes: [.json, .commaSeparatedText, .plainText, .data, .content],
+            forOpeningContentTypes: [.item],
             asCopy: true
         )
         picker.shouldShowFileExtensions = true
@@ -69,6 +71,10 @@ struct LedgerBackupImportPicker: UIViewControllerRepresentable {
         private let completion: (Result<Data, Error>) -> Void
         init(completion: @escaping (Result<Data, Error>) -> Void) {
             self.completion = completion
+        }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            completion(.failure(LedgerPickerError.cancelled))
         }
 
         func documentPicker(_ controller: UIDocumentPickerViewController,
@@ -99,9 +105,26 @@ struct LedgerBackupImportPicker: UIViewControllerRepresentable {
                 guard let data = readData, !data.isEmpty else {
                     throw CocoaError(.fileReadCorruptFile)
                 }
+                guard data.count <= 50 * 1_024 * 1_024 else {
+                    throw LedgerPickerError.tooLarge
+                }
                 return data
             }
             completion(result)
+        }
+    }
+}
+
+enum LedgerPickerError: LocalizedError {
+    case cancelled
+    case tooLarge
+
+    var errorDescription: String? {
+        switch self {
+        case .cancelled:
+            return "File selection cancelled."
+        case .tooLarge:
+            return "The selected file exceeds 50 MB. Choose a JSON backup instead of an archive."
         }
     }
 }
