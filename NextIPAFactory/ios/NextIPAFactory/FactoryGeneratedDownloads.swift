@@ -14,6 +14,14 @@ struct FactoryCloudRun: Identifiable, Decodable {
     let conclusion: String?
     let html_url: String
     let head_sha: String?
+
+    var appName: String {
+        let title = display_title ?? ""
+        if let match = title.range(of: "generate [a-z0-9][a-z0-9-]{1,35}", options: [.regularExpression, .caseInsensitive]) {
+            return String(title[match].dropFirst("generate ".count))
+        }
+        return title.isEmpty ? "Generated app" : title
+    }
 }
 
 private struct FactoryCloudArtifactList: Decodable {
@@ -129,12 +137,25 @@ final class FactoryGeneratedDownloads: ObservableObject {
     @Published var isRefreshing = false
     @Published var downloadingRunID: Int?
 
+    private func cachedPackage(for runID: Int) -> URL? {
+        let manager = FileManager.default
+        let directory = manager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("FactoryBuilds", isDirectory: true)
+            .appendingPathComponent(String(runID), isDirectory: true)
+        guard let items = try? manager.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return nil }
+        return items.first(where: { $0.pathExtension.lowercased() == "tipa" })
+            ?? items.first(where: { $0.pathExtension.lowercased() == "ipa" })
+    }
+
     func refresh(repo: String, branch: String, token: String) async {
         guard !isRefreshing else { return }
         isRefreshing = true
         defer { isRefreshing = false }
         do {
             builds = try await FactoryGitHubArtifactClient(token: token, repo: repo, branch: branch).runs()
+            for run in builds where packages[run.id] == nil {
+                packages[run.id] = cachedPackage(for: run.id)
+            }
             message = builds.isEmpty ? "No generated app builds yet." : "Showing recent cloud compiler runs."
         } catch {
             message = "Could not load generated builds: " + error.localizedDescription
@@ -156,83 +177,135 @@ final class FactoryGeneratedDownloads: ObservableObject {
     }
 }
 
-struct FactoryGeneratedBuildsSection: View {
+struct FactoryDownloadsTab: View {
     @EnvironmentObject private var factory: LocalFactoryState
     @StateObject private var cloud = FactoryGeneratedDownloads()
+    @State private var query = ""
+
+    private var filtered: [FactoryCloudRun] {
+        let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return term.isEmpty ? cloud.builds : cloud.builds.filter {
+            $0.appName.localizedCaseInsensitiveContains(term)
+        }
+    }
 
     var body: some View {
-        FactoryCard {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Label("Generated apps", systemImage: "square.stack.3d.up.fill").font(.headline)
-                    Spacer()
-                    Button {
-                        Task {
-                            await cloud.refresh(repo: factory.repo, branch: factory.branch, token: factory.githubToken)
-                        }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                    .disabled(cloud.isRefreshing)
-                    .accessibilityLabel("Refresh generated app builds")
-                }
-
-                Text("Download completed iPhone builds here. No GitHub website is needed.")
-                    .font(.caption).foregroundStyle(.secondary)
-
-                if cloud.isRefreshing {
-                    ProgressView("Loading cloud builds...")
-                }
-
-                ForEach(Array(cloud.builds.prefix(12))) { run in
-                    Divider()
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(run.display_title ?? "Generated app build").font(.subheadline.bold()).lineLimit(3)
-                        HStack(spacing: 6) {
-                            Image(systemName: run.conclusion == "success" ? "checkmark.circle.fill" :
-                                  run.conclusion == "failure" ? "xmark.circle.fill" : "clock")
-                                .foregroundStyle(run.conclusion == "success" ? Color.green :
-                                                 run.conclusion == "failure" ? Color.red : Color.orange)
-                            Text(run.conclusion ?? run.status).font(.caption)
-                            Spacer()
-                            Text("#" + String(run.id)).font(.caption2.monospacedDigit())
-                                .foregroundStyle(.secondary)
-                        }
-
-                        if let fileURL = cloud.packages[run.id] {
-                            ShareLink(item: fileURL) {
-                                Label("Share to TrollStore", systemImage: "square.and.arrow.up")
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(.borderedProminent).tint(.indigo)
-                            Text("Choose TrollStore from the share sheet to confirm installation.")
-                                .font(.caption2).foregroundStyle(.secondary)
-                        } else if run.conclusion == "success" {
-                            Button {
-                                Task {
-                                    await cloud.download(run, repo: factory.repo, branch: factory.branch, token: factory.githubToken)
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    FactoryCard {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Label("My generated apps", systemImage: "square.stack.3d.up.fill")
+                                    .font(.headline)
+                                Spacer()
+                                Button {
+                                    Task { await cloud.refresh(repo: factory.repo, branch: factory.branch, token: factory.githubToken) }
+                                } label: {
+                                    Image(systemName: "arrow.clockwise")
                                 }
-                            } label: {
-                                Label(cloud.downloadingRunID == run.id ? "Downloading..." : "Download IPA / TIPA",
-                                      systemImage: "arrow.down.to.line")
-                                    .frame(maxWidth: .infinity)
+                                .disabled(cloud.isRefreshing)
+                                .accessibilityLabel("Refresh downloads")
                             }
-                            .buttonStyle(.borderedProminent).tint(.indigo)
-                            .disabled(cloud.downloadingRunID != nil)
-                        } else {
-                            Text("Download available after a successful build.")
-                                .font(.caption2).foregroundStyle(.secondary)
+                            Text("Compiled IPAs and TIPAs, organized by app name. Tap Download, then share to TrollStore.")
+                                .font(.caption).foregroundStyle(.secondary)
+                            HStack {
+                                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                                TextField("Search app name", text: $query)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled()
+                            }
+                            .padding(10)
+                            .background(Color.indigo.opacity(0.05), in: RoundedRectangle(cornerRadius: 10))
                         }
                     }
-                }
-
-                Text(cloud.message)
-                    .font(.caption).foregroundStyle(.secondary)
-                    .textSelection(.enabled)
+                    if cloud.isRefreshing {
+                        ProgressView("Refreshing cloud builds...")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    if !cloud.message.isEmpty {
+                        Text(cloud.message)
+                            .font(.caption).foregroundStyle(.secondary)
+                            .textSelection(.enabled)
+                            .padding(.horizontal, 4)
+                    }
+                    if filtered.isEmpty && !cloud.isRefreshing {
+                        FactoryCard {
+                            Label("No matching generated apps yet.", systemImage: "tray")
+                                .font(.subheadline).foregroundStyle(.secondary)
+                        }
+                    }
+                    ForEach(Array(filtered.prefix(20))) { run in
+                        FactoryCard {
+                            VStack(alignment: .leading, spacing: 10) {
+                                HStack(alignment: .top, spacing: 12) {
+                                    Image(systemName: "app.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(.indigo)
+                                        .frame(width: 42, height: 42)
+                                        .background(Color.indigo.opacity(0.09), in: RoundedRectangle(cornerRadius: 11))
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(run.appName).font(.subheadline.bold())
+                                            .textSelection(.enabled)
+                                        Text("Build " + String(run.id))
+                                            .font(.caption2).foregroundStyle(.secondary)
+                                    }
+                                    Spacer(minLength: 5)
+                                    Label(run.conclusion == "success" ? "Ready" :
+                                          run.conclusion == "failure" ? "Failed" :
+                                          (run.status == "queued" ? "Queued" : "Building"),
+                                          systemImage: run.conclusion == "success" ? "checkmark.circle.fill" :
+                                          run.conclusion == "failure" ? "xmark.circle.fill" : "clock")
+                                        .font(.caption2.weight(.semibold))
+                                        .foregroundStyle(run.conclusion == "success" ? Color.green :
+                                                         run.conclusion == "failure" ? Color.red : Color.orange)
+                                }
+                                if let file = cloud.packages[run.id] {
+                                    ShareLink(item: file) {
+                                        Label("Install via TrollStore / Share", systemImage: "square.and.arrow.up")
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(.borderedProminent).tint(.indigo)
+                                    Text("Saved on this iPhone as " + file.lastPathComponent)
+                                        .font(.caption2).foregroundStyle(.secondary)
+                                } else if run.conclusion == "success" {
+                                    Button {
+                                        Task {
+                                            await cloud.download(run, repo: factory.repo, branch: factory.branch, token: factory.githubToken)
+                                        }
+                                    } label: {
+                                        HStack {
+                                            if cloud.downloadingRunID == run.id {
+                                                ProgressView().tint(.white)
+                                            } else {
+                                                Image(systemName: "arrow.down.to.line")
+                                            }
+                                            Text(cloud.downloadingRunID == run.id ? "Downloading..." : "Download IPA / TIPA")
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(.borderedProminent).tint(.indigo)
+                                    .disabled(cloud.downloadingRunID != nil)
+                                } else {
+                                    Text(run.conclusion == "failure" ?
+                                         "Build failed. Review the compiler logs on GitHub." :
+                                         "Waiting for GitHub compilation.")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                }.padding(16)
             }
-        }
-        .task {
-            await cloud.refresh(repo: factory.repo, branch: factory.branch, token: factory.githubToken)
+            .navigationTitle("Downloads")
+            .background(Color(red: 0.962, green: 0.967, blue: 0.988))
+            .refreshable {
+                await cloud.refresh(repo: factory.repo, branch: factory.branch, token: factory.githubToken)
+            }
+            .task {
+                await cloud.refresh(repo: factory.repo, branch: factory.branch, token: factory.githubToken)
+            }
         }
     }
 }
