@@ -48,6 +48,46 @@ struct SettingsView: View {
     private let currencies = ["QAR", "USD", "GBP", "EUR", "AED", "SAR", "PKR", "INR"]
 
     var body: some View {
+        backupPickerPresentation
+    }
+
+    // Keep the large legacy Settings layout type-checkable by composing its
+    // Files pickers separately from the original NavigationStack expression.
+    private var backupPickerPresentation: some View {
+        settingsNavigation
+            .sheet(isPresented: $showingNativeBackupPicker) {
+                if let backupExportURL {
+                    LedgerBackupExportPicker(fileURL: backupExportURL) { result in
+                        showingNativeBackupPicker = false
+                        backupExportURL = nil
+                        showExportResult(result, format: "JSON backup")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingImporter) {
+                LedgerBackupImportPicker { result in
+                    showingImporter = false
+                    DispatchQueue.main.async {
+                        previewImportData(result, source: importSource)
+                    }
+                }
+            }
+            .confirmationDialog("Import Selected Backup?",
+                                isPresented: $showingImportConfirmation,
+                                titleVisibility: .visible) {
+                Button("Merge Verified Backup") {
+                    if let data = pendingImportData {
+                        pendingImportData = nil
+                        importVerifiedData(data, source: importSource)
+                    }
+                }
+                Button("Cancel", role: .cancel) { pendingImportData = nil }
+            } message: {
+                Text(importPreview)
+            }
+    }
+
+    private var settingsNavigation: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 10) {
@@ -380,36 +420,6 @@ struct SettingsView: View {
                 defaultFilename: "DailyLedger-Transactions"
             ) { result in
                 showExportResult(result, format: "CSV file")
-            }
-            .sheet(isPresented: $showingNativeBackupPicker) {
-                if let backupExportURL {
-                    LedgerBackupExportPicker(fileURL: backupExportURL) { result in
-                        showingNativeBackupPicker = false
-                        backupExportURL = nil
-                        showExportResult(result, format: "JSON backup")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingImporter) {
-                LedgerBackupImportPicker { result in
-                    showingImporter = false
-                    DispatchQueue.main.async {
-                        previewImportData(result, source: importSource)
-                    }
-                }
-            }
-            .confirmationDialog("Import Selected Backup?",
-                                isPresented: $showingImportConfirmation,
-                                titleVisibility: .visible) {
-                Button("Merge Verified Backup") {
-                    if let data = pendingImportData {
-                        pendingImportData = nil
-                        importVerifiedData(data, source: importSource)
-                    }
-                }
-                Button("Cancel", role: .cancel) { pendingImportData = nil }
-            } message: {
-                Text(importPreview)
             }
             .alert(item: $notice) { notice in
                 Alert(
