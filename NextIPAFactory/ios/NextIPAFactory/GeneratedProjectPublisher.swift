@@ -101,12 +101,9 @@ struct FactoryGitWriter {
         Create a COMPLETE, MINIMAL, COMPILABLE iPhone SwiftUI XcodeGen project for this request:
         \(command)
         Target iOS 16.0. The full reply must be exactly ONE JSON object, with this shape:
-        {"files":[{"path":"project.yml","content":"..."},{"path":"Sources/GeneratedApp.swift","content":"..."},{"path":"Sources/AppIconSpec.json","content":"..."}]}
+        {"files":[{"path":"project.yml","content":"..."},{"path":"Sources/GeneratedApp.swift","content":"..."}]}
         project.yml MUST use name: GeneratedApp, target GeneratedApp, type application, platform iOS, sources path Sources.
         Swift file must contain @main struct GeneratedAppApp: App. No omitted sections, TODOs, markdown, external assets, or fake verifications.
-        Always include Sources/AppIconSpec.json. Its content must be valid JSON with string keys background, highlight, foreground (6-digit #RRGGBB colors) and glyph (1–2 characters).
-        Example AppIconSpec.json file content: {"background":"#343FCB","highlight":"#17B6DE","foreground":"#FFFFFF","glyph":"N"}
-        The GitHub compiler converts that JSON into a real 1024x1024 iPhone icon and includes it in Assets.xcassets. Do not reference missing PNGs or produce binary/base64 image assets.
         Include actual working implementation, not descriptions. iOS 16 SwiftUI, all required imports.
         Never invent an Xcode build result.
         """
