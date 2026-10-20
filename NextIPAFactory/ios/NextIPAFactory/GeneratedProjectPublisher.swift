@@ -265,7 +265,7 @@ struct FactoryCodeDeliveryView: View {
                             VStack(alignment: .leading, spacing: 10) {
                                 Label("Prompt Engineer's development prompt", systemImage: "text.book.closed")
                                     .font(.headline)
-                                Text("Used as the acceptance specification for all seven remaining agents. You can edit and rerun the team.")
+                                Text("Agent 1 has finished this prompt. If a later agent failed, retry with this prompt to skip Agent 1 and save time.")
                                     .font(.caption).foregroundStyle(.secondary)
                                 TextEditor(text: $delivery.engineeredPrompt)
                                     .font(.system(.footnote, design: .monospaced))
@@ -276,7 +276,7 @@ struct FactoryCodeDeliveryView: View {
                                 Button {
                                     Task { await delivery.generate(using: factory, reuseEditedPrompt: true) }
                                 } label: {
-                                    Label("Re-run all agents with edited prompt", systemImage: "arrow.clockwise")
+                                    Label("Retry using prepared prompt (skip Agent 1)", systemImage: "arrow.clockwise")
                                         .frame(maxWidth: .infinity)
                                 }
                                 .buttonStyle(.bordered)
