@@ -419,7 +419,16 @@ struct LocalSignerService {
                 // key-value store via TeamID.*. Never embed a '*' in the signature.
                 // Xcode's default concrete identifier is TeamID.BundleID.
                 if let requested = chosen[key] {
-                    entitlements[key] = requested
+                    if let requestedString = requested as? String,
+                       (requestedString == "*" || requestedString == profile.teamID + ".*") {
+                        guard isAllowed(applicationIdentifier, by: permitted) else {
+                            throw LocalSignerError.invalidExplicitEntitlements(
+                                "Requested iCloud key-value-store wildcard is not authorized by the selected profile.")
+                        }
+                        entitlements[key] = applicationIdentifier
+                    } else {
+                        entitlements[key] = requested
+                    }
                 } else if let allowed = permitted as? String, allowed.contains("*") {
                     guard isAllowed(applicationIdentifier, by: allowed) else {
                         throw LocalSignerError.invalidExplicitEntitlements(
@@ -433,13 +442,22 @@ struct LocalSignerService {
                 guard let groups = permitted as? [String] else {
                     throw LocalSignerError.invalidExplicitEntitlements("Unsupported keychain group format.")
                 }
-                entitlements[key] = try groups.map { group -> String in
-                    if !group.contains("*") { return group }
-                    guard isAllowed(applicationIdentifier, by: group) else {
-                        throw LocalSignerError.invalidExplicitEntitlements("Cannot resolve keychain group: " + group)
+                let requestedGroups: [String]
+                if let customGroups = chosen[key] {
+                    guard let parsed = customGroups as? [String], !parsed.isEmpty else {
+                        throw LocalSignerError.invalidExplicitEntitlements(
+                            "Custom keychain-access-groups must be a non-empty string array.")
                     }
-                    return applicationIdentifier
+                    requestedGroups = parsed
+                } else {
+                    requestedGroups = groups
                 }
+                // Resolve Apple Xcode placeholders and approved wildcard values
+                // BEFORE validation. A literal "*" is never signed.
+                entitlements[key] = try normalizedKeychainGroups(
+                    requestedGroups, authorized: groups,
+                    applicationIdentifier: applicationIdentifier,
+                    teamID: profile.teamID, bundleID: bundleID)
             default:
                 if let specific = chosen[key] {
                     entitlements[key] = specific
@@ -459,6 +477,9 @@ struct LocalSignerService {
         entitlements["com.apple.developer.team-identifier"] = profile.teamID
         entitlements["get-task-allow"] = false
         for (key, value) in chosen {
+            // Already normalized from the custom file and profile permission.
+            if key == "keychain-access-groups" ||
+               key == "com.apple.developer.ubiquity-kvstore-identifier" { continue }
             if let original = entitlements[key],
                (key == "application-identifier" || key == "com.apple.application-identifier" ||
                 key == "com.apple.developer.team-identifier" || key == "get-task-allow"),
@@ -484,6 +505,38 @@ struct LocalSignerService {
                                                        format: .xml, options: 0)
         try data.write(to: url, options: .atomic)
         return url
+    }
+
+    /// Accept Xcode-authored keychain templates and profile wildcards only
+    /// when they resolve to a concrete group allowed by this profile/team.
+    /// Never turn an arbitrary unauthorized custom group into the app group.
+    private func normalizedKeychainGroups(
+        _ requested: [String], authorized: [String],
+        applicationIdentifier: String, teamID: String, bundleID: String
+    ) throws -> [String] {
+        var resolved = [String]()
+        let prefix = teamID + "."
+        for group in requested {
+            var concrete = group
+                .replacingOccurrences(of: "$(AppIdentifierPrefix)", with: prefix)
+                .replacingOccurrences(of: "$(TeamIdentifierPrefix)", with: prefix)
+                .replacingOccurrences(of: "$(CFBundleIdentifier)", with: bundleID)
+                .replacingOccurrences(of: "$(PRODUCT_BUNDLE_IDENTIFIER)", with: bundleID)
+            if concrete == "*" || concrete == prefix + "*" {
+                concrete = applicationIdentifier
+            }
+            guard !concrete.isEmpty,
+                  !concrete.contains("*"), !concrete.contains("$("),
+                  concrete.hasPrefix(prefix),
+                  concrete.count > prefix.count,
+                  authorized.contains(where: { isAllowed(concrete, by: $0) }) else {
+                throw LocalSignerError.invalidExplicitEntitlements(
+                    "Keychain group '" + group + "' is not authorized for team " + teamID +
+                    ". Use a group listed in the selected Ad Hoc profile, or the default app group.")
+            }
+            if !resolved.contains(concrete) { resolved.append(concrete) }
+        }
+        return resolved
     }
 
     private func containsWildcard(_ value: Any) -> Bool {
