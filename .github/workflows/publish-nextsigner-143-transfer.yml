@@ -111,7 +111,7 @@ jobs:
           data = json.loads(index_path.read_text())
           files = data.get('files', [])
           files = [item for item in files if not str(item.get('id', '')).startswith('nextsigner-')]
-          notes = 'Build 30: preserves Apple-reserved keychain groups such as com.apple.token only if listed explicitly in the Ad Hoc profile; includes Build 29 IPA identity and iCloud entitlement fixes.'
+          notes = 'Build 31: handles real Apple iCloud Ad Hoc profile scalar services wildcard and Production/Development permission list correctly; preserves CloudDocuments, custom profile keychain authorization, and final signed IPA verification.'
           if version == '1.3.1':
               notes = 'Fixes Library delete 403 by using PAT-safe repository dispatch and direct repository catalog verification. Custom signing icons can now be selected from Photos or Files.'
           entry = {
