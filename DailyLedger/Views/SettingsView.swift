@@ -197,66 +197,94 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink {
-                        SettingsSectionPage(title: "Backup & Sync") {
-                            VStack(alignment: .leading, spacing: 14) {
-                                Label("iCloud Backup", systemImage: "icloud.fill")
-                                    .font(.headline)
-                                    .foregroundStyle(AppTheme.purple)
-                                Toggle("iCloud Drive Sync", isOn: $iCloudSyncEnabled)
+                        SettingsGroupedDetailPage(title: "Backup & Sync") {
+                            Section {
+                                Toggle(isOn: $iCloudSyncEnabled) {
+                                    Label("iCloud Drive Sync", systemImage: "icloud.fill")
+                                }
+                                .tint(AppTheme.purple)
+
                                 Button {
                                     store.syncBackupNow()
                                     backupSync.refreshCloudDiagnostics()
                                 } label: {
                                     Label("Back Up to iCloud Now", systemImage: "icloud.and.arrow.up.fill")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .contentShape(Rectangle())
                                 }
+
+                                Button {
+                                    backupSync.refreshCloudDiagnostics()
+                                } label: {
+                                    Label("Check iCloud Connection", systemImage: "checkmark.shield")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .contentShape(Rectangle())
+                                }
+                            } header: {
+                                Label("iCloud Backup", systemImage: "icloud")
+                            } footer: {
+                                Text("Keep iCloud Drive Sync enabled for automatic backups. Remote upload may take time to finish.")
+                            }
+                            .listRowSeparator(.visible)
+
+                            Section {
                                 LabeledContent("Last Device Backup") {
                                     Text(backupSync.lastBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
+                                        .foregroundStyle(.secondary)
                                 }
-                                LabeledContent("Last iCloud Write") {
+                                LabeledContent("Last iCloud File Write") {
                                     Text(backupSync.lastCloudBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
+                                        .foregroundStyle(.secondary)
                                 }
-                                Text(backupSync.status)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                Text(backupSync.cloudDiagnostic)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                Button("Check iCloud Connection") {
-                                    backupSync.refreshCloudDiagnostics()
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Backup Status")
+                                        .font(.subheadline.weight(.medium))
+                                    Text(backupSync.status)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("iCloud Diagnostics")
+                                        .font(.subheadline.weight(.medium))
+                                    Text(backupSync.cloudDiagnostic)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            } header: {
+                                Label("Backup Activity", systemImage: "clock.arrow.circlepath")
                             }
-                            .padding(14)
-                            .background(Color(uiColor: .secondarySystemGroupedBackground),
-                                        in: RoundedRectangle(cornerRadius: 16))
+                            .listRowSeparator(.visible)
 
-                            VStack(alignment: .leading, spacing: 12) {
-                                Label("Export & Restore", systemImage: "externaldrive.fill")
-                                    .font(.headline)
-                                    .foregroundStyle(AppTheme.purple)
+                            Section {
                                 Button {
                                     prepareBackupForFiles()
                                 } label: {
                                     Label("Export JSON to Files / Google Drive", systemImage: "square.and.arrow.up")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .contentShape(Rectangle())
                                 }
-                                Divider()
+
                                 LedgerRestoreImportControl(
                                     title: "Import JSON Backup",
                                     symbol: "doc.text.magnifyingglass"
                                 )
-                                Divider()
+
                                 Button {
                                     store.restoreLatestICloudBackup()
                                 } label: {
                                     Label("Restore Latest Automatic iCloud Backup",
                                           systemImage: "icloud.and.arrow.down.fill")
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .contentShape(Rectangle())
                                 }
-                                Text("JSON import is previewed before merging. Keep an off-device copy before restoring a populated ledger.")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                            } header: {
+                                Label("Export & Restore", systemImage: "externaldrive")
+                            } footer: {
+                                Text("Each action has its own row. JSON selection only previews the backup; merging requires a separate confirmation. For the local fallback, copy a JSON file to On My iPhone → Next Ledger → Imports.")
                             }
-                            .padding(14)
-                            .background(Color(uiColor: .secondarySystemGroupedBackground),
-                                        in: RoundedRectangle(cornerRadius: 16))
+                            .listRowSeparator(.visible)
                         }
                     } label: {
                         SettingsHomeLinkLabel(title: "Backup & Sync", subtitle: "iCloud and Google Drive", icon: "icloud.fill", tint: AppTheme.blue)
@@ -690,6 +718,29 @@ struct SettingsView: View {
             throw CocoaError(.fileReadUnknown)
         }
         return try readResult.get()
+    }
+}
+
+/// A top-level grouped List: every action is an independent cell, not
+/// a nested VStack inside a single merged list row.
+private struct SettingsGroupedDetailPage<Content: View>: View {
+    let title: String
+    private let content: Content
+
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        List {
+            content
+        }
+        .listStyle(.insetGrouped)
+        .environment(\.defaultMinListRowHeight, 50)
+        .tint(AppTheme.purple)
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
