@@ -56,7 +56,11 @@ class EntitlementTests(unittest.TestCase):
                 "com.apple.developer.team-identifier": TEAM,
                 "get-task-allow": False,
                 "keychain-access-groups": [TEAM + ".*"],
-                "com.apple.developer.icloud-services": ["*"],
+                # Apple's Ad Hoc iCloud profile uses a STRING "*" for
+                # services; signed entitlements require a concrete ARRAY.
+                "com.apple.developer.icloud-services": "*",
+                "com.apple.developer.icloud-container-environment": ["Production", "Development"],
+                "com.apple.developer.icloud-container-development-container-identifiers": [CONTAINER],
                 "com.apple.developer.icloud-container-identifiers": [CONTAINER],
                 "com.apple.developer.ubiquity-container-identifiers": [CONTAINER],
                 "com.apple.developer.ubiquity-kvstore-identifier": TEAM + ".*",
@@ -84,6 +88,7 @@ class EntitlementTests(unittest.TestCase):
         actual = self.prepare()
         self.assertEqual(actual["application-identifier"], APP_ID)
         self.assertEqual(actual["com.apple.developer.icloud-services"], ["CloudDocuments"])
+        self.assertEqual(actual["com.apple.developer.icloud-container-environment"], "Production")
         self.assertEqual(actual["com.apple.developer.icloud-container-identifiers"], [CONTAINER])
         self.assertEqual(actual["com.apple.developer.ubiquity-container-identifiers"], [CONTAINER])
         self.assertEqual(actual["com.apple.developer.ubiquity-kvstore-identifier"], APP_ID)
@@ -237,6 +242,47 @@ class EntitlementTests(unittest.TestCase):
             "keychain-access-groups": ["com.apple.token"]
         }))
         with self.assertRaisesRegex(ValueError, "Keychain access group"):
+            self.prepare()
+
+    def test_real_profile_shape_production_and_signature_match(self):
+        # Synthetic fixture mirrors the types of the actual Next Ledger Ad Hoc
+        # profile; no developer certificate, UDID or private profile is stored.
+        self.profile_data["Entitlements"]["keychain-access-groups"] = [
+            TEAM + ".*", "com.apple.token"
+        ]
+        claims = self.prepare()
+        self.assertEqual(claims["com.apple.developer.icloud-services"], ["CloudDocuments"])
+        self.assertEqual(claims["com.apple.developer.icloud-container-environment"], "Production")
+        self.assertEqual(claims["com.apple.developer.icloud-container-identifiers"], [CONTAINER])
+        self.assertEqual(claims["keychain-access-groups"], [APP_ID, "com.apple.token"])
+        self.assertNotIn("*", str(claims))
+        self.create_ipa(claims)
+        with patch.dict(os.environ, self.env):
+            validator.verify()
+
+    def test_reject_icloud_service_not_authorized_by_profile(self):
+        for permitted_services in (["CloudKit"], "CloudKit"):
+            self.profile_data["Entitlements"]["com.apple.developer.icloud-services"] = permitted_services
+            with self.assertRaisesRegex(ValueError, "CloudDocuments"):
+                self.prepare()
+
+    def test_reject_distribution_without_production_permission(self):
+        self.profile_data["Entitlements"]["com.apple.developer.icloud-container-environment"] = ["Development"]
+        with self.assertRaisesRegex(ValueError, "icloud-container-environment"):
+            self.prepare()
+
+    def test_reject_custom_development_environment_for_adhoc(self):
+        from pathlib import Path
+        custom = Path(self.temporary.name) / "wrong-environment.entitlements"
+        self.env["ICLOUD_DOCUMENTS"] = "false"
+        self.env["CUSTOM_ENTITLEMENTS_PATH"] = str(custom)
+        custom.write_bytes(plistlib.dumps({
+            "com.apple.developer.icloud-services": ["CloudDocuments"],
+            "com.apple.developer.icloud-container-environment": "Development",
+            "com.apple.developer.icloud-container-identifiers": [CONTAINER],
+            "com.apple.developer.ubiquity-container-identifiers": [CONTAINER],
+        }))
+        with self.assertRaisesRegex(ValueError, "Production"):
             self.prepare()
 
     def test_final_macho_entitlements_must_match(self):
