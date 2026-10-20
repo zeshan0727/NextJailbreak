@@ -172,9 +172,12 @@ struct SMSImportConsoleView: View {
                 statusRow(
                     title: "Daemon",
                     value: daemonStatus,
-                    icon: snapshot.daemonRunning ? "checkmark.circle.fill" : "xmark.circle.fill"
+                    icon: daemonHeartbeatRecent ? "checkmark.circle.fill" : "clock.badge.exclamationmark"
                 )
                 statusRow(title: "Last Heartbeat", value: formatted(snapshot.lastHeartbeat), icon: "waveform.path.ecg")
+                Text("In Battery Safe mode the daemon can sleep between scheduled scans. Use Fetch Latest 15 SMS to test manual wake; a saved Running flag is not proof of a live process.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 statusRow(title: "Last Scan", value: formatted(snapshot.lastScanDate), icon: "message.badge")
                 statusRow(title: "Last Import", value: formatted(snapshot.lastImportDate), icon: "tray.and.arrow.down.fill")
                 LabeledContent("Imported", value: "\(snapshot.totalImported)")
@@ -451,11 +454,16 @@ struct SMSImportConsoleView: View {
         }
     }
 
+    private var daemonHeartbeatRecent: Bool {
+        guard snapshot.daemonRunning, let heartbeat = snapshot.lastHeartbeat else { return false }
+        return abs(Date().timeIntervalSince(heartbeat)) < 180
+    }
+
     private var daemonStatus: String {
         guard snapshot.daemonRunning, let heartbeat = snapshot.lastHeartbeat else {
-            return "Not detected"
+            return "Not detected – check Installer Diagnostics"
         }
-        return Date().timeIntervalSince(heartbeat) < 15 ? "Running" : "Heartbeat stale"
+        return daemonHeartbeatRecent ? "Responding" : "No recent heartbeat – check daemon/manual scan"
     }
 
     private func formatted(_ date: Date?) -> String {
