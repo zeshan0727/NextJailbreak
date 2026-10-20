@@ -117,7 +117,7 @@ jobs:
           rm -rf tipa-stage
           mkdir -p tipa-stage/Payload
           ditto "$APP" "tipa-stage/Payload/NextCalculator.app"
-          ditto -c -k --norsrc tipa-stage/Payload NextCalculator-1.0.0.tipa
+          ditto -c -k --norsrc tipa-stage NextCalculator-1.0.0.tipa
           unzip -t NextCalculator-1.0.0.tipa >/dev/null
           unzip -l NextCalculator-1.0.0.tipa | grep -F "Payload/NextCalculator.app/NextCalculator"
           unzip -l NextCalculator-1.0.0.tipa | grep -F "Payload/NextCalculator.app/Info.plist"
@@ -178,9 +178,10 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add NextCalculator applications/NextCalculator-1.0.0.tipa applications/NextCalculator-1.0.0.tipa.sha256 transfer/files/NextCalculator/1.0.0 transfer/index.json
+          git add applications/NextCalculator-1.0.0.tipa applications/NextCalculator-1.0.0.tipa.sha256 transfer/files/NextCalculator/1.0.0 transfer/index.json
           git diff --cached --stat
           git commit -m "Build and publish Next Calculator 1.0.0"
+          git pull --rebase origin main
           git push origin HEAD:main
 
       - name: Upload GitHub Actions artifact
