@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-20T19:41:47Z",
+  "updatedAt": "2026-10-20T19:45:20Z",
   "files": [
     {
       "id": "nextcalculator-1.0.0",
@@ -10,8 +10,8 @@
       "platform": "TrollStore / iOS 16+",
       "version": "1.0.0 (1)",
       "url": "https://nextjailbreak.com/transfer/files/NextCalculator/1.0.0/NextCalculator-1.0.0.tipa",
-      "sha256": "e99534d6baaa09caaae7a6b101f34c9d561aeefde36c91ccf5891f059efb4bc9",
-      "sizeBytes": 38642,
+      "sha256": "48d64df2044964f7a7e1a0f6613c6e38035c09f52d3f3041f6d2f6dab3fbf1e8",
+      "sizeBytes": 38961,
       "notes": "Native UIKit calculator with Apple-style portrait standard mode, landscape scientific mode, DEG/RAD, memory, haptics, offline operation and no ads, subscriptions, tracking or permissions."
     },
     {
