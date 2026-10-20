@@ -1,0 +1,192 @@
+name: Build and Publish Next Calculator 1.0.0
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "NextCalculator/**"
+      - ".github/workflows/build-nextcalculator-1.0.0.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: nextcalculator-1.0.0
+  cancel-in-progress: false
+
+jobs:
+  build-test-publish:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode 16.4
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d "/Applications/Xcode_16.4.app" ]; then
+            sudo xcode-select -s "/Applications/Xcode_16.4.app/Contents/Developer"
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+
+      - name: Generate Xcode project
+        shell: bash
+        working-directory: NextCalculator
+        run: |
+          set -euo pipefail
+          xcodegen generate --spec project.yml
+          test -d NextCalculator.xcodeproj
+
+      - name: Calculator engine self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/NextCalculatorSelfTest.swift <<'SWIFT'
+          import Foundation
+
+          @main
+          struct SelfTest {
+              static func check(_ name: String, _ value: Double, _ expected: Double, tolerance: Double = 1e-9) {
+                  precondition(abs(value - expected) <= tolerance, "(name): (value) != (expected)")
+              }
+
+              static func main() throws {
+                  check("precedence", try ScientificParser("2+3*4", angleMode: .deg).evaluate(), 14)
+                  check("parentheses", try ScientificParser("(2+3)*4", angleMode: .deg).evaluate(), 20)
+                  check("percent", try ScientificParser("25%", angleMode: .deg).evaluate(), 0.25)
+                  check("factorial", try ScientificParser("5!", angleMode: .deg).evaluate(), 120)
+                  check("sqrt", try ScientificParser("sqrt(81)", angleMode: .deg).evaluate(), 9)
+                  check("cbrt", try ScientificParser("cbrt(27)", angleMode: .deg).evaluate(), 3)
+                  check("sin deg", try ScientificParser("sin(90)", angleMode: .deg).evaluate(), 1, tolerance: 1e-8)
+                  check("asin deg", try ScientificParser("asin(1)", angleMode: .deg).evaluate(), 90, tolerance: 1e-8)
+                  check("cosh", try ScientificParser("cosh(0)", angleMode: .deg).evaluate(), 1)
+                  check("ln", try ScientificParser("ln(e)", angleMode: .deg).evaluate(), 1, tolerance: 1e-8)
+                  check("log", try ScientificParser("log(1000)", angleMode: .deg).evaluate(), 3, tolerance: 1e-8)
+                  check("power", try ScientificParser("2^10", angleMode: .deg).evaluate(), 1024)
+
+                  let e = CalculatorEngine()
+                  e.inputDigit("2"); e.setOperator("+"); e.inputDigit("3"); e.equals()
+                  precondition(e.display == "5", "2+3 failed: \(e.display)")
+                  e.equals()
+                  precondition(e.display == "8", "repeated equals failed: \(e.display)")
+                  e.setOperator("*"); e.inputDigit("4"); e.equals()
+                  precondition(e.display == "32", "chain after equals failed: \(e.display)")
+                  e.clearAll(); e.inputDigit("5"); e.scientific("factorial")
+                  precondition(e.display == "120", "engine factorial failed: \(e.display)")
+                  e.clearAll(); e.inputDigit("4"); e.scientific("reciprocal")
+                  check("reciprocal", Double(e.display) ?? -1, 0.25)
+                  print("NEXT CALCULATOR SELF-TEST: PASS")
+              }
+          }
+          SWIFT
+          swiftc NextCalculator/Sources/ScientificParser.swift NextCalculator/Sources/CalculatorEngine.swift /tmp/NextCalculatorSelfTest.swift -o /tmp/nextcalc-test
+          /tmp/nextcalc-test
+
+      - name: Build unsigned iOS app
+        shell: bash
+        working-directory: NextCalculator
+        run: |
+          set -euo pipefail
+          rm -rf build
+          xcodebuild             -project NextCalculator.xcodeproj             -scheme NextCalculator             -configuration Release             -sdk iphoneos             -derivedDataPath build             CODE_SIGNING_ALLOWED=NO             CODE_SIGNING_REQUIRED=NO             CODE_SIGN_IDENTITY=             clean build
+          APP="build/Build/Products/Release-iphoneos/NextCalculator.app"
+          test -d "$APP"
+          test -x "$APP/NextCalculator"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist" | grep -Fx "com.nextsolution.calculator"
+          /usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$APP/Info.plist" | grep -Fx "16.0"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$APP/Info.plist" | grep -Fx "Next Calculator"
+          file "$APP/NextCalculator"
+
+      - name: Package TrollStore TIPA
+        shell: bash
+        working-directory: NextCalculator
+        run: |
+          set -euo pipefail
+          APP="build/Build/Products/Release-iphoneos/NextCalculator.app"
+          rm -rf tipa-stage
+          mkdir -p tipa-stage/Payload
+          ditto "$APP" "tipa-stage/Payload/NextCalculator.app"
+          ditto -c -k --norsrc tipa-stage/Payload NextCalculator-1.0.0.tipa
+          unzip -t NextCalculator-1.0.0.tipa >/dev/null
+          unzip -l NextCalculator-1.0.0.tipa | grep -F "Payload/NextCalculator.app/NextCalculator"
+          unzip -l NextCalculator-1.0.0.tipa | grep -F "Payload/NextCalculator.app/Info.plist"
+          shasum -a 256 NextCalculator-1.0.0.tipa | tee NextCalculator-1.0.0.tipa.sha256
+          stat -f "%z" NextCalculator-1.0.0.tipa | tee NextCalculator-1.0.0.tipa.size
+
+      - name: Copy build outputs into repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "applications" "transfer/files/NextCalculator/1.0.0"
+          cp "NextCalculator/NextCalculator-1.0.0.tipa" "applications/NextCalculator-1.0.0.tipa"
+          cp "NextCalculator/NextCalculator-1.0.0.tipa.sha256" "applications/NextCalculator-1.0.0.tipa.sha256"
+          cp "NextCalculator/NextCalculator-1.0.0.tipa" "transfer/files/NextCalculator/1.0.0/NextCalculator-1.0.0.tipa"
+          cp "NextCalculator/NextCalculator-1.0.0.tipa.sha256" "transfer/files/NextCalculator/1.0.0/NextCalculator-1.0.0.tipa.sha256"
+          test -s "transfer/files/NextCalculator/1.0.0/NextCalculator-1.0.0.tipa"
+
+      - name: Update NS Transfer manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="transfer/files/NextCalculator/1.0.0/NextCalculator-1.0.0.tipa"
+          SHA=$(shasum -a 256 "$DEST" | awk '{print $1}')
+          SIZE=$(stat -f "%z" "$DEST")
+          export SHA SIZE
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          p = Path("transfer/index.json")
+          data = json.loads(p.read_text())
+          entry_id = "nextcalculator-1.0.0"
+          entry = {
+              "id": entry_id,
+              "name": "Next Calculator 1.0.0",
+              "fileName": "NextCalculator-1.0.0.tipa",
+              "type": "tipa",
+              "platform": "TrollStore / iOS 16+",
+              "version": "1.0.0 (1)",
+              "url": "https://nextjailbreak.com/transfer/files/NextCalculator/1.0.0/NextCalculator-1.0.0.tipa",
+              "sha256": os.environ["SHA"],
+              "sizeBytes": int(os.environ["SIZE"]),
+              "notes": "Native UIKit calculator with Apple-style portrait standard mode, landscape scientific mode, DEG/RAD, memory, haptics, offline operation and no ads, subscriptions, tracking or permissions."
+          }
+          files = [x for x in data.get("files", []) if x.get("id") != entry_id]
+          data["files"] = [entry] + files
+          data["updatedAt"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+          p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+          grep -Fq '"id": "nextcalculator-1.0.0"' transfer/index.json
+          grep -Fq "$SHA" transfer/index.json
+
+      - name: Commit and push publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add NextCalculator applications/NextCalculator-1.0.0.tipa applications/NextCalculator-1.0.0.tipa.sha256 transfer/files/NextCalculator/1.0.0 transfer/index.json
+          git diff --cached --stat
+          git commit -m "Build and publish Next Calculator 1.0.0"
+          git push origin HEAD:main
+
+      - name: Upload GitHub Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextCalculator-1.0.0-tipa
+          path: |
+            NextCalculator/NextCalculator-1.0.0.tipa
+            NextCalculator/NextCalculator-1.0.0.tipa.sha256
