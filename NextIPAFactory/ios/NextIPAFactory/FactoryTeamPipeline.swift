@@ -29,11 +29,24 @@ extension FactoryCodeDelivery {
         if let session { agentProgress[index].session = session }
     }
 
+    private func readableAgentFailure(_ error: Error, role: String) -> String {
+        let raw = error.localizedDescription
+        if raw.localizedCaseInsensitiveContains("credential_id requires an attached vault") {
+            return "MCP connection blocked. In OpenAI Agent Builder, remove the credential-based MCP/GitHub tool from " +
+                role + " (keep the agent ID, model and saved instructions). Next IPA Factory uses its own GitHub token."
+        }
+        if raw.localizedCaseInsensitiveContains("requires_action") {
+            return "This agent requested an external tool approval. Review its preset tools in Agent Builder: " + role
+        }
+        return String(raw.prefix(700))
+    }
+
     private func perform(_ role: String, prompt: String,
                          gateway: NetworkBridge, ids: [String: String]) async throws -> String {
         guard let id = ids[role], !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw APIProblem(details: "No saved agent ID for " + role)
         }
+        let started = Date()
         updateAgent(role, state: "Working", detail: "Opening saved agent session")
         report(role + " • Working")
         do {
@@ -44,19 +57,25 @@ extension FactoryCodeDelivery {
                     self?.updateAgent(role, state: "Working", detail: "Session connected", session: session)
                 },
                 onStatus: { [weak self] sessionState in
-                    self?.updateAgent(role, detail: "OpenAI: " + sessionState)
+                    self?.updateAgent(role, detail: "OpenAI: " + sessionState +
+                        " • " + String(Int(Date().timeIntervalSince(started))) + "s elapsed")
                 }
             )
             guard !result.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                 throw APIProblem(details: role + " returned an empty response.")
             }
-            updateAgent(role, state: "Completed", detail: "Response received")
-            report(role + " • Completed")
+            let seconds = Int(Date().timeIntervalSince(started))
+            updateAgent(role, state: "Completed", detail: "Finished in " + String(seconds) + "s")
+            report(role + " • Completed in " + String(seconds) + "s")
             return result
         } catch {
-            updateAgent(role, state: "Failed", detail: error.localizedDescription)
-            report(role + " • Failed")
-            throw APIProblem(details: role + ": " + error.localizedDescription)
+            let interrupted = error is CancellationError || Task.isCancelled
+            let summary = interrupted ? "Stopped because another agent failed." :
+                readableAgentFailure(error, role: role)
+            updateAgent(role, state: interrupted ? "Interrupted" : "Failed", detail: summary)
+            report(role + (interrupted ? " • Interrupted" : " • Failed"))
+            if interrupted { throw CancellationError() }
+            throw APIProblem(details: role + ": " + summary)
         }
     }
 
@@ -185,6 +204,36 @@ extension FactoryCodeDelivery {
         defer { running = false }
 
         do {
+            // Validate all eight saved agent definitions simultaneously BEFORE
+            // spending time and tokens on the Prompt Engineer.
+            report("Preflight • Checking 8 saved agent configurations")
+            message = "Checking saved agent IDs and known MCP credentials before running AI."
+            let vaultBlocked = try await withThrowingTaskGroup(of: (String, Bool).self) { group in
+                for role in roles {
+                    let id = ids[role.name] ?? ""
+                    group.addTask {
+                        let needsVault = try await gateway.checkAgentVaultRequirement(agentID: id)
+                        return (role.name, needsVault)
+                    }
+                }
+                var blocked: [String] = []
+                for try await (name, needsVault) in group {
+                    if needsVault {
+                        blocked.append(name)
+                        updateAgent(name, state: "Blocked", detail: "Credential-based MCP tool needs an attached vault.")
+                    } else {
+                        updateAgent(name, detail: "Agent found; detailed tool metadata may be unavailable.")
+                    }
+                }
+                return blocked.sorted()
+            }
+            guard vaultBlocked.isEmpty else {
+                throw APIProblem(details:
+                    "Preflight found MCP credentials requiring a vault for: " +
+                    vaultBlocked.joined(separator: ", ") +
+                    ". Remove the credential-based MCP/GitHub tool from these saved agents. Agent IDs and instructions stay unchanged.")
+            }
+            report("Preflight • No exposed credential-based MCP tools detected")
             if !reuseEditedPrompt {
                 engineeredPrompt = ""
                 let promptTask = """
@@ -196,6 +245,9 @@ extension FactoryCodeDelivery {
                 any optional app icon, external API, or unsupported feature.
                 Supply screens, actions, persistence, architecture constraints,
                 failure cases, and exact acceptance criteria. Do not write code.
+                For speed and cost, return a concise actionable specification
+                (at most 600 words). Do not browse, invoke external tools, or
+                repeat requirements unnecessarily; use your saved role instructions.
 
                 ORIGINAL IDEA:
                 \(original)
@@ -382,7 +434,7 @@ extension FactoryCodeDelivery {
                 updateAgent(row.role, state: "Interrupted", detail: "Pipeline stopped; check activity log")
             }
             report("Development stopped: " + error.localizedDescription)
-            message = "8-agent pipeline stopped: " + error.localizedDescription
+            message = "8-agent pipeline stopped: " + String(error.localizedDescription.prefix(900))
         }
     }
 }
