@@ -4,3 +4,4 @@ Valid YAML workflow start after correcting escaped indentation.
 Retry Zsign compatible patched Next Signer 1.4.3 local signing build.
 Build validation rerun after improved Zsign patch tolerance (1.4.3 Build 26), 2026-10-20.
 Compile feature branch b6a02fb800dc7ed8792512cc27f177c616291219 with capability-preserving entitlements and final signed arm64 verification.
+Final release qualification: build feature b6a02fb800dc7ed8792512cc27f177c616291219; run new signed-Mach-O and CloudDocuments regression test suite on 2026-10-20.
