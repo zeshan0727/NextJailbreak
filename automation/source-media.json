@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "packages": {
+    "dev.ipad27.musicisland": {
+      "credit_label": "Mzora/Havoc — official Music Island expanded-player interface screenshot",
+      "source_page_url": "https://havoc.app/package/musicisland",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ad68d8c4ff90492c8caec0a",
+        "alt": "Official Music Island screenshot showing its expanded compact player with album artwork, playback controls and an audio-output button on an iPad Home Screen",
+        "local_path": "assets/articles/source-media/music-island-1-0-2-official-player.png",
+        "sha256": "273d536b9c68da76db174c0e9eb9d80fa6e4bff6389bd1f47d2ac1e1489b6d89"
+      },
+      "screenshots": []
+    },
     "com.apple.ios-27.2-rc-status": {
       "credit_label": "Apple — official iOS 27 artwork from the Apple Developer releases page",
       "source_page_url": "https://developer.apple.com/news/releases/",

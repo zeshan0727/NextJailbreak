@@ -2,6 +2,36 @@
   "entries": [
     {
       "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "ARM64 iPad on iPadOS 16.0–16.7.16 with a compatible rootless jailbreak and ElleKit. Owner testing is stated only for iPad 5 on iPadOS 16.7.16; the listing does not claim support for every iPad, rootful jailbreaks or RootHide.",
+      "description": "Music Island 1.0.2 moves player refreshes to the main thread to fix a SpringBoard Safe Mode crash on rootless iPadOS 16 jailbreaks.",
+      "developer": "Mzora",
+      "entry_type": "individual-tweak-update",
+      "href": "music-island-1-0-2-ipad-safe-mode-crash-fix/",
+      "image": "assets/articles/source-media/music-island-1-0-2-official-player.png",
+      "media_credit": "Mzora/Havoc — official Music Island expanded-player interface screenshot",
+      "media_sha256": "273d536b9c68da76db174c0e9eb9d80fa6e4bff6389bd1f47d2ac1e1489b6d89",
+      "media_source_url": "https://media.havoc.app/6ad68d8c4ff90492c8caec0a",
+      "modified_at": "2026-10-20T12:59:22Z",
+      "name": "Music Island 1.0.2",
+      "package": "dev.ipad27.musicisland",
+      "published_at": "2026-10-20T12:59:22Z",
+      "quality_target": 9,
+      "release": "Music Island 1.0.2 released October 19, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "music-island-1-0-2-ipad-safe-mode-crash-fix",
+      "source_name": "Official Music Island Havoc page, embedded __NEXT_DATA__, version history and product screenshots",
+      "source_page_url": "https://havoc.app/package/musicisland",
+      "source_url": "https://havoc.app/package/musicisland/changes",
+      "source_visual_origin": "official-havoc-interface-screenshot",
+      "source_visual_url": "https://media.havoc.app/6ad68d8c4ff90492c8caec0a",
+      "title": "Music Island 1.0.2 Fixes an iPad Safe Mode Crash",
+      "version": "1.0.2"
+    },
+    {
+      "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
       },
