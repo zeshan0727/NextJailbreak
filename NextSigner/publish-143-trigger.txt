@@ -1,1 +1,4 @@
 Publish built and verified NextSigner 1.4.3 TIPA from GitHub Actions 39399979854 to NS Transfer via R2. Do not include signing credentials.
+Build Run ID: 39412853188
+Source Commit: b6a02fb800dc7ed8792512cc27f177c616291219
+Release branch: release/nextsigner-1.4.3-build26-icloud
