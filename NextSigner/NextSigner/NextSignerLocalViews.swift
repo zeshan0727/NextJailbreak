@@ -147,11 +147,25 @@ struct NextSignerLocalSignView: View {
                     .textInputAutocapitalization(.words)
                     .autocorrectionDisabled()
                     .textFieldStyle(.roundedBorder)
-                TextField("Bundle ID", text: $store.request.bundleID)
+                TextField("Bundle ID", text: Binding(
+                    get: { store.request.bundleID },
+                    set: { updated in
+                        let previous = store.request.bundleID
+                        if store.request.iCloudContainerIdentifier == "iCloud." + previous {
+                            store.request.iCloudContainerIdentifier = "iCloud." + updated
+                        }
+                        store.request.bundleID = updated
+                    }
+                ))
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.asciiCapable)
                     .textFieldStyle(.roundedBorder)
+                if store.request.ipaURL != nil {
+                    Text("Bundle ID is read from the original IPA's Info.plist. Keep it unchanged for an explicit iCloud App ID unless your selected profile also authorizes the replacement.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
 
                 HStack(spacing: 8) {
                     Image(systemName: store.request.isValidBundleID ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
