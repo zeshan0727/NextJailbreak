@@ -1,0 +1,78 @@
+name: Next IPA Factory - generated iPhone IPA
+on:
+  push:
+    branches:
+      - feature/next-ipa-factory-v1
+    paths:
+      - 'NextIPAFactory/generated-apps/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile-generated-app:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - name: Checkout source (no signing credentials)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Detect updated generated project
+        shell: bash
+        run: |
+          set -euo pipefail
+          MODIFIED="$(git diff --name-only HEAD^ HEAD | grep '^NextIPAFactory/generated-apps/' | head -n 1)"
+          if [[ -z "$MODIFIED" ]]; then
+            echo "No generated app source in the latest commit"
+            exit 1
+          fi
+          SLUG="$(printf '%s' "$MODIFIED" | cut -d '/' -f 3)"
+          if [[ ! "$SLUG" =~ ^[a-z0-9][a-z0-9-]{1,35}$ ]]; then
+            echo "Invalid app slug"
+            exit 1
+          fi
+          PROJECT="NextIPAFactory/generated-apps/$SLUG"
+          test -f "$PROJECT/project.yml"
+          echo "APP_SLUG=$SLUG" >> "$GITHUB_ENV"
+          echo "APP_PROJECT=$PROJECT" >> "$GITHUB_ENV"
+      - name: Xcode tooling
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          brew install xcodegen
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$APP_PROJECT"
+          xcodegen generate
+      - name: Build generated app for iPhone
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$APP_PROJECT"
+          xcodebuild -project GeneratedApp.xcodeproj -scheme GeneratedApp \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/factory-user-app" \
+            CODE_SIGNING_ALLOWED=NO build
+      - name: Package unsigned IPA and TIPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/factory-user-app/Build/Products/Release-iphoneos/GeneratedApp.app"
+          test -f "$APP/Info.plist"
+          test -f "$APP/GeneratedApp"
+          mkdir -p "$RUNNER_TEMP/factory-package/Payload" "$RUNNER_TEMP/factory-output"
+          cp -R "$APP" "$RUNNER_TEMP/factory-package/Payload/"
+          (cd "$RUNNER_TEMP/factory-package" && zip -qry "$RUNNER_TEMP/factory-output/$APP_SLUG.ipa" Payload)
+          cp "$RUNNER_TEMP/factory-output/$APP_SLUG.ipa" "$RUNNER_TEMP/factory-output/$APP_SLUG.tipa"
+          (cd "$RUNNER_TEMP/factory-output" && shasum -a 256 *.ipa *.tipa > SHA256.txt)
+          unzip -t "$RUNNER_TEMP/factory-output/$APP_SLUG.ipa" | tail -n 2
+      - name: Upload only successfully compiled artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Generated-${{ env.APP_SLUG }}-${{ github.run_number }}
+          path: ${{ runner.temp }}/factory-output/*
+          if-no-files-found: error
+          retention-days: 30
