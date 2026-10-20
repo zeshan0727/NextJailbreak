@@ -27,5 +27,5 @@ targets:
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_CFBundleDisplayName: Next IPA Factory
-        MARKETING_VERSION: 1.6.0
-        CURRENT_PROJECT_VERSION: 7
+        MARKETING_VERSION: 1.6.1
+        CURRENT_PROJECT_VERSION: 8
