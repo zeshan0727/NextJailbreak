@@ -64,16 +64,16 @@ final class CalculatorEngine {
             case "/":
                 if v == 0 { showError(); return }
                 applied = base / v
-            default:
-                applied = v
+            case "^": applied = Foundation.pow(base, v)
+            default: applied = v
             }
             display = format(applied)
             expression = format(applied)
         }
 
-        if expression.isEmpty { expression = display }
         expression = expression.trimmingCharacters(in: .whitespaces)
-        expression += " \(op) "
+        if expression.isEmpty { expression = display }
+        expression += " (op) "
         lastOperator = op
         lastOperand = Double(display) ?? 0
         typing = false
@@ -97,14 +97,13 @@ final class CalculatorEngine {
             case "/":
                 if operand == 0 { showError(); return }
                 display = format(base / operand)
-            case "^":
-                display = format(Foundation.pow(base, operand))
+            case "^": display = format(Foundation.pow(base, operand))
             default: break
             }
             lastOperand = operand
             didEvaluate = true
             typing = false
-            expression = "\(format(base)) \(op) \(format(operand))"
+            expression = "(format(base)) (op) (format(operand))"
         } else {
             let a = Double(display) ?? 0
             switch op {
@@ -126,27 +125,22 @@ final class CalculatorEngine {
     }
 
     func clearAll() {
-        expression = ""
-        display = "0"
-        typing = false
-        lastOperator = nil
-        lastOperand = 0
-        didEvaluate = false
-        error = false
+        expression = ""; display = "0"; typing = false
+        lastOperator = nil; lastOperand = 0; didEvaluate = false; error = false
     }
 
     func scientific(_ name: String) {
         guard let v = Double(display), !error else { return }
         let source: String
         switch name {
-        case "factorial": source = "\(format(v))!"
+        case "factorial": source = "(format(v))!"
         case "reciprocal":
             guard v != 0 else { showError(); return }
             display = format(1 / v)
             typing = true
             didEvaluate = false
             return
-        default: source = "\(name)(\(format(v)))"
+        default: source = "(name)((format(v)))"
         }
         do {
             display = format(try ScientificParser(source, angleMode: angleMode).evaluate())
@@ -157,16 +151,14 @@ final class CalculatorEngine {
 
     func constant(_ name: String) {
         display = name == "π" ? format(Double.pi) : format(Foundation.exp(1))
-        typing = true
-        didEvaluate = false
+        typing = true; didEvaluate = false
     }
 
     func power(_ exponent: String) {
         guard Double(display) != nil else { return }
         do {
-            display = format(try ScientificParser("\(display)^\(exponent)", angleMode: angleMode).evaluate())
-            typing = true
-            didEvaluate = false
+            display = format(try ScientificParser("(display)^(exponent)", angleMode: angleMode).evaluate())
+            typing = true; didEvaluate = false
         } catch { showError() }
     }
 
@@ -174,7 +166,7 @@ final class CalculatorEngine {
         if typing {
             expression = expression.trimmingCharacters(in: .whitespaces)
             if !expression.isEmpty { expression += " × " }
-            expression += display
+            expression += "(display) × "
             display = "0"
             typing = false
         }
@@ -202,7 +194,6 @@ final class CalculatorEngine {
     }
 
     func setAngleMode() { angleMode = angleMode == .deg ? .rad : .deg }
-
     func memoryClear() { memory = 0 }
     func memoryAdd() { memory += Double(display) ?? 0 }
     func memorySubtract() { memory -= Double(display) ?? 0 }
@@ -210,15 +201,10 @@ final class CalculatorEngine {
 
     private func currentBaseValue() -> Double? {
         let parts = expression.split(separator: " ")
-        if let first = parts.first { return Double(first) }
-        return nil
+        return parts.first.flatMap { Double($0) }
     }
 
-    private func showError() {
-        display = "Error"
-        error = true
-        typing = false
-    }
+    private func showError() { display = "Error"; error = true; typing = false }
 
     private func normalizeDisplay() {
         if display.count > 18, let v = Double(display) { display = format(v) }
