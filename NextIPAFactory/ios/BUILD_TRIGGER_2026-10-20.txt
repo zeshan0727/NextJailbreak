@@ -1,0 +1,5 @@
+Build requested by user on 2026-10-20 via connected GitHub tool.
+Branch: feature/next-ipa-factory-v1
+Workflow: build-next-ipa-factory.yml
+Expected artifact: NextIPAFactory-1.1-unsigned (.ipa and .tipa)
+Do not merge this branch into the production website.
