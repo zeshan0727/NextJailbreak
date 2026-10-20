@@ -17,9 +17,13 @@ struct DailyLedgerApp: App {
                 .environmentObject(store)
                 .tint(AppTheme.purple)
                 .preferredColorScheme(AppAppearance(rawValue: appearance)?.colorScheme)
+                .onAppear {
+                    BackupSyncService.shared.backupOnAppOpen()
+                }
                 .onChange(of: scenePhase) { phase in
                     if phase == .active {
                         store.reload()
+                        BackupSyncService.shared.backupOnAppOpen()
                     } else if phase == .background {
                         BackupSyncService.shared.handleDidEnterBackground(
                             ledger: LedgerDiskStore.shared.load()
