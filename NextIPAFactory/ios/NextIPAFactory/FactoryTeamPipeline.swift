@@ -78,15 +78,6 @@ extension FactoryCodeDelivery {
               paths.contains(where: { $0.hasSuffix(".swift") }) else {
             throw APIProblem(details: "Integrator returned missing or duplicate project files.")
         }
-        guard manifest.files.allSatisfy({
-            !$0.path.contains("..") && !$0.path.hasPrefix("/") &&
-            !$0.path.contains("\\") && !$0.path.contains("\n") &&
-            ($0.path == "project.yml" || $0.path.hasPrefix("Sources/")) &&
-            [".swift", ".yml", ".plist", ".json", ".xcassets"].contains(where: { $0.path.hasSuffix($0) == false }) == false
-        }) == false else {
-            // Actual validation is below: this branch deliberately never approves by itself.
-            throw APIProblem(details: "Unsafe generated project.")
-        }
         for file in manifest.files {
             guard !file.path.contains(".."), !file.path.hasPrefix("/"),
                   !file.path.contains("\\"), !file.path.contains("\n"),
