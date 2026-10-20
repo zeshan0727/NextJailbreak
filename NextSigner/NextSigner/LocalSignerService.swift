@@ -375,50 +375,106 @@ struct LocalSignerService {
         }
 
         let applicationIdentifier = profile.teamID + "." + bundleID
-        var entitlement: [String: Any] = [
-            "application-identifier": applicationIdentifier,
-            "com.apple.developer.team-identifier": profile.teamID,
-            "get-task-allow": false
+        let cloudKeys: Set<String> = [
+            "com.apple.developer.icloud-services",
+            "com.apple.developer.icloud-container-identifiers",
+            "com.apple.developer.ubiquity-container-identifiers"
         ]
-        if let groups = profile.permittedEntitlements["keychain-access-groups"] as? [String],
-           groups.contains(where: { self.isAllowed(applicationIdentifier, by: $0) }) {
-            entitlement["keychain-access-groups"] = [applicationIdentifier]
+        var chosen = [String: Any]()
+        if let customURL {
+            guard let data = try? Data(contentsOf: customURL), data.count < 100_000,
+                  let supplied = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+                throw LocalSignerError.invalidExplicitEntitlements("Select a readable .entitlements or .plist dictionary.")
+            }
+            chosen = supplied
         }
         if iCloudDocuments {
             let container = iCloudContainer.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard container.hasPrefix("iCloud."), !container.contains(" "),
-                  !container.contains("*") else {
-                throw LocalSignerError.invalidExplicitEntitlements("Enter the exact iCloud container, e.g. iCloud.com.nextsolution.dailyledger.")
+            guard container.hasPrefix("iCloud."), container.count > "iCloud.".count,
+                  !container.contains(where: { $0.isWhitespace || $0 == "*" || $0 == "/" }) else {
+                throw LocalSignerError.invalidExplicitEntitlements("Enter an exact iCloud container, e.g. iCloud.com.nextsolution.dailyledger.")
             }
-            entitlement["com.apple.developer.icloud-services"] = ["CloudDocuments"]
-            entitlement["com.apple.developer.icloud-container-identifiers"] = [container]
-            entitlement["com.apple.developer.ubiquity-container-identifiers"] = [container]
-        } else if let customURL {
-            guard let data = try? Data(contentsOf: customURL), data.count < 100_000,
-                  let chosen = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
-                throw LocalSignerError.invalidExplicitEntitlements("Select a readable .entitlements or .plist dictionary.")
-            }
-            for (key, value) in chosen {
-                if let original = entitlement[key],
-                   !NSDictionary(dictionary: ["value": original]).isEqual(to: ["value": value]) {
-                    throw LocalSignerError.invalidExplicitEntitlements("Signing identity field conflicts with profile: " + key)
+            chosen["com.apple.developer.icloud-services"] = ["CloudDocuments"]
+            chosen["com.apple.developer.icloud-container-identifiers"] = [container]
+            chosen["com.apple.developer.ubiquity-container-identifiers"] = [container]
+        }
+
+        // Explicit Zsign entitlements replace the ENTIRE signature entitlement set.
+        // Preserve concrete profile-authorized capabilities (App Groups, aps-environment,
+        // associated domains etc.), rather than discarding them when enabling iCloud.
+        var entitlements = [String: Any]()
+        for (key, permitted) in profile.permittedEntitlements {
+            switch key {
+            case "application-identifier", "com.apple.application-identifier":
+                entitlements[key] = applicationIdentifier
+            case "com.apple.developer.team-identifier":
+                entitlements[key] = profile.teamID
+            case "get-task-allow":
+                entitlements[key] = false
+            case "keychain-access-groups":
+                guard let groups = permitted as? [String] else {
+                    throw LocalSignerError.invalidExplicitEntitlements("Unsupported keychain group format.")
                 }
-                entitlement[key] = value
+                entitlements[key] = try groups.map { group -> String in
+                    if !group.contains("*") { return group }
+                    guard isAllowed(applicationIdentifier, by: group) else {
+                        throw LocalSignerError.invalidExplicitEntitlements("Cannot resolve keychain group: " + group)
+                    }
+                    return applicationIdentifier
+                }
+            default:
+                if let specific = chosen[key] {
+                    entitlements[key] = specific
+                } else if containsWildcard(permitted) {
+                    // Wildcard iCloud permissions are an authorization, not a concrete
+                    // signed capability. They must be resolved by a chosen container.
+                    if cloudKeys.contains(key) { continue }
+                    throw LocalSignerError.invalidExplicitEntitlements(
+                        "Profile capability has an unresolved wildcard; supply an explicit value for " + key)
+                } else {
+                    entitlements[key] = permitted
+                }
             }
         }
-        for (key, value) in entitlement {
-            if key == "com.apple.developer.team-identifier" &&
-               profile.permittedEntitlements[key] == nil { continue }
-            guard let allowed = profile.permittedEntitlements[key], isAllowed(value, by: allowed) else {
+
+        entitlements["application-identifier"] = applicationIdentifier
+        entitlements["com.apple.developer.team-identifier"] = profile.teamID
+        entitlements["get-task-allow"] = false
+        for (key, value) in chosen {
+            if let original = entitlements[key],
+               (key == "application-identifier" || key == "com.apple.application-identifier" ||
+                key == "com.apple.developer.team-identifier" || key == "get-task-allow"),
+               !NSDictionary(dictionary: ["value": original]).isEqual(to: ["value": value]) {
+                throw LocalSignerError.invalidExplicitEntitlements("Signing identity conflicts with selected profile: " + key)
+            }
+            entitlements[key] = value
+        }
+
+        for (key, value) in entitlements {
+            guard let allowed = profile.permittedEntitlements[key] else {
+                // Some profiles omit the team key; it is still derived from TeamIdentifier.
+                if key == "com.apple.developer.team-identifier" { continue }
                 throw LocalSignerError.invalidExplicitEntitlements("Ad Hoc profile does not authorize: " + key)
+            }
+            guard !containsWildcard(value), isAllowed(value, by: allowed) else {
+                throw LocalSignerError.invalidExplicitEntitlements("Profile does not authorize a concrete value for: " + key)
             }
         }
 
         let url = workRoot.appendingPathComponent("NextSigner-Explicit.entitlements")
-        let data = try PropertyListSerialization.data(fromPropertyList: entitlement,
+        let data = try PropertyListSerialization.data(fromPropertyList: entitlements,
                                                        format: .xml, options: 0)
         try data.write(to: url, options: .atomic)
         return url
+    }
+
+    private func containsWildcard(_ value: Any) -> Bool {
+        if let string = value as? String { return string.contains("*") }
+        if let strings = value as? [Any] { return strings.contains { containsWildcard($0) } }
+        if let dictionary = value as? [String: Any] {
+            return dictionary.values.contains { containsWildcard($0) }
+        }
+        return false
     }
 
     private func isAllowed(_ actual: String, by allowed: String) -> Bool {
@@ -435,65 +491,90 @@ struct LocalSignerService {
         return NSDictionary(dictionary: ["value": actual]).isEqual(to: ["value": allowed])
     }
 
-    /// Do not report iCloud success when a signer copied '*' or removed the
-    /// entitlement. Inspect the XML entitlement slot (5) of the actual signed
-    /// ARM64 Mach-O, rather than reading the profile's entitlement allow-list.
+    /// Inspect the XML entitlement slot (5) of the ACTUAL app executable's
+    /// signed Mach-O CodeSignature, not only the provisioning profile.
+    /// Supports thin and universal/FAT Mach-O; a valid arm64 slice is mandatory.
     private func verifySignedEntitlements(appURL: URL, expectedURL: URL) throws {
         guard let appInfo = try readPlist(appURL.appendingPathComponent("Info.plist")),
               let executable = appInfo["CFBundleExecutable"] as? String else {
             throw LocalSignerError.signedEntitlementsMismatch("CFBundleExecutable")
         }
         let binary = try Data(contentsOf: appURL.appendingPathComponent(executable))
-        func u32(_ at: Int, big: Bool = false) -> UInt32? {
-            guard at >= 0, at + 4 <= binary.count else { return nil }
-            let bytes = [UInt8](binary[at..<(at + 4)])
+        func word(_ at: Int, big: Bool = false) -> UInt32? {
+            guard at >= 0, at <= binary.count - 4 else { return nil }
+            let p = [UInt8](binary[at..<(at + 4)])
             if big {
-                return (UInt32(bytes[0]) << 24) | (UInt32(bytes[1]) << 16) |
-                       (UInt32(bytes[2]) << 8) | UInt32(bytes[3])
+                return (UInt32(p[0]) << 24) | (UInt32(p[1]) << 16) |
+                       (UInt32(p[2]) << 8) | UInt32(p[3])
             }
-            return UInt32(bytes[0]) | (UInt32(bytes[1]) << 8) |
-                   (UInt32(bytes[2]) << 16) | (UInt32(bytes[3]) << 24)
+            return UInt32(p[0]) | (UInt32(p[1]) << 8) |
+                   (UInt32(p[2]) << 16) | (UInt32(p[3]) << 24)
         }
-        guard let magic = u32(0), magic == 0xfeedfacf || magic == 0xfeedface,
-              let commandCount = u32(16) else {
-            throw LocalSignerError.signedEntitlementsMismatch("Mach-O header")
-        }
-        var command = magic == 0xfeedfacf ? 32 : 28
-        var actual: [String: Any]?
-        for _ in 0..<Int(commandCount) {
-            guard let commandType = u32(command), let commandSize = u32(command + 4),
-                  commandSize >= 8 else { break }
-            if commandType == 0x1d, let signatureOffset = u32(command + 8),
-               let signatureLength = u32(command + 12) {
-                let blob = Int(signatureOffset)
-                let blobEnd = blob + Int(signatureLength)
-                guard blobEnd <= binary.count, u32(blob, big: true) == 0xfade0cc0,
-                      let count = u32(blob + 8, big: true) else { break }
-                for index in 0..<Int(count) {
-                    let base = blob + 12 + index * 8
-                    guard let slot = u32(base, big: true),
-                          let offset = u32(base + 4, big: true) else { break }
-                    let location = blob + Int(offset)
-                    if slot == 5, u32(location, big: true) == 0xfade7171,
-                       let length = u32(location + 4, big: true) {
-                        let start = location + 8
-                        let end = location + Int(length)
-                        if end <= blobEnd && start < end {
-                            actual = try? PropertyListSerialization.propertyList(
-                                from: binary.subdata(in: start..<end), format: nil
+        func xmlEntitlements(slice: Int, size: Int) -> [String: Any]? {
+            guard slice >= 0, size >= 32, slice <= binary.count - size,
+                  let magic = word(slice), magic == 0xfeedfacf,
+                  let count = word(slice + 16), count < 100_000 else { return nil }
+            var command = slice + 32
+            let sliceEnd = slice + size
+            for _ in 0..<Int(count) {
+                guard command <= sliceEnd - 8,
+                      let commandType = word(command), let commandSize = word(command + 4),
+                      commandSize >= 8, Int(commandSize) <= sliceEnd - command else { return nil }
+                if commandType == 0x1d {
+                    guard commandSize >= 16, let offset = word(command + 8),
+                          let length = word(command + 12),
+                          Int(offset) <= size, Int(length) <= size - Int(offset) else { return nil }
+                    let startBlob = slice + Int(offset)
+                    let endBlob = startBlob + Int(length)
+                    guard let magic = word(startBlob, big: true), magic == 0xfade0cc0,
+                          let total = word(startBlob + 4, big: true),
+                          let entries = word(startBlob + 8, big: true),
+                          total <= length, entries <= (total - 12) / 8 else { return nil }
+                    for i in 0..<Int(entries) {
+                        let row = startBlob + 12 + i * 8
+                        guard row <= endBlob - 8, let slot = word(row, big: true),
+                              let position = word(row + 4, big: true) else { return nil }
+                        if slot == 5 {
+                            let header = startBlob + Int(position)
+                            guard header <= endBlob - 8, word(header, big: true) == 0xfade7171,
+                                  let itemSize = word(header + 4, big: true),
+                                  itemSize >= 8, Int(itemSize) <= endBlob - header else { return nil }
+                            return try? PropertyListSerialization.propertyList(
+                                from: binary.subdata(in: (header + 8)..<(header + Int(itemSize))),
+                                format: nil
                             ) as? [String: Any]
                         }
                     }
+                    return nil
                 }
-                break
+                command += Int(commandSize)
             }
-            command += Int(commandSize)
+            return nil
         }
+
+        let actual: [String: Any]?
+        if word(0, big: true) == 0xcafebabe, let count = word(4, big: true), count > 0, count < 64 {
+            var arm64: [String: Any]?
+            for n in 0..<Int(count) {
+                let entry = 8 + n * 20
+                guard let cpuType = word(entry, big: true),
+                      let slice = word(entry + 8, big: true),
+                      let length = word(entry + 12, big: true) else { break }
+                if cpuType == 0x0100000c {
+                    arm64 = xmlEntitlements(slice: Int(slice), size: Int(length))
+                    break
+                }
+            }
+            actual = arm64
+        } else {
+            actual = xmlEntitlements(slice: 0, size: binary.count)
+        }
+
         guard let actual,
               let expected = try PropertyListSerialization.propertyList(
                 from: Data(contentsOf: expectedURL), format: nil
               ) as? [String: Any] else {
-            throw LocalSignerError.signedEntitlementsMismatch("code signature")
+            throw LocalSignerError.signedEntitlementsMismatch("Mach-O code signature")
         }
         for (key, value) in expected {
             guard let signedValue = actual[key],
