@@ -22,6 +22,10 @@ jobs:
       REQUESTED_NAME: ${{ github.event.client_payload.requested_name }}
       REQUESTED_BUNDLE_ID: ${{ github.event.client_payload.requested_bundle_id }}
       CUSTOM_ICON_ASSET: ${{ github.event.client_payload.custom_icon_asset }}
+      CUSTOM_PROVISION_ASSET: ${{ github.event.client_payload.custom_provision_asset }}
+      CUSTOM_ENTITLEMENTS_ASSET: ${{ github.event.client_payload.custom_entitlements_asset }}
+      ICLOUD_DOCUMENTS: ${{ github.event.client_payload.icloud_documents }}
+      ICLOUD_CONTAINER: ${{ github.event.client_payload.icloud_container }}
       TWEAK_ASSETS_JSON: ${{ github.event.client_payload.tweak_assets_json }}
       DUPLICATE_SIGNING: ${{ github.event.client_payload.duplicate_signing }}
       INJECT_EXTENSIONS: ${{ github.event.client_payload.inject_extensions }}
@@ -63,15 +67,19 @@ jobs:
           test -n "$REQUESTED_BUNDLE_ID" || { echo 'requested_bundle_id is required'; exit 1; }
           test -n "$P12_B64" || { echo 'NEXTSIGNER_P12_BASE64 is missing'; exit 1; }
           test -n "$P12_PASSWORD" || { echo 'NEXTSIGNER_P12_PASSWORD is missing'; exit 1; }
-          test -n "$PROVISION_B64" || { echo 'NEXTSIGNER_MOBILEPROVISION_BASE64 is missing'; exit 1; }
+          if [ -z "${CUSTOM_PROVISION_ASSET:-}" ]; then
+            test -n "$PROVISION_B64" || { echo 'Select an app-specific provisioning profile or configure NEXTSIGNER_MOBILEPROVISION_BASE64'; exit 1; }
+          fi
           test -n "$AWS_ACCESS_KEY_ID" || { echo 'CLOUDFLARE_R2_ACCESS_KEY_ID is missing'; exit 1; }
           test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'CLOUDFLARE_R2_SECRET_ACCESS_KEY is missing'; exit 1; }
           printf '%s' "${TWEAK_ASSETS_JSON:-[]}" | jq -e 'type == "array" and all(.[]; type == "string")' >/dev/null
           case "${INJECT_EXTENSIONS:-false}" in true|false) ;; *) echo 'inject_extensions must be true/false'; exit 1;; esac
           case "${WEAK_INJECTION:-false}" in true|false) ;; *) echo 'weak_injection must be true/false'; exit 1;; esac
           printf '%s' "$P12_B64" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
-          printf '%s' "$PROVISION_B64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
-          chmod 600 "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/profile.mobileprovision"
+          if [ -z "${CUSTOM_PROVISION_ASSET:-}" ]; then
+            printf '%s' "$PROVISION_B64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
+          fi
+          chmod 600 "$RUNNER_TEMP/certificate.p12"
 
       - name: Report validation
         continue-on-error: true
@@ -105,6 +113,14 @@ jobs:
           if [ -n "${CUSTOM_ICON_ASSET:-}" ]; then
             download_asset "$CUSTOM_ICON_ASSET" "$RUNNER_TEMP/custom-icon-source"
           fi
+          if [ -n "${CUSTOM_PROVISION_ASSET:-}" ]; then
+            download_asset "$CUSTOM_PROVISION_ASSET" "$RUNNER_TEMP/profile.mobileprovision"
+          fi
+          if [ -n "${CUSTOM_ENTITLEMENTS_ASSET:-}" ]; then
+            download_asset "$CUSTOM_ENTITLEMENTS_ASSET" "$RUNNER_TEMP/user-entitlements.plist"
+          fi
+          test -s "$RUNNER_TEMP/profile.mobileprovision"
+          chmod 600 "$RUNNER_TEMP/profile.mobileprovision"
           printf '%s' "${TWEAK_ASSETS_JSON:-[]}" | jq -r '.[]' | while IFS= read -r asset; do
             [ -n "$asset" ] || continue
             safe="$(printf '%s' "$asset" | tr '/\\' '__')"
@@ -117,6 +133,25 @@ jobs:
       - name: Report download
         continue-on-error: true
         run: bash .github/scripts/nextsigner-sign-only-status.sh running Download "Staged IPA and customization files downloaded."
+
+      - name: Validate signing profile and prepare explicit entitlements
+        shell: bash
+        env:
+          PROFILE_PATH: ${{ runner.temp }}/profile.mobileprovision
+          CUSTOM_ENTITLEMENTS_PATH: ${{ runner.temp }}/user-entitlements.plist
+          SIGNED_ENTITLEMENTS_PATH: ${{ runner.temp }}/effective-entitlements.plist
+        run: |
+          set -euo pipefail
+          if [ -z "${CUSTOM_ENTITLEMENTS_ASSET:-}" ]; then
+            export CUSTOM_ENTITLEMENTS_PATH=""
+          fi
+          case "${ICLOUD_DOCUMENTS:-false}" in true|false|'') ;; *) echo 'Invalid iCloud option'; exit 1;; esac
+          python3 .github/scripts/nextsigner-icloud-entitlements.py prepare
+          if [ -f "$SIGNED_ENTITLEMENTS_PATH" ]; then
+            echo 'EXPLICIT_ENTITLEMENTS=true' >> "$GITHUB_ENV"
+          else
+            echo 'EXPLICIT_ENTITLEMENTS=false' >> "$GITHUB_ENV"
+          fi
 
       - name: Build pinned zsign
         shell: bash
@@ -208,6 +243,9 @@ jobs:
             -n "$REQUESTED_NAME"
             -x "$RUNNER_TEMP/metadata"
           )
+          if [ "${EXPLICIT_ENTITLEMENTS:-false}" = "true" ]; then
+            args+=( -e "$RUNNER_TEMP/effective-entitlements.plist" )
+          fi
           if [ -s "$RUNNER_TEMP/custom-icon.png" ]; then
             args+=( -I "$RUNNER_TEMP/custom-icon.png" )
           fi
@@ -224,6 +262,17 @@ jobs:
           "$RUNNER_TEMP/zsign/bin/zsign" "${args[@]}"
           test -s "$RUNNER_TEMP/signed.ipa"
           unzip -t "$RUNNER_TEMP/signed.ipa" >/dev/null
+
+      - name: Verify effective entitlements in final signed IPA
+        if: env.EXPLICIT_ENTITLEMENTS == 'true'
+        shell: bash
+        env:
+          SIGNED_IPA_PATH: ${{ runner.temp }}/signed.ipa
+          SIGNED_ENTITLEMENTS_PATH: ${{ runner.temp }}/effective-entitlements.plist
+          PROFILE_PATH: ${{ runner.temp }}/profile.mobileprovision
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/nextsigner-icloud-entitlements.py verify
 
       - name: Report signed
         continue-on-error: true
@@ -317,6 +366,8 @@ jobs:
           }
           delete_named "$STAGING_ASSET"
           delete_named "${CUSTOM_ICON_ASSET:-}"
+          delete_named "${CUSTOM_PROVISION_ASSET:-}"
+          delete_named "${CUSTOM_ENTITLEMENTS_ASSET:-}"
           printf '%s' "${TWEAK_ASSETS_JSON:-[]}" | jq -r '.[]' | while read -r name; do delete_named "$name"; done
 
       - name: Report failure
