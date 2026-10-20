@@ -40,7 +40,7 @@ final class DeviceSyncService: NSObject, ObservableObject {
     private let queue = DispatchQueue(label: "com.nextsolution.dailyledger.device-sync", qos: .utility)
     private var query: NSMetadataQuery?
     private var writeWork: DispatchWorkItem?
-    private var scanScheduled = false
+    private var lastPublishedData: Data?
 
     private lazy var deviceID: UUID = {
         let key = "DailyLedgerDeviceSyncIdentity"
@@ -142,13 +142,21 @@ final class DeviceSyncService: NSObject, ObservableObject {
             let local = LedgerDiskStore.shared.load()
             // Never upload an empty placeholder, even from a freshly installed device.
             if !local.transactions.isEmpty {
-                let snapshot = LedgerDeviceSnapshot(schema: 1, deviceID: deviceID,
-                                                    writtenAt: Date(), ledger: local)
                 let encoder = JSONEncoder()
+                encoder.outputFormatting = [.sortedKeys]
                 encoder.dateEncodingStrategy = .iso8601
-                let data = try encoder.encode(snapshot)
+                let fingerprint = try encoder.encode(local)
                 let destination = directory.appendingPathComponent("device-" + deviceID.uuidString + ".json")
-                try data.write(to: destination, options: .atomic)
+                // The metadata query also sees our own writes. Without
+                // content deduplication an own-file notification triggers
+                // endless re-uploads and unnecessary battery/network use.
+                if lastPublishedData != fingerprint || !fm.fileExists(atPath: destination.path) {
+                    let snapshot = LedgerDeviceSnapshot(schema: 1, deviceID: deviceID,
+                                                        writtenAt: Date(), ledger: local)
+                    let data = try encoder.encode(snapshot)
+                    try data.write(to: destination, options: .atomic)
+                    lastPublishedData = fingerprint
+                }
             }
 
             let listed = (try? fm.contentsOfDirectory(
