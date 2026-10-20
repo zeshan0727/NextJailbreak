@@ -54,7 +54,7 @@ final class CalculatorEngine {
             typing = true
         }
 
-        if let pending = lastOperator, typing, let v = Double(display) {
+        if let pending = lastOperator, !typing {\n            expression = String(expression.dropLast(3)) + " (op) "\n            lastOperator = op\n            return\n        }\n\n        if let pending = lastOperator, typing, let v = Double(display) {
             let base = currentBaseValue() ?? v
             let applied: Double
             switch pending {
@@ -193,7 +193,7 @@ final class CalculatorEngine {
         } catch { showError() }
     }
 
-    func setAngleMode() { angleMode = angleMode == .deg ? .rad : .deg }
+    func setAngleMode(_ mode: AngleMode) { angleMode = mode }
     func memoryClear() { memory = 0 }
     func memoryAdd() { memory += Double(display) ?? 0 }
     func memorySubtract() { memory -= Double(display) ?? 0 }
