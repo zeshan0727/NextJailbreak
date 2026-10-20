@@ -83,7 +83,7 @@ final class CalculatorViewController: UIViewController {
         let row = UIStackView(); row.axis = .horizontal; row.spacing = 10; row.distribution = .fillEqually
         let zero = makeButton("0", .number)
         let dot = makeButton(".", .number)
-        let eq = makeButton("=", .operator)
+        let eq = makeButton("=", .op)
         row.addArrangedSubview(zero); row.addArrangedSubview(dot); row.addArrangedSubview(eq)
         zero.widthAnchor.constraint(equalTo: dot.widthAnchor, multiplier: 2.04).isActive = true
         grid.addArrangedSubview(row)
