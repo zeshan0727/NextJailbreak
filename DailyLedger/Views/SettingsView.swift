@@ -21,6 +21,7 @@ struct SettingsView: View {
     @State private var exportingBackup = false
     @State private var exportingCSV = false
     @State private var showingImporter = false
+    @State private var stagedImportResult: Result<Data, Error>?
     @State private var showingNativeBackupPicker = false
     @State private var backupExportURL: URL?
     @State private var pendingImportData: Data?
@@ -64,12 +65,20 @@ struct SettingsView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingImporter) {
+            .sheet(isPresented: $showingImporter, onDismiss: {
+                // Present confirmation only after the Files picker has completely
+                // dismissed. iOS otherwise silently drops the dialog.
+                guard let staged = stagedImportResult else { return }
+                stagedImportResult = nil
+                if case .failure(let error) = staged,
+                   case LedgerPickerError.cancelled = error {
+                    return
+                }
+                previewImportData(staged, source: importSource)
+            }) {
                 LedgerBackupImportPicker { result in
+                    stagedImportResult = result
                     showingImporter = false
-                    DispatchQueue.main.async {
-                        previewImportData(result, source: importSource)
-                    }
                 }
             }
             .confirmationDialog("Import Selected Backup?",
@@ -237,9 +246,15 @@ struct SettingsView: View {
                             Label("Save JSON to Files / Drive", systemImage: "square.and.arrow.up")
                         }
                         Button {
+                            importSource = .files
+                            showingImporter = true
+                        } label: {
+                            Label("Restore JSON Backup from Files", systemImage: "doc.text.magnifyingglass")
+                        }
+                        Button {
                             store.restoreLatestICloudBackup()
                         } label: {
-                            Label("Restore Latest iCloud Backup", systemImage: "icloud.and.arrow.down.fill")
+                            Label("Restore Latest Automatic iCloud Backup", systemImage: "icloud.and.arrow.down.fill")
                         }
                         Button {
                             prepareBackupForFiles()
@@ -389,7 +404,7 @@ struct SettingsView: View {
                 Section {
                     NavigationLink {
                         SettingsSectionPage(title: "About") {
-                        LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.83") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "92") + ")")
+                        LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.84") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "93") + ")")
                         LabeledContent("Author", value: "Next Solution – Zeeshan Barvi")
                         }
                     } label: {
