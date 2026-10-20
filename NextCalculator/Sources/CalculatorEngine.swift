@@ -47,6 +47,7 @@ final class CalculatorEngine {
 
     func setOperator(_ op: String) {
         guard !error else { clearAll(); return }
+
         if didEvaluate {
             expression = display
             didEvaluate = false
@@ -54,7 +55,14 @@ final class CalculatorEngine {
             typing = true
         }
 
-        if let pending = lastOperator, !typing {\n            expression = String(expression.dropLast(3)) + " (op) "\n            lastOperator = op\n            return\n        }\n\n        if let pending = lastOperator, typing, let v = Double(display) {
+        if lastOperator != nil && !typing {
+            expression = String(expression.dropLast(3)) + " \(op) "
+            lastOperator = op
+            lastOperand = Double(display) ?? 0
+            return
+        }
+
+        if let pending = lastOperator, typing, let v = Double(display) {
             let base = currentBaseValue() ?? v
             let applied: Double
             switch pending {
@@ -73,7 +81,7 @@ final class CalculatorEngine {
 
         expression = expression.trimmingCharacters(in: .whitespaces)
         if expression.isEmpty { expression = display }
-        expression += " (op) "
+        expression += " \(op) "
         lastOperator = op
         lastOperand = Double(display) ?? 0
         typing = false
