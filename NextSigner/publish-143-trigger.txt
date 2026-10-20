@@ -7,3 +7,7 @@ Build Run ID: 39414874912
 Build Number: 27
 Release branch: release/nextsigner-1.4.3-build27-icloud-kvstore-fix
 SHA-256: 86d773ad6b30d336997773718dd3f6b5149a8eaeb6587b31b048432b0c481bda
+Build Run ID: 39416331380
+Build Number: 28
+Release branch: release/nextsigner-1.4.3-build28-keychain-groups-fix
+SHA-256: 1d476655575a76655795261e90615d040633e75731ddd71888aae6029c020e6d
