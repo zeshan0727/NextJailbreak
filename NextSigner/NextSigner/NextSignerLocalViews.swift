@@ -171,9 +171,9 @@ struct NextSignerLocalSignView: View {
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
                 credentialRow("P12 certificate", ready: local.hasP12)
-                credentialRow("Provisioning profile", ready: local.hasProvisioningProfile)
+                credentialRow("Provisioning profile", ready: local.hasProvisioningProfile || store.request.customProvisioningURL != nil)
                 credentialRow("P12 password", ready: local.p12PasswordIsStored)
-                if !local.credentialsReady {
+                if !(local.hasP12 && local.p12PasswordIsStored && (local.hasProvisioningProfile || store.request.customProvisioningURL != nil)) {
                     Text("Open the Profiles tab and import the three local signing items before signing.")
                         .font(.caption)
                         .foregroundStyle(.orange)
@@ -244,7 +244,7 @@ struct NextSignerLocalSignView: View {
                     .font(.caption).foregroundStyle(.secondary)
                 HStack {
                     Button { capabilityPicker = .entitlements } label: {
-                        Label("Choose .entitlements", systemImage: "doc.text")
+                        Label("Choose .entitlements / .plist", systemImage: "doc.text")
                     }.buttonStyle(.bordered).disabled(store.request.enableICloudDocuments)
                     if store.request.customEntitlementsURL != nil {
                         Button("Remove", role: .destructive) { store.clearEntitlements() }
