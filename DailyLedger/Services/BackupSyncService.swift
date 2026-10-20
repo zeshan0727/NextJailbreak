@@ -179,7 +179,7 @@ final class BackupSyncService: ObservableObject {
             let archiveName = "DailyLedger-History-" +
                 ISO8601DateFormatter().string(from: Date())
                     .replacingOccurrences(of: ":", with: "-") +
-                "-" + UUID().uuidString.prefix(8) + ".json"
+                "-" + String(UUID().uuidString.prefix(8)) + ".json"
             try old.write(to: directory.appendingPathComponent(archiveName), options: .atomic)
         }
         try data.write(to: latest, options: .atomic)
