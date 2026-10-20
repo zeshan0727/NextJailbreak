@@ -16,6 +16,7 @@ struct NextSignerManualSignView: View {
                     header
                     appCard
                     identityCard
+                    capabilitySigningCard
                     advancedCard
                     signCard
                     if flow.result != nil { signedResultCard }
@@ -141,6 +142,75 @@ struct NextSignerManualSignView: View {
         }
     }
 
+    private var capabilitySigningCard: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                Toggle("Enable iCloud Documents (CloudDocuments)", isOn: Binding(
+                    get: { store.request.enableICloudDocuments },
+                    set: { value in
+                        store.request.enableICloudDocuments = value
+                        if value {
+                            store.clearEntitlements()
+                            if store.request.iCloudContainerIdentifier.isEmpty {
+                                store.request.iCloudContainerIdentifier = "iCloud." + store.request.bundleID
+                            }
+                            if store.request.duplicateSigning { store.setDuplicateSigning(false) }
+                        }
+                    }
+                ))
+                if store.request.enableICloudDocuments {
+                    TextField("iCloud container", text: $store.request.iCloudContainerIdentifier)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .textFieldStyle(.roundedBorder)
+                    Text("The App ID and Ad Hoc profile must explicitly authorize this exact iCloud container. For Next Ledger use iCloud.com.nextsolution.dailyledger.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Divider()
+                Text("App-specific Ad Hoc profile")
+                    .font(.subheadline.weight(.semibold))
+                Text(store.request.customProvisioningURL?.lastPathComponent ?? "Default GitHub signing profile will be used")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                HStack {
+                    Button { pickerTarget = .provisioning } label: {
+                        Label("Choose .mobileprovision", systemImage: "doc.badge.gearshape")
+                    }.buttonStyle(.bordered)
+                    if store.request.customProvisioningURL != nil {
+                        Button("Remove", role: .destructive) { store.clearProvisioningProfile() }
+                    }
+                }
+
+                Divider()
+                Text("Custom entitlements (optional)")
+                    .font(.subheadline.weight(.semibold))
+                Text(store.request.customEntitlementsURL?.lastPathComponent
+                     ?? (store.request.enableICloudDocuments ? "Generated automatically for iCloud Documents" : "Default profile-derived signing"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                HStack {
+                    Button { pickerTarget = .entitlements } label: {
+                        Label("Choose .entitlements", systemImage: "doc.text")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(store.request.enableICloudDocuments)
+                    if store.request.customEntitlementsURL != nil {
+                        Button("Remove", role: .destructive) { store.clearEntitlements() }
+                    }
+                }
+                Text("The signing service verifies the profile, bundle identifier, requested capabilities and final signed IPA. Your P12 stays in GitHub Actions secrets.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        } label: {
+            Label("Provisioning & Entitlements", systemImage: "checkmark.shield")
+        }
+    }
+
     private var advancedCard: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 14) {
@@ -154,7 +224,8 @@ struct NextSignerManualSignView: View {
                     get: { store.request.duplicateSigning },
                     set: { store.setDuplicateSigning($0) }
                 ))
-                Text("Creates a unique bundle ID so the signed copy can install beside the original.")
+                .disabled(store.request.enableICloudDocuments)
+                Text("Creates a unique bundle ID so the signed copy can install beside the original. Disabled for explicit iCloud App IDs.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
@@ -271,7 +342,7 @@ struct NextSignerManualSignView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                .disabled(store.request.ipaURL == nil || !store.request.isValidBundleID || store.request.appName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || flow.isSigning || flow.isPublishing || !store.tokenIsStored)
+                .disabled(store.request.ipaURL == nil || !store.request.isValidBundleID || store.request.appName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || (store.request.enableICloudDocuments && (!store.request.iCloudContainerIdentifier.hasPrefix("iCloud.") || store.request.customProvisioningURL == nil)) || flow.isSigning || flow.isPublishing || !store.tokenIsStored)
 
                 Text("Signing does not publish the app to the website. The signed IPA is downloaded into Documents → Signed IPAs on this device.")
                     .font(.caption)
@@ -389,6 +460,8 @@ struct NextSignerManualSignView: View {
             return ["public.item", "public.data", "public.archive"]
         case .config:
             return ["public.json", "public.text", "public.data", "public.item"]
+        case .provisioning, .entitlements:
+            return ["public.item"]
         }
     }
 
@@ -410,6 +483,10 @@ struct NextSignerManualSignView: View {
             store.importTweaks(from: urls)
         case .config:
             break
+        case .provisioning:
+            if let url = urls.first { store.importProvisioningProfile(from: url) }
+        case .entitlements:
+            if let url = urls.first { store.importEntitlements(from: url) }
         }
     }
 
@@ -424,6 +501,8 @@ enum ManualPickerTarget: Int, Identifiable {
     case icon
     case tweaks
     case config
+    case provisioning
+    case entitlements
     var id: Int { rawValue }
 }
 
