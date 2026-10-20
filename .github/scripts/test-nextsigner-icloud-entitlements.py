@@ -114,6 +114,69 @@ class EntitlementTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "explicit value"):
             self.prepare()
 
+    def test_custom_keychain_templates_and_wildcards_normalize(self):
+        # Screenshot reproduction: custom entitlement file selected, iCloud
+        # preset toggle OFF, profile contains TeamID.* group authorization.
+        from pathlib import Path
+        custom = Path(self.temporary.name) / "NextLedger-Custom.entitlements"
+        self.env["ICLOUD_DOCUMENTS"] = "false"
+        self.env["CUSTOM_ENTITLEMENTS_PATH"] = str(custom)
+        for source in (
+            "$(AppIdentifierPrefix)*",
+            "$(AppIdentifierPrefix)$(CFBundleIdentifier)",
+            TEAM + ".*",
+            "*",
+            APP_ID,
+        ):
+            custom.write_bytes(plistlib.dumps({
+                "application-identifier": APP_ID,
+                "keychain-access-groups": [source],
+                "com.apple.developer.icloud-services": ["CloudDocuments"],
+                "com.apple.developer.icloud-container-identifiers": [CONTAINER],
+                "com.apple.developer.ubiquity-container-identifiers": [CONTAINER],
+                "com.apple.developer.ubiquity-kvstore-identifier": TEAM + ".*",
+            }))
+            signed = self.prepare()
+            self.assertEqual(signed["keychain-access-groups"], [APP_ID])
+            self.assertEqual(signed["com.apple.developer.ubiquity-kvstore-identifier"], APP_ID)
+            self.assertEqual(signed["com.apple.developer.icloud-services"], ["CloudDocuments"])
+            self.assertNotIn("*", str(signed))
+            self.create_ipa(signed)
+            with patch.dict(os.environ, self.env):
+                validator.verify()
+
+    def test_reject_unauthorized_custom_keychain_group(self):
+        from pathlib import Path
+        custom = Path(self.temporary.name) / "custom.entitlements"
+        self.env["ICLOUD_DOCUMENTS"] = "false"
+        self.env["CUSTOM_ENTITLEMENTS_PATH"] = str(custom)
+        for invalid in ("WRONGTEAM.com.nextsolution.dailyledger", "group.*",
+                        "$(AppIdentifierPrefix)other.group.*", "T52CDY8W32"):
+            custom.write_bytes(plistlib.dumps({
+                "keychain-access-groups": [invalid],
+                "com.apple.developer.icloud-services": ["CloudDocuments"],
+                "com.apple.developer.icloud-container-identifiers": [CONTAINER],
+                "com.apple.developer.ubiquity-container-identifiers": [CONTAINER],
+            }))
+            with self.assertRaisesRegex(ValueError, "Keychain access group"):
+                self.prepare()
+
+    def test_explicit_multiple_authorized_groups_are_preserved(self):
+        from pathlib import Path
+        second = TEAM + ".shared.account"
+        self.profile_data["Entitlements"]["keychain-access-groups"] = [TEAM + ".*", second]
+        custom = Path(self.temporary.name) / "custom.entitlements"
+        self.env["ICLOUD_DOCUMENTS"] = "false"
+        self.env["CUSTOM_ENTITLEMENTS_PATH"] = str(custom)
+        custom.write_bytes(plistlib.dumps({
+            "keychain-access-groups": ["$(AppIdentifierPrefix)*", second, second],
+            "com.apple.developer.icloud-services": ["CloudDocuments"],
+            "com.apple.developer.icloud-container-identifiers": [CONTAINER],
+            "com.apple.developer.ubiquity-container-identifiers": [CONTAINER],
+        }))
+        signed = self.prepare()
+        self.assertEqual(signed["keychain-access-groups"], [APP_ID, second])
+
     def test_final_macho_entitlements_must_match(self):
         expected = self.prepare()
         self.create_ipa(expected)
