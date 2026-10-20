@@ -2,6 +2,35 @@
   "entries": [
     {
       "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "The Hexacon demonstration identifies only an iPhone 18 Pro on iOS 27.0.1. Apple’s CVE-2026-28968 and CVE-2026-86886 disclosures describe patched iOS 27 vulnerabilities but do not identify Calif’s demonstrated chain, expand device support or provide a public tool.",
+      "description": "Apple’s October 19 iOS 27 security update credits Calif researchers on kernel and TCC fixes, but does not identify Calif’s unreleased jailbreak chain.",
+      "developer": "Calif",
+      "entry_type": "editorial-news-update",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "modified_at": "2026-10-20T20:57:37Z",
+      "name": "Calif iOS 27.0.1 jailbreak demonstration",
+      "package": "editorial.ios27-jailbreak-status",
+      "published_at": "2026-09-15T07:47:49Z",
+      "quality_target": 9,
+      "release": "Calif demoed iOS 27.0.1 on October 16; Apple updated Calif-linked CVE-2026-28968 and added CVE-2026-86886 on October 19",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Calif official Hexacon post, Billy Ellis on-site report and Apple iOS 27 security content",
+      "source_page_url": "https://blog.calif.io/p/iphone",
+      "source_url": "https://support.apple.com/149034",
+      "source_visual_origin": "official-apple-ios-release-artwork-reused",
+      "source_visual_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
+      "title": "Calif iOS 27.0.1 Jailbreak Demo: Apple Adds New Security Context",
+      "version": "iOS 27.0.1 demo / Apple security update October 19, 2026",
+      "image": "assets/articles/source-media/ios-27-2-rc-official-apple-art.png",
+      "media_credit": "Apple — official iOS 27 artwork from the Apple Developer releases page",
+      "media_sha256": "1d48443343b64a4e533377591025ddbfc7924d13679b04c77d67e5cc5b923f79",
+      "media_source_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png"
+    },
+    {
+      "category": {
         "id": "individual-tweak-update",
         "label": "Individual Tweak Update"
       },
@@ -404,31 +433,6 @@
       "source_visual_url": "https://opengraph.githubassets.com/99ed696d841b216cb43b47e8cb439f29ab6fd8e4cead18e50709425f0a39b0c6/meloDu/MusicLRC/commit/a6f84e3c590d9b7d48c66b714cd413225cc9fc53",
       "title": "MusicLRC Adds Time-Synced Lyrics for Local Songs in Apple Music",
       "version": "1.0"
-    },
-    {
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "The public demonstration identifies only an iPhone 18 Pro on iOS 27.0.1. Calif has not published support for other devices or versions, a package-manager environment, a public download or a release date.",
-      "description": "Calif showed jailbreak-level access surviving a reboot on an iPhone 18 Pro running iOS 27.0.1, but no public tool, support list or release date exists yet.",
-      "developer": "Calif",
-      "entry_type": "editorial-news-update",
-      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
-      "modified_at": "2026-10-18T17:01:39Z",
-      "name": "Calif iOS 27.0.1 jailbreak demonstration",
-      "package": "editorial.ios27-jailbreak-status",
-      "published_at": "2026-09-15T07:47:49Z",
-      "quality_target": 9,
-      "release": "Demonstrated at Hexacon on October 16, 2026; no public release or ETA",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Calif official Hexacon post and Billy Ellis on-site demo report",
-      "source_page_url": "https://blog.calif.io/p/iphone",
-      "source_url": "https://blog.calif.io/p/iphone",
-      "source_visual_origin": "official-embedded-demo-video-retrieval-blocked",
-      "source_visual_url": "https://www.youtube-nocookie.com/embed/_GJVKVNMczM",
-      "title": "Calif Demos Untethered iOS 27.0.1 Jailbreak on iPhone 18 Pro",
-      "version": "iOS 27.0.1 demo"
     },
     {
       "additional_media": [
