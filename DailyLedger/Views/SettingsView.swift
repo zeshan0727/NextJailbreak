@@ -21,6 +21,11 @@ struct SettingsView: View {
     @State private var exportingBackup = false
     @State private var exportingCSV = false
     @State private var showingImporter = false
+    @State private var showingNativeBackupPicker = false
+    @State private var backupExportURL: URL?
+    @State private var pendingImportData: Data?
+    @State private var importPreview = ""
+    @State private var showingImportConfirmation = false
     @State private var importSource = ImportSource.files
     @State private var exportingGoogleDrive = false
     @State private var notice: SettingsNotice?
@@ -149,10 +154,10 @@ struct SettingsView: View {
                         }
 
                         Button {
-                            exportingBackup = true
+                            prepareBackupForFiles()
                         } label: {
                             SettingsRow(
-                                title: "Export JSON Backup",
+                                title: "Save Backup to Files",
                                 subtitle: "",
                                 icon: "externaldrive.fill",
                                 color: AppTheme.blue
@@ -182,8 +187,14 @@ struct SettingsView: View {
                         Toggle("iCloud Drive Sync", isOn: $iCloudSyncEnabled)
                         Button {
                             store.syncBackupNow()
+                            backupSync.refreshCloudDiagnostics()
                         } label: {
-                            Label("Back Up Now", systemImage: "icloud.and.arrow.up.fill")
+                            Label("Back Up to iCloud Now", systemImage: "icloud.and.arrow.up.fill")
+                        }
+                        Button {
+                            prepareBackupForFiles()
+                        } label: {
+                            Label("Save JSON to Files / Drive", systemImage: "square.and.arrow.up")
                         }
                         Button {
                             store.restoreLatestICloudBackup()
@@ -191,9 +202,9 @@ struct SettingsView: View {
                             Label("Restore Latest iCloud Backup", systemImage: "icloud.and.arrow.down.fill")
                         }
                         Button {
-                            exportingGoogleDrive = true
+                            prepareBackupForFiles()
                         } label: {
-                            Label("Manual Google Drive Export", systemImage: "externaldrive.badge.icloud")
+                            Label("Save to Google Drive / Files", systemImage: "externaldrive.badge.icloud")
                         }
                         Button {
                             importSource = .googleDrive
@@ -213,6 +224,12 @@ struct SettingsView: View {
                         Text(backupSync.status)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                        Text(backupSync.cloudDiagnostic)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Button("Check iCloud Connection") {
+                            backupSync.refreshCloudDiagnostics()
+                        }
                         }
                     } label: {
                         SettingsHomeLinkLabel(title: "Backup & Sync", subtitle: "iCloud and Google Drive", icon: "icloud.fill", tint: AppTheme.blue)
@@ -348,6 +365,7 @@ struct SettingsView: View {
             .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
             .navigationTitle("Settings")
             .onAppear {
+                backupSync.refreshCloudDiagnostics()
                 selectedCurrency = store.currencyCode
                 openAIConnected = OpenAIService.shared.hasAPIKey
                 if openAIConnected && openAISaveStatus.isEmpty {
@@ -356,14 +374,6 @@ struct SettingsView: View {
             }
             .onChange(of: selectedCurrency) { store.updateCurrency($0) }
             .fileExporter(
-                isPresented: $exportingBackup,
-                document: backupDocument,
-                contentType: .json,
-                defaultFilename: "DailyLedger-Backup"
-            ) { result in
-                showExportResult(result, format: "backup")
-            }
-            .fileExporter(
                 isPresented: $exportingCSV,
                 document: csvDocument,
                 contentType: .commaSeparatedText,
@@ -371,19 +381,35 @@ struct SettingsView: View {
             ) { result in
                 showExportResult(result, format: "CSV file")
             }
-            .fileExporter(
-                isPresented: $exportingGoogleDrive,
-                document: backupDocument,
-                contentType: .json,
-                defaultFilename: "DailyLedger-GoogleDrive-Backup"
-            ) { result in
-                showExportResult(result, format: "Google Drive backup")
+            .sheet(isPresented: $showingNativeBackupPicker) {
+                if let backupExportURL {
+                    LedgerBackupExportPicker(fileURL: backupExportURL) { result in
+                        showingNativeBackupPicker = false
+                        backupExportURL = nil
+                        showExportResult(result, format: "JSON backup")
+                    }
+                }
             }
             .sheet(isPresented: $showingImporter) {
-                ImportDocumentPicker { result in
+                LedgerBackupImportPicker { result in
                     showingImporter = false
-                    importFile(result, source: importSource)
+                    DispatchQueue.main.async {
+                        previewImportData(result, source: importSource)
+                    }
                 }
+            }
+            .confirmationDialog("Import Selected Backup?",
+                                isPresented: $showingImportConfirmation,
+                                titleVisibility: .visible) {
+                Button("Merge Verified Backup") {
+                    if let data = pendingImportData {
+                        pendingImportData = nil
+                        importVerifiedData(data, source: importSource)
+                    }
+                }
+                Button("Cancel", role: .cancel) { pendingImportData = nil }
+            } message: {
+                Text(importPreview)
             }
             .alert(item: $notice) { notice in
                 Alert(
@@ -566,6 +592,53 @@ struct SettingsView: View {
                     notice = SettingsNotice(title: "Connection Failed", message: error.localizedDescription)
                 }
             }
+        }
+    }
+
+    private func prepareBackupForFiles() {
+        do {
+            let verified = try LedgerDiskStore.shared.verifiedBackupData()
+            let base = FileManager.default.temporaryDirectory
+                .appendingPathComponent("NextLedger-Verified-Export", isDirectory: true)
+            try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+            let timestamp = ISO8601DateFormatter().string(from: Date())
+                .replacingOccurrences(of: ":", with: "-")
+            let url = base.appendingPathComponent("NextLedger-Backup-\(timestamp).json")
+            try verified.data.write(to: url, options: .atomic)
+            // Verify the exact file sent to Files/Drive, never an empty in-memory snapshot.
+            _ = try ImportExportCodec.decode(data: Data(contentsOf: url))
+            backupExportURL = url
+            showingNativeBackupPicker = true
+        } catch {
+            notice = SettingsNotice(title: "Backup Not Exported",
+                message: "The original ledger JSON could not be verified. Existing backups remain untouched. \(error.localizedDescription)")
+        }
+    }
+
+    private func previewImportData(_ result: Result<Data, Error>, source: ImportSource) {
+        do {
+            let data = try result.get()
+            let payload = try ImportExportCodec.decode(data: data)
+            guard !payload.accounts.isEmpty || !payload.transactions.isEmpty else {
+                throw CocoaError(.fileReadCorruptFile)
+            }
+            pendingImportData = data
+            importPreview = "This file contains \(payload.transactions.count) transactions and \(payload.accounts.count) accounts. Verified records will be merged by ID, not replace the existing ledger. A full backup may also update settings. Continue?"
+            showingImportConfirmation = true
+        } catch {
+            notice = SettingsNotice(title: "Backup File Not Accepted",
+                message: "Select a valid Next Ledger .json backup (or supported CSV) from Files, iCloud Drive, or Google Drive. \(error.localizedDescription)")
+        }
+    }
+
+    private func importVerifiedData(_ data: Data, source: ImportSource) {
+        do {
+            let summary = try store.importData(data)
+            notice = SettingsNotice(title: "Import Complete",
+                message: "Added \(summary.transactionCount) transactions and \(summary.accountCount) accounts. Existing matching IDs were not duplicated.")
+        } catch {
+            notice = SettingsNotice(title: "Backup Import Failed",
+                message: error.localizedDescription)
         }
     }
 
