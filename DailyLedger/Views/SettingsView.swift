@@ -198,54 +198,65 @@ struct SettingsView: View {
                 Section {
                     NavigationLink {
                         SettingsSectionPage(title: "Backup & Sync") {
-                        Toggle("iCloud Drive Sync", isOn: $iCloudSyncEnabled)
-                        Button {
-                            store.syncBackupNow()
-                            backupSync.refreshCloudDiagnostics()
-                        } label: {
-                            Label("Back Up to iCloud Now", systemImage: "icloud.and.arrow.up.fill")
-                        }
-                        Button {
-                            prepareBackupForFiles()
-                        } label: {
-                            Label("Save JSON to Files / Drive", systemImage: "square.and.arrow.up")
-                        }
-                        LedgerRestoreImportControl(
-                            title: "Restore JSON Backup from Files",
-                            symbol: "doc.text.magnifyingglass"
-                        )
-                        Button {
-                            store.restoreLatestICloudBackup()
-                        } label: {
-                            Label("Restore Latest Automatic iCloud Backup", systemImage: "icloud.and.arrow.down.fill")
-                        }
-                        Button {
-                            prepareBackupForFiles()
-                        } label: {
-                            Label("Save to Google Drive / Files", systemImage: "externaldrive.badge.icloud")
-                        }
-                        LedgerRestoreImportControl(
-                            title: "Restore from Google Drive / Files",
-                            symbol: "arrow.down.doc.fill"
-                        )
-                        LabeledContent("Last Device Backup") {
-                            Text(backupSync.lastBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
-                        }
-                        LabeledContent("Last iCloud File Write") {
-                            Text(backupSync.lastCloudBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
-                        }
-                        Text("Keeps 10 local backup files. iCloud requires Apple iCloud entitlement; manual Google Drive export does not automatically sync.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(backupSync.status)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(backupSync.cloudDiagnostic)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Button("Check iCloud Connection") {
-                            backupSync.refreshCloudDiagnostics()
-                        }
+                            VStack(alignment: .leading, spacing: 14) {
+                                Label("iCloud Backup", systemImage: "icloud.fill")
+                                    .font(.headline)
+                                    .foregroundStyle(AppTheme.purple)
+                                Toggle("iCloud Drive Sync", isOn: $iCloudSyncEnabled)
+                                Button {
+                                    store.syncBackupNow()
+                                    backupSync.refreshCloudDiagnostics()
+                                } label: {
+                                    Label("Back Up to iCloud Now", systemImage: "icloud.and.arrow.up.fill")
+                                }
+                                LabeledContent("Last Device Backup") {
+                                    Text(backupSync.lastBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
+                                }
+                                LabeledContent("Last iCloud Write") {
+                                    Text(backupSync.lastCloudBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
+                                }
+                                Text(backupSync.status)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(backupSync.cloudDiagnostic)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Button("Check iCloud Connection") {
+                                    backupSync.refreshCloudDiagnostics()
+                                }
+                            }
+                            .padding(14)
+                            .background(Color(uiColor: .secondarySystemGroupedBackground),
+                                        in: RoundedRectangle(cornerRadius: 16))
+
+                            VStack(alignment: .leading, spacing: 12) {
+                                Label("Export & Restore", systemImage: "externaldrive.fill")
+                                    .font(.headline)
+                                    .foregroundStyle(AppTheme.purple)
+                                Button {
+                                    prepareBackupForFiles()
+                                } label: {
+                                    Label("Export JSON to Files / Google Drive", systemImage: "square.and.arrow.up")
+                                }
+                                Divider()
+                                LedgerRestoreImportControl(
+                                    title: "Import JSON Backup",
+                                    symbol: "doc.text.magnifyingglass"
+                                )
+                                Divider()
+                                Button {
+                                    store.restoreLatestICloudBackup()
+                                } label: {
+                                    Label("Restore Latest Automatic iCloud Backup",
+                                          systemImage: "icloud.and.arrow.down.fill")
+                                }
+                                Text("JSON import is previewed before merging. Keep an off-device copy before restoring a populated ledger.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(14)
+                            .background(Color(uiColor: .secondarySystemGroupedBackground),
+                                        in: RoundedRectangle(cornerRadius: 16))
                         }
                     } label: {
                         SettingsHomeLinkLabel(title: "Backup & Sync", subtitle: "iCloud and Google Drive", icon: "icloud.fill", tint: AppTheme.blue)
