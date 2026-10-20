@@ -56,6 +56,11 @@ jobs:
           brew install xcodegen
           xcodegen generate
           grep -q 'DailyLedger.entitlements' DailyLedger.xcodeproj/project.pbxproj
+          # XcodeGen writes the entitlement file; verify actual generated values.
+          grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'com.apple.developer.ubiquity-container-identifiers' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'iCloud.com.nextsolution.dailyledger' DailyLedger/DailyLedger.entitlements
+          /usr/libexec/PlistBuddy -c 'Print com.apple.developer.icloud-services:0' DailyLedger/DailyLedger.entitlements | grep -Fq 'CloudDocuments'
 
       - name: Build unsigned device IPA for personal Ad Hoc certificate signing
         shell: bash
