@@ -26,7 +26,9 @@ struct LedgerRestoreImportControl: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        // Group makes each action a separate List row. Do not wrap the
+        // picker and folder controls in a VStack (one giant merged cell).
+        Group {
             Button {
                 selectedBackup = nil
                 selectedSummary = nil
@@ -35,17 +37,28 @@ struct LedgerRestoreImportControl: View {
                 pickerPresented = true
             } label: {
                 Label(title, systemImage: symbol)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
             }
             .disabled(merging || reading)
             .accessibilityIdentifier("ledger.restore.choose")
+            .fileImporter(
+                isPresented: $pickerPresented,
+                allowedContentTypes: [.json, .plainText, .data, .content]
+            ) { result in
+                onFileImporterResult(result)
+            }
 
             Button {
                 refreshInbox()
             } label: {
                 Label("Find JSON in App Imports Folder", systemImage: "folder")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
             }
             .disabled(merging || reading)
             .accessibilityIdentifier("ledger.restore.inbox")
+            .onAppear { ensureInbox() }
 
             if !inboxFiles.isEmpty {
                 ForEach(inboxFiles, id: \.path) { url in
@@ -54,17 +67,21 @@ struct LedgerRestoreImportControl: View {
                     } label: {
                         Label(url.lastPathComponent, systemImage: "doc.text")
                             .lineLimit(2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
                     }
                     .disabled(merging || reading)
                 }
             }
-            Text("Picker alternative: in Files, move/copy the JSON to On My iPhone → Next Ledger → Imports, then tap Find JSON in App Imports Folder.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
 
             if reading {
-                ProgressView("Reading selected backup from Files…")
-                    .font(.caption)
+                HStack(spacing: 10) {
+                    ProgressView()
+                    Text("Reading selected backup…")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityIdentifier("ledger.restore.reading")
             }
 
             if let selectedSummary, selectedBackup != nil {
@@ -73,7 +90,7 @@ struct LedgerRestoreImportControl: View {
                         .font(.subheadline.bold())
                     Text(selectedSummary)
                         .font(.subheadline)
-                    Text("Nothing has been imported yet. Merging adds missing transactions/accounts by ID; backup settings may also update your preferences.")
+                    Text("No records have changed yet. Merge adds missing IDs and may update preferences.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -93,34 +110,32 @@ struct LedgerRestoreImportControl: View {
                             statusMessage = "Import cancelled. Existing ledger data is unchanged."
                             statusIsError = false
                         }
+                        .buttonStyle(.bordered)
                         .disabled(merging)
                     }
                 }
-                .padding(12)
-                .background(Color.blue.opacity(0.07), in: RoundedRectangle(cornerRadius: 12))
+                .padding(.vertical, 6)
             }
 
-            if merging { ProgressView("Merging verified backup…") }
-            if let statusMessage {
-                Text(statusMessage)
-                    .font(.caption)
-                    .foregroundStyle(statusIsError ? Color.red : Color.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("ledger.restore.status")
+            if merging {
+                HStack(spacing: 10) {
+                    ProgressView()
+                    Text("Merging verified backup…")
+                }
+            }
+
+            if let statusMessage, !statusMessage.isEmpty {
+                Label {
+                    Text(statusMessage)
+                        .font(.caption)
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: statusIsError ? "exclamationmark.triangle" : "info.circle")
+                }
+                .foregroundStyle(statusIsError ? Color.red : Color.secondary)
+                .accessibilityIdentifier("ledger.restore.status")
             }
         }
-        // Build 94 wrapped UIDocumentPickerViewController in a SwiftUI .sheet
-        // and used .item alone as its document type. On-device, tapping JSON
-        // could leave that UIKit picker open without a delegate callback.
-        // Use SwiftUI's native FILE IMPORTER instead, with recognized JSON/text
-        // content types and the scoped URL delivered by its own completion.
-        .fileImporter(
-            isPresented: $pickerPresented,
-            allowedContentTypes: [.json, .plainText, .data, .content]
-        ) { result in
-            onFileImporterResult(result)
-        }
-        .onAppear { ensureInbox() }
     }
 
     private func ensureInbox() {
