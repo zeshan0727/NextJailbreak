@@ -97,8 +97,10 @@ final class BackupSyncService: ObservableObject {
     /// Keep the existing Restore Latest flow working. A legacy one-file backup
     /// remains readable even before the first rotating snapshot.
     func restoreLatestICloudBackup() throws -> LedgerData {
-        guard let url = iCloudBackupURL,
-              FileManager.default.fileExists(atPath: url.path) else {
+        guard let url = iCloudBackupURL else {
+            throw BackupSyncError.iCloudContainerUnavailable
+        }
+        guard FileManager.default.fileExists(atPath: url.path) else {
             throw BackupSyncError.iCloudBackupUnavailable
         }
         return try decoder.decode(LedgerData.self, from: Data(contentsOf: url))
@@ -241,12 +243,15 @@ final class BackupSyncService: ObservableObject {
 
 enum BackupSyncError: LocalizedError {
     case iCloudBackupUnavailable
+    case iCloudContainerUnavailable
     case invalidBackup
 
     var errorDescription: String? {
         switch self {
         case .iCloudBackupUnavailable:
-            return "iCloud Drive backup is missing or this signed build lacks an iCloud entitlement."
+            return "No automatic iCloud backup is present yet. To restore a JSON file you already have, use Restore JSON Backup from Files instead."
+        case .iCloudContainerUnavailable:
+            return "This signed app cannot access the Next Ledger iCloud container. The signer must preserve CloudDocuments and the iCloud.com.nextsolution.dailyledger identifier."
         case .invalidBackup:
             return "Backup failed integrity validation; older snapshots were not deleted."
         }
