@@ -177,6 +177,68 @@ class EntitlementTests(unittest.TestCase):
         signed = self.prepare()
         self.assertEqual(signed["keychain-access-groups"], [APP_ID, second])
 
+    def test_profile_explicit_com_apple_token_preserved_in_icloud_mode(self):
+        # Real-world Build 29 failure: some Ad Hoc profiles enumerate
+        # com.apple.token in addition to their own team-scoped app group.
+        self.profile_data["Entitlements"]["keychain-access-groups"] = [
+            TEAM + ".*", "com.apple.token"
+        ]
+        claims = self.prepare()
+        self.assertEqual(claims["keychain-access-groups"], [
+            APP_ID, "com.apple.token"
+        ])
+        self.assertEqual(claims["com.apple.developer.icloud-services"], ["CloudDocuments"])
+        self.create_ipa(claims)
+        with patch.dict(os.environ, self.env):
+            validator.verify()
+
+    def test_profile_explicit_com_apple_token_preserved_from_custom_plist(self):
+        from pathlib import Path
+        self.profile_data["Entitlements"]["keychain-access-groups"] = [
+            TEAM + ".*", "com.apple.token"
+        ]
+        custom = Path(self.temporary.name) / "custom.entitlements"
+        self.env["ICLOUD_DOCUMENTS"] = "false"
+        self.env["CUSTOM_ENTITLEMENTS_PATH"] = str(custom)
+        custom.write_bytes(plistlib.dumps({
+            "keychain-access-groups": ["com.apple.token", "$(AppIdentifierPrefix)*"],
+            "com.apple.developer.icloud-services": ["CloudDocuments"],
+            "com.apple.developer.icloud-container-identifiers": [CONTAINER],
+            "com.apple.developer.ubiquity-container-identifiers": [CONTAINER],
+        }))
+        signed = self.prepare()
+        self.assertEqual(signed["keychain-access-groups"], [
+            "com.apple.token", APP_ID
+        ])
+        self.create_ipa(signed)
+        with patch.dict(os.environ, self.env):
+            validator.verify()
+
+    def test_reject_com_apple_token_when_only_team_wildcard_authorized(self):
+        from pathlib import Path
+        # TeamID.* must not grant a reserved Apple keychain group.
+        self.profile_data["Entitlements"]["keychain-access-groups"] = [TEAM + ".*"]
+        custom = Path(self.temporary.name) / "unauthorized.entitlements"
+        self.env["ICLOUD_DOCUMENTS"] = "false"
+        self.env["CUSTOM_ENTITLEMENTS_PATH"] = str(custom)
+        custom.write_bytes(plistlib.dumps({
+            "keychain-access-groups": ["com.apple.token"]
+        }))
+        with self.assertRaisesRegex(ValueError, "Keychain access group"):
+            self.prepare()
+
+    def test_reject_reserved_group_under_broad_profile_wildcard(self):
+        from pathlib import Path
+        self.profile_data["Entitlements"]["keychain-access-groups"] = ["*"]
+        custom = Path(self.temporary.name) / "invalid.entitlements"
+        self.env["ICLOUD_DOCUMENTS"] = "false"
+        self.env["CUSTOM_ENTITLEMENTS_PATH"] = str(custom)
+        custom.write_bytes(plistlib.dumps({
+            "keychain-access-groups": ["com.apple.token"]
+        }))
+        with self.assertRaisesRegex(ValueError, "Keychain access group"):
+            self.prepare()
+
     def test_final_macho_entitlements_must_match(self):
         expected = self.prepare()
         self.create_ipa(expected)
