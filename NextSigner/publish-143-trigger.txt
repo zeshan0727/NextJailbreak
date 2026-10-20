@@ -19,3 +19,7 @@ Build Run ID: 39420298666
 Build Number: 30
 Release branch: release/nextsigner-1.4.3-build30-keychain-profile-groups
 SHA-256: 55826888a77339114090c30ae1ef4b3db97945967a79f409b1f5b7926b7ba423
+Build Run ID: 39421950813
+Build Number: 31
+Release branch: release/nextsigner-1.4.3-build31-icloud-profile-shapes
+SHA-256: 5a20f1372f46d14f640f2456dd5e6f287a538e33cf8151b40b12f8606ccee8b6
