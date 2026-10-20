@@ -142,6 +142,23 @@ def prepare():
             ent[key] = team
         elif key == "get-task-allow":
             ent[key] = False
+        elif key == "com.apple.developer.icloud-services":
+            # A real Apple profile can authorize this service with a scalar "*".
+            # The final signed entitlement must still be a string ARRAY.
+            if key in requested:
+                services = requested[key]
+                if (not isinstance(services, list) or not services or
+                    not all(s in ("CloudDocuments", "CloudKit") for s in services)):
+                    raise ValueError("Signed iCloud services must be CloudDocuments/CloudKit list.")
+                ent[key] = services
+            elif isinstance(value, list) and "*" not in value:
+                ent[key] = value
+            elif isinstance(value, str) and value != "*":
+                ent[key] = [value]
+        elif key == "com.apple.developer.icloud-container-environment":
+            if key in requested and requested[key] != "Production":
+                raise ValueError("Ad Hoc iCloud signing requires Production environment.")
+            ent[key] = "Production"
         elif key == "com.apple.developer.ubiquity-kvstore-identifier":
             # Apple's wildcard permission (such as TeamID.*) must never
             # appear in the actual signed entitlements. Match the Swift
@@ -182,7 +199,8 @@ def prepare():
     ent["com.apple.developer.team-identifier"] = team
     ent["get-task-allow"] = False
     for key, value in requested.items():
-        if key in ("keychain-access-groups", "com.apple.developer.ubiquity-kvstore-identifier"):
+        if key in ("keychain-access-groups", "com.apple.developer.ubiquity-kvstore-identifier",
+                   "com.apple.developer.icloud-services", "com.apple.developer.icloud-container-environment"):
             continue  # Sanitized and profile-validated before this loop.
         if key in ("application-identifier", "com.apple.application-identifier",
                    "com.apple.developer.team-identifier", "get-task-allow"):
@@ -195,7 +213,24 @@ def prepare():
             raise ValueError("Provisioning profile does not permit entitlement: " + key)
         if has_wildcard(value):
             raise ValueError("Cannot sign unresolved wildcard entitlement: " + key)
-        if key in ent_allowed and not permitted(value, ent_allowed[key]):
+        if key == "com.apple.developer.icloud-services":
+            allowed = ent_allowed.get(key)
+            if (not isinstance(value, list) or not value or
+                not all(s in ("CloudDocuments", "CloudKit") for s in value)):
+                raise ValueError("Signed iCloud services must be an allowed array.")
+            if isinstance(allowed, str):
+                authorized = allowed == "*" or (len(value) == 1 and value[0] == allowed)
+            else:
+                authorized = permitted(value, allowed)
+        elif key == "com.apple.developer.icloud-container-environment":
+            allowed = ent_allowed.get(key)
+            authorized = value == "Production" and (
+                ("Production" in allowed or "*" in allowed) if isinstance(allowed, list)
+                else permitted(value, allowed)
+            )
+        else:
+            authorized = key not in ent_allowed or permitted(value, ent_allowed[key])
+        if not authorized:
             raise ValueError("Provisioning profile does not authorize entitlement value: " + key)
     path_out.write_bytes(plistlib.dumps(ent, fmt=plistlib.FMT_XML, sort_keys=True))
     print("Validated explicit signing entitlements for the selected profile, team and bundle ID.")
