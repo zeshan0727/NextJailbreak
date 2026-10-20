@@ -46,10 +46,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ARTIFACT_ID="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts?name=${ARTIFACT_NAME}&per_page=100" --jq '.artifacts | map(select(.expired == false)) | sort_by(.created_at) | reverse | .[0].id // empty')"
-          test -n "$ARTIFACT_ID" || { echo "No non-expired artifact named $ARTIFACT_NAME was found"; exit 1; }
+          BUILD_RUN_ID="$(sed -n 's/^Build Run ID: \([0-9][0-9]*\)$/\1/p' NextSigner/publish-143-trigger.txt | tail -n1)"
+          test -n "$BUILD_RUN_ID" || { echo 'Missing exact successful Build Run ID in trigger'; exit 1; }
+          CONCLUSION="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${BUILD_RUN_ID}" --jq '.conclusion')"
+          test "$CONCLUSION" = "success" || { echo "Build run $BUILD_RUN_ID was not successful"; exit 1; }
+          ARTIFACT_ID="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${BUILD_RUN_ID}/artifacts" --jq ".artifacts | map(select(.name == \"$ARTIFACT_NAME\" and .expired == false)) | .[0].id // empty")"
+          test -n "$ARTIFACT_ID" || { echo "No valid $ARTIFACT_NAME artifact in run $BUILD_RUN_ID"; exit 1; }
           echo "ARTIFACT_ID=$ARTIFACT_ID" >> "$GITHUB_ENV"
-          echo "Using artifact ID $ARTIFACT_ID"
+          echo "Publishing verified artifact $ARTIFACT_ID from run $BUILD_RUN_ID"
 
       - name: Download Next Signer artifact
         shell: bash
@@ -75,7 +79,7 @@ jobs:
           set -euo pipefail
           export PATH="$HOME/.local/bin:$PATH"
           SRC="$RUNNER_TEMP/NextSigner-${VERSION}.tipa"
-          OBJECT_KEY="apps/tipa/NextSigner/${VERSION}/NextSigner-${VERSION}.tipa"
+          OBJECT_KEY="apps/tipa/NextSigner/${VERSION}/artifact-${ARTIFACT_ID}/NextSigner-${VERSION}.tipa"
           PUBLIC_URL="$R2_PUBLIC_BASE/$OBJECT_KEY"
           SHA256=$(sha256sum "$SRC" | awk '{print $1}')
           SIZE_BYTES=$(stat -c '%s' "$SRC")
