@@ -120,6 +120,56 @@ final class SignerStore: ObservableObject {
         }
     }
 
+    func importProvisioningProfile(from url: URL) {
+        guard url.pathExtension.lowercased() == "mobileprovision" else {
+            errorMessage = "Select an Apple .mobileprovision Ad Hoc profile."
+            return
+        }
+        do {
+            let saved = try copyIntoPrivateStaging(url, subfolder: "Profiles")
+            guard (try FileManager.default.attributesOfItem(atPath: saved.path)[.size] as? NSNumber)?.intValue ?? 0 > 100 else {
+                try? FileManager.default.removeItem(at: saved)
+                throw NextSignerError.invalidAttachment("Selected provisioning profile is empty.")
+            }
+            if let old = request.customProvisioningURL { try? FileManager.default.removeItem(at: old) }
+            request.customProvisioningURL = saved
+            errorMessage = nil
+        } catch {
+            errorMessage = "Cannot import Ad Hoc profile: \(error.localizedDescription)"
+        }
+    }
+
+    func clearProvisioningProfile() {
+        if let url = request.customProvisioningURL { try? FileManager.default.removeItem(at: url) }
+        request.customProvisioningURL = nil
+    }
+
+    func importEntitlements(from url: URL) {
+        guard ["entitlements", "plist"].contains(url.pathExtension.lowercased()) else {
+            errorMessage = "Choose a .entitlements or .plist XML file."
+            return
+        }
+        do {
+            let saved = try copyIntoPrivateStaging(url, subfolder: "Entitlements")
+            let data = try Data(contentsOf: saved)
+            guard data.count > 8, data.count < 100_000,
+                  (try PropertyListSerialization.propertyList(from: data, format: nil)) is [String: Any] else {
+                throw NextSignerError.invalidAttachment("Selected entitlements plist is invalid or too large.")
+            }
+            if let old = request.customEntitlementsURL { try? FileManager.default.removeItem(at: old) }
+            request.customEntitlementsURL = saved
+            request.enableICloudDocuments = false
+            errorMessage = nil
+        } catch {
+            errorMessage = "Cannot import entitlements: \(error.localizedDescription)"
+        }
+    }
+
+    func clearEntitlements() {
+        if let url = request.customEntitlementsURL { try? FileManager.default.removeItem(at: url) }
+        request.customEntitlementsURL = nil
+    }
+
     func clearCustomIcon() {
         if let url = request.customIconURL { try? FileManager.default.removeItem(at: url) }
         request.customIconURL = nil
@@ -170,6 +220,8 @@ final class SignerStore: ObservableObject {
     func clearSelectedIPA(removeMessage: Bool = true) {
         if let url = request.ipaURL { try? FileManager.default.removeItem(at: url) }
         if let url = request.customIconURL { try? FileManager.default.removeItem(at: url) }
+        if let url = request.customProvisioningURL { try? FileManager.default.removeItem(at: url) }
+        if let url = request.customEntitlementsURL { try? FileManager.default.removeItem(at: url) }
         for url in request.tweakURLs { try? FileManager.default.removeItem(at: url) }
         request = SignRequest()
         duplicateBaseBundleID = nil
