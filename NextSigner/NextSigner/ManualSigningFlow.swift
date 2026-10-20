@@ -87,6 +87,10 @@ actor ManualSigningService {
         appName: String,
         bundleID: String,
         customIconURL: URL?,
+        customProvisioningURL: URL?,
+        customEntitlementsURL: URL?,
+        iCloudDocuments: Bool,
+        iCloudContainer: String,
         tweakURLs: [URL],
         duplicateSigning: Bool,
         injectExtensions: Bool,
@@ -109,6 +113,16 @@ actor ManualSigningService {
             iconAsset = makeStagingAssetName(original: customIconURL.lastPathComponent, stamp: stamp, role: "icon")
             try await uploadAsset(fileURL: customIconURL, name: iconAsset, release: release)
         }
+        var provisionAsset = ""
+        if let customProvisioningURL {
+            provisionAsset = makeStagingAssetName(original: customProvisioningURL.lastPathComponent, stamp: stamp, role: "provision")
+            try await uploadAsset(fileURL: customProvisioningURL, name: provisionAsset, release: release)
+        }
+        var entitlementsAsset = ""
+        if let customEntitlementsURL {
+            entitlementsAsset = makeStagingAssetName(original: customEntitlementsURL.lastPathComponent, stamp: stamp, role: "entitlements")
+            try await uploadAsset(fileURL: customEntitlementsURL, name: entitlementsAsset, release: release)
+        }
         await progress(0.50, "Signing options uploaded")
 
         var tweakAssets: [String] = []
@@ -129,6 +143,10 @@ actor ManualSigningService {
             appName: appName,
             bundleID: bundleID,
             customIconAsset: iconAsset,
+            customProvisionAsset: provisionAsset,
+            customEntitlementsAsset: entitlementsAsset,
+            iCloudDocuments: iCloudDocuments,
+            iCloudContainer: iCloudContainer,
             tweakAssetsJSON: tweakJSON,
             duplicateSigning: duplicateSigning,
             injectExtensions: injectExtensions,
@@ -267,6 +285,10 @@ actor ManualSigningService {
         appName: String,
         bundleID: String,
         customIconAsset: String,
+        customProvisionAsset: String,
+        customEntitlementsAsset: String,
+        iCloudDocuments: Bool,
+        iCloudContainer: String,
         tweakAssetsJSON: String,
         duplicateSigning: Bool,
         injectExtensions: Bool,
@@ -281,6 +303,10 @@ actor ManualSigningService {
                 "requested_name": appName,
                 "requested_bundle_id": bundleID,
                 "custom_icon_asset": customIconAsset,
+                "custom_provision_asset": customProvisionAsset,
+                "custom_entitlements_asset": customEntitlementsAsset,
+                "icloud_documents": iCloudDocuments ? "true" : "false",
+                "icloud_container": iCloudDocuments ? iCloudContainer : "",
                 "tweak_assets_json": tweakAssetsJSON,
                 "duplicate_signing": duplicateSigning ? "true" : "false",
                 "inject_extensions": injectExtensions ? "true" : "false",
@@ -440,6 +466,15 @@ final class ManualSignController: ObservableObject {
             errorMessage = "Enter a valid app name and bundle identifier before signing."
             return
         }
+        if store.request.enableICloudDocuments {
+            guard !store.request.duplicateSigning,
+                  store.request.customProvisioningURL != nil,
+                  store.request.iCloudContainerIdentifier.hasPrefix("iCloud."),
+                  !store.request.iCloudContainerIdentifier.contains(" ") else {
+                errorMessage = "iCloud signing requires the exact container and a matching explicit .mobileprovision profile. Disable duplicate signing."
+                return
+            }
+        }
         guard store.configuration.isValid else {
             errorMessage = NextSignerError.invalidConfiguration.localizedDescription
             return
@@ -477,6 +512,10 @@ final class ManualSignController: ObservableObject {
                     appName: snapshot.appName,
                     bundleID: snapshot.bundleID,
                     customIconURL: snapshot.customIconURL,
+                    customProvisioningURL: snapshot.customProvisioningURL,
+                    customEntitlementsURL: snapshot.customEntitlementsURL,
+                    iCloudDocuments: snapshot.enableICloudDocuments,
+                    iCloudContainer: snapshot.iCloudContainerIdentifier,
                     tweakURLs: snapshot.tweakURLs,
                     duplicateSigning: snapshot.duplicateSigning,
                     injectExtensions: snapshot.injectTweaksIntoExtensions,
