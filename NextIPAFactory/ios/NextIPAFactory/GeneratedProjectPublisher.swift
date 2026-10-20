@@ -102,6 +102,7 @@ struct FactoryGitWriter {
     @Published var running = false
     @Published var message = "Generate a native Xcode project using your Integrator agent."
     @Published var lastSession = ""
+    @Published var engineeredPrompt = ""
     @Published var activity: [FactoryGenerationEvent] = []
     @Published var startedAt: Date?
     @Published var liveState = "Ready"
@@ -112,47 +113,129 @@ struct FactoryGitWriter {
             if activity.count > 30 { activity.removeFirst(activity.count - 30) }
         }
     }
-    func generate(using factory: LocalFactoryState) async {
-        let id = factory.agentIDs["Integrator"] ?? ""
-        guard !id.isEmpty else { message = "Set the Integrator agent ID in Settings first."; return }
-        guard !command.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { message = "Describe the app you want to create."; return }
+    func generate(using factory: LocalFactoryState, reuseEditedPrompt: Bool = false) async {
+        let integratorID = factory.agentIDs["Integrator"] ?? ""
+        let engineerID = factory.agentIDs["Prompt Engineer"] ?? ""
+        guard !integratorID.isEmpty else {
+            message = "Add the Integrator agent ID in Settings first."
+            return
+        }
+        guard reuseEditedPrompt || !engineerID.isEmpty else {
+            message = "Add the Prompt Engineer agent ID in Settings first."
+            return
+        }
+        let request = command.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !request.isEmpty else {
+            message = "Describe the app you want to create, in your own words."
+            return
+        }
+        guard !reuseEditedPrompt || !engineeredPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            message = "There is no prepared prompt to use."
+            return
+        }
+
         running = true
+        proposed = []
         activity = []
         startedAt = Date()
-        report("Preparing generation request")
+        lastSession = ""
+        report("Starting app development")
         defer { running = false }
-        let spec = """
-        Create a COMPLETE, MINIMAL, COMPILABLE iPhone SwiftUI XcodeGen project for this request:
-        \(command)
-        Target iOS 16.0. The full reply must be exactly ONE JSON object, with this shape:
-        {"files":[{"path":"project.yml","content":"..."},{"path":"Sources/GeneratedApp.swift","content":"..."}]}
-        project.yml MUST use name: GeneratedApp, target GeneratedApp, type application, platform iOS, sources path Sources.
-        Swift file must contain @main struct GeneratedAppApp: App. No omitted sections, TODOs, markdown, external assets, or fake verifications.
-        Include actual working implementation, not descriptions. iOS 16 SwiftUI, all required imports.
-        Never invent an Xcode build result.
-        """
+
         do {
-            report("Connecting to Integrator agent")
-            let fullText = try await factory.gateway.runAgentWithProgress(agentID: id, task: spec, onStarted: { [weak self] session in
-                self?.lastSession = session
-                self?.report("Agent session created")
-                self?.message = "Live agent session: " + session
-            }, onStatus: { [weak self] status in
-                self?.report("OpenAI session: " + status)
-            })
-            report("Receiving generated source")
+            if !reuseEditedPrompt {
+                engineeredPrompt = ""
+                let brief = """
+                You are the Next IPA Factory Prompt Engineer. Expand the user's brief into
+                a precise, implementation-ready iOS app specification for another coding agent.
+                Do not return source code, JSON, Markdown fences, or claims of compilation.
+                Preserve every user-requested behavior and restriction. Do not add unrelated
+                functionality, require payments, backend services, or privileged capabilities.
+                Do not require a custom app icon or new assets unless the user requests them.
+                If a detail is unspecified, choose an ordinary iOS default rather than inventing
+                major features. Target iOS 16 and native SwiftUI unless the user says otherwise.
+                Provide: app purpose, screens, controls/actions, data model/persistence,
+                user flows, error cases, constraints, and specific acceptance tests.
+                Explicitly distinguish required features from reasonable defaults.
+                The prompt is handed straight to an implementation agent after this step.
+
+                ORIGINAL USER IDEA:
+                \(request)
+                """
+                report("Agent 1 • Prompt Engineer: expanding your idea")
+                message = "Preparing a development specification from your instructions."
+                let refined = try await factory.gateway.runAgentWithProgress(
+                    agentID: engineerID,
+                    task: brief,
+                    onStarted: { [weak self] session in
+                        self?.lastSession = session
+                        self?.report("Prompt Engineer session created")
+                    },
+                    onStatus: { [weak self] status in
+                        self?.report("Prompt Engineer: " + status)
+                    }
+                )
+                guard !refined.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    throw APIProblem(details: "Prompt Engineer returned an empty specification.")
+                }
+                engineeredPrompt = refined
+                report("Detailed prompt prepared; handing it to Agent 6")
+            } else {
+                report("Using your edited development prompt")
+            }
+
+            let spec = """
+            Develop this complete, working iPhone app from the original idea and
+            the detailed requirements written by the Prompt Engineer.
+
+            ORIGINAL USER IDEA (must not be contradicted):
+            \(request)
+
+            DETAILED DEVELOPMENT PROMPT:
+            \(String(engineeredPrompt.prefix(24000)))
+
+            Return exactly ONE valid JSON object of files, no commentary or code fences:
+            {"files":[{"path":"project.yml","content":"..."},{"path":"Sources/GeneratedApp.swift","content":"..."}]}
+            project.yml MUST use name: GeneratedApp; target: GeneratedApp;
+            type: application; platform: iOS; sources path: Sources.
+            Target iOS 16.0 or the user's requested compatible target.
+            Include exactly one @main struct GeneratedAppApp: App.
+            Implement requested controls, behavior, and persistence, with all imports.
+            No TODO placeholders, invented dependencies, or fabricated test results.
+            Only include app assets/icons when the user's requirements ask for them
+            and the source publishing/build pipeline supports the needed file format.
+            """
+            report("Agent 6 • Integrator: generating complete SwiftUI source")
+            message = "The detailed prompt is ready. Generating the Xcode project now."
+            let fullText = try await factory.gateway.runAgentWithProgress(
+                agentID: integratorID,
+                task: spec,
+                onStarted: { [weak self] session in
+                    self?.lastSession = session
+                    self?.report("Integrator session created")
+                },
+                onStatus: { [weak self] status in
+                    self?.report("Integrator: " + status)
+                }
+            )
+            report("Receiving and validating generated project")
             let cleaned = Self.extractJSON(fullText)
-            guard let data = cleaned.data(using: .utf8) else { throw APIProblem(details: "Agent output is not UTF-8.") }
-            report("Parsing Xcode project files")
+            guard let data = cleaned.data(using: .utf8) else {
+                throw APIProblem(details: "Integrator output is not UTF-8.")
+            }
             let payload = try JSONDecoder().decode(FactoryGeneratedManifest.self, from: data)
-            guard !payload.files.isEmpty else { throw APIProblem(details: "Agent returned an empty project.") }
+            guard !payload.files.isEmpty else {
+                throw APIProblem(details: "Integrator returned an empty project.")
+            }
             proposed = payload.files
-            report("Source ready for review: " + String(payload.files.count) + " files")
-            message = "Generated " + String(payload.files.count) + " files. Inspect the filenames before approving a GitHub commit."
+            report("Ready for review: " + String(payload.files.count) + " source files")
+            message = "Agent 1 prepared the prompt; Agent 6 generated " +
+                String(payload.files.count) + " source files. Review and approve GitHub publishing."
         } catch {
             proposed = []
-            report("Generation failed")
-            message = "Generation failed: " + error.localizedDescription + ". You can inspect session " + lastSession
+            report("Development stopped: " + error.localizedDescription)
+            message = "Generation failed: " + error.localizedDescription +
+                (lastSession.isEmpty ? "" : ". Session: " + lastSession)
         }
     }
     private static func extractJSON(_ raw: String) -> String {
@@ -192,12 +275,14 @@ struct FactoryCodeDeliveryView: View {
                     FactoryCard {
                         VStack(alignment: .leading, spacing: 12) {
                             Label("Generate an Xcode app", systemImage: "wand.and.stars").font(.headline)
-                            Text("The Integrator agent creates project files in an OpenAI-managed session. You approve before GitHub receives any writes.")
+                            Text("Describe an app in plain language. Agent 1 writes the detailed prompt, then Agent 6 builds the source automatically. You approve GitHub publishing.")
+                                
                                 .font(.caption).foregroundStyle(.secondary)
-                            TextField("App identifier (e.g. daily-notes)", text: $delivery.slug)
+                            TextField("App identifier (e.g. my-calculator)", text: $delivery.slug)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                                 .textFieldStyle(.roundedBorder)
+                            Text("Your app idea").font(.subheadline.weight(.semibold))
                             TextEditor(text: $delivery.command)
                                 .frame(minHeight: 130).padding(5)
                                 .scrollContentBackground(.hidden)
@@ -205,7 +290,7 @@ struct FactoryCodeDeliveryView: View {
                             Button {
                                 Task { await delivery.generate(using: factory) }
                             } label: {
-                                Label(delivery.running ? "Generating…" : "Generate complete source", systemImage: "sparkles")
+                                Label(delivery.running ? "Developing app…" : "Create app from my idea", systemImage: "sparkles")
                                     .frame(maxWidth: .infinity)
                             }.buttonStyle(.borderedProminent).tint(.indigo)
                                 .disabled(delivery.running)
@@ -238,6 +323,30 @@ struct FactoryCodeDeliveryView: View {
                             }
                             Divider()
                             Text(delivery.message).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+                        }
+                    }
+                    if !delivery.engineeredPrompt.isEmpty {
+                        FactoryCard {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Label("Prompt Engineer's development prompt", systemImage: "text.book.closed")
+                                    .font(.headline)
+                                Text("Automatically sent to the Integrator. You can edit and regenerate if needed.")
+                                    .font(.caption).foregroundStyle(.secondary)
+                                TextEditor(text: $delivery.engineeredPrompt)
+                                    .font(.system(.footnote, design: .monospaced))
+                                    .frame(minHeight: 180, maxHeight: 260)
+                                    .scrollContentBackground(.hidden)
+                                    .padding(5)
+                                    .background(Color.indigo.opacity(0.04), in: RoundedRectangle(cornerRadius: 12))
+                                Button {
+                                    Task { await delivery.generate(using: factory, reuseEditedPrompt: true) }
+                                } label: {
+                                    Label("Regenerate using edited prompt", systemImage: "arrow.clockwise")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.bordered)
+                                .disabled(delivery.running)
+                            }
                         }
                     }
                     if !delivery.proposed.isEmpty {
