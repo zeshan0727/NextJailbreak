@@ -229,7 +229,10 @@ struct LocalSignerService {
         }
 
         let embeddedProfile = appURL.appendingPathComponent("embedded.mobileprovision")
-        guard fm.fileExists(atPath: embeddedProfile.path), fileHasContent(embeddedProfile) else {
+        guard fm.fileExists(atPath: embeddedProfile.path), fileHasContent(embeddedProfile),
+              let selectedProvision = try? Data(contentsOf: provisioningURL),
+              let signedProvision = try? Data(contentsOf: embeddedProfile),
+              selectedProvision == signedProvision else {
             throw LocalSignerError.signedProfileMissing
         }
 
@@ -529,7 +532,7 @@ struct LocalSignerService {
                     guard let magic = word(startBlob, big: true), magic == 0xfade0cc0,
                           let total = word(startBlob + 4, big: true),
                           let entries = word(startBlob + 8, big: true),
-                          total <= length, entries <= (total - 12) / 8 else { return nil }
+                          total >= 12, total <= length, entries <= (total - 12) / 8 else { return nil }
                     for i in 0..<Int(entries) {
                         let row = startBlob + 12 + i * 8
                         guard row <= endBlob - 8, let slot = word(row, big: true),
