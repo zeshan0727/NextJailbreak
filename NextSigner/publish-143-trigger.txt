@@ -15,3 +15,7 @@ Build Run ID: 39418826388
 Build Number: 29
 Release branch: release/nextsigner-1.4.3-build29-ipa-identity
 SHA-256: 1b5b42b2d561455d0d60669f39b61c29e3bf143c27ebfe9220c3054a4d01e144
+Build Run ID: 39420298666
+Build Number: 30
+Release branch: release/nextsigner-1.4.3-build30-keychain-profile-groups
+SHA-256: 55826888a77339114090c30ae1ef4b3db97945967a79f409b1f5b7926b7ba423
