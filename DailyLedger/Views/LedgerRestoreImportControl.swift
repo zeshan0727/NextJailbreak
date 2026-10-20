@@ -205,10 +205,8 @@ struct LedgerRestoreImportControl: View {
                 // No NSFileCoordinator here: that was the blocking operation.
                 // The actual backup JSON is small (~1.8 MB), so an ordinary
                 // Data read and off-main JSON decode should complete promptly.
-                let fileSize = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize
-                if let fileSize, fileSize > 50 * 1_024 * 1_024 {
-                    throw LedgerPickerError.tooLarge
-                }
+                // Avoid querying provider metadata before the read: some
+                // Drive extensions block even resourceValues indefinitely.
                 let data = try Data(contentsOf: url)
                 guard !data.isEmpty else {
                     throw CocoaError(.fileReadCorruptFile)
