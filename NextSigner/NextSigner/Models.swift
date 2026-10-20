@@ -5,6 +5,11 @@ struct SignRequest: Equatable {
     var appName: String = ""
     var bundleID: String = ""
     var customIconURL: URL?
+    // Optional per-request profile and explicit entitlements. Never store P12 here.
+    var customProvisioningURL: URL?
+    var customEntitlementsURL: URL?
+    var enableICloudDocuments = false
+    var iCloudContainerIdentifier = ""
     var tweakURLs: [URL] = []
     var duplicateSigning = false
     var injectTweaksIntoExtensions = false
