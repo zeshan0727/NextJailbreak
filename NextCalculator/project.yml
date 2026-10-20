@@ -3,6 +3,8 @@ options:
   deploymentTarget:
     iOS: "16.0"
   createIntermediateGroups: true
+  xcodeVersion: "15.3"
+  projectFormat: xcode15_3
   bundleIdPrefix: com.nextsolution
 targets:
   NextCalculator:
