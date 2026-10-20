@@ -1,6 +1,10 @@
 name: NextIPAFactory
 options:
   bundleIdPrefix: com.nextsolution
+packages:
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation.git
+    from: 0.9.19
 settings:
   base:
     IPHONEOS_DEPLOYMENT_TARGET: '16.0'
@@ -14,6 +18,8 @@ targets:
     deploymentTarget: '16.0'
     sources:
       - path: NextIPAFactory
+    dependencies:
+      - package: ZIPFoundation
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.ipafactory
@@ -21,5 +27,5 @@ targets:
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_CFBundleDisplayName: Next IPA Factory
-        MARKETING_VERSION: 1.2.0
-        CURRENT_PROJECT_VERSION: 3
+        MARKETING_VERSION: 1.3.0
+        CURRENT_PROJECT_VERSION: 4
