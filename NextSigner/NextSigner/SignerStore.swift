@@ -72,15 +72,24 @@ final class SignerStore: ObservableObject {
     }
 
     func importIPA(from pickedURL: URL) {
+        var stagedURL: URL?
         do {
-            clearSelectedIPA(removeMessage: false)
             let localURL = try copyIntoPrivateStaging(pickedURL, subfolder: "Apps")
+            stagedURL = localURL
+            let original = try IPAIdentityReader.read(from: localURL)
+
+            // Commit the selection only after reading the real IPA identity.
+            // The staging filename begins with a UUID and MUST NOT be used
+            // to derive an app ID (especially for explicit iCloud App IDs).
+            clearSelectedIPA(removeMessage: false)
             request.ipaURL = localURL
-            request.appName = suggestedAppName(from: localURL.lastPathComponent)
-            request.bundleID = suggestedBundleID(from: request.appName)
+            request.appName = original.appName
+            request.bundleID = original.bundleID
+            request.iCloudContainerIdentifier = "iCloud." + original.bundleID
             errorMessage = nil
             successMessage = nil
         } catch {
+            if let stagedURL { try? FileManager.default.removeItem(at: stagedURL) }
             errorMessage = "Unable to import IPA: \(error.localizedDescription)"
         }
     }
