@@ -6,3 +6,4 @@ Build validation rerun after improved Zsign patch tolerance (1.4.3 Build 26), 20
 Compile feature branch b6a02fb800dc7ed8792512cc27f177c616291219 with capability-preserving entitlements and final signed arm64 verification.
 Final release qualification: build feature b6a02fb800dc7ed8792512cc27f177c616291219; run new signed-Mach-O and CloudDocuments regression test suite on 2026-10-20.
 Release qualification retry after test lookup correction; source commit b6a02fb800dc7ed8792512cc27f177c616291219.
+Build NextSigner 1.4.3 (27) iCloud KVS wildcard hotfix from release/nextsigner-1.4.3-build27-icloud-kvstore-fix; verify compiler, regression tests and IPA/TIPA archives.
