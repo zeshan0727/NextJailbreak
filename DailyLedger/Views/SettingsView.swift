@@ -349,7 +349,7 @@ struct SettingsView: View {
                 Section {
                     NavigationLink {
                         SettingsSectionPage(title: "About") {
-                        LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.81") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "90") + ")")
+                        LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.83") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "92") + ")")
                         LabeledContent("Author", value: "Next Solution – Zeeshan Barvi")
                         }
                     } label: {
