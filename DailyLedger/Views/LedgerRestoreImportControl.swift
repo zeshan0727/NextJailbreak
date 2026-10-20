@@ -1,9 +1,9 @@
 import Foundation
 import SwiftUI
+import UniformTypeIdentifiers
 
-/// A self-contained, visible restore flow for pages embedded in NavigationStack.
-/// Never requires presenting a second modal from a dismissed document picker.
-/// Selection only previews the backup: merging requires another explicit tap.
+/// Restore is a two-stage process: Files selection and review, then an
+/// explicit merge. Picking/reading a backup NEVER modifies stored ledger data.
 struct LedgerRestoreImportControl: View {
     @EnvironmentObject private var store: LedgerStore
 
@@ -15,19 +15,28 @@ struct LedgerRestoreImportControl: View {
     @State private var selectedSummary: String?
     @State private var statusMessage: String?
     @State private var statusIsError = false
+    @State private var reading = false
     @State private var merging = false
+    @State private var readToken = UUID()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Button {
-                statusMessage = "Choose a JSON backup from Files, iCloud Drive, or Google Drive."
+                selectedBackup = nil
+                selectedSummary = nil
+                statusMessage = "Opening iOS Files picker for JSON backups…"
                 statusIsError = false
                 pickerPresented = true
             } label: {
                 Label(title, systemImage: symbol)
             }
-            .disabled(merging)
+            .disabled(merging || reading)
             .accessibilityIdentifier("ledger.restore.choose")
+
+            if reading {
+                ProgressView("Reading selected backup from Files…")
+                    .font(.caption)
+            }
 
             if let selectedSummary, selectedBackup != nil {
                 VStack(alignment: .leading, spacing: 8) {
@@ -35,7 +44,7 @@ struct LedgerRestoreImportControl: View {
                         .font(.subheadline.bold())
                     Text(selectedSummary)
                         .font(.subheadline)
-                    Text("Nothing has been imported yet. Merging adds missing records by ID; backup settings may also update your preferences. Your existing records are not replaced.")
+                    Text("Nothing has been imported yet. Merging adds missing transactions/accounts by ID; backup settings may also update your preferences.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -46,13 +55,13 @@ struct LedgerRestoreImportControl: View {
                             Label("Merge Verified Backup", systemImage: "checkmark.shield")
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(merging)
+                        .disabled(merging || reading)
                         .accessibilityIdentifier("ledger.restore.merge")
 
                         Button("Cancel") {
                             selectedBackup = nil
                             self.selectedSummary = nil
-                            statusMessage = "Import cancelled. Your ledger was not changed."
+                            statusMessage = "Import cancelled. Existing ledger data is unchanged."
                             statusIsError = false
                         }
                         .disabled(merging)
@@ -62,10 +71,7 @@ struct LedgerRestoreImportControl: View {
                 .background(Color.blue.opacity(0.07), in: RoundedRectangle(cornerRadius: 12))
             }
 
-            if merging {
-                ProgressView("Merging verified backup…")
-                    .font(.caption)
-            }
+            if merging { ProgressView("Merging verified backup…") }
             if let statusMessage {
                 Text(statusMessage)
                     .font(.caption)
@@ -74,45 +80,90 @@ struct LedgerRestoreImportControl: View {
                     .accessibilityIdentifier("ledger.restore.status")
             }
         }
-        // The picker and its result belong to the visible Backup & Sync page,
-        // not the Settings navigation root. Results are rendered inline.
-        .sheet(isPresented: $pickerPresented) {
-            LedgerBackupImportPicker { result in
-                pickerPresented = false
-                handleSelection(result)
-            }
+        // Build 94 wrapped UIDocumentPickerViewController in a SwiftUI .sheet
+        // and used .item alone as its document type. On-device, tapping JSON
+        // could leave that UIKit picker open without a delegate callback.
+        // Use SwiftUI's native FILE IMPORTER instead, with recognized JSON/text
+        // content types and the scoped URL delivered by its own completion.
+        .fileImporter(
+            isPresented: $pickerPresented,
+            allowedContentTypes: [.json, .plainText, .data, .content]
+        ) { result in
+            onFileImporterResult(result)
         }
     }
 
-    private func handleSelection(_ result: Result<Data, Error>) {
+    private func onFileImporterResult(_ result: Result<URL, Error>) {
         switch result {
-        case .success(let data):
-            do {
-                let payload = try ImportExportCodec.decode(data: data)
-                guard !payload.accounts.isEmpty || !payload.transactions.isEmpty else {
-                    throw CocoaError(.fileReadCorruptFile)
+        case .success(let url):
+            selectedBackup = nil
+            selectedSummary = nil
+            reading = true
+            statusIsError = false
+            statusMessage = "File selected: \(url.lastPathComponent). Reading from its provider…"
+            let token = UUID()
+            readToken = token
+
+            // File coordination can download from iCloud Drive or Google Drive.
+            // All blocking I/O and JSON decoding stay off the main thread.
+            DispatchQueue.global(qos: .userInitiated).async {
+                let outcome: Result<(Data, ImportPayload), Error> = Result {
+                    let access = url.startAccessingSecurityScopedResource()
+                    defer { if access { url.stopAccessingSecurityScopedResource() } }
+                    var coordinationError: NSError?
+                    var readError: Error?
+                    var ownedData: Data?
+                    NSFileCoordinator().coordinate(
+                        readingItemAt: url, options: [],
+                        error: &coordinationError
+                    ) { coordinatedURL in
+                        do {
+                            let count = try coordinatedURL.resourceValues(
+                                forKeys: [.fileSizeKey]).fileSize ?? 0
+                            guard count <= 50 * 1_024 * 1_024 else {
+                                throw LedgerPickerError.tooLarge
+                            }
+                            ownedData = try Data(contentsOf: coordinatedURL)
+                        } catch {
+                            readError = error
+                        }
+                    }
+                    if let coordinationError { throw coordinationError }
+                    if let readError { throw readError }
+                    guard let data = ownedData, !data.isEmpty else {
+                        throw CocoaError(.fileReadCorruptFile)
+                    }
+                    guard data.count <= 50 * 1_024 * 1_024 else {
+                        throw LedgerPickerError.tooLarge
+                    }
+                    let payload = try ImportExportCodec.decode(data: data)
+                    guard !payload.accounts.isEmpty || !payload.transactions.isEmpty else {
+                        throw CocoaError(.fileReadCorruptFile)
+                    }
+                    return (data, payload)
                 }
-                selectedBackup = data
-                selectedSummary = "Verified file: \(payload.transactions.count) transactions, " +
-                    "\(payload.accounts.count) accounts."
-                statusMessage = "Review the counts above. Tap Merge Verified Backup to import."
-                statusIsError = false
-            } catch {
-                selectedBackup = nil
-                selectedSummary = nil
-                statusMessage = "Backup was not imported: \(error.localizedDescription)"
-                statusIsError = true
+                DispatchQueue.main.async {
+                    guard readToken == token else { return }
+                    reading = false
+                    switch outcome {
+                    case .success(let (data, payload)):
+                        selectedBackup = data
+                        selectedSummary = "\(url.lastPathComponent): \(payload.transactions.count) transactions, " +
+                            "\(payload.accounts.count) accounts."
+                        statusMessage = "File verified. Tap Merge Verified Backup to import; nothing has changed yet."
+                        statusIsError = false
+                    case .failure(let error):
+                        selectedBackup = nil
+                        selectedSummary = nil
+                        statusMessage = "File was selected but could not be imported: \(error.localizedDescription)"
+                        statusIsError = true
+                    }
+                }
             }
         case .failure(let error):
-            if case LedgerPickerError.cancelled = error {
-                statusMessage = "No file selected. Your ledger was not changed."
-                statusIsError = false
-            } else {
-                selectedBackup = nil
-                selectedSummary = nil
-                statusMessage = "Could not read the selected file: \(error.localizedDescription)"
-                statusIsError = true
-            }
+            reading = false
+            statusIsError = false
+            statusMessage = "No backup selected. \(error.localizedDescription)"
         }
     }
 
@@ -128,7 +179,7 @@ struct LedgerRestoreImportControl: View {
                 "\(summary.accountCount) accounts added. Matching existing IDs were not duplicated."
             statusIsError = false
         } catch {
-            statusMessage = "Import failed; retry only after checking your backup: " +
+            statusMessage = "Import failed; existing ledger was not intentionally replaced: " +
                 error.localizedDescription
             statusIsError = true
         }
