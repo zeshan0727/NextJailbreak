@@ -414,6 +414,21 @@ struct LocalSignerService {
                 entitlements[key] = profile.teamID
             case "get-task-allow":
                 entitlements[key] = false
+            case "com.apple.developer.ubiquity-kvstore-identifier":
+                // Apple provisioning profiles may authorize this optional iCloud
+                // key-value store via TeamID.*. Never embed a '*' in the signature.
+                // Xcode's default concrete identifier is TeamID.BundleID.
+                if let requested = chosen[key] {
+                    entitlements[key] = requested
+                } else if let allowed = permitted as? String, allowed.contains("*") {
+                    guard isAllowed(applicationIdentifier, by: allowed) else {
+                        throw LocalSignerError.invalidExplicitEntitlements(
+                            "The profile's iCloud key-value-store identifier does not permit " + applicationIdentifier)
+                    }
+                    entitlements[key] = applicationIdentifier
+                } else {
+                    entitlements[key] = permitted
+                }
             case "keychain-access-groups":
                 guard let groups = permitted as? [String] else {
                     throw LocalSignerError.invalidExplicitEntitlements("Unsupported keychain group format.")
