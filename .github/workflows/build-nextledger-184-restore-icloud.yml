@@ -22,7 +22,7 @@ jobs:
       - name: Checkout full verified original Next Ledger 1.3.84 source
         uses: actions/checkout@v4
         with:
-          ref: fix/next-ledger-1.3.84-backup-picker-icloud
+          ref: fix/next-ledger-1.3.84-restore-all-files-entitlements
 
       - name: Validate full original features and iCloud documents declarations
         shell: bash
