@@ -19,6 +19,13 @@ targets:
     platform: iOS
     entitlements:
       path: DailyLedger/DailyLedger.entitlements
+      properties:
+        com.apple.developer.icloud-services:
+          - CloudDocuments
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.nextsolution.dailyledger
+        com.apple.developer.ubiquity-container-identifiers:
+          - iCloud.com.nextsolution.dailyledger
     sources:
       - path: DailyLedger
     settings:
