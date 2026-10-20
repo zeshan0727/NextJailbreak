@@ -1,0 +1,55 @@
+name: Next IPA Factory - iPhone unsigned build
+on:
+  push:
+    branches:
+      - feature/next-ipa-factory-v1
+    paths:
+      - 'NextIPAFactory/ios/**'
+      - '.github/workflows/build-next-ipa-factory.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Tools
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: NextIPAFactory/ios
+        run: xcodegen generate
+      - name: Compile iPhone app
+        working-directory: NextIPAFactory/ios
+        run: |
+          set -euo pipefail
+          xcodebuild -project NextIPAFactory.xcodeproj -scheme NextIPAFactory \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/nextipa" \
+            CODE_SIGNING_ALLOWED=NO build
+      - name: Package unsigned IPA / TIPA for TrollStore testing
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/nextipa/Build/Products/Release-iphoneos/NextIPAFactory.app"
+          test -f "$APP/Info.plist"
+          test -f "$APP/NextIPAFactory"
+          mkdir -p "$RUNNER_TEMP/ipa/Payload" "$RUNNER_TEMP/delivery"
+          cp -R "$APP" "$RUNNER_TEMP/ipa/Payload/"
+          cd "$RUNNER_TEMP/ipa"
+          zip -qry "$RUNNER_TEMP/delivery/NextIPAFactory-1.1-unsigned.ipa" Payload
+          cp "$RUNNER_TEMP/delivery/NextIPAFactory-1.1-unsigned.ipa" "$RUNNER_TEMP/delivery/NextIPAFactory-1.1-unsigned.tipa"
+          shasum -a 256 "$RUNNER_TEMP/delivery/"*.ipa > "$RUNNER_TEMP/delivery/SHA256.txt"
+          unzip -t "$RUNNER_TEMP/delivery/NextIPAFactory-1.1-unsigned.ipa" | tail -2
+      - name: Upload actual compiled artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextIPAFactory-1.1-unsigned
+          path: ${{ runner.temp }}/delivery/*
+          if-no-files-found: error
+          retention-days: 30
