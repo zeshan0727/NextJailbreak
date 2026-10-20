@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-dailyledger",
+      "name": "Next Ledger",
+      "version": "1.3.82",
+      "build": "91",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.dailyledger",
+      "icon": "/install/icons/com-nextsolution-dailyledger-f307a29c8930.png",
+      "manifest": "/install/com-nextsolution-dailyledger.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-dailyledger/1.3.82/com-nextsolution-dailyledger-1.3.82-91.ipa",
+      "sha256": "f307a29c89301f04835264386b553ded42d9be610c9aaddd8b44c1ce142ad9cd",
+      "sizeBytes": 3852345,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-wcp",
       "name": "Wallcraft Pro",
       "version": "3.42",
@@ -326,5 +347,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-10-18"
+  "updated": "2026-10-20"
 }
