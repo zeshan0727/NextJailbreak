@@ -22,12 +22,13 @@ jobs:
       - name: Checkout full verified original Next Ledger 1.3.84 source
         uses: actions/checkout@v4
         with:
-          ref: fix/nextledger-1.3.84-build96-provider-read-timeout
+          ref: 88ce997cac9957a5acb35c56ca686e1a2787b668
 
       - name: Validate full original features and iCloud documents declarations
         shell: bash
         run: |
           set -euo pipefail
+          test "$(git rev-parse HEAD)" = "88ce997cac9957a5acb35c56ca686e1a2787b668" || { echo 'Unexpected Next Ledger source commit' >&2; exit 1; }
           grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
           grep -Fq 'CURRENT_PROJECT_VERSION: "96"' project.yml
           grep -Fq 'path: DailyLedger/DailyLedger.entitlements' project.yml
