@@ -11,3 +11,7 @@ Build Run ID: 39416331380
 Build Number: 28
 Release branch: release/nextsigner-1.4.3-build28-keychain-groups-fix
 SHA-256: 1d476655575a76655795261e90615d040633e75731ddd71888aae6029c020e6d
+Build Run ID: 39418826388
+Build Number: 29
+Release branch: release/nextsigner-1.4.3-build29-ipa-identity
+SHA-256: 1b5b42b2d561455d0d60669f39b61c29e3bf143c27ebfe9220c3054a4d01e144
