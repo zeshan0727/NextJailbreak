@@ -525,14 +525,20 @@ struct LocalSignerService {
             if concrete == "*" || concrete == prefix + "*" {
                 concrete = applicationIdentifier
             }
+            // A profile may explicitly list an Apple-controlled or other
+            // non-Team-ID keychain group, e.g. "com.apple.token". Preserve
+            // that EXACT entry. Never authorize such a group by a broad
+            // wildcard (including "*"), and never change its prefix.
+            let exactProfileMatch = authorized.contains(concrete)
+            let authorizedTeamGroup = concrete.hasPrefix(prefix) &&
+                concrete.count > prefix.count &&
+                authorized.contains(where: { isAllowed(concrete, by: $0) })
             guard !concrete.isEmpty,
                   !concrete.contains("*"), !concrete.contains("$("),
-                  concrete.hasPrefix(prefix),
-                  concrete.count > prefix.count,
-                  authorized.contains(where: { isAllowed(concrete, by: $0) }) else {
+                  (exactProfileMatch || authorizedTeamGroup) else {
                 throw LocalSignerError.invalidExplicitEntitlements(
-                    "Keychain group '" + group + "' is not authorized for team " + teamID +
-                    ". Use a group listed in the selected Ad Hoc profile, or the default app group.")
+                    "Keychain group '" + group + "' is not authorized by the selected Ad Hoc profile. " +
+                    "Use an explicitly listed keychain group or an authorized team-scoped app group.")
             }
             if !resolved.contains(concrete) { resolved.append(concrete) }
         }
