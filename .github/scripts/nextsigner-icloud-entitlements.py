@@ -46,6 +46,34 @@ def has_wildcard(value):
     return False
 
 
+
+def normalized_keychain_groups(requested, authorized, team, bundle_id):
+    if not isinstance(requested, list) or not requested or not all(isinstance(x, str) for x in requested):
+        raise ValueError("Keychain access groups must be a non-empty list of strings.")
+    if not isinstance(authorized, list) or not all(isinstance(x, str) for x in authorized):
+        raise ValueError("Provisioning profile has invalid keychain access groups.")
+    app_id = f"{team}.{bundle_id}"
+    prefix = f"{team}."
+    groups = []
+    for raw in requested:
+        concrete = (raw
+            .replace("$(AppIdentifierPrefix)", prefix)
+            .replace("$(TeamIdentifierPrefix)", prefix)
+            .replace("$(CFBundleIdentifier)", bundle_id)
+            .replace("$(PRODUCT_BUNDLE_IDENTIFIER)", bundle_id))
+        if concrete in ("*", prefix + "*"):
+            concrete = app_id
+        if (not concrete.startswith(prefix) or len(concrete) <= len(prefix)
+                or "*" in concrete or "$(" in concrete
+                or not any(permitted(concrete, allowed) for allowed in authorized)):
+            raise ValueError(
+                "Keychain access group is not authorized for selected team/profile: " + raw
+            )
+        if concrete not in groups:
+            groups.append(concrete)
+    return groups
+
+
 def prepare():
     profile_path = os.environ["PROFILE_PATH"]
     bundle_id = os.environ["REQUESTED_BUNDLE_ID"].strip()
@@ -111,7 +139,13 @@ def prepare():
             # appear in the actual signed entitlements. Match the Swift
             # on-device signer and resolve only a profile-authorized ID.
             if key in requested:
-                ent[key] = requested[key]
+                req = requested[key]
+                if req in ("*", team + ".*"):
+                    if not permitted(requested_app, value):
+                        raise ValueError("Profile does not authorize requested key-value-store wildcard.")
+                    ent[key] = requested_app
+                else:
+                    ent[key] = req
             elif isinstance(value, str) and "*" in value:
                 if not permitted(requested_app, value):
                     raise ValueError(
@@ -122,17 +156,9 @@ def prepare():
             else:
                 ent[key] = value
         elif key == "keychain-access-groups":
-            if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
-                raise ValueError("Unsupported keychain access group format.")
-            groups = []
-            for group in value:
-                if "*" in group:
-                    if not permitted(requested_app, group):
-                        raise ValueError("Cannot resolve keychain group: " + group)
-                    groups.append(requested_app)
-                else:
-                    groups.append(group)
-            ent[key] = groups
+            ent[key] = normalized_keychain_groups(
+                requested.get(key, value), value, team, bundle_id
+            )
         elif key in requested:
             ent[key] = requested[key]
         elif has_wildcard(value):
@@ -148,6 +174,8 @@ def prepare():
     ent["com.apple.developer.team-identifier"] = team
     ent["get-task-allow"] = False
     for key, value in requested.items():
+        if key in ("keychain-access-groups", "com.apple.developer.ubiquity-kvstore-identifier"):
+            continue  # Sanitized and profile-validated before this loop.
         if key in ("application-identifier", "com.apple.application-identifier",
                    "com.apple.developer.team-identifier", "get-task-allow"):
             if key in ent and ent[key] != value:
