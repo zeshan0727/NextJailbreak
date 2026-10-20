@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-20T11:43:05Z",
+  "updatedAt": "2026-10-20T12:04:40Z",
   "files": [
     {
       "id": "nextsigner-1.4.3",
@@ -9,11 +9,11 @@
       "type": "tipa",
       "platform": "TrollStore / iOS 16+",
       "version": "1.4.3",
-      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.4.3/artifact-12261922765/NextSigner-1.4.3.tipa",
-      "sha256": "1d476655575a76655795261e90615d040633e75731ddd71888aae6029c020e6d",
-      "sizeBytes": 3361182,
+      "url": "https://files.nextsolution.cc/apps/tipa/NextSigner/1.4.3/artifact-12263606431/NextSigner-1.4.3.tipa",
+      "sha256": "1b5b42b2d561455d0d60669f39b61c29e3bf143c27ebfe9220c3054a4d01e144",
+      "sizeBytes": 3364757,
       "storage": "Cloudflare R2",
-      "notes": "Build 28: resolves profile-authorized keychain group templates/wildcards in custom entitlements, plus iCloud key-value-store wildcard fix, explicit CloudDocuments and final signed IPA validation."
+      "notes": "Build 29: reads original bundle ID/name from IPA Info.plist (not staged UUID), follows bundle-ID changes for default iCloud container, and retains Build 28 entitlement fixes."
     },
     {
       "id": "nextpost-1.0.17-professional-x-posts",
