@@ -2,6 +2,36 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.0.11 on a supported device and firmware. This registration-recovery flow is for conventional Dopamine rootless jailbreak apps; full TrollStore and RootHide use separate recovery paths.",
+      "description": "Fix a missing Sileo, Zebra or jailbreak-app icon on Dopamine 3.0.11 using the official refresh, respring and package-manager recovery controls.",
+      "developer": "opa334",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "fix-missing-sileo-jailbreak-app-icons-dopamine-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_credit": "opa334 — official Dopamine 3.0.11 app icon",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified_at": "2026-10-20T01:01:41Z",
+      "name": "Dopamine jailbreak-app icon recovery",
+      "package": "com.opa334.dopamine-icon-recovery-guide",
+      "published_at": "2026-10-20T01:01:41Z",
+      "quality_target": 9,
+      "release": "Verified against Dopamine 3.0.11 official source and developer issue responses",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "fix-missing-sileo-jailbreak-app-icons-dopamine-guide",
+      "source_name": "Dopamine 3.0.11 source and official issue tracker",
+      "source_page_url": "https://github.com/opa334/Dopamine",
+      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.11/Application/Dopamine/en.lproj/Localizable.strings",
+      "source_visual_origin": "official-dopamine-3.0.11-source-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Sileo Icon Missing? Restore Jailbreak Apps on Dopamine Safely",
+      "version": "3.0.11"
+    },
+    {
+      "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
