@@ -306,17 +306,31 @@ extension FactoryCodeDelivery {
                 let earlier = round == 0 ? "Initial independent review" : "Re-review following repair round \(round)"
                 message = "Agents 7 and 8 are reviewing complete source."
                 report(earlier)
-                let qa = try await review(
-                    "QA Reviewer", original: original, requirements: requirements,
-                    files: manifest, previousReviews: reviewSummary,
-                    gateway: gateway, ids: ids
-                )
-                let release = try await review(
-                    "Release Reviewer", original: original, requirements: requirements,
-                    files: manifest, previousReviews: reviewSummary +
-                        "\nQA: " + qa.blocking_issues.joined(separator: "; "),
-                    gateway: gateway, ids: ids
-                )
+                // Independent QA and release checks run concurrently for speed.
+                let previous = reviewSummary
+                var decisions: [String: FactoryReviewVerdict] = [:]
+                try await withThrowingTaskGroup(of: (String, FactoryReviewVerdict).self) { group in
+                    for role in ["QA Reviewer", "Release Reviewer"] {
+                        group.addTask { [weak self] in
+                            guard let self else {
+                                throw APIProblem(details: "Factory session was closed.")
+                            }
+                            let verdict = try await self.review(
+                                role, original: original, requirements: requirements,
+                                files: manifest, previousReviews: previous,
+                                gateway: gateway, ids: ids
+                            )
+                            return (role, verdict)
+                        }
+                    }
+                    for try await (role, verdict) in group {
+                        decisions[role] = verdict
+                    }
+                }
+                guard let qa = decisions["QA Reviewer"],
+                      let release = decisions["Release Reviewer"] else {
+                    throw APIProblem(details: "Both reviewers must return their verdicts.")
+                }
                 reviewSummary = """
                 QA: \(qa.clear ? "Approved" : "Changes needed")
                 \(qa.blocking_issues.joined(separator: "\n"))
