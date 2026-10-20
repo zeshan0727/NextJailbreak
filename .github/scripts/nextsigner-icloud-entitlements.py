@@ -106,6 +106,21 @@ def prepare():
             ent[key] = team
         elif key == "get-task-allow":
             ent[key] = False
+        elif key == "com.apple.developer.ubiquity-kvstore-identifier":
+            # Apple's wildcard permission (such as TeamID.*) must never
+            # appear in the actual signed entitlements. Match the Swift
+            # on-device signer and resolve only a profile-authorized ID.
+            if key in requested:
+                ent[key] = requested[key]
+            elif isinstance(value, str) and "*" in value:
+                if not permitted(requested_app, value):
+                    raise ValueError(
+                        "Profile's iCloud key-value-store identifier does not permit "
+                        + requested_app
+                    )
+                ent[key] = requested_app
+            else:
+                ent[key] = value
         elif key == "keychain-access-groups":
             if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
                 raise ValueError("Unsupported keychain access group format.")
