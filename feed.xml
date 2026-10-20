@@ -5,15 +5,45 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
-    <item><title>5Row Pro vs SwipeExtenderX vs HelloKeyboardAI: Which Keyboard Tweak Fits You?</title><link>https://nextjailbreak.com/keyboard-tweaks-5row-pro-vs-swipeextenderx-vs-hellokeyboardai/</link><guid isPermaLink="true">https://nextjailbreak.com/keyboard-tweaks-5row-pro-vs-swipeextenderx-vs-hellokeyboardai/</guid><pubDate>Tue, 20 Oct 2026 08:58:03 GMT</pubDate><description>Compare 5Row Pro 1.20.0, SwipeExtenderX 1.6.2 and HelloKeyboardAI 6.6.6-6 by purpose, compatibility, price and jailbreak requirements.</description><category>Tweak Roundup &amp; Comparison</category></item>
     <item>
-      <title>How to Ignore a Tweak Update in Sileo—and Verify the Hold</title><link>https://nextjailbreak.com/ignore-jailbreak-tweak-update-sileo-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/ignore-jailbreak-tweak-update-sileo-guide/</guid><pubDate>Tue, 20 Oct 2026 04:58:47 GMT</pubDate><description>Ignore a specific jailbreak tweak update in Sileo 2.5.1, verify the package hold persisted, reveal ignored updates, and safely undo it later.</description>
+      <title>Watusi 3 for WhatsApp 1.3.27 Adds WhatsApp 26.41.X Support and Repairs Status Features</title>
+      <link>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-27-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-27-update/</guid>
+      <pubDate>Tue, 20 Oct 2026 10:31:55 GMT</pubDate>
+      <description>Watusi 3 for WhatsApp 1.3.27 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
     </item>
     <item>
-      <title>Sileo Icon Missing? Restore Jailbreak Apps on Dopamine Safely</title><link>https://nextjailbreak.com/fix-missing-sileo-jailbreak-app-icons-dopamine-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/fix-missing-sileo-jailbreak-app-icons-dopamine-guide/</guid><pubDate>Tue, 20 Oct 2026 01:01:41 GMT</pubDate><description>Fix a missing Sileo, Zebra or jailbreak-app icon on Dopamine 3.0.11 using the official refresh, respring and package-manager recovery controls.</description>
+      <title>5Row Pro vs SwipeExtenderX vs HelloKeyboardAI: Which Keyboard Tweak Fits You?</title>
+      <link>https://nextjailbreak.com/keyboard-tweaks-5row-pro-vs-swipeextenderx-vs-hellokeyboardai/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/keyboard-tweaks-5row-pro-vs-swipeextenderx-vs-hellokeyboardai/</guid>
+      <pubDate>Tue, 20 Oct 2026 08:58:03 GMT</pubDate>
+      <description>Compare 5Row Pro 1.20.0, SwipeExtenderX 1.6.2 and HelloKeyboardAI 6.6.6-6 by purpose, compatibility, price and jailbreak requirements.</description>
+      <category>Tweak Roundup &amp; Comparison</category>
     </item>
     <item>
-      <title>iOS 27.2 RC Arrives: What It Means for Jailbreak Users</title><link>https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</link><guid isPermaLink="true">https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</guid><pubDate>Mon, 19 Oct 2026 20:56:22 GMT</pubDate><description>Apple released iOS 27.2 RC build 24B115 on October 19. Here is what the release does—and does not—confirm for jailbreak users.</description><category>Current Jailbreak Development</category>
+      <title>How to Ignore a Tweak Update in Sileo—and Verify the Hold</title>
+      <link>https://nextjailbreak.com/ignore-jailbreak-tweak-update-sileo-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/ignore-jailbreak-tweak-update-sileo-guide/</guid>
+      <pubDate>Tue, 20 Oct 2026 04:58:47 GMT</pubDate>
+      <description>Ignore a specific jailbreak tweak update in Sileo 2.5.1, verify the package hold persisted, reveal ignored updates, and safely undo it later.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>Sileo Icon Missing? Restore Jailbreak Apps on Dopamine Safely</title>
+      <link>https://nextjailbreak.com/fix-missing-sileo-jailbreak-app-icons-dopamine-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/fix-missing-sileo-jailbreak-app-icons-dopamine-guide/</guid>
+      <pubDate>Tue, 20 Oct 2026 01:01:41 GMT</pubDate>
+      <description>Fix a missing Sileo, Zebra or jailbreak-app icon on Dopamine 3.0.11 using the official refresh, respring and package-manager recovery controls.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>iOS 27.2 RC Arrives: What It Means for Jailbreak Users</title>
+      <link>https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</guid>
+      <pubDate>Mon, 19 Oct 2026 20:56:22 GMT</pubDate>
+      <description>Apple released iOS 27.2 RC build 24B115 on October 19. Here is what the release does—and does not—confirm for jailbreak users.</description>
+      <category>Current Jailbreak Development</category>
     </item>
     <item>
       <title>SideDock 1.0.1 Fixes Home Screen Icon Overlap</title>
@@ -213,86 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-main-branch-replacement-screen-rootless-plist-fixes/</guid>
       <pubDate>Thu, 15 Oct 2026 16:56:13 GMT</pubDate>
       <description>Two Dopamine commits fix touch after userspace reboot on some replacement screens and stop three system plists from being redirected into /var/jb.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
-    <item>
-      <title>Bloom 1.4.1 Fixes iOS 18 Loading and iPhone 16 Dynamic Island Animations</title>
-      <link>https://nextjailbreak.com/bloom-tweak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/bloom-tweak/</guid>
-      <pubDate>Thu, 15 Oct 2026 13:01:14 GMT</pubDate>
-      <description>Bloom 1.4.1 fixes loading failures mainly on iOS 18, assigns Dynamic Island animations to iPhone 16 models, and repairs LastLook integration.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>Atria vs Lynx 2: Which iOS 16 Customization Tweak Should You Use?</title>
-      <link>https://nextjailbreak.com/atria-vs-lynx-2-ios-16-customization-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/atria-vs-lynx-2-ios-16-customization-comparison/</guid>
-      <pubDate>Thu, 15 Oct 2026 08:58:45 GMT</pubDate>
-      <description>Compare Atria 1.4.1 and Lynx 2 2.5.4 by Home Screen controls, system-wide customization, iOS range, rootless support, price and update history.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Disable Tweaks for One App with Choicy</title>
-      <link>https://nextjailbreak.com/disable-tweaks-one-app-choicy-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/disable-tweaks-one-app-choicy-guide/</guid>
-      <pubDate>Thu, 15 Oct 2026 04:56:20 GMT</pubDate>
-      <description>Use Choicy 1.5.4-2 to disable all tweak injection or allow only selected tweaks for one app, without treating it as a jailbreak-detection bypass.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>How to Remove Dopamine 3 Jailbreak Safely</title>
-      <link>https://nextjailbreak.com/remove-dopamine-3-jailbreak-safely-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/remove-dopamine-3-jailbreak-safely-guide/</guid>
-      <pubDate>Thu, 15 Oct 2026 01:00:01 GMT</pubDate>
-      <description>Remove the Dopamine 3 jailbreak safely using its official TrollStore or sideloaded-app workflow while keeping regular iPhone apps, files and personal data.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>AnxieTea 1.0.3 Adds Notchless iPhone Meter Support and Position Controls</title>
-      <link>https://nextjailbreak.com/anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/</guid>
-      <pubDate>Wed, 14 Oct 2026 17:04:22 GMT</pubDate>
-      <description>AnxieTea 1.0.3 extends its status-bar traffic meter to notchless iPhones, adds horizontal positioning, an About page, report copying and performance fixes.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>EeveeSpotify 7.0.0 Adds iOS 26 Liquid Glass, Custom Tabs and Word-Synced Lyrics</title>
-      <link>https://nextjailbreak.com/eeveespotify-7-liquid-glass-custom-tabs-lyrics/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/eeveespotify-7-liquid-glass-custom-tabs-lyrics/</guid>
-      <pubDate>Wed, 14 Oct 2026 12:55:56 GMT</pubDate>
-      <description>EeveeSpotify 7.0.0 overhauls the Spotify tweak with native iOS 26 Liquid Glass, custom tabs, word-synced lyrics, remote flags and privacy fixes.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>Irisin vs Sileo: Which Jailbreak Package Manager Should You Use?</title>
-      <link>https://nextjailbreak.com/irisin-vs-sileo-package-manager-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/irisin-vs-sileo-package-manager-comparison/</guid>
-      <pubDate>Wed, 14 Oct 2026 09:03:43 GMT</pubDate>
-      <description>Compare Irisin 4.6.1 and Sileo 2.5.1 by jailbreak environment, iOS range, package handling, repositories, RootHide support, updates and setup.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Fix TrollStore Apps Not Opening with the Persistence Helper</title>
-      <link>https://nextjailbreak.com/fix-trollstore-apps-not-opening-persistence-helper/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/fix-trollstore-apps-not-opening-persistence-helper/</guid>
-      <pubDate>Wed, 14 Oct 2026 05:03:10 GMT</pubDate>
-      <description>Fix TrollStore and permasigned apps that stop opening after an icon-cache reload by restoring System registration with the official Persistence Helper.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>How to Fix Sileo Dependency Errors on a Rootless Jailbreak</title>
-      <link>https://nextjailbreak.com/fix-sileo-dependency-errors-rootless-jailbreak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/fix-sileo-dependency-errors-rootless-jailbreak/</guid>
-      <pubDate>Wed, 14 Oct 2026 00:58:54 GMT</pubDate>
-      <description>Fix Sileo unmet dependencies, version conflicts and rootless architecture errors safely—without force-installing incompatible jailbreak packages.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>PreferenceLoader 2.3.3 Fixes Tweak Settings on iOS 18 and iOS 26</title>
-      <link>https://nextjailbreak.com/preferenceloader-2-3-3-ios-18-26-settings-fix/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/preferenceloader-2-3-3-ios-18-26-settings-fix/</guid>
-      <pubDate>Tue, 13 Oct 2026 20:56:06 GMT</pubDate>
-      <description>PreferenceLoader fork 2.3.3 keeps tweak preferences on the main Settings screen and fixes AirPods, switch-row and iPad navigation bugs on iOS 18 and later.</description>
       <category>Current Jailbreak Development</category>
     </item>
   </channel>
