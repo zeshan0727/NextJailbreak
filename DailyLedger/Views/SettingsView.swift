@@ -65,40 +65,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingImporter, onDismiss: {
-                // Present confirmation only after the Files picker has completely
-                // dismissed. iOS otherwise silently drops the dialog.
-                guard let staged = stagedImportResult else { return }
-                stagedImportResult = nil
-                if case .failure(let error) = staged,
-                   let pickerError = error as? LedgerPickerError {
-                    switch pickerError {
-                    case .cancelled:
-                        return
-                    case .tooLarge:
-                        break
-                    }
-                }
-                previewImportData(staged, source: importSource)
-            }) {
-                LedgerBackupImportPicker { result in
-                    stagedImportResult = result
-                    showingImporter = false
-                }
-            }
-            .confirmationDialog("Import Selected Backup?",
-                                isPresented: $showingImportConfirmation,
-                                titleVisibility: .visible) {
-                Button("Merge Verified Backup") {
-                    if let data = pendingImportData {
-                        pendingImportData = nil
-                        importVerifiedData(data, source: importSource)
-                    }
-                }
-                Button("Cancel", role: .cancel) { pendingImportData = nil }
-            } message: {
-                Text(importPreview)
-            }
+
     }
 
     private var settingsNavigation: some View {
@@ -218,17 +185,10 @@ struct SettingsView: View {
                             )
                         }
 
-                        Button {
-                            importSource = .files
-                            showingImporter = true
-                        } label: {
-                            SettingsRow(
-                                title: "Import Data",
-                                subtitle: "",
-                                icon: "square.and.arrow.down.fill",
-                                color: AppTheme.orange
-                            )
-                        }
+                        LedgerRestoreImportControl(
+                            title: "Import Data from Files",
+                            symbol: "square.and.arrow.down.fill"
+                        )
                         }
                     } label: {
                         SettingsHomeLinkLabel(title: "Import & Export", subtitle: "CSV, JSON backup and restore", icon: "arrow.left.arrow.right", tint: AppTheme.green)
@@ -250,12 +210,10 @@ struct SettingsView: View {
                         } label: {
                             Label("Save JSON to Files / Drive", systemImage: "square.and.arrow.up")
                         }
-                        Button {
-                            importSource = .files
-                            showingImporter = true
-                        } label: {
-                            Label("Restore JSON Backup from Files", systemImage: "doc.text.magnifyingglass")
-                        }
+                        LedgerRestoreImportControl(
+                            title: "Restore JSON Backup from Files",
+                            symbol: "doc.text.magnifyingglass"
+                        )
                         Button {
                             store.restoreLatestICloudBackup()
                         } label: {
@@ -266,12 +224,10 @@ struct SettingsView: View {
                         } label: {
                             Label("Save to Google Drive / Files", systemImage: "externaldrive.badge.icloud")
                         }
-                        Button {
-                            importSource = .googleDrive
-                            showingImporter = true
-                        } label: {
-                            Label("Restore from Google Drive", systemImage: "arrow.down.doc.fill")
-                        }
+                        LedgerRestoreImportControl(
+                            title: "Restore from Google Drive / Files",
+                            symbol: "arrow.down.doc.fill"
+                        )
                         LabeledContent("Last Device Backup") {
                             Text(backupSync.lastBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
                         }
