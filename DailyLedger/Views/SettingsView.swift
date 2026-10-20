@@ -261,7 +261,7 @@ struct SettingsView: View {
 
                             Section {
                                 Toggle(isOn: $deviceSyncEnabled) {
-                                    Label("Sync Across Devices", systemImage: "iphone.gen3.radiowaves.left.and.right")
+                                    Label("Sync Across Devices", systemImage: "iphone")
                                 }
                                 .tint(AppTheme.purple)
                                 .onChange(of: deviceSyncEnabled) { enabled in
@@ -271,7 +271,7 @@ struct SettingsView: View {
                                 Button {
                                     deviceSync.syncNow()
                                 } label: {
-                                    Label("Sync With Other Devices Now", systemImage: "arrow.triangle.2.circlepath.icloud")
+                                    Label("Sync With Other Devices Now", systemImage: "arrow.triangle.2.circlepath")
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .contentShape(Rectangle())
                                 }
@@ -297,7 +297,7 @@ struct SettingsView: View {
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                             } header: {
-                                Label("Device-to-Device Sync", systemImage: "iphone.and.arrow.forward")
+                                Label("Device-to-Device Sync", systemImage: "arrow.left.arrow.right")
                             } footer: {
                                 Text("Enable on both devices using the same Apple ID and iCloud Drive. New transactions and accounts merge by ID automatically when Next Ledger is opened, updated, or Sync Now is tapped. An initial fresh device also receives settings and budgets. Conflicting edits are reported, never overwritten; deletes and subsequent settings edits are not yet synchronized. Keep iCloud Backup enabled as your recovery copy.")
                             }
