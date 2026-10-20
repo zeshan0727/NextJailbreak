@@ -75,7 +75,19 @@ enum ImportExportCodec {
 
     static func decode(data: Data) throws -> ImportPayload {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        let iso8601 = ISO8601DateFormatter()
+        iso8601.formatOptions = [.withInternetDateTime]
+        let iso8601Fractional = ISO8601DateFormatter()
+        iso8601Fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        decoder.dateDecodingStrategy = .custom { source in
+            let field = try source.singleValueContainer()
+            let value = try field.decode(String.self)
+            if let date = iso8601Fractional.date(from: value) ?? iso8601.date(from: value) {
+                return date
+            }
+            throw DecodingError.dataCorruptedError(in: field,
+                debugDescription: "Invalid ISO8601 date in backup: " + value)
+        }
         if let ledger = try? decoder.decode(LedgerData.self, from: data) {
             return ImportPayload(
                 transactions: ledger.transactions,
