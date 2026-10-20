@@ -18,6 +18,12 @@ struct LedgerRestoreImportControl: View {
     @State private var reading = false
     @State private var merging = false
     @State private var readToken = UUID()
+    @State private var inboxFiles = [URL]()
+
+    private var inboxURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Imports", isDirectory: true)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -32,6 +38,29 @@ struct LedgerRestoreImportControl: View {
             }
             .disabled(merging || reading)
             .accessibilityIdentifier("ledger.restore.choose")
+
+            Button {
+                refreshInbox()
+            } label: {
+                Label("Find JSON in App Imports Folder", systemImage: "folder")
+            }
+            .disabled(merging || reading)
+            .accessibilityIdentifier("ledger.restore.inbox")
+
+            if !inboxFiles.isEmpty {
+                ForEach(inboxFiles, id: \.path) { url in
+                    Button {
+                        loadBackupURL(url)
+                    } label: {
+                        Label(url.lastPathComponent, systemImage: "doc.text")
+                            .lineLimit(2)
+                    }
+                    .disabled(merging || reading)
+                }
+            }
+            Text("Picker alternative: in Files, move/copy the JSON to On My iPhone → Next Ledger → Imports, then tap Find JSON in App Imports Folder.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
 
             if reading {
                 ProgressView("Reading selected backup from Files…")
@@ -91,11 +120,44 @@ struct LedgerRestoreImportControl: View {
         ) { result in
             onFileImporterResult(result)
         }
+        .onAppear { ensureInbox() }
+    }
+
+    private func ensureInbox() {
+        try? FileManager.default.createDirectory(at: inboxURL, withIntermediateDirectories: true)
+    }
+
+    private func refreshInbox() {
+        do {
+            try FileManager.default.createDirectory(at: inboxURL, withIntermediateDirectories: true)
+            inboxFiles = try FileManager.default.contentsOfDirectory(
+                at: inboxURL, includingPropertiesForKeys: [.isRegularFileKey],
+                options: [.skipsHiddenFiles]
+            ).filter { url in
+                ["json", "txt", "csv"].contains(url.pathExtension.lowercased())
+            }.sorted { $0.lastPathComponent.localizedStandardCompare($1.lastPathComponent) == .orderedAscending }
+            statusIsError = false
+            statusMessage = inboxFiles.isEmpty
+                ? "Imports folder is empty. Copy your .json file to On My iPhone → Next Ledger → Imports in the Files app, then refresh."
+                : "Found \(inboxFiles.count) backup file(s). Tap one below to preview before merging."
+        } catch {
+            statusIsError = true
+            statusMessage = "Cannot read app Imports folder: \(error.localizedDescription)"
+        }
     }
 
     private func onFileImporterResult(_ result: Result<URL, Error>) {
         switch result {
         case .success(let url):
+            loadBackupURL(url)
+        case .failure(let error):
+            reading = false
+            statusIsError = false
+            statusMessage = "No backup selected. \(error.localizedDescription)"
+        }
+    }
+
+    private func loadBackupURL(_ url: URL) {
             selectedBackup = nil
             selectedSummary = nil
             reading = true
@@ -160,11 +222,6 @@ struct LedgerRestoreImportControl: View {
                     }
                 }
             }
-        case .failure(let error):
-            reading = false
-            statusIsError = false
-            statusMessage = "No backup selected. \(error.localizedDescription)"
-        }
     }
 
     private func mergeSelectedBackup() {
