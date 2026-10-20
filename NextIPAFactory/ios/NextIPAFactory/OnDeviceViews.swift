@@ -289,6 +289,7 @@ struct NextFactoryOnDeviceRoot: View {
     var body: some View {
         TabView {
             NextFactoryHome().tabItem { Label("Agents", systemImage: "cpu") }
+            FactoryCodeDeliveryView().tabItem { Label("Generate", systemImage: "wand.and.stars") }
             NextFactoryBuilds().tabItem { Label("Builds", systemImage: "hammer") }
             NextFactoryConnections().tabItem { Label("Settings", systemImage: "gearshape") }
         }
