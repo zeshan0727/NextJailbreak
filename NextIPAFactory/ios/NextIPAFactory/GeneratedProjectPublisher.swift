@@ -9,6 +9,11 @@ struct FactoryGeneratedFile: Codable, Identifiable {
 struct FactoryGeneratedManifest: Codable {
     var files: [FactoryGeneratedFile]
 }
+struct FactoryGenerationEvent: Identifiable {
+    let id = UUID()
+    let time = Date()
+    let detail: String
+}
 struct FactoryGitWriter {
     let token: String
     let repo: String
@@ -29,7 +34,9 @@ struct FactoryGitWriter {
         let bytes = try await NetworkBridge.response(req)
         return (try JSONSerialization.jsonObject(with: bytes)) as? [String: Any] ?? [:]
     }
-    func publish(slug: String, files: [FactoryGeneratedFile]) async throws -> String {
+    func publish(slug: String, files: [FactoryGeneratedFile],
+                 onProgress: (@MainActor (String) -> Void)? = nil) async throws -> String {
+        if let onProgress { await onProgress("Validating generated files") }
         guard slug.range(of: "^[a-z0-9][a-z0-9-]{1,35}$", options: .regularExpression) != nil else {
             throw APIProblem(details: "App slug must be 2–36 lowercase letters, numbers or dashes.")
         }
@@ -55,6 +62,7 @@ struct FactoryGitWriter {
         guard project.contains("name: GeneratedApp"), project.contains("GeneratedApp:"), project.contains("Sources") else {
             throw APIProblem(details: "project.yml must declare the GeneratedApp app target and Sources directory.")
         }
+        if let onProgress { await onProgress("Reading GitHub branch head") }
         let ref = try await request("/git/ref/heads/" + branch)
         guard let object = ref["object"] as? [String: Any], let head = object["sha"] as? String else {
             throw APIProblem(details: "Failed to obtain current Git branch SHA.")
@@ -67,17 +75,20 @@ struct FactoryGitWriter {
             ["path": "NextIPAFactory/generated-apps/" + slug + "/" + file.path,
              "mode": "100644", "type": "blob", "content": file.content]
         }
+        if let onProgress { await onProgress("Uploading approved source to GitHub") }
         let tree = try await request("/git/trees", method: "POST", body: [
             "base_tree": baseTree,
             "tree": entries
         ])
         guard let treeSHA = tree["sha"] as? String else { throw APIProblem(details: "Git tree creation failed") }
+        if let onProgress { await onProgress("Creating GitHub source commit") }
         let newCommit = try await request("/git/commits", method: "POST", body: [
             "message": "Next IPA Factory: generate " + slug + " from approved iPhone source",
             "tree": treeSHA,
             "parents": [head]
         ])
         guard let newSHA = newCommit["sha"] as? String else { throw APIProblem(details: "Git commit creation failed") }
+        if let onProgress { await onProgress("Publishing commit to development branch") }
         _ = try await request("/git/refs/heads/" + branch, method: "PATCH", body: [
             "sha": newSHA, "force": false
         ])
@@ -91,11 +102,24 @@ struct FactoryGitWriter {
     @Published var running = false
     @Published var message = "Generate a native Xcode project using your Integrator agent."
     @Published var lastSession = ""
+    @Published var activity: [FactoryGenerationEvent] = []
+    @Published var startedAt: Date?
+    @Published var liveState = "Ready"
+    private func report(_ text: String) {
+        liveState = text
+        if activity.last?.detail != text {
+            activity.append(FactoryGenerationEvent(detail: text))
+            if activity.count > 30 { activity.removeFirst(activity.count - 30) }
+        }
+    }
     func generate(using factory: LocalFactoryState) async {
         let id = factory.agentIDs["Integrator"] ?? ""
         guard !id.isEmpty else { message = "Set the Integrator agent ID in Settings first."; return }
         guard !command.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { message = "Describe the app you want to create."; return }
         running = true
+        activity = []
+        startedAt = Date()
+        report("Preparing generation request")
         defer { running = false }
         let spec = """
         Create a COMPLETE, MINIMAL, COMPILABLE iPhone SwiftUI XcodeGen project for this request:
@@ -108,18 +132,26 @@ struct FactoryGitWriter {
         Never invent an Xcode build result.
         """
         do {
-            let fullText = try await factory.gateway.runAgent(agentID: id, task: spec) { [weak self] session in
+            report("Connecting to Integrator agent")
+            let fullText = try await factory.gateway.runAgentWithProgress(agentID: id, task: spec, onStarted: { [weak self] session in
                 self?.lastSession = session
-                self?.message = "OpenAI agent running in hosted environment, session " + session
-            }
+                self?.report("Agent session created")
+                self?.message = "Live agent session: " + session
+            }, onStatus: { [weak self] status in
+                self?.report("OpenAI session: " + status)
+            })
+            report("Receiving generated source")
             let cleaned = Self.extractJSON(fullText)
             guard let data = cleaned.data(using: .utf8) else { throw APIProblem(details: "Agent output is not UTF-8.") }
+            report("Parsing Xcode project files")
             let payload = try JSONDecoder().decode(FactoryGeneratedManifest.self, from: data)
             guard !payload.files.isEmpty else { throw APIProblem(details: "Agent returned an empty project.") }
             proposed = payload.files
+            report("Source ready for review: " + String(payload.files.count) + " files")
             message = "Generated " + String(payload.files.count) + " files. Inspect the filenames before approving a GitHub commit."
         } catch {
             proposed = []
+            report("Generation failed")
             message = "Generation failed: " + error.localizedDescription + ". You can inspect session " + lastSession
         }
     }
@@ -132,12 +164,18 @@ struct FactoryGitWriter {
     }
     func publish(using factory: LocalFactoryState) async {
         running = true
+        startedAt = Date()
+        report("Starting GitHub publication")
         defer { running = false }
         do {
             let writer = FactoryGitWriter(token: factory.githubToken, repo: factory.repo, branch: factory.branch)
-            let commit = try await writer.publish(slug: slug, files: proposed)
+            let commit = try await writer.publish(slug: slug, files: proposed, onProgress: { [weak self] step in
+                self?.report(step)
+            })
+            report("Source published successfully: " + String(commit.prefix(10)))
             message = "Committed source: " + String(commit.prefix(10)) + ". GitHub Actions will compile the generated project. Build success is not yet verified."
         } catch {
+            report("GitHub publication failed")
             message = "GitHub publication failed: " + error.localizedDescription
         }
     }
@@ -174,8 +212,31 @@ struct FactoryCodeDeliveryView: View {
                         }
                     }
                     FactoryCard {
-                        VStack(alignment: .leading, spacing: 9) {
-                            Label("Generation status", systemImage: "text.bubble").font(.headline)
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 8) {
+                                Label("Live activity", systemImage: "waveform.path").font(.headline)
+                                Spacer()
+                                if delivery.running { ProgressView().controlSize(.small) }
+                            }
+                            Text(delivery.liveState).font(.subheadline.weight(.medium))
+                            if delivery.running, let began = delivery.startedAt {
+                                TimelineView(.periodic(from: .now, by: 1)) { context in
+                                    Text("Elapsed: " + String(Int(context.date.timeIntervalSince(began))) + "s")
+                                        .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                                }
+                            }
+                            ForEach(delivery.activity.suffix(8).reversed()) { item in
+                                HStack(alignment: .top, spacing: 8) {
+                                    Circle().fill(Color.indigo.opacity(0.8)).frame(width: 6, height: 6).padding(.top, 5)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.detail).font(.caption)
+                                        Text(item.time.formatted(date: .omitted, time: .standard))
+                                            .font(.caption2).foregroundStyle(.secondary)
+                                    }
+                                    Spacer(minLength: 0)
+                                }
+                            }
+                            Divider()
                             Text(delivery.message).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
                         }
                     }
