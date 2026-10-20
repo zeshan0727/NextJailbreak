@@ -208,22 +208,13 @@ final class DeviceSyncService: NSObject, ObservableObject {
             let peers = Set(snapshots.map(\.deviceID)).count
 
             for snapshot in snapshots {
-                let ownedTransactions = Dictionary(uniqueKeysWithValues: current.transactions.map { ($0.id, $0) })
-                let ownedAccounts = Dictionary(uniqueKeysWithValues: current.accounts.map { ($0.id, $0) })
-                let incomingTransactions = snapshot.ledger.transactions.filter { item in
-                    if let prior = ownedTransactions[item.id] {
-                        if prior != item { conflicts += 1 }
-                        return false
-                    }
-                    return true
-                }
-                let incomingAccounts = snapshot.ledger.accounts.filter { item in
-                    if let prior = ownedAccounts[item.id] {
-                        if prior != item { conflicts += 1 }
-                        return false
-                    }
-                    return true
-                }
+                let transactionPlan = SafeDeviceMerge.plan(
+                    local: current.transactions, remote: snapshot.ledger.transactions)
+                let accountPlan = SafeDeviceMerge.plan(
+                    local: current.accounts, remote: snapshot.ledger.accounts)
+                let incomingTransactions = transactionPlan.additions
+                let incomingAccounts = accountPlan.additions
+                conflicts += transactionPlan.conflicts + accountPlan.conflicts
                 if incomingTransactions.isEmpty && incomingAccounts.isEmpty { continue }
 
                 // Settings / budget are seeded once on a fresh device, never
