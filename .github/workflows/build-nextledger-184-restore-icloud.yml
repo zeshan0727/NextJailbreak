@@ -1,4 +1,4 @@
-name: Build Next Ledger 1.3.84 Build 94 JSON Restore Picker
+name: Build Next Ledger 1.3.84 Build 95 Native JSON Importer
 
 on:
   push:
@@ -22,14 +22,14 @@ jobs:
       - name: Checkout full verified original Next Ledger 1.3.84 source
         uses: actions/checkout@v4
         with:
-          ref: fix/nextledger-1.3.84-build94-json-picker
+          ref: fix/nextledger-1.3.84-build95-native-json-importer
 
       - name: Validate full original features and iCloud documents declarations
         shell: bash
         run: |
           set -euo pipefail
           grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
-          grep -Fq 'CURRENT_PROJECT_VERSION: "94"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "95"' project.yml
           grep -Fq 'path: DailyLedger/DailyLedger.entitlements' project.yml
           grep -Fq 'com.apple.developer.icloud-services' DailyLedger/DailyLedger.entitlements
           grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
@@ -40,10 +40,14 @@ jobs:
           grep -Fq 'LedgerRestoreImportControl' DailyLedger/Views/SettingsView.swift
           grep -Fq 'forOpeningContentTypes: [.item]' DailyLedger/Views/LedgerBackupFilePicker.swift
           grep -Fq 'Restore JSON Backup from Files' DailyLedger/Views/SettingsView.swift
-          grep -Fq '.sheet(isPresented: $pickerPresented)' DailyLedger/Views/LedgerRestoreImportControl.swift
-          grep -Fq 'handleSelection(result)' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq '.fileImporter(' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'onFileImporterResult(result)' DailyLedger/Views/LedgerRestoreImportControl.swift
           grep -Fq 'Merge Verified Backup' DailyLedger/Views/LedgerRestoreImportControl.swift
-          grep -Fq 'DispatchQueue.global(qos: .userInitiated).async' DailyLedger/Views/LedgerBackupFilePicker.swift
+          grep -Fq 'Find JSON in App Imports Folder' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'startAccessingSecurityScopedResource()' DailyLedger/Views/LedgerRestoreImportControl.swift
+          /usr/libexec/PlistBuddy -c 'Print UIFileSharingEnabled' DailyLedger/Info.plist | grep -Fq true
+          /usr/libexec/PlistBuddy -c 'Print LSSupportsOpeningDocumentsInPlace' DailyLedger/Info.plist | grep -Fq true
+          grep -Fq 'DispatchQueue.global(qos: .userInitiated).async' DailyLedger/Views/LedgerRestoreImportControl.swift
           grep -Fq 'iCloudContainerUnavailable' DailyLedger/Services/BackupSyncService.swift
           grep -Fq 'verifiedBackupData()' DailyLedger/Views/SettingsView.swift
           grep -Fq 'refreshCloudDiagnostics()' DailyLedger/Views/SettingsView.swift
@@ -92,7 +96,7 @@ jobs:
           test -n "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.dailyledger'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
-          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '94'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '95'
           test "$(/usr/libexec/PlistBuddy -c 'Print NSUbiquitousContainers:iCloud.com.nextsolution.dailyledger:NSUbiquitousContainerIsDocumentScopePublic' "$APP/Info.plist")" = 'true'
           BIN="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
           test "$(stat -f %z "$BIN")" -gt 12000000
