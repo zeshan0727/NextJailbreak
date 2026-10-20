@@ -44,6 +44,7 @@ jobs:
           set -euo pipefail
           rm -rf NextSigner/Vendor/Zsign-Package
           git clone --depth 1 --branch package https://github.com/claration/Zsign-Package.git NextSigner/Vendor/Zsign-Package
+          git -C NextSigner/Vendor/Zsign-Package rev-parse HEAD
           python3 - <<'PY'
           from pathlib import Path
           bridge = Path('NextSigner/Vendor/Zsign-Package/swift/zsign.mm')
@@ -56,7 +57,11 @@ jobs:
           elif new_call in s:
               print('Zsign bridge already has the full dylib argument list')
           else:
-              print('Upstream bridge signature changed; deferring verification to Xcode compilation')
+              # Different formatting or a supported new bridge is acceptable
+              # only when the real SignFolder call is still present.
+              if 'bundle.SignFolder(' not in s or 'arrDylibFiles' not in s:
+                  raise SystemExit('Unsupported upstream Zsign bridge ABI; refusing blind patch')
+              print('Upstream bridge ABI differs from known variants; Xcode will validate it')
           s = s.replace('completionHandler(bRet);', 'if (completionHandler) { completionHandler(bRet); }')
           bridge.write_text(s)
 
@@ -75,6 +80,9 @@ jobs:
           else:
               print('Upstream provision logic changed; deferring verification to Xcode')
           PY
+
+      - name: Test iCloud entitlement preparation and signed Mach-O validation
+        run: python3 .github/scripts/test-nextsigner-icloud-entitlements.py
 
       - name: Generate icon
         run: python3 NextSigner/generate_app_icon.py
