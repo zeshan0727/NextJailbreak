@@ -1,2 +1,3 @@
 Trigger Next Signer 1.4.3 build with Ad Hoc iCloud Documents and custom entitlement support. Build exact feature/nextsigner-1.4.3-custom-icloud-entitlements source.
 Corrected source ref; rebuild with iCloud signing support.
+Valid YAML workflow start after correcting escaped indentation.
