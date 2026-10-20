@@ -40,6 +40,14 @@ jobs:
           set -euo pipefail
           brew install xcodegen
 
+      - name: Generate AppIcon PNG
+        shell: bash
+        working-directory: NextCalculator
+        run: |
+          set -euo pipefail
+          python3 Tools/make_icon.py
+          test -s Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+
       - name: Generate Xcode project
         shell: bash
         working-directory: NextCalculator
@@ -178,7 +186,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add applications/NextCalculator-1.0.0.tipa applications/NextCalculator-1.0.0.tipa.sha256 transfer/files/NextCalculator/1.0.0 transfer/index.json
+          git add NextCalculator/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png applications/NextCalculator-1.0.0.tipa applications/NextCalculator-1.0.0.tipa.sha256 transfer/files/NextCalculator/1.0.0 transfer/index.json
           git diff --cached --stat
           git commit -m "Build and publish Next Calculator 1.0.0"
           git pull --rebase origin main
