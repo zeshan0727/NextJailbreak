@@ -56,8 +56,8 @@ struct SettingsView: View {
     private var backupPickerPresentation: some View {
         settingsNavigation
             .sheet(isPresented: $showingNativeBackupPicker) {
-                if let backupExportURL {
-                    LedgerBackupExportPicker(fileURL: backupExportURL) { result in
+                if let sourceURL = backupExportURL {
+                    LedgerBackupExportPicker(fileURL: sourceURL) { result in
                         showingNativeBackupPicker = false
                         backupExportURL = nil
                         showExportResult(result, format: "JSON backup")
