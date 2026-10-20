@@ -2,6 +2,48 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "5Row Pro: iOS 15.0–26.0.1; SwipeExtenderX: iOS 14.0–16.5; HelloKeyboardAI: iOS 14.0–17.3.1. Each requires a compatible jailbreak environment; package ranges do not establish jailbreak availability.",
+      "description": "Compare 5Row Pro 1.20.0, SwipeExtenderX 1.6.2 and HelloKeyboardAI 6.6.6-6 by purpose, compatibility, price and jailbreak requirements.",
+      "developer": "pitroytech, MiRO and zqbb",
+      "entry_type": "tweak-comparison",
+      "href": "keyboard-tweaks-5row-pro-vs-swipeextenderx-vs-hellokeyboardai/",
+      "image": "assets/articles/source-media/5row-pro-1-19-0-official-banner.png",
+      "media_credit": "pitroytech/Havoc — official 5Row Pro banner; additional official Chariz and Havoc interface visuals embedded",
+      "media_git_blob_sha": "a0d30dd7ce45eeedfdd0e979c3493b0907708034",
+      "media_source_url": "https://media.havoc.app/6ac27358d021b0f97081fff7",
+      "modified_at": "2026-10-20T08:58:03Z",
+      "name": "5Row Pro vs SwipeExtenderX vs HelloKeyboardAI",
+      "package": "comparison.5row-swipeextenderx-hellokeyboardai",
+      "published_at": "2026-10-20T08:58:03Z",
+      "quality_target": 9,
+      "release": "5Row Pro 1.20.0; SwipeExtenderX 1.6.2; HelloKeyboardAI 6.6.6-6",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "keyboard-tweaks-5row-pro-vs-swipeextenderx-vs-hellokeyboardai",
+      "source_name": "Official Havoc and Chariz product pages and version histories",
+      "source_page_url": "https://havoc.app/package/5rowpro",
+      "source_url": "https://chariz.com/get/swipeextenderx",
+      "source_visual_origin": "official-marketplace-assets-reused",
+      "source_visual_url": "https://media.havoc.app/6ac27358d021b0f97081fff7",
+      "title": "5Row Pro vs SwipeExtenderX vs HelloKeyboardAI: Which Keyboard Tweak Fits You?",
+      "version": "1.20.0 / 1.6.2 / 6.6.6-6",
+      "additional_media": [
+        {
+          "credit": "MiRO/Chariz — official SwipeExtenderX keyboard screenshot",
+          "image": "https://cdn.chariz.cloud/screenshot/swipeextenderx/swipeextenderx-1.jpg",
+          "source_url": "https://chariz.com/get/swipeextenderx"
+        },
+        {
+          "credit": "zqbb/Havoc — official HelloKeyboardAI source visual",
+          "image": "assets/articles/source-media/hellokeyboardai-2-1-0-1-update-205ba79a45.png",
+          "source_url": "https://havoc.app/package/hellokeyboardai"
+        }
+      ]
+    },
+    {
+      "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },

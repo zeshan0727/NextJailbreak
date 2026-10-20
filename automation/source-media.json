@@ -984,6 +984,33 @@
         "git_blob_sha": "e785d4f8a8276a412a8c93618e954b45d1dd3e82"
       },
       "screenshots": []
+    },
+    "comparison.5row-swipeextenderx-hellokeyboardai": {
+      "credit_label": "pitroytech, MiRO and zqbb — official Havoc and Chariz marketplace assets",
+      "source_page_url": "https://havoc.app/package/5rowpro",
+      "secondary_source_page_urls": [
+        "https://chariz.com/get/swipeextenderx",
+        "https://havoc.app/package/hellokeyboardai"
+      ],
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac27358d021b0f97081fff7",
+        "alt": "Official 5Row Pro artwork showing number and symbol rows above the stock iPhone keyboard",
+        "local_path": "assets/articles/source-media/5row-pro-1-19-0-official-banner.png",
+        "git_blob_sha": "a0d30dd7ce45eeedfdd0e979c3493b0907708034"
+      },
+      "screenshots": [
+        {
+          "url": "https://cdn.chariz.cloud/screenshot/swipeextenderx/swipeextenderx-1.jpg",
+          "alt": "SwipeExtenderX keyboard gestures shown in the official Chariz package screenshot"
+        },
+        {
+          "url": "https://media.havoc.app/670de6309d2f1af2966fc7e0",
+          "alt": "HelloKeyboardAI shown on an iPhone keyboard in the official Havoc source visual",
+          "local_path": "assets/articles/source-media/hellokeyboardai-2-1-0-1-update-205ba79a45.png",
+          "git_blob_sha": "d3fa6500fec08b463354d7d70b7f5cc34dcf47a2"
+        }
+      ]
     }
   }
 }
