@@ -30,6 +30,8 @@ enum LocalSignerError: LocalizedError {
     case signedProfileMissing
     case metadataValidationFailed
     case packagingFailed
+    case invalidExplicitEntitlements(String)
+    case signedEntitlementsMismatch(String)
 
     var errorDescription: String? {
         switch self {
@@ -67,6 +69,10 @@ enum LocalSignerError: LocalizedError {
             return "Signing completed, but the final app metadata did not match the requested bundle identifier."
         case .packagingFailed:
             return "The app was signed but the final IPA could not be packaged correctly."
+        case .invalidExplicitEntitlements(let reason):
+            return "Cannot enable requested entitlements: \(reason)"
+        case .signedEntitlementsMismatch(let key):
+            return "The final IPA signature does not contain the requested entitlement: \(key). No IPA was exported."
         }
     }
 }
@@ -76,6 +82,8 @@ private struct ProvisioningProfileInfo {
     let expirationDate: Date
     let applicationIdentifierPattern: String
     let developerCertificates: [Data]
+    let teamID: String
+    let permittedEntitlements: [String: Any]
 
     func allows(bundleID: String) -> Bool {
         let pattern = applicationIdentifierPattern
@@ -94,7 +102,10 @@ struct LocalSignerService {
         requestedBundleID: String,
         p12URL: URL,
         provisioningURL: URL,
-        p12Password: String
+        p12Password: String,
+        customEntitlementsURL: URL?,
+        iCloudDocuments: Bool,
+        iCloudContainer: String
     ) async throws -> SignedAppResult {
         try await Task.detached(priority: .userInitiated) {
             try signSynchronously(
@@ -103,7 +114,10 @@ struct LocalSignerService {
                 requestedBundleID: requestedBundleID,
                 p12URL: p12URL,
                 provisioningURL: provisioningURL,
-                p12Password: p12Password
+                p12Password: p12Password,
+                customEntitlementsURL: customEntitlementsURL,
+                iCloudDocuments: iCloudDocuments,
+                iCloudContainer: iCloudContainer
             )
         }.value
     }
@@ -114,7 +128,10 @@ struct LocalSignerService {
         requestedBundleID: String,
         p12URL: URL,
         provisioningURL: URL,
-        p12Password: String
+        p12Password: String,
+        customEntitlementsURL: URL?,
+        iCloudDocuments: Bool,
+        iCloudContainer: String
     ) throws -> SignedAppResult {
         let fm = FileManager.default
         guard fm.fileExists(atPath: p12URL.path) else { throw LocalSignerError.missingCertificate }
@@ -144,6 +161,15 @@ struct LocalSignerService {
         try fm.createDirectory(at: unpacked, withIntermediateDirectories: true)
         defer { try? fm.removeItem(at: workRoot) }
 
+        let signingEntitlements = try makeExplicitEntitlements(
+            profile: profile,
+            bundleID: cleanBundleID,
+            iCloudDocuments: iCloudDocuments,
+            iCloudContainer: iCloudContainer,
+            customURL: customEntitlementsURL,
+            workRoot: workRoot
+        )
+
         do {
             try fm.unzipItem(at: ipaURL, to: unpacked)
         } catch {
@@ -172,7 +198,7 @@ struct LocalSignerService {
             provisionPath: provisioningURL.path,
             p12Path: p12URL.path,
             p12Password: p12Password,
-            entitlementsPath: "",
+            entitlementsPath: signingEntitlements?.path ?? "",
             customIdentifier: cleanBundleID,
             customName: cleanName,
             customVersion: "",
@@ -181,6 +207,9 @@ struct LocalSignerService {
             completion: { completionResult = $0 }
         )
         guard signedOK, completionResult != false else { throw LocalSignerError.signingFailed }
+        if let signingEntitlements {
+            try verifySignedEntitlements(appURL: appURL, expectedURL: signingEntitlements)
+        }
 
         // Post-sign checks intentionally validate package state only. Zsign already
         // performed the Mach-O signing operation.
@@ -317,8 +346,161 @@ struct LocalSignerService {
             name: (plist["Name"] as? String) ?? "Provisioning Profile",
             expirationDate: expiration,
             applicationIdentifierPattern: pattern,
-            developerCertificates: certificates
+            developerCertificates: certificates,
+            teamID: teamID,
+            permittedEntitlements: entitlements
         )
+    }
+
+    // MARK: - Explicit capabilities
+
+    /// Zsign's entitlementsPath overrides the final Mach-O entitlement blob;
+    /// derive the mandatory identity keys from the exact selected provisioning
+    /// profile, then add only profile-authorized explicit capability requests.
+    private func makeExplicitEntitlements(
+        profile: ProvisioningProfileInfo,
+        bundleID: String,
+        iCloudDocuments: Bool,
+        iCloudContainer: String,
+        customURL: URL?,
+        workRoot: URL
+    ) throws -> URL? {
+        guard iCloudDocuments || customURL != nil else { return nil }
+        guard !iCloudDocuments || customURL == nil else {
+            throw LocalSignerError.invalidExplicitEntitlements("Choose either the iCloud preset or a custom .entitlements file.")
+        }
+        guard !profile.teamID.isEmpty, !profile.applicationIdentifierPattern.contains("*"),
+              profile.applicationIdentifierPattern == bundleID else {
+            throw LocalSignerError.invalidExplicitEntitlements("Import an explicit App ID Ad Hoc profile matching " + bundleID + " (no wildcard).")
+        }
+
+        let applicationIdentifier = profile.teamID + "." + bundleID
+        var entitlement: [String: Any] = [
+            "application-identifier": applicationIdentifier,
+            "com.apple.developer.team-identifier": profile.teamID,
+            "get-task-allow": false
+        ]
+        if let groups = profile.permittedEntitlements["keychain-access-groups"] as? [String],
+           groups.contains(where: { self.isAllowed(applicationIdentifier, by: $0) }) {
+            entitlement["keychain-access-groups"] = [applicationIdentifier]
+        }
+        if iCloudDocuments {
+            let container = iCloudContainer.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard container.hasPrefix("iCloud."), !container.contains(" "),
+                  !container.contains("*") else {
+                throw LocalSignerError.invalidExplicitEntitlements("Enter the exact iCloud container, e.g. iCloud.com.nextsolution.dailyledger.")
+            }
+            entitlement["com.apple.developer.icloud-services"] = ["CloudDocuments"]
+            entitlement["com.apple.developer.icloud-container-identifiers"] = [container]
+            entitlement["com.apple.developer.ubiquity-container-identifiers"] = [container]
+        } else if let customURL {
+            guard let data = try? Data(contentsOf: customURL), data.count < 100_000,
+                  let chosen = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+                throw LocalSignerError.invalidExplicitEntitlements("Select a readable .entitlements or .plist dictionary.")
+            }
+            for (key, value) in chosen {
+                if let original = entitlement[key],
+                   !NSDictionary(dictionary: ["value": original]).isEqual(to: ["value": value]) {
+                    throw LocalSignerError.invalidExplicitEntitlements("Signing identity field conflicts with profile: " + key)
+                }
+                entitlement[key] = value
+            }
+        }
+        for (key, value) in entitlement {
+            if key == "com.apple.developer.team-identifier" &&
+               profile.permittedEntitlements[key] == nil { continue }
+            guard let allowed = profile.permittedEntitlements[key], isAllowed(value, by: allowed) else {
+                throw LocalSignerError.invalidExplicitEntitlements("Ad Hoc profile does not authorize: " + key)
+            }
+        }
+
+        let url = workRoot.appendingPathComponent("NextSigner-Explicit.entitlements")
+        let data = try PropertyListSerialization.data(fromPropertyList: entitlement,
+                                                       format: .xml, options: 0)
+        try data.write(to: url, options: .atomic)
+        return url
+    }
+
+    private func isAllowed(_ actual: String, by allowed: String) -> Bool {
+        actual == allowed || allowed == "*" ||
+            (allowed.hasSuffix("*") && actual.hasPrefix(String(allowed.dropLast())))
+    }
+
+    private func isAllowed(_ actual: Any, by allowed: Any) -> Bool {
+        if let a = actual as? String, let b = allowed as? String { return isAllowed(a, by: b) }
+        if let a = actual as? [String], let b = allowed as? [String] {
+            return a.allSatisfy { item in b.contains { isAllowed(item, by: $0) } }
+        }
+        if let a = actual as? Bool, let b = allowed as? Bool { return a == b }
+        return NSDictionary(dictionary: ["value": actual]).isEqual(to: ["value": allowed])
+    }
+
+    /// Do not report iCloud success when a signer copied '*' or removed the
+    /// entitlement. Inspect the XML entitlement slot (5) of the actual signed
+    /// ARM64 Mach-O, rather than reading the profile's entitlement allow-list.
+    private func verifySignedEntitlements(appURL: URL, expectedURL: URL) throws {
+        guard let appInfo = try readPlist(appURL.appendingPathComponent("Info.plist")),
+              let executable = appInfo["CFBundleExecutable"] as? String else {
+            throw LocalSignerError.signedEntitlementsMismatch("CFBundleExecutable")
+        }
+        let binary = try Data(contentsOf: appURL.appendingPathComponent(executable))
+        func u32(_ at: Int, big: Bool = false) -> UInt32? {
+            guard at >= 0, at + 4 <= binary.count else { return nil }
+            let bytes = [UInt8](binary[at..<(at + 4)])
+            if big {
+                return (UInt32(bytes[0]) << 24) | (UInt32(bytes[1]) << 16) |
+                       (UInt32(bytes[2]) << 8) | UInt32(bytes[3])
+            }
+            return UInt32(bytes[0]) | (UInt32(bytes[1]) << 8) |
+                   (UInt32(bytes[2]) << 16) | (UInt32(bytes[3]) << 24)
+        }
+        guard let magic = u32(0), magic == 0xfeedfacf || magic == 0xfeedface,
+              let commandCount = u32(16) else {
+            throw LocalSignerError.signedEntitlementsMismatch("Mach-O header")
+        }
+        var command = magic == 0xfeedfacf ? 32 : 28
+        var actual: [String: Any]?
+        for _ in 0..<Int(commandCount) {
+            guard let commandType = u32(command), let commandSize = u32(command + 4),
+                  commandSize >= 8 else { break }
+            if commandType == 0x1d, let signatureOffset = u32(command + 8),
+               let signatureLength = u32(command + 12) {
+                let blob = Int(signatureOffset)
+                let blobEnd = blob + Int(signatureLength)
+                guard blobEnd <= binary.count, u32(blob, big: true) == 0xfade0cc0,
+                      let count = u32(blob + 8, big: true) else { break }
+                for index in 0..<Int(count) {
+                    let base = blob + 12 + index * 8
+                    guard let slot = u32(base, big: true),
+                          let offset = u32(base + 4, big: true) else { break }
+                    let location = blob + Int(offset)
+                    if slot == 5, u32(location, big: true) == 0xfade7171,
+                       let length = u32(location + 4, big: true) {
+                        let start = location + 8
+                        let end = location + Int(length)
+                        if end <= blobEnd && start < end {
+                            actual = try? PropertyListSerialization.propertyList(
+                                from: binary.subdata(in: start..<end), format: nil
+                            ) as? [String: Any]
+                        }
+                    }
+                }
+                break
+            }
+            command += Int(commandSize)
+        }
+        guard let actual,
+              let expected = try PropertyListSerialization.propertyList(
+                from: Data(contentsOf: expectedURL), format: nil
+              ) as? [String: Any] else {
+            throw LocalSignerError.signedEntitlementsMismatch("code signature")
+        }
+        for (key, value) in expected {
+            guard let signedValue = actual[key],
+                  NSDictionary(dictionary: ["value": signedValue]).isEqual(to: ["value": value]) else {
+                throw LocalSignerError.signedEntitlementsMismatch(key)
+            }
+        }
     }
 
     // MARK: - IPA metadata
