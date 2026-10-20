@@ -24,6 +24,21 @@ final class LedgerDiskStore {
         }
     }
 
+    /// Export the authoritative ledger.json bytes. Never substitute the empty
+    /// default LedgerData() on an unreadable file or missing storage.
+    func verifiedBackupData() throws -> (data: Data, transactions: Int, accounts: Int) {
+        try queue.sync {
+            try withFileLock {
+                let data = try Data(contentsOf: fileURL)
+                let ledger = try decoder.decode(LedgerData.self, from: data)
+                guard !ledger.transactions.isEmpty else {
+                    throw BackupExportError.noTransactions
+                }
+                return (data, ledger.transactions.count, ledger.accounts.count)
+            }
+        }
+    }
+
     func save(_ ledger: LedgerData) throws {
         try queue.sync {
             try withFileLock { try saveUnlocked(ledger) }
@@ -168,5 +183,16 @@ final class LedgerDiskStore {
 
     private var lockURL: URL {
         fileURL.deletingLastPathComponent().appendingPathComponent("ledger.lock")
+    }
+}
+
+enum BackupExportError: LocalizedError {
+    case noTransactions
+
+    var errorDescription: String? {
+        switch self {
+        case .noTransactions:
+            return "Your saved ledger has no transactions. Existing backups were preserved. Nothing was exported."
+        }
     }
 }
