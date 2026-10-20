@@ -63,11 +63,19 @@ def normalized_keychain_groups(requested, authorized, team, bundle_id):
             .replace("$(PRODUCT_BUNDLE_IDENTIFIER)", bundle_id))
         if concrete in ("*", prefix + "*"):
             concrete = app_id
-        if (not concrete.startswith(prefix) or len(concrete) <= len(prefix)
-                or "*" in concrete or "$(" in concrete
-                or not any(permitted(concrete, allowed) for allowed in authorized)):
+        # Non-team keychain groups (e.g. com.apple.token) are acceptable
+        # ONLY when the provisioning profile enumerates that exact string.
+        # Never let the TeamID.* wildcard grant a reserved/system group.
+        exact_profile_match = concrete in authorized
+        permitted_team_group = (
+            concrete.startswith(prefix) and len(concrete) > len(prefix)
+            and any(permitted(concrete, allowed) for allowed in authorized)
+        )
+        if (not concrete or "*" in concrete or "$(" in concrete
+                or not (exact_profile_match or permitted_team_group)):
             raise ValueError(
-                "Keychain access group is not authorized for selected team/profile: " + raw
+                "Keychain access group is not explicitly authorized by the "
+                "selected provisioning profile: " + raw
             )
         if concrete not in groups:
             groups.append(concrete)
