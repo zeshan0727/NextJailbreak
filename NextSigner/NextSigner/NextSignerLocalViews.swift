@@ -5,6 +5,7 @@ struct NextSignerLocalSignView: View {
     @ObservedObject var store: SignerStore
     @ObservedObject var local: LocalSigningController
     @State private var showPicker = false
+    @State private var capabilityPicker: ManualPickerTarget?
 
     var body: some View {
         NavigationStack {
@@ -14,6 +15,7 @@ struct NextSignerLocalSignView: View {
                     sourceCard
                     identityCard
                     credentialsCard
+                    entitlementCard
                     optionsCard
                     signCard
                 }
@@ -38,6 +40,23 @@ struct NextSignerLocalSignView: View {
                         local.signingError = nil
                     },
                     onCancel: { showPicker = false }
+                )
+                .ignoresSafeArea()
+            }
+            .sheet(item: $capabilityPicker) { target in
+                ManualDocumentPicker(
+                    documentTypes: ["public.item"],
+                    allowsMultipleSelection: false,
+                    onPick: { urls in
+                        capabilityPicker = nil
+                        guard let url = urls.first else { return }
+                        switch target {
+                        case .provisioning: store.importProvisioningProfile(from: url)
+                        case .entitlements: store.importEntitlements(from: url)
+                        default: break
+                        }
+                    },
+                    onCancel: { capabilityPicker = nil }
                 )
                 .ignoresSafeArea()
             }
@@ -181,6 +200,64 @@ struct NextSignerLocalSignView: View {
         }
     }
 
+    private var entitlementCard: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                Toggle("Enable iCloud Documents (CloudDocuments)", isOn: Binding(
+                    get: { store.request.enableICloudDocuments },
+                    set: { enabled in
+                        store.request.enableICloudDocuments = enabled
+                        if enabled {
+                            store.clearEntitlements()
+                            if store.request.duplicateSigning { store.setDuplicateSigning(false) }
+                            if store.request.iCloudContainerIdentifier.isEmpty {
+                                store.request.iCloudContainerIdentifier = "iCloud." + store.request.bundleID
+                            }
+                        }
+                    }
+                ))
+                if store.request.enableICloudDocuments {
+                    TextField("iCloud container ID", text: $store.request.iCloudContainerIdentifier)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    Text("For Next Ledger: iCloud.com.nextsolution.dailyledger. Requires an explicit Ad Hoc profile for the exact app ID.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Divider()
+                Text("App-specific Ad Hoc profile").font(.subheadline.bold())
+                Text(store.request.customProvisioningURL?.lastPathComponent ?? "Use local profile from Profiles tab")
+                    .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                HStack {
+                    Button { capabilityPicker = .provisioning } label: {
+                        Label("Choose .mobileprovision", systemImage: "doc.badge.gearshape")
+                    }.buttonStyle(.bordered)
+                    if store.request.customProvisioningURL != nil {
+                        Button("Remove", role: .destructive) { store.clearProvisioningProfile() }
+                    }
+                }
+                Divider()
+                Text("Custom signing entitlements").font(.subheadline.bold())
+                Text(store.request.customEntitlementsURL?.lastPathComponent
+                     ?? (store.request.enableICloudDocuments ? "Generated for iCloud Documents" : "Use profile-derived defaults"))
+                    .font(.caption).foregroundStyle(.secondary)
+                HStack {
+                    Button { capabilityPicker = .entitlements } label: {
+                        Label("Choose .entitlements", systemImage: "doc.text")
+                    }.buttonStyle(.bordered).disabled(store.request.enableICloudDocuments)
+                    if store.request.customEntitlementsURL != nil {
+                        Button("Remove", role: .destructive) { store.clearEntitlements() }
+                    }
+                }
+                Text("Next Signer verifies the profile's capability permissions and checks the final executable's entitlements before saving.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        } label: {
+            Label("Provisioning & Entitlements", systemImage: "checkmark.shield")
+        }
+    }
+
     private var optionsCard: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
@@ -188,7 +265,8 @@ struct NextSignerLocalSignView: View {
                     get: { store.request.duplicateSigning },
                     set: { store.setDuplicateSigning($0) }
                 ))
-                Text("Changes the bundle identifier so the signed copy can install beside the original app.")
+                .disabled(store.request.enableICloudDocuments)
+                Text("Changes the bundle identifier so the signed copy can install beside the original app. Disabled for explicit iCloud App IDs.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text("Custom icon and tweak injection are not sent to GitHub in local-sign mode. The IPA itself is signed on-device and preserved unchanged apart from the requested app name/bundle ID and signature.")
@@ -224,7 +302,11 @@ struct NextSignerLocalSignView: View {
                     store.request.ipaURL == nil ||
                     store.request.appName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
                     !store.request.isValidBundleID ||
-                    !local.credentialsReady ||
+                    (!local.hasP12 || !local.p12PasswordIsStored ||
+                     (!local.hasProvisioningProfile && store.request.customProvisioningURL == nil)) ||
+                    (store.request.enableICloudDocuments &&
+                     (!store.request.iCloudContainerIdentifier.hasPrefix("iCloud.") ||
+                      store.request.duplicateSigning)) ||
                     local.isSigning
                 )
 
