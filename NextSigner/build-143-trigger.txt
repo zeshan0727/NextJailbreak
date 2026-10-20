@@ -9,3 +9,4 @@ Release qualification retry after test lookup correction; source commit b6a02fb8
 Build NextSigner 1.4.3 (27) iCloud KVS wildcard hotfix from release/nextsigner-1.4.3-build27-icloud-kvstore-fix; verify compiler, regression tests and IPA/TIPA archives.
 Build NextSigner 1.4.3 Build 28 from release/nextsigner-1.4.3-build28-keychain-groups-fix and test custom iCloud keychain-access-groups signatures.
 Build NextSigner 1.4.3 Build 29 from release/nextsigner-1.4.3-build29-ipa-identity; verify original IPA Info.plist identity import and local iCloud options.
+Build NextSigner 1.4.3 Build 30 from release/nextsigner-1.4.3-build30-keychain-profile-groups. Regression check exact profile authorization for com.apple.token and verify final signed entitlements.
