@@ -121,11 +121,6 @@ struct LedgerRestoreImportControl: View {
             onFileImporterResult(result)
         }
         .onAppear { ensureInbox() }
-        .onDisappear {
-            // A pending provider read must never apply to a new view instance.
-            readToken = UUID()
-            reading = false
-        }
     }
 
     private func ensureInbox() {
