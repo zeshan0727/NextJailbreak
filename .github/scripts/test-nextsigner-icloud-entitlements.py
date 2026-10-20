@@ -59,6 +59,7 @@ class EntitlementTests(unittest.TestCase):
                 "com.apple.developer.icloud-services": ["*"],
                 "com.apple.developer.icloud-container-identifiers": [CONTAINER],
                 "com.apple.developer.ubiquity-container-identifiers": [CONTAINER],
+                "com.apple.developer.ubiquity-kvstore-identifier": TEAM + ".*",
                 "aps-environment": "production",
                 "com.apple.security.application-groups": ["group.example.ledger"],
             },
@@ -85,10 +86,33 @@ class EntitlementTests(unittest.TestCase):
         self.assertEqual(actual["com.apple.developer.icloud-services"], ["CloudDocuments"])
         self.assertEqual(actual["com.apple.developer.icloud-container-identifiers"], [CONTAINER])
         self.assertEqual(actual["com.apple.developer.ubiquity-container-identifiers"], [CONTAINER])
+        self.assertEqual(actual["com.apple.developer.ubiquity-kvstore-identifier"], APP_ID)
         self.assertEqual(actual["aps-environment"], "production")
         self.assertEqual(actual["com.apple.security.application-groups"], ["group.example.ledger"])
         self.assertEqual(actual["keychain-access-groups"], [APP_ID])
         self.assertNotIn("*", str(actual))
+
+    def test_kvstore_profile_wildcard_must_resolve_before_signing(self):
+        self.profile_data["Entitlements"]["com.apple.developer.ubiquity-kvstore-identifier"] = "*"
+        entitlements = self.prepare()
+        self.assertEqual(entitlements["com.apple.developer.ubiquity-kvstore-identifier"], APP_ID)
+        self.assertNotIn("*", str(entitlements))
+
+    def test_kvstore_wrong_team_wildcard_must_be_rejected(self):
+        self.profile_data["Entitlements"]["com.apple.developer.ubiquity-kvstore-identifier"] = "WRONGTEAM.*"
+        with self.assertRaisesRegex(ValueError, "key-value-store"):
+            self.prepare()
+
+    def test_explicit_kvstore_share_is_preserved_when_profile_allows_it(self):
+        shared = TEAM + ".com.nextsolution.shared.kvstore"
+        self.profile_data["Entitlements"]["com.apple.developer.ubiquity-kvstore-identifier"] = shared
+        entitlements = self.prepare()
+        self.assertEqual(entitlements["com.apple.developer.ubiquity-kvstore-identifier"], shared)
+
+    def test_other_unresolved_wildcards_are_still_rejected(self):
+        self.profile_data["Entitlements"]["com.apple.security.application-groups"] = ["group.*"]
+        with self.assertRaisesRegex(ValueError, "explicit value"):
+            self.prepare()
 
     def test_final_macho_entitlements_must_match(self):
         expected = self.prepare()
