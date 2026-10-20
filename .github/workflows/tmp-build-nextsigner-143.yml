@@ -17,7 +17,7 @@ jobs:
       - name: Checkout 1.4.3 feature branch
         uses: actions/checkout@v4
         with:
-          ref: feature/nextsigner-1.4.3-ota-install
+          ref: feature/nextsigner-1.4.3-custom-icloud-entitlements
           fetch-depth: 0
 
       - name: Verify 1.4.3 source
