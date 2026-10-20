@@ -193,7 +193,7 @@ struct SettingsView: View {
                         Button {
                             exportingGoogleDrive = true
                         } label: {
-                            Label("Back Up to Google Drive", systemImage: "externaldrive.badge.icloud")
+                            Label("Manual Google Drive Export", systemImage: "externaldrive.badge.icloud")
                         }
                         Button {
                             importSource = .googleDrive
@@ -201,9 +201,15 @@ struct SettingsView: View {
                         } label: {
                             Label("Restore from Google Drive", systemImage: "arrow.down.doc.fill")
                         }
-                        LabeledContent("Last Backup") {
+                        LabeledContent("Last Device Backup") {
                             Text(backupSync.lastBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
                         }
+                        LabeledContent("Last iCloud File Write") {
+                            Text(backupSync.lastCloudBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
+                        }
+                        Text("Keeps 10 local backup files. iCloud requires Apple iCloud entitlement; manual Google Drive export does not automatically sync.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                         Text(backupSync.status)
                             .font(.caption)
                             .foregroundStyle(.secondary)
