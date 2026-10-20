@@ -111,7 +111,7 @@ jobs:
           data = json.loads(index_path.read_text())
           files = data.get('files', [])
           files = [item for item in files if not str(item.get('id', '')).startswith('nextsigner-')]
-          notes = 'Build 27: fixes iCloud key-value-store wildcard entitlement for Next Ledger; preserves explicit CloudDocuments, app-specific Ad Hoc profiles and verified final signed entitlements.'
+          notes = 'Build 28: resolves profile-authorized keychain group templates/wildcards in custom entitlements, plus iCloud key-value-store wildcard fix, explicit CloudDocuments and final signed IPA validation.'
           if version == '1.3.1':
               notes = 'Fixes Library delete 403 by using PAT-safe repository dispatch and direct repository catalog verification. Custom signing icons can now be selected from Photos or Files.'
           entry = {
