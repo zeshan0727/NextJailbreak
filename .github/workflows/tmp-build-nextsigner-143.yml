@@ -17,7 +17,7 @@ jobs:
       - name: Checkout 1.4.3 feature branch
         uses: actions/checkout@v4
         with:
-          ref: release/nextsigner-1.4.3-build28-keychain-groups-fix
+          ref: release/nextsigner-1.4.3-build29-ipa-identity
           fetch-depth: 0
 
       - name: Verify 1.4.3 source
@@ -25,7 +25,7 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'MARKETING_VERSION: "1.4.3"' NextSigner/project.yml
-          grep -q 'CURRENT_PROJECT_VERSION: "28"' NextSigner/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "29"' NextSigner/project.yml
           grep -q 'local.install(app, using: store)' NextSigner/NextSigner/NextSignerLocalViews.swift
           grep -q 'Enable iCloud Documents (CloudDocuments)' NextSigner/NextSigner/NextSignerManualViews.swift
           grep -q 'customProvisioningURL' NextSigner/NextSigner/ManualSigningFlow.swift
@@ -34,6 +34,12 @@ jobs:
           grep -q 'entitlementsPath: signingEntitlements' NextSigner/NextSigner/LocalSignerService.swift
           grep -q 'case "com.apple.developer.ubiquity-kvstore-identifier":' NextSigner/NextSigner/LocalSignerService.swift
           grep -q 'private func normalizedKeychainGroups(' NextSigner/NextSigner/LocalSignerService.swift
+          grep -q 'IPAIdentityReader.read(from: localURL)' NextSigner/NextSigner/SignerStore.swift
+          grep -q 'Payload' NextSigner/NextSigner/IPAIdentityReader.swift
+          if grep -q 'suggestedBundleID(from: request.appName)' NextSigner/NextSigner/SignerStore.swift; then
+            echo 'IPA importer still derives signing bundle ID from staged UUID name' >&2
+            exit 1
+          fi
           grep -q 'itms-services://?action=download-manifest' NextSigner/NextSigner/LocalSigningController.swift
           if grep -q 'apple-magnifier://install' NextSigner/NextSigner/NextSignerLocalViews.swift; then
             echo 'Signed Apps UI still uses Magnifier scheme' >&2
