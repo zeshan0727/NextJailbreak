@@ -82,7 +82,13 @@ jobs:
           PY
 
       - name: Test iCloud entitlement preparation and signed Mach-O validation
-        run: python3 .github/scripts/test-nextsigner-icloud-entitlements.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/nextsigner-validation"
+          git show origin/main:.github/scripts/nextsigner-icloud-entitlements.py > "$RUNNER_TEMP/nextsigner-validation/nextsigner-icloud-entitlements.py"
+          git show origin/main:.github/scripts/test-nextsigner-icloud-entitlements.py > "$RUNNER_TEMP/nextsigner-validation/test-nextsigner-icloud-entitlements.py"
+          python3 "$RUNNER_TEMP/nextsigner-validation/test-nextsigner-icloud-entitlements.py"
 
       - name: Generate icon
         run: python3 NextSigner/generate_app_icon.py
