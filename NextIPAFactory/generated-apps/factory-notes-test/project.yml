@@ -1,0 +1,27 @@
+name: GeneratedApp
+options:
+  bundleIdPrefix: com.nextipafactory
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+    IPHONEOS_DEPLOYMENT_TARGET: 16.0
+targets:
+  GeneratedApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nextipafactory.generatedapp
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Notes
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+schemes:
+  GeneratedApp:
+    build:
+      targets:
+        GeneratedApp: all
+    run:
+      config: Debug
