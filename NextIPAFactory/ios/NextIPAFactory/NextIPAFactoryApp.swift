@@ -387,13 +387,6 @@ struct FactorySettings: View {
 @main struct NextIPAFactoryApp: App {
     @StateObject private var model = FactoryState()
     var body: some Scene {
-        WindowGroup {
-            TabView {
-                FactoryMain().tabItem { Label("Builds", systemImage: "hammer.fill") }
-                FactorySettings().tabItem { Label("Agents", systemImage: "person.3.fill") }
-            }
-            .environmentObject(model)
-            .tint(Palette.primary)
-        }
+        WindowGroup { NextFactoryOnDeviceRoot() }
     }
 }
