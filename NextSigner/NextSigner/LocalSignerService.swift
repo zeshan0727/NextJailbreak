@@ -414,6 +414,37 @@ struct LocalSignerService {
                 entitlements[key] = profile.teamID
             case "get-task-allow":
                 entitlements[key] = false
+            case "com.apple.developer.icloud-services":
+                // Apple can authorize iCloud services using a scalar "*" in
+                // the provisioning profile, although the SIGNED entitlement
+                // must always be an array such as ["CloudDocuments"].
+                if let requested = chosen[key] {
+                    guard let services = requested as? [String], !services.isEmpty,
+                          services.allSatisfy({ $0 == "CloudDocuments" || $0 == "CloudKit" }) else {
+                        throw LocalSignerError.invalidExplicitEntitlements(
+                            "Signed iCloud services must be a list of CloudDocuments and/or CloudKit.")
+                    }
+                    entitlements[key] = services
+                } else if let availableServices = permitted as? [String],
+                          !availableServices.contains("*") {
+                    entitlements[key] = availableServices
+                } else if let oneService = permitted as? String, oneService != "*" {
+                    entitlements[key] = [oneService]
+                }
+                // Wildcard-only permission with no requested service is not a
+                // concrete entitlement; never sign the literal "*".
+            case "com.apple.developer.icloud-container-environment":
+                // Profile authorization may enumerate Production and
+                // Development. The signed entitlement is one STRING, and
+                // Apple Distribution / Ad Hoc signing must use Production.
+                if let requested = chosen[key] {
+                    guard let environment = requested as? String,
+                          environment == "Production" else {
+                        throw LocalSignerError.invalidExplicitEntitlements(
+                            "Ad Hoc iCloud signing requires the Production environment.")
+                    }
+                }
+                entitlements[key] = "Production"
             case "com.apple.developer.ubiquity-kvstore-identifier":
                 // Apple provisioning profiles may authorize this optional iCloud
                 // key-value store via TeamID.*. Never embed a '*' in the signature.
@@ -479,7 +510,9 @@ struct LocalSignerService {
         for (key, value) in chosen {
             // Already normalized from the custom file and profile permission.
             if key == "keychain-access-groups" ||
-               key == "com.apple.developer.ubiquity-kvstore-identifier" { continue }
+               key == "com.apple.developer.ubiquity-kvstore-identifier" ||
+               key == "com.apple.developer.icloud-services" ||
+               key == "com.apple.developer.icloud-container-environment" { continue }
             if let original = entitlements[key],
                (key == "application-identifier" || key == "com.apple.application-identifier" ||
                 key == "com.apple.developer.team-identifier" || key == "get-task-allow"),
@@ -495,8 +528,38 @@ struct LocalSignerService {
                 if key == "com.apple.developer.team-identifier" { continue }
                 throw LocalSignerError.invalidExplicitEntitlements("Ad Hoc profile does not authorize: " + key)
             }
-            guard !containsWildcard(value), isAllowed(value, by: allowed) else {
-                throw LocalSignerError.invalidExplicitEntitlements("Profile does not authorize a concrete value for: " + key)
+            let authorized: Bool
+            switch key {
+            case "com.apple.developer.icloud-services":
+                if let values = value as? [String], !values.isEmpty,
+                   values.allSatisfy({ $0 == "CloudDocuments" || $0 == "CloudKit" }) {
+                    if let allowedString = allowed as? String {
+                        authorized = allowedString == "*" ||
+                            (values.count == 1 && values.first == allowedString)
+                    } else {
+                        authorized = isAllowed(values, by: allowed)
+                    }
+                } else {
+                    authorized = false
+                }
+            case "com.apple.developer.icloud-container-environment":
+                if let concrete = value as? String, concrete == "Production" {
+                    if let allowedValues = allowed as? [String] {
+                        authorized = allowedValues.contains("Production") ||
+                            allowedValues.contains("*")
+                    } else {
+                        authorized = isAllowed(concrete, by: allowed)
+                    }
+                } else {
+                    authorized = false
+                }
+            default:
+                authorized = isAllowed(value, by: allowed)
+            }
+            guard !containsWildcard(value), authorized else {
+                throw LocalSignerError.invalidExplicitEntitlements(
+                    "Profile does not authorize a concrete value for: " + key +
+                    ". Check that its iCloud services include CloudDocuments and its distribution environment permits Production.")
             }
         }
 
