@@ -113,9 +113,16 @@ final class LocalSigningController: ObservableObject {
             signingError = LocalSignerError.missingCertificate.localizedDescription
             return
         }
-        guard hasProvisioningProfile else {
+        guard hasProvisioningProfile || request.customProvisioningURL != nil else {
             signingError = LocalSignerError.missingProvisioningProfile.localizedDescription
             return
+        }
+        if request.enableICloudDocuments {
+            guard !request.duplicateSigning,
+                  request.iCloudContainerIdentifier.hasPrefix("iCloud.") else {
+                signingError = "iCloud Documents requires an explicit iCloud container and cannot use a duplicate bundle ID."
+                return
+            }
         }
         let password = KeychainStore.load(account: p12PasswordAccount) ?? p12Password
         guard !password.isEmpty else {
@@ -132,7 +139,7 @@ final class LocalSigningController: ObservableObject {
         publishError = nil
 
         let p12URL = CredentialStore.url(for: .p12)
-        let provisioningURL = CredentialStore.url(for: .provisioning)
+        let provisioningURL = request.customProvisioningURL ?? CredentialStore.url(for: .provisioning)
 
         Task {
             do {
@@ -144,7 +151,10 @@ final class LocalSigningController: ObservableObject {
                     requestedBundleID: bundleID,
                     p12URL: p12URL,
                     provisioningURL: provisioningURL,
-                    p12Password: password
+                    p12Password: password,
+                    customEntitlementsURL: request.customEntitlementsURL,
+                    iCloudDocuments: request.enableICloudDocuments,
+                    iCloudContainer: request.iCloudContainerIdentifier
                 )
                 signingProgress = 0.92
                 signingMessage = "Saving signed IPA on this iPhone…"
