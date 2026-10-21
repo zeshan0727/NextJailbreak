@@ -2,6 +2,35 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "TrollStore 2.1.1 supports iOS/iPadOS 14.0 beta 2–16.6.1, iOS 16.7 RC (20H18), and iOS 17.0 according to the official README. The standard uninstall row is excluded from TrollStore Lite builds.",
+      "description": "Remove TrollStore 2.1.1 through its official Settings control, understand Preserve Apps versus Uninstall Apps, and remove the persistence helper separately.",
+      "developer": "opa334",
+      "entry_type": "guide",
+      "href": "uninstall-trollstore-preserve-apps-guide/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_alt": "Official TrollStore app icon from the 2.1.1 source",
+      "media_credit": "opa334 — official TrollStore app icon from the 2.1.1 tagged repository",
+      "media_sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
+      "modified": "2026-10-21T05:00:44Z",
+      "published": "2026-10-21T05:00:44Z",
+      "name": "TrollStore 2.1.1 uninstall guide",
+      "package": "guide.trollstore.uninstall-preserve-apps",
+      "quality_target": 9,
+      "release": "TrollStore 2.1.1 released 2026-04-01",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "opa334/TrollStore 2.1.1 tagged source",
+      "source_page_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/Shared/TSListControllerShared.m",
+      "source_visual_origin": "Reused official app icon from the TrollStore 2.1.1 source tag",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "title": "How to Uninstall TrollStore Safely—and Choose Whether to Keep Apps",
+      "version": "2.1.1"
+    },
+    {
+      "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
