@@ -2,6 +2,34 @@
   "entries": [
     {
       "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Chariz lists iOS 11.0–26.0 and requires a jailbreak. Version 1.2.0 explicitly adds RootHide and all-rootless support; package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "Cylinder Reborn 1.2.0 adds RootHide and all-rootless support, major performance improvements, repaired icon effects and Lua 5.5 scripting.",
+      "developer": "Ryan Nair",
+      "entry_type": "individual-update",
+      "href": "cylinder-reborn-1-2-0-roothide-rootless-performance-update/",
+      "image": "https://nextjailbreak.com/assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png",
+      "media_alt": "Official Cylinder Reborn icon showing a white top hat and cylinder on a green background",
+      "media_credit": "Ryan Nair/Cylinder Reborn GitHub repository — official project icon",
+      "modified": "2026-10-21T13:03:18Z",
+      "published": "2026-10-21T13:03:18Z",
+      "name": "Cylinder Reborn",
+      "package": "com.ryannair05.cylinder",
+      "quality_target": 9,
+      "release": "Cylinder Reborn 1.2.0",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Chariz package page and Ryan Nair GitHub repository",
+      "source_page_url": "https://chariz.com/get/cylinder-reborn",
+      "source_url": "https://github.com/ryannair05/Cylinder-Reborn/releases/tag/v1.2.0",
+      "source_visual_origin": "Official Cylinder Reborn project icon from the developer repository",
+      "source_visual_url": "https://github.com/ryannair05/Cylinder-Reborn/blob/master/Cylinder%20Icon.png",
+      "title": "Cylinder Reborn 1.2.0 Adds RootHide Support and Faster Icon Animations",
+      "version": "1.2.0"
+    },
+    {
+      "category": {
         "id": "tweak-roundup-comparison",
         "label": "Tweak Roundup & Comparison"
       },

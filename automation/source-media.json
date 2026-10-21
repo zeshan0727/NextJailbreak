@@ -1062,6 +1062,19 @@
           "remote_embedded": true
         }
       ]
+    },
+    "com.ryannair05.cylinder": {
+      "credit_label": "Ryan Nair/Cylinder Reborn GitHub repository — official project icon",
+      "source_page_url": "https://github.com/ryannair05/Cylinder-Reborn",
+      "official_source": true,
+      "hero": {
+        "url": "/assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png",
+        "alt": "Official Cylinder Reborn icon showing a white top hat and cylinder on a green background",
+        "local_path": "assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png",
+        "remote_embedded": false,
+        "retrieval_status": "Retrieved from the official developer repository and stored locally."
+      },
+      "screenshots": []
     }
   }
 }
