@@ -2,6 +2,34 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Snapper 3 1.2.1: iOS 14.0–17.2; ScreenshotActions 1.2: iOS 12.0–15.7.5; Unseen 0.0.5: iOS 15.0–18.7.9. Havoc marks all three as supporting rootless, but package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "Compare Snapper 3, ScreenshotActions and Unseen by screenshot workflow, iOS compatibility, rootless support, price and privacy limits.",
+      "developer": "jontelang / p2kdev / 82flex",
+      "entry_type": "comparison",
+      "href": "snapper-3-vs-screenshotactions-vs-unseen-comparison/",
+      "image": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
+      "media_alt": "Official Snapper 3 interface showing a cropped screenshot pinned over another app",
+      "media_credit": "jontelang/Havoc — official Snapper 3 interface screenshot; p2kdev/Havoc and 82flex/Havoc screenshots embedded in article",
+      "modified": "2026-10-21T08:58:29Z",
+      "published": "2026-10-21T08:58:29Z",
+      "name": "Screenshot jailbreak tweak comparison",
+      "package": "comparison.snapper3-screenshotactions-unseen",
+      "quality_target": 9,
+      "release": "Snapper 3 1.2.1 / ScreenshotActions 1.2 / Unseen 0.0.5",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "source_name": "Official Havoc package pages and Unseen developer repository",
+      "source_page_url": "https://havoc.app/package/snapper3",
+      "source_url": "https://github.com/owngoal-dev/Unseen",
+      "source_visual_origin": "Official package interface screenshots from Havoc",
+      "source_visual_url": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
+      "title": "Snapper 3 vs ScreenshotActions vs Unseen: Which Screenshot Tweak Fits You?",
+      "version": "1.2.1 / 1.2 / 0.0.5"
+    },
+    {
+      "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },

@@ -1035,6 +1035,33 @@
           "git_blob_sha": "d3fa6500fec08b463354d7d70b7f5cc34dcf47a2"
         }
       ]
+    },
+    "comparison.snapper3-screenshotactions-unseen": {
+      "credit_label": "jontelang, p2kdev and 82flex/Havoc — official package interface screenshots",
+      "source_page_url": "https://havoc.app/package/snapper3",
+      "secondary_source_page_urls": [
+        "https://havoc.app/package/ssactions",
+        "https://havoc.app/package/unseen"
+      ],
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
+        "alt": "Official Snapper 3 interface showing a cropped screenshot pinned over another app",
+        "remote_embedded": true,
+        "retrieval_status": "Official media rendered and inspected; binary download was blocked by the automation execution environment, so the Havoc CDN asset is embedded directly."
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/621fd40e71ead574d78c47ee",
+          "alt": "Official ScreenshotActions preview menu showing Copy and Delete, Save, Share, Upload, and Save to Album actions",
+          "remote_embedded": true
+        },
+        {
+          "url": "https://media.havoc.app/6a45f1ef3c99d317b705c17e",
+          "alt": "Official Unseen settings screen with switches for hidden content, screenshot events, recording state, and system UI protection",
+          "remote_embedded": true
+        }
+      ]
     }
   }
 }
