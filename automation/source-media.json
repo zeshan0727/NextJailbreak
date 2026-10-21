@@ -1075,6 +1075,18 @@
         "retrieval_status": "Retrieved from the official developer repository and stored locally."
       },
       "screenshots": []
+    },
+    "com.icraze.sleepsaver2": {
+      "credit_label": "iCraze/Havoc — official SleepSaver 2 interface screenshot",
+      "source_page_url": "https://havoc.app/package/sleepsaver2",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/697bc869e8ad76edf69c4b1c",
+        "alt": "Official SleepSaver 2 screenshot showing a dark screensaver scene with a dining table, flowers and hanging lights",
+        "remote_embedded": true,
+        "retrieval_status": "Official Havoc media inspected successfully; binary download was blocked, so the verified source URL is embedded directly."
+      },
+      "screenshots": []
     }
   }
 }
