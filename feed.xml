@@ -150,11 +150,11 @@
       <category>Current Jailbreak Development</category>
     </item>
     <item>
-      <title>Dopamine Main Branch Fixes Replacement-Screen Touch and Rootless Plists</title>
+      <title>Dopamine 3.0.12 Fixes Replacement-Screen Touch and Rootless Plists</title>
       <link>https://nextjailbreak.com/dopamine-main-branch-replacement-screen-rootless-plist-fixes/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-main-branch-replacement-screen-rootless-plist-fixes/</guid>
       <pubDate>Thu, 15 Oct 2026 16:56:13 GMT</pubDate>
-      <description>Two Dopamine commits fix touch after userspace reboot on some replacement screens and stop three system plists from being redirected into /var/jb.</description>
+      <description>Dopamine 3.0.12 fixes touch after userspace reboot on certain A10/A11 aftermarket screens and corrects rootless system-plist redirection.</description>
       <category>Current Jailbreak Development</category>
     </item>
   </channel>
