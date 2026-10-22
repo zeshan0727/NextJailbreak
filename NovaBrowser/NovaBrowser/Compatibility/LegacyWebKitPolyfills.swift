@@ -47,35 +47,75 @@ enum LegacyWebKitPolyfills {
     static let chatGPTRuntimeProbe = #"""
     (function () {
       "use strict";
-      var h = location.hostname.toLowerCase();
-      if (!(h === "chatgpt.com" || h.endsWith(".chatgpt.com") ||
-            h === "auth.openai.com" || h === "chat.openai.com")) return;
+      var host = location.hostname.toLowerCase();
+      if (!(host === "chatgpt.com" || host.endsWith(".chatgpt.com") ||
+            host === "auth.openai.com" || host === "chat.openai.com")) return;
       var count = 0;
-      function category(msg) {
-        var m = String(msg || "").toLowerCase();
+      function category(message) {
+        var m = String(message || "").toLowerCase();
         if (m.indexOf("withresolvers") >= 0) return "missing-promise-withresolvers";
         if (m.indexOf("serviceworker") >= 0 || m.indexOf("service worker") >= 0) return "service-worker";
         if (m.indexOf("chunkloaderror") >= 0 || m.indexOf("loading chunk") >= 0) return "chunk-load";
         if (m.indexOf("fetch") >= 0 || m.indexOf("networkerror") >= 0) return "network";
-        if (m.indexOf("syntax") >= 0 || m.indexOf("unexpected token") >= 0) return "syntax";
+        if (m.indexOf("syntax") >= 0 || m.indexOf("unexpected token") >= 0 ||
+            m.indexOf("regular expression") >= 0) return "syntax";
         if (m.indexOf("is not a function") >= 0) return "missing-function";
         if (m.indexOf("undefined") >= 0 || m.indexOf("null") >= 0) return "null-or-undefined";
         return "other";
       }
-      function emit(kind, message) {
+      // Only a fixed diagnostic label is emitted. Error text and code stay on-page.
+      function syntaxSubtype(message) {
+        var m = String(message || "").toLowerCase();
+        if (/regular expression|regexp/.test(m)) {
+          if (/invalid flag|flags|unicode sets|unicode set/.test(m)) return "regexp-flags";
+          return "regexp-syntax";
+        }
+        if (/unexpected token/.test(m)) return "unexpected-token";
+        if (/unexpected identifier/.test(m)) return "unexpected-identifier";
+        if (/invalid character/.test(m)) return "invalid-character";
+        if (/unterminated/.test(m)) return "unterminated";
+        if (/import|export|module/.test(m)) return "module-syntax";
+        if (/private field|private name/.test(m)) return "private-field";
+        if (/script error/.test(m)) return "cross-origin-script";
+        return "syntax-unspecified";
+      }
+      // Fixed-size fingerprint of the script source. No URL or source text is exposed.
+      function sourceFingerprint(value) {
+        if (!value) return "inline";
+        var locationText = String(value).split("#")[0].split("?")[0];
+        var hash = 2166136261;
+        for (var i = 0; i < locationText.length; i++) {
+          hash ^= locationText.charCodeAt(i);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(16).padStart(8, "0");
+      }
+      function safePosition(value) {
+        var n = Number(value);
+        return isFinite(n) && n >= 0 ? String(Math.min(Math.floor(n), 9999999)) : "0";
+      }
+      function emit(kind, message, filename, line, column) {
         if (count++ >= 30) return;
         try {
           var handler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.novaRuntime;
-          if (handler) handler.postMessage({kind: kind, category: category(message)});
+          if (handler) handler.postMessage({
+            kind: kind,
+            category: category(message),
+            detail: syntaxSubtype(message),
+            sourceId: sourceFingerprint(filename),
+            line: safePosition(line),
+            column: safePosition(column)
+          });
         } catch (_) {}
       }
-      window.addEventListener("error", function (e) {
-        if (e.target !== window) return;
-        emit("script-error", e.message || (e.error && e.error.name) || "");
+      window.addEventListener("error", function (event) {
+        if (event.target !== window) return;
+        emit("script-error", event.message || (event.error && event.error.name) || "",
+             event.filename || "", event.lineno, event.colno);
       }, true);
-      window.addEventListener("unhandledrejection", function (e) {
-        var reason = e.reason;
-        emit("unhandled-rejection", reason && (reason.message || reason.name) || "");
+      window.addEventListener("unhandledrejection", function (event) {
+        var reason = event.reason;
+        emit("unhandled-rejection", reason && (reason.message || reason.name) || "", "", 0, 0);
       });
     })();
     """#

@@ -184,6 +184,14 @@ final class BrowserViewModel: ObservableObject {
             serviceWorker: String("serviceWorker" in navigator),
             structuredClone: typeof window.structuredClone,
             withResolvers: typeof Promise.withResolvers,
+            regexpV: (function () {
+              try { return new Function("return /[a&&a]/v.test('a');")() ? "supported" : "unsupported"; }
+              catch (_) { return "unsupported"; }
+            })(),
+            duplicateNamedGroups: (function () {
+              try { return new Function("return /(?<x>a)|(?<x>b)/.test('a');")() ? "supported" : "unsupported"; }
+              catch (_) { return "unsupported"; }
+            })(),
             worker: typeof Worker,
             cryptoUUID: String(typeof crypto !== "undefined" && typeof crypto.randomUUID),
             userAgent: navigator.userAgent.indexOf("AppleWebKit") >= 0 ? "WebKit identity" : "custom identity"

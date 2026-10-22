@@ -65,3 +65,9 @@ The page may render its basic UI while authentication or interactive JavaScript 
 The iOS 16 WebKit engine predates Safari 17.4's native `Promise.withResolvers()`. NovaBrowser now injects one scoped standards-compatible shim at document start on ChatGPT/OpenAI authentication hosts even if the global polyfill toggle is disabled. It does not fake service workers or manipulate authentication tokens. A lightweight runtime listener categorizes JavaScript errors and unhandled promise rejections and logs only their **predefined categories**, hostname and time. It never writes error text, API responses, chat messages or URLs. Main-document HTTP status codes are also captured. This enables a next-stage diagnosis if the site shell renders but the app remains noninteractive.
 
 **Limitations:** The presence of a polyfill does not prove that the ChatGPT site will support an iOS 16 WKWebView. Native Safari/WebKit improvements cannot be ported through a simple userscript. Test the app on-device and use Settings > Web Compatibility Check and Copy Web Diagnostics to identify failing client-side features.
+
+## 1.0.6 — JavaScript syntax-error isolation
+
+The browser records syntax-error category, fixed-length fingerprint of script source, and line/column positions for ChatGPT/OpenAI pages. No URL, request token, raw error text, source script, or chat content is retained. Under **Settings > Web Compatibility Check**, RegExp Unicode-sets `v` syntax and duplicate named-group parse support are tested using `new Function` so an unsupported grammar cannot prevent the page from loading.
+
+A parser error is **not** proof that a particular ChatGPT script uses the RegExp v flag; the test helps distinguish a known iOS 16 grammar limitation. A JavaScript polyfill cannot add new parsing grammar to WebKit. The result must be tested on the actual iOS 16 device before declaring the issue resolved.

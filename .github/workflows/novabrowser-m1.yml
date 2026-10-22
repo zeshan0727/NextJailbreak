@@ -48,7 +48,7 @@ jobs:
         run: |
           test -s NovaBrowser/dist/NovaBrowser.tipa
           unzip -p NovaBrowser/dist/NovaBrowser.tipa Payload/NovaBrowser.app/Info.plist > /tmp/novabrowser.plist
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /tmp/novabrowser.plist | grep -qx '1.0.5'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /tmp/novabrowser.plist | grep -qx '1.0.6'
           /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' /tmp/novabrowser.plist | grep -qx 'com.example.novabrowser'
           unzip -t NovaBrowser/dist/NovaBrowser.tipa | tail -n 1
       - name: Upload verified TIPA and build log

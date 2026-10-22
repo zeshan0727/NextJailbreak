@@ -44,6 +44,15 @@ final class NovaBrowserTests: XCTestCase {
         XCTAssertTrue(LegacyWebKitPolyfills.chatGPTRuntimeProbe.contains("unhandledrejection"))
     }
 
+    func testSyntaxErrorLocationProbeDoesNotExposeRawJavaScriptSource() {
+        let code = LegacyWebKitPolyfills.chatGPTRuntimeProbe
+        XCTAssertTrue(code.contains("sourceFingerprint"))
+        XCTAssertTrue(code.contains("event.lineno"))
+        XCTAssertTrue(code.contains("event.colno"))
+        XCTAssertTrue(code.contains("regexp-flags"))
+        XCTAssertFalse(code.contains("JSON.stringify(event.error)"))
+    }
+
     func testSnapshotRoundTrip() throws {
         let snapshot = BrowserSnapshot(bookmarks: [Bookmark(title: "Test", address: "https://example.org")])
         let data = try JSONEncoder().encode(snapshot)
