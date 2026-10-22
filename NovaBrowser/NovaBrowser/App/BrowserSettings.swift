@@ -37,7 +37,7 @@ final class BrowserSettings: ObservableObject {
     init() {
         searchEngine = SearchEngine(rawValue: UserDefaults.standard.string(forKey: "searchEngine") ?? "") ?? .duckDuckGo
         appearance = BrowserAppearance(rawValue: UserDefaults.standard.string(forKey: "appearance") ?? "") ?? .system
-        legacyPolyfillsEnabled = UserDefaults.standard.object(forKey: "legacyPolyfillsEnabled") as? Bool ?? true
+        legacyPolyfillsEnabled = UserDefaults.standard.object(forKey: "legacyPolyfillsEnabled") as? Bool ?? false
         if let data = UserDefaults.standard.data(forKey: "globalSiteSettings"),
            let decoded = try? JSONDecoder().decode(GlobalSiteSettings.self, from: data) {
             globalSiteSettings = decoded

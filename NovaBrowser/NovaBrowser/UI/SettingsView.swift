@@ -51,7 +51,19 @@ struct SettingsView: View {
                 Section("Milestone 2 — Compatibility Preview") {
                     LabeledContent("Engine", value: "iOS WebKit")
                     LabeledContent("Downloads", value: "Files → NovaBrowser")
-                    LabeledContent("Version", value: "1.0.3")
+                    LabeledContent("Version", value: "1.0.4")
+                }
+                Section("Web Compatibility Check") {
+                    Button("Run Compatibility Check on Current Tab") { model.runCompatibilityCheck() }
+                    Text(model.compatibilityReport)
+                        .font(.system(.caption, design: .monospaced))
+                        .textSelection(.enabled)
+                    Button("Copy Web Diagnostics") {
+                        UIPasteboard.general.string = WebDiagnostics.read() + "\n\n" + model.compatibilityReport
+                    }
+                    ShareLink("Share Web Diagnostics", item: WebDiagnostics.fileURL)
+                    Text("Records hostnames and navigation errors, not page URLs, queries or conversation text. Inspect the report before sharing.")
+                        .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("Diagnostics") {
                     Button("Copy Launch Diagnostics") { UIPasteboard.general.string = LaunchDiagnostics.read() }

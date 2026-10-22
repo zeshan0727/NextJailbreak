@@ -160,20 +160,38 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
 }
 
 extension BrowserTab: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { finish(webView) }
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        WebDiagnostics.record(host: webView.url?.host ?? "unknown", event: "Navigation started")
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        WebDiagnostics.record(host: webView.url?.host ?? "unknown", event: "Document loaded")
+        finish(webView)
+    }
+
+    func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
+        WebDiagnostics.record(host: webView.url?.host ?? "unknown", event: "Server redirect")
+    }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        WebDiagnostics.record(host: webView.url?.host ?? "unknown", event: "Web content process terminated")
         onError?("The webpage process stopped. Tap Reload to retry. This may be a WebKit memory limit on iOS 16.")
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         webView.scrollView.refreshControl?.endRefreshing()
+        let e = error as NSError
+        WebDiagnostics.record(host: webView.url?.host ?? "unknown", event: "Navigation failure: \(e.domain) code \(e.code)")
         onError?(error.localizedDescription)
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         webView.scrollView.refreshControl?.endRefreshing()
-        if (error as NSError).code != NSURLErrorCancelled { onError?(error.localizedDescription) }
+        let e = error as NSError
+        if e.code != NSURLErrorCancelled {
+            WebDiagnostics.record(host: webView.url?.host ?? "unknown", event: "Provisional failure: \(e.domain) code \(e.code)")
+            onError?(error.localizedDescription)
+        }
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,

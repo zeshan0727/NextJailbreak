@@ -11,6 +11,7 @@ final class BrowserViewModel: ObservableObject {
     @Published private(set) var downloads: [DownloadEntry] = []
     @Published private(set) var siteSettings: [SiteSettings] = []
     @Published var errorMessage: String?
+    @Published var compatibilityReport: String = "Use Run Compatibility Check while a website is open."
     let settings = BrowserSettings()
 
     var activeTab: BrowserTab? { tabs.first { $0.id == selectedTabID } }
@@ -134,6 +135,71 @@ final class BrowserViewModel: ObservableObject {
         siteSettings.append(value)
         tab.reloadWithCompatibility()
         persist()
+    }
+
+    /// User-directed repair for the ChatGPT authentication domain family.
+    /// It removes only the matching site's stored data and explicitly resets its overrides.
+    func repairChatGPTSession() {
+        settings.legacyPolyfillsEnabled = false
+        for host in ["chatgpt.com", "www.chatgpt.com", "auth.openai.com", "chat.openai.com"] {
+            siteSettings.removeAll { $0.host.lowercased() == host }
+            siteSettings.append(SiteSettings(host: host, userAgentPreset: .system,
+                                              desktopMode: false, javaScriptEnabled: true, popupMode: .allow))
+        }
+        persist()
+        let dataStore = WKWebsiteDataStore.default()
+        let types = WKWebsiteDataStore.allWebsiteDataTypes()
+        let domains = ["chatgpt.com", "openai.com"]
+        dataStore.fetchDataRecords(ofTypes: types) { [weak self] records in
+            let matching = records.filter { record in
+                domains.contains { domain in
+                    record.displayName.lowercased() == domain ||
+                    record.displayName.lowercased().hasSuffix("." + domain)
+                }
+            }
+            dataStore.removeData(ofTypes: types, for: matching) {
+                DispatchQueue.main.async {
+                    WebDiagnostics.record(host: "chatgpt.com", event: "User initiated website data reset")
+                    self?.activeTab?.load(URL(string: "https://chatgpt.com/")!)
+                }
+            }
+        }
+    }
+
+    func runCompatibilityCheck() {
+        guard let tab = activeTab, !tab.address.isEmpty else {
+            compatibilityReport = "Open a website first, then run this check."
+            return
+        }
+        let script = """
+        (function() {
+          return {
+            host: location.hostname,
+            readyState: document.readyState,
+            cookiesEnabled: String(navigator.cookieEnabled),
+            webkit: String(typeof window.webkit !== "undefined"),
+            fetch: typeof window.fetch,
+            websocket: typeof window.WebSocket,
+            serviceWorker: String("serviceWorker" in navigator),
+            structuredClone: typeof window.structuredClone,
+            withResolvers: typeof Promise.withResolvers
+          };
+        })();
+        """
+        tab.webView.evaluateJavaScript(script) { [weak self] result, error in
+            DispatchQueue.main.async {
+                if let error {
+                    self?.compatibilityReport = "JavaScript check failed: " + error.localizedDescription
+                    WebDiagnostics.record(host: URL(string: tab.address)?.host ?? "unknown", event: "Compatibility check failed")
+                } else if let values = result as? [String: String] {
+                    let output = values.sorted(by: { $0.key < $1.key }).map { "\($0.key): \($0.value)" }.joined(separator: "\n")
+                    self?.compatibilityReport = output
+                    WebDiagnostics.record(host: values["host"] ?? "unknown", event: "Compatibility check completed: readyState=\(values["readyState"] ?? "-")")
+                } else {
+                    self?.compatibilityReport = "No structured JavaScript results returned."
+                }
+            }
+        }
     }
 
     func persist() {

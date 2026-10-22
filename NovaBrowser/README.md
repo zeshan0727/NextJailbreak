@@ -53,3 +53,9 @@ This patch removes the unnecessary platform/no-sandbox/dynamic-codesigning entit
 - Site user-agent presets and optional, non-networking missing-JavaScript shims are available. System WebKit identity is preferred for ChatGPT and security-sensitive sign-in pages.
 - NS Transfer publish is part of the successful GitHub Actions pipeline. Builds without an iOS compile pass are not published.
 - Important: Apple WebKit remains the rendering engine on iOS 16. Some sites that require a newer WebKit/JavaScript engine, modern browser protections or features cannot be made compatible by user-agent spoofing, shims or popups alone. This build does not claim verified ChatGPT compatibility.
+
+## 1.0.4 ChatGPT site repair and compatibility diagnostics
+
+The page may render its basic UI while authentication or interactive JavaScript requests are not working. The browser includes **Menu > Repair ChatGPT Login** with a confirmation; it clears the ChatGPT/OpenAI website-data records for this app, disables optional polyfills, resets the affected domain user-agent to unmodified system WebKit and mobile mode, enables JavaScript and popups, then loads `https://chatgpt.com/`. This **signs you out** of ChatGPT in NovaBrowser. Do not use it if you want to preserve that site's current session.
+
+**Settings > Run Compatibility Check on Current Tab** reports the hostname, document state, cookie availability, and presence of a few standard JavaScript APIs. WebKit navigation failures and content process terminations are logged to the app Documents folder as `NovaBrowserWebDiagnostics.txt`. The log records domains, event types and numeric error codes but never request URLs, auth codes, cookies, passwords, chat messages or response bodies. Review logs before sharing. Opening a site in Safari remains an option for websites unsupported by iOS 16 WebKit. Upgrading WebKit independently of iOS is not possible through this app.

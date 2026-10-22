@@ -7,6 +7,7 @@ struct BrowserChromeView: View {
     var showLibrary: () -> Void
     var showSettings: () -> Void
     var showFind: () -> Void
+    var repairChatGPT: () -> Void
     var share: () -> Void
     var zoom: () -> Void
 
@@ -51,6 +52,12 @@ struct BrowserChromeView: View {
                     Button(action: { model.bookmarkCurrent() }) { Label("Bookmark This Page", systemImage: "bookmark") }
                     Button(action: { share() }) { Label("Share Page", systemImage: "square.and.arrow.up") }
                     Button(action: { showFind() }) { Label("Find in Page", systemImage: "text.magnifyingglass") }
+                    Button(action: { repairChatGPT() }) {
+                        Label("Repair ChatGPT Login", systemImage: "wrench.and.screwdriver")
+                    }
+                    if let url = URL(string: tab.address), ["https", "http"].contains(url.scheme?.lowercased() ?? "") {
+                        Link(destination: url) { Label("Open Page in Safari", systemImage: "safari") }
+                    }
                     Menu {
                         Button("System WebKit (recommended)") { model.setCurrentSiteUserAgent(.system) }
                         Button("iPhone Safari") { model.setCurrentSiteUserAgent(.iPhoneSafari) }

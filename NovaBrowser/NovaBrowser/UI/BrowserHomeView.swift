@@ -8,6 +8,7 @@ struct BrowserHomeView: View {
     @State private var showingLibrary = false
     @State private var showingSettings = false
     @State private var showingFind = false
+    @State private var confirmingChatGPTReset = false
     @State private var findText = ""
     @State private var zoom: Double = 1
     @State private var sharePayload: SharePayload?
@@ -17,7 +18,8 @@ struct BrowserHomeView: View {
             if let tab = model.activeTab {
                 BrowserChromeView(tab: tab, model: model, showTabs: { showingTabs = true },
                                   showLibrary: { showingLibrary = true }, showSettings: { showingSettings = true },
-                                  showFind: { showingFind = true }, share: { shareCurrent(tab) },
+                                  showFind: { showingFind = true },
+                                  repairChatGPT: { confirmingChatGPTReset = true }, share: { shareCurrent(tab) },
                                   zoom: { zoomTab(tab) })
                 ZStack {
                     Color(uiColor: .systemBackground)
@@ -31,6 +33,16 @@ struct BrowserHomeView: View {
         .sheet(isPresented: $showingTabs) { TabSwitcherView(model: model) }
         .sheet(isPresented: $showingLibrary) { LibraryView(model: model) }
         .sheet(isPresented: $showingSettings) { SettingsView(settings: model.settings, model: model) }
+        .confirmationDialog("Reset ChatGPT website data?",
+                            isPresented: $confirmingChatGPTReset,
+                            titleVisibility: .visible) {
+            Button("Clear ChatGPT login data and reload", role: .destructive) {
+                model.repairChatGPTSession()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will sign you out of ChatGPT in NovaBrowser and clear related OpenAI cookies and cached website data. Other browser sites are not cleared.")
+        }
         .sheet(isPresented: $showingFind) {
             NavigationStack {
                 Form {
