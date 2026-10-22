@@ -2,6 +2,37 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "SetupManager 1.2: iOS 14.0–17.0, jailbreak required, rootless supported. IAmLazy 2.6.2: iOS 13.0–17.5, jailbreak required, rootless support added in 2.3.0. Package ranges do not establish jailbreak availability for every device and firmware.",
+      "description": "Compare SetupManager 1.2 and IAmLazy 2.6.2 by backup scope, iOS range, rootless support, restore limits, price and source transparency.",
+      "developer": "Mysteryexe / Lightmann",
+      "entry_type": "comparison",
+      "href": "setupmanager-vs-iamlazy-jailbreak-backup-comparison/",
+      "image": "https://media.havoc.app/69a292778a1a1189920b5c18",
+      "media_alt": "Official SetupManager interface listing Packages, Tweaks, Repos, Preferences, Themes and Paid Tweaks",
+      "media_credit": "Mysteryexe/Havoc — official SetupManager interface screenshot; Lightmann/Chariz official IAmLazy screenshot also embedded",
+      "media_source_url": "https://media.havoc.app/69a292778a1a1189920b5c18",
+      "media_retrieval_status": "Official remote marketplace media embedded directly; local binary retrieval was unavailable in the connected publishing environment.",
+      "modified_at": "2026-10-22T08:55:36Z",
+      "name": "Jailbreak backup tool comparison",
+      "package": "comparison.setupmanager-iamlazy",
+      "published_at": "2026-10-22T08:55:36Z",
+      "quality_target": 9,
+      "release": "SetupManager 1.2 / IAmLazy 2.6.2",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "setupmanager-vs-iamlazy-jailbreak-backup-comparison",
+      "source_name": "Official Havoc and Chariz product pages, version histories, marketplace screenshots and IAmLazy developer repository",
+      "source_page_url": "https://havoc.app/package/setupmanager",
+      "source_url": "https://github.com/L1ghtmann/IAmLazy",
+      "source_visual_origin": "Official SetupManager and IAmLazy marketplace interface screenshots",
+      "source_visual_url": "https://media.havoc.app/69a292778a1a1189920b5c18",
+      "title": "SetupManager vs IAmLazy: Which Jailbreak Backup Tool Should You Use?",
+      "version": "1.2 / 2.6.2"
+    },
+    {
+      "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
