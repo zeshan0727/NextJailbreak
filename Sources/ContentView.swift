@@ -1,415 +1,456 @@
 import SwiftUI
-import PhotosUI
-import Photos
+import Combine
+
+struct Note: Identifiable, Codable, Equatable {
+    let id: UUID
+    var content: String
+    let createdAt: Date
+    var modifiedAt: Date
+    var isPinned: Bool
+
+    var title: String {
+        content.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first.map { String($0) } ?? "New Note"
+    }
+
+    var snippet: String {
+        let lines = content.split(separator: "\n", omittingEmptySubsequences: true)
+        if lines.count > 1 {
+            let secondLine = lines[1]
+            if secondLine.count > 30 {
+                return String(secondLine.prefix(30)) + "..."
+            } else {
+                return String(secondLine)
+            }
+        } else if content.count > 30 {
+            return String(content.prefix(30)) + "..."
+        } else {
+            return content
+        }
+    }
+}
+
+@MainActor
+final class NotesViewModel: ObservableObject {
+    @Published private(set) var notes: [Note] = []
+    @Published var searchText: String = ""
+    @Published var errorMessage: String? = nil
+    @Published var showErrorAlert: Bool = false
+    @Published var isLoading: Bool = false
+
+    private let fileURL: URL
+    private var saveCancellable: AnyCancellable?
+    private var debounceSaveSubject = PassthroughSubject<Void, Never>()
+
+    init() {
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        self.fileURL = docs.appendingPathComponent("notes.json")
+        loadNotes()
+        setupAutoSave()
+    }
+
+    private func setupAutoSave() {
+        saveCancellable = debounceSaveSubject
+            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.saveNotes()
+            }
+    }
+
+    func loadNotes() {
+        isLoading = true
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            do {
+                let data = try Data(contentsOf: self.fileURL)
+                let decoded = try JSONDecoder().decode([Note].self, from: data)
+                DispatchQueue.main.async {
+                    self.notes = decoded
+                    self.isLoading = false
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.notes = []
+                    self.isLoading = false
+                    if (error as NSError).code != NSFileReadNoSuchFileError {
+                        self.errorMessage = "Failed to load notes: \(error.localizedDescription)"
+                        self.showErrorAlert = true
+                    }
+                }
+            }
+        }
+    }
+
+    private func saveNotes() {
+        let notesCopy = notes
+        let fileURLCopy = fileURL
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            do {
+                let data = try JSONEncoder().encode(notesCopy)
+                try data.write(to: fileURLCopy, options: [.atomic])
+            } catch {
+                DispatchQueue.main.async {
+                    self?.errorMessage = "Failed to save notes: \(error.localizedDescription)"
+                    self?.showErrorAlert = true
+                }
+            }
+        }
+    }
+
+    func addNote() {
+        let now = Date()
+        let newNote = Note(id: UUID(), content: "", createdAt: now, modifiedAt: now, isPinned: false)
+        notes.insert(newNote, at: 0)
+        debounceSaveSubject.send()
+    }
+
+    func update(note: Note) {
+        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
+        var updatedNote = note
+        updatedNote.modifiedAt = Date()
+        notes[idx] = updatedNote
+        sortNotes()
+        debounceSaveSubject.send()
+    }
+
+    func delete(note: Note) {
+        notes.removeAll { $0.id == note.id }
+        debounceSaveSubject.send()
+    }
+
+    func togglePin(note: Note) {
+        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
+        notes[idx].isPinned.toggle()
+        notes[idx].modifiedAt = Date()
+        sortNotes()
+        debounceSaveSubject.send()
+    }
+
+    func clearAll() {
+        notes.removeAll()
+        debounceSaveSubject.send()
+    }
+
+    private func sortNotes() {
+        notes.sort {
+            if $0.isPinned != $1.isPinned {
+                return $0.isPinned && !$1.isPinned
+            }
+            return $0.modifiedAt > $1.modifiedAt
+        }
+    }
+
+    var filteredNotes: [Note] {
+        if searchText.isEmpty {
+            return notes
+        }
+        let lower = searchText.lowercased()
+        return notes.filter {
+            $0.content.lowercased().contains(lower) || $0.title.lowercased().contains(lower)
+        }
+    }
+}
 
 struct ContentView: View {
-    enum Layout: String, CaseIterable, Identifiable {
-        case sideBySide = "Side by Side"
-        case stacked = "Stacked"
-        
-        var id: String { rawValue }
-    }
-    
-    @State private var image1: UIImage? = nil
-    @State private var image2: UIImage? = nil
-    @State private var showingPickerForImage1 = false
-    @State private var showingPickerForImage2 = false
-    @State private var selectedLayout: Layout = .sideBySide
-    @State private var combinedImage: UIImage? = nil
-    @State private var showingPreview = false
-    
-    @State private var showPhotoLibraryDeniedAlert = false
-    @State private var photoLibraryDeniedMessage = ""
-    
+    @StateObject private var vm = NotesViewModel()
+    @State private var showingDeleteAlert = false
+    @State private var noteToDelete: Note? = nil
+    @State private var showingClearAllAlert = false
+    @State private var showingSettings = false
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    HStack(spacing: 20) {
-                        VStack(spacing: 8) {
-                            ZStack {
-                                Rectangle()
-                                    .fill(Color.secondary.opacity(0.2))
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(12)
-                                if let image1 {
-                                    Image(uiImage: image1)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 150, height: 150)
-                                        .cornerRadius(12)
-                                } else {
-                                    Text("Select Image 1")
-                                        .font(.headline)
-                                        .foregroundColor(.secondary)
+            VStack {
+                if vm.notes.isEmpty && vm.searchText.isEmpty {
+                    EmptyStateView()
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("No notes available. Tap the plus button to add a new note.")
+                } else {
+                    List {
+                        ForEach(vm.filteredNotes) { note in
+                            NavigationLink(value: note) {
+                                NoteRow(note: note)
+                                    .accessibilityElement(children: .combine)
+                                    .accessibilityLabel("Note titled \(note.title). Preview: \(note.snippet)")
+                            }
+                            .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                                Button {
+                                    vm.togglePin(note: note)
+                                } label: {
+                                    Label(note.isPinned ? "Unpin" : "Pin", systemImage: note.isPinned ? "pin.slash" : "pin")
+                                }
+                                .tint(note.isPinned ? .gray : .yellow)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    noteToDelete = note
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
-                            .accessibilityLabel("Image 1 placeholder")
-                            Button(action: {
-                                checkPhotoLibraryAuthorization(forImage: 1)
-                            }) {
-                                Text("Choose Image")
-                                    .font(.body)
-                                    .frame(minWidth: 140, minHeight: 44)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .accessibilityLabel("Choose Image 1 from photo library")
-                        }
-                        VStack(spacing: 8) {
-                            ZStack {
-                                Rectangle()
-                                    .fill(Color.secondary.opacity(0.2))
-                                    .frame(width: 150, height: 150)
-                                    .cornerRadius(12)
-                                if let image2 {
-                                    Image(uiImage: image2)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 150, height: 150)
-                                        .cornerRadius(12)
-                                } else {
-                                    Text("Select Image 2")
-                                        .font(.headline)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            .accessibilityLabel("Image 2 placeholder")
-                            Button(action: {
-                                checkPhotoLibraryAuthorization(forImage: 2)
-                            }) {
-                                Text("Choose Image")
-                                    .font(.body)
-                                    .frame(minWidth: 140, minHeight: 44)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .accessibilityLabel("Choose Image 2 from photo library")
                         }
                     }
-                    Picker("Layout", selection: $selectedLayout) {
-                        ForEach(Layout.allCases) { layout in
-                            Text(layout.rawValue).tag(layout)
-                        }
+                    .listStyle(.plain)
+                    .searchable(text: $vm.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes")
+                    .accessibilityLabel("Notes list")
+                }
+            }
+            .navigationTitle("QuickNotes")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
                     }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .accessibilityLabel("Select layout for combined image")
-                    
-                    Button(action: combineImages) {
-                        Text("Combine & Preview")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, minHeight: 44)
+                    .accessibilityLabel("Settings")
+                    .accessibilityHint("Open settings")
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Button {
+                        vm.addNote()
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.title)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
+                    .accessibilityLabel("Add new note")
                     .buttonStyle(.borderedProminent)
-                    .disabled(image1 == nil || image2 == nil)
-                    .padding(.horizontal)
-                    .accessibilityLabel("Combine selected images and preview")
                 }
-                .padding()
             }
-            .navigationTitle("Image Combiner")
-            .sheet(isPresented: $showingPickerForImage1) {
-                PhotoPicker(selectedImage: $image1)
+            .navigationDestination(for: Note.self) { note in
+                NoteDetailView(note: note, vm: vm)
             }
-            .sheet(isPresented: $showingPickerForImage2) {
-                PhotoPicker(selectedImage: $image2)
+            .alert("Delete Note", isPresented: $showingDeleteAlert, presenting: noteToDelete) { note in
+                Button("Delete", role: .destructive) {
+                    vm.delete(note: note)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { note in
+                Text("Are you sure you want to delete the note titled \"\(note.title)\"?")
             }
-            .alert("Photo Library Access Denied", isPresented: $showPhotoLibraryDeniedAlert, actions: {
+            .alert("Error", isPresented: $vm.showErrorAlert, actions: {
                 Button("OK", role: .cancel) {}
-                Button("Open Settings") {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
-                    }
-                }
             }, message: {
-                Text(photoLibraryDeniedMessage)
+                Text(vm.errorMessage ?? "Unknown error")
             })
-            .navigationDestination(isPresented: $showingPreview) {
-                if let combinedImage {
-                    PreviewView(image: combinedImage)
-                }
-            }
-        }
-    }
-    
-    private func checkPhotoLibraryAuthorization(forImage imageNumber: Int) {
-        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
-        switch status {
-        case .authorized, .limited:
-            openPicker(forImage: imageNumber)
-        case .notDetermined:
-            PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
-                DispatchQueue.main.async {
-                    if newStatus == .authorized || newStatus == .limited {
-                        openPicker(forImage: imageNumber)
-                    } else {
-                        photoLibraryDeniedMessage = "Please enable photo library access in Settings to select images."
-                        showPhotoLibraryDeniedAlert = true
-                    }
-                }
-            }
-        case .denied, .restricted:
-            photoLibraryDeniedMessage = "Please enable photo library access in Settings to select images."
-            showPhotoLibraryDeniedAlert = true
-        @unknown default:
-            photoLibraryDeniedMessage = "Unknown photo library authorization status."
-            showPhotoLibraryDeniedAlert = true
-        }
-    }
-    
-    private func openPicker(forImage imageNumber: Int) {
-        if imageNumber == 1 {
-            showingPickerForImage1 = true
-        } else {
-            showingPickerForImage2 = true
-        }
-    }
-    
-    private func combineImages() {
-        guard let image1, let image2 else { return }
-        if let combined = ImageCombiner.combine(image1: image1, image2: image2, layout: selectedLayout) {
-            combinedImage = combined
-            showingPreview = true
-        } else {
-            photoLibraryDeniedMessage = "Failed to combine images. Please try again."
-            showPhotoLibraryDeniedAlert = true
-        }
-    }
-}
-
-private struct PhotoPicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: UIImage?
-    
-    func makeUIViewController(context: Context) -> PHPickerViewController {
-        var config = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
-        config.filter = .images
-        config.selectionLimit = 1
-        let picker = PHPickerViewController(configuration: config)
-        picker.delegate = context.coordinator
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, PHPickerViewControllerDelegate {
-        let parent: PhotoPicker
-        
-        init(_ parent: PhotoPicker) {
-            self.parent = parent
-        }
-        
-        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-            picker.dismiss(animated: true)
-            guard let provider = results.first?.itemProvider else { return }
-            if provider.canLoadObject(ofClass: UIImage.self) {
-                provider.loadObject(ofClass: UIImage.self) { image, error in
-                    DispatchQueue.main.async {
-                        if let uiImage = image as? UIImage {
-                            self.parent.selectedImage = uiImage
-                        }
-                    }
-                }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView(vm: vm, isPresented: $showingSettings)
             }
         }
     }
 }
 
-private struct PreviewView: View {
-    let image: UIImage
-    
+struct NoteRow: View {
+    let note: Note
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(note.title)
+                    .font(.headline)
+                    .lineLimit(1)
+                if note.isPinned {
+                    Image(systemName: "pin.fill")
+                        .foregroundColor(.yellow)
+                        .accessibilityLabel("Pinned")
+                }
+                Spacer()
+                Text(note.modifiedAt, style: .date)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Text(note.snippet)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+struct EmptyStateView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "note.text")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120, height: 120)
+                .foregroundColor(.secondary)
+                .accessibilityHidden(true)
+            Text("No notes yet")
+                .font(.title2)
+                .foregroundColor(.secondary)
+            Text("Tap the plus button to create your first note.")
+                .font(.body)
+                .foregroundColor(.secondary)
+        }
+        .padding()
+    }
+}
+
+struct NoteDetailView: View {
     @Environment(\.dismiss) private var dismiss
-    
-    @State private var showSaveErrorAlert = false
-    @State private var saveErrorMessage = ""
-    @State private var isSaving = false
-    
+    @State private var content: String
+    @State private var isSavingError: Bool = false
+    @State private var showDeleteAlert: Bool = false
+    @FocusState private var isFocused: Bool
+
+    let noteId: UUID
+    @ObservedObject var vm: NotesViewModel
+
+    private var note: Note? {
+        vm.notes.first(where: { $0.id == noteId })
+    }
+
+    init(note: Note, vm: NotesViewModel) {
+        self.noteId = note.id
+        self._content = State(initialValue: note.content)
+        self.vm = vm
+    }
+
     var body: some View {
         VStack {
-            ScrollView([.horizontal, .vertical]) {
-                ZoomableScrollView {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .accessibilityLabel("Combined image preview")
+            TextEditor(text: $content)
+                .font(.body)
+                .padding(8)
+                .focused($isFocused)
+                .accessibilityLabel("Note content")
+                .accessibilityHint("Editable text area for note content")
+                .onChange(of: content) { _ in
+                    scheduleSave()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .background(Color(UIColor.systemBackground))
-            
-            HStack(spacing: 20) {
-                Button(action: saveImage) {
-                    if isSaving {
-                        ProgressView()
-                            .frame(minWidth: 100, minHeight: 44)
-                    } else {
-                        Text("Save to Photos")
-                            .frame(minWidth: 100, minHeight: 44)
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .accessibilityLabel("Save combined image to photo library")
-                .disabled(isSaving)
-                
-                Button(action: { dismiss() }) {
-                    Text("Back")
-                        .frame(minWidth: 100, minHeight: 44)
-                }
-                .buttonStyle(.bordered)
-                .accessibilityLabel("Back to image selection screen")
-            }
-            .padding()
         }
-        .navigationBarBackButtonHidden(true)
-        .alert("Save Failed", isPresented: $showSaveErrorAlert) {
-            Button("Retry") {
-                saveImage()
+        .navigationTitle(note?.title.isEmpty == false ? note!.title : "New Note")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Back") {
+                    dismiss()
+                }
+                .keyboardShortcut(.escape, modifiers: [])
+                .accessibilityLabel("Back to notes list")
+            }
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button {
+                    showDeleteAlert = true
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .keyboardShortcut(.delete, modifiers: [.command])
+                .accessibilityLabel("Delete note")
+                Button {
+                    togglePin()
+                } label: {
+                    Image(systemName: note?.isPinned == true ? "pin.slash" : "pin")
+                }
+                .accessibilityLabel(note?.isPinned == true ? "Unpin note" : "Pin note")
+            }
+        }
+        .alert("Delete Note", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                if let note = note {
+                    vm.delete(note: note)
+                    dismiss()
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text(saveErrorMessage)
+            Text("Are you sure you want to delete this note?")
         }
-    }
-    
-    private func saveImage() {
-        isSaving = true
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-            if status == .authorized || status == .limited {
-                PHPhotoLibrary.shared().performChanges {
-                    PHAssetChangeRequest.creationRequestForAsset(from: image)
-                } completionHandler: { success, error in
-                    DispatchQueue.main.async {
-                        isSaving = false
-                        if success {
-                            dismiss()
-                        } else {
-                            saveErrorMessage = error?.localizedDescription ?? "Unknown error occurred while saving."
-                            showSaveErrorAlert = true
-                        }
-                    }
-                }
-            } else {
-                DispatchQueue.main.async {
-                    isSaving = false
-                    saveErrorMessage = "Photo library access denied. Please enable access in Settings to save images."
-                    showSaveErrorAlert = true
-                }
+        .alert("Save Error", isPresented: $isSavingError) {
+            Button("Retry") {
+                saveNow()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Failed to save the note. Please try again.")
+        }
+        .onAppear {
+            isFocused = true
+        }
+        .onReceive(vm.$showErrorAlert) { show in
+            if show {
+                isSavingError = true
             }
         }
     }
-}
 
-private struct ZoomableScrollView<Content: View>: UIViewRepresentable {
-    let content: Content
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
+    private func scheduleSave() {
+        guard var note = note else { return }
+        note.content = content
+        vm.update(note: note)
     }
-    
-    func makeUIView(context: Context) -> UIScrollView {
-        let scrollView = UIScrollView()
-        scrollView.delegate = context.coordinator
-        scrollView.maximumZoomScale = 5.0
-        scrollView.minimumZoomScale = 1.0
-        scrollView.bouncesZoom = true
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.showsVerticalScrollIndicator = false
-        
-        let hostedView = context.coordinator.hostingController.view!
-        hostedView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(hostedView)
-        
-        NSLayoutConstraint.activate([
-            hostedView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
-            hostedView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
-            hostedView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
-            hostedView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            hostedView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
-            hostedView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
-        ])
-        
-        return scrollView
+
+    private func saveNow() {
+        guard var note = note else { return }
+        note.content = content
+        vm.update(note: note)
     }
-    
-    func updateUIView(_ uiView: UIScrollView, context: Context) {
-        context.coordinator.hostingController.rootView = content
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, UIScrollViewDelegate {
-        var parent: ZoomableScrollView
-        var hostingController: UIHostingController<Content>
-        
-        init(_ parent: ZoomableScrollView) {
-            self.parent = parent
-            hostingController = UIHostingController(rootView: parent.content)
-            hostingController.view.backgroundColor = .clear
-        }
-        
-        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-            hostingController.view
-        }
+
+    private func togglePin() {
+        guard let note = note else { return }
+        vm.togglePin(note: note)
     }
 }
 
-private struct ImageCombiner {
-    static func combine(image1: UIImage, image2: UIImage, layout: ContentView.Layout) -> UIImage? {
-        switch layout {
-        case .sideBySide:
-            return combineSideBySide(image1: image1, image2: image2)
-        case .stacked:
-            return combineStacked(image1: image1, image2: image2)
+struct SettingsView: View {
+    @ObservedObject var vm: NotesViewModel
+    @Binding var isPresented: Bool
+    @AppStorage("overrideColorScheme") private var overrideColorScheme: String = "system"
+    @State private var showingClearAllAlert = false
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Appearance") {
+                    Picker("Theme", selection: $overrideColorScheme) {
+                        Text("System").tag("system")
+                        Text("Light").tag("light")
+                        Text("Dark").tag("dark")
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityLabel("Theme selection")
+                    .accessibilityHint("Choose light, dark, or system appearance")
+                }
+                Section("Data") {
+                    Button(role: .destructive) {
+                        showingClearAllAlert = true
+                    } label: {
+                        Text("Clear All Notes")
+                    }
+                    .accessibilityLabel("Clear all notes")
+                    .accessibilityHint("Deletes all notes permanently")
+                }
+            }
+            .navigationTitle("Settings")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        isPresented = false
+                    }
+                    .accessibilityLabel("Close settings")
+                }
+            }
+            .alert("Clear All Notes", isPresented: $showingClearAllAlert) {
+                Button("Clear", role: .destructive) {
+                    vm.clearAll()
+                    isPresented = false
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to delete all notes? This action cannot be undone.")
+            }
         }
+        .preferredColorScheme(colorSchemeFromString(overrideColorScheme))
     }
-    
-    private static func combineSideBySide(image1: UIImage, image2: UIImage) -> UIImage? {
-        // Calculate combined size
-        // We want to keep aspect ratio and scale images to have same height
-        let maxHeight = max(image1.size.height, image2.size.height)
-        
-        // Scale images to have same height = maxHeight
-        let scale1 = maxHeight / image1.size.height
-        let scale2 = maxHeight / image2.size.height
-        
-        let newWidth1 = image1.size.width * scale1
-        let newWidth2 = image2.size.width * scale2
-        
-        let combinedSize = CGSize(width: newWidth1 + newWidth2, height: maxHeight)
-        
-        UIGraphicsBeginImageContextWithOptions(combinedSize, false, 0)
-        defer { UIGraphicsEndImageContext() }
-        
-        image1.draw(in: CGRect(x: 0, y: 0, width: newWidth1, height: maxHeight))
-        image2.draw(in: CGRect(x: newWidth1, y: 0, width: newWidth2, height: maxHeight))
-        
-        return UIGraphicsGetImageFromCurrentImageContext()
-    }
-    
-    private static func combineStacked(image1: UIImage, image2: UIImage) -> UIImage? {
-        // Calculate combined size
-        // We want to keep aspect ratio and scale images to have same width
-        let maxWidth = max(image1.size.width, image2.size.width)
-        
-        // Scale images to have same width = maxWidth
-        let scale1 = maxWidth / image1.size.width
-        let scale2 = maxWidth / image2.size.width
-        
-        let newHeight1 = image1.size.height * scale1
-        let newHeight2 = image2.size.height * scale2
-        
-        let combinedSize = CGSize(width: maxWidth, height: newHeight1 + newHeight2)
-        
-        UIGraphicsBeginImageContextWithOptions(combinedSize, false, 0)
-        defer { UIGraphicsEndImageContext() }
-        
-        image1.draw(in: CGRect(x: 0, y: 0, width: maxWidth, height: newHeight1))
-        image2.draw(in: CGRect(x: 0, y: newHeight1, width: maxWidth, height: newHeight2))
-        
-        return UIGraphicsGetImageFromCurrentImageContext()
+
+    private func colorSchemeFromString(_ string: String) -> ColorScheme? {
+        switch string {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
+        }
     }
 }
