@@ -36,6 +36,14 @@ final class NovaBrowserTests: XCTestCase {
         XCTAssertEqual(PopupPolicy.decide(request, settings: settings), .allow)
     }
 
+    func testChatGPTBootstrapIsRestrictedAndProvidesPromiseWithResolvers() {
+        let bootstrap = LegacyWebKitPolyfills.chatGPTBootstrap
+        XCTAssertTrue(bootstrap.contains("chatgpt.com"))
+        XCTAssertTrue(bootstrap.contains("Promise.withResolvers"))
+        XCTAssertFalse(bootstrap.contains("navigator.serviceWorker ="))
+        XCTAssertTrue(LegacyWebKitPolyfills.chatGPTRuntimeProbe.contains("unhandledrejection"))
+    }
+
     func testSnapshotRoundTrip() throws {
         let snapshot = BrowserSnapshot(bookmarks: [Bookmark(title: "Test", address: "https://example.org")])
         let data = try JSONEncoder().encode(snapshot)

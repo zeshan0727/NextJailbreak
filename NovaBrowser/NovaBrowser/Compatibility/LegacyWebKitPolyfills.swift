@@ -20,4 +20,64 @@ enum LegacyWebKitPolyfills {
       }
     })();
     """#
+    // A single standards-compatible Promise API is enabled only on the ChatGPT
+    // and OpenAI authentication domains. This is not a service-worker polyfill.
+    static let chatGPTBootstrap = #"""
+    (function () {
+      "use strict";
+      var h = location.hostname.toLowerCase();
+      if (!(h === "chatgpt.com" || h.endsWith(".chatgpt.com") ||
+            h === "auth.openai.com" || h === "chat.openai.com")) return;
+      if (!Promise.withResolvers) {
+        Object.defineProperty(Promise, "withResolvers", {
+          configurable: true,
+          writable: true,
+          value: function () {
+            var resolve, reject;
+            var promise = new Promise(function (r, j) { resolve = r; reject = j; });
+            return { promise: promise, resolve: resolve, reject: reject };
+          }
+        });
+      }
+    })();
+    """#
+
+    // JS runtime error reporting only categorizes errors. Never send arbitrary
+    // page error text, URLs, tokens, cookies, or chat messages to native code.
+    static let chatGPTRuntimeProbe = #"""
+    (function () {
+      "use strict";
+      var h = location.hostname.toLowerCase();
+      if (!(h === "chatgpt.com" || h.endsWith(".chatgpt.com") ||
+            h === "auth.openai.com" || h === "chat.openai.com")) return;
+      var count = 0;
+      function category(msg) {
+        var m = String(msg || "").toLowerCase();
+        if (m.indexOf("withresolvers") >= 0) return "missing-promise-withresolvers";
+        if (m.indexOf("serviceworker") >= 0 || m.indexOf("service worker") >= 0) return "service-worker";
+        if (m.indexOf("chunkloaderror") >= 0 || m.indexOf("loading chunk") >= 0) return "chunk-load";
+        if (m.indexOf("fetch") >= 0 || m.indexOf("networkerror") >= 0) return "network";
+        if (m.indexOf("syntax") >= 0 || m.indexOf("unexpected token") >= 0) return "syntax";
+        if (m.indexOf("is not a function") >= 0) return "missing-function";
+        if (m.indexOf("undefined") >= 0 || m.indexOf("null") >= 0) return "null-or-undefined";
+        return "other";
+      }
+      function emit(kind, message) {
+        if (count++ >= 30) return;
+        try {
+          var handler = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.novaRuntime;
+          if (handler) handler.postMessage({kind: kind, category: category(message)});
+        } catch (_) {}
+      }
+      window.addEventListener("error", function (e) {
+        if (e.target !== window) return;
+        emit("script-error", e.message || (e.error && e.error.name) || "");
+      }, true);
+      window.addEventListener("unhandledrejection", function (e) {
+        var reason = e.reason;
+        emit("unhandled-rejection", reason && (reason.message || reason.name) || "");
+      });
+    })();
+    """#
+
 }

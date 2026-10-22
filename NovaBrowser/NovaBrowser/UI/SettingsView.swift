@@ -51,7 +51,7 @@ struct SettingsView: View {
                 Section("Milestone 2 — Compatibility Preview") {
                     LabeledContent("Engine", value: "iOS WebKit")
                     LabeledContent("Downloads", value: "Files → NovaBrowser")
-                    LabeledContent("Version", value: "1.0.4")
+                    LabeledContent("Version", value: "1.0.5")
                 }
                 Section("Web Compatibility Check") {
                     Button("Run Compatibility Check on Current Tab") { model.runCompatibilityCheck() }
@@ -62,7 +62,7 @@ struct SettingsView: View {
                         UIPasteboard.general.string = WebDiagnostics.read() + "\n\n" + model.compatibilityReport
                     }
                     ShareLink("Share Web Diagnostics", item: WebDiagnostics.fileURL)
-                    Text("Records hostnames and navigation errors, not page URLs, queries or conversation text. Inspect the report before sharing.")
+                    Text("Also captures categorized JavaScript exceptions and main-document HTTP status codes for ChatGPT. No JavaScript error text, page URLs, query strings, cookies or chat messages are logged. Review before sharing.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("Diagnostics") {

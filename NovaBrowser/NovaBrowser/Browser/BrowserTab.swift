@@ -55,7 +55,20 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
         configuration.allowsPictureInPictureMediaPlayback = true
         configuration.limitsNavigationsToAppBoundDomains = false
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
-        if inheritedConfiguration == nil && (compatibilityShimsEnabled?() ?? true) {
+        // Native bridge logs only whitelisted error categories from OpenAI pages.
+        // For OAuth child windows reuse the parent's existing content controller.
+        if inheritedConfiguration == nil {
+            configuration.userContentController.add(RuntimeDiagnosticHandler(tab: self), name: "novaRuntime")
+            configuration.userContentController.addUserScript(
+                WKUserScript(source: LegacyWebKitPolyfills.chatGPTBootstrap,
+                             injectionTime: .atDocumentStart, forMainFrameOnly: false)
+            )
+            configuration.userContentController.addUserScript(
+                WKUserScript(source: LegacyWebKitPolyfills.chatGPTRuntimeProbe,
+                             injectionTime: .atDocumentStart, forMainFrameOnly: false)
+            )
+        }
+        if inheritedConfiguration == nil && (compatibilityShimsEnabled?() ?? false) {
             configuration.userContentController.addUserScript(WKUserScript(source: LegacyWebKitPolyfills.source, injectionTime: .atDocumentStart, forMainFrameOnly: false))
         }
         let web = WKWebView(frame: .zero, configuration: configuration)
@@ -230,6 +243,11 @@ extension BrowserTab: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
                  decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        if navigationResponse.isForMainFrame,
+           let response = navigationResponse.response as? HTTPURLResponse {
+            WebDiagnostics.record(host: response.url?.host ?? "unknown",
+                                  event: "Main document HTTP \(response.statusCode)")
+        }
         if !navigationResponse.canShowMIMEType || navigationResponse.response.suggestedFilename.map({ name in
             let disposition = (navigationResponse.response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Disposition") ?? ""
             return disposition.lowercased().contains("attachment") && !name.isEmpty

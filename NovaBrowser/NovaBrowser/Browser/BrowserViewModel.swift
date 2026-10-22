@@ -140,7 +140,8 @@ final class BrowserViewModel: ObservableObject {
     /// User-directed repair for the ChatGPT authentication domain family.
     /// It removes only the matching site's stored data and explicitly resets its overrides.
     func repairChatGPTSession() {
-        settings.legacyPolyfillsEnabled = false
+        // Do not disable compatibility shims as a side effect of site repair.
+        // The ChatGPT-specific Promise polyfill is injected independently.
         for host in ["chatgpt.com", "www.chatgpt.com", "auth.openai.com", "chat.openai.com"] {
             siteSettings.removeAll { $0.host.lowercased() == host }
             siteSettings.append(SiteSettings(host: host, userAgentPreset: .system,
@@ -182,7 +183,10 @@ final class BrowserViewModel: ObservableObject {
             websocket: typeof window.WebSocket,
             serviceWorker: String("serviceWorker" in navigator),
             structuredClone: typeof window.structuredClone,
-            withResolvers: typeof Promise.withResolvers
+            withResolvers: typeof Promise.withResolvers,
+            worker: typeof Worker,
+            cryptoUUID: String(typeof crypto !== "undefined" && typeof crypto.randomUUID),
+            userAgent: navigator.userAgent.indexOf("AppleWebKit") >= 0 ? "WebKit identity" : "custom identity"
           };
         })();
         """
