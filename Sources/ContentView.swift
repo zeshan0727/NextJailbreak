@@ -399,6 +399,7 @@ struct SettingsView: View {
     @ObservedObject var vm: NotesViewModel
     @Binding var isPresented: Bool
     @AppStorage("overrideColorScheme") private var overrideColorScheme: String = "system"
+    @State private var showingClearAllAlert = false
 
     var body: some View {
         NavigationStack {
@@ -415,7 +416,7 @@ struct SettingsView: View {
                 }
                 Section("Data") {
                     Button(role: .destructive) {
-                        showingClearAllAlert()
+                        showingClearAllAlert = true
                     } label: {
                         Text("Clear All Notes")
                     }
@@ -443,12 +444,6 @@ struct SettingsView: View {
             }
         }
         .preferredColorScheme(colorSchemeFromString(overrideColorScheme))
-    }
-
-    @State private var showingClearAllAlert = false
-
-    private func showingClearAllAlert() {
-        showingClearAllAlert = true
     }
 
     private func colorSchemeFromString(_ string: String) -> ColorScheme? {
