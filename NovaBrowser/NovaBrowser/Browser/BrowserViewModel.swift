@@ -15,6 +15,7 @@ final class BrowserViewModel: ObservableObject {
     var activeTab: BrowserTab? { tabs.first { $0.id == selectedTabID } }
 
     init() {
+        LaunchDiagnostics.record("Browser model initialization started")
         let saved = BrowserStore.load()
         bookmarks = saved.bookmarks
         history = saved.history
@@ -27,6 +28,7 @@ final class BrowserViewModel: ObservableObject {
         }
         selectedTabID = tabs.contains { $0.id == saved.currentID } ? saved.currentID : tabs.first?.id
         if tabs.isEmpty { newTab() }
+        LaunchDiagnostics.record("Browser model initialized")
     }
 
     private func configure(_ tab: BrowserTab) -> BrowserTab {

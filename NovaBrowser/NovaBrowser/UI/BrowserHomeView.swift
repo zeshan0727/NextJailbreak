@@ -77,7 +77,7 @@ struct TabContentView: View {
     @ObservedObject var tab: BrowserTab
     var body: some View {
         ZStack {
-            BrowserWebView(tab: tab).id(tab.id)
+            Color(uiColor: .systemBackground)
             if tab.isSuspended {
                 VStack(spacing: 14) {
                     Image(systemName: "arrow.clockwise.circle").font(.largeTitle)
@@ -87,12 +87,12 @@ struct TabContentView: View {
                     Button("Load Restored Page") { tab.resume() }.buttonStyle(.borderedProminent)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(uiColor: .systemBackground))
                 .padding(24)
             } else if tab.address.isEmpty {
                 startPage
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(uiColor: .systemBackground))
+            } else {
+                BrowserWebView(tab: tab).id(tab.id)
             }
         }
     }

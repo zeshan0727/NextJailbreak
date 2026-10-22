@@ -40,3 +40,7 @@ All iOS browsers built with WKWebView use the installed iOS WebKit engine. This 
 ## Tests
 
 `NovaBrowserTests` includes URL routing, site-settings override precedence, pop-up-policy dispatch, and state encoding tests. These can run on an iOS simulator using `xcodebuild test`, while the packaging workflow intentionally builds for a physical generic iOS destination.
+
+## 1.0.1 startup-crash mitigation and diagnostics
+
+This patch removes the unnecessary platform/no-sandbox/dynamic-codesigning entitlements from the standard browser build, defers WKWebView construction until a website is actually opened, and adds an offline `NovaBrowserDiagnostics.txt` under Documents (Files > On My iPhone > NovaBrowser). The log records only startup milestones, never browsing URLs or credentials. From Settings, use **Copy Launch Diagnostics** or **Share Launch Diagnostics**. If the process is terminated before it reaches the entry point or by iOS code-signature enforcement, there may be no app-created log. Check iOS Settings > Privacy & Security > Analytics & Improvements > Analytics Data for native crash reports. This mitigates plausible startup crash causes but requires on-device verification.

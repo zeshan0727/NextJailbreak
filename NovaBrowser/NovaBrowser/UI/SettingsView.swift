@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SettingsView: View {
     @ObservedObject var settings: BrowserSettings
@@ -18,7 +19,15 @@ struct SettingsView: View {
                     LabeledContent("Web engine", value: "Apple WebKit")
                     LabeledContent("Private tabs", value: "Ephemeral storage")
                     LabeledContent("Downloads", value: "Files → NovaBrowser")
-                    LabeledContent("Version", value: "1.0.0")
+                    LabeledContent("Version", value: "1.0.1")
+                }
+                Section("Diagnostics") {
+                    Button("Copy Launch Diagnostics") {
+                        UIPasteboard.general.string = LaunchDiagnostics.read()
+                    }
+                    ShareLink("Share Launch Diagnostics", item: LaunchDiagnostics.fileURL)
+                    Text("The diagnostics file is also available in Files > On My iPhone > NovaBrowser > NovaBrowserDiagnostics.txt. It contains startup events, not visited URLs.")
+                        .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section {
                     Text("Compatibility overrides and pop-up blocking controls will be exposed when the Milestone 2 engine is integrated. The site settings model and policy dispatch are already in the codebase.")

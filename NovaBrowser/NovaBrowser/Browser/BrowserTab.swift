@@ -31,10 +31,10 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
         super.init()
         downloads.onSaved = { [weak self] entry in self?.onDownload?(entry) }
         downloads.onFailed = { [weak self] message in self?.onError?(message) }
-        _ = webView
     }
 
     private func makeWebView() -> WKWebView {
+        LaunchDiagnostics.record("Creating WebKit view")
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = isPrivate ? .nonPersistent() : .default()
         configuration.allowsInlineMediaPlayback = true
@@ -72,6 +72,7 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
                 self?.onChanged?()
             }
         ]
+        LaunchDiagnostics.record("WebKit view created")
         return web
     }
 

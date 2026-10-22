@@ -23,6 +23,8 @@ rm -rf "$STAGING"
 mkdir -p "$STAGING/Payload"
 ditto "$APP" "$STAGING/Payload/NovaBrowser.app"
 ldid -S"$ROOT/entitlements.plist" "$STAGING/Payload/NovaBrowser.app/NovaBrowser"
+ldid -e "$STAGING/Payload/NovaBrowser.app/NovaBrowser"
+rm -f "$OUT/NovaBrowser.tipa"
 (
   cd "$STAGING"
   /usr/bin/zip -qry "$OUT/NovaBrowser.tipa" Payload
