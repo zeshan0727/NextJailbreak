@@ -31,8 +31,8 @@ targets:
         CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
         CFBundleExecutable: $(EXECUTABLE_NAME)
         CFBundlePackageType: APPL
-        CFBundleShortVersionString: '1.0.2'
-        CFBundleVersion: '3'
+        CFBundleShortVersionString: '1.0.3'
+        CFBundleVersion: '4'
         LSRequiresIPhoneOS: true
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true

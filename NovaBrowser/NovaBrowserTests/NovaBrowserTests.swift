@@ -2,6 +2,13 @@ import XCTest
 @testable import NovaBrowser
 
 final class NovaBrowserTests: XCTestCase {
+    func testWebKitIdentityAndAppearancePresets() {
+        XCTAssertNil(UserAgentIdentity.value(for: .system, desktop: false))
+        XCTAssertTrue(UserAgentIdentity.value(for: .windowsChrome, desktop: false)?.contains("Chrome/120") == true)
+        XCTAssertEqual(BrowserAppearance(rawValue: "Light"), .light)
+        XCTAssertEqual(BrowserAppearance(rawValue: "Dark"), .dark)
+    }
+
     func testSmartURLParsing() {
         XCTAssertEqual(NavigationRouter.resolve("example.org/path", searchEngine: .duckDuckGo)?.absoluteString, "https://example.org/path")
         XCTAssertEqual(NavigationRouter.resolve("https://apple.com", searchEngine: .google)?.host, "apple.com")

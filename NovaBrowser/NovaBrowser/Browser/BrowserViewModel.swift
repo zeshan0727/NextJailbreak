@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import SwiftUI
+import WebKit
 
 final class BrowserViewModel: ObservableObject {
     @Published private(set) var tabs: [BrowserTab] = []
@@ -41,7 +42,9 @@ final class BrowserViewModel: ObservableObject {
             self.persist()
         }
         tab.onChanged = { [weak self] in self?.persist() }
-        tab.onPopup = { [weak self] url, privateTab in self?.newTab(url: url, privateMode: privateTab) }
+        tab.onPopupWithConfiguration = { [weak self] configuration, privateTab in
+            self?.newPopupTab(configuration: configuration, privateMode: privateTab)
+        }
         tab.onDownload = { [weak self] entry in
             self?.downloads.insert(entry, at: 0)
             self?.persist()
@@ -64,6 +67,14 @@ final class BrowserViewModel: ObservableObject {
         if let url { tab.load(url) }
         persist()
         return tab
+    }
+
+    private func newPopupTab(configuration: WKWebViewConfiguration, privateMode: Bool) -> WKWebView {
+        let tab = configure(BrowserTab(isPrivate: privateMode, configuration: configuration))
+        tabs.append(tab)
+        selectedTabID = tab.id
+        persist()
+        return tab.webView
     }
 
     func close(_ id: UUID) {

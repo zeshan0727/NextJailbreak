@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import SwiftUI
+import UIKit
 
 enum BrowserAppearance: String, CaseIterable, Identifiable {
     case system = "System"

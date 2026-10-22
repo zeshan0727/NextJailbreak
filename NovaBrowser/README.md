@@ -44,3 +44,12 @@ All iOS browsers built with WKWebView use the installed iOS WebKit engine. This 
 ## 1.0.1 startup-crash mitigation and diagnostics
 
 This patch removes the unnecessary platform/no-sandbox/dynamic-codesigning entitlements from the standard browser build, defers WKWebView construction until a website is actually opened, and adds an offline `NovaBrowserDiagnostics.txt` under Documents (Files > On My iPhone > NovaBrowser). The log records only startup milestones, never browsing URLs or credentials. From Settings, use **Copy Launch Diagnostics** or **Share Launch Diagnostics**. If the process is terminated before it reaches the entry point or by iOS code-signature enforcement, there may be no app-created log. Check iOS Settings > Privacy & Security > Analytics & Improvements > Analytics Data for native crash reports. This mitigates plausible startup crash causes but requires on-device verification.
+
+## NovaBrowser 1.0.3 — WebKit navigation and sign-in reliability
+
+- Appearance can follow system or force Light / Dark. Website color schemes follow the same preference where supported.
+- Native WKWebView per-navigation WKWebpagePreferences now apply JavaScript and desktop/mobile site choices before navigation is committed.
+- New-window and OAuth popups preserve the WKUIDelegate-supplied WKWebViewConfiguration and return an actual child WebView so window.opener-based auth flows can work. PopupPolicy remains the single decision point.
+- Site user-agent presets and optional, non-networking missing-JavaScript shims are available. System WebKit identity is preferred for ChatGPT and security-sensitive sign-in pages.
+- NS Transfer publish is part of the successful GitHub Actions pipeline. Builds without an iOS compile pass are not published.
+- Important: Apple WebKit remains the rendering engine on iOS 16. Some sites that require a newer WebKit/JavaScript engine, modern browser protections or features cannot be made compatible by user-agent spoofing, shims or popups alone. This build does not claim verified ChatGPT compatibility.

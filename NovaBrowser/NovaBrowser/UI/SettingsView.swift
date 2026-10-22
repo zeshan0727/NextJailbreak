@@ -51,7 +51,7 @@ struct SettingsView: View {
                 Section("Milestone 2 — Compatibility Preview") {
                     LabeledContent("Engine", value: "iOS WebKit")
                     LabeledContent("Downloads", value: "Files → NovaBrowser")
-                    LabeledContent("Version", value: "1.0.2")
+                    LabeledContent("Version", value: "1.0.3")
                 }
                 Section("Diagnostics") {
                     Button("Copy Launch Diagnostics") { UIPasteboard.general.string = LaunchDiagnostics.read() }

@@ -15,7 +15,8 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
     @Published private(set) var isSuspended = false
 
     var onVisit: ((String, String, Bool) -> Void)?
-    var onPopup: ((URL, Bool) -> Void)?
+    var onPopupWithConfiguration: ((WKWebViewConfiguration, Bool) -> WKWebView?)?
+    private let inheritedConfiguration: WKWebViewConfiguration?
     var onChanged: (() -> Void)?
     var onDownload: ((DownloadEntry) -> Void)?
     var onError: ((String) -> Void)?
@@ -33,9 +34,10 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
     private let downloads = DownloadCoordinator()
     private var observations: [NSKeyValueObservation] = []
 
-    init(id: UUID = UUID(), isPrivate: Bool = false) {
+    init(id: UUID = UUID(), isPrivate: Bool = false, configuration: WKWebViewConfiguration? = nil) {
         self.id = id
         self.isPrivate = isPrivate
+        self.inheritedConfiguration = configuration
         super.init()
         downloads.onSaved = { [weak self] entry in self?.onDownload?(entry) }
         downloads.onFailed = { [weak self] message in self?.onError?(message) }
@@ -43,13 +45,17 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
 
     private func makeWebView() -> WKWebView {
         LaunchDiagnostics.record("Creating WebKit view")
-        let configuration = WKWebViewConfiguration()
-        configuration.websiteDataStore = isPrivate ? .nonPersistent() : .default()
+        // WKUIDelegate requires pop-ups to use exactly its supplied configuration.
+        // This preserves window.opener relationships and the parent's web session.
+        let configuration = inheritedConfiguration ?? WKWebViewConfiguration()
+        if inheritedConfiguration == nil {
+            configuration.websiteDataStore = isPrivate ? .nonPersistent() : .default()
+        }
         configuration.allowsInlineMediaPlayback = true
         configuration.allowsPictureInPictureMediaPlayback = true
         configuration.limitsNavigationsToAppBoundDomains = false
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
-        if compatibilityShimsEnabled?() ?? true {
+        if inheritedConfiguration == nil && (compatibilityShimsEnabled?() ?? true) {
             configuration.userContentController.addUserScript(WKUserScript(source: LegacyWebKitPolyfills.source, injectionTime: .atDocumentStart, forMainFrameOnly: false))
         }
         let web = WKWebView(frame: .zero, configuration: configuration)
@@ -170,6 +176,18 @@ extension BrowserTab: WKNavigationDelegate {
         if (error as NSError).code != NSURLErrorCancelled { onError?(error.localizedDescription) }
     }
 
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                 preferences: WKWebpagePreferences,
+                 decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void) {
+        let host = navigationAction.request.url?.host ?? webView.url?.host ?? ""
+        let resolved = resolveSite?(host) ?? SiteSettingsResolver.resolve(host: host, global: GlobalSiteSettings(), sites: [])
+        preferences.allowsContentJavaScript = resolved.javaScriptEnabled
+        preferences.preferredContentMode = resolved.desktopMode ? .desktop : .mobile
+        self.webView(webView, decidePolicyFor: navigationAction) { decision in
+            decisionHandler(decision, preferences)
+        }
+    }
+
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let requestURL = navigationAction.request.url
         if let scheme = requestURL?.scheme?.lowercased(), !["http", "https", "about", "blob", "data", "file"].contains(scheme) {
@@ -184,10 +202,9 @@ extension BrowserTab: WKNavigationDelegate {
             let settings = resolveSite?(webView.url?.host ?? "") ?? SiteSettingsResolver.resolve(host: "", global: GlobalSiteSettings(), sites: [])
             let request = PopupRequest(sourceHost: webView.url?.host ?? "", targetURL: requestURL,
                                        isUserInitiated: navigationAction.navigationType == .linkActivated || navigationAction.navigationType == .formSubmitted)
-            if PopupPolicy.decide(request, settings: settings) == .allow, let url = requestURL {
-                onPopup?(url, isPrivate)
-            }
-            decisionHandler(.cancel)
+            // A genuinely new WKWebView is supplied by createWebViewWith.
+            // Returning .allow here is necessary for OAuth windows that rely on window.opener.
+            decisionHandler(PopupPolicy.decide(request, settings: settings) == .allow ? .allow : .cancel)
             return
         }
         decisionHandler(.allow)
@@ -220,10 +237,8 @@ extension BrowserTab: WKUIDelegate {
         let settings = resolveSite?(webView.url?.host ?? "") ?? SiteSettingsResolver.resolve(host: "", global: GlobalSiteSettings(), sites: [])
         let request = PopupRequest(sourceHost: webView.url?.host ?? "", targetURL: navigationAction.request.url,
                                    isUserInitiated: navigationAction.navigationType == .linkActivated || navigationAction.navigationType == .formSubmitted)
-        if PopupPolicy.decide(request, settings: settings) == .allow, let url = request.targetURL {
-            onPopup?(url, isPrivate)
-        }
-        return nil
+        guard PopupPolicy.decide(request, settings: settings) == .allow else { return nil }
+        return onPopupWithConfiguration?(configuration, isPrivate)
     }
 
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
