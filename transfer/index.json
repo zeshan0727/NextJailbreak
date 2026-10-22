@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-20T19:45:20Z",
+  "updatedAt": "2026-10-22T07:06:36Z",
   "files": [
+    {
+      "id": "novabrowser-1.0.2",
+      "name": "NovaBrowser 1.0.2 — Light Mode + WebKit Compatibility",
+      "fileName": "NovaBrowser-1.0.2.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.2",
+      "url": "https://nextjailbreak.com/transfer/files/NovaBrowser/1.0.2/NovaBrowser-1.0.2.tipa",
+      "sha256": "1cbfefd22cd8e07c422c3f3d7051dcebdf6b2707fb9d47c3c08c53fd0e964e88",
+      "sizeBytes": 890729,
+      "notes": "Native WKWebView browser with tabs, selectable system/light/dark appearance, configurable per-site user agents and mobile/desktop mode, optional legacy JavaScript shims, persistent diagnostics, downloads and private tabs. iOS 16 WebKit limitations remain."
+    },
     {
       "id": "nextcalculator-1.0.0",
       "name": "Next Calculator 1.0.0",
