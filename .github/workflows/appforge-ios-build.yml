@@ -25,6 +25,12 @@ jobs:
         run: |
           set -euo pipefail
           xcodebuild -project AppForge.xcodeproj -scheme AppForge -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath "$PWD/DerivedData" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+      - name: Ad-hoc sign for TrollStore
+        working-directory: apps/AppForge
+        run: |
+          set -euo pipefail
+          codesign --force --sign - --timestamp=none DerivedData/Build/Products/Release-iphoneos/AppForge.app
+          codesign --verify --verbose=2 DerivedData/Build/Products/Release-iphoneos/AppForge.app
       - name: Package IPA and TIPA
         working-directory: apps/AppForge
         run: |
