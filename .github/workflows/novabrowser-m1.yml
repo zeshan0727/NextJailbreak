@@ -1,4 +1,5 @@
-name: NovaBrowser M1 iOS Build
+name: NovaBrowser iOS Build and NS Transfer Publish
+
 on:
   push:
     branches:
@@ -7,51 +8,107 @@ on:
       - 'NovaBrowser/**'
       - '.github/workflows/novabrowser-m1.yml'
   workflow_dispatch:
+
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: novabrowser-build-publish
+  cancel-in-progress: false
+
 jobs:
   build-ios:
     runs-on: macos-15
     timeout-minutes: 45
     steps:
-      - name: Checkout NovaBrowser branch
+      - name: Checkout NovaBrowser source
         uses: actions/checkout@v4
-      - name: Verify committed M1 source
+        with:
+          fetch-depth: 0
+      - name: Verify source
         run: |
           test -s NovaBrowser/project.yml
-          test -s NovaBrowser/build_tipa.sh
-          test -s NovaBrowser/NovaBrowser/App/LaunchDiagnostics.swift
-          find NovaBrowser -name '*.swift' | sort
+          test -s NovaBrowser/NovaBrowser/Compatibility/LegacyWebKitPolyfills.swift
       - name: Install XcodeGen and ldid
         run: brew install xcodegen ldid
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Install Pillow
         run: python -m pip install Pillow==12.0.0
-      - name: Generate reproducible icon assets
-        run: python NovaBrowser/scripts/generate_icon.py
       - name: Generate Xcode project
         working-directory: NovaBrowser
         run: xcodegen generate --spec project.yml
-      - name: Print Xcode version
+      - name: Show Xcode version
         run: xcodebuild -version
-      - name: Compile, ad-hoc sign and package TIPA
+      - name: Compile arm64 iOS and package TrollStore TIPA
         working-directory: NovaBrowser
         run: bash build_tipa.sh
-      - name: Verify output bundle metadata
+      - name: Verify generated release
         run: |
           test -s NovaBrowser/dist/NovaBrowser.tipa
-          unzip -p NovaBrowser/dist/NovaBrowser.tipa Payload/NovaBrowser.app/Info.plist > /tmp/novabrowser-info.plist
-          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /tmp/novabrowser-info.plist | grep -qx '1.0.1'
-      - name: Upload repaired TIPA and build log
-        if: always()
+          unzip -p NovaBrowser/dist/NovaBrowser.tipa Payload/NovaBrowser.app/Info.plist > /tmp/novabrowser.plist
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /tmp/novabrowser.plist | grep -qx '1.0.2'
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' /tmp/novabrowser.plist | grep -qx 'com.example.novabrowser'
+          unzip -t NovaBrowser/dist/NovaBrowser.tipa | tail -n 1
+      - name: Upload verified TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NovaBrowser-1.0.1-startup-fix
+          name: NovaBrowser-1.0.2-iOS16
           path: |
             NovaBrowser/dist/NovaBrowser.tipa
             NovaBrowser/dist/xcodebuild.log
-            NovaBrowser/README.md
-          if-no-files-found: warn
+          if-no-files-found: error
+      - name: Publish TIPA and catalog entry to NS Transfer (main)
+        env:
+          RELEASE_VERSION: "1.0.2"
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          PUB="$(mktemp -d)/site"
+          git worktree add --detach "$PUB" origin/main
+          DEST="$PUB/transfer/files/NovaBrowser/$RELEASE_VERSION"
+          mkdir -p "$DEST"
+          cp NovaBrowser/dist/NovaBrowser.tipa "$DEST/NovaBrowser-$RELEASE_VERSION.tipa"
+          python3 - "$PUB" "$RELEASE_VERSION" <<'PY'
+          import hashlib
+          import json
+          import sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          root = Path(sys.argv[1])
+          version = sys.argv[2]
+          relative = Path('transfer/files/NovaBrowser') / version / ('NovaBrowser-' + version + '.tipa')
+          artifact = root / relative
+          payload = artifact.read_bytes()
+          import zipfile
+          with zipfile.ZipFile(artifact) as z:
+              assert 'Payload/NovaBrowser.app/NovaBrowser' in z.namelist()
+          index = root / 'transfer/index.json'
+          catalog = json.loads(index.read_text())
+          existing = [item for item in catalog.get('files', []) if item.get('id') != 'novabrowser-' + version]
+          existing.insert(0, {
+              'id': 'novabrowser-' + version,
+              'name': 'NovaBrowser ' + version + ' — Light Mode + WebKit Compatibility',
+              'fileName': artifact.name,
+              'type': 'tipa',
+              'platform': 'TrollStore / iOS 16+',
+              'version': version,
+              'url': 'https://nextjailbreak.com/' + str(relative),
+              'sha256': hashlib.sha256(payload).hexdigest(),
+              'sizeBytes': len(payload),
+              'notes': 'Native WKWebView browser with tabs, selectable system/light/dark appearance, configurable per-site user agents and mobile/desktop mode, optional legacy JavaScript shims, persistent diagnostics, downloads and private tabs. iOS 16 WebKit limitations remain.'
+          })
+          catalog['files'] = existing
+          catalog['updatedAt'] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
+          index.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + '\n')
+          print('SHA256:', hashlib.sha256(payload).hexdigest(), 'Bytes:', len(payload))
+          PY
+          git -C "$PUB" config user.name "github-actions[bot]"
+          git -C "$PUB" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$PUB" add "transfer/files/NovaBrowser/$RELEASE_VERSION/NovaBrowser-$RELEASE_VERSION.tipa" transfer/index.json
+          git -C "$PUB" commit -m "Publish NovaBrowser $RELEASE_VERSION to NS Transfer [skip ci]"
+          git -C "$PUB" push origin HEAD:main
+          echo "NS_TRANSFER_URL=https://nextjailbreak.com/transfer/files/NovaBrowser/$RELEASE_VERSION/NovaBrowser-$RELEASE_VERSION.tipa" >> "$GITHUB_STEP_SUMMARY"
