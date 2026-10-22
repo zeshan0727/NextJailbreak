@@ -42,6 +42,13 @@ struct SettingsView: View {
                             .font(.caption)
                     }
                 }
+                Section("Crash report repair") {
+                    NavigationLink(destination: DiagnosticsView()) {
+                        Label("Import .ips Report", systemImage: "stethoscope")
+                    }
+                    Text("You can also access Crash Diagnostics from Code or Build. The report is parsed locally; only a sanitized summary is sent to AI when needed.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
                 Section("Automatic build repair") {
                     Toggle("Fix and rebuild automatically", isOn: $state.autoRepairEnabled)
                     Text("On compiler failure, AppForge reads logs, asks your configured AI to correct the Swift source, commits the fix and rebuilds. Up to two attempts. Keep the app open; OpenAI API usage can incur charges.")
@@ -62,7 +69,7 @@ struct SettingsView: View {
                     Button("Clear prompt history and generated code", role: .destructive) { state.clearHistoryAndCache() }
                 }
                 Section("About") {
-                    LabeledContent("App", value: "AppForge 1.0.2")
+                    LabeledContent("App", value: "AppForge 1.0.3")
                     Text("No external backend, tracking, or analytics. Secrets use iOS Keychain. Requests go directly to your selected AI provider and GitHub.")
                         .font(.caption).foregroundStyle(.secondary)
                 }

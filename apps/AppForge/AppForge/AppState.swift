@@ -40,6 +40,12 @@ final class AppState: ObservableObject {
     @Published var activeRun: GitHubRun?
     @Published var jobs: [GitHubJob] = []
     @Published var failureLog = ""
+    @Published var importedCrash: CrashSummary?
+    var canRepairImportedCrash: Bool {
+        guard let crash = importedCrash, let project = project else { return false }
+        return crash.bundleID.isEmpty ||
+            crash.bundleID.caseInsensitiveCompare(project.bundleId) == .orderedSame
+    }
     @Published var releases: [GitHubRelease] = []
     @Published var refreshing = false
     @Published var autoRepairEnabled = UserDefaults.standard.object(forKey: "forgeAutoRepair") as? Bool ?? true {
@@ -128,18 +134,48 @@ final class AppState: ObservableObject {
     }
 
     private func getProject(system: String, request: String) async throws -> ForgeProject {
-        var response = try await ai().chat(system: system, user: request)
-        do { return try ProjectFactory.parseModelJSON(response) }
-        catch {
-            // Exactly one repair attempt for invalid or incorrectly structured JSON.
-            response = try await ai().chat(system: system, user: """
-            Your last response could not be accepted: \(error.localizedDescription).
-            Return complete valid JSON matching the required schema, no code fences.
-            Original request:\n\(request)
-            Previous response:\n\(String(response.prefix(45_000)))
-            """)
-            return try ProjectFactory.parseModelJSON(response)
+        // Three bounded attempts: initial JSON, format repair, then compact regeneration.
+        // Never treat an API rate-limit/network error as malformed JSON.
+        var previous = ""
+        var previousError = ""
+        for attempt in 0..<3 {
+            let instruction: String
+            switch attempt {
+            case 0:
+                instruction = request
+            case 1:
+                instruction = """
+                Repair the following INVALID JSON answer. Output one complete JSON object ONLY.
+                Keep the original app features; use JSON string escaping for Swift backslashes and quotes.
+                Required fields: appName, bundleId, files:[{path,content}].
+                Limit to 1-4 complete Swift files, no markdown or extra text.
+                Original requirements:
+                \(String(request.prefix(12_000)))
+                Parsing error: \(previousError)
+                Previous malformed output (beginning):
+                \(String(previous.prefix(7_000)))
+                """
+            default:
+                instruction = """
+                Regenerate this app using compact, valid JSON. Previous responses had broken JSON.
+                Minimize comments and whitespace in Swift source, but retain core features.
+                Return 1-3 complete iOS 16 Swift files as JSON, with escaped string contents.
+                No markdown, no partial files, no surrounding prose.
+                Requirements:
+                \(String(request.prefix(10_000)))
+                Last parsing issue: \(previousError)
+                """
+            }
+            let answer = try await ai().chat(system: system, user: instruction, jsonMode: true)
+            do {
+                return try ProjectFactory.parseModelJSON(answer)
+            } catch {
+                previous = answer
+                previousError = error.localizedDescription
+                repairStatus = "AI returned malformed JSON. Retrying generation (\(attempt + 1)/3)…"
+            }
         }
+        throw ForgeError.message("Automatic JSON recovery could not produce valid source after 3 attempts. Try a shorter requirement or a model with a larger response limit. Last error: \(previousError)")
     }
 
     func generateCode() async {
@@ -150,6 +186,7 @@ final class AppState: ObservableObject {
         do {
             let generated = try await getProject(system: AIClient.codeSystem, request: codePrompt)
             project = try ProjectFactory.scaffold(generated, minIOS: preferences.minimumIOS)
+            repairStatus = "Code generation complete. JSON response validated."
         } catch { notice = error.localizedDescription }
     }
 
@@ -333,6 +370,60 @@ final class AppState: ObservableObject {
         }
     }
 
+    func loadCrashReport(_ report: String) {
+        do {
+            importedCrash = try CrashDoctor.analyze(report)
+            repairStatus = importedCrash?.usageKey == nil
+                ? "Crash report imported; AI-assisted analysis is available."
+                : "Crash report imported. A safe Info.plist correction is available."
+        } catch { notice = error.localizedDescription }
+    }
+
+    /// Fixes imported device crashes without manual chat assistance. Matching bundles required.
+    func repairImportedCrash(build: Bool) async {
+        guard let crash = importedCrash, let original = project, canRepairImportedCrash else {
+            notice = "Import a crash report and load the matching generated app in Code."
+            return
+        }
+        guard !busyFix && !busyPush else { return }
+        busyFix = true
+        defer { busyFix = false }
+        do {
+            if crash.usageKey != nil {
+                project = try CrashDoctor.patch(original, for: crash)
+                repairStatus = "Added the missing iOS permission to Info.plist."
+            } else {
+                repairStatus = "Analyzing sanitized crash details and source code with AI…"
+                let swift = original.files.filter { $0.path.hasSuffix(".swift") && $0.path != "Sources/AppEntry.swift" }
+                    .map { "PATH: \($0.path)\n\($0.content)" }.joined(separator: "\n\n")
+                let corrected = try await getProject(system: AIClient.codeSystem, request: """
+                    Repair this iOS \(preferences.minimumIOS) runtime crash.
+                    Preserve app features and bundle ID \(original.bundleId).
+                    Return ALL complete Swift source files in strict JSON.
+                    Safe crash summary (identifiers excluded):
+                    \(crash.safeReport)
+                    SOURCE:
+                    \(String(swift.prefix(75_000)))
+                    """)
+                guard corrected.bundleId.caseInsensitiveCompare(original.bundleId) == .orderedSame else {
+                    throw ForgeError.message("AI changed the bundle identifier. Repair was rejected.")
+                }
+                project = try ProjectFactory.scaffold(corrected, minIOS: preferences.minimumIOS)
+                repairStatus = "AI produced corrected code. A build is needed to validate it."
+            }
+            if build {
+                repairStatus += " Pushing and building the corrected IPA…"
+                await pushAndBuild()
+            } else {
+                selectedTab = .code
+                repairStatus += " Open GitHub to push the updated code."
+            }
+        } catch {
+            repairStatus = "Crash repair failed: \(error.localizedDescription)"
+            notice = repairStatus
+        }
+    }
+
     func refreshReleases() async {
         let owner = lastOwner.isEmpty ? preferences.githubUsername : lastOwner
         let repo = lastRepo.isEmpty ? chosenRepo : lastRepo
@@ -346,7 +437,7 @@ final class AppState: ObservableObject {
 
     func clearHistoryAndCache() {
         history = []; saveHistory()
-        requirement = ""; generatedPrompt = ""; codePrompt = ""; project = nil; failureLog = ""
+        requirement = ""; generatedPrompt = ""; codePrompt = ""; project = nil; failureLog = ""; importedCrash = nil
         repairAttempt = 0; repairStatus = ""; lastCommitSHA = ""; lastOwner = ""; lastRepo = ""
         UserDefaults.standard.removeObject(forKey: "forgeBuildSession")
         notice = "Prompt history and generated code cleared. Downloads and Keychain tokens preserved"

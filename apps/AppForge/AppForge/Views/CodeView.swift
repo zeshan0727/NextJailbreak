@@ -15,6 +15,11 @@ struct CodeView: View {
                     TextEditor(text: $state.codePrompt)
                         .frame(minHeight: 140).scrollContentBackground(.hidden)
                         .padding(7).background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
+                    NavigationLink(destination: DiagnosticsView()) {
+                        Label("Import iPhone Crash Report (.ips) & Repair", systemImage: "stethoscope")
+                    }
+                    .buttonStyle(.bordered)
+                    if state.repairStatus.contains("JSON") { Text(state.repairStatus).font(.caption).foregroundStyle(.secondary) }
                     ForgeButton(title: "Generate Code", symbol: "curlybraces.square", loading: state.busyCode) {
                         Task { await state.generateCode() }
                     }

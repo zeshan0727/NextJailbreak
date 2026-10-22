@@ -14,6 +14,9 @@ struct BuildView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 17) {
                     ScreenHeading(title: "Build Status", subtitle: "GitHub Actions checks the pushed commit every 8 seconds.")
+                    NavigationLink(destination: DiagnosticsView()) {
+                        Label("Import .ips Crash Report & Fix", systemImage: "stethoscope")
+                    }.buttonStyle(.bordered)
                     if state.lastCommitSHA.isEmpty {
                         VStack(spacing: 12) {
                             Image(systemName: "hammer").font(.largeTitle).foregroundStyle(.secondary)

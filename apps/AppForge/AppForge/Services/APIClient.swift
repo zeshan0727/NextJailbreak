@@ -9,7 +9,9 @@ private struct ChatRequest: Encodable {
     let model: String
     let messages: [AIMessage]
     let temperature: Double = 0.2
+    let response_format: JSONFormat?
 }
+private struct JSONFormat: Encodable { let type = "json_object" }
 
 private struct ChatResponse: Decodable {
     struct Choice: Decodable {
@@ -25,7 +27,7 @@ struct AIClient {
     let model: String
     let token: String
 
-    func chat(system: String, user: String) async throws -> String {
+    func chat(system: String, user: String, jsonMode: Bool = false) async throws -> String {
         guard !token.isEmpty, !model.trimmingCharacters(in: .whitespaces).isEmpty else {
             throw ForgeError.message("Set an AI model and API key in Settings.")
         }
@@ -42,10 +44,13 @@ struct AIClient {
         request.timeoutInterval = 120
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        // Official OpenAI Chat Completions supports JSON object mode.
+        // Omit this field for alternative providers, which may not support it.
+        let openAI = components.host?.lowercased() == "api.openai.com"
         request.httpBody = try JSONEncoder().encode(ChatRequest(model: model, messages: [
             AIMessage(role: "system", content: system),
             AIMessage(role: "user", content: user)
-        ]))
+        ], response_format: jsonMode && openAI ? JSONFormat() : nil))
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse else {
@@ -82,6 +87,7 @@ struct AIClient {
     No markdown fences, no prose. Every file must be a compilable Swift file under Sources/.
     DO NOT provide an @main App, Info.plist, project.yml, workflow or assets; those are injected.
     MUST define struct ContentView: View with a working body, including all referenced types.
+    Keep outputs COMPACT so the whole JSON fits the model response window. Escape Swift strings within JSON correctly.
     No external packages, secrets, networking backends, missing assets or TODO stubs.
     Assume deployment iOS 16 and Swift 5.9 features, no iOS 17-only APIs.
     Include complete production-quality code and import statements in every file that needs them.
