@@ -1,0 +1,10 @@
+build/
+dist/
+.build/
+.DS_Store
+*.xcuserstate
+xcuserdata/
+*.tipa
+*.xcresult/
+__pycache__/
+.venv/

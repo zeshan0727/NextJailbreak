@@ -1,0 +1,71 @@
+name: NovaBrowser M1 — Build and Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["codex/novabrowser-m1"]
+    paths: ["NovaBrowser/**", ".github/workflows/build-novabrowser.yml"]
+  pull_request:
+    paths: ["NovaBrowser/**", ".github/workflows/build-novabrowser.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: novabrowser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            NovaBrowser
+            .github/workflows/build-novabrowser.yml
+      - name: Locate project and select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f NovaBrowser/build_tipa.sh ]; then
+            echo "PROJECT_DIR=NovaBrowser" >> "$GITHUB_ENV"
+          else
+            echo "PROJECT_DIR=." >> "$GITHUB_ENV"
+          fi
+          if [ -d /Applications/Xcode_15.4.app ]; then
+            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          fi
+          xcodebuild -version
+      - name: Install packaging tool
+        run: brew install ldid
+      - name: Build arm64 Release and package TIPA
+        shell: bash
+        run: |
+          cd "$PROJECT_DIR"
+          bash build_tipa.sh
+      - name: Unit tests and simulator launch
+        shell: bash
+        run: |
+          cd "$PROJECT_DIR"
+          bash Scripts/test_simulator.sh
+      - name: Upload NovaBrowser.tipa
+        uses: actions/upload-artifact@v4
+        with:
+          name: NovaBrowser-M1-TrollStore
+          path: |
+            ${{ env.PROJECT_DIR }}/dist/NovaBrowser.tipa
+            ${{ env.PROJECT_DIR }}/dist/NovaBrowser.tipa.sha256
+          if-no-files-found: error
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NovaBrowser-M1-Build-Evidence
+          path: |
+            ${{ env.PROJECT_DIR }}/build/*.log
+            ${{ env.PROJECT_DIR }}/build/*.txt
+            ${{ env.PROJECT_DIR }}/build/*.plist
+            ${{ env.PROJECT_DIR }}/build/*.png
+            ${{ env.PROJECT_DIR }}/build/NovaBrowserTests.xcresult
