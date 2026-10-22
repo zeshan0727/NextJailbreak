@@ -71,4 +71,5 @@ jobs:
           git -C "$PUB" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git -C "$PUB" add transfer/files/NovaBrowser/1.0.5/NovaBrowser-1.0.5.tipa transfer/index.json
           git -C "$PUB" commit -m "Restore original NovaBrowser 1.0.5 NS Transfer binary [skip ci]"
+          git -C "$PUB" pull --rebase origin main
           git -C "$PUB" push origin HEAD:main
