@@ -88,7 +88,9 @@ struct BuildView: View {
                         }
                         if state.activeRun?.conclusion == "success" {
                             ForgeButton(title: "Open Downloads", symbol: "arrow.down.circle.fill") {
+                                state.selectLastBuildDownloads()
                                 state.selectedTab = .downloads
+                                Task { await state.refreshReleases() }
                             }
                         }
                     }

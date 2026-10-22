@@ -47,6 +47,14 @@ final class AppState: ObservableObject {
             crash.bundleID.caseInsensitiveCompare(project.bundleId) == .orderedSame
     }
     @Published var releases: [GitHubRelease] = []
+    @Published var downloadsOwner = ""
+    @Published var downloadsRepo = ""
+    @Published var downloadsRefreshing = false
+    @Published var downloadsError: String?
+    @Published var downloadsCheckedAt: Date?
+    @Published var latestProjectRelease: GitHubRelease?
+    @Published var currentBuildRelease: GitHubRelease?
+
     @Published var refreshing = false
     @Published var autoRepairEnabled = UserDefaults.standard.object(forKey: "forgeAutoRepair") as? Bool ?? true {
         didSet { UserDefaults.standard.set(autoRepairEnabled, forKey: "forgeAutoRepair") }
@@ -85,6 +93,9 @@ final class AppState: ObservableObject {
             repairAttempt = session.repairs
             repairStatus = session.repairStatus
         }
+
+        downloadsOwner = lastOwner.isEmpty ? preferences.githubUsername : lastOwner
+        downloadsRepo = lastRepo.isEmpty ? (chosenRepo.isEmpty ? preferences.defaultRepo : chosenRepo) : lastRepo
         restoringBuildSession = false
     }
 
@@ -250,6 +261,9 @@ final class AppState: ObservableObject {
                                               branch: chosenBranch, message: commitMessage,
                                               sourceBranch: initialBranch)
             lastCommitSHA = sha; lastOwner = owner; lastRepo = repo
+            downloadsOwner = owner; downloadsRepo = repo
+            currentBuildRelease = nil; latestProjectRelease = nil; releases = []
+            downloadsCheckedAt = nil; downloadsError = nil
             activeRun = nil; jobs = []; failureLog = ""
             missingRunChecks = 0; fallbackDispatched = false
             if repairAttempt > 0 { repairStatus = "Repair \(repairAttempt)/\(maximumRepairAttempts) submitted. Checking new build…" }
@@ -424,13 +438,66 @@ final class AppState: ObservableObject {
         }
     }
 
+    /// Refreshes the selected repository and pins the IPA from the last generated app.
+    /// Repo selection is independent of the previous build, avoiding silently stale results.
     func refreshReleases() async {
-        let owner = lastOwner.isEmpty ? preferences.githubUsername : lastOwner
-        let repo = lastRepo.isEmpty ? chosenRepo : lastRepo
-        guard !owner.isEmpty, !repo.isEmpty else { return }
-        do { releases = try await github().releases(owner: owner, repo: repo) }
-        catch { notice = error.localizedDescription }
-        downloads.reload()
+        guard !downloadsRefreshing else { return }
+        let owner = downloadsOwner.trimmingCharacters(in: .whitespacesAndNewlines)
+        let repo = downloadsRepo.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !owner.isEmpty, !repo.isEmpty else {
+            downloadsError = "Select the GitHub owner and repository containing the generated build."
+            return
+        }
+        downloadsRefreshing = true
+        downloadsError = nil
+        defer { downloadsRefreshing = false; downloads.reload() }
+        do {
+            let fetched = try await github().releases(owner: owner, repo: repo)
+            releases = fetched
+            downloadsCheckedAt = Date()
+            let app = project?.appName ?? ""
+            let sameBuildRepo = lastOwner.caseInsensitiveCompare(owner) == .orderedSame
+                && lastRepo.caseInsensitiveCompare(repo) == .orderedSame
+
+            latestProjectRelease = app.isEmpty ? nil : fetched.first { release in
+                release.ipaAssets.contains { asset in
+                    asset.name.lowercased() == "\(app.lowercased()).ipa"
+                }
+            }
+
+            currentBuildRelease = nil
+            if sameBuildRepo && !lastCommitSHA.isEmpty {
+                currentBuildRelease = fetched.first { release in
+                    release.target_commitish == lastCommitSHA
+                        && (app.isEmpty || release.ipaAssets.contains { $0.name.lowercased() == "\(app.lowercased()).ipa" })
+                }
+                // Release target_commitish varies by GitHub workflow; tags give a second,
+                // deterministic way to match the exact GitHub Actions run.
+                if currentBuildRelease == nil,
+                   let run = (activeRun?.head_sha == lastCommitSHA ? activeRun
+                              : try? await github().latestRun(owner: owner, repo: repo, sha: lastCommitSHA)),
+                   let number = run.run_number {
+                    let attempt = run.run_attempt ?? 1
+                    let expectedTags = [
+                        "\(app)-build-\(number)-\(attempt)",
+                        "build-\(number)"
+                    ]
+                    currentBuildRelease = fetched.first { expectedTags.contains($0.tag_name) }
+                }
+            }
+        } catch {
+            downloadsError = "Could not load IPAs from \(owner)/\(repo): \(error.localizedDescription)"
+            releases = []
+            currentBuildRelease = nil
+            latestProjectRelease = nil
+            downloadsCheckedAt = Date()
+        }
+    }
+
+    func selectLastBuildDownloads() {
+        guard !lastOwner.isEmpty, !lastRepo.isEmpty else { return }
+        downloadsOwner = lastOwner
+        downloadsRepo = lastRepo
     }
 
     var isRepairPending: Bool { busyFix || busyPush || queuedRepair }

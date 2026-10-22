@@ -85,6 +85,8 @@ struct GitHubRun: Decodable, Identifiable {
     let updated_at: String
     let html_url: String
     let path: String?
+    let run_number: Int?
+    let run_attempt: Int?
 }
 
 struct GitHubJob: Decodable, Identifiable {
@@ -107,7 +109,16 @@ struct GitHubRelease: Decodable, Identifiable {
     let id: Int
     let tag_name: String
     let published_at: String?
+    let created_at: String?
+    let target_commitish: String?
+    let html_url: String?
     let assets: [GitHubAsset]
+
+    var ipaAssets: [GitHubAsset] {
+        assets.filter { $0.name.lowercased().hasSuffix(".ipa") }
+    }
+
+    var sortDate: String { published_at ?? created_at ?? "" }
 }
 
 struct GitHubAsset: Decodable, Identifiable {

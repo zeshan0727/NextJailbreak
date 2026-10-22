@@ -132,7 +132,7 @@ struct GitHubClient {
 
     func latestRun(owner: String, repo: String, sha: String) async throws -> GitHubRun? {
         let response: GitRunList = try await decoded(GitRunList.self,
-            "/repos/\(owner)/\(repo)/actions/runs?head_sha=\(sha)&per_page=20")
+            "/repos/\(owner)/\(repo)/actions/workflows/build.yml/runs?head_sha=\(sha)&per_page=100")
         return response.workflow_runs.filter { $0.head_sha == sha && $0.path == ".github/workflows/build.yml" }
             .sorted { $0.created_at > $1.created_at }.first
     }
@@ -157,7 +157,20 @@ struct GitHubClient {
                             method: "POST", body: ["ref": branch])
     }
 
+    /// GitHub orders releases by the tag commit date, not necessarily publication date.
+    /// Fetch multiple pages, then sort by actual publication time so fresh IPAs appear first.
     func releases(owner: String, repo: String) async throws -> [GitHubRelease] {
-        try await decoded([GitHubRelease].self, "/repos/\(owner)/\(repo)/releases?per_page=60")
+        var found: [GitHubRelease] = []
+        var seen = Set<Int>()
+        for page in 1...3 {
+            let part = try await decoded([GitHubRelease].self,
+                "/repos/\(owner)/\(repo)/releases?per_page=100&page=\(page)")
+            for release in part where seen.insert(release.id).inserted {
+                found.append(release)
+            }
+            if part.count < 100 { break }
+        }
+        return found.filter { !$0.ipaAssets.isEmpty }
+            .sorted { $0.sortDate > $1.sortDate }
     }
 }
