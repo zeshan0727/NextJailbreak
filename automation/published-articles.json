@@ -1,6 +1,55 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/anxietea-1-0-2-official-ask-banner.png",
+          "media_credit": "Official AnxieTea Ask-mode screenshot from AADiOS’s Havoc listing",
+          "media_sha256": "cbeaeec3a35a80a6b9f4daa05fa24d58ae01df62d94bde4b8d52681211fab90e",
+          "media_source_url": "https://media.havoc.app/6ac7e42152e2be116d311350"
+        },
+        {
+          "image": "assets/articles/source-media/anxietea-1-0-2-official-connections.png",
+          "media_credit": "Official AnxieTea Connections screenshot from AADiOS’s Havoc listing",
+          "media_sha256": "1c1c4ec12384394c5c847f9ac737fb8df9620cb412d70667affedfb102ec33cc",
+          "media_source_url": "https://media.havoc.app/6ac7e42952e2be116d31138c"
+        },
+        {
+          "image": "https://media.havoc.app/6acf7921d01780d140fd150a",
+          "media_credit": "Official current AnxieTea interface screenshot from AADiOS’s Havoc listing",
+          "media_source_url": "https://media.havoc.app/6acf7921d01780d140fd150a"
+        }
+      ],
+      "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "iOS 15.0–26.0.1 package range; jailbreak required; rootless supported; actual availability depends on device, firmware and jailbreak",
+      "description": "AnxieTea 1.0.5 adds company ownership to its World Map, detailed server pages, company-wide blocking, daily and weekly statistics, and meter fixes.",
+      "developer": "AADiOS",
+      "entry_type": "individual-update",
+      "href": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/",
+      "image": "assets/articles/source-media/anxietea-1-0-5-official-icon.png",
+      "media_credit": "Official current AnxieTea icon from AADiOS’s Havoc listing; current interface screenshot also embedded from Havoc",
+      "media_sha256": "adc112410868342102a448cd6daa8e2b46d5354818fcb4320f69c44452eecdd2",
+      "media_source_url": "https://media.havoc.app/6acf782e6e46a2bf96db5ba0?q=90&w=512",
+      "modified_at": "2026-10-22T16:56:21Z",
+      "name": "AnxieTea",
+      "package": "com.aadios.anxietea",
+      "published_at": "2026-10-12T13:29:33Z",
+      "release": "2026-10-21",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak",
+      "source_name": "Official AnxieTea Havoc listing, version history and interface media",
+      "source_page_url": "https://havoc.app/package/anxietea",
+      "source_url": "https://havoc.app/package/anxietea",
+      "source_visual_origin": "official-current-havoc-icon-banner-and-interface-screenshots",
+      "source_visual_url": "https://media.havoc.app/6acf7921d01780d140fd150a",
+      "title": "AnxieTea 1.0.5 Adds Company Blocking, Server Details and Statistics",
+      "version": "1.0.5",
+      "media_retrieval_status": "Official current package icon stored locally; official current Havoc interface screenshot embedded directly."
+    },
+    {
       "category": {
         "id": "individual-tweak-update",
         "label": "Individual Tweak Update"
@@ -1381,49 +1430,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
       "title": "How to Remove Dopamine 3 Jailbreak Safely",
       "version": "Dopamine 3.0.11"
-    },
-    {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/anxietea-1-0-2-official-ask-banner.png",
-          "media_credit": "Official AnxieTea Ask-mode screenshot from AADiOS’s Havoc listing",
-          "media_sha256": "cbeaeec3a35a80a6b9f4daa05fa24d58ae01df62d94bde4b8d52681211fab90e",
-          "media_source_url": "https://media.havoc.app/6ac7e42152e2be116d311350"
-        },
-        {
-          "image": "assets/articles/source-media/anxietea-1-0-2-official-connections.png",
-          "media_credit": "Official AnxieTea Connections screenshot from AADiOS’s Havoc listing",
-          "media_sha256": "1c1c4ec12384394c5c847f9ac737fb8df9620cb412d70667affedfb102ec33cc",
-          "media_source_url": "https://media.havoc.app/6ac7e42952e2be116d31138c"
-        }
-      ],
-      "category": {
-        "id": "tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "iOS 15.0–26.0.1 package range; jailbreak required; rootless supported; actual availability depends on device, firmware and jailbreak",
-      "description": "AnxieTea 1.0.3 extends its status-bar traffic meter to notchless iPhones, adds horizontal positioning, an About page, report copying and performance fixes.",
-      "developer": "AADiOS",
-      "entry_type": "individual-update",
-      "href": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/",
-      "image": "assets/articles/source-media/anxietea-1-0-2-official-banner.png",
-      "media_credit": "Official AnxieTea banner from AADiOS’s Havoc listing",
-      "media_sha256": "7d403cf87bc55d784625c5d5f33496adcb6b0127d072e1ca0fc33e42674b0d6c",
-      "media_source_url": "https://media.havoc.app/6ac1f45d0553270455d37d42",
-      "modified_at": "2026-10-14T17:04:22Z",
-      "name": "AnxieTea",
-      "package": "com.aadios.anxietea",
-      "published_at": "2026-10-12T13:29:33Z",
-      "release": "2026-10-13",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak",
-      "source_name": "Official AnxieTea Havoc listing, version history and interface media",
-      "source_page_url": "https://havoc.app/package/anxietea",
-      "source_url": "https://havoc.app/package/anxietea",
-      "source_visual_origin": "official-havoc-banner-and-screenshots",
-      "source_visual_url": "https://media.havoc.app/6ac1f45d0553270455d37d42",
-      "title": "AnxieTea 1.0.3 Adds Notchless iPhone Meter Support and Position Controls",
-      "version": "1.0.3"
     },
     {
       "additional_media": [],
