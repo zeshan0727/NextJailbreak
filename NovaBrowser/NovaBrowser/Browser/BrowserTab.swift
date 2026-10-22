@@ -20,10 +20,18 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
     var onDownload: ((DownloadEntry) -> Void)?
     var onError: ((String) -> Void)?
     var resolveSite: ((String) -> ResolvedSiteSettings)?
+    var compatibilityShimsEnabled: (() -> Bool)?
+    private var appearance: BrowserAppearance = .system
+    private var cachedWebView: WKWebView?
+    var webView: WKWebView {
+        if let cachedWebView { return cachedWebView }
+        let instance = makeWebView()
+        cachedWebView = instance
+        return instance
+    }
 
     private let downloads = DownloadCoordinator()
     private var observations: [NSKeyValueObservation] = []
-    private(set) lazy var webView: WKWebView = makeWebView()
 
     init(id: UUID = UUID(), isPrivate: Bool = false) {
         self.id = id
@@ -41,7 +49,16 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
         configuration.allowsPictureInPictureMediaPlayback = true
         configuration.limitsNavigationsToAppBoundDomains = false
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+        if compatibilityShimsEnabled?() ?? true {
+            configuration.userContentController.addUserScript(WKUserScript(source: LegacyWebKitPolyfills.source, injectionTime: .atDocumentStart, forMainFrameOnly: false))
+        }
         let web = WKWebView(frame: .zero, configuration: configuration)
+        let targetHost = URL(string: address)?.host ?? ""
+        let resolved = resolveSite?(targetHost) ?? SiteSettingsResolver.resolve(host: targetHost, global: GlobalSiteSettings(), sites: [])
+        web.customUserAgent = UserAgentIdentity.value(for: resolved.userAgentPreset, desktop: resolved.desktopMode)
+        web.configuration.defaultWebpagePreferences.preferredContentMode = resolved.desktopMode ? .desktop : .mobile
+        web.configuration.defaultWebpagePreferences.allowsContentJavaScript = resolved.javaScriptEnabled
+        web.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         web.allowsBackForwardNavigationGestures = true
         web.navigationDelegate = self
         web.uiDelegate = self
@@ -90,9 +107,33 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
     func load(_ url: URL) {
         isSuspended = false
         if url.scheme == "http" || url.scheme == "https" {
-            webView.load(URLRequest(url: url))
+            address = url.absoluteString
+            applySiteSettings(for: url.host ?? "")
+            webView.load(URLRequest(url: url, cachePolicy: .useProtocolCachePolicy))
         }
     }
+
+    func updateAppearance(_ mode: BrowserAppearance) {
+        appearance = mode
+        cachedWebView?.overrideUserInterfaceStyle = mode.userInterfaceStyle
+    }
+
+    func applySiteSettings(for host: String) {
+        let resolved = resolveSite?(host) ?? SiteSettingsResolver.resolve(host: host, global: GlobalSiteSettings(), sites: [])
+        if let cachedWebView {
+            cachedWebView.customUserAgent = UserAgentIdentity.value(for: resolved.userAgentPreset, desktop: resolved.desktopMode)
+            cachedWebView.configuration.defaultWebpagePreferences.allowsContentJavaScript = resolved.javaScriptEnabled
+            cachedWebView.configuration.defaultWebpagePreferences.preferredContentMode = resolved.desktopMode ? .desktop : .mobile
+        }
+    }
+
+    func reloadWithCompatibility() {
+        if let host = URL(string: address)?.host {
+            applySiteSettings(for: host)
+            cachedWebView?.reload()
+        }
+    }
+
 
     func goBack() { if webView.canGoBack { webView.goBack() } }
     func goForward() { if webView.canGoForward { webView.goForward() } }
@@ -115,6 +156,10 @@ final class BrowserTab: NSObject, ObservableObject, Identifiable {
 extension BrowserTab: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { finish(webView) }
 
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        onError?("The webpage process stopped. Tap Reload to retry. This may be a WebKit memory limit on iOS 16.")
+    }
+
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         webView.scrollView.refreshControl?.endRefreshing()
         onError?(error.localizedDescription)
@@ -131,6 +176,9 @@ extension BrowserTab: WKNavigationDelegate {
             onError?("External link requires another app: \(scheme):")
             decisionHandler(.cancel)
             return
+        }
+        if let targetHost = requestURL?.host {
+            applySiteSettings(for: targetHost)
         }
         if navigationAction.targetFrame == nil {
             let settings = resolveSite?(webView.url?.host ?? "") ?? SiteSettingsResolver.resolve(host: "", global: GlobalSiteSettings(), sites: [])

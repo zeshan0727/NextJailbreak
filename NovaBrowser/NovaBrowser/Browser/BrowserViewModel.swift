@@ -47,6 +47,8 @@ final class BrowserViewModel: ObservableObject {
             self?.persist()
         }
         tab.onError = { [weak self] message in self?.errorMessage = message }
+        tab.compatibilityShimsEnabled = { [weak self] in self?.settings.legacyPolyfillsEnabled ?? true }
+        tab.updateAppearance(settings.appearance)
         tab.resolveSite = { [weak self] host in
             guard let self else { return SiteSettingsResolver.resolve(host: host, global: GlobalSiteSettings(), sites: []) }
             return SiteSettingsResolver.resolve(host: host, global: self.settings.globalSiteSettings, sites: self.siteSettings)
@@ -94,6 +96,34 @@ final class BrowserViewModel: ObservableObject {
 
     func removeBookmark(_ id: UUID) { bookmarks.removeAll { $0.id == id }; persist() }
     func clearHistory() { history.removeAll(); persist() }
+
+    func applyAppearance(_ appearance: BrowserAppearance) {
+        tabs.forEach { $0.updateAppearance(appearance) }
+    }
+
+    func reloadTabsForCompatibility() {
+        tabs.forEach { $0.reloadWithCompatibility() }
+    }
+
+    func setCurrentSiteDesktopMode(_ enabled: Bool) {
+        guard let tab = activeTab, let host = URL(string: tab.address)?.host else { return }
+        var value = siteSettings.first(where: { $0.id == host.lowercased() }) ?? SiteSettings(host: host)
+        value.desktopMode = enabled
+        siteSettings.removeAll { $0.id == value.id }
+        siteSettings.append(value)
+        tab.reloadWithCompatibility()
+        persist()
+    }
+
+    func setCurrentSiteUserAgent(_ preset: UserAgentPreset) {
+        guard let tab = activeTab, let host = URL(string: tab.address)?.host else { return }
+        var value = siteSettings.first(where: { $0.id == host.lowercased() }) ?? SiteSettings(host: host)
+        value.userAgentPreset = preset
+        siteSettings.removeAll { $0.id == value.id }
+        siteSettings.append(value)
+        tab.reloadWithCompatibility()
+        persist()
+    }
 
     func persist() {
         let snapshot = BrowserSnapshot(

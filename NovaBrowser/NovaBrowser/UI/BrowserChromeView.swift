@@ -51,6 +51,18 @@ struct BrowserChromeView: View {
                     Button(action: { model.bookmarkCurrent() }) { Label("Bookmark This Page", systemImage: "bookmark") }
                     Button(action: { share() }) { Label("Share Page", systemImage: "square.and.arrow.up") }
                     Button(action: { showFind() }) { Label("Find in Page", systemImage: "text.magnifyingglass") }
+                    Menu {
+                        Button("System WebKit (recommended)") { model.setCurrentSiteUserAgent(.system) }
+                        Button("iPhone Safari") { model.setCurrentSiteUserAgent(.iPhoneSafari) }
+                        Button("iPad / Desktop Safari") { model.setCurrentSiteUserAgent(.iPadDesktop) }
+                        Button("Windows Chrome identity") { model.setCurrentSiteUserAgent(.windowsChrome) }
+                        Button("Android Chrome identity") { model.setCurrentSiteUserAgent(.androidChrome) }
+                        Button("Firefox Linux identity") { model.setCurrentSiteUserAgent(.linuxFirefox) }
+                    } label: { Label("User Agent for This Site", systemImage: "network") }
+                    Menu {
+                        Button("Mobile Site") { model.setCurrentSiteDesktopMode(false) }
+                        Button("Desktop Site") { model.setCurrentSiteDesktopMode(true) }
+                    } label: { Label("Site Display Mode", systemImage: "desktopcomputer") }
                     Button(action: { zoom() }) { Label("Text / Page Zoom", systemImage: "textformat.size") }
                     Button(action: { model.newTab(privateMode: true) }) { Label("Private Tab", systemImage: "eye.slash") }
                     Button(action: { showSettings() }) { Label("Settings", systemImage: "gearshape") }

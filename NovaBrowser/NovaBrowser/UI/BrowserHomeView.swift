@@ -3,6 +3,7 @@ import WebKit
 
 struct BrowserHomeView: View {
     @ObservedObject var model: BrowserViewModel
+    @ObservedObject var settings: BrowserSettings
     @State private var showingTabs = false
     @State private var showingLibrary = false
     @State private var showingSettings = false
@@ -25,9 +26,11 @@ struct BrowserHomeView: View {
             }
         }
         .background(Color(uiColor: .secondarySystemBackground))
+        .preferredColorScheme(settings.appearance.colorScheme)
+        .onChange(of: settings.appearance) { newValue in model.applyAppearance(newValue) }
         .sheet(isPresented: $showingTabs) { TabSwitcherView(model: model) }
         .sheet(isPresented: $showingLibrary) { LibraryView(model: model) }
-        .sheet(isPresented: $showingSettings) { SettingsView(settings: model.settings) }
+        .sheet(isPresented: $showingSettings) { SettingsView(settings: model.settings, model: model) }
         .sheet(isPresented: $showingFind) {
             NavigationStack {
                 Form {

@@ -12,9 +12,8 @@ struct NovaBrowserApp: App {
 
     var body: some Scene {
         WindowGroup {
-            BrowserHomeView(model: model)
+            BrowserHomeView(model: model, settings: model.settings)
                 .tint(.cyan)
-                .preferredColorScheme(.dark)
                 .onAppear { LaunchDiagnostics.record("Main browser screen appeared") }
         }
         .onChange(of: scenePhase) { phase in
