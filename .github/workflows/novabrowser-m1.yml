@@ -4,11 +4,11 @@ on:
     branches:
       - agent/novabrowser-m1-build
     paths:
-      - 'NovaBrowser/M1-source.tar.gz.b64'
+      - 'NovaBrowser/**'
       - '.github/workflows/novabrowser-m1.yml'
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
   build-ios:
     runs-on: macos-15
@@ -16,12 +16,11 @@ jobs:
     steps:
       - name: Checkout NovaBrowser branch
         uses: actions/checkout@v4
-      - name: Restore complete M1 source tree
-        shell: bash
+      - name: Verify committed M1 source
         run: |
-          base64 -D < NovaBrowser/M1-source.tar.gz.b64 | tar -xz -C .
           test -s NovaBrowser/project.yml
           test -s NovaBrowser/build_tipa.sh
+          test -s NovaBrowser/NovaBrowser/App/LaunchDiagnostics.swift
           find NovaBrowser -name '*.swift' | sort
       - name: Install XcodeGen and ldid
         run: brew install xcodegen ldid
@@ -41,20 +40,16 @@ jobs:
       - name: Compile, ad-hoc sign and package TIPA
         working-directory: NovaBrowser
         run: bash build_tipa.sh
-      - name: Commit editable source files to branch
-        if: success()
-        shell: bash
+      - name: Verify output bundle metadata
         run: |
-          git add NovaBrowser/project.yml NovaBrowser/build_tipa.sh NovaBrowser/entitlements.plist NovaBrowser/README.md NovaBrowser/NovaBrowser/ NovaBrowser/NovaBrowserTests/ NovaBrowser/scripts/
-          if ! git diff --cached --quiet; then
-            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish generated NovaBrowser M1 editable source and icons'
-            git push
-          fi
-      - name: Upload NovaBrowser M1 TIPA and build log
+          test -s NovaBrowser/dist/NovaBrowser.tipa
+          unzip -p NovaBrowser/dist/NovaBrowser.tipa Payload/NovaBrowser.app/Info.plist > /tmp/novabrowser-info.plist
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' /tmp/novabrowser-info.plist | grep -qx '1.0.1'
+      - name: Upload repaired TIPA and build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: NovaBrowser-M1-iOS16
+          name: NovaBrowser-1.0.1-startup-fix
           path: |
             NovaBrowser/dist/NovaBrowser.tipa
             NovaBrowser/dist/xcodebuild.log
