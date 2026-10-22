@@ -43,7 +43,7 @@ assert not ent.get('dynamic-codesigning', False), 'Blocked A12+ entitlement'
 assert not (app / 'embedded.mobileprovision').exists()
 print('Bundle identifier, minimum iOS, executable and applied entitlements verified.')
 PY
-xcrun lipo -verify_arch arm64 "$APP/NovaBrowser"
+xcrun lipo "$APP/NovaBrowser" -verify_arch arm64
 rm -f "$PROJECT_ROOT/dist/NovaBrowser.tipa"
 (cd "$STAGE" && COPYFILE_DISABLE=1 /usr/bin/zip -qry "$PROJECT_ROOT/dist/NovaBrowser.tipa" Payload)
 unzip -t dist/NovaBrowser.tipa > build/archive-verification.txt

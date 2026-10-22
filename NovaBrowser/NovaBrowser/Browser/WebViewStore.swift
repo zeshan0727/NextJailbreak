@@ -70,6 +70,8 @@ final class WebViewStore {
     }
 }
 
+// WebKit delegates run on the main thread; assumeIsolated bridges the
+// nonisolated Objective-C protocol annotations in the Xcode 15 SDK.
 @MainActor
 private final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate {
     let webView: WKWebView
@@ -105,7 +107,7 @@ private final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         webView.uiDelegate = nil
         webView.scrollView.refreshControl = nil
     }
-    private func scheduleSync() {
+    private nonisolated func scheduleSync() {
         DispatchQueue.main.async { [weak self] in self?.sync() }
     }
     private func sync() {
@@ -120,22 +122,40 @@ private final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate {
     }
     @objc private func refresh() { webView.reload() }
 
-    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+    nonisolated func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        MainActor.assumeIsolated {
         tab?.errorMessage = nil
         tab?.foundMatch = nil
         sync()
+    
+        }
     }
-    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { sync(); owner?.save() }
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    nonisolated func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        MainActor.assumeIsolated { sync(); owner?.save() 
+        }
+    }
+    nonisolated func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        MainActor.assumeIsolated {
         sync()
         owner?.save()
         if let tab { owner?.webViews.captureThumbnail(for: tab) }
+    
+        }
     }
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { show(error) }
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { show(error) }
-    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+    nonisolated func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        MainActor.assumeIsolated { show(error) 
+        }
+    }
+    nonisolated func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        MainActor.assumeIsolated { show(error) 
+        }
+    }
+    nonisolated func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        MainActor.assumeIsolated {
         tab?.isLoading = false
         tab?.errorMessage = "iOS stopped this page to reclaim memory. Tap Reload to reopen it."
+    
+        }
     }
     private func show(_ error: Error) {
         refreshControl.endRefreshing()
@@ -144,7 +164,8 @@ private final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         tab?.errorMessage = error.localizedDescription
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    nonisolated func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        MainActor.assumeIsolated {
         guard let url = navigationAction.request.url else { decisionHandler(.cancel); return }
         let scheme = url.scheme?.lowercased() ?? ""
         if ["http", "https", "about", "blob"].contains(scheme) || (scheme == "file" && tab?.isLocalTest == true) {
@@ -158,9 +179,12 @@ private final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Open", style: .default) { _ in UIApplication.shared.open(url) })
         presenter?.present(alert, animated: true)
+    
+        }
     }
 
-    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+    nonisolated func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        MainActor.assumeIsolated {
         guard navigationAction.targetFrame == nil,
               navigationAction.navigationType == .linkActivated || navigationAction.navigationType == .formSubmitted,
               let url = navigationAction.request.url, ["http", "https"].contains(url.scheme ?? ""),
@@ -171,10 +195,15 @@ private final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         let result = owner.webViews.webView(for: newTab, configuration: configuration)
         owner.save()
         return result
+    
+        }
     }
 
-    func webViewDidClose(_ webView: WKWebView) {
+    nonisolated func webViewDidClose(_ webView: WKWebView) {
+        MainActor.assumeIsolated {
         if let tab { owner?.close(tab) }
+    
+        }
     }
 
     private var presenter: UIViewController? {
@@ -187,26 +216,38 @@ private final class WebSession: NSObject, WKNavigationDelegate, WKUIDelegate {
         dialogVisible = true
         presenter.present(alert, animated: true)
     }
-    func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+    nonisolated func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        MainActor.assumeIsolated {
         let alert = UIAlertController(title: frame.securityOrigin.host, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in self?.dialogVisible = false; completionHandler() })
         showDialog(alert, fallback: completionHandler)
+    
+        }
     }
-    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+    nonisolated func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        MainActor.assumeIsolated {
         let alert = UIAlertController(title: frame.securityOrigin.host, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _ in self?.dialogVisible = false; completionHandler(false) })
         alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in self?.dialogVisible = false; completionHandler(true) })
         showDialog(alert) { completionHandler(false) }
+    
+        }
     }
-    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+    nonisolated func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        MainActor.assumeIsolated {
         let alert = UIAlertController(title: frame.securityOrigin.host, message: prompt, preferredStyle: .alert)
         alert.addTextField { $0.text = defaultText }
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { [weak self] _ in self?.dialogVisible = false; completionHandler(nil) })
         alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self, weak alert] _ in self?.dialogVisible = false; completionHandler(alert?.textFields?.first?.text) })
         showDialog(alert) { completionHandler(nil) }
+    
+        }
     }
-    func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+    nonisolated func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
+        MainActor.assumeIsolated {
         // WebKit displays a site-specific permission prompt; iOS also asks for OS permission.
         decisionHandler(.prompt)
+    
+        }
     }
 }
