@@ -16,7 +16,11 @@ struct Note: Identifiable, Codable, Equatable {
         let lines = content.split(separator: "\n", omittingEmptySubsequences: true)
         if lines.count > 1 {
             let secondLine = lines[1]
-            return secondLine.count > 30 ? String(secondLine.prefix(30)) + "..." : String(secondLine)
+            if secondLine.count > 30 {
+                return String(secondLine.prefix(30)) + "..."
+            } else {
+                return String(secondLine)
+            }
         } else if content.count > 30 {
             return String(content.prefix(30)) + "..."
         } else {
@@ -77,10 +81,12 @@ final class NotesViewModel: ObservableObject {
     }
 
     private func saveNotes() {
-        DispatchQueue.global(qos: .background).async { [notes = self.notes, fileURL = self.fileURL, weak self] in
+        let notesCopy = notes
+        let fileURLCopy = fileURL
+        DispatchQueue.global(qos: .background).async { [weak self] in
             do {
-                let data = try JSONEncoder().encode(notes)
-                try data.write(to: fileURL, options: [.atomic])
+                let data = try JSONEncoder().encode(notesCopy)
+                try data.write(to: fileURLCopy, options: [.atomic])
             } catch {
                 DispatchQueue.main.async {
                     self?.errorMessage = "Failed to save notes: \(error.localizedDescription)"
@@ -289,7 +295,6 @@ struct NoteDetailView: View {
     @State private var content: String
     @State private var isSavingError: Bool = false
     @State private var showDeleteAlert: Bool = false
-    @State private var showPinToggleAlert: Bool = false
     @FocusState private var isFocused: Bool
 
     let noteId: UUID
@@ -313,7 +318,7 @@ struct NoteDetailView: View {
                 .focused($isFocused)
                 .accessibilityLabel("Note content")
                 .accessibilityHint("Editable text area for note content")
-                .onChange(of: content) { newValue in
+                .onChange(of: content) { _ in
                     scheduleSave()
                 }
         }
@@ -373,7 +378,6 @@ struct NoteDetailView: View {
     }
 
     private func scheduleSave() {
-        // Update note content and modifiedAt, debounce handled in vm
         guard var note = note else { return }
         note.content = content
         vm.update(note: note)
