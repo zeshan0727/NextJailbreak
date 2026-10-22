@@ -1,0 +1,74 @@
+name: Restore Original NovaBrowser 1.0.5 NS Transfer Package
+
+on:
+  push:
+    branches: [agent/novabrowser-m1-build]
+    paths:
+      - '.github/workflows/restore-novabrowser-105-transfer.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Retrieve original successful 1.0.5 GitHub build artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/original-novabrowser-105
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/12409673614/zip" > /tmp/original-novabrowser-105/build-artifact.zip
+          unzip -q /tmp/original-novabrowser-105/build-artifact.zip -d /tmp/original-novabrowser-105/extracted
+          find /tmp/original-novabrowser-105/extracted -type f -name NovaBrowser.tipa -print
+          FILE="$(find /tmp/original-novabrowser-105/extracted -type f -name NovaBrowser.tipa -print -quit)"
+          test -s "$FILE"
+          python3 - "$FILE" <<'PY'
+          import plistlib,sys,zipfile
+          p=sys.argv[1]
+          with zipfile.ZipFile(p) as z:
+              info=plistlib.loads(z.read("Payload/NovaBrowser.app/Info.plist"))
+              assert info["CFBundleShortVersionString"]=="1.0.5", info.get("CFBundleShortVersionString")
+              assert info["CFBundleIdentifier"]=="com.example.novabrowser"
+          print("Confirmed original 1.0.5 binary")
+          PY
+          cp "$FILE" /tmp/original-novabrowser-105/original-1.0.5.tipa
+      - name: Restore v1.0.5 binary and catalog metadata on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          PUB="$(mktemp -d)/restore"
+          git worktree add --detach "$PUB" origin/main
+          DEST="$PUB/transfer/files/NovaBrowser/1.0.5"
+          mkdir -p "$DEST"
+          cp /tmp/original-novabrowser-105/original-1.0.5.tipa "$DEST/NovaBrowser-1.0.5.tipa"
+          python3 - "$PUB" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from datetime import datetime, timezone
+          root=Path(sys.argv[1])
+          index=root/"transfer/index.json"
+          data=json.loads(index.read_text())
+          f=root/"transfer/files/NovaBrowser/1.0.5/NovaBrowser-1.0.5.tipa"
+          entries=[x for x in data["files"] if x.get("id")=="novabrowser-1.0.5"]
+          assert len(entries)==1, "Expected exactly one existing 1.0.5 entry"
+          entries[0]["sha256"]=hashlib.sha256(f.read_bytes()).hexdigest()
+          entries[0]["sizeBytes"]=f.stat().st_size
+          entries[0]["notes"]="Original NovaBrowser 1.0.5 WebKit JavaScript compatibility and privacy-limited diagnostics build (restored from successful verified build artifact)."
+          data["updatedAt"]=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+          index.write_text(json.dumps(data,indent=2,ensure_ascii=False)+"\n")
+          print("Restored SHA256", entries[0]["sha256"])
+          PY
+          git -C "$PUB" config user.name "github-actions[bot]"
+          git -C "$PUB" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$PUB" add transfer/files/NovaBrowser/1.0.5/NovaBrowser-1.0.5.tipa transfer/index.json
+          git -C "$PUB" commit -m "Restore original NovaBrowser 1.0.5 NS Transfer binary [skip ci]"
+          git -C "$PUB" push origin HEAD:main
