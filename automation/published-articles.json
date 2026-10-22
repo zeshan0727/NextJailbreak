@@ -2,6 +2,37 @@
   "entries": [
     {
       "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 12.0–26.0.1, jailbreak required, rootless supported. RootHide uses a separate package from the developer repository. Package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "IconOrder 1.0.5 adds dated icon-layout backups, restore controls, Files import and export, and a new enable switch for jailbroken iPhones.",
+      "developer": "ichitaso",
+      "entry_type": "individual-update",
+      "href": "iconorder-1-0-5-layout-backup-restore-update/",
+      "image": "assets/articles/source-media/iconorder-1-0-5-official-icon.png",
+      "media_alt": "Official IconOrder app icon from the developer source repository",
+      "media_credit": "ichitaso — official IconOrder source-repository icon; official 1.0.5 Settings screenshot also embedded from Havoc",
+      "media_source_url": "https://raw.githubusercontent.com/ichitaso/IconOrder/refs/heads/main/Prefs/Resources/Icon%403x.png",
+      "media_retrieval_status": "Official source-repository icon stored locally; official Havoc 1.0.5 Settings screenshot embedded from the marketplace source.",
+      "modified_at": "2026-10-22T13:02:06Z",
+      "name": "IconOrder layout backup update",
+      "package": "com.ichitaso.iconorder",
+      "published_at": "2026-10-22T13:02:06Z",
+      "quality_target": 9,
+      "release": "IconOrder 1.0.5",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "iconorder-1-0-5-layout-backup-restore-update",
+      "source_name": "Official Havoc package page and version history; ichitaso IconOrder source repository",
+      "source_page_url": "https://havoc.app/package/iconorder",
+      "source_url": "https://github.com/ichitaso/IconOrder",
+      "source_visual_origin": "Official IconOrder developer-repository icon and Havoc 1.0.5 Settings screenshot",
+      "source_visual_url": "https://media.havoc.app/6ad3806a4ed1977c0adfe94c",
+      "title": "IconOrder 1.0.5 Adds Home Screen Layout Backup and Restore",
+      "version": "1.0.5"
+    },
+    {
+      "category": {
         "id": "tweak-roundup-comparison",
         "label": "Tweak Roundup & Comparison"
       },
