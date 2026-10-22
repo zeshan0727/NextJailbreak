@@ -1,32 +1,28 @@
-name: DailyLedger
+name: SimpleCounter
 options:
-  bundleIdPrefix: com.nextsolution
   deploymentTarget:
     iOS: "16.0"
-  createIntermediateGroups: true
 settings:
   base:
-    SWIFT_VERSION: "5.7"
+    SWIFT_VERSION: "5.0"
     IPHONEOS_DEPLOYMENT_TARGET: "16.0"
-    TARGETED_DEVICE_FAMILY: "1"
-    SUPPORTS_MACCATALYST: "NO"
-    CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: "1.3.33"
-    CURRENT_PROJECT_VERSION: "41"
 targets:
-  DailyLedger:
+  SimpleCounter:
     type: application
     platform: iOS
     sources:
-      - path: DailyLedger
+      - Sources
+      - Assets.xcassets
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.dailyledger
-        PRODUCT_NAME: Next Ledger
-        INFOPLIST_FILE: DailyLedger/Info.plist
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
-        GENERATE_INFOPLIST_FILE: "NO"
-    scheme:
-      shared: true
-      gatherCoverageData: false
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.simplecounter
+        INFOPLIST_FILE: Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1,2"
+schemes:
+  SimpleCounter:
+    build:
+      targets:
+        SimpleCounter: all
+    archive:
+      config: Release
