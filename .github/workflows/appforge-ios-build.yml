@@ -1,4 +1,4 @@
-name: AppForge - iOS 16 test TIPA
+name: AppForge iOS IPA test
 on:
   push:
     branches: [agent/appforge-test-20261022]
@@ -31,24 +31,22 @@ jobs:
           set -euo pipefail
           codesign --force --sign - --timestamp=none DerivedData/Build/Products/Release-iphoneos/AppForge.app
           codesign --verify --verbose=2 DerivedData/Build/Products/Release-iphoneos/AppForge.app
-      - name: Package IPA and TIPA
+      - name: Package IPA
         working-directory: apps/AppForge
         run: |
           set -euo pipefail
           mkdir -p out/Payload
           ditto DerivedData/Build/Products/Release-iphoneos/AppForge.app out/Payload/AppForge.app
           (cd out && zip -qry AppForge.ipa Payload)
-          cp out/AppForge.ipa out/AppForge.tipa
-          unzip -t out/AppForge.tipa | tail -5
+          unzip -t out/AppForge.ipa | tail -5
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AppForge-test-${{ github.run_number }}
+          name: AppForge-IPA-${{ github.run_number }}
           path: |
             apps/AppForge/out/AppForge.ipa
-            apps/AppForge/out/AppForge.tipa
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "appforge-test-${{ github.run_number }}" apps/AppForge/out/AppForge.ipa apps/AppForge/out/AppForge.tipa --title "AppForge test build ${{ github.run_number }}" --notes "Unsigned iOS 16 test build; use TrollStore or a compatible signing method." --target "$GITHUB_SHA"
+          gh release create "appforge-test-${{ github.run_number }}" apps/AppForge/out/AppForge.ipa --title "AppForge test build ${{ github.run_number }}" --notes "Ad-hoc signed IPA for TrollStore-compatible installation." --target "$GITHUB_SHA"

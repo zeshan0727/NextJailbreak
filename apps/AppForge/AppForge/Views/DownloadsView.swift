@@ -22,16 +22,28 @@ struct DownloadsView: View {
                         Task { await state.refreshReleases() }
                     } label: { Label("Refresh releases", systemImage: "arrow.clockwise") }
                     if state.downloads.busy {
-                        ProgressView(value: state.downloads.progress) {
-                            Text("Downloading…")
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Downloading \(state.downloads.currentName)")
+                            ProgressView(value: state.downloads.progress)
+                            Text("\(Int(state.downloads.progress * 100))%")
+                                .font(.caption).foregroundStyle(.secondary)
                         }
                     }
-                    if let error = state.downloads.error { Text(error).foregroundStyle(.red).font(.caption) }
+                    if let error = state.downloads.error {
+                        Text(error).foregroundStyle(.red).font(.caption).textSelection(.enabled)
+                    }
+                    if let file = state.downloads.completedFile {
+                        Label("Verified IPA: \(file.lastPathComponent)", systemImage: "checkmark.seal.fill")
+                            .foregroundStyle(.green)
+                        Button("Share IPA with TrollStore / Files") {
+                            shareURL = file; showSharing = true
+                        }.buttonStyle(.borderedProminent)
+                    }
                 }
                 Section("Available GitHub Releases") {
                     if state.releases.isEmpty { Text("No releases found yet").foregroundStyle(.secondary) }
                     ForEach(state.releases) { release in
-                        ForEach(release.assets.filter { ["ipa", "tipa"].contains($0.name.split(separator: ".").last.map(String.init)?.lowercased() ?? "") }) { asset in
+                        ForEach(release.assets.filter { $0.name.lowercased().hasSuffix(".ipa") }) { asset in
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(asset.name).font(.subheadline.bold())
@@ -43,16 +55,21 @@ struct DownloadsView: View {
                                     Task {
                                         let owner = state.lastOwner.isEmpty ? state.preferences.githubUsername : state.lastOwner
                                         let repo = state.lastRepo.isEmpty ? state.chosenRepo : state.lastRepo
-                                        await state.downloads.start(asset: asset, token: Keychain.read("github"), owner: owner, repo: repo)
+                                        await state.downloads.start(asset: asset, releaseTag: release.tag_name, token: Keychain.read("github"), owner: owner, repo: repo)
                                     }
-                                } label: { Image(systemName: "arrow.down.circle.fill").font(.title2) }
+                                } label: { Label("Download IPA", systemImage: "arrow.down.circle.fill") }
                                     .disabled(state.downloads.busy)
-                            }.padding(.vertical, 5)
+                                if let url = URL(string: asset.browser_download_url) {
+                                    Link("GitHub", destination: url).font(.caption)
+                                }
+                            }
+                            .buttonStyle(.borderless)
+                            .padding(.vertical, 5)
                         }
                     }
                 }
                 Section("Saved on this iPhone") {
-                    if state.downloads.files.isEmpty { Text("No local IPA/TIPA files").foregroundStyle(.secondary) }
+                    if state.downloads.files.isEmpty { Text("No saved IPA files").foregroundStyle(.secondary) }
                     ForEach(state.downloads.files) { file in
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
@@ -64,23 +81,19 @@ struct DownloadsView: View {
                             }
                             HStack(spacing: 16) {
                                 Button("Share") { shareURL = file.url; showSharing = true }
-                                if file.url.pathExtension == "ipa" {
-                                    Button("Save as .tipa") {
-                                        do { try state.downloads.saveAsTIPA(file) }
-                                        catch { state.notice = error.localizedDescription }
-                                    }
-                                }
                                 Button("Files") { showFilesHelp = true }
                                 Button("Delete", role: .destructive) {
                                     do { try state.downloads.delete(file) }
                                     catch { state.notice = error.localizedDescription }
                                 }
-                            }.font(.caption)
+                            }
+                            .buttonStyle(.borderless)
+                            .font(.caption)
                         }.padding(.vertical, 5)
                     }
                 }
                 Section {
-                    Text("These are unsigned archives. Renaming .ipa to .tipa does not sign the app. Device installation requires a compatible signer or supported TrollStore environment.")
+                    Text("AppForge downloads IPA assets and verifies Payload/*.app before saving. Use TrollStore or another compatible signing method to install.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
             }

@@ -25,7 +25,7 @@ struct BuildView: View {
                         LabeledContent("Commit", value: String(state.lastCommitSHA.prefix(12)))
                         LabeledContent("Elapsed", value: elapsed)
                         HStack {
-                            Label(state.activeRun?.status ?? "Awaiting workflow", systemImage: state.activeRun?.conclusion == "success" ? "checkmark.circle.fill" : "clock")
+                            Label(state.activeRun?.status ?? "Awaiting workflow", systemImage: state.activeRun?.conclusion == "success" ? "checkmark.circle.fill" : state.activeRun?.conclusion == "failure" ? "xmark.circle.fill" : "clock")
                                 .font(.title3.bold())
                             Spacer()
                             if state.refreshing { ProgressView() }
@@ -36,6 +36,15 @@ struct BuildView: View {
                         if let conclusion = state.activeRun?.conclusion {
                             Text("Conclusion: \(conclusion.capitalized)")
                                 .foregroundStyle(conclusion == "success" ? Color.green : Color.red)
+                        }
+                        if !state.repairStatus.isEmpty {
+                            HStack(alignment: .top, spacing: 10) {
+                                Image(systemName: state.busyFix ? "wand.and.stars" : "wrench.adjustable")
+                                Text(state.repairStatus).font(.subheadline).textSelection(.enabled)
+                                if state.busyFix { ProgressView() }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding().background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
                         }
                         ForEach(state.jobs) { job in
                             VStack(alignment: .leading, spacing: 7) {
@@ -63,7 +72,7 @@ struct BuildView: View {
                                 Button {
                                     Task { await state.fixWithAI() }
                                 } label: { Label("Fix with AI", systemImage: "wand.and.stars") }
-                                .disabled(state.busyFix)
+                                .disabled(state.busyFix || state.busyPush)
                             }
                             ScrollView([.horizontal, .vertical]) {
                                 Text(state.failureLog)
@@ -88,7 +97,7 @@ struct BuildView: View {
             .task(id: state.lastCommitSHA) {
                 while !Task.isCancelled && !state.lastCommitSHA.isEmpty {
                     await state.refreshBuild()
-                    if state.activeRun?.status == "completed" { break }
+                    if state.activeRun?.status == "completed" && !state.isRepairPending { break }
                     try? await Task.sleep(nanoseconds: 8_000_000_000)
                 }
             }

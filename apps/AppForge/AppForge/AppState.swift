@@ -2,13 +2,25 @@ import Foundation
 import SwiftUI
 import UserNotifications
 
+/// Non-secret build context survives an AppForge relaunch.
+private struct SavedForgeSession: Codable {
+    let project: ForgeProject?
+    let codePrompt: String
+    let owner: String
+    let repo: String
+    let branch: String
+    let commitSHA: String
+    let repairs: Int
+    let repairStatus: String
+}
+
 @MainActor
 final class AppState: ObservableObject {
     @Published var selectedTab: ForgeTab = .requirement
     @Published var requirement = ""
     @Published var generatedPrompt = ""
-    @Published var codePrompt = ""
-    @Published var project: ForgeProject?
+    @Published var codePrompt = "" { didSet { persistBuildSession() } }
+    @Published var project: ForgeProject? { didSet { persistBuildSession() } }
     @Published var history: [HistoryItem] = []
     @Published var preferences = ForgePreferences() { didSet { persistPreferences() } }
     @Published var busyPrompt = false
@@ -19,22 +31,31 @@ final class AppState: ObservableObject {
     @Published var notice: String?
     @Published var repositories: [GitHubRepo] = []
     @Published var branches: [GitHubBranch] = []
-    @Published var chosenRepo = ""
-    @Published var chosenBranch = "main"
+    @Published var chosenRepo = "" { didSet { persistBuildSession() } }
+    @Published var chosenBranch = "main" { didSet { persistBuildSession() } }
     @Published var commitMessage = "Build with AppForge"
-    @Published var lastCommitSHA = ""
-    @Published var lastOwner = ""
-    @Published var lastRepo = ""
+    @Published var lastCommitSHA = "" { didSet { persistBuildSession() } }
+    @Published var lastOwner = "" { didSet { persistBuildSession() } }
+    @Published var lastRepo = "" { didSet { persistBuildSession() } }
     @Published var activeRun: GitHubRun?
     @Published var jobs: [GitHubJob] = []
     @Published var failureLog = ""
     @Published var releases: [GitHubRelease] = []
     @Published var refreshing = false
+    @Published var autoRepairEnabled = UserDefaults.standard.object(forKey: "forgeAutoRepair") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(autoRepairEnabled, forKey: "forgeAutoRepair") }
+    }
+    @Published var repairAttempt = 0 { didSet { persistBuildSession() } }
+    @Published var repairStatus = "" { didSet { persistBuildSession() } }
+    let maximumRepairAttempts = 2
     @Published var exportURL: URL?
     let downloads = DownloadManager()
     private var missingRunChecks = 0
     private var fallbackDispatched = false
     private var notificationDeliveredFor = 0
+    private var handledFailureRun: Int?
+    private var restoringBuildSession = true
+    private var queuedRepair = false
 
     init() {
         if let data = UserDefaults.standard.data(forKey: "forgePrefs"),
@@ -46,6 +67,29 @@ final class AppState: ObservableObject {
             history = records
         }
         chosenRepo = preferences.defaultRepo
+        if let data = UserDefaults.standard.data(forKey: "forgeBuildSession"),
+           let session = try? JSONDecoder().decode(SavedForgeSession.self, from: data) {
+            project = session.project
+            codePrompt = session.codePrompt
+            chosenRepo = session.repo.isEmpty ? preferences.defaultRepo : session.repo
+            chosenBranch = session.branch
+            lastOwner = session.owner
+            lastRepo = session.repo
+            lastCommitSHA = session.commitSHA
+            repairAttempt = session.repairs
+            repairStatus = session.repairStatus
+        }
+        restoringBuildSession = false
+    }
+
+    private func persistBuildSession() {
+        guard !restoringBuildSession else { return }
+        let session = SavedForgeSession(project: project, codePrompt: codePrompt, owner: lastOwner,
+            repo: lastRepo.isEmpty ? chosenRepo : lastRepo, branch: chosenBranch,
+            commitSHA: lastCommitSHA, repairs: repairAttempt, repairStatus: repairStatus)
+        if let data = try? JSONEncoder().encode(session) {
+            UserDefaults.standard.set(data, forKey: "forgeBuildSession")
+        }
     }
 
     private func persistPreferences() {
@@ -156,7 +200,8 @@ final class AppState: ObservableObject {
         } catch { notice = error.localizedDescription }
     }
 
-    func pushAndBuild() async {
+    func pushAndBuild(resetRepairCycle: Bool = true) async {
+        if resetRepairCycle { repairAttempt = 0; repairStatus = ""; handledFailureRun = nil; queuedRepair = false }
         guard let project else { notice = "No generated project available"; return }
         let owner = preferences.githubUsername.trimmingCharacters(in: .whitespaces)
         let repo = chosenRepo.trimmingCharacters(in: .whitespaces)
@@ -170,9 +215,13 @@ final class AppState: ObservableObject {
             lastCommitSHA = sha; lastOwner = owner; lastRepo = repo
             activeRun = nil; jobs = []; failureLog = ""
             missingRunChecks = 0; fallbackDispatched = false
+            if repairAttempt > 0 { repairStatus = "Repair \(repairAttempt)/\(maximumRepairAttempts) submitted. Checking new build…" }
             selectedTab = .status
             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
-        } catch { notice = error.localizedDescription }
+        } catch {
+            notice = error.localizedDescription
+            if !resetRepairCycle { repairStatus = "Automatic repair push failed: \(error.localizedDescription)" }
+        }
     }
 
     func refreshBuild() async {
@@ -185,26 +234,47 @@ final class AppState: ObservableObject {
                 jobs = try await client.jobs(owner: lastOwner, repo: lastRepo, run: found.id)
                 if found.status == "completed" {
                     if found.conclusion == "success" {
+                        repairStatus = repairAttempt > 0 ? "Build succeeded after \(repairAttempt) AI repair(s)." : "Build succeeded."
                         if notificationDeliveredFor != found.id {
                             notificationDeliveredFor = found.id
                             let content = UNMutableNotificationContent()
                             content.title = "AppForge build succeeded"
-                            content.body = "Your IPA/TIPA is available in Downloads."
+                            content.body = "Your IPA is available in Downloads."
                             content.sound = .default
                             let request = UNNotificationRequest(identifier: "forge-\(found.id)", content: content, trigger: nil)
                             try? await UNUserNotificationCenter.current().add(request)
                             await refreshReleases()
                         }
-                    } else if failureLog.isEmpty {
+                    } else if handledFailureRun != found.id {
+                        handledFailureRun = found.id
                         if let failed = jobs.first(where: { $0.conclusion == "failure" }) ?? jobs.first {
                             do { failureLog = try await client.jobLog(owner: lastOwner, repo: lastRepo, job: failed.id) }
-                            catch { failureLog = "Could not retrieve job logs: \(error.localizedDescription)" }
+                            catch { failureLog = "Could not retrieve build logs: \(error.localizedDescription)" }
+                        }
+                        let didFailAtCompile = jobs.contains { job in
+                            (job.steps ?? []).contains { step in
+                                step.conclusion == "failure" &&
+                                (step.name.contains("Build unsigned app") ||
+                                 step.name.contains("Generate project") ||
+                                 step.name.contains("Build iOS app"))
+                            }
+                        }
+                        if autoRepairEnabled && didFailAtCompile && repairAttempt < maximumRepairAttempts,
+                           project != nil && !failureLog.isEmpty {
+                            queuedRepair = true
+                            repairStatus = "Build failed. Starting automatic source repair…"
+                            Task { await self.fixWithAI(automatically: true) }
+                        } else if repairAttempt >= maximumRepairAttempts {
+                            repairStatus = "Stopped after \(maximumRepairAttempts) automatic repairs. Review compiler errors."
+                        } else if !autoRepairEnabled {
+                            repairStatus = "Auto repair disabled. Use Fix with AI below."
+                        } else if !didFailAtCompile {
+                            repairStatus = "Build failed outside compilation. Review workflow logs; AI source repair not attempted."
                         }
                     }
                 }
             } else {
                 missingRunChecks += 1
-                // Fallback is only useful when build.yml is already on the default branch.
                 if missingRunChecks >= 4 && !fallbackDispatched {
                     fallbackDispatched = true
                     do { try await client.dispatch(owner: lastOwner, repo: lastRepo, branch: chosenBranch) }
@@ -214,23 +284,53 @@ final class AppState: ObservableObject {
         } catch { notice = error.localizedDescription }
     }
 
-    func fixWithAI() async {
-        guard let project, !failureLog.isEmpty else { notice = "No failing log or project available"; return }
-        busyFix = true; defer { busyFix = false }
+    func fixWithAI(automatically: Bool = false) async {
+        guard let project, !failureLog.isEmpty, !busyFix else {
+            if !automatically { notice = "No failing build log or generated project available" }
+            return
+        }
+        if automatically && repairAttempt >= maximumRepairAttempts { return }
+        busyFix = true
+        queuedRepair = false
+        if automatically { repairAttempt += 1 }
+        repairStatus = automatically ? "Analyzing compiler errors with AI (attempt \(repairAttempt)/\(maximumRepairAttempts))…" : "Requesting an AI code repair…"
+        defer { busyFix = false }
         do {
             let swiftFiles = project.files.filter { $0.path.hasSuffix(".swift") && $0.path != "Sources/AppEntry.swift" }
             let source = swiftFiles.map { "PATH: \($0.path)\n\($0.content)" }.joined(separator: "\n\n")
+            let compilerLines = failureLog.split(separator: "\n")
+                .filter { $0.localizedCaseInsensitiveContains("error:") ||
+                          $0.localizedCaseInsensitiveContains("fatal error") ||
+                          $0.contains("##[error]") || $0.contains("BUILD FAILED") }
+                .suffix(65).joined(separator: "\n")
             let corrected = try await getProject(system: AIClient.codeSystem, request: """
-            Repair this SwiftUI application so it compiles on iOS \(preferences.minimumIOS).
-            Preserve original requested app functionality. Return all necessary Swift source files in the JSON schema.
-            ORIGINAL PROMPT:\n\(codePrompt)
-            SOURCE:\n\(String(source.prefix(85_000)))
-            FAILURE LOG:\n\(String(failureLog.suffix(18_000)))
+            Fix this exact iOS \(preferences.minimumIOS) GitHub Actions compiler failure.
+            Keep the original feature set and bundle ID (\(project.bundleId)) unchanged.
+            Output ALL complete Swift source files, not a diff, in strict JSON. Use only iOS 16 APIs.
+            User specification:
+            \(codePrompt)
+            ORIGINAL SWIFT FILES:
+            \(String(source.prefix(90_000)))
+            SPECIFIC COMPILER ERRORS:
+            \(String(compilerLines.prefix(12_000)))
+            LAST BUILD LOG:
+            \(String(failureLog.suffix(12_000)))
             """)
+            guard corrected.bundleId == project.bundleId else {
+                throw ForgeError.message("AI tried to change bundle identifier; repair rejected")
+            }
             self.project = try ProjectFactory.scaffold(corrected, minIOS: preferences.minimumIOS)
-            selectedTab = .code
-            notice = "AI repair loaded into Code. Review and push another build"
-        } catch { notice = error.localizedDescription }
+            if automatically {
+                repairStatus = "AI repaired sources. Pushing corrected files and building again…"
+                await pushAndBuild(resetRepairCycle: false)
+            } else {
+                selectedTab = .code
+                repairStatus = "Corrected files loaded into Code. Review and push to build."
+            }
+        } catch {
+            repairStatus = "AI repair unsuccessful: \(error.localizedDescription)"
+            notice = repairStatus
+        }
     }
 
     func refreshReleases() async {
@@ -242,9 +342,13 @@ final class AppState: ObservableObject {
         downloads.reload()
     }
 
+    var isRepairPending: Bool { busyFix || busyPush || queuedRepair }
+
     func clearHistoryAndCache() {
         history = []; saveHistory()
         requirement = ""; generatedPrompt = ""; codePrompt = ""; project = nil; failureLog = ""
+        repairAttempt = 0; repairStatus = ""; lastCommitSHA = ""; lastOwner = ""; lastRepo = ""
+        UserDefaults.standard.removeObject(forKey: "forgeBuildSession")
         notice = "Prompt history and generated code cleared. Downloads and Keychain tokens preserved"
     }
 }
