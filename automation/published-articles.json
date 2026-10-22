@@ -5,6 +5,36 @@
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
+      "compat": "Use only on a currently active compatible Dopamine rootless jailbreak. Dopamine 3.0.12 support is device- and firmware-specific; OpenSSH availability does not expand jailbreak compatibility.",
+      "description": "Install the Procursus OpenSSH server on a Dopamine rootless jailbreak, connect as mobile over a trusted LAN, add an SSH key, and remove remote access cleanly.",
+      "developer": "Procursus Team / OpenSSH",
+      "entry_type": "guide",
+      "href": "install-openssh-dopamine-rootless-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_alt": "Official green Dopamine jailbreak app icon from the 3.0.12 source tag",
+      "media_credit": "opa334 — official Dopamine app icon; 3.0.12 asset matches the existing committed Git blob",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified_at": "2026-10-22T04:56:50Z",
+      "name": "OpenSSH on Dopamine safety guide",
+      "package": "guide.dopamine.openssh",
+      "published_at": "2026-10-22T04:56:50Z",
+      "quality_target": 9,
+      "release": "Dopamine 3.0.12 / Procursus OpenSSH repository package",
+      "selection_pool": "scheduled-evergreen-guide",
+      "slug": "install-openssh-dopamine-rootless-jailbreak-guide",
+      "source_name": "Dopamine 3.0.12 release and README; Procursus OpenSSH build and package scripts; OpenSSH manuals",
+      "source_page_url": "https://github.com/ProcursusTeam/Procursus",
+      "source_url": "https://github.com/ProcursusTeam/Procursus/blob/main/makefiles/openssh.mk",
+      "source_visual_origin": "official-dopamine-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Install OpenSSH on Dopamine and Connect Safely",
+      "version": "Dopamine 3.0.12 / OpenSSH package version repository-dependent"
+    },
+    {
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
       "compat": "RootHide Patcher 2.1.4 requires iOS 15 or later and an active compatible RootHide environment. Its official script targets eligible rootless iphoneos-arm64 packages and explicitly does not work for every package.",
       "description": "Use RootHide Patcher 2.1.4 to convert eligible rootless DEBs, choose the correct patch mode, install the output safely, and recognize packages that must not be converted.",
       "developer": "RootHide",
@@ -8510,5 +8540,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-20T10:31:55+00:00"
+  "updated_at": "2026-10-22T04:56:50Z"
 }

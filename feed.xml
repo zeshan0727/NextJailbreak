@@ -6,6 +6,10 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Install OpenSSH on Dopamine and Connect Safely</title><link>https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</guid><pubDate>Thu, 22 Oct 2026 04:56:50 GMT</pubDate>
+      <description>Install the Procursus OpenSSH server on a Dopamine rootless jailbreak, connect as mobile over a trusted LAN, add an SSH key, and remove remote access cleanly.</description><category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
       <title>How to Convert Rootless Tweaks for RootHide with RootHide Patcher</title>
       <link>https://nextjailbreak.com/convert-rootless-tweaks-roothide-patcher-guide/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/convert-rootless-tweaks-roothide-patcher-guide/</guid>
