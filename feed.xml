@@ -168,11 +168,11 @@
       <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
-      <title>vphone-cli 2.9.5 Adds Apple TV Guests and tvOS 27 Research Support</title>
+      <title>vphone-cli 2.10.1 Adds iPhone 18 Pro Guests and Open Boot ROMs</title>
       <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
-      <pubDate>Fri, 16 Oct 2026 21:00:04 GMT</pubDate>
-      <description>vphone-cli 2.9.5 adds Apple TV HD and experimental Apple TV 4K guests, tvOS 27 support, a Unity GPU fix and more reliable virtual-device setup.</description>
+      <pubDate>Thu, 22 Oct 2026 20:55:23 GMT</pubDate>
+      <description>vphone-cli 2.10.1 adds iPhone 18 Pro guests on iOS 27.0.1, OpenAVB and OpenSEP boot ROMs, lower-overhead video streaming, and native iPad pointer input.</description>
       <category>Current Jailbreak Development</category>
     </item>
     <item>
