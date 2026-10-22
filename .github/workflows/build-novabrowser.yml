@@ -24,6 +24,9 @@ jobs:
         with:
           sparse-checkout: |
             NovaBrowser
+            NovaBrowserTests
+            NovaBrowser.xcodeproj
+            Scripts
             .github/workflows/build-novabrowser.yml
       - name: Locate project and select Xcode
         shell: bash
