@@ -1,0 +1,62 @@
+name: NovaBrowser M1 iOS Build
+on:
+  push:
+    branches:
+      - agent/novabrowser-m1-build
+    paths:
+      - 'NovaBrowser/M1-source.tar.gz.b64'
+      - '.github/workflows/novabrowser-m1.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-ios:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout NovaBrowser branch
+        uses: actions/checkout@v4
+      - name: Restore complete M1 source tree
+        shell: bash
+        run: |
+          base64 -D < NovaBrowser/M1-source.tar.gz.b64 | tar -xz -C .
+          test -s NovaBrowser/project.yml
+          test -s NovaBrowser/build_tipa.sh
+          find NovaBrowser -name '*.swift' | sort
+      - name: Install XcodeGen and ldid
+        run: brew install xcodegen ldid
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: python -m pip install Pillow==12.0.0
+      - name: Generate reproducible icon assets
+        run: python NovaBrowser/scripts/generate_icon.py
+      - name: Generate Xcode project
+        working-directory: NovaBrowser
+        run: xcodegen generate --spec project.yml
+      - name: Print Xcode version
+        run: xcodebuild -version
+      - name: Compile, ad-hoc sign and package TIPA
+        working-directory: NovaBrowser
+        run: bash build_tipa.sh
+      - name: Commit editable source files to branch
+        if: success()
+        shell: bash
+        run: |
+          git add NovaBrowser/project.yml NovaBrowser/build_tipa.sh NovaBrowser/entitlements.plist NovaBrowser/Info.plist NovaBrowser/README.md NovaBrowser/NovaBrowser/ NovaBrowser/NovaBrowserTests/ NovaBrowser/scripts/
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish generated NovaBrowser M1 editable source and icons'
+            git push
+          fi
+      - name: Upload NovaBrowser M1 TIPA and build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NovaBrowser-M1-iOS16
+          path: |
+            NovaBrowser/dist/NovaBrowser.tipa
+            NovaBrowser/dist/xcodebuild.log
+            NovaBrowser/README.md
+          if-no-files-found: warn
