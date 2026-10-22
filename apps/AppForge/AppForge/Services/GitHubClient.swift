@@ -133,7 +133,8 @@ struct GitHubClient {
     func latestRun(owner: String, repo: String, sha: String) async throws -> GitHubRun? {
         let response: GitRunList = try await decoded(GitRunList.self,
             "/repos/\(owner)/\(repo)/actions/runs?head_sha=\(sha)&per_page=20")
-        return response.workflow_runs.first(where: { $0.head_sha == sha })
+        return response.workflow_runs.filter { $0.head_sha == sha && $0.path == ".github/workflows/build.yml" }
+            .sorted { $0.created_at > $1.created_at }.first
     }
 
     func jobs(owner: String, repo: String, run: Int) async throws -> [GitHubJob] {

@@ -84,6 +84,7 @@ struct GitHubRun: Decodable, Identifiable {
     let created_at: String
     let updated_at: String
     let html_url: String
+    let path: String?
 }
 
 struct GitHubJob: Decodable, Identifiable {

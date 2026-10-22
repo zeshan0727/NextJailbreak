@@ -71,6 +71,7 @@ enum ProjectFactory {
                 INFOPLIST_FILE: Info.plist
                 GENERATE_INFOPLIST_FILE: NO
                 TARGETED_DEVICE_FAMILY: "1,2"
+                ASSETCATALOG_COMPILER_APPICON_NAME: ""
         schemes:
           \(target):
             build:
