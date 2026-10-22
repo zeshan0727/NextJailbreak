@@ -415,8 +415,7 @@ struct SettingsView: View {
                 }
                 Section("Data") {
                     Button(role: .destructive) {
-                        vm.clearAll()
-                        isPresented = false
+                        showingClearAllAlert()
                     } label: {
                         Text("Clear All Notes")
                     }
@@ -433,8 +432,23 @@ struct SettingsView: View {
                     .accessibilityLabel("Close settings")
                 }
             }
+            .alert("Clear All Notes", isPresented: $showingClearAllAlert) {
+                Button("Clear", role: .destructive) {
+                    vm.clearAll()
+                    isPresented = false
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to delete all notes? This action cannot be undone.")
+            }
         }
         .preferredColorScheme(colorSchemeFromString(overrideColorScheme))
+    }
+
+    @State private var showingClearAllAlert = false
+
+    private func showingClearAllAlert() {
+        showingClearAllAlert = true
     }
 
     private func colorSchemeFromString(_ string: String) -> ColorScheme? {
