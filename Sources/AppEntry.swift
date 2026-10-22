@@ -1,2 +1,2 @@
 import SwiftUI
-@main struct SimpleCounterApp: App { var body: some Scene { WindowGroup { ContentView() } } }
+@main struct DisplayQualityCheckerApp: App { var body: some Scene { WindowGroup { ContentView() } } }
