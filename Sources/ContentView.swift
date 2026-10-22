@@ -50,18 +50,24 @@ struct ContentView: View {
 
     private func increment() {
         counter += 1
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.prepare()
+        generator.impactOccurred()
     }
 
     private func decrement() {
         if counter > 0 {
             counter -= 1
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.prepare()
+            generator.impactOccurred()
         }
     }
 
     private func reset() {
         counter = 0
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.prepare()
+        generator.impactOccurred()
     }
 }
