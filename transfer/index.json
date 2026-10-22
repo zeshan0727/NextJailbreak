@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-22T07:14:58Z",
+  "updatedAt": "2026-10-22T07:47:24Z",
   "files": [
+    {
+      "id": "novabrowser-1.0.5",
+      "name": "NovaBrowser 1.0.5 — Light Mode + WebKit Compatibility",
+      "fileName": "NovaBrowser-1.0.5.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.5",
+      "url": "https://nextjailbreak.com/transfer/files/NovaBrowser/1.0.5/NovaBrowser-1.0.5.tipa",
+      "sha256": "d3cf8c658889281710e205299bb6f6a6eb4841aae6ce443b01dde8a2c7a9125f",
+      "sizeBytes": 921897,
+      "notes": "Adds an early standards-compatible Promise.withResolvers shim for ChatGPT and privacy-limited JavaScript error-category reporting, plus main-document HTTP statuses, preserving light/dark/system appearance, tabs, downloads and private browsing. Does not spoof service workers or upgrade iOS WebKit."
+    },
     {
       "id": "novabrowser-1.0.4",
       "name": "NovaBrowser 1.0.4 — Light Mode + WebKit Compatibility",
