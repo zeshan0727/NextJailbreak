@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-22T07:06:36Z",
+  "updatedAt": "2026-10-22T07:10:18Z",
   "files": [
+    {
+      "id": "novabrowser-1.0.3",
+      "name": "NovaBrowser 1.0.3 — Light Mode + WebKit Compatibility",
+      "fileName": "NovaBrowser-1.0.3.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.3",
+      "url": "https://nextjailbreak.com/transfer/files/NovaBrowser/1.0.3/NovaBrowser-1.0.3.tipa",
+      "sha256": "9d6e625f6ed3e821d77301d70ccb4e48790b586e4b751f102ce309f74814f9cb",
+      "sizeBytes": 891859,
+      "notes": "Native WKWebView browser with tabs, selectable system/light/dark appearance, configurable per-site user agents and mobile/desktop mode, optional legacy JavaScript shims, persistent diagnostics, downloads and private tabs. iOS 16 WebKit limitations remain."
+    },
     {
       "id": "novabrowser-1.0.2",
       "name": "NovaBrowser 1.0.2 — Light Mode + WebKit Compatibility",
