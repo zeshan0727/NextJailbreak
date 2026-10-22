@@ -145,6 +145,10 @@ final class DownloadManager: NSObject, ObservableObject, URLSessionDownloadDeleg
         }
     }
 
+    // Async download(for:delegate:) owns the temporary file until the await returns.
+    nonisolated func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask,
+                                didFinishDownloadingTo location: URL) {}
+
     nonisolated func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask,
                                 didWriteData bytesWritten: Int64, totalBytesWritten: Int64,
                                 totalBytesExpectedToWrite: Int64) {
