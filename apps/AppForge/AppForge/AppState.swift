@@ -362,6 +362,12 @@ final class AppState: ObservableObject {
             \(codePrompt)
             ORIGINAL SWIFT FILES:
             \(String(source.prefix(90_000)))
+            COMPILER REPAIR REQUIREMENTS:
+            If the compiler says "unable to type-check this expression in reasonable time",
+            break the whole affected SwiftUI View body into small typed subviews and modifiers.
+            Verify that navigation value models conform to Hashable, especially NavigationLink(value:)
+            and .navigationDestination(for:). Do NOT return the same source unchanged.
+            Preserve the existing app data model/JSON storage schema.
             SPECIFIC COMPILER ERRORS:
             \(String(compilerLines.prefix(12_000)))
             LAST BUILD LOG:

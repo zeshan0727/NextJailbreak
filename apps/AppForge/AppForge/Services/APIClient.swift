@@ -87,6 +87,10 @@ struct AIClient {
     No markdown fences, no prose. Every file must be a compilable Swift file under Sources/.
     DO NOT provide an @main App, Info.plist, project.yml, workflow or assets; those are injected.
     MUST define struct ContentView: View with a working body, including all referenced types.
+    CRITICAL: models used with NavigationLink(value:) or navigationDestination(for:) MUST conform to Hashable.
+    Prefer explicit NavigationLink(destination:) if a model cannot be Hashable.
+    Keep SwiftUI body expressions small: split long NavigationStack, List, swipeActions, toolbar and alert
+    combinations into named child View structs. Avoid compiler type-check timeout.
     Keep outputs COMPACT so the whole JSON fits the model response window. Escape Swift strings within JSON correctly.
     No external packages, secrets, networking backends, missing assets or TODO stubs.
     Assume deployment iOS 16 and Swift 5.9 features, no iOS 17-only APIs.

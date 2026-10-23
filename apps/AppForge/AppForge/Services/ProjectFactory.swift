@@ -68,8 +68,49 @@ enum ProjectFactory {
         return ForgeProject(appName: name, bundleId: bid, files: files)
     }
 
+    /// A SwiftUI navigation value must be Hashable. AI sometimes emits only Equatable,
+    /// which leads to misleading "unable to type-check" errors on large View bodies.
+    /// Apply a conservative correction to plain Codable/Equatable/Identifiable structs.
+    private static func repairNavigationModels(_ files: [ForgeFile]) -> [ForgeFile] {
+        let combined = files.map(\.content).joined(separator: "\n")
+        guard let nav = try? NSRegularExpression(
+            pattern: #"navigationDestination\s*\(\s*for\s*:\s*([A-Za-z_][A-Za-z0-9_]*)\.self"#
+        ) else { return files }
+        let sourceRange = NSRange(combined.startIndex..<combined.endIndex, in: combined)
+        var types = Set<String>()
+        for match in nav.matches(in: combined, range: sourceRange) {
+            if let range = Range(match.range(at: 1), in: combined) {
+                types.insert(String(combined[range]))
+            }
+        }
+        guard !types.isEmpty else { return files }
+        return files.map { source in
+            guard source.path.hasSuffix(".swift") else { return source }
+            var updated = source.content
+            for type in types.sorted() {
+                let pattern = #"(?m)\bstruct\s+"#
+                    + NSRegularExpression.escapedPattern(for: type)
+                    + #"\s*:\s*([^{\n]+)\{"#
+                guard let regex = try? NSRegularExpression(pattern: pattern),
+                      let match = regex.firstMatch(in: updated,
+                          range: NSRange(updated.startIndex..<updated.endIndex, in: updated)),
+                      let fullRange = Range(match.range, in: updated),
+                      let clauses = Range(match.range(at: 1), in: updated) else { continue }
+                let inherited = String(updated[clauses]).trimmingCharacters(in: .whitespaces)
+                guard inherited.contains("Identifiable"),
+                      inherited.contains("Codable"),
+                      inherited.contains("Equatable"),
+                      !inherited.contains("Hashable") else { continue }
+                updated.replaceSubrange(fullRange,
+                    with: "struct \(type): \(inherited), Hashable {")
+            }
+            return ForgeFile(path: source.path, content: updated)
+        }
+    }
+
     static func scaffold(_ project: ForgeProject, minIOS: String) throws -> ForgeProject {
-        let safe = try sanitize(project)
+        var safe = try sanitize(project)
+        safe.files = repairNavigationModels(safe.files)
         let target = safe.appName
         let ios = minIOS.range(of: #"^\d{1,2}\.\d{1,2}$"#, options: .regularExpression) == nil ? "16.0" : minIOS
         let yaml = """
