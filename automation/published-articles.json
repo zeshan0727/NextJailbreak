@@ -1,6 +1,47 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/aerial-official-split-stage-interface.jpg",
+          "media_alt": "Official Aerial screenshot showing two applications arranged in a vertical Split Stage on an iPhone",
+          "media_credit": "uzra/Havoc — official Aerial Split Stage interface screenshot",
+          "media_sha256": "b8041baf8afafca3977ff6fa20c94dc13e921fdfa50b59dd7fb7ed42c2261360",
+          "media_source_url": "https://media.havoc.app/69458a05a008e49d80274e2c"
+        }
+      ],
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc metadata lists iOS 15.0–26.0.1 and rootless support; the product description still says iOS 15.0–17.7.10. Package compatibility does not establish jailbreak availability for every device and firmware, and RootHide support is not claimed.",
+      "description": "Aerial 5.1 replaces the iPad one-third split with a four-way layout, fixes landscape Split Stage reversion and close-animation enlargement, and targets keyboard sizing during rotation.",
+      "developer": "uzra",
+      "entry_type": "individual-update",
+      "href": "aerial-5-1-four-way-split-landscape-ipad-fixes/",
+      "image": "assets/articles/source-media/aerial-5-1-official-banner.png",
+      "media_alt": "Official Aerial banner with its colorful A logo and the text Stage Manager redesigned for iOS",
+      "media_credit": "uzra/Havoc — official Aerial banner and Split Stage interface screenshot",
+      "media_sha256": "a140456211eda1d5f479c083e8201423a48657dc277f94baf9ea408109202349",
+      "media_source_url": "https://media.havoc.app/6913433dd707490685941f1d",
+      "media_retrieval_status": "Official Havoc banner and interface screenshot retrieved, inspected, stored locally, and embedded in the article.",
+      "modified_at": "2026-10-23T13:04:58Z",
+      "name": "Aerial",
+      "package": "jp.uzra.aerial",
+      "published_at": "2026-10-23T13:04:58Z",
+      "quality_target": 9,
+      "release": "Aerial 5.1 — October 22, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "aerial-5-1-four-way-split-landscape-ipad-fixes",
+      "source_name": "Official Aerial Havoc listing, live page data, version history and developer-submitted media",
+      "source_page_url": "https://havoc.app/package/aerial",
+      "source_url": "https://havoc.app/package/aerial/changes",
+      "source_visual_origin": "official-havoc-banner-and-split-stage-interface",
+      "source_visual_url": "https://media.havoc.app/6913433dd707490685941f1d",
+      "title": "Aerial 5.1 Adds Four-Way iPad Split and Fixes Landscape Stages",
+      "version": "5.1"
+    },
+    {
       "category": {
         "id": "tweak-roundup-comparison",
         "label": "Tweak Roundup & Comparison"

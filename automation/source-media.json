@@ -1124,6 +1124,27 @@
         "retrieval_status": "Retrieved from the official NewTerm source repository, inspected and stored locally."
       },
       "screenshots": []
+    },
+    "jp.uzra.aerial": {
+      "credit_label": "uzra/Havoc — official Aerial banner and Split Stage interface screenshot",
+      "source_page_url": "https://havoc.app/package/aerial",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6913433dd707490685941f1d",
+        "alt": "Official Aerial banner with its colorful A logo and the text Stage Manager redesigned for iOS",
+        "local_path": "assets/articles/source-media/aerial-5-1-official-banner.png",
+        "remote_embedded": false,
+        "retrieval_status": "Retrieved from the official Havoc listing, inspected and stored locally."
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/69458a05a008e49d80274e2c",
+          "alt": "Official Aerial screenshot showing two applications arranged in a vertical Split Stage on an iPhone",
+          "local_path": "assets/articles/source-media/aerial-official-split-stage-interface.jpg",
+          "remote_embedded": false,
+          "retrieval_status": "Retrieved from the official Havoc listing, inspected and stored locally."
+        }
+      ]
     }
   }
 }
