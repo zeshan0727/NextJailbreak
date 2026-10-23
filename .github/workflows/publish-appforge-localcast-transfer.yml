@@ -1,0 +1,77 @@
+name: Publish AppForge and LocalCast to NS Transfer
+on:
+  push:
+    branches: [agent/appforge-test-20261022]
+    paths: [.github/workflows/publish-appforge-localcast-transfer.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: publish-appforge-localcast
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download release IPAs and validate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/af /tmp/lc
+          gh release download appforge-test-13 -R "$GH_REPO" -p AppForge.ipa -D /tmp/af
+          gh release download LocalCastTVRemote-build-88-1 -R "$GH_REPO" -p LocalCastTVRemote.ipa -D /tmp/lc
+          python3 - <<'PY'
+          import zipfile,plistlib
+          for name,path,expected in [
+            ('AppForge','/tmp/af/AppForge.ipa','com.nextsolution.appforge'),
+            ('LocalCast','/tmp/lc/LocalCastTVRemote.ipa','com.example.localcasttvremote')
+          ]:
+            with zipfile.ZipFile(path) as z:
+              assert z.testzip() is None
+              p=next(n for n in z.namelist() if n.endswith('.app/Info.plist'))
+              d=plistlib.loads(z.read(p))
+              assert d['CFBundleIdentifier']==expected,(name,d)
+          PY
+      - name: Update main NS Transfer files and index
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          mkdir -p transfer/files/AppForge/1.1.0 transfer/files/LocalCastTVRemote/build-88
+          cp /tmp/af/AppForge.ipa transfer/files/AppForge/1.1.0/AppForge-1.1.0.ipa
+          cp /tmp/lc/LocalCastTVRemote.ipa transfer/files/LocalCastTVRemote/build-88/LocalCastTVRemote-build-88.ipa
+          python3 - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          from datetime import datetime,timezone
+          index=Path('transfer/index.json')
+          d=json.loads(index.read_text())
+          items=[
+            ('appforge-1.1.0-auto-repair','AppForge 1.1.0 — Improved Automatic Code Repair','transfer/files/AppForge/1.1.0/AppForge-1.1.0.ipa','1.1.0','Up to five bounded compiler-targeted repairs; Bonjour permissions added. Tested compilation, not iPhone runtime.'),
+            ('localcasttvremote-build-88','LocalCastTVRemote — Device Discovery','transfer/files/LocalCastTVRemote/build-88/LocalCastTVRemote-build-88.ipa','1.0.0 (build 88)','Chromecast Bonjour discovery and iOS compilation fixed. Full Cast V2 remote control NOT implemented.')
+          ]
+          entries=[]
+          for key,name,path,version,notes in items:
+            data=Path(path).read_bytes()
+            entries.append(dict(id=key,name=name,fileName=Path(path).name,type='ipa',
+                platform='TrollStore / iOS 16+',version=version,
+                url='https://nextjailbreak.com/'+path,
+                sha256=hashlib.sha256(data).hexdigest(),sizeBytes=len(data),notes=notes))
+          ids={entry['id'] for entry in entries}
+          d['files']=entries+[x for x in d['files'] if x.get('id') not in ids]
+          d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          index.write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n')
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json transfer/files/AppForge/1.1.0/AppForge-1.1.0.ipa transfer/files/LocalCastTVRemote/build-88/LocalCastTVRemote-build-88.ipa
+          git commit -m 'Publish AppForge 1.1.0 and LocalCast Build 88 to NS Transfer'
+          git pull --rebase origin main
+          git push origin HEAD:main
