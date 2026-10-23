@@ -4,6 +4,14 @@
     <title>Next Jailbreak</title>
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
+    <item>
+      <title>vphone-cli 2.12.0 Adds Apple Watch Guests and iOS 18/26 Research Boards</title>
+      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
+      <pubDate>Fri, 23 Oct 2026 16:58:36 GMT</pubDate>
+      <description>vphone-cli 2.12.0 adds watchOS 26.4 Apple Watch guests, iOS 18 and iOS 26 research-board support, peer-to-peer NAT and tighter firmware-operation safeguards.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
     <language>en</language>
     <item>
       <title>Aerial 5.1 Adds Four-Way iPad Split and Fixes Landscape Stages</title><link>https://nextjailbreak.com/aerial-5-1-four-way-split-landscape-ipad-fixes/</link><guid isPermaLink="true">https://nextjailbreak.com/aerial-5-1-four-way-split-landscape-ipad-fixes/</guid>
@@ -179,14 +187,6 @@
       <pubDate>Sat, 17 Oct 2026 01:00:27 GMT</pubDate>
       <description>Update TrollStore to 2.1.1 through Settings or the official TrollStore.tar fallback, preserve installed apps, and repair registrations if icons disappear.</description>
       <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>vphone-cli 2.10.1 Adds iPhone 18 Pro Guests and Open Boot ROMs</title>
-      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
-      <pubDate>Thu, 22 Oct 2026 20:55:23 GMT</pubDate>
-      <description>vphone-cli 2.10.1 adds iPhone 18 Pro guests on iOS 27.0.1, OpenAVB and OpenSEP boot ROMs, lower-overhead video streaming, and native iPad pointer input.</description>
-      <category>Current Jailbreak Development</category>
     </item>
     <item>
       <title>Battman 1.1.0 Adds Battery Analytics and Native Plug-ins</title>

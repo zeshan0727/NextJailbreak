@@ -1190,31 +1190,31 @@
         "id": "jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "Physical Apple Silicon Mac running macOS 15 or later. vphone-cli 2.10.1 validates an iPhone19,2 iOS 27.0.1 guest paired with cloudOS 26.4; this is virtualization research, not a physical-device jailbreak.",
-      "description": "vphone-cli 2.10.1 adds iPhone 18 Pro guests on iOS 27.0.1, OpenAVB and OpenSEP boot ROMs, lower-overhead video streaming, and native iPad pointer input.",
+      "compat": "Physical Apple Silicon Mac running macOS 15 or later. vphone-cli 2.12.0 documents Watch7,18 on watchOS 26.4, iPhone17,3 research-board paths on iOS 26.4–26.6 and iPhone11,6 Minimal paths on iOS 18.1–18.7.2; this is virtualization research, not a physical-device jailbreak.",
+      "description": "vphone-cli 2.12.0 adds watchOS 26.4 Apple Watch guests, iOS 18 and iOS 26 research-board support, peer-to-peer NAT and tighter firmware-operation safeguards.",
       "developer": "Lakr Aream",
       "entry_type": "development-update",
       "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
       "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
-      "media_credit": "Lakr233 — official vphone-cli demo from the 2.10.1 tagged repository",
+      "media_credit": "Lakr233 — official vphone-cli demo retained in the 2.12.0 tagged repository",
       "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
-      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.10.1/Documents/demo.jpeg",
-      "modified_at": "2026-10-22T20:55:23Z",
-      "name": "vphone-cli 2.10.1",
+      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.12.0/Documents/demo.jpeg",
+      "modified_at": "2026-10-23T16:58:36Z",
+      "name": "vphone-cli 2.12.0",
       "package": "project.vphone-cli",
       "published_at": "2026-09-15T08:07:38+00:00",
       "quality_target": 9,
-      "release": "vphone-cli 2.10.1 released 2026-10-18",
+      "release": "vphone-cli 2.12.0 released 2026-10-23",
       "selection_pool": "scheduled-current-jailbreak-development",
       "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
-      "source_name": "Official vphone-cli 2.10.1 release notes, tagged README, compatibility matrix and boot-ROM research notes",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.10.1",
+      "source_name": "Official vphone-cli 2.12.0 release notes, tagged compatibility matrix, creation guide and Apple Watch pairing notes",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.12.0",
       "source_url": "https://github.com/Lakr233/vphone-cli",
       "source_visual_origin": "official-tagged-repository-asset",
-      "source_visual_url": "https://github.com/Lakr233/vphone-cli/blob/2.10.1/Documents/demo.jpeg",
-      "title": "vphone-cli 2.10.1 Adds iPhone 18 Pro Guests and Open Boot ROMs",
-      "version": "2.10.1",
-      "media_retrieval_status": "Official tagged repository demo is stored locally; Git blob a63a8d0f2eeff3e783b80904084b30e54d93dde7 is unchanged in the 2.10.1 tag."
+      "source_visual_url": "https://github.com/Lakr233/vphone-cli/blob/2.12.0/Documents/demo.jpeg",
+      "title": "vphone-cli 2.12.0 Adds Apple Watch Guests and iOS 18/26 Research Boards",
+      "version": "2.12.0",
+      "media_retrieval_status": "Official tagged repository demo is stored locally; Git blob a63a8d0f2eeff3e783b80904084b30e54d93dde7 is unchanged in the 2.12.0 tag."
     },
     {
       "additional_media": [
@@ -8738,8 +8738,18 @@
       "published_at": "2026-10-20T10:31:55+00:00",
       "run_id": "39408537153",
       "version": "1.3.27"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "package": "project.vphone-cli",
+      "previous_version": "2.10.1",
+      "published_at": "2026-10-23T16:58:36Z",
+      "run_id": "scheduled-2026-10-23T16:58:36Z",
+      "version": "2.12.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-23T04:56:37Z"
+  "updated_at": "2026-10-23T16:58:36Z"
 }
