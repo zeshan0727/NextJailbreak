@@ -1087,6 +1087,18 @@
         "retrieval_status": "Official Havoc media inspected successfully; binary download was blocked, so the verified source URL is embedded directly."
       },
       "screenshots": []
+    },
+    "github.roothide.dopamine-roothide": {
+      "credit_label": "RootHide — official Dopamine-RootHide 3.x source-repository app icon",
+      "source_page_url": "https://github.com/roothide/Dopamine-roothide/tree/3.x",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+        "alt": "Official green Dopamine RootHide app icon from the project’s 3.x source branch",
+        "local_path": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
+        "git_blob_sha": "9ea200d790af0c89b8781469b32b9720745e80c3"
+      },
+      "screenshots": []
     }
   }
 }
