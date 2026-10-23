@@ -1,2 +1,2 @@
 import SwiftUI
-@main struct ColorCodePickerApp: App { var body: some Scene { WindowGroup { ContentView() } } }
+@main struct FocusTimerApp: App { var body: some Scene { WindowGroup { ContentView() } } }

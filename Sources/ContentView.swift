@@ -1,476 +1,269 @@
 import SwiftUI
+import UserNotifications
+import Combine
+
+enum TimerStatus: String {
+    case running = "Running"
+    case paused = "Paused"
+    case completed = "Completed"
+    case stopped = "Stopped"
+}
 
 struct ContentView: View {
-    @State private var red: Double = 255
-    @State private var green: Double = 0
-    @State private var blue: Double = 0
-    @State private var hexInput: String = "#FF0000"
-    @State private var hexError: String? = nil
-    @State private var showFavorites: Bool = false
-    @AppStorage("favoriteColors") private var favoriteHexColorsData: Data = Data()
-    @State private var favoriteHexColors: [String] = []
-    @State private var alertMessageWrapper: AlertMessageWrapper? = nil
+    @AppStorage("timerDuration") private var timerDuration: Int = 25 // default 25 minutes
+    @State private var remainingSeconds: Int = 0
+    @State private var timerStatus: TimerStatus = .stopped
+    @State private var notificationAuthorized: Bool = false
+    @State private var showNotificationDeniedMessage: Bool = false
+    @State private var showPermissionPrompt: Bool = false
+    @State private var timerSubscription: Cancellable?
+    @Environment(.colorScheme) private var colorScheme
 
-    private let sliderRange = 0.0...255.0
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                colorDisplay
-                rgbSliders
-                hexInputField
-                colorWheelPicker
-                colorCodeFormats
-                actionButtons
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Color Picker")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Favorites") {
-                        showFavorites = true
-                    }
-                    .accessibilityLabel("Show favorite colors")
-                }
-            }
-            .sheet(isPresented: $showFavorites) {
-                FavoritesView(favoriteHexColors: $favoriteHexColors, onSelect: { hex in
-                    if let rgb = Self.rgbFromHex(hex) {
-                        updateColorFromRGB(rgb)
-                        showFavorites = false
-                    }
-                })
-            }
-            .onAppear {
-                loadFavorites()
-                updateHexInputFromRGB()
-            }
-            .alert(item: $alertMessageWrapper) { wrapper in
-                Alert(title: Text("Error"), message: Text(wrapper.message), dismissButton: .default(Text("OK")))
-            }
-        }
-    }
-
-    // MARK: - Subviews
-
-    private var colorDisplay: some View {
-        Rectangle()
-            .fill(currentColor)
-            .frame(height: 150)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-            )
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Selected color")
-            .accessibilityValue(hexInput)
-    }
-
-    private var rgbSliders: some View {
-        VStack(spacing: 12) {
-            rgbSlider(value: $red, label: "Red", color: .red)
-            rgbSlider(value: $green, label: "Green", color: .green)
-            rgbSlider(value: $blue, label: "Blue", color: .blue)
-        }
-    }
-
-    private func rgbSlider(value: Binding<Double>, label: String, color: Color) -> some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text(label)
-                    .font(.headline)
-                    .foregroundColor(color)
-                Spacer()
-                Text("\(Int(value.wrappedValue))")
-                    .font(.subheadline.monospacedDigit())
-                    .foregroundColor(.secondary)
-            }
-            Slider(value: value, in: sliderRange, step: 1) {
-                Text(label)
-            }
-            .tint(color)
-            .accessibilityValue("\(Int(value.wrappedValue))")
-            .onChange(of: value.wrappedValue) { _ in
-                updateHexInputFromRGB()
-            }
-        }
-    }
-
-    private var hexInputField: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            TextField("Hex Code (#RRGGBB)", text: $hexInput)
-                .textInputAutocapitalization(.characters)
-                .disableAutocorrection(true)
-                .font(.system(.body, design: .monospaced))
-                .padding(8)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(hexError == nil ? Color.secondary.opacity(0.5) : Color.red, lineWidth: 1)
-                )
-                .accessibilityLabel("Hex color code input")
-                .accessibilityHint("Enter hex code in format #RRGGBB")
-                .onChange(of: hexInput) { newValue in
-                    validateAndUpdateColor(from: newValue)
-                }
-            if let error = hexError {
-                Text(error)
-                    .foregroundColor(.red)
-                    .font(.footnote)
-                    .accessibilityLabel("Error: \(error)")
-            }
-        }
-    }
-
-    private var colorWheelPicker: some View {
-        ColorPicker("Color Wheel", selection: Binding(get: {
-            currentColor
-        }, set: { newColor in
-            updateColorFromColor(newColor)
-        }))
-        .labelsHidden()
-        .accessibilityLabel("Color wheel picker")
-        .frame(maxWidth: 100)
-    }
-
-    private var colorCodeFormats: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Hex: \(hexInput.uppercased())")
-                .font(.body.monospaced())
-                .accessibilityLabel("Hex code")
-                .accessibilityValue(hexInput.uppercased())
-            Text("RGB: rgb(\(Int(red)), \(Int(green)), \(Int(blue)))")
-                .font(.body.monospaced())
-                .accessibilityLabel("RGB code")
-                .accessibilityValue("rgb(\(Int(red)), \(Int(green)), \(Int(blue)))")
-            Text("HSB: hsb(\(Int(hueDegrees)), \(Int(saturationPercent))%, \(Int(brightnessPercent))%)")
-                .font(.body.monospaced())
-                .accessibilityLabel("HSB code")
-                .accessibilityValue("hsb(\(Int(hueDegrees)), \(Int(saturationPercent)) percent, \(Int(brightnessPercent)) percent)")
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var actionButtons: some View {
-        HStack(spacing: 20) {
-            Button(action: saveCurrentColor) {
-                Label("Save Color", systemImage: "star")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(isCurrentColorSaved || hexError != nil)
-            .accessibilityLabel("Save current color to favorites")
-
-            Button(action: { showFavorites = true }) {
-                Label("Favorites", systemImage: "star.fill")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .accessibilityLabel("Show favorite colors")
-        }
-    }
-
-    // MARK: - Computed Properties
-
-    private var currentColor: Color {
-        Color(red: red/255, green: green/255, blue: blue/255)
-    }
-
-    private var isCurrentColorSaved: Bool {
-        favoriteHexColors.contains(hexInput.uppercased())
-    }
-
-    private var hueDegrees: Double {
-        var h: CGFloat = 0
-        var s: CGFloat = 0
-        var b: CGFloat = 0
-        var a: CGFloat = 0
-        UIColor(currentColor).getHue(&h, saturation: &s, brightness: &b, alpha: &a)
-        return Double(h * 360)
-    }
-
-    private var saturationPercent: Double {
-        var h: CGFloat = 0
-        var s: CGFloat = 0
-        var b: CGFloat = 0
-        var a: CGFloat = 0
-        UIColor(currentColor).getHue(&h, saturation: &s, brightness: &b, alpha: &a)
-        return Double(s * 100)
-    }
-
-    private var brightnessPercent: Double {
-        var h: CGFloat = 0
-        var s: CGFloat = 0
-        var b: CGFloat = 0
-        var a: CGFloat = 0
-        UIColor(currentColor).getHue(&h, saturation: &s, brightness: &b, alpha: &a)
-        return Double(b * 100)
-    }
-
-    // MARK: - Methods
-
-    private func updateHexInputFromRGB() {
-        let r = Int(red)
-        let g = Int(green)
-        let b = Int(blue)
-        let hex = String(format: "#%02X%02X%02X", r, g, b)
-        if hexInput.uppercased() != hex {
-            hexInput = hex
-            hexError = nil
-        }
-    }
-
-    private func updateColorFromRGB(_ rgb: (r: Int, g: Int, b: Int)) {
-        red = Double(rgb.r)
-        green = Double(rgb.g)
-        blue = Double(rgb.b)
-        updateHexInputFromRGB()
-    }
-
-    private func updateColorFromColor(_ color: Color) {
-        let uiColor = UIColor(color)
-        var r: CGFloat = 0
-        var g: CGFloat = 0
-        var b: CGFloat = 0
-        var a: CGFloat = 0
-        if uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) {
-            red = Double(r * 255)
-            green = Double(g * 255)
-            blue = Double(b * 255)
-            updateHexInputFromRGB()
-        }
-    }
-
-    private func validateAndUpdateColor(from hex: String) {
-        let cleaned = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        if cleaned.count == 7 && cleaned.first == "#" {
-            if let rgb = Self.rgbFromHex(cleaned) {
-                hexError = nil
-                updateColorFromRGB(rgb)
-            } else {
-                hexError = "Invalid hex code"
-            }
-        } else {
-            hexError = "Hex code must be in format #RRGGBB"
-        }
-    }
-
-    private func saveCurrentColor() {
-        let hex = hexInput.uppercased()
-        guard hexError == nil else { return }
-        guard !favoriteHexColors.contains(hex) else { return }
-        favoriteHexColors.append(hex)
-        saveFavorites()
-    }
-
-    private func loadFavorites() {
-        do {
-            let decoded = try JSONDecoder().decode([String].self, from: favoriteHexColorsData)
-            favoriteHexColors = decoded
-        } catch {
-            favoriteHexColors = []
-        }
-    }
-
-    private func saveFavorites() {
-        do {
-            let encoded = try JSONEncoder().encode(favoriteHexColors)
-            favoriteHexColorsData = encoded
-        } catch {
-            alertMessageWrapper = AlertMessageWrapper(message: "Failed to save favorites.")
-        }
-    }
-
-    // MARK: - Helpers
-
-    static func rgbFromHex(_ hex: String) -> (r: Int, g: Int, b: Int)? {
-        let r, g, b: Int
-        let start = hex.index(hex.startIndex, offsetBy: 1)
-        let hexColor = String(hex[start...])
-        guard hexColor.count == 6 else { return nil }
-        let scanner = Scanner(string: hexColor)
-        var hexNumber: UInt64 = 0
-        if scanner.scanHexInt64(&hexNumber) {
-            r = Int((hexNumber & 0xFF0000) >> 16)
-            g = Int((hexNumber & 0x00FF00) >> 8)
-            b = Int(hexNumber & 0x0000FF)
-            return (r, g, b)
-        }
-        return nil
-    }
-}
-
-// Wrapper to make String alert message Identifiable
-fileprivate struct AlertMessageWrapper: Identifiable {
-    let id = UUID()
-    let message: String
-}
-
-struct FavoritesView: View {
-    @Binding var favoriteHexColors: [String]
-    @Environment(\.dismiss) private var dismiss
-    @State private var showCopiedToast: Bool = false
-    @State private var copiedHex: String = ""
-    @State private var editMode: EditMode = .inactive
-    let onSelect: (String) -> Void
+    private let minDuration = 1
+    private let maxDuration = 120
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if favoriteHexColors.isEmpty {
-                    Text("No favorite colors saved.")
-                        .foregroundColor(.secondary)
-                        .accessibilityLabel("No favorite colors saved")
-                } else {
-                    ScrollView {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 16)], spacing: 16) {
-                            ForEach(favoriteHexColors, id: \.self) { hex in
-                                favoriteColorItem(hex: hex)
-                            }
-                            .onDelete(perform: delete)
-                        }
-                        .padding(.horizontal)
-                    }
-                }
-            }
-            .navigationTitle("Favorites")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") { dismiss() }
-                        .accessibilityLabel("Close favorites")
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                        .accessibilityLabel(editMode == .active ? "Done editing favorites" : "Edit favorites")
-                }
-            }
-            .environment(\.editMode, $editMode)
-            .toast(isPresented: $showCopiedToast, message: "Copied to clipboard: \(copiedHex)")
-        }
-    }
-
-    @ViewBuilder
-    private func favoriteColorItem(hex: String) -> some View {
-        let color = ColorCodePickerHelpers.colorFromHex(hex) ?? .black
-        VStack(spacing: 8) {
-            Rectangle()
-                .fill(color)
-                .frame(height: 80)
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                )
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Favorite color")
-                .accessibilityValue(hex)
-            Text(hex)
-                .font(.footnote.monospaced())
-                .lineLimit(1)
+        VStack(spacing: 24) {
+            Spacer()
+            Text(timeString(from: remainingSeconds > 0 ? remainingSeconds : timerDuration * 60))
+                .font(.system(size: 72, weight: .bold, design: .monospaced))
                 .minimumScaleFactor(0.5)
-                .foregroundColor(ColorCodePickerHelpers.textColor(for: color))
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if editMode == .active {
-                // no tap action in edit mode
-            } else {
-                UIPasteboard.general.string = hex
-                copiedHex = hex
-                showCopiedToast = true
-                onSelect(hex)
-            }
-        }
-        .contextMenu {
-            Button {
-                UIPasteboard.general.string = hex
-                copiedHex = hex
-                showCopiedToast = true
-            } label: {
-                Label("Copy Hex Code", systemImage: "doc.on.doc")
-            }
-        }
-    }
+                .lineLimit(1)
+                .accessibilityLabel("Timer countdown")
+                .accessibilityValue(timerAccessibilityValue())
 
-    private func delete(at offsets: IndexSet) {
-        favoriteHexColors.remove(atOffsets: offsets)
-        saveFavorites()
-    }
-
-    private func saveFavorites() {
-        do {
-            let encoded = try JSONEncoder().encode(favoriteHexColors)
-            UserDefaults.standard.set(encoded, forKey: "favoriteColors")
-        } catch {
-            // ignore save errors here
-        }
-    }
-}
-
-// MARK: - Toast Modifier
-
-fileprivate struct ToastModifier: ViewModifier {
-    @Binding var isPresented: Bool
-    let message: String
-
-    func body(content: Content) -> some View {
-        ZStack(alignment: .bottom) {
-            content
-            if isPresented {
-                Text(message)
-                    .font(.footnote)
-                    .padding(12)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                    .padding(.bottom, 40)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            withAnimation {
-                                isPresented = false
-                            }
-                        }
+            if timerStatus == .stopped || timerStatus == .paused || timerStatus == .completed {
+                Picker("Timer Duration", selection: $timerDuration) {
+                    ForEach(minDuration...maxDuration, id: \ .self) { minute in
+                        Text("\(minute) min")
+                            .tag(minute)
                     }
-                    .accessibilityAddTraits(.isStaticText)
+                }
+                .pickerStyle(.wheel)
+                .frame(maxWidth: 150, maxHeight: 150)
+                .clipped()
+                .accessibilityLabel("Set timer duration")
+                .accessibilityValue("\(timerDuration) minutes")
+                .disabled(timerStatus == .running)
+            }
+
+            HStack(spacing: 40) {
+                Button(action: startPauseTapped) {
+                    Text(timerStatus == .running ? "Pause" : "Start")
+                        .font(.title2.weight(.semibold))
+                        .frame(minWidth: 100, minHeight: 44)
+                        .background(buttonBackgroundColor())
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                }
+                .disabled(timerDuration == 0 || (timerStatus == .completed && remainingSeconds == 0))
+                .accessibilityLabel(timerStatus == .running ? "Pause timer" : "Start timer")
+
+                Button(action: resetTapped) {
+                    Text("Reset")
+                        .font(.title2.weight(.semibold))
+                        .frame(minWidth: 100, minHeight: 44)
+                        .background(Color.gray.opacity(0.3))
+                        .foregroundColor(.primary)
+                        .cornerRadius(12)
+                }
+                .accessibilityLabel("Reset timer")
+            }
+
+            Text(timerStatus.rawValue)
+                .font(.headline)
+                .accessibilityLabel("Timer status")
+                .accessibilityValue(timerStatus.rawValue)
+
+            if showNotificationDeniedMessage {
+                VStack(spacing: 8) {
+                    Text("Notifications are disabled.")
+                        .font(.footnote)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                    Text("Enable notifications in Settings to receive alerts when the timer completes.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal)
+                .accessibilityElement(children: .combine)
+            }
+
+            Spacer()
+        }
+        .padding()
+        .onAppear(perform: onAppear)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            pauseTimerIfRunning()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            checkNotificationAuthorization()
+        }
+    }
+
+    private func onAppear() {
+        remainingSeconds = timerDuration * 60
+        checkNotificationAuthorization()
+    }
+
+    private func startPauseTapped() {
+        switch timerStatus {
+        case .running:
+            pauseTimer()
+        case .paused, .stopped, .completed:
+            startTimer()
+        }
+    }
+
+    private func resetTapped() {
+        stopTimer()
+        remainingSeconds = timerDuration * 60
+        timerStatus = .stopped
+        cancelPendingNotifications()
+        showNotificationDeniedMessage = !notificationAuthorized
+    }
+
+    private func startTimer() {
+        guard timerDuration > 0 else { return }
+
+        if timerStatus == .completed {
+            remainingSeconds = timerDuration * 60
+        }
+
+        timerStatus = .running
+        scheduleNotification()
+
+        timerSubscription = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                tick()
+            }
+
+        provideHapticFeedback(.start)
+    }
+
+    private func pauseTimer() {
+        timerSubscription?.cancel()
+        timerSubscription = nil
+        timerStatus = .paused
+        cancelPendingNotifications()
+        provideHapticFeedback(.pause)
+    }
+
+    private func stopTimer() {
+        timerSubscription?.cancel()
+        timerSubscription = nil
+        timerStatus = .stopped
+        cancelPendingNotifications()
+    }
+
+    private func pauseTimerIfRunning() {
+        if timerStatus == .running {
+            pauseTimer()
+        }
+    }
+
+    private func tick() {
+        guard remainingSeconds > 0 else {
+            timerCompleted()
+            return
+        }
+        remainingSeconds -= 1
+    }
+
+    private func timerCompleted() {
+        stopTimer()
+        timerStatus = .completed
+        remainingSeconds = 0
+        provideHapticFeedback(.completion)
+        // Play alert sound via notification
+    }
+
+    private func timeString(from seconds: Int) -> String {
+        let m = seconds / 60
+        let s = seconds % 60
+        return String(format: "%02d:%02d", m, s)
+    }
+
+    private func timerAccessibilityValue() -> String {
+        let m = (remainingSeconds > 0 ? remainingSeconds : timerDuration * 60) / 60
+        let s = (remainingSeconds > 0 ? remainingSeconds : timerDuration * 60) % 60
+        return "\(m) minutes and \(s) seconds"
+    }
+
+    private func checkNotificationAuthorization() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async {
+                switch settings.authorizationStatus {
+                case .authorized, .provisional, .ephemeral:
+                    notificationAuthorized = true
+                    showNotificationDeniedMessage = false
+                case .denied:
+                    notificationAuthorized = false
+                    showNotificationDeniedMessage = true
+                case .notDetermined:
+                    notificationAuthorized = false
+                    showNotificationDeniedMessage = false
+                    requestNotificationPermission()
+                @unknown default:
+                    notificationAuthorized = false
+                    showNotificationDeniedMessage = true
+                }
             }
         }
-        .animation(.easeInOut, value: isPresented)
     }
-}
 
-fileprivate extension View {
-    func toast(isPresented: Binding<Bool>, message: String) -> some View {
-        modifier(ToastModifier(isPresented: isPresented, message: message))
-    }
-}
-
-// MARK: - Helpers
-
-fileprivate enum ColorCodePickerHelpers {
-    static func colorFromHex(_ hex: String) -> Color? {
-        let r, g, b: Int
-        let start = hex.index(hex.startIndex, offsetBy: 1)
-        let hexColor = String(hex[start...])
-        guard hexColor.count == 6 else { return nil }
-        let scanner = Scanner(string: hexColor)
-        var hexNumber: UInt64 = 0
-        if scanner.scanHexInt64(&hexNumber) {
-            r = Int((hexNumber & 0xFF0000) >> 16)
-            g = Int((hexNumber & 0x00FF00) >> 8)
-            b = Int(hexNumber & 0x0000FF)
-            return Color(red: Double(r)/255, green: Double(g)/255, blue: Double(b)/255)
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, _ in
+            DispatchQueue.main.async {
+                notificationAuthorized = granted
+                showNotificationDeniedMessage = !granted
+            }
         }
-        return nil
     }
 
-    static func textColor(for background: Color) -> Color {
-        let uiColor = UIColor(background)
-        var r: CGFloat = 0
-        var g: CGFloat = 0
-        var b: CGFloat = 0
-        var a: CGFloat = 0
-        uiColor.getRed(&r, green: &g, blue: &b, alpha: &a)
-        let luminance = 0.299 * r + 0.587 * g + 0.114 * b
-        return luminance > 0.6 ? .black : .white
+    private func scheduleNotification() {
+        guard notificationAuthorized else { return }
+        cancelPendingNotifications()
+
+        let content = UNMutableNotificationContent()
+        content.title = "FocusTimer"
+        content.body = "Your timer has completed!"
+        content.sound = .default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(remainingSeconds), repeats: false)
+        let request = UNNotificationRequest(identifier: "FocusTimerNotification", content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                // Handle error silently
+                print("Notification scheduling error: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func cancelPendingNotifications() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["FocusTimerNotification"])
+    }
+
+    private func buttonBackgroundColor() -> Color {
+        timerStatus == .running ? Color.red : Color.blue
+    }
+
+    private enum HapticType {
+        case start, pause, completion
+    }
+
+    private func provideHapticFeedback(_ type: HapticType) {
+        let generator = UINotificationFeedbackGenerator()
+        switch type {
+        case .start:
+            generator.notificationOccurred(.success)
+        case .pause:
+            generator.notificationOccurred(.warning)
+        case .completion:
+            generator.notificationOccurred(.error)
+        }
     }
 }

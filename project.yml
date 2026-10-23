@@ -1,4 +1,4 @@
-name: ColorCodePicker
+name: FocusTimer
 options:
   deploymentTarget:
     iOS: "16.0"
@@ -7,7 +7,7 @@ settings:
     SWIFT_VERSION: "5.0"
     IPHONEOS_DEPLOYMENT_TARGET: "16.0"
 targets:
-  ColorCodePicker:
+  FocusTimer:
     type: application
     platform: iOS
     sources:
@@ -15,15 +15,15 @@ targets:
       - Assets.xcassets
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.colorcodepicker
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.FocusTimer
         INFOPLIST_FILE: Info.plist
         GENERATE_INFOPLIST_FILE: NO
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
 schemes:
-  ColorCodePicker:
+  FocusTimer:
     build:
       targets:
-        ColorCodePicker: all
+        FocusTimer: all
     archive:
       config: Release
