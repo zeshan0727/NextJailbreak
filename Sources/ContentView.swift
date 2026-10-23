@@ -358,7 +358,7 @@ struct ContentView: View {
         .onAppear {
             vm.authenticate()
         }
-        .alert(item: $vm.errorMessage) { msg in
+        .alert(item: Binding<String?>(get: { vm.errorMessage }, set: { vm.errorMessage = $0 })) { msg in
             Alert(title: Text("Error"), message: Text(msg), dismissButton: .default(Text("OK")))
         }
     }
@@ -654,7 +654,7 @@ struct VaultItemDetailView: View {
             }
 
             switch item {
-            case .password(var p):
+            case .password(let p):
                 Section(header: Text("Username")) {
                     TextField("Username", text: bindingPasswordUsername)
                         .textContentType(.username)
@@ -692,7 +692,7 @@ struct VaultItemDetailView: View {
                         .frame(minHeight: 80)
                         .accessibilityLabel("Notes")
                 }
-            case .note(var n):
+            case .note(let n):
                 Section(header: Text("Note")) {
                     TextEditor(text: bindingNoteContent)
                         .frame(minHeight: 150)
