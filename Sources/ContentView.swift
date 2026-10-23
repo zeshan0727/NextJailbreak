@@ -19,7 +19,7 @@ protocol VaultItemProtocol: Identifiable, Codable {
     var title: String { get set }
 }
 
-struct PasswordItem: VaultItemProtocol {
+struct PasswordItem: VaultItemProtocol, Hashable {
     var id = UUID()
     let type: VaultItemType = .password
     var title: String
@@ -29,14 +29,14 @@ struct PasswordItem: VaultItemProtocol {
     var notes: String
 }
 
-struct NoteItem: VaultItemProtocol {
+struct NoteItem: VaultItemProtocol, Hashable {
     var id = UUID()
     let type: VaultItemType = .note
     var title: String
     var content: String
 }
 
-struct DocumentItem: VaultItemProtocol {
+struct DocumentItem: VaultItemProtocol, Hashable {
     var id = UUID()
     let type: VaultItemType = .document
     var title: String
@@ -45,7 +45,7 @@ struct DocumentItem: VaultItemProtocol {
     var fileUTType: String
 }
 
-enum VaultItem: Identifiable, Codable {
+enum VaultItem: Identifiable, Codable, Hashable {
     case password(PasswordItem)
     case note(NoteItem)
     case document(DocumentItem)
@@ -107,7 +107,7 @@ actor VaultStorage {
             return SymmetricKey(data: keyData)
         } else {
             let key = SymmetricKey(size: .bits256)
-            try KeychainHelper.shared.save(keyData: key.withUnsafeBytes { Data($0) }, service: keychainService, account: keychainAccountKey)
+            try KeychainHelper.shared.save(keyData: Data(key.withUnsafeBytes { Data($0) }), service: keychainService, account: keychainAccountKey)
             return key
         }
     }
@@ -358,10 +358,17 @@ struct ContentView: View {
         .onAppear {
             vm.authenticate()
         }
-        .alert(item: Binding<String?>(get: { vm.errorMessage }, set: { vm.errorMessage = $0 })) { msg in
-            Alert(title: Text("Error"), message: Text(msg), dismissButton: .default(Text("OK")))
+        .alert(item: Binding<ErrorWrapper?>(
+            get: { vm.errorMessage.map { ErrorWrapper(message: $0) } },
+            set: { _ in vm.errorMessage = nil })) { wrapper in
+            Alert(title: Text("Error"), message: Text(wrapper.message), dismissButton: .default(Text("OK")))
         }
     }
+}
+
+struct ErrorWrapper: Identifiable {
+    let id = UUID()
+    let message: String
 }
 
 // MARK: AuthenticationView
@@ -487,35 +494,18 @@ struct VaultListView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if vm.isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else if vm.vaultItems.isEmpty {
-                    Text("No items in your vault.")
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else {
-                    ForEach(VaultItemType.allCases) { type in
-                        if let items = groupedItems[type], !items.isEmpty {
-                            Section(header: Text(type.rawValue.capitalized)) {
-                                ForEach(items) { item in
-                                    NavigationLink(value: item) {
-                                        VaultItemRow(item: item)
-                                    }
-                                    .accessibilityLabel("\(item.title), type \(type.rawValue)")
-                                }
-                                .onDelete { indexSet in
-                                    guard let idx = indexSet.first else { return }
-                                    let item = items[idx]
-                                    alertItemToDelete = item
-                                }
-                            }
-                        }
-                    }
+            VaultListBody(
+                isLoading: vm.isLoading,
+                vaultItems: vm.vaultItems,
+                groupedItems: groupedItems,
+                alertItemToDelete: $alertItemToDelete,
+                searchText: $searchText,
+                showingAddItem: $showingAddItem,
+                showingSettings: $showingSettings,
+                onDelete: { item in
+                    Task { await vm.deleteItem(item) }
                 }
-            }
-            .searchable(text: $searchText, prompt: "Search vault items")
+            )
             .navigationTitle("Vault")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -583,6 +573,49 @@ struct VaultListView: View {
         case .document(let d):
             return d.fileName
         }
+    }
+}
+
+struct VaultListBody: View {
+    let isLoading: Bool
+    let vaultItems: [VaultItem]
+    let groupedItems: [VaultItemType: [VaultItem]]
+    @Binding var alertItemToDelete: VaultItem?
+    @Binding var searchText: String
+    @Binding var showingAddItem: Bool
+    @Binding var showingSettings: Bool
+    let onDelete: (VaultItem) -> Void
+
+    var body: some View {
+        List {
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else if vaultItems.isEmpty {
+                Text("No items in your vault.")
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                ForEach(VaultItemType.allCases) { type in
+                    if let items = groupedItems[type], !items.isEmpty {
+                        Section(header: Text(type.rawValue.capitalized)) {
+                            ForEach(items) { item in
+                                NavigationLink(value: item) {
+                                    VaultItemRow(item: item)
+                                }
+                                .accessibilityLabel("\(item.title), type \(type.rawValue)")
+                            }
+                            .onDelete { indexSet in
+                                guard let idx = indexSet.first else { return }
+                                let item = items[idx]
+                                alertItemToDelete = item
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .searchable(text: $searchText, prompt: "Search vault items")
     }
 }
 
@@ -655,62 +688,25 @@ struct VaultItemDetailView: View {
 
             switch item {
             case .password(let p):
-                Section(header: Text("Username")) {
-                    TextField("Username", text: bindingPasswordUsername)
-                        .textContentType(.username)
-                        .accessibilityLabel("Username")
-                }
-                Section(header: Text("Password")) {
-                    if showPassword {
-                        TextField("Password", text: bindingPasswordPassword)
-                            .textContentType(.password)
-                            .accessibilityLabel("Password visible")
-                    } else {
-                        SecureField("Password", text: bindingPasswordPassword)
-                            .textContentType(.password)
-                            .accessibilityLabel("Password hidden")
-                    }
-                    Button(showPassword ? "Hide Password" : "Show Password") {
-                        showPassword.toggle()
-                    }
-                    .accessibilityLabel(showPassword ? "Hide password" : "Show password")
-                    Button("Copy Password") {
+                PasswordDetailView(
+                    username: bindingPasswordUsername,
+                    password: bindingPasswordPassword,
+                    url: bindingPasswordURL,
+                    notes: bindingPasswordNotes,
+                    showPassword: $showPassword,
+                    onCopy: {
                         UIPasteboard.general.string = p.password
                         copyMessage = "Password copied to clipboard"
                         showCopyConfirmation = true
-                    }
-                    .accessibilityLabel("Copy password to clipboard")
-                }
-                Section(header: Text("URL")) {
-                    TextField("URL", text: bindingPasswordURL)
-                        .keyboardType(.URL)
-                        .textContentType(.URL)
-                        .accessibilityLabel("URL")
-                }
-                Section(header: Text("Notes")) {
-                    TextEditor(text: bindingPasswordNotes)
-                        .frame(minHeight: 80)
-                        .accessibilityLabel("Notes")
-                }
+                    })
             case .note(let n):
-                Section(header: Text("Note")) {
-                    TextEditor(text: bindingNoteContent)
-                        .frame(minHeight: 150)
-                        .accessibilityLabel("Note content")
-                    Button("Copy Note") {
-                        UIPasteboard.general.string = n.content
-                        copyMessage = "Note copied to clipboard"
-                        showCopyConfirmation = true
-                    }
-                    .accessibilityLabel("Copy note content to clipboard")
+                NoteDetailView(content: bindingNoteContent) {
+                    UIPasteboard.general.string = n.content
+                    copyMessage = "Note copied to clipboard"
+                    showCopyConfirmation = true
                 }
             case .document(let d):
-                Section(header: Text("File")) {
-                    Text(d.fileName)
-                        .accessibilityLabel("Document file name: \(d.fileName)")
-                    DocumentPreview(data: d.fileData, utType: d.fileUTType)
-                        .frame(height: 200)
-                }
+                DocumentDetailView(fileName: d.fileName, fileData: d.fileData, fileUTType: d.fileUTType)
             }
 
             Section {
@@ -796,6 +792,87 @@ struct VaultItemDetailView: View {
                 item = .note(n)
             }
         })
+    }
+}
+
+struct PasswordDetailView: View {
+    @Binding var username: String
+    @Binding var password: String
+    @Binding var url: String
+    @Binding var notes: String
+    @Binding var showPassword: Bool
+    let onCopy: () -> Void
+
+    var body: some View {
+        Group {
+            Section(header: Text("Username")) {
+                TextField("Username", text: $username)
+                    .textContentType(.username)
+                    .accessibilityLabel("Username")
+            }
+            Section(header: Text("Password")) {
+                if showPassword {
+                    TextField("Password", text: $password)
+                        .textContentType(.password)
+                        .accessibilityLabel("Password visible")
+                } else {
+                    SecureField("Password", text: $password)
+                        .textContentType(.password)
+                        .accessibilityLabel("Password hidden")
+                }
+                Button(showPassword ? "Hide Password" : "Show Password") {
+                    showPassword.toggle()
+                }
+                .accessibilityLabel(showPassword ? "Hide password" : "Show password")
+                Button("Copy Password") {
+                    onCopy()
+                }
+                .accessibilityLabel("Copy password to clipboard")
+            }
+            Section(header: Text("URL")) {
+                TextField("URL", text: $url)
+                    .keyboardType(.URL)
+                    .textContentType(.URL)
+                    .accessibilityLabel("URL")
+            }
+            Section(header: Text("Notes")) {
+                TextEditor(text: $notes)
+                    .frame(minHeight: 80)
+                    .accessibilityLabel("Notes")
+            }
+        }
+    }
+}
+
+struct NoteDetailView: View {
+    @Binding var content: String
+    let onCopy: () -> Void
+
+    var body: some View {
+        Section(header: Text("Note")) {
+            TextEditor(text: $content)
+                .frame(minHeight: 150)
+                .accessibilityLabel("Note content")
+            Button("Copy Note") {
+                onCopy()
+            }
+            .accessibilityLabel("Copy note content to clipboard")
+        }
+    }
+}
+
+struct DocumentDetailView: View {
+    let fileName: String
+    let fileData: Data
+    let fileUTType: String
+
+    var body: some View {
+        Section(header: Text("File")) {
+            Text(fileName)
+                .accessibilityLabel("Document file name: \(fileName)")
+            DocumentPreview(data: fileData, utType: fileUTType)
+                .frame(height: 200)
+        }
     }
 }
 
@@ -962,7 +1039,7 @@ struct AddVaultItemView: View {
                         let data = try Data(contentsOf: url)
                         documentData = data
                         documentFileName = url.lastPathComponent
-                        documentUTType = url.typeIdentifier ?? "public.data"
+                        documentUTType = try url.resourceValues(forKeys: [.contentTypeKey]).contentType?.identifier ?? "public.data"
                         filePickerError = nil
                     } catch {
                         filePickerError = "Failed to load file."
@@ -1189,7 +1266,6 @@ struct ToastModifier: ViewModifier {
                             }
                         }
                     }
-                    .accessibilityLiveRegion(.polite)
             }
         }
     }
