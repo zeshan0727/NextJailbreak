@@ -19,7 +19,7 @@ protocol VaultItemProtocol: Identifiable, Codable {
     var title: String { get set }
 }
 
-struct PasswordItem: VaultItemProtocol {
+struct PasswordItem: VaultItemProtocol, Hashable {
     var id = UUID()
     let type: VaultItemType = .password
     var title: String
@@ -29,14 +29,14 @@ struct PasswordItem: VaultItemProtocol {
     var notes: String
 }
 
-struct NoteItem: VaultItemProtocol {
+struct NoteItem: VaultItemProtocol, Hashable {
     var id = UUID()
     let type: VaultItemType = .note
     var title: String
     var content: String
 }
 
-struct DocumentItem: VaultItemProtocol {
+struct DocumentItem: VaultItemProtocol, Hashable {
     var id = UUID()
     let type: VaultItemType = .document
     var title: String
@@ -45,7 +45,7 @@ struct DocumentItem: VaultItemProtocol {
     var fileUTType: String
 }
 
-enum VaultItem: Identifiable, Codable {
+enum VaultItem: Identifiable, Codable, Hashable {
     case password(PasswordItem)
     case note(NoteItem)
     case document(DocumentItem)
@@ -258,7 +258,7 @@ final class VaultViewModel: ObservableObject {
 
     func verifyPasscode(_ input: String) -> Bool {
         guard let stored = try? KeychainHelper.shared.read(service: keychainService, account: passcodeAccount),
-              let storedString = stored.flatMap({ String(data: $0, encoding: .utf8) }) else {
+              let storedString = String(data: stored, encoding: .utf8) else {
             return false
         }
         return storedString == input
@@ -272,7 +272,7 @@ final class VaultViewModel: ObservableObject {
 
     func hasPasscode() -> Bool {
         if let data = try? KeychainHelper.shared.read(service: keychainService, account: passcodeAccount),
-           let str = data.flatMap({ String(data: $0, encoding: .utf8) }) {
+           let str = String(data: data, encoding: .utf8) {
             return str.count == 6
         }
         return false
@@ -358,8 +358,10 @@ struct ContentView: View {
         .onAppear {
             vm.authenticate()
         }
-        .alert(item: Binding<String?>(get: { vm.errorMessage }, set: { vm.errorMessage = $0 })) { msg in
-            Alert(title: Text("Error"), message: Text(msg), dismissButton: .default(Text("OK")))
+        .alert("Error", isPresented: Binding(get: { vm.errorMessage != nil }, set: { if !$0 { vm.errorMessage = nil } })) {
+            Button("OK", role: .cancel) { vm.errorMessage = nil }
+        } message: {
+            Text(vm.errorMessage ?? "Unknown error")
         }
     }
 }
@@ -962,7 +964,7 @@ struct AddVaultItemView: View {
                         let data = try Data(contentsOf: url)
                         documentData = data
                         documentFileName = url.lastPathComponent
-                        documentUTType = url.typeIdentifier ?? "public.data"
+                        documentUTType = url.pathExtension.lowercased() == "pdf" ? UTType.pdf.identifier : UTType.image.identifier
                         filePickerError = nil
                     } catch {
                         filePickerError = "Failed to load file."
@@ -1189,7 +1191,6 @@ struct ToastModifier: ViewModifier {
                             }
                         }
                     }
-                    .accessibilityLiveRegion(.polite)
             }
         }
     }
