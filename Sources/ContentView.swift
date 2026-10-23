@@ -2,6 +2,9 @@ import SwiftUI
 import LocalAuthentication
 import CryptoKit
 import Combine
+import UniformTypeIdentifiers
+import PDFKit
+import UIKit
 
 // MARK: - Models
 
@@ -99,7 +102,7 @@ actor VaultStorage {
         fileURL = dir.appendingPathComponent("vaultdata.enc")
     }
 
-    private func loadOrCreateKey() throws -> SymmetricKey {
+    func loadOrCreateKey() async throws -> SymmetricKey {
         if let keyData = try? KeychainHelper.shared.read(service: keychainService, account: keychainAccountKey) {
             return SymmetricKey(data: keyData)
         } else {
@@ -111,7 +114,7 @@ actor VaultStorage {
 
     func loadItems() async throws -> [VaultItem] {
         if encryptionKey == nil {
-            encryptionKey = try loadOrCreateKey()
+            encryptionKey = try await loadOrCreateKey()
         }
         guard let data = try? Data(contentsOf: fileURL) else { return [] }
         let sealedBox = try AES.GCM.SealedBox(combined: data)
@@ -122,7 +125,7 @@ actor VaultStorage {
 
     func saveItems(_ items: [VaultItem]) async throws {
         if encryptionKey == nil {
-            encryptionKey = try loadOrCreateKey()
+            encryptionKey = try await loadOrCreateKey()
         }
         let data = try JSONEncoder().encode(items)
         let sealedBox = try AES.GCM.seal(data, using: encryptionKey!)
@@ -131,7 +134,7 @@ actor VaultStorage {
 
     func resetStorage() async throws {
         try? FileManager.default.removeItem(at: fileURL)
-        encryptionKey = try loadOrCreateKey()
+        encryptionKey = try await loadOrCreateKey()
     }
 }
 
@@ -500,7 +503,7 @@ struct VaultListView: View {
                                     NavigationLink(value: item) {
                                         VaultItemRow(item: item)
                                     }
-                                    .accessibilityLabel("[1m\(item.title)[0m, type \(type.rawValue)")
+                                    .accessibilityLabel("\(item.title), type \(type.rawValue)")
                                 }
                                 .onDelete { indexSet in
                                     guard let idx = indexSet.first else { return }
@@ -797,9 +800,6 @@ struct VaultItemDetailView: View {
 }
 
 // MARK: DocumentPreview
-
-import UniformTypeIdentifiers
-import PDFKit
 
 struct DocumentPreview: UIViewRepresentable {
     let data: Data
@@ -1154,8 +1154,6 @@ struct ChangePasscodeView: View {
 }
 
 // MARK: ShareSheet
-
-import UIKit
 
 struct ShareSheet: UIViewControllerRepresentable {
     let activityItems: [Any]
