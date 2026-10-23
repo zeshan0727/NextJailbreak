@@ -50,22 +50,47 @@ final class DeviceDiscoveryViewModel: ObservableObject {
             }
         }
 
-        browser?.browseResultsChangedHandler = { [weak self] results, changes in
+        browser?.browseResultsChangedHandler = { [weak self] results, _ in
             DispatchQueue.main.async {
-                self?.discoveredDevices = results.compactMap { result in
-                    guard case let NWEndpoint.service(name: name, type: _, domain: _, interface: _) = result.endpoint else {
-                        return nil
+                var devices: [TVDevice] = []
+                for result in results {
+                    guard case let NWEndpoint.service(name, _, _, _) = result.endpoint else {
+                        continue
                     }
-                    // Extract IP and port from metadata
-                    if let ipPort = result.metadata.first(where: { $0 is NWProtocolTCP.Metadata }) as? NWProtocolTCP.Metadata {
-                        // We can't get IP from metadata directly, fallback to name only
-                        return TVDevice(name: name, ipAddress: "", port: 0)
-                    } else {
-                        return TVDevice(name: name, ipAddress: "", port: 0)
+                    // Attempt to extract IP and port from result
+                    var ipAddress = ""
+                    var port: UInt16 = 0
+
+                    if let endpoint = result.endpoint as? NWEndpoint {
+                        switch endpoint {
+                        case .service(_, _, _, _):
+                            // No direct IP here
+                            break
+                        default:
+                            break
+                        }
                     }
+
+                    // Try to get port from metadata
+                    if let txtRecord = result.metadata.first(where: { $0 is NWProtocolTXT.Metadata }) as? NWProtocolTXT.Metadata {
+                        // Could parse txtRecord if needed
+                    }
+
+                    // Try to get port from TCP metadata
+                    if let tcpMetadata = result.metadata.first(where: { $0 is NWProtocolTCP.Metadata }) as? NWProtocolTCP.Metadata {
+                        port = tcpMetadata.localPort?.rawValue ?? 0
+                    }
+
+                    // Fallback: use 80 if port is zero
+                    if port == 0 {
+                        port = 80
+                    }
+
+                    devices.append(TVDevice(name: name, ipAddress: ipAddress, port: port))
                 }
+                self?.discoveredDevices = devices
                 self?.isLoading = false
-                if self?.discoveredDevices.isEmpty == true {
+                if devices.isEmpty {
                     self?.errorMessage = "No TVs found on the network."
                 }
             }
@@ -135,6 +160,7 @@ final class RemoteControlViewModel: ObservableObject {
 
     func disconnect() {
         connection?.cancel()
+        connection = nil
         connectionStatus = .disconnected
         commandStatus = .idle
         errorMessage = nil
@@ -191,6 +217,8 @@ struct ContentView: View {
                         selectedDevice = nil
                         discoveryVM.startDiscovery()
                     }
+                } else {
+                    EmptyView()
                 }
             }
             .onAppear {
@@ -221,66 +249,101 @@ struct DeviceDiscoveryView: View {
                 ProgressView("Searching...")
                     .padding()
             } else if let error = errorMessage {
-                VStack(spacing: 12) {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                    Button("Retry") {
-                        onRefresh()
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-                .padding()
+                ErrorView(error: error, retryAction: onRefresh)
             } else if discoveredDevices.isEmpty {
-                Text("No TVs found on the network.")
-                    .foregroundColor(.secondary)
-                    .padding()
-                Button("Refresh") {
-                    onRefresh()
-                }
-                .buttonStyle(.bordered)
+                NoDevicesView(refreshAction: onRefresh)
             } else {
-                List(discoveredDevices) { device in
-                    Button(action: {
-                        onSelectDevice(device)
-                    }) {
-                        HStack {
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 12, height: 12)
-                                .accessibilityHidden(true)
-                            VStack(alignment: .leading) {
-                                Text(device.name)
-                                    .font(.headline)
-                                if !device.ipAddress.isEmpty {
-                                    Text(device.ipAddress)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            Spacer()
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .accessibilityLabel(Text("Connect to TV named \(device.name)"))
-                }
-                .listStyle(.plain)
-                .refreshable {
-                    onRefresh()
-                }
+                DevicesListView(devices: discoveredDevices, onSelect: onSelectDevice, onRefresh: onRefresh)
             }
 
             Spacer()
 
-            Button(action: {
-                onRefresh()
-            }) {
-                Label("Refresh", systemImage: "arrow.clockwise")
-            }
-            .buttonStyle(.borderedProminent)
-            .padding(.bottom)
+            RefreshButton(action: onRefresh)
+                .padding(.bottom)
         }
         .padding(.horizontal)
+    }
+}
+
+private struct ErrorView: View {
+    let error: String
+    let retryAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text(error)
+                .foregroundColor(.red)
+                .multilineTextAlignment(.center)
+            Button("Retry") {
+                retryAction()
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .padding()
+    }
+}
+
+private struct NoDevicesView: View {
+    let refreshAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Text("No TVs found on the network.")
+                .foregroundColor(.secondary)
+                .padding()
+            Button("Refresh") {
+                refreshAction()
+            }
+            .buttonStyle(.bordered)
+        }
+    }
+}
+
+private struct DevicesListView: View {
+    let devices: [TVDevice]
+    let onSelect: (TVDevice) -> Void
+    let onRefresh: () -> Void
+
+    var body: some View {
+        List(devices) { device in
+            Button(action: {
+                onSelect(device)
+            }) {
+                HStack {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 12, height: 12)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading) {
+                        Text(device.name)
+                            .font(.headline)
+                        if !device.ipAddress.isEmpty {
+                            Text(device.ipAddress)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+            }
+            .accessibilityLabel(Text("Connect to TV named \(device.name)"))
+        }
+        .listStyle(.plain)
+        .refreshable {
+            onRefresh()
+        }
+    }
+}
+
+private struct RefreshButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label("Refresh", systemImage: "arrow.clockwise")
+        }
+        .buttonStyle(.borderedProminent)
     }
 }
 
@@ -295,25 +358,9 @@ struct RemoteControlView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            HStack {
-                Text(vm.connectedDevice.name)
-                    .font(.title2)
-                    .bold()
-                    .accessibilityAddTraits(.isHeader)
-                Spacer()
-                Button("Disconnect") {
-                    vm.disconnect()
-                    onDisconnect()
-                }
-                .buttonStyle(.bordered)
-                .accessibilityLabel(Text("Disconnect from TV"))
-            }
-            .padding(.horizontal)
-
+            header
             connectionStatusView
-
             remoteButtons
-
             Spacer()
         }
         .padding()
@@ -326,6 +373,23 @@ struct RemoteControlView: View {
         )) {
             Alert(title: Text("Error"), message: Text(vm.errorMessage ?? ""), dismissButton: .default(Text("OK")))
         }
+    }
+
+    private var header: some View {
+        HStack {
+            Text(vm.connectedDevice.name)
+                .font(.title2)
+                .bold()
+                .accessibilityAddTraits(.isHeader)
+            Spacer()
+            Button("Disconnect") {
+                vm.disconnect()
+                onDisconnect()
+            }
+            .buttonStyle(.bordered)
+            .accessibilityLabel(Text("Disconnect from TV"))
+        }
+        .padding(.horizontal)
     }
 
     private var connectionStatusView: some View {
@@ -357,27 +421,32 @@ struct RemoteControlView: View {
 
     private var remoteButtons: some View {
         VStack(spacing: 20) {
-            HStack(spacing: 40) {
-                remoteButton(title: "Power", systemImage: "power", command: "power_toggle")
-                remoteButton(title: "Mute", systemImage: "speaker.slash", command: "mute")
-            }
-
-            HStack(spacing: 40) {
-                remoteButton(title: "Vol +", systemImage: "speaker.wave.3", command: "volume_up")
-                remoteButton(title: "Vol -", systemImage: "speaker.wave.1", command: "volume_down")
-            }
-
-            HStack(spacing: 40) {
-                remoteButton(title: "Ch +", systemImage: "chevron.up", command: "channel_up")
-                remoteButton(title: "Ch -", systemImage: "chevron.down", command: "channel_down")
-            }
-
+            topRow
+            volumeRow
+            channelRow
             navigationPad
+            bottomRow
+        }
+    }
 
-            HStack(spacing: 40) {
-                remoteButton(title: "Back", systemImage: "arrow.backward", command: "back")
-                remoteButton(title: "Home", systemImage: "house", command: "home")
-            }
+    private var topRow: some View {
+        HStack(spacing: 40) {
+            remoteButton(title: "Power", systemImage: "power", command: "power_toggle")
+            remoteButton(title: "Mute", systemImage: "speaker.slash", command: "mute")
+        }
+    }
+
+    private var volumeRow: some View {
+        HStack(spacing: 40) {
+            remoteButton(title: "Vol +", systemImage: "speaker.wave.3", command: "volume_up")
+            remoteButton(title: "Vol -", systemImage: "speaker.wave.1", command: "volume_down")
+        }
+    }
+
+    private var channelRow: some View {
+        HStack(spacing: 40) {
+            remoteButton(title: "Ch +", systemImage: "chevron.up", command: "channel_up")
+            remoteButton(title: "Ch -", systemImage: "chevron.down", command: "channel_down")
         }
     }
 
@@ -390,6 +459,13 @@ struct RemoteControlView: View {
                 remoteButton(title: "Right", systemImage: "chevron.right", command: "nav_right")
             }
             remoteButton(title: "Down", systemImage: "chevron.down", command: "nav_down")
+        }
+    }
+
+    private var bottomRow: some View {
+        HStack(spacing: 40) {
+            remoteButton(title: "Back", systemImage: "arrow.backward", command: "back")
+            remoteButton(title: "Home", systemImage: "house", command: "home")
         }
     }
 
