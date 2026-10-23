@@ -57,12 +57,21 @@ final class DeviceDiscoveryViewModel: ObservableObject {
                     guard case let NWEndpoint.service(name, _, _, _) = result.endpoint else {
                         continue
                     }
-                    // Attempt to extract IP and port from result
+
                     var ipAddress = ""
                     var port: UInt16 = 0
 
+                    // Extract IP address and port from endpoint
+                    if case let NWEndpoint.service(_, _, _, txtRecordData) = result.endpoint {
+                        // No direct IP here
+                    }
+
+                    // Extract IP address from result's endpoint if possible
                     if let endpoint = result.endpoint as? NWEndpoint {
                         switch endpoint {
+                        case .hostPort(let host, let nwPort):
+                            ipAddress = host.debugDescription
+                            port = nwPort.rawValue
                         case .service(_, _, _, _):
                             // No direct IP here
                             break
@@ -71,19 +80,27 @@ final class DeviceDiscoveryViewModel: ObservableObject {
                         }
                     }
 
-                    // Try to get port from metadata
-                    if let txtRecord = result.metadata.first(where: { $0 is NWProtocolTXT.Metadata }) as? NWProtocolTXT.Metadata {
-                        // Could parse txtRecord if needed
+                    // Fallback: try to get port from metadata
+                    if port == 0 {
+                        if let tcpMetadata = result.metadata.first(where: { $0 is NWProtocolTCP.Metadata }) as? NWProtocolTCP.Metadata {
+                            port = tcpMetadata.localPort?.rawValue ?? 0
+                        }
                     }
 
-                    // Try to get port from TCP metadata
-                    if let tcpMetadata = result.metadata.first(where: { $0 is NWProtocolTCP.Metadata }) as? NWProtocolTCP.Metadata {
-                        port = tcpMetadata.localPort?.rawValue ?? 0
-                    }
-
-                    // Fallback: use 80 if port is zero
                     if port == 0 {
                         port = 80
+                    }
+
+                    // Try to resolve IP address from endpoint if empty
+                    if ipAddress.isEmpty {
+                        if let hostEndpoint = result.endpoint as? NWEndpoint {
+                            switch hostEndpoint {
+                            case .hostPort(let host, _):
+                                ipAddress = host.debugDescription
+                            default:
+                                break
+                            }
+                        }
                     }
 
                     devices.append(TVDevice(name: name, ipAddress: ipAddress, port: port))
