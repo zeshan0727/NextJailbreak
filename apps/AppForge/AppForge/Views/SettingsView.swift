@@ -69,7 +69,7 @@ struct SettingsView: View {
                     Button("Clear prompt history and generated code", role: .destructive) { state.clearHistoryAndCache() }
                 }
                 Section("About") {
-                    LabeledContent("App", value: "AppForge 1.0.6")
+                    LabeledContent("App", value: "AppForge 1.0.7")
                     Text("No external backend, tracking, or analytics. Secrets use iOS Keychain. Requests go directly to your selected AI provider and GitHub.")
                         .font(.caption).foregroundStyle(.secondary)
                 }

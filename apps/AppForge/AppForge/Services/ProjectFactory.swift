@@ -108,9 +108,48 @@ enum ProjectFactory {
         }
     }
 
+
+    /// Repairs a narrow, recurring model-generated SwiftUI mistake:
+    /// .alert("...", isPresented: ...) { buttons }, message: { text })
+    /// has to use the 'message:' trailing closure without a comma or closing ')'.
+    /// Only rewrite when a .alert call appears immediately before the malformed closure.
+    private static func repairAlertTrailingClosure(_ files: [ForgeFile]) -> [ForgeFile] {
+        files.map { file in
+            guard file.path.hasSuffix(".swift") else { return file }
+            var lines = file.content.components(separatedBy: "\n")
+            guard lines.count > 2 else { return file }
+            for index in lines.indices {
+                let trimmed = lines[index].trimmingCharacters(in: .whitespaces)
+                guard trimmed == "}, message: {" else { continue }
+                let lookback = lines[max(0, index - 32)..<index].joined(separator: "\n")
+                guard lookback.contains(".alert(") else { continue }
+                let indent = String(lines[index].prefix(while: { $0 == " " || $0 == "\t" }))
+                let end = min(lines.count, index + 24)
+                guard index + 1 < end,
+                      let endIndex = (index+1..<end).first(where: {
+                          lines[$0].trimmingCharacters(in: .whitespaces) == "})"
+                          && String(lines[$0].prefix(while: { $0 == " " || $0 == "\t" })) == indent
+                      }) else { continue }
+                lines[index] = indent + "} message: {"
+                lines[endIndex] = indent + "}"
+            }
+            return ForgeFile(path: file.path, content: lines.joined(separator: "\n"))
+        }
+    }
+
+    static func repairKnownCompilerErrors(_ project: ForgeProject, log: String) -> ForgeProject? {
+        guard log.contains("consecutive statements on a line")
+           || log.contains("labeled block needs 'do'")
+           || log.contains("Expected expression")
+           || log.contains("expected expression") else { return nil }
+        var updated = project
+        updated.files = repairAlertTrailingClosure(project.files)
+        return updated.files == project.files ? nil : updated
+    }
+
     static func scaffold(_ project: ForgeProject, minIOS: String) throws -> ForgeProject {
         var safe = try sanitize(project)
-        safe.files = repairNavigationModels(safe.files)
+        safe.files = repairAlertTrailingClosure(repairNavigationModels(safe.files))
         let target = safe.appName
         let ios = minIOS.range(of: #"^\d{1,2}\.\d{1,2}$"#, options: .regularExpression) == nil ? "16.0" : minIOS
         var yaml = """

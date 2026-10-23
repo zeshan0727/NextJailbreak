@@ -1,7 +1,7 @@
 import Foundation
 
 enum ForgeTab: Int, CaseIterable, Identifiable {
-    case requirement, code, github, status, downloads
+    case requirement, code, github, status, downloads, support
     var id: Int { rawValue }
     var title: String {
         switch self {
@@ -10,6 +10,7 @@ enum ForgeTab: Int, CaseIterable, Identifiable {
         case .github: return "GitHub"
         case .status: return "Build"
         case .downloads: return "Downloads"
+        case .support: return "AI Support"
         }
     }
     var symbol: String {
@@ -19,6 +20,7 @@ enum ForgeTab: Int, CaseIterable, Identifiable {
         case .github: return "arrow.up.doc"
         case .status: return "hammer"
         case .downloads: return "square.and.arrow.down"
+        case .support: return "bubble.left.and.wrench.bubble.right"
         }
     }
 }
@@ -140,4 +142,12 @@ struct StoredDownload: Identifiable {
 
 extension Int64 {
     var forgeSize: String { ByteCountFormatter.string(fromByteCount: self, countStyle: .file) }
+}
+
+
+/// In-memory support chat messages. Never stores user text, source or logs in UserDefaults.
+struct SupportMessage: Identifiable {
+    let id = UUID()
+    let role: String
+    let content: String
 }

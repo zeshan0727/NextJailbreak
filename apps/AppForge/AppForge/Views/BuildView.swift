@@ -14,6 +14,11 @@ struct BuildView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 17) {
                     ScreenHeading(title: "Build Status", subtitle: "GitHub Actions checks the pushed commit every 8 seconds.")
+                    Button {
+                        state.selectedTab = .support
+                    } label: {
+                        Label("Ask AI Support", systemImage: "bubble.left.and.wrench.bubble.right")
+                    }.buttonStyle(.borderedProminent)
                     NavigationLink(destination: DiagnosticsView()) {
                         Label("Import .ips Crash Report & Fix", systemImage: "stethoscope")
                     }.buttonStyle(.bordered)

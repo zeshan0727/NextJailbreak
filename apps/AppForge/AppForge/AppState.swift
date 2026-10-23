@@ -28,6 +28,8 @@ final class AppState: ObservableObject {
     @Published var busyPush = false
     @Published var busyTest = false
     @Published var busyFix = false
+    @Published var supportMessages: [SupportMessage] = []
+    @Published var supportBusy = false
     @Published var notice: String?
     @Published var repositories: [GitHubRepo] = []
     @Published var chosenRepo = "" { didSet { persistBuildSession() } }
@@ -371,7 +373,12 @@ final class AppState: ObservableObject {
                           $0.localizedCaseInsensitiveContains("fatal error") ||
                           $0.contains("##[error]") || $0.contains("BUILD FAILED") }
                 .suffix(65).joined(separator: "\n")
-            let corrected = try await getProject(system: AIClient.codeSystem, request: """
+            let corrected: ForgeProject
+            if let local = ProjectFactory.repairKnownCompilerErrors(project, log: failureLog) {
+                corrected = local
+                repairStatus = "Fixed known SwiftUI alert syntax without an API call."
+            } else {
+                corrected = try await getProject(system: AIClient.codeSystem, request: """
             Fix this exact iOS \(preferences.minimumIOS) GitHub Actions compiler failure.
             Keep the original feature set and bundle ID (\(project.bundleId)) unchanged.
             Output ALL complete Swift source files, not a diff, in strict JSON. Use only iOS 16 APIs.
@@ -390,10 +397,17 @@ final class AppState: ObservableObject {
             LAST BUILD LOG:
             \(String(failureLog.suffix(12_000)))
             """)
+            }
             guard corrected.bundleId == project.bundleId else {
                 throw ForgeError.message("AI tried to change bundle identifier; repair rejected")
             }
-            self.project = try ProjectFactory.scaffold(corrected, minIOS: preferences.minimumIOS)
+            let rebuilt = try ProjectFactory.scaffold(corrected, minIOS: preferences.minimumIOS)
+            let oldSource = project.files.filter { $0.path.hasSuffix(".swift") }.map { $0.path + $0.content }
+            let newSource = rebuilt.files.filter { $0.path.hasSuffix(".swift") }.map { $0.path + $0.content }
+            guard oldSource != newSource else {
+                throw ForgeError.message("AI did not change any Swift source. Automatic retries stopped; use AI Support to describe the error and request a different fix.")
+            }
+            self.project = rebuilt
             if automatically {
                 repairStatus = "AI repaired sources. Pushing corrected files and building again…"
                 await pushAndBuild(resetRepairCycle: false)
@@ -404,6 +418,123 @@ final class AppState: ObservableObject {
         } catch {
             repairStatus = "AI repair unsuccessful: \(error.localizedDescription)"
             notice = repairStatus
+        }
+    }
+
+
+    /// Provides contextual, interactive repair help through the user's configured API.
+    /// The API receives ONLY selected source snippets, compiler errors and recent chat turns.
+    func askSupport(_ message: String) async {
+        let input = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !input.isEmpty && !supportBusy else { return }
+        supportMessages.append(SupportMessage(role: "user", content: input))
+        supportBusy = true
+        defer { supportBusy = false }
+        do {
+            if failureLog.isEmpty, !lastCommitSHA.isEmpty, !lastOwner.isEmpty, !lastRepo.isEmpty {
+                let client = github()
+                if let run = try? await client.latestRun(owner: lastOwner, repo: lastRepo, sha: lastCommitSHA),
+                   run.conclusion == "failure",
+                   let job = try? await client.jobs(owner: lastOwner, repo: lastRepo, run: run.id),
+                   let failing = job.first(where: { $0.conclusion == "failure" }),
+                   let text = try? await client.jobLog(owner: lastOwner, repo: lastRepo, job: failing.id) {
+                    failureLog = text
+                }
+            }
+            let history = supportMessages.suffix(8).map { "\($0.role): \($0.content)" }
+                .joined(separator: "\n\n")
+            let swift = project?.files.filter {
+                $0.path.hasSuffix(".swift") && $0.path != "Sources/AppEntry.swift"
+            }.map { "PATH: \($0.path)\n\($0.content)" }.joined(separator: "\n\n") ?? ""
+            let problems = failureLog.split(separator: "\n")
+                .filter { $0.localizedCaseInsensitiveContains("error:")
+                       || $0.contains("BUILD FAILED")
+                       || $0.localizedCaseInsensitiveContains("fatal error") }
+                .suffix(35).joined(separator: "\n")
+            let diagnosis = try await ai().chat(system: """
+                You are AppForge's iOS engineer support assistant. Answer the user's issue with
+                concrete explanations grounded in the supplied code and GitHub compiler diagnostics.
+                Identify the precise Swift file and likely correction, but be explicit when unverified.
+                Explain the difference between an Xcode compile, successful IPA build, and running on iPhone.
+                The user can click Apply AI Fix & Rebuild IPA to request a fresh code patch.
+                Do not claim you have already edited files, pushed code, tested iPhone, or installed an IPA.
+                Never ask for GitHub or AI secret tokens.
+                """, user: """
+                Project: \(project?.appName ?? "No project loaded")
+                Bundle: \(project?.bundleId ?? "unknown")
+                Branch: \(chosenBranch)
+                Errors:
+                \(String(problems.prefix(6000)))
+                Latest log excerpt:
+                \(String(failureLog.suffix(6500)))
+                Swift source:
+                \(String(swift.prefix(26000)))
+                Conversation:
+                \(history)
+                """)
+            supportMessages.append(SupportMessage(role: "assistant", content: diagnosis))
+        } catch {
+            supportMessages.append(SupportMessage(role: "assistant",
+                content: "I could not analyze the issue: \(error.localizedDescription). Check Settings → Test AI connection."))
+        }
+    }
+
+    /// User-confirmed source repair. Never blindly commits chat text as executable Swift.
+    func applySupportRepair() async {
+        guard let original = project, !supportBusy, !busyFix, !busyPush,
+              supportMessages.contains(where: { $0.role == "user" }) else {
+            notice = "Load the matching generated project and describe its problem in AI Support first."
+            return
+        }
+        busyFix = true
+        defer { busyFix = false }
+        repairStatus = "Analyzing requested changes against current source…"
+        do {
+            let repaired: ForgeProject
+            if let known = ProjectFactory.repairKnownCompilerErrors(original, log: failureLog) {
+                repaired = known
+            } else {
+                let source = original.files.filter {
+                    $0.path.hasSuffix(".swift") && $0.path != "Sources/AppEntry.swift"
+                }.map { "PATH: \($0.path)\n\($0.content)" }.joined(separator: "\n\n")
+                let dialogue = supportMessages.suffix(10)
+                    .map { "\($0.role): \($0.content)" }.joined(separator: "\n\n")
+                repaired = try await getProject(system: AIClient.codeSystem, request: """
+                    You are correcting an EXISTING iOS SwiftUI application, not designing a new one.
+                    Keep its exact bundle ID \(original.bundleId), original app name
+                    \(original.appName), and existing functionality/data model.
+                    Return EVERY updated Swift source file, preserving unchanged Swift files too,
+                    under each original path. No TODOs or incomplete output.
+                    Original requirements:
+                    \(String(codePrompt.prefix(8000)))
+                    User support conversation and requested changes:
+                    \(String(dialogue.prefix(8500)))
+                    Compiler errors:
+                    \(String(failureLog.split(separator: "\n").filter { $0.contains("error:") }.suffix(30).joined(separator: "\n").prefix(5500)))
+                    Current Swift files:
+                    \(String(source.prefix(88000)))
+                    """)
+            }
+            guard repaired.bundleId == original.bundleId,
+                  repaired.appName == original.appName else {
+                throw ForgeError.message("AI changed the app identity; no files were pushed.")
+            }
+            let rebuilt = try ProjectFactory.scaffold(repaired, minIOS: preferences.minimumIOS)
+            let oldSwift = original.files.filter { $0.path.hasSuffix(".swift") }.map { $0.path + $0.content }
+            let newSwift = rebuilt.files.filter { $0.path.hasSuffix(".swift") }.map { $0.path + $0.content }
+            guard oldSwift != newSwift else {
+                throw ForgeError.message("AI returned unchanged Swift code. Nothing was pushed. Describe the desired correction more specifically.")
+            }
+            project = rebuilt
+            repairStatus = "Source updated. Pushing a new build to this app's isolated branch…"
+            await pushAndBuild()
+            if lastCommitSHA.isEmpty { throw ForgeError.message("No GitHub commit was created.") }
+            supportMessages.append(SupportMessage(role: "assistant", content:
+                "Correction committed to \(chosenBranch) at \(String(lastCommitSHA.prefix(12))). Open Build for compiler verification. Successful compilation does not guarantee correct on-device behavior."))
+        } catch {
+            repairStatus = "Support repair stopped: \(error.localizedDescription)"
+            notice = repairStatus
+            supportMessages.append(SupportMessage(role: "assistant", content: repairStatus))
         }
     }
 
