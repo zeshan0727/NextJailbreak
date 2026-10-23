@@ -217,8 +217,28 @@ final class VaultViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
 
+    @Published var existingVaultDataWithoutPasscode = false
+
     init() {
         loadBiometricPreference()
+        let support = FileManager.default.urls(for: .applicationSupportDirectory,
+                                                in: .userDomainMask).first!
+        existingVaultDataWithoutPasscode = FileManager.default.fileExists(
+            atPath: support.appendingPathComponent("vaultdata.enc").path
+        ) && !hasPasscode()
+    }
+
+    func createInitialPasscode(_ passcode: String) throws {
+        guard !hasPasscode() else { throw VaultError.initialPasscodeAlreadyExists }
+        guard !existingVaultDataWithoutPasscode else {
+            throw VaultError.existingDataRequiresRecovery
+        }
+        guard passcode.count == 6 && passcode.allSatisfy({ $0.isASCII && $0.isNumber }) else {
+            throw VaultError.invalidPasscodeLength
+        }
+        try setPasscode(passcode)
+        authState = .authenticated
+        Task { await loadVault() }
     }
 
     func loadBiometricPreference() {
@@ -237,6 +257,7 @@ final class VaultViewModel: ObservableObject {
     }
 
     func authenticate() {
+        guard hasPasscode() else { authState = .unauthenticated; return }
         authState = .authenticating
         let context = LAContext()
         var error: NSError?
@@ -321,14 +342,19 @@ final class VaultViewModel: ObservableObject {
         try KeychainHelper.shared.delete(service: keychainService, account: passcodeAccount)
         setBiometricEnabled(false)
         vaultItems = []
+        existingVaultDataWithoutPasscode = false
         authState = .unauthenticated
     }
 
     enum VaultError: Error, LocalizedError {
         case invalidPasscodeLength
+        case initialPasscodeAlreadyExists
+        case existingDataRequiresRecovery
         var errorDescription: String? {
             switch self {
             case .invalidPasscodeLength: return "Passcode must be exactly 6 digits."
+            case .initialPasscodeAlreadyExists: return "A passcode already exists. Unlock using the current passcode."
+            case .existingDataRequiresRecovery: return "Encrypted vault data exists. Reset it explicitly before creating a new passcode."
             }
         }
     }
@@ -343,16 +369,26 @@ struct ContentView: View {
         Group {
             switch vm.authState {
             case .unauthenticated:
-                AuthenticationView()
-                    .environmentObject(vm)
+                if vm.hasPasscode() {
+                    AuthenticationView()
+                        .environmentObject(vm)
+                } else {
+                    InitialPasscodeView()
+                        .environmentObject(vm)
+                }
             case .authenticating:
                 ProgressView("Authenticating...")
             case .authenticated:
                 VaultListView()
                     .environmentObject(vm)
             case .failed(let message):
-                AuthenticationView(errorMessage: message)
-                    .environmentObject(vm)
+                if vm.hasPasscode() {
+                    AuthenticationView(errorMessage: message)
+                        .environmentObject(vm)
+                } else {
+                    InitialPasscodeView()
+                        .environmentObject(vm)
+                }
             }
         }
         .onAppear {
@@ -362,6 +398,82 @@ struct ContentView: View {
             Button("OK", role: .cancel) { vm.errorMessage = nil }
         } message: {
             Text(vm.errorMessage ?? "Unknown error")
+        }
+    }
+}
+
+// MARK: - First launch passcode setup
+struct InitialPasscodeView: View {
+    @EnvironmentObject var vm: VaultViewModel
+    @State private var first = ""
+    @State private var confirmation = ""
+    @State private var errorMessage: String?
+    @State private var showingReset = false
+    @State private var resetting = false
+
+    private var valid: Bool {
+        first.count == 6 && first.allSatisfy({ $0.isASCII && $0.isNumber })
+            && first == confirmation
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Label("Secure Vault Setup", systemImage: "lock.shield.fill")
+                        .font(.headline)
+                    Text("There is no default password. Create your own 6-digit passcode to protect this vault.")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                }
+                if vm.existingVaultDataWithoutPasscode {
+                    Section("Existing encrypted data detected") {
+                        Text("This installation already has encrypted vault data but no saved passcode. For your security, a new passcode cannot grant access to that data.")
+                            .foregroundStyle(.orange)
+                        Button("Erase Old Data and Start Fresh", role: .destructive) {
+                            showingReset = true
+                        }
+                        .disabled(resetting)
+                    }
+                } else {
+                    Section("Choose your passcode") {
+                        SecureField("New 6-digit passcode", text: $first)
+                            .keyboardType(.numberPad)
+                            .textContentType(.newPassword)
+                        SecureField("Confirm passcode", text: $confirmation)
+                            .keyboardType(.numberPad)
+                        if !confirmation.isEmpty && first != confirmation {
+                            Text("Passcodes do not match").foregroundStyle(.red).font(.caption)
+                        }
+                        Button("Create Passcode & Open Vault") {
+                            do {
+                                try vm.createInitialPasscode(first)
+                                first = ""
+                                confirmation = ""
+                            } catch {
+                                errorMessage = error.localizedDescription
+                            }
+                        }
+                        .disabled(!valid)
+                    }
+                }
+                if let errorMessage {
+                    Section { Text(errorMessage).foregroundStyle(.red) }
+                }
+            }
+            .navigationTitle("Create Passcode")
+            .confirmationDialog("Permanently erase any previously stored Vault data?", isPresented: $showingReset) {
+                Button("Erase Vault Data", role: .destructive) {
+                    resetting = true
+                    Task {
+                        do { try await vm.resetPasscode() }
+                        catch { errorMessage = error.localizedDescription }
+                        resetting = false
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This deletes existing encrypted vault items. It cannot recover old passwords or notes.")
+            }
         }
     }
 }
