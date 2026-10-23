@@ -113,7 +113,7 @@ enum ProjectFactory {
         safe.files = repairNavigationModels(safe.files)
         let target = safe.appName
         let ios = minIOS.range(of: #"^\d{1,2}\.\d{1,2}$"#, options: .regularExpression) == nil ? "16.0" : minIOS
-        let yaml = """
+        var yaml = """
         name: \(target)
         options:
           deploymentTarget:
@@ -144,6 +144,13 @@ enum ProjectFactory {
             archive:
               config: Release
         """
+        // The selected repository may already contain a different app under Sources/.
+        // Include ONLY this app's generated Swift files, never the entire inherited folder.
+        let swiftFiles = (safe.files.map(\.path) + ["Sources/AppEntry.swift"])
+            .sorted()
+        let explicitSources = swiftFiles.map { "      - \($0)" }.joined(separator: "\n")
+        yaml = yaml.replacingOccurrences(of: "      - Sources\n",
+            with: explicitSources + "\n")
         let info = """
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

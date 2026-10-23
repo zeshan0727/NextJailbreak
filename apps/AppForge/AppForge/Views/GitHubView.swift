@@ -27,18 +27,25 @@ struct GitHubView: View {
                             ForEach(state.repositories) { repo in
                                 Text(repo.name).tag(repo.name)
                             }
-                        }.onChange(of: state.chosenRepo) { _ in Task { await state.refreshBranches() } }
+                        }
                     }
                     TextField("Repository name", text: $state.chosenRepo)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
-                    if !state.branches.isEmpty {
-                        Picker("Existing branch", selection: $state.chosenBranch) {
-                            ForEach(state.branches) { branch in Text(branch.name).tag(branch.name) }
-                        }
+                    LabeledContent("Branch policy", value: "Isolated per app")
+                    if state.chosenBranch.hasPrefix("appforge/"),
+                       state.lastRepo == state.chosenRepo,
+                       state.lastOwner == state.preferences.githubUsername,
+                       !state.lastCommitSHA.isEmpty {
+                        Text(state.chosenBranch)
+                            .font(.system(.footnote, design: .monospaced))
+                            .textSelection(.enabled)
+                        Label("Rebuilds and AI repairs use only this app's branch.", systemImage: "checkmark.shield.fill")
+                            .foregroundStyle(.green)
+                    } else {
+                        Text("AppForge will create a new unique branch like appforge/notes-8f3c21a2d491.")
+                            .font(.footnote).foregroundStyle(.secondary)
                     }
-                    TextField("Branch (existing or new)", text: $state.chosenBranch)
-                        .textInputAutocapitalization(.never).autocorrectionDisabled()
-                    Text("New branches start from the selected repo's default branch.")
+                    Text("Main, master, and other projects' branches are never selected or modified. Each new generated app gets its own branch from this repository's default branch.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Section("Commit") {

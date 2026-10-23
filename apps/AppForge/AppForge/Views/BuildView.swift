@@ -26,6 +26,9 @@ struct BuildView: View {
                     } else {
                         LabeledContent("Repository", value: "\(state.lastOwner)/\(state.lastRepo)")
                         LabeledContent("Commit", value: String(state.lastCommitSHA.prefix(12)))
+                        if !state.chosenBranch.isEmpty {
+                            LabeledContent("App branch", value: state.chosenBranch)
+                        }
                         LabeledContent("Elapsed", value: elapsed)
                         HStack {
                             Label(state.activeRun?.status ?? "Awaiting workflow", systemImage: state.activeRun?.conclusion == "success" ? "checkmark.circle.fill" : state.activeRun?.conclusion == "failure" ? "xmark.circle.fill" : "clock")

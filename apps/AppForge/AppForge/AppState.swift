@@ -30,9 +30,8 @@ final class AppState: ObservableObject {
     @Published var busyFix = false
     @Published var notice: String?
     @Published var repositories: [GitHubRepo] = []
-    @Published var branches: [GitHubBranch] = []
     @Published var chosenRepo = "" { didSet { persistBuildSession() } }
-    @Published var chosenBranch = "main" { didSet { persistBuildSession() } }
+    @Published private(set) var chosenBranch = "" { didSet { persistBuildSession() } }
     @Published var commitMessage = "Build with AppForge"
     @Published var lastCommitSHA = "" { didSet { persistBuildSession() } }
     @Published var lastOwner = "" { didSet { persistBuildSession() } }
@@ -86,7 +85,8 @@ final class AppState: ObservableObject {
             project = session.project
             codePrompt = session.codePrompt
             chosenRepo = session.repo.isEmpty ? preferences.defaultRepo : session.repo
-            chosenBranch = session.branch
+            // Old arbitrary branch selections must not be trusted after upgrading.
+            chosenBranch = session.branch.hasPrefix("appforge/") ? session.branch : ""
             lastOwner = session.owner
             lastRepo = session.repo
             lastCommitSHA = session.commitSHA
@@ -197,7 +197,17 @@ final class AppState: ObservableObject {
         do {
             let generated = try await getProject(system: AIClient.codeSystem, request: codePrompt)
             project = try ProjectFactory.scaffold(generated, minIOS: preferences.minimumIOS)
-            repairStatus = "Code generation complete. JSON response validated."
+            // A new code generation is a NEW project, even if the app name repeats.
+            // Do not reuse or change an older app's GitHub branch.
+            chosenBranch = ""
+            lastCommitSHA = ""
+            lastOwner = ""
+            lastRepo = ""
+            activeRun = nil
+            jobs = []
+            failureLog = ""
+            repairAttempt = 0
+            repairStatus = "New project ready. GitHub will create its own protected appforge/ branch."
         } catch { notice = error.localizedDescription }
     }
 
@@ -226,15 +236,7 @@ final class AppState: ObservableObject {
         do {
             repositories = try await github().repositories()
             if chosenRepo.isEmpty, let first = repositories.first { chosenRepo = first.name }
-            await refreshBranches()
         } catch { notice = error.localizedDescription }
-    }
-    func refreshBranches() async {
-        guard !chosenRepo.isEmpty else { branches = []; return }
-        let repo = repositories.first { $0.name == chosenRepo }
-        chosenBranch = repo?.default_branch ?? "main"
-        do { branches = try await github().branches(owner: preferences.githubUsername, repo: chosenRepo) }
-        catch { notice = error.localizedDescription }
     }
     func createRepo(name: String, isPrivate: Bool) async {
         do {
@@ -242,8 +244,11 @@ final class AppState: ObservableObject {
             preferences.githubUsername = new.full_name.split(separator: "/").first.map(String.init) ?? preferences.githubUsername
             await refreshRepos()
             chosenRepo = new.name
-            chosenBranch = new.default_branch
-            await refreshBranches()
+            // Repository creation must never select its default branch for pushes.
+            chosenBranch = ""
+            lastCommitSHA = ""
+            lastRepo = ""
+            lastOwner = ""
             notice = "Created repository \(new.full_name)"
         } catch { notice = error.localizedDescription }
     }
@@ -256,10 +261,22 @@ final class AppState: ObservableObject {
         guard !owner.isEmpty, !repo.isEmpty else { notice = "Choose a repo and set your GitHub username"; return }
         busyPush = true; defer { busyPush = false }
         do {
-            let initialBranch = repositories.first(where: { $0.name == repo })?.default_branch ?? "main"
-            let sha = try await github().push(project: project, owner: owner, repo: repo,
-                                              branch: chosenBranch, message: commitMessage,
-                                              sourceBranch: initialBranch)
+            let client = github()
+            let source = try await client.defaultBranch(owner: owner, repo: repo)
+            let reusingOwnedBranch = chosenBranch.hasPrefix("appforge/")
+                && !lastCommitSHA.isEmpty
+                && lastOwner.caseInsensitiveCompare(owner) == .orderedSame
+                && lastRepo.caseInsensitiveCompare(repo) == .orderedSame
+            let slug = String(project.appName.lowercased()
+                .map { $0.isASCII && ($0.isLetter || $0.isNumber) ? $0 : "-" }
+                .prefix(36))
+            let uuid = String(UUID().uuidString.replacingOccurrences(of: "-", with: "")
+                .lowercased().prefix(12))
+            let destination = reusingOwnedBranch ? chosenBranch : "appforge/\(slug)-\(uuid)"
+            let sha = try await client.push(project: project, owner: owner, repo: repo,
+                branch: destination, message: commitMessage, sourceBranch: source,
+                expectedHeadSHA: reusingOwnedBranch ? lastCommitSHA : nil)
+            chosenBranch = destination
             lastCommitSHA = sha; lastOwner = owner; lastRepo = repo
             downloadsOwner = owner; downloadsRepo = repo
             currentBuildRelease = nil; latestProjectRelease = nil; releases = []
@@ -326,7 +343,7 @@ final class AppState: ObservableObject {
                 }
             } else {
                 missingRunChecks += 1
-                if missingRunChecks >= 4 && !fallbackDispatched {
+                if missingRunChecks >= 4 && !fallbackDispatched && chosenBranch.hasPrefix("appforge/") {
                     fallbackDispatched = true
                     do { try await client.dispatch(owner: lastOwner, repo: lastRepo, branch: chosenBranch) }
                     catch { notice = "Push completed, but no run found yet. Manual dispatch unavailable: \(error.localizedDescription)" }
@@ -511,7 +528,7 @@ final class AppState: ObservableObject {
     func clearHistoryAndCache() {
         history = []; saveHistory()
         requirement = ""; generatedPrompt = ""; codePrompt = ""; project = nil; failureLog = ""; importedCrash = nil
-        repairAttempt = 0; repairStatus = ""; lastCommitSHA = ""; lastOwner = ""; lastRepo = ""
+        repairAttempt = 0; repairStatus = ""; chosenBranch = ""; lastCommitSHA = ""; lastOwner = ""; lastRepo = ""
         UserDefaults.standard.removeObject(forKey: "forgeBuildSession")
         notice = "Prompt history and generated code cleared. Downloads and Keychain tokens preserved"
     }

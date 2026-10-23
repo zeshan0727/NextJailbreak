@@ -82,27 +82,37 @@ struct GitHubClient {
         ])
     }
 
-    /// Multi-file atomic commit using Git blobs, tree, commit, then head ref update.
+    /// Create a new isolated branch for each app. A rebuild can update ONLY the
+    /// branch that AppForge created, and only at the exact head SHA it last pushed.
+    /// Never write to main/master or an arbitrary existing branch.
     func push(project: ForgeProject, owner: String, repo: String, branch: String, message: String,
-              sourceBranch: String) async throws -> String {
+              sourceBranch: String, expectedHeadSHA: String?) async throws -> String {
         let repoPath = "/repos/\(owner)/\(repo)"
-        guard !branch.isEmpty, !branch.contains(".."), !branch.hasPrefix("/"), !branch.hasSuffix("/") else {
-            throw ForgeError.message("Invalid branch name")
+        let allowed = #"^appforge/[a-z0-9][a-z0-9-]{0,43}-[a-f0-9]{12}$"#
+        guard branch.range(of: allowed, options: .regularExpression) != nil,
+              branch != sourceBranch,
+              sourceBranch != branch else {
+            throw ForgeError.message("Unsafe branch rejected. AppForge creates only unique appforge/<app>-<id> branches.")
         }
+
+        let isRepair = expectedHeadSHA != nil
         let parent: String
-        let mustCreateBranch: Bool
-        do {
-            let ref: GitReference = try await decoded(GitReference.self, "\(repoPath)/git/ref/heads/\(branch)")
-            parent = ref.object.sha
-            mustCreateBranch = false
-        } catch {
-            // Do not quietly mask permissions/network faults: only create when the branch isn't listed.
-            let knownBranches = try await branches(owner: owner, repo: repo)
-            if knownBranches.contains(where: { $0.name == branch }) { throw error }
-            let origin: GitReference = try await decoded(GitReference.self, "\(repoPath)/git/ref/heads/\(sourceBranch)")
+        if let expectedHeadSHA {
+            // Abort rather than overwrite changes pushed from another device/user.
+            let head: GitReference = try await decoded(GitReference.self,
+                                                       "\(repoPath)/git/ref/heads/\(branch)")
+            guard head.object.sha == expectedHeadSHA else {
+                throw ForgeError.message("This app's branch changed on GitHub. Push blocked to avoid overwriting another commit.")
+            }
+            parent = head.object.sha
+        } else {
+            // A new project MUST fork from the repo's actual default branch.
+            // Never reuse an existing branch, even if a collision occurs.
+            let origin: GitReference = try await decoded(GitReference.self,
+                                                         "\(repoPath)/git/ref/heads/\(sourceBranch)")
             parent = origin.object.sha
-            mustCreateBranch = true
         }
+
         let prior: GitCommit = try await decoded(GitCommit.self, "\(repoPath)/git/commits/\(parent)")
         var entries = [[String: Any]]()
         for file in project.files {
@@ -118,16 +128,23 @@ struct GitHubClient {
             "message": message.isEmpty ? "Build app from AppForge" : message,
             "tree": tree.sha, "parents": [parent]
         ])
-        if mustCreateBranch {
-            _ = try await fetch("\(repoPath)/git/refs", method: "POST", body: [
-                "ref": "refs/heads/\(branch)", "sha": commit.sha
-            ])
-        } else {
+        if isRepair {
             _ = try await fetch("\(repoPath)/git/refs/heads/\(branch)", method: "PATCH", body: [
                 "sha": commit.sha, "force": false
             ])
+        } else {
+            // GitHub rejects this POST if the branch already exists (HTTP 422).
+            // Unlike the old implementation, we NEVER fall back to updating it.
+            _ = try await fetch("\(repoPath)/git/refs", method: "POST", body: [
+                "ref": "refs/heads/\(branch)", "sha": commit.sha
+            ])
         }
         return commit.sha
+    }
+
+    func defaultBranch(owner: String, repo: String) async throws -> String {
+        let result: GitHubRepo = try await decoded(GitHubRepo.self, "/repos/\(owner)/\(repo)")
+        return result.default_branch
     }
 
     func latestRun(owner: String, repo: String, sha: String) async throws -> GitHubRun? {
