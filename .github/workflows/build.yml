@@ -18,31 +18,31 @@ jobs:
       - name: Build unsigned app
         run: |
           set -euo pipefail
-          xcodebuild -project FocusTimer.xcodeproj -scheme FocusTimer -configuration Release \
+          xcodebuild -project Vault.xcodeproj -scheme Vault -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath "$PWD/DerivedData" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
       - name: Ad-hoc sign for TrollStore
         run: |
           set -euo pipefail
-          codesign --force --sign - --timestamp=none "DerivedData/Build/Products/Release-iphoneos/FocusTimer.app"
-          codesign --verify --verbose=2 "DerivedData/Build/Products/Release-iphoneos/FocusTimer.app"
+          codesign --force --sign - --timestamp=none "DerivedData/Build/Products/Release-iphoneos/Vault.app"
+          codesign --verify --verbose=2 "DerivedData/Build/Products/Release-iphoneos/Vault.app"
       - name: Package IPA
         run: |
           set -euo pipefail
           mkdir -p out/Payload
-          ditto "DerivedData/Build/Products/Release-iphoneos/FocusTimer.app" "out/Payload/FocusTimer.app"
-          (cd out && zip -qry FocusTimer.ipa Payload)
+          ditto "DerivedData/Build/Products/Release-iphoneos/Vault.app" "out/Payload/Vault.app"
+          (cd out && zip -qry Vault.ipa Payload)
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FocusTimer-${{ github.run_number }}
+          name: Vault-${{ github.run_number }}
           path: |
             out/*.ipa
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "FocusTimer-build-${{ github.run_number }}-${{ github.run_attempt }}" "out/FocusTimer.ipa" \
-            --title "FocusTimer build ${{ github.run_number }}" \
+          gh release create "Vault-build-${{ github.run_number }}-${{ github.run_attempt }}" "out/Vault.ipa" \
+            --title "Vault build ${{ github.run_number }}" \
             --notes "Ad-hoc signed IPA for compatible TrollStore installation." --target "$GITHUB_SHA"

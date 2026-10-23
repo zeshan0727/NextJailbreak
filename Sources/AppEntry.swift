@@ -1,2 +1,2 @@
 import SwiftUI
-@main struct FocusTimerApp: App { var body: some Scene { WindowGroup { ContentView() } } }
+@main struct VaultApp: App { var body: some Scene { WindowGroup { ContentView() } } }
