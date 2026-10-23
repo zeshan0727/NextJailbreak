@@ -1,456 +1,414 @@
 import SwiftUI
 import Combine
+import Network
 
-struct Note: Identifiable, Codable, Equatable {
-    let id: UUID
-    var content: String
-    let createdAt: Date
-    var modifiedAt: Date
-    var isPinned: Bool
+struct TVDevice: Identifiable, Hashable {
+    let id = UUID()
+    let name: String
+    let ipAddress: String
+    let port: UInt16
+}
 
-    var title: String {
-        content.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first.map { String($0) } ?? "New Note"
+enum ConnectionStatus: String {
+    case connected, disconnected, error
+}
+
+enum CommandStatus: String {
+    case idle, sending, error
+}
+
+final class DeviceDiscoveryViewModel: ObservableObject {
+    @Published var discoveredDevices: [TVDevice] = []
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
+
+    private var browser: NWBrowser?
+    private var queue = DispatchQueue(label: "DeviceDiscoveryQueue")
+
+    func startDiscovery() {
+        errorMessage = nil
+        discoveredDevices.removeAll()
+        isLoading = true
+
+        let parameters = NWParameters()
+        parameters.includePeerToPeer = true
+        let bonjourType = "_http._tcp"
+
+        browser = NWBrowser(for: .bonjour(type: bonjourType, domain: nil), using: parameters)
+
+        browser?.stateUpdateHandler = { [weak self] newState in
+            DispatchQueue.main.async {
+                switch newState {
+                case .failed(let error):
+                    self?.errorMessage = "Discovery failed: \(error.localizedDescription)"
+                    self?.isLoading = false
+                case .ready:
+                    break
+                default:
+                    break
+                }
+            }
+        }
+
+        browser?.browseResultsChangedHandler = { [weak self] results, changes in
+            DispatchQueue.main.async {
+                self?.discoveredDevices = results.compactMap { result in
+                    guard case let NWEndpoint.service(name: name, type: _, domain: _, interface: _) = result.endpoint else {
+                        return nil
+                    }
+                    // Extract IP and port from metadata
+                    if let ipPort = result.metadata.first(where: { $0 is NWProtocolTCP.Metadata }) as? NWProtocolTCP.Metadata {
+                        // We can't get IP from metadata directly, fallback to name only
+                        return TVDevice(name: name, ipAddress: "", port: 0)
+                    } else {
+                        return TVDevice(name: name, ipAddress: "", port: 0)
+                    }
+                }
+                self?.isLoading = false
+                if self?.discoveredDevices.isEmpty == true {
+                    self?.errorMessage = "No TVs found on the network."
+                }
+            }
+        }
+
+        browser?.start(queue: queue)
     }
 
-    var snippet: String {
-        let lines = content.split(separator: "\n", omittingEmptySubsequences: true)
-        if lines.count > 1 {
-            let secondLine = lines[1]
-            if secondLine.count > 30 {
-                return String(secondLine.prefix(30)) + "..."
-            } else {
-                return String(secondLine)
-            }
-        } else if content.count > 30 {
-            return String(content.prefix(30)) + "..."
-        } else {
-            return content
-        }
+    func stopDiscovery() {
+        browser?.cancel()
+        browser = nil
+        isLoading = false
     }
 }
 
-@MainActor
-final class NotesViewModel: ObservableObject {
-    @Published private(set) var notes: [Note] = []
-    @Published var searchText: String = ""
+final class RemoteControlViewModel: ObservableObject {
+    @Published var connectedDevice: TVDevice
+    @Published var connectionStatus: ConnectionStatus = .disconnected
+    @Published var commandStatus: CommandStatus = .idle
     @Published var errorMessage: String? = nil
-    @Published var showErrorAlert: Bool = false
-    @Published var isLoading: Bool = false
 
-    private let fileURL: URL
-    private var saveCancellable: AnyCancellable?
-    private var debounceSaveSubject = PassthroughSubject<Void, Never>()
+    private var connection: NWConnection?
+    private var queue = DispatchQueue(label: "RemoteControlQueue")
 
-    init() {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        self.fileURL = docs.appendingPathComponent("notes.json")
-        loadNotes()
-        setupAutoSave()
+    init(device: TVDevice) {
+        self.connectedDevice = device
+        connect()
     }
 
-    private func setupAutoSave() {
-        saveCancellable = debounceSaveSubject
-            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.saveNotes()
-            }
-    }
+    func connect() {
+        connectionStatus = .disconnected
+        commandStatus = .idle
+        errorMessage = nil
 
-    func loadNotes() {
-        isLoading = true
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            do {
-                let data = try Data(contentsOf: self.fileURL)
-                let decoded = try JSONDecoder().decode([Note].self, from: data)
-                DispatchQueue.main.async {
-                    self.notes = decoded
-                    self.isLoading = false
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.notes = []
-                    self.isLoading = false
-                    if (error as NSError).code != NSFileReadNoSuchFileError {
-                        self.errorMessage = "Failed to load notes: \(error.localizedDescription)"
-                        self.showErrorAlert = true
-                    }
-                }
-            }
+        guard !connectedDevice.ipAddress.isEmpty, connectedDevice.port != 0 else {
+            connectionStatus = .error
+            errorMessage = "Invalid device address or port."
+            return
         }
-    }
 
-    private func saveNotes() {
-        let notesCopy = notes
-        let fileURLCopy = fileURL
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            do {
-                let data = try JSONEncoder().encode(notesCopy)
-                try data.write(to: fileURLCopy, options: [.atomic])
-            } catch {
-                DispatchQueue.main.async {
-                    self?.errorMessage = "Failed to save notes: \(error.localizedDescription)"
-                    self?.showErrorAlert = true
+        let host = NWEndpoint.Host(connectedDevice.ipAddress)
+        let port = NWEndpoint.Port(rawValue: connectedDevice.port) ?? NWEndpoint.Port(80)
+
+        connection = NWConnection(host: host, port: port, using: .tcp)
+
+        connection?.stateUpdateHandler = { [weak self] state in
+            DispatchQueue.main.async {
+                switch state {
+                case .ready:
+                    self?.connectionStatus = .connected
+                case .failed(let error):
+                    self?.connectionStatus = .error
+                    self?.errorMessage = "Connection failed: \(error.localizedDescription)"
+                case .waiting(let error):
+                    self?.connectionStatus = .error
+                    self?.errorMessage = "Connection waiting: \(error.localizedDescription)"
+                case .cancelled:
+                    self?.connectionStatus = .disconnected
+                default:
+                    break
                 }
             }
         }
+
+        connection?.start(queue: queue)
     }
 
-    func addNote() {
-        let now = Date()
-        let newNote = Note(id: UUID(), content: "", createdAt: now, modifiedAt: now, isPinned: false)
-        notes.insert(newNote, at: 0)
-        debounceSaveSubject.send()
+    func disconnect() {
+        connection?.cancel()
+        connectionStatus = .disconnected
+        commandStatus = .idle
+        errorMessage = nil
     }
 
-    func update(note: Note) {
-        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
-        var updatedNote = note
-        updatedNote.modifiedAt = Date()
-        notes[idx] = updatedNote
-        sortNotes()
-        debounceSaveSubject.send()
-    }
+    func sendCommand(_ command: String) {
+        guard connectionStatus == .connected else {
+            errorMessage = "Not connected to device."
+            commandStatus = .error
+            return
+        }
 
-    func delete(note: Note) {
-        notes.removeAll { $0.id == note.id }
-        debounceSaveSubject.send()
-    }
+        commandStatus = .sending
+        errorMessage = nil
 
-    func togglePin(note: Note) {
-        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
-        notes[idx].isPinned.toggle()
-        notes[idx].modifiedAt = Date()
-        sortNotes()
-        debounceSaveSubject.send()
-    }
+        let commandData = command.data(using: .utf8) ?? Data()
 
-    func clearAll() {
-        notes.removeAll()
-        debounceSaveSubject.send()
-    }
-
-    private func sortNotes() {
-        notes.sort {
-            if $0.isPinned != $1.isPinned {
-                return $0.isPinned && !$1.isPinned
+        connection?.send(content: commandData, completion: .contentProcessed({ [weak self] error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.commandStatus = .error
+                    self?.errorMessage = "Failed to send command: \(error.localizedDescription)"
+                } else {
+                    self?.commandStatus = .idle
+                }
             }
-            return $0.modifiedAt > $1.modifiedAt
-        }
-    }
-
-    var filteredNotes: [Note] {
-        if searchText.isEmpty {
-            return notes
-        }
-        let lower = searchText.lowercased()
-        return notes.filter {
-            $0.content.lowercased().contains(lower) || $0.title.lowercased().contains(lower)
-        }
+        }))
     }
 }
 
 struct ContentView: View {
-    @StateObject private var vm = NotesViewModel()
-    @State private var showingDeleteAlert = false
-    @State private var noteToDelete: Note? = nil
-    @State private var showingClearAllAlert = false
-    @State private var showingSettings = false
+    @StateObject private var discoveryVM = DeviceDiscoveryViewModel()
+    @State private var selectedDevice: TVDevice? = nil
 
     var body: some View {
         NavigationStack {
-            VStack {
-                if vm.notes.isEmpty && vm.searchText.isEmpty {
-                    EmptyStateView()
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("No notes available. Tap the plus button to add a new note.")
-                } else {
-                    List {
-                        ForEach(vm.filteredNotes) { note in
-                            NavigationLink(value: note) {
-                                NoteRow(note: note)
-                                    .accessibilityElement(children: .combine)
-                                    .accessibilityLabel("Note titled \(note.title). Preview: \(note.snippet)")
-                            }
-                            .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                Button {
-                                    vm.togglePin(note: note)
-                                } label: {
-                                    Label(note.isPinned ? "Unpin" : "Pin", systemImage: note.isPinned ? "pin.slash" : "pin")
-                                }
-                                .tint(note.isPinned ? .gray : .yellow)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    noteToDelete = note
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
-                        }
+            DeviceDiscoveryView(
+                discoveredDevices: discoveryVM.discoveredDevices,
+                isLoading: discoveryVM.isLoading,
+                errorMessage: discoveryVM.errorMessage,
+                onRefresh: {
+                    discoveryVM.startDiscovery()
+                },
+                onSelectDevice: { device in
+                    selectedDevice = device
+                }
+            )
+            .navigationDestination(isPresented: Binding(
+                get: { selectedDevice != nil },
+                set: { if !$0 { selectedDevice = nil } }
+            )) {
+                if let device = selectedDevice {
+                    RemoteControlView(device: device) {
+                        selectedDevice = nil
+                        discoveryVM.startDiscovery()
                     }
-                    .listStyle(.plain)
-                    .searchable(text: $vm.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes")
-                    .accessibilityLabel("Notes list")
                 }
             }
-            .navigationTitle("QuickNotes")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                    .accessibilityLabel("Settings")
-                    .accessibilityHint("Open settings")
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Button {
-                        vm.addNote()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .accessibilityLabel("Add new note")
-                    .buttonStyle(.borderedProminent)
-                }
+            .onAppear {
+                discoveryVM.startDiscovery()
             }
-            .navigationDestination(for: Note.self) { note in
-                NoteDetailView(note: note, vm: vm)
-            }
-            .alert("Delete Note", isPresented: $showingDeleteAlert, presenting: noteToDelete) { note in
-                Button("Delete", role: .destructive) {
-                    vm.delete(note: note)
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: { note in
-                Text("Are you sure you want to delete the note titled \"\(note.title)\"?")
-            }
-            .alert("Error", isPresented: $vm.showErrorAlert, actions: {
-                Button("OK", role: .cancel) {}
-            }, message: {
-                Text(vm.errorMessage ?? "Unknown error")
-            })
-            .sheet(isPresented: $showingSettings) {
-                SettingsView(vm: vm, isPresented: $showingSettings)
+            .onDisappear {
+                discoveryVM.stopDiscovery()
             }
         }
     }
 }
 
-struct NoteRow: View {
-    let note: Note
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(note.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                if note.isPinned {
-                    Image(systemName: "pin.fill")
-                        .foregroundColor(.yellow)
-                        .accessibilityLabel("Pinned")
-                }
-                Spacer()
-                Text(note.modifiedAt, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            Text(note.snippet)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-        }
-        .padding(.vertical, 6)
-    }
-}
-
-struct EmptyStateView: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "note.text")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 120, height: 120)
-                .foregroundColor(.secondary)
-                .accessibilityHidden(true)
-            Text("No notes yet")
-                .font(.title2)
-                .foregroundColor(.secondary)
-            Text("Tap the plus button to create your first note.")
-                .font(.body)
-                .foregroundColor(.secondary)
-        }
-        .padding()
-    }
-}
-
-struct NoteDetailView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var content: String
-    @State private var isSavingError: Bool = false
-    @State private var showDeleteAlert: Bool = false
-    @FocusState private var isFocused: Bool
-
-    let noteId: UUID
-    @ObservedObject var vm: NotesViewModel
-
-    private var note: Note? {
-        vm.notes.first(where: { $0.id == noteId })
-    }
-
-    init(note: Note, vm: NotesViewModel) {
-        self.noteId = note.id
-        self._content = State(initialValue: note.content)
-        self.vm = vm
-    }
+struct DeviceDiscoveryView: View {
+    let discoveredDevices: [TVDevice]
+    let isLoading: Bool
+    let errorMessage: String?
+    let onRefresh: () -> Void
+    let onSelectDevice: (TVDevice) -> Void
 
     var body: some View {
         VStack {
-            TextEditor(text: $content)
-                .font(.body)
-                .padding(8)
-                .focused($isFocused)
-                .accessibilityLabel("Note content")
-                .accessibilityHint("Editable text area for note content")
-                .onChange(of: content) { _ in
-                    scheduleSave()
-                }
-        }
-        .navigationTitle(note?.title.isEmpty == false ? note!.title : "New Note")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Back") {
-                    dismiss()
-                }
-                .keyboardShortcut(.escape, modifiers: [])
-                .accessibilityLabel("Back to notes list")
-            }
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button {
-                    showDeleteAlert = true
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .keyboardShortcut(.delete, modifiers: [.command])
-                .accessibilityLabel("Delete note")
-                Button {
-                    togglePin()
-                } label: {
-                    Image(systemName: note?.isPinned == true ? "pin.slash" : "pin")
-                }
-                .accessibilityLabel(note?.isPinned == true ? "Unpin note" : "Pin note")
-            }
-        }
-        .alert("Delete Note", isPresented: $showDeleteAlert) {
-            Button("Delete", role: .destructive) {
-                if let note = note {
-                    vm.delete(note: note)
-                    dismiss()
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Are you sure you want to delete this note?")
-        }
-        .alert("Save Error", isPresented: $isSavingError) {
-            Button("Retry") {
-                saveNow()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Failed to save the note. Please try again.")
-        }
-        .onAppear {
-            isFocused = true
-        }
-        .onReceive(vm.$showErrorAlert) { show in
-            if show {
-                isSavingError = true
-            }
-        }
-    }
+            Text("Select Your TV")
+                .font(.title)
+                .bold()
+                .padding(.top)
 
-    private func scheduleSave() {
-        guard var note = note else { return }
-        note.content = content
-        vm.update(note: note)
-    }
+            if isLoading {
+                ProgressView("Searching...")
+                    .padding()
+            } else if let error = errorMessage {
+                VStack(spacing: 12) {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                    Button("Retry") {
+                        onRefresh()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
+            } else if discoveredDevices.isEmpty {
+                Text("No TVs found on the network.")
+                    .foregroundColor(.secondary)
+                    .padding()
+                Button("Refresh") {
+                    onRefresh()
+                }
+                .buttonStyle(.bordered)
+            } else {
+                List(discoveredDevices) { device in
+                    Button(action: {
+                        onSelectDevice(device)
+                    }) {
+                        HStack {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 12, height: 12)
+                                .accessibilityHidden(true)
+                            VStack(alignment: .leading) {
+                                Text(device.name)
+                                    .font(.headline)
+                                if !device.ipAddress.isEmpty {
+                                    Text(device.ipAddress)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel(Text("Connect to TV named \(device.name)"))
+                }
+                .listStyle(.plain)
+                .refreshable {
+                    onRefresh()
+                }
+            }
 
-    private func saveNow() {
-        guard var note = note else { return }
-        note.content = content
-        vm.update(note: note)
-    }
+            Spacer()
 
-    private func togglePin() {
-        guard let note = note else { return }
-        vm.togglePin(note: note)
+            Button(action: {
+                onRefresh()
+            }) {
+                Label("Refresh", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.borderedProminent)
+            .padding(.bottom)
+        }
+        .padding(.horizontal)
     }
 }
 
-struct SettingsView: View {
-    @ObservedObject var vm: NotesViewModel
-    @Binding var isPresented: Bool
-    @AppStorage("overrideColorScheme") private var overrideColorScheme: String = "system"
-    @State private var showingClearAllAlert = false
+struct RemoteControlView: View {
+    @StateObject private var vm: RemoteControlViewModel
+    let onDisconnect: () -> Void
 
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("Appearance") {
-                    Picker("Theme", selection: $overrideColorScheme) {
-                        Text("System").tag("system")
-                        Text("Light").tag("light")
-                        Text("Dark").tag("dark")
-                    }
-                    .pickerStyle(.segmented)
-                    .accessibilityLabel("Theme selection")
-                    .accessibilityHint("Choose light, dark, or system appearance")
-                }
-                Section("Data") {
-                    Button(role: .destructive) {
-                        showingClearAllAlert = true
-                    } label: {
-                        Text("Clear All Notes")
-                    }
-                    .accessibilityLabel("Clear all notes")
-                    .accessibilityHint("Deletes all notes permanently")
-                }
-            }
-            .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        isPresented = false
-                    }
-                    .accessibilityLabel("Close settings")
-                }
-            }
-            .alert("Clear All Notes", isPresented: $showingClearAllAlert) {
-                Button("Clear", role: .destructive) {
-                    vm.clearAll()
-                    isPresented = false
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Are you sure you want to delete all notes? This action cannot be undone.")
-            }
-        }
-        .preferredColorScheme(colorSchemeFromString(overrideColorScheme))
+    init(device: TVDevice, onDisconnect: @escaping () -> Void) {
+        _vm = StateObject(wrappedValue: RemoteControlViewModel(device: device))
+        self.onDisconnect = onDisconnect
     }
 
-    private func colorSchemeFromString(_ string: String) -> ColorScheme? {
-        switch string {
-        case "light": return .light
-        case "dark": return .dark
-        default: return nil
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text(vm.connectedDevice.name)
+                    .font(.title2)
+                    .bold()
+                    .accessibilityAddTraits(.isHeader)
+                Spacer()
+                Button("Disconnect") {
+                    vm.disconnect()
+                    onDisconnect()
+                }
+                .buttonStyle(.bordered)
+                .accessibilityLabel(Text("Disconnect from TV"))
+            }
+            .padding(.horizontal)
+
+            connectionStatusView
+
+            remoteButtons
+
+            Spacer()
         }
+        .padding()
+        .onDisappear {
+            vm.disconnect()
+        }
+        .alert(isPresented: Binding(
+            get: { vm.errorMessage != nil },
+            set: { if !$0 { vm.errorMessage = nil } }
+        )) {
+            Alert(title: Text("Error"), message: Text(vm.errorMessage ?? ""), dismissButton: .default(Text("OK")))
+        }
+    }
+
+    private var connectionStatusView: some View {
+        HStack {
+            Circle()
+                .fill(colorForConnectionStatus(vm.connectionStatus))
+                .frame(width: 12, height: 12)
+                .accessibilityHidden(true)
+            Text(vm.connectionStatus.rawValue.capitalized)
+                .font(.subheadline)
+                .foregroundColor(colorForConnectionStatus(vm.connectionStatus))
+            Spacer()
+            if vm.commandStatus == .sending {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .accessibilityLabel(Text("Sending command"))
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    private func colorForConnectionStatus(_ status: ConnectionStatus) -> Color {
+        switch status {
+        case .connected: return .green
+        case .disconnected: return .gray
+        case .error: return .red
+        }
+    }
+
+    private var remoteButtons: some View {
+        VStack(spacing: 20) {
+            HStack(spacing: 40) {
+                remoteButton(title: "Power", systemImage: "power", command: "power_toggle")
+                remoteButton(title: "Mute", systemImage: "speaker.slash", command: "mute")
+            }
+
+            HStack(spacing: 40) {
+                remoteButton(title: "Vol +", systemImage: "speaker.wave.3", command: "volume_up")
+                remoteButton(title: "Vol -", systemImage: "speaker.wave.1", command: "volume_down")
+            }
+
+            HStack(spacing: 40) {
+                remoteButton(title: "Ch +", systemImage: "chevron.up", command: "channel_up")
+                remoteButton(title: "Ch -", systemImage: "chevron.down", command: "channel_down")
+            }
+
+            navigationPad
+
+            HStack(spacing: 40) {
+                remoteButton(title: "Back", systemImage: "arrow.backward", command: "back")
+                remoteButton(title: "Home", systemImage: "house", command: "home")
+            }
+        }
+    }
+
+    private var navigationPad: some View {
+        VStack(spacing: 8) {
+            remoteButton(title: "Up", systemImage: "chevron.up", command: "nav_up")
+            HStack(spacing: 40) {
+                remoteButton(title: "Left", systemImage: "chevron.left", command: "nav_left")
+                remoteButton(title: "OK", systemImage: "circle.fill", command: "select")
+                remoteButton(title: "Right", systemImage: "chevron.right", command: "nav_right")
+            }
+            remoteButton(title: "Down", systemImage: "chevron.down", command: "nav_down")
+        }
+    }
+
+    private func remoteButton(title: String, systemImage: String, command: String) -> some View {
+        Button(action: {
+            vm.sendCommand(command)
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }) {
+            VStack {
+                Image(systemName: systemImage)
+                    .font(.title)
+                Text(title)
+                    .font(.caption)
+            }
+            .frame(width: 60, height: 60)
+            .background(Color(UIColor.secondarySystemFill))
+            .cornerRadius(12)
+        }
+        .accessibilityLabel(Text(title))
+        .disabled(vm.connectionStatus != .connected || vm.commandStatus == .sending)
     }
 }
