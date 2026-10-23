@@ -1,7 +1,7 @@
 import SwiftUI
 import Combine
 
-struct Note: Identifiable, Codable, Equatable {
+struct Note: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var content: String
     let createdAt: Date
