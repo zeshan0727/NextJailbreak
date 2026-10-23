@@ -1111,6 +1111,19 @@
         "git_blob_sha": "8c0def0017af33dc1f3e14ed07dbf4be25630e7c"
       },
       "screenshots": []
+    },
+    "comparison.newterm3-openssh": {
+      "credit_label": "HASHBANG Productions — official NewTerm source-repository banner",
+      "source_page_url": "https://github.com/hbang/NewTerm",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/hbang/NewTerm/main/assets/banner.jpg",
+        "alt": "Official NewTerm banner showing the app icon and NewTerm name over a terminal window",
+        "local_path": "assets/articles/source-media/newterm-3-official-banner.jpg",
+        "remote_embedded": false,
+        "retrieval_status": "Retrieved from the official NewTerm source repository, inspected and stored locally."
+      },
+      "screenshots": []
     }
   }
 }

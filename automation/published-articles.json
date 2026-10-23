@@ -2,6 +2,37 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "NewTerm 3 requires iOS 14 or newer according to the project. Procursus publishes OpenSSH for rootless iphoneos-arm64; actual installation depends on device, firmware, jailbreak/bootstrap and repository availability.",
+      "description": "Compare NewTerm 3 and OpenSSH on jailbroken iPhones by local access, remote control, file transfer, network exposure, authentication and rootless availability.",
+      "developer": "HASHBANG Productions / OpenSSH",
+      "entry_type": "roundup-comparison",
+      "href": "newterm-3-vs-openssh-local-terminal-remote-shell-comparison/",
+      "image": "assets/articles/source-media/newterm-3-official-banner.jpg",
+      "media_alt": "Official NewTerm banner showing the app icon and NewTerm name over a terminal window",
+      "media_credit": "HASHBANG Productions — official NewTerm source-repository banner",
+      "media_source_url": "https://raw.githubusercontent.com/hbang/NewTerm/main/assets/banner.jpg",
+      "media_retrieval_status": "Official source-repository banner retrieved, stored locally, inspected and embedded in the article and social metadata.",
+      "modified_at": "2026-10-23T09:04:05Z",
+      "name": "NewTerm 3 vs OpenSSH comparison",
+      "package": "comparison.newterm3-openssh",
+      "published_at": "2026-10-23T09:04:05Z",
+      "quality_target": 9,
+      "release": "NewTerm 3.0~beta1 / Procursus OpenSSH 9.7p1-1; upstream OpenSSH 10.6 separately noted",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "newterm-3-vs-openssh-local-terminal-remote-shell-comparison",
+      "source_name": "Official NewTerm repository and Chariz changelog; Procursus OpenSSH package directory; OpenSSH.org",
+      "source_page_url": "https://github.com/hbang/NewTerm",
+      "source_url": "https://github.com/hbang/NewTerm",
+      "source_visual_origin": "official-newterm-source-repository-banner",
+      "source_visual_url": "https://raw.githubusercontent.com/hbang/NewTerm/main/assets/banner.jpg",
+      "title": "NewTerm 3 vs OpenSSH: Local Terminal or Remote Shell?",
+      "version": "NewTerm 3.0~beta1 / OpenSSH 9.7p1-1"
+    },
+    {
+      "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },

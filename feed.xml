@@ -6,6 +6,10 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>NewTerm 3 vs OpenSSH: Local Terminal or Remote Shell?</title><link>https://nextjailbreak.com/newterm-3-vs-openssh-local-terminal-remote-shell-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/newterm-3-vs-openssh-local-terminal-remote-shell-comparison/</guid>
+      <pubDate>Fri, 23 Oct 2026 09:04:05 GMT</pubDate><description>Compare NewTerm 3 and OpenSSH on jailbroken iPhones by local access, remote control, file transfer, network exposure, authentication and rootless availability.</description><category>Tweak Roundup &amp; Comparison</category>
+    </item>
+    <item>
       <title>How to Troubleshoot Jailbreak Detection in RootHide</title><link>https://nextjailbreak.com/troubleshoot-roothide-jailbreak-detection-blacklist-varclean-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/troubleshoot-roothide-jailbreak-detection-blacklist-varclean-guide/</guid>
       <pubDate>Fri, 23 Oct 2026 04:56:37 GMT</pubDate><description>Use RootHide Manager’s blacklist, app-data reset and varClean carefully, check URL-scheme and Developer Mode leaks, and understand why some apps may still detect a jailbreak.</description><category>Evergreen Jailbreak Guide</category>
     </item>
