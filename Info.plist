@@ -7,5 +7,6 @@
   <key>CFBundleVersion</key><string>1</string>
   <key>CFBundleExecutable</key><string>$(EXECUTABLE_NAME)</string>
   <key>CFBundlePackageType</key><string>APPL</string>
+  <key>NSFaceIDUsageDescription</key><string>Use Face ID to unlock your encrypted Vault.</string>
   <key>UILaunchScreen</key><dict/>
 </dict></plist>
