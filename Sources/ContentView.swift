@@ -82,7 +82,7 @@ final class DeviceDiscoveryViewModel: ObservableObject {
 
                     // Fallback: try to get port from metadata
                     if port == 0 {
-                        if let tcpMetadata = result.metadata.first(where: { $0 is NWProtocolTCP.Metadata }) as? NWProtocolTCP.Metadata {
+                        if let tcpMetadata = result.metadata.tcp {
                             port = tcpMetadata.localPort?.rawValue ?? 0
                         }
                     }
