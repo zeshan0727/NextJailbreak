@@ -61,28 +61,21 @@ final class DeviceDiscoveryViewModel: ObservableObject {
                     var ipAddress = ""
                     var port: UInt16 = 80
 
-                    // Extract IP address and port from endpoint
-                    switch result.endpoint {
-                    case .service(_, _, _, _):
-                        // No direct IP here, try to get from metadata
-                        if let txtRecord = result.metadata.txtRecord,
-                           let txtDict = Self.parseTXTRecord(txtRecord) {
+                    // Extract port from metadata if available
+                    if let txtRecordData = result.metadata?.txtRecordData {
+                        if let txtDict = Self.parseTXTRecord(txtRecordData) {
                             if let portString = txtDict["port"], let p = UInt16(portString) {
                                 port = p
                             }
                         }
-                    case .hostPort(let host, let nwPort):
-                        ipAddress = host.debugDescription
-                        port = nwPort.rawValue
-                    default:
-                        break
                     }
 
-                    // If IP is empty, try to resolve from endpoint
-                    if ipAddress.isEmpty {
-                        if case let NWEndpoint.hostPort(host, _) = result.endpoint {
-                            ipAddress = host.debugDescription
-                        }
+                    // Try to resolve IP address from endpoint
+                    switch result.endpoint {
+                    case .hostPort(let host, _):
+                        ipAddress = host.debugDescription
+                    default:
+                        break
                     }
 
                     devices.append(TVDevice(name: name, ipAddress: ipAddress, port: port))
@@ -104,7 +97,7 @@ final class DeviceDiscoveryViewModel: ObservableObject {
         isLoading = false
     }
 
-    private static func parseTXTRecord(_ data: Data) -> [String: String] {
+    private static func parseTXTRecord(_ data: Data) -> [String: String]? {
         var dict: [String: String] = [:]
         var index = 0
         let bytes = [UInt8](data)
@@ -123,7 +116,7 @@ final class DeviceDiscoveryViewModel: ObservableObject {
             }
             index += length
         }
-        return dict
+        return dict.isEmpty ? nil : dict
     }
 }
 
