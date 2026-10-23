@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-22T08:08:44Z",
+  "updatedAt": "2026-10-23T14:53:37Z",
   "files": [
+    {
+      "id": "appforge-1.1.0-auto-repair",
+      "name": "AppForge 1.1.0 — Improved Automatic Code Repair",
+      "fileName": "AppForge-1.1.0.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.1.0",
+      "url": "https://nextjailbreak.com/transfer/files/AppForge/1.1.0/AppForge-1.1.0.ipa",
+      "sha256": "21ba710335a68affb87930c2a08964e78e43ce8bd3ad9a75dc2cb080e394b6b3",
+      "sizeBytes": 635662,
+      "notes": "Up to five bounded compiler-targeted repairs; Bonjour permissions added. Tested compilation, not iPhone runtime."
+    },
+    {
+      "id": "localcasttvremote-build-88",
+      "name": "LocalCastTVRemote — Device Discovery",
+      "fileName": "LocalCastTVRemote-build-88.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.0 (build 88)",
+      "url": "https://nextjailbreak.com/transfer/files/LocalCastTVRemote/build-88/LocalCastTVRemote-build-88.ipa",
+      "sha256": "45ec2a4fab15968c38ce580a284c52d39f803c98be574cfdaba92b6d67330b0c",
+      "sizeBytes": 84683,
+      "notes": "Chromecast Bonjour discovery and iOS compilation fixed. Full Cast V2 remote control NOT implemented."
+    },
     {
       "id": "novabrowser-1.0.6",
       "name": "NovaBrowser 1.0.6 — Light Mode + WebKit Compatibility",
