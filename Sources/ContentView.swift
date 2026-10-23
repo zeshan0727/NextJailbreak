@@ -59,47 +59,29 @@ final class DeviceDiscoveryViewModel: ObservableObject {
                     }
 
                     var ipAddress = ""
-                    var port: UInt16 = 0
+                    var port: UInt16 = 80
 
                     // Extract IP address and port from endpoint
-                    if case let NWEndpoint.service(_, _, _, txtRecordData) = result.endpoint {
-                        // No direct IP here
-                    }
-
-                    // Extract IP address from result's endpoint if possible
-                    if let endpoint = result.endpoint as? NWEndpoint {
-                        switch endpoint {
-                        case .hostPort(let host, let nwPort):
-                            ipAddress = host.debugDescription
-                            port = nwPort.rawValue
-                        case .service(_, _, _, _):
-                            // No direct IP here
-                            break
-                        default:
-                            break
-                        }
-                    }
-
-                    // Fallback: try to get port from metadata
-                    if port == 0 {
-                        if let tcpMetadata = result.metadata.tcp {
-                            port = tcpMetadata.localPort?.rawValue ?? 0
-                        }
-                    }
-
-                    if port == 0 {
-                        port = 80
-                    }
-
-                    // Try to resolve IP address from endpoint if empty
-                    if ipAddress.isEmpty {
-                        if let hostEndpoint = result.endpoint as? NWEndpoint {
-                            switch hostEndpoint {
-                            case .hostPort(let host, _):
-                                ipAddress = host.debugDescription
-                            default:
-                                break
+                    switch result.endpoint {
+                    case .service(_, _, _, _):
+                        // No direct IP here, try to get from metadata
+                        if let txtRecord = result.metadata.txtRecord,
+                           let txtDict = Self.parseTXTRecord(txtRecord) {
+                            if let portString = txtDict["port"], let p = UInt16(portString) {
+                                port = p
                             }
+                        }
+                    case .hostPort(let host, let nwPort):
+                        ipAddress = host.debugDescription
+                        port = nwPort.rawValue
+                    default:
+                        break
+                    }
+
+                    // If IP is empty, try to resolve from endpoint
+                    if ipAddress.isEmpty {
+                        if case let NWEndpoint.hostPort(host, _) = result.endpoint {
+                            ipAddress = host.debugDescription
                         }
                     }
 
@@ -120,6 +102,28 @@ final class DeviceDiscoveryViewModel: ObservableObject {
         browser?.cancel()
         browser = nil
         isLoading = false
+    }
+
+    private static func parseTXTRecord(_ data: Data) -> [String: String] {
+        var dict: [String: String] = [:]
+        var index = 0
+        let bytes = [UInt8](data)
+        while index < bytes.count {
+            let length = Int(bytes[index])
+            index += 1
+            if length == 0 || index + length > bytes.count {
+                break
+            }
+            let subData = Data(bytes[index..<(index+length)])
+            if let entry = String(data: subData, encoding: .utf8) {
+                let parts = entry.split(separator: "=", maxSplits: 1)
+                if parts.count == 2 {
+                    dict[String(parts[0])] = String(parts[1])
+                }
+            }
+            index += length
+        }
+        return dict
     }
 }
 
