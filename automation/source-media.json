@@ -1099,6 +1099,18 @@
         "git_blob_sha": "9ea200d790af0c89b8781469b32b9720745e80c3"
       },
       "screenshots": []
+    },
+    "github.roothide.bootstrap-detection-guide": {
+      "credit_label": "RootHide — official Bootstrap source-repository app icon",
+      "source_page_url": "https://github.com/roothide/Bootstrap",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+        "alt": "Official RootHide Bootstrap app icon from the project source repository",
+        "local_path": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
+        "git_blob_sha": "8c0def0017af33dc1f3e14ed07dbf4be25630e7c"
+      },
+      "screenshots": []
     }
   }
 }

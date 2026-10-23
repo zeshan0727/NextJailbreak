@@ -85,5 +85,6 @@
   "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Sign.png": "livecontainer-vs-feather-ipa-installer-comparison",
   "https://unc0ver.dev/img/device.png": "unc0ver-8-1-0-ios-12-5-8-support",
   "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.10.1/Documents/demo.jpeg": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
-  "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png": "dopamine-roothide-3-x-integration-status"
+  "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png": "dopamine-roothide-3-x-integration-status",
+  "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png": "troubleshoot-roothide-jailbreak-detection-blacklist-varclean-guide"
 }

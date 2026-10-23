@@ -5,6 +5,10 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
+    <item>
+      <title>How to Troubleshoot Jailbreak Detection in RootHide</title><link>https://nextjailbreak.com/troubleshoot-roothide-jailbreak-detection-blacklist-varclean-guide/</link><guid isPermaLink="true">https://nextjailbreak.com/troubleshoot-roothide-jailbreak-detection-blacklist-varclean-guide/</guid>
+      <pubDate>Fri, 23 Oct 2026 04:56:37 GMT</pubDate><description>Use RootHide Manager’s blacklist, app-data reset and varClean carefully, check URL-scheme and Developer Mode leaks, and understand why some apps may still detect a jailbreak.</description><category>Evergreen Jailbreak Guide</category>
+    </item>
     <item><title>Dopamine RootHide 3.x Enters Integration, but No Public Build Yet</title><link>https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</link><guid isPermaLink="true">https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</guid><pubDate>Fri, 23 Oct 2026 01:03:42 GMT</pubDate><description>The official Dopamine-RootHide 3.x source branch now includes iOS 26 fixes and Dopamine 3-era changes, but the latest public RootHide download remains 2.4.9.27.</description><category>Current Jailbreak Development</category></item>
     <item>
       <title>AnxieTea 1.0.5 Adds Company Blocking, Server Details and Statistics</title>

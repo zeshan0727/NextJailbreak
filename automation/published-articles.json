@@ -2,6 +2,37 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "RootHide Bootstrap 2.2.1; official README lists iOS 15.0–17.0 on A8–A17 Pro and M1/M2. Concealment is not guaranteed for any third-party app.",
+      "description": "Use RootHide Manager’s blacklist, app-data reset and varClean carefully, check URL-scheme and Developer Mode leaks, and understand why some apps may still detect a jailbreak.",
+      "developer": "RootHide",
+      "entry_type": "evergreen-guide",
+      "href": "troubleshoot-roothide-jailbreak-detection-blacklist-varclean-guide/",
+      "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
+      "media_alt": "Official RootHide Bootstrap app icon from the project source repository",
+      "media_credit": "RootHide — official Bootstrap source-repository app icon",
+      "media_source_url": "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "media_retrieval_status": "Official source-repository icon retrieved, stored locally and embedded in the article and social metadata.",
+      "modified_at": "2026-10-23T04:56:37Z",
+      "name": "RootHide jailbreak-detection troubleshooting guide",
+      "package": "github.roothide.bootstrap-detection-guide",
+      "published_at": "2026-10-23T04:56:37Z",
+      "quality_target": 9,
+      "release": "RootHide Bootstrap 2.2.1; official maintainer guidance verified October 23, 2026",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "troubleshoot-roothide-jailbreak-detection-blacklist-varclean-guide",
+      "source_name": "Official RootHide Bootstrap repository, 2.2.1 release and maintainer issue guidance",
+      "source_page_url": "https://github.com/roothide/Bootstrap",
+      "source_url": "https://github.com/roothide/Bootstrap",
+      "source_visual_origin": "official-bootstrap-source-repository-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "title": "How to Troubleshoot Jailbreak Detection in RootHide",
+      "version": "2.2.1"
+    },
+    {
+      "category": {
         "id": "jailbreak-development",
         "label": "Current Jailbreak Development"
       },
@@ -8638,5 +8669,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-23T01:03:42Z"
+  "updated_at": "2026-10-23T04:56:37Z"
 }
