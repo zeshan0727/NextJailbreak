@@ -9,10 +9,10 @@ struct ContentView: View {
     @State private var showFavorites: Bool = false
     @AppStorage("favoriteColors") private var favoriteHexColorsData: Data = Data()
     @State private var favoriteHexColors: [String] = []
-    @State private var alertMessage: String? = nil
-    
+    @State private var alertMessageWrapper: AlertMessageWrapper? = nil
+
     private let sliderRange = 0.0...255.0
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -46,14 +46,14 @@ struct ContentView: View {
                 loadFavorites()
                 updateHexInputFromRGB()
             }
-            .alert(item: $alertMessage) { msg in
-                Alert(title: Text("Error"), message: Text(msg), dismissButton: .default(Text("OK")))
+            .alert(item: $alertMessageWrapper) { wrapper in
+                Alert(title: Text("Error"), message: Text(wrapper.message), dismissButton: .default(Text("OK")))
             }
         }
     }
-    
+
     // MARK: - Subviews
-    
+
     private var colorDisplay: some View {
         Rectangle()
             .fill(currentColor)
@@ -67,7 +67,7 @@ struct ContentView: View {
             .accessibilityLabel("Selected color")
             .accessibilityValue(hexInput)
     }
-    
+
     private var rgbSliders: some View {
         VStack(spacing: 12) {
             rgbSlider(value: $red, label: "Red", color: .red)
@@ -75,7 +75,7 @@ struct ContentView: View {
             rgbSlider(value: $blue, label: "Blue", color: .blue)
         }
     }
-    
+
     private func rgbSlider(value: Binding<Double>, label: String, color: Color) -> some View {
         VStack(alignment: .leading) {
             HStack {
@@ -97,7 +97,7 @@ struct ContentView: View {
             }
         }
     }
-    
+
     private var hexInputField: some View {
         VStack(alignment: .leading, spacing: 4) {
             TextField("Hex Code (#RRGGBB)", text: $hexInput)
@@ -122,7 +122,7 @@ struct ContentView: View {
             }
         }
     }
-    
+
     private var colorWheelPicker: some View {
         ColorPicker("Color Wheel", selection: Binding(get: {
             currentColor
@@ -133,7 +133,7 @@ struct ContentView: View {
         .accessibilityLabel("Color wheel picker")
         .frame(maxWidth: 100)
     }
-    
+
     private var colorCodeFormats: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Hex: \(hexInput.uppercased())")
@@ -151,7 +151,7 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
+
     private var actionButtons: some View {
         HStack(spacing: 20) {
             Button(action: saveCurrentColor) {
@@ -161,7 +161,7 @@ struct ContentView: View {
             .buttonStyle(.borderedProminent)
             .disabled(isCurrentColorSaved || hexError != nil)
             .accessibilityLabel("Save current color to favorites")
-            
+
             Button(action: { showFavorites = true }) {
                 Label("Favorites", systemImage: "star.fill")
                     .frame(maxWidth: .infinity)
@@ -170,17 +170,17 @@ struct ContentView: View {
             .accessibilityLabel("Show favorite colors")
         }
     }
-    
+
     // MARK: - Computed Properties
-    
+
     private var currentColor: Color {
         Color(red: red/255, green: green/255, blue: blue/255)
     }
-    
+
     private var isCurrentColorSaved: Bool {
         favoriteHexColors.contains(hexInput.uppercased())
     }
-    
+
     private var hueDegrees: Double {
         var h: CGFloat = 0
         var s: CGFloat = 0
@@ -189,7 +189,7 @@ struct ContentView: View {
         UIColor(currentColor).getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         return Double(h * 360)
     }
-    
+
     private var saturationPercent: Double {
         var h: CGFloat = 0
         var s: CGFloat = 0
@@ -198,7 +198,7 @@ struct ContentView: View {
         UIColor(currentColor).getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         return Double(s * 100)
     }
-    
+
     private var brightnessPercent: Double {
         var h: CGFloat = 0
         var s: CGFloat = 0
@@ -207,9 +207,9 @@ struct ContentView: View {
         UIColor(currentColor).getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         return Double(b * 100)
     }
-    
+
     // MARK: - Methods
-    
+
     private func updateHexInputFromRGB() {
         let r = Int(red)
         let g = Int(green)
@@ -220,14 +220,14 @@ struct ContentView: View {
             hexError = nil
         }
     }
-    
+
     private func updateColorFromRGB(_ rgb: (r: Int, g: Int, b: Int)) {
         red = Double(rgb.r)
         green = Double(rgb.g)
         blue = Double(rgb.b)
         updateHexInputFromRGB()
     }
-    
+
     private func updateColorFromColor(_ color: Color) {
         let uiColor = UIColor(color)
         var r: CGFloat = 0
@@ -241,11 +241,10 @@ struct ContentView: View {
             updateHexInputFromRGB()
         }
     }
-    
+
     private func validateAndUpdateColor(from hex: String) {
         let cleaned = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         if cleaned.count == 7 && cleaned.first == "#" {
-            let hexPart = String(cleaned.dropFirst())
             if let rgb = Self.rgbFromHex(cleaned) {
                 hexError = nil
                 updateColorFromRGB(rgb)
@@ -256,7 +255,7 @@ struct ContentView: View {
             hexError = "Hex code must be in format #RRGGBB"
         }
     }
-    
+
     private func saveCurrentColor() {
         let hex = hexInput.uppercased()
         guard hexError == nil else { return }
@@ -264,7 +263,7 @@ struct ContentView: View {
         favoriteHexColors.append(hex)
         saveFavorites()
     }
-    
+
     private func loadFavorites() {
         do {
             let decoded = try JSONDecoder().decode([String].self, from: favoriteHexColorsData)
@@ -273,18 +272,18 @@ struct ContentView: View {
             favoriteHexColors = []
         }
     }
-    
+
     private func saveFavorites() {
         do {
             let encoded = try JSONEncoder().encode(favoriteHexColors)
             favoriteHexColorsData = encoded
         } catch {
-            alertMessage = "Failed to save favorites."
+            alertMessageWrapper = AlertMessageWrapper(message: "Failed to save favorites.")
         }
     }
-    
+
     // MARK: - Helpers
-    
+
     static func rgbFromHex(_ hex: String) -> (r: Int, g: Int, b: Int)? {
         let r, g, b: Int
         let start = hex.index(hex.startIndex, offsetBy: 1)
@@ -302,6 +301,12 @@ struct ContentView: View {
     }
 }
 
+// Wrapper to make String alert message Identifiable
+fileprivate struct AlertMessageWrapper: Identifiable {
+    let id = UUID()
+    let message: String
+}
+
 struct FavoritesView: View {
     @Binding var favoriteHexColors: [String]
     @Environment(\.dismiss) private var dismiss
@@ -309,7 +314,7 @@ struct FavoritesView: View {
     @State private var copiedHex: String = ""
     @State private var editMode: EditMode = .inactive
     let onSelect: (String) -> Void
-    
+
     var body: some View {
         NavigationStack {
             Group {
@@ -320,7 +325,7 @@ struct FavoritesView: View {
                 } else {
                     ScrollView {
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 16)], spacing: 16) {
-                            ForEach(favoriteHexColors, id: \ .self) { hex in
+                            ForEach(favoriteHexColors, id: \.self) { hex in
                                 favoriteColorItem(hex: hex)
                             }
                             .onDelete(perform: delete)
@@ -344,7 +349,7 @@ struct FavoritesView: View {
             .toast(isPresented: $showCopiedToast, message: "Copied to clipboard: \(copiedHex)")
         }
     }
-    
+
     @ViewBuilder
     private func favoriteColorItem(hex: String) -> some View {
         let color = ColorCodePickerHelpers.colorFromHex(hex) ?? .black
@@ -387,12 +392,12 @@ struct FavoritesView: View {
             }
         }
     }
-    
+
     private func delete(at offsets: IndexSet) {
         favoriteHexColors.remove(atOffsets: offsets)
         saveFavorites()
     }
-    
+
     private func saveFavorites() {
         do {
             let encoded = try JSONEncoder().encode(favoriteHexColors)
@@ -408,7 +413,7 @@ struct FavoritesView: View {
 fileprivate struct ToastModifier: ViewModifier {
     @Binding var isPresented: Bool
     let message: String
-    
+
     func body(content: Content) -> some View {
         ZStack(alignment: .bottom) {
             content
@@ -457,9 +462,8 @@ fileprivate enum ColorCodePickerHelpers {
         }
         return nil
     }
-    
+
     static func textColor(for background: Color) -> Color {
-        // Calculate luminance to decide black or white text
         let uiColor = UIColor(background)
         var r: CGFloat = 0
         var g: CGFloat = 0
