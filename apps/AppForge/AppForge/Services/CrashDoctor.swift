@@ -12,8 +12,8 @@ struct CrashSummary {
 
 enum CrashDoctor {
     static func analyze(_ text: String) throws -> CrashSummary {
-        guard !text.isEmpty, text.utf8.count < 3_000_000 else {
-            throw ForgeError.message("Choose a crash report smaller than 3 MB.")
+        guard !text.isEmpty, text.utf8.count < 8_000_000 else {
+            throw ForgeError.message("Choose a crash report smaller than 8 MB.")
         }
         let parts = text.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: false)
         var header = [String: Any]()
@@ -33,7 +33,10 @@ enum CrashDoctor {
             body = object
         }
         let termination = body["termination"] as? [String: Any] ?? [:]
-        let details = (termination["details"] as? [String] ?? []).joined(separator: "\n")
+        let details = (termination["details"] as? String)
+            ?? (termination["details"] as? [String])?.joined(separator: "\n")
+            ?? (termination["reason"] as? String)
+            ?? ""
         let type = (body["exception"] as? [String: Any])?["type"] as? String ?? ""
         let bundle = header["bundleID"] as? String ??
             (body["bundleInfo"] as? [String: Any])?["CFBundleIdentifier"] as? String ?? ""
@@ -70,6 +73,8 @@ enum CrashDoctor {
             return "Allow this app to save images to your photo library."
         case "NSCameraUsageDescription":
             return "Allow camera access to take photos and capture images in this app."
+        case "NSFaceIDUsageDescription":
+            return "Allow Face ID to securely unlock the app."
         case "NSMicrophoneUsageDescription":
             return "Allow microphone access to record audio in this app."
         case "NSLocationWhenInUseUsageDescription":
@@ -125,6 +130,10 @@ enum CrashDoctor {
         }
         if ["AVAudioRecorder", "AVAudioSession", "SFSpeechRecognizer"].contains(where: source.contains) {
             keys.append("NSMicrophoneUsageDescription")
+        }
+        if ["LAContext", ".deviceOwnerAuthenticationWithBiometrics", "biometryType",
+             "LAPolicy.deviceOwnerAuthenticationWithBiometrics"].contains(where: source.contains) {
+            keys.append("NSFaceIDUsageDescription")
         }
         if source.contains("CLLocationManager") {
             keys.append("NSLocationWhenInUseUsageDescription")
