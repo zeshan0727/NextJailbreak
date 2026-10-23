@@ -17,6 +17,7 @@ private struct SavedForgeSession: Codable {
 @MainActor
 final class AppState: ObservableObject {
     @Published var selectedTab: ForgeTab = .requirement
+    @Published var moreSection: ForgeMoreSection = .downloads
     @Published var requirement = ""
     @Published var generatedPrompt = ""
     @Published var codePrompt = "" { didSet { persistBuildSession() } }

@@ -24,8 +24,7 @@ struct RootView: View {
             CodeView().tabItem { Label("Code", systemImage: "curlybraces") }.tag(ForgeTab.code)
             GitHubView().tabItem { Label("GitHub", systemImage: "arrow.up.doc") }.tag(ForgeTab.github)
             BuildView().tabItem { Label("Build", systemImage: "hammer") }.tag(ForgeTab.status)
-            DownloadsView().tabItem { Label("Downloads", systemImage: "square.and.arrow.down") }.tag(ForgeTab.downloads)
-            SupportView().tabItem { Label("AI Support", systemImage: "bubble.left.and.wrench.bubble.right") }.tag(ForgeTab.support)
+            MoreView().tabItem { Label("More", systemImage: "ellipsis.circle.fill") }.tag(ForgeTab.more)
         }
         .toolbarBackground(.visible, for: .tabBar)
         .overlay(alignment: .topTrailing) {

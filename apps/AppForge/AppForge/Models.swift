@@ -1,7 +1,7 @@
 import Foundation
 
 enum ForgeTab: Int, CaseIterable, Identifiable {
-    case requirement, code, github, status, downloads, support
+    case requirement, code, github, status, more
     var id: Int { rawValue }
     var title: String {
         switch self {
@@ -9,8 +9,7 @@ enum ForgeTab: Int, CaseIterable, Identifiable {
         case .code: return "Code"
         case .github: return "GitHub"
         case .status: return "Build"
-        case .downloads: return "Downloads"
-        case .support: return "AI Support"
+        case .more: return "More"
         }
     }
     var symbol: String {
@@ -19,10 +18,14 @@ enum ForgeTab: Int, CaseIterable, Identifiable {
         case .code: return "curlybraces"
         case .github: return "arrow.up.doc"
         case .status: return "hammer"
-        case .downloads: return "square.and.arrow.down"
-        case .support: return "bubble.left.and.wrench.bubble.right"
+        case .more: return "ellipsis.circle.fill"
         }
     }
+}
+
+enum ForgeMoreSection: String, CaseIterable, Identifiable {
+    case downloads, support
+    var id: String { rawValue }
 }
 
 enum ForgeError: LocalizedError {

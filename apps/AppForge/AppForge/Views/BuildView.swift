@@ -15,7 +15,8 @@ struct BuildView: View {
                 VStack(alignment: .leading, spacing: 17) {
                     ScreenHeading(title: "Build Status", subtitle: "GitHub Actions checks the pushed commit every 8 seconds.")
                     Button {
-                        state.selectedTab = .support
+                        state.moreSection = .support
+                        state.selectedTab = .more
                     } label: {
                         Label("Ask AI Support", systemImage: "bubble.left.and.wrench.bubble.right")
                     }.buttonStyle(.borderedProminent)
@@ -97,7 +98,8 @@ struct BuildView: View {
                         if state.activeRun?.conclusion == "success" {
                             ForgeButton(title: "Open Downloads", symbol: "arrow.down.circle.fill") {
                                 state.selectLastBuildDownloads()
-                                state.selectedTab = .downloads
+                                state.moreSection = .downloads
+                                state.selectedTab = .more
                                 Task { await state.refreshReleases() }
                             }
                         }

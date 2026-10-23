@@ -124,7 +124,9 @@ struct DownloadsView: View {
             .refreshable { await state.refreshReleases() }
             .task { await state.refreshReleases() }
             .onChange(of: state.selectedTab) { tab in
-                if tab == .downloads { Task { await state.refreshReleases() } }
+                if tab == .more && state.moreSection == .downloads {
+                    Task { await state.refreshReleases() }
+                }
             }
             .sheet(isPresented: $showingShare) {
                 if let url = shareURL { ShareSheet(items: [url]) }
