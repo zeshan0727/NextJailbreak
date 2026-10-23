@@ -15,9 +15,8 @@ struct ContentView: View {
     @State private var timerStatus: TimerStatus = .stopped
     @State private var notificationAuthorized: Bool = false
     @State private var showNotificationDeniedMessage: Bool = false
-    @State private var showPermissionPrompt: Bool = false
     @State private var timerSubscription: Cancellable?
-    @Environment(.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
 
     private let minDuration = 1
     private let maxDuration = 120
@@ -34,7 +33,7 @@ struct ContentView: View {
 
             if timerStatus == .stopped || timerStatus == .paused || timerStatus == .completed {
                 Picker("Timer Duration", selection: $timerDuration) {
-                    ForEach(minDuration...maxDuration, id: \ .self) { minute in
+                    ForEach(minDuration...maxDuration, id: \.self) { minute in
                         Text("\(minute) min")
                             .tag(minute)
                     }
