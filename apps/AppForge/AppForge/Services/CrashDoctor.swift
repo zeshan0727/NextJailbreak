@@ -138,7 +138,27 @@ enum CrashDoctor {
         if source.contains("CLLocationManager") {
             keys.append("NSLocationWhenInUseUsageDescription")
         }
-        return keys.isEmpty ? project : try addUsageDescriptions(project, keys: keys)
+        var checked = keys.isEmpty ? project : try addUsageDescriptions(project, keys: keys)
+        if source.contains("NWBrowser") || source.contains(".bonjour(") || source.contains("NWConnection") {
+            if let index = checked.files.firstIndex(where: { $0.path == "Info.plist" }),
+               let data = checked.files[index].content.data(using: .utf8),
+               var plist = try PropertyListSerialization.propertyList(from: data,
+                        options: [], format: nil) as? [String: Any] {
+                if plist["NSLocalNetworkUsageDescription"] == nil {
+                    plist["NSLocalNetworkUsageDescription"] = "Discover and connect to nearby devices on your local network."
+                }
+                var services = plist["NSBonjourServices"] as? [String] ?? []
+                for service in ["_googlecast._tcp", "_http._tcp", "_airplay._tcp"] where source.contains(service) {
+                    if !services.contains(service) { services.append(service) }
+                }
+                if !services.isEmpty { plist["NSBonjourServices"] = services }
+                let fixed = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
+                if let xml = String(data: fixed, encoding: .utf8) {
+                    checked.files[index].content = xml
+                }
+            }
+        }
+        return checked
     }
 
     static func patch(_ project: ForgeProject, for crash: CrashSummary) throws -> ForgeProject {

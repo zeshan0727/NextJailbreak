@@ -51,7 +51,7 @@ struct SettingsView: View {
                 }
                 Section("Automatic build repair") {
                     Toggle("Fix and rebuild automatically", isOn: $state.autoRepairEnabled)
-                    Text("On compiler failure, AppForge reads logs, asks your configured AI to correct the Swift source, commits the fix and rebuilds. Up to two attempts. Keep the app open; OpenAI API usage can incur charges.")
+                    Text("On compiler failure, AppForge reads logs, asks your configured AI to correct the Swift source, commits the fix and rebuilds. Up to five bounded attempts with targeted source edits. Keep the app open; OpenAI API usage can incur charges.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Section("Appearance & build") {
@@ -69,7 +69,7 @@ struct SettingsView: View {
                     Button("Clear prompt history and generated code", role: .destructive) { state.clearHistoryAndCache() }
                 }
                 Section("About") {
-                    LabeledContent("App", value: "AppForge 1.0.9")
+                    LabeledContent("App", value: "AppForge 1.1.0")
                     Text("No external backend, tracking, or analytics. Secrets use iOS Keychain. Requests go directly to your selected AI provider and GitHub.")
                         .font(.caption).foregroundStyle(.secondary)
                 }

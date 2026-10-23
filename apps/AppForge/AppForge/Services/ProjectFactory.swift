@@ -138,12 +138,35 @@ enum ProjectFactory {
     }
 
     static func repairKnownCompilerErrors(_ project: ForgeProject, log: String) -> ForgeProject? {
-        guard log.contains("consecutive statements on a line")
-           || log.contains("labeled block needs 'do'")
-           || log.contains("Expected expression")
-           || log.contains("expected expression") else { return nil }
         var updated = project
-        updated.files = repairAlertTrailingClosure(project.files)
+        if log.contains("consecutive statements on a line") ||
+           log.contains("labeled block needs 'do'") ||
+           log.contains("Expected expression") ||
+           log.contains("expected expression") {
+            updated.files = repairAlertTrailingClosure(updated.files)
+        }
+        // Network.framework's NWBrowser.Result.Metadata is not optional and does
+        // not expose txtRecordData. This was the LocalCast repeated-build blocker.
+        if log.contains("txtRecordData") &&
+           log.contains("NWBrowser.Result.Metadata") {
+            updated.files = updated.files.map { file in
+                guard file.path.hasSuffix(".swift") else { return file }
+                var text = file.content
+                let oldBlock = #"""
+                    if let txtRecordData = result.metadata?.txtRecordData {
+                        if let txtDict = Self.parseTXTRecord(txtRecordData) {
+                            if let portString = txtDict["port"], let p = UInt16(portString) {
+                                port = p
+                            }
+                        }
+                    }
+                """#
+                // Exact-match, conservative correction only.
+                text = text.replacingOccurrences(of: oldBlock,
+                      with: "// Bonjour service endpoints must be resolved by NWConnection.")
+                return ForgeFile(path: file.path, content: text)
+            }
+        }
         return updated.files == project.files ? nil : updated
     }
 

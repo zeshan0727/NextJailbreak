@@ -63,7 +63,9 @@ final class AppState: ObservableObject {
     }
     @Published var repairAttempt = 0 { didSet { persistBuildSession() } }
     @Published var repairStatus = "" { didSet { persistBuildSession() } }
-    let maximumRepairAttempts = 2
+    // Staged, bounded repairs: deterministic preflight then precise edit then regen.
+    // Stop when the model cannot materially change source.
+    let maximumRepairAttempts = 5
     @Published var exportURL: URL?
     let downloads = DownloadManager()
     private var missingRunChecks = 0
@@ -355,6 +357,96 @@ final class AppState: ObservableObject {
         } catch { notice = error.localizedDescription }
     }
 
+    private struct SourcePatch: Decodable {
+        let path: String
+        let old: String
+        let new: String
+    }
+
+    /// Repairs one diagnosed source span at a time, preserving all unrelated files.
+    /// This keeps the model's response small and avoids repeated truncated-project JSON.
+    private func proposeTargetedRepair(project: ForgeProject, failureLog: String) async throws -> ForgeProject {
+        let errors = failureLog.split(separator: "\n")
+            .filter { $0.contains("error:") || $0.contains("fatal error:") }
+        guard let first = errors.first else {
+            throw ForgeError.message("No compiler error lines were found in the build log.")
+        }
+        let line = String(first)
+        let expression = #"/Sources/([A-Za-z0-9_./-]+\.swift):([0-9]+):"#
+        guard let match = line.range(of: expression, options: .regularExpression) else {
+            throw ForgeError.message("Could not locate the failing Swift file from the compiler output.")
+        }
+        let pathLine = String(line[match])
+        let components = pathLine.split(separator: ":")
+        guard components.count >= 2, let number = Int(components[1]) else {
+            throw ForgeError.message("Could not parse the failing source line.")
+        }
+        let suffix = String(components[0])
+        let path = "Sources/" + String(suffix.split(separator: "/").last ?? "")
+        guard let source = project.files.first(where: { $0.path == path }) else {
+            throw ForgeError.message("Compiler error file \(path) is not present in the current project.")
+        }
+        let lines = source.content.components(separatedBy: "\n")
+        let start = max(0, number - 45)
+        let end = min(lines.count, number + 35)
+        let context = lines[start..<end].enumerated().map {
+            "\($0.offset + start + 1): \($0.element)"
+        }.joined(separator: "\n")
+        let reasons = errors.prefix(20).joined(separator: "\n")
+        var lastError = ""
+        // Two concise attempts with different context; never commit unverified edits.
+        for pass in 0..<2 {
+            let response = try await ai().chat(system: """
+                You are a Swift 5 / iOS 16 compiler error fixer.
+                Return a SINGLE JSON object with path, old, new STRING properties.
+                old must be an exact contiguous substring from the source snippet,
+                new is its precise corrected replacement (not the entire file).
+                Preserve the app features, types, security, and all unrelated code.
+                Do not use TODOs, stubs, or platform APIs unavailable on iOS 16.
+                No prose or markdown. JSON only.
+                """, user: """
+                App: \(project.appName)
+                Failing file: \(path), approximate line \(number)
+                Compiler diagnostics:
+                \(String(reasons.prefix(6500)))
+                Relevant source with line numbers:
+                \(String(context.prefix(11500)))
+                Previous patch problem: \(lastError)
+                Attempt \(pass + 1)/2.
+                """, jsonMode: true)
+            do {
+                let start = response.firstIndex(of: "{")
+                let end = response.lastIndex(of: "}")
+                guard let start, let end, start <= end else {
+                    throw ForgeError.message("AI patch is not a JSON object.")
+                }
+                let patch = try JSONDecoder().decode(SourcePatch.self,
+                                   from: Data(response[start...end].utf8))
+                guard patch.path == path || patch.path == String(path.dropFirst("Sources/".count)) else {
+                    throw ForgeError.message("AI patch targets the wrong file.")
+                }
+                guard !patch.old.isEmpty && patch.old != patch.new &&
+                      source.content.components(separatedBy: patch.old).count == 2 else {
+                    throw ForgeError.message("Patch did not match one unique source span.")
+                }
+                var modified = project
+                guard let idx = modified.files.firstIndex(where: { $0.path == path }) else {
+                    throw ForgeError.message("Source file disappeared.")
+                }
+                let revised = source.content.replacingOccurrences(of: patch.old, with: patch.new)
+                guard !revised.contains("@main") || source.content.contains("@main") else {
+                    throw ForgeError.message("Patch attempted to insert an @main entrypoint.")
+                }
+                modified.files[idx].content = revised
+                repairStatus = "Applied precise edit to \(path):\(number). Rebuilding to verify…"
+                return modified
+            } catch {
+                lastError = error.localizedDescription
+            }
+        }
+        throw ForgeError.message("Targeted repair could not produce a safe source patch: \(lastError)")
+    }
+
     func fixWithAI(automatically: Bool = false) async {
         guard let project, !failureLog.isEmpty, !busyFix else {
             if !automatically { notice = "No failing build log or generated project available" }
@@ -378,6 +470,10 @@ final class AppState: ObservableObject {
             if let local = ProjectFactory.repairKnownCompilerErrors(project, log: failureLog) {
                 corrected = local
                 repairStatus = "Fixed known SwiftUI alert syntax without an API call."
+            } else if repairAttempt <= 3 || !automatically {
+                // Prefer editing the exact failing file instead of asking the AI to
+                // regenerate an entire application (which often truncates JSON).
+                corrected = try await proposeTargetedRepair(project: project, failureLog: failureLog)
             } else {
                 corrected = try await getProject(system: AIClient.codeSystem, request: """
             Fix this exact iOS \(preferences.minimumIOS) GitHub Actions compiler failure.
