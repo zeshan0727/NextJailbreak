@@ -561,9 +561,9 @@ struct VaultListView: View {
                 Button("Cancel", role: .cancel) {
                     alertItemToDelete = nil
                 }
-            }, message: {
+            } message: {
                 Text("Are you sure you want to delete \(alertItemToDelete?.title ?? "this item")?")
-            })
+            }
             .navigationDestination(for: VaultItem.self) { item in
                 VaultItemDetailView(item: item) { updatedItem in
                     Task {
