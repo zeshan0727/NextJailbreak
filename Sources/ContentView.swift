@@ -7,6 +7,7 @@ struct TVDevice: Identifiable, Hashable {
     let name: String
     let ipAddress: String
     let port: UInt16
+    let serviceType: String
 }
 
 enum ConnectionStatus: String {
@@ -32,7 +33,7 @@ final class DeviceDiscoveryViewModel: ObservableObject {
 
         let parameters = NWParameters()
         parameters.includePeerToPeer = true
-        let bonjourType = "_http._tcp"
+        let bonjourType = "_googlecast._tcp"
 
         browser = NWBrowser(for: .bonjour(type: bonjourType, domain: nil), using: parameters)
 
@@ -58,27 +59,9 @@ final class DeviceDiscoveryViewModel: ObservableObject {
                         continue
                     }
 
-                    var ipAddress = ""
-                    var port: UInt16 = 80
-
-                    // Extract port from metadata if available
-                    if let txtRecordData = result.metadata?.txtRecordData {
-                        if let txtDict = Self.parseTXTRecord(txtRecordData) {
-                            if let portString = txtDict["port"], let p = UInt16(portString) {
-                                port = p
-                            }
-                        }
-                    }
-
-                    // Try to resolve IP address from endpoint
-                    switch result.endpoint {
-                    case .hostPort(let host, _):
-                        ipAddress = host.debugDescription
-                    default:
-                        break
-                    }
-
-                    devices.append(TVDevice(name: name, ipAddress: ipAddress, port: port))
+                    // Bonjour service is resolved by NWConnection, not a TXT record.
+                    devices.append(TVDevice(name: name, ipAddress: "", port: 8009,
+                                            serviceType: "_googlecast._tcp"))
                 }
                 self?.discoveredDevices = devices
                 self?.isLoading = false
@@ -139,16 +122,16 @@ final class RemoteControlViewModel: ObservableObject {
         commandStatus = .idle
         errorMessage = nil
 
-        guard !connectedDevice.ipAddress.isEmpty, connectedDevice.port != 0 else {
+        guard !connectedDevice.name.isEmpty, connectedDevice.port != 0 else {
             connectionStatus = .error
             errorMessage = "Invalid device address or port."
             return
         }
 
-        let host = NWEndpoint.Host(connectedDevice.ipAddress)
-        let port = NWEndpoint.Port(rawValue: connectedDevice.port) ?? NWEndpoint.Port(80)
-
-        connection = NWConnection(host: host, port: port, using: .tcp)
+        let endpoint = NWEndpoint.service(name: connectedDevice.name,
+                                          type: connectedDevice.serviceType,
+                                          domain: "local.", interface: nil)
+        connection = NWConnection(to: endpoint, using: .tcp)
 
         connection?.stateUpdateHandler = { [weak self] state in
             DispatchQueue.main.async {
@@ -181,28 +164,12 @@ final class RemoteControlViewModel: ObservableObject {
     }
 
     func sendCommand(_ command: String) {
-        guard connectionStatus == .connected else {
-            errorMessage = "Not connected to device."
-            commandStatus = .error
-            return
-        }
-
-        commandStatus = .sending
-        errorMessage = nil
-
-        let commandData = command.data(using: .utf8) ?? Data()
-
-        connection?.send(content: commandData, completion: .contentProcessed({ [weak self] error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self?.commandStatus = .error
-                    self?.errorMessage = "Failed to send command: \(error.localizedDescription)"
-                } else {
-                    self?.commandStatus = .idle
-                }
-            }
-        }))
+        // Discovery is supported. True Cast remote commands require a compliant
+        // Google Cast V2 authenticated protocol implementation; raw text is invalid.
+        commandStatus = .error
+        errorMessage = "Cast remote control requires Cast V2 protocol support. Device discovery is available."
     }
+
 }
 
 struct ContentView: View {
