@@ -21,7 +21,7 @@ struct ContentView: View {
                             .environmentObject(gameManager)
                     }
                 }
-                .alert("Error", isPresented: $showPersistenceErrorAlert, actions: {
+                .alert("Error", isPresented: $showPersistenceErrorAlert) {
                     Button("OK", role: .cancel) {}
                 } message: {
                     Text(persistenceErrorMessage)
