@@ -1,0 +1,78 @@
+name: Publish AppForge 1.1.2 to NS Transfer
+on:
+  push:
+    branches: [agent/appforge-test-20261022]
+    paths: [.github/workflows/publish-appforge-112-transfer.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: transfer-appforge112
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download and verify AppForge IPA
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/appforge112
+          gh release download appforge-test-15 -R "$GH_REPO" -p 'AppForge.ipa' -D /tmp/appforge112
+          python3 - <<'PY'
+          import hashlib,plistlib,zipfile
+          from pathlib import Path
+          path=Path('/tmp/appforge112/AppForge.ipa')
+          contents=path.read_bytes()
+          assert hashlib.sha256(contents).hexdigest()=='ebae8b8d9472035d7f091ec6f6acda12ced73803948c4372cf5d382fd3f8f722'
+          with zipfile.ZipFile(path) as z:
+            assert z.testzip() is None
+            info=plistlib.loads(z.read('Payload/AppForge.app/Info.plist'))
+            assert info['CFBundleIdentifier']=='com.nextsolution.appforge'
+            assert info['CFBundleShortVersionString']=='1.1.2'
+            assert info['MinimumOSVersion']=='16.0'
+          PY
+      - name: Update NS Transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          mkdir -p transfer/files/AppForge/1.1.2
+          cp /tmp/appforge112/AppForge.ipa transfer/files/AppForge/1.1.2/AppForge-1.1.2.ipa
+          python3 - <<'PY'
+          from pathlib import Path
+          from datetime import datetime, timezone
+          import hashlib,json
+          path=Path('transfer/files/AppForge/1.1.2/AppForge-1.1.2.ipa')
+          raw=path.read_bytes()
+          index=Path('transfer/index.json')
+          data=json.loads(index.read_text())
+          entry={
+            'id':'appforge-1.1.2-my-apps',
+            'name':'AppForge 1.1.2 — My Apps + Successful Build Editing',
+            'fileName':path.name,
+            'type':'ipa','platform':'TrollStore / iOS 16+','version':'1.1.2',
+            'url':'https://nextjailbreak.com/'+str(path),
+            'sha256':hashlib.sha256(raw).hexdigest(),'sizeBytes':len(raw),
+            'notes':'Adds My Apps successful GitHub build picker, exact source restoration, reference build logs, user device-log attachment, and Modify / Repair / Regenerate commands. Changes create a new isolated revision branch; original successful builds remain preserved. On-device functionality not yet tested.'
+          }
+          data['files']=[entry]+[v for v in data.get('files',[]) if v.get('id')!=entry['id']]
+          data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          index.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json transfer/files/AppForge/1.1.2/AppForge-1.1.2.ipa
+          git commit -m 'Publish AppForge 1.1.2 to NS Transfer'
+          git pull --rebase origin main
+          git push origin HEAD:main
