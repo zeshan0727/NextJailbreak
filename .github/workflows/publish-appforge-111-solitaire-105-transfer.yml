@@ -1,0 +1,83 @@
+name: Publish AppForge 1.1.1 and Solitaire 105 to NS Transfer
+on:
+  push:
+    branches: [agent/appforge-test-20261022]
+    paths: [.github/workflows/publish-appforge-111-solitaire-105-transfer.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: transfer-appforge111-solitaire105
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download and validate release IPAs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/appforge111 /tmp/solitaire105
+          gh release download appforge-test-14 -R "$GH_REPO" -p AppForge.ipa -D /tmp/appforge111
+          gh release download Solitaire-build-105-1 -R "$GH_REPO" -p Solitaire.ipa -D /tmp/solitaire105
+          python3 - <<'PY'
+          import zipfile,plistlib,hashlib
+          for path,expected,digest in [
+            ('/tmp/appforge111/AppForge.ipa','com.nextsolution.appforge','525225c9b7821daeecfdd63982da706b5d583a4ba9097cd935267310a89a3e7b'),
+            ('/tmp/solitaire105/Solitaire.ipa','com.example.solitaire','70e6e8c7588b4a22bbb4f1b5fa67eb2200452edb84885a994ebc3d7d265f4159')
+          ]:
+            with open(path,'rb') as f: payload=f.read()
+            assert hashlib.sha256(payload).hexdigest() == digest
+            with zipfile.ZipFile(path) as z:
+              assert z.testzip() is None
+              p=next(n for n in z.namelist() if n.startswith('Payload/') and n.endswith('.app/Info.plist'))
+              info=plistlib.loads(z.read(p))
+              assert info['CFBundleIdentifier']==expected
+          PY
+      - name: Publish verified IPAs to transfer and update manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          mkdir -p transfer/files/AppForge/1.1.1 transfer/files/Solitaire/build-105
+          cp /tmp/appforge111/AppForge.ipa transfer/files/AppForge/1.1.1/AppForge-1.1.1.ipa
+          cp /tmp/solitaire105/Solitaire.ipa transfer/files/Solitaire/build-105/Solitaire-build-105.ipa
+          python3 - <<'PY'
+          from pathlib import Path
+          from datetime import datetime, timezone
+          import json,hashlib
+          file=Path('transfer/index.json')
+          data=json.loads(file.read_text())
+          assets=[
+            ('appforge-1.1.1-targeted-repair','AppForge 1.1.1 — Reasoning Model and Targeted Repair','transfer/files/AppForge/1.1.1/AppForge-1.1.1.ipa','1.1.1',
+             'Compiles on iOS 16; adds separate GPT-6.1 Sol repair model, strict structured source patches, and a SwiftUI alert syntax preflight. On-device repair still needs testing.'),
+            ('solitaire-build-105-compiler-fixes','Solitaire — Compiler Fixes Build 105','transfer/files/Solitaire/build-105/Solitaire-build-105.ipa','1.0.0 (build 105)',
+             'Repairs alert syntax, drop object casting, initial game loading and Swift exclusivity compilation errors. On-device gameplay is untested.')
+          ]
+          entries=[]
+          for id,name,path,version,notes in assets:
+            raw=Path(path).read_bytes()
+            entries.append({'id':id,'name':name,'fileName':Path(path).name,'type':'ipa',
+              'platform':'TrollStore / iOS 16+','version':version,
+              'url':'https://nextjailbreak.com/'+path,
+              'sha256':hashlib.sha256(raw).hexdigest(),'sizeBytes':len(raw),'notes':notes})
+          ids={x['id'] for x in entries}
+          data['files']=entries+[x for x in data.get('files',[]) if x.get('id') not in ids]
+          data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          file.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json transfer/files/AppForge/1.1.1/AppForge-1.1.1.ipa transfer/files/Solitaire/build-105/Solitaire-build-105.ipa
+          git commit -m 'Publish AppForge 1.1.1 and Solitaire 105 to NS Transfer'
+          git pull --rebase origin main
+          git push origin HEAD:main
