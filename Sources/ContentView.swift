@@ -524,8 +524,10 @@ final class GameManager: ObservableObject {
             newPiles[sourcePileType]?.cards.removeLast(movingCards.count)
             newPiles[destination]?.cards.append(contentsOf: movingCards)
             // Flip top card of tableau if needed
-            if sourcePileType.isTableau, let lastCard = newPiles[sourcePileType]?.cards.last, !lastCard.isFaceUp {
-                newPiles[sourcePileType]?.cards[newPiles[sourcePileType]!.cards.count - 1].isFaceUp = true
+            if sourcePileType.isTableau, var source = newPiles[sourcePileType],
+               !source.cards.isEmpty, !source.cards[source.cards.count - 1].isFaceUp {
+                source.cards[source.cards.count - 1].isFaceUp = true
+                newPiles[sourcePileType] = source
             }
             piles = newPiles
             saveGame()
