@@ -294,8 +294,7 @@ struct ContentView: View {
             }
         }
         .environment(
-            \.
-            sizeCategory,
+            \.sizeCategory,
             .large
         )
     }
