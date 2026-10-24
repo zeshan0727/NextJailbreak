@@ -5,6 +5,14 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <item>
+      <title>iPhone Duo Jailbroken on iOS 27.1, but No Public Tool Is Planned</title>
+      <link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid>
+      <pubDate>Sat, 24 Oct 2026 16:58:54 GMT</pubDate>
+      <description>Calif demonstrated an iPhone Duo jailbreak on iOS 27.1 on launch day, but published no tool, exploit chain, compatibility list or release date.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
       <title>Jikan 1.0.2 Adds Swipe-to-Unlock Hiding and Expands Older iOS Support</title>
       <link>https://nextjailbreak.com/jikan-1-0-0-lock-screen-charge-time-estimate/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/jikan-1-0-0-lock-screen-charge-time-estimate/</guid>
@@ -141,14 +149,6 @@
       <category>Individual Tweak Update</category>
     </item>
     <item>
-      <title>Calif iOS 27.0.1 Jailbreak Demo: Apple Adds New Security Context</title>
-      <link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid>
-      <pubDate>Tue, 20 Oct 2026 20:57:37 GMT</pubDate>
-      <description>Apple’s October 19 iOS 27 security update credits Calif researchers on kernel and TCC fixes, but does not identify Calif’s unreleased jailbreak chain.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
-    <item>
       <title>Regram vs Rocket for Instagram: Which Tweak Should You Use?</title>
       <link>https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</guid>
@@ -278,3 +278,4 @@
     </item>
   </channel>
 </rss>
+

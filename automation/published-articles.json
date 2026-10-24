@@ -549,29 +549,28 @@
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "The Hexacon demonstration identifies only an iPhone 18 Pro on iOS 27.0.1. Apple’s CVE-2026-28968 and CVE-2026-86886 disclosures describe patched iOS 27 vulnerabilities but do not identify Calif’s demonstrated chain, expand device support or provide a public tool.",
-      "description": "Apple’s October 19 iOS 27 security update credits Calif researchers on kernel and TCC fixes, but does not identify Calif’s unreleased jailbreak chain.",
+      "compat": "Calif’s October 23 demonstration identifies one iPhone Duo on iOS 27.1. It does not establish support for other iPhones, package managers or tweaks, and Calif did not disclose whether the Duo result is untethered.",
+      "description": "Calif demonstrated an iPhone Duo jailbreak on iOS 27.1 on launch day, but published no tool, exploit chain, compatibility list or release date.",
       "developer": "Calif",
       "entry_type": "editorial-news-update",
       "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
-      "modified_at": "2026-10-20T20:57:37Z",
-      "name": "Calif iOS 27.0.1 jailbreak demonstration",
+      "modified_at": "2026-10-24T16:58:54Z",
+      "name": "Calif iPhone Duo iOS 27.1 jailbreak demonstration",
       "package": "editorial.ios27-jailbreak-status",
       "published_at": "2026-09-15T07:47:49Z",
       "quality_target": 9,
-      "release": "Calif demoed iOS 27.0.1 on October 16; Apple updated Calif-linked CVE-2026-28968 and added CVE-2026-86886 on October 19",
+      "release": "Calif demonstrated the iPhone Duo on iOS 27.1 on October 23, 2026; no end-user tool was released",
       "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Calif official Hexacon post, Billy Ellis on-site report and Apple iOS 27 security content",
-      "source_page_url": "https://blog.calif.io/p/iphone",
-      "source_url": "https://support.apple.com/149034",
-      "source_visual_origin": "official-apple-ios-release-artwork-reused",
-      "source_visual_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
-      "title": "Calif iOS 27.0.1 Jailbreak Demo: Apple Adds New Security Context",
-      "version": "iOS 27.0.1 demo / Apple security update October 19, 2026",
-      "image": "assets/articles/source-media/ios-27-2-rc-official-apple-art.png",
-      "media_credit": "Apple — official iOS 27 artwork from the Apple Developer releases page",
-      "media_sha256": "1d48443343b64a4e533377591025ddbfc7924d13679b04c77d67e5cc5b923f79",
-      "media_source_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png"
+      "source_name": "Calif official iPhone Duo posts, Calif Hexacon disclosure and Stefan Esser’s Heise interview",
+      "source_page_url": "https://x.com/calif_io/status/2113570095549337977",
+      "source_url": "https://x.com/calif_io/status/2113578130543882697",
+      "source_visual_origin": "still-from-official-calif-demo-hosted-by-macrumors",
+      "source_visual_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+      "title": "iPhone Duo Jailbroken on iOS 27.1, but No Public Tool Is Planned",
+      "version": "iPhone Duo / iOS 27.1 demo October 23, 2026",
+      "image": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+      "media_credit": "Calif — official iPhone Duo demonstration; still hosted by MacRumors",
+      "media_source_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy="
     },
     {
       "category": {
@@ -8478,6 +8477,16 @@
     },
     {
       "action": "update",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "package": "editorial.ios27-jailbreak-status",
+      "previous_version": "iOS 27.0.1 demo / Apple security update October 19, 2026",
+      "published_at": "2026-10-24T16:58:54Z",
+      "run_id": "scheduled-2026-10-24T16:58:54Z",
+      "version": "iPhone Duo / iOS 27.1 demo October 23, 2026"
+    },
+    {
+      "action": "update",
       "channel": "scheduled-individual-tweak-update",
       "href": "lilywhite-1-0-1-status-bar-capsule/",
       "package": "com.karin722.lilywhite",
@@ -8896,5 +8905,6 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-24T12:57:38Z"
+  "updated_at": "2026-10-24T16:58:54Z"
 }
+

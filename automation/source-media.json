@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "packages": {
+    "editorial.ios27-jailbreak-status": {
+      "credit_label": "Calif — official iPhone Duo demonstration; still hosted by MacRumors",
+      "source_page_url": "https://x.com/calif_io/status/2113570095549337977",
+      "official_source": true,
+      "hero": {
+        "url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+        "alt": "Calif iPhone Duo jailbreak demonstration showing Home Screen icons and widgets moving around an anime character",
+        "remote_embedded": true,
+        "retrieval_status": "The actual demonstration still was retrieved and inspected through ordinary read-only web access; direct binary transfer into the repository was blocked, so the inspected source image is embedded from its public host."
+      },
+      "screenshots": []
+    },
     "com.joshuaseltzer.nextalarmsx": {
       "credit_label": "Joshua Seltzer/Havoc — official NextAlarmSX Lock Screen interface screenshot",
       "source_page_url": "https://havoc.app/package/nextalarmsx",
@@ -1189,3 +1201,4 @@
     }
   }
 }
+
