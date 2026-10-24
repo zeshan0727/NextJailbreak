@@ -3,222 +3,169 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var viewModel = VPNViewModel()
     @State private var showingSettings = false
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         NavigationStack {
-            content
+            CountryListView()
                 .navigationTitle("FreeLocalVPN")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button { showingSettings = true } label: {
-                            Image(systemName: "gearshape")
-                        }
-                        .accessibilityLabel("Settings")
+                        Button { showingSettings = true } label: { Image(systemName: "gearshape") }
+                            .accessibilityLabel("Settings")
                     }
-                }
-                .navigationDestination(for: String.self) { country in
-                    ServerListView(country: country)
                 }
                 .sheet(isPresented: $showingSettings) {
                     SettingsView().environmentObject(viewModel)
                 }
         }
         .environmentObject(viewModel)
-    }
-
-    @ViewBuilder private var content: some View {
-        if viewModel.isLoading {
-            ProgressView("Loading servers...")
-                .accessibilityLabel("Loading VPN servers")
-        } else if let error = viewModel.errorMessage {
-            VStack(spacing: 16) {
-                Text(error)
-                    .foregroundColor(.red)
-                    .multilineTextAlignment(.center)
-                    .accessibilityLabel("Error: \(error)")
-                Button("Retry") { viewModel.fetchServers() }
-                    .accessibilityLabel("Retry fetching VPN servers")
-            }
-            .padding()
-        } else {
-            CountryListView()
+        .onChange(of: scenePhase) { phase in
+            if phase == .active { viewModel.reloadConfiguration() }
         }
     }
 }
 
 private struct CountryListView: View {
-    @EnvironmentObject private var viewModel: VPNViewModel
+    @EnvironmentObject private var model: VPNViewModel
 
     var body: some View {
         List {
-            ForEach(viewModel.serversByCountry.keys.sorted(), id: \.self) { country in
-                NavigationLink(value: country) {
-                    HStack {
-                        Text(country)
-                            .font(.body)
-                            .accessibilityLabel("Country: \(country)")
-                        Spacer()
-                        let count = viewModel.serversByCountry[country]?.count ?? 0
-                        Text("\(count) servers")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .accessibilityLabel("\(count) servers available")
-                    }
-                    .padding(.vertical, 8)
-                }
+            Section {
+                VPNStatusView()
+                if model.isLoading { ProgressView("Reading VPN configuration…") }
             }
+            if model.errorMessage != nil { VPNErrorSection() }
+            Section {
+                Text("The previous online server feed is unavailable. Your saved servers remain on this device. Add or import a provider's server list in Settings.")
+                    .font(.footnote).foregroundColor(.secondary)
+            } header: { Text("Server availability") }
+            Section {
+                if model.servers.isEmpty {
+                    Text("No servers saved. Open Settings to add a server or import a JSON list.")
+                        .foregroundColor(.secondary)
+                }
+                ForEach(model.serversByCountry.keys.sorted(), id: \.self) { country in
+                    NavigationLink(destination: ServerListView(country: country)) {
+                        CountryRow(country: country, count: model.serversByCountry[country]?.count ?? 0)
+                    }
+                }
+            } header: { Text("Countries") }
         }
         .listStyle(.insetGrouped)
     }
 }
 
+private struct CountryRow: View {
+    let country: String
+    let count: Int
+    var body: some View {
+        HStack {
+            Text(country)
+            Spacer()
+            Text("\(count) \(count == 1 ? "server" : "servers")").foregroundColor(.secondary)
+        }
+        .padding(.vertical, 6)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+struct VPNStatusView: View {
+    @EnvironmentObject private var model: VPNViewModel
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(model.connectionStatus.title, systemImage: model.connectionStatus == .connected ? "lock.shield.fill" : "shield")
+                .font(.headline)
+                .foregroundColor(model.connectionStatus == .connected ? .green : .primary)
+                .accessibilityLabel("VPN status: \(model.connectionStatus.title)")
+            if model.canDisconnect {
+                if let server = model.selectedServer { Text(server.name).font(.subheadline) }
+                Button("Disconnect", role: .destructive) { model.disconnect() }
+            } else {
+                Text("Traffic is not protected by this app's VPN.")
+                    .font(.footnote).foregroundColor(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct VPNErrorSection: View {
+    @EnvironmentObject private var model: VPNViewModel
+    var body: some View {
+        Section {
+            if let error = model.errorMessage {
+                Text(error).font(.callout).foregroundColor(.red)
+                    .accessibilityLabel("Error: \(error)")
+                Button("Dismiss message") { model.errorMessage = nil }
+            }
+        } header: { Text("Attention") }
+    }
+}
+
 struct ServerListView: View {
     let country: String
-    @EnvironmentObject var viewModel: VPNViewModel
-
-    private var servers: [VPNServer] {
-        viewModel.serversByCountry[country] ?? []
-    }
-
-    // alert(item:) requires Identifiable; String does not conform. A Boolean
-    // presentation binding is the smallest safe correction and retains String?
-    // error storage. Do not add a global retroactive String conformance.
-    private var showingError: Binding<Bool> {
-        Binding(
-            get: { viewModel.errorMessage != nil },
-            set: { if !$0 { viewModel.errorMessage = nil } }
-        )
-    }
+    @EnvironmentObject private var model: VPNViewModel
+    private var servers: [VPNServer] { model.serversByCountry[country] ?? [] }
 
     var body: some View {
         serverList
             .navigationTitle(country)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        viewModel.pingAllServers(servers)
-                    } label: {
-                        if viewModel.isRefreshingLatency {
-                            ProgressView()
-                        } else {
-                            Image(systemName: "arrow.clockwise")
-                        }
+                    Button { model.pingAllServers(servers) } label: {
+                        if model.isRefreshingLatency { ProgressView() }
+                        else { Image(systemName: "arrow.clockwise") }
                     }
-                    .accessibilityLabel("Refresh server latency")
-                    .disabled(viewModel.isRefreshingLatency)
+                    .disabled(model.isRefreshingLatency || servers.isEmpty)
+                    .accessibilityLabel("Refresh server reachability")
                 }
-            }
-            .alert("Error", isPresented: showingError) {
-                Button("OK", role: .cancel) { viewModel.errorMessage = nil }
-            } message: {
-                Text(viewModel.errorMessage ?? "")
             }
     }
 
     private var serverList: some View {
-        List(servers) { server in
-            Button {
-                if viewModel.selectedServer?.id == server.id && viewModel.connectionStatus == .connected {
-                    viewModel.disconnect()
-                } else {
-                    viewModel.connect(to: server)
+        List {
+            Section { VPNStatusView() }
+            if model.errorMessage != nil { VPNErrorSection() }
+            Section {
+                ForEach(servers) { server in
+                    Button {
+                        if model.selectedServer?.id == server.id && model.canDisconnect { model.disconnect() }
+                        else { model.connect(to: server) }
+                    } label: {
+                        ServerRowView(server: server, status: model.selectedServer?.id == server.id ? model.connectionStatus : .disconnected)
+                    }
+                    .buttonStyle(.plain)
                 }
-            } label: {
-                ServerRowView(
-                    server: server,
-                    isConnected: viewModel.selectedServer?.id == server.id && viewModel.connectionStatus == .connected,
-                    isConnecting: viewModel.selectedServer?.id == server.id && viewModel.connectionStatus == .connecting
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(accessibilityLabel(for: server))
-        }
-    }
-
-    private func accessibilityLabel(for server: VPNServer) -> String {
-        var status = "Disconnected"
-        if viewModel.selectedServer?.id == server.id {
-            switch viewModel.connectionStatus {
-            case .connected: status = "Connected"
-            case .connecting: status = "Connecting"
-            case .disconnected: status = "Disconnected"
+            } footer: {
+                Text("Reachability measures a TCP connection to port 443, not VPN speed. An unavailable result does not prove a VPN server is offline. Only an authenticated system VPN configuration can connect.")
             }
         }
-        let latency = server.latency.map { "Latency \($0) milliseconds" } ?? "Latency unknown"
-        return "Server \(server.name), \(latency), Status: \(status)"
     }
 }
 
 struct ServerRowView: View {
     let server: VPNServer
-    let isConnected: Bool
-    let isConnecting: Bool
-
+    let status: VPNConnectionStatus
     var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(server.name)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                Text(server.latency.map { "Latency: \($0) ms" } ?? "Latency: unknown")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(server.name).font(.body)
+                Text(server.ipAddress).font(.caption).foregroundColor(.secondary)
+                Text(server.latency.map { "TCP reachability: \($0) ms" } ?? "TCP reachability: unknown")
+                    .font(.caption).foregroundColor(.secondary)
             }
-            Spacer()
-            if isConnecting {
-                ProgressView().accessibilityLabel("Connecting")
-            } else if isConnected {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-                    .accessibilityLabel("Connected")
-            } else {
-                Image(systemName: "circle")
-                    .foregroundColor(.gray)
-                    .accessibilityLabel("Disconnected")
+            Spacer(minLength: 0)
+            if status == .connecting || status == .disconnecting { ProgressView() }
+            else {
+                Image(systemName: status == .connected ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(status == .connected ? .green : .secondary)
             }
         }
         .padding(.vertical, 6)
         .contentShape(Rectangle())
-    }
-}
-
-struct SettingsView: View {
-    @EnvironmentObject var viewModel: VPNViewModel
-    @Environment(\.dismiss) var dismiss
-
-    var body: some View {
-        NavigationStack {
-            settingsForm
-                .navigationTitle("Settings")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Done") { dismiss() }
-                            .accessibilityLabel("Close settings")
-                    }
-                }
-        }
-    }
-
-    private var settingsForm: some View {
-        Form {
-            Section(header: Text("App Settings")) {
-                Toggle("Auto-connect on launch", isOn: $viewModel.autoConnectOnLaunch)
-                    .accessibilityLabel("Toggle auto-connect on app launch")
-                    .onChange(of: viewModel.autoConnectOnLaunch) { _ in
-                        viewModel.saveAutoConnectSetting()
-                    }
-            }
-            Section(header: Text("VPN Permissions")) {
-                Text("This app uses Apple's NetworkExtension framework to manage VPN connections. Please ensure VPN permissions are granted in Settings.")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-                    .accessibilityLabel("VPN permissions information")
-            }
-            Section(header: Text("App Info")) {
-                Text("FreeLocalVPN v1.0").accessibilityLabel("App version 1.0")
-                Text("© 2024 FreeLocalVPN").accessibilityLabel("Copyright 2024 FreeLocalVPN")
-            }
-        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Server \(server.name), \(server.latency.map { "TCP reachability \($0) milliseconds" } ?? "Reachability unknown"), status: \(status.title)")
+        .accessibilityHint(status == .disconnected ? "Attempts to connect using the app's existing VPN configuration" : "Disconnects the VPN")
     }
 }

@@ -13,6 +13,7 @@ targets:
     sources:
       - Sources/AppEntry.swift
       - Sources/ContentView.swift
+      - Sources/SettingsView.swift
       - Sources/VPNViewModel.swift
       - Assets.xcassets
     settings:

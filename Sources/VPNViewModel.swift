@@ -1,12 +1,7 @@
 import Foundation
 import Combine
-import NetworkExtension
 import Network
-
-// Compilation analysis (no build log was supplied): NWConnection and NWEndpoint
-// belong to Network, not NetworkExtension. Importing Network is the minimal fix.
-// The other visible compilation issue, String-based alert identity, is corrected
-// locally in ServerListView without changing the persisted error/model types.
+import NetworkExtension
 
 struct VPNServer: Identifiable, Codable, Hashable {
     let id: UUID
@@ -14,143 +9,245 @@ struct VPNServer: Identifiable, Codable, Hashable {
     let country: String
     let ipAddress: String
     var latency: Int?
+
+    init(id: UUID = UUID(), name: String, country: String, ipAddress: String, latency: Int? = nil) {
+        self.id = id
+        self.name = name
+        self.country = country
+        self.ipAddress = ipAddress
+        self.latency = latency
+    }
+
+    enum CodingKeys: String, CodingKey { case id, name, country, ipAddress, latency }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        name = try values.decode(String.self, forKey: .name)
+        country = try values.decode(String.self, forKey: .country)
+        ipAddress = try values.decode(String.self, forKey: .ipAddress)
+        latency = try values.decodeIfPresent(Int.self, forKey: .latency)
+    }
 }
 
 enum VPNConnectionStatus: String {
-    case disconnected, connecting, connected
+    case disconnected, connecting, connected, disconnecting
+    var title: String { rawValue.capitalized }
 }
 
 final class VPNViewModel: ObservableObject {
-    @Published var serversByCountry: [String: [VPNServer]] = [:]
-    @Published var selectedServer: VPNServer?
-    @Published var connectionStatus: VPNConnectionStatus = .disconnected
-    @Published var isLoading = false
+    @Published private(set) var servers: [VPNServer] = []
+    @Published private(set) var selectedServer: VPNServer?
+    @Published private(set) var connectionStatus: VPNConnectionStatus = .disconnected
+    @Published private(set) var isLoading = true
+    @Published private(set) var isRefreshingLatency = false
     @Published var errorMessage: String?
-    @Published var isRefreshingLatency = false
-    @Published var autoConnectOnLaunch = false
+    @Published var autoConnectOnLaunch: Bool {
+        didSet { defaults.set(autoConnectOnLaunch, forKey: "autoConnectOnLaunch") }
+    }
 
-    private var cancellables = Set<AnyCancellable>()
-    private let vpnManager = NEVPNManager.shared()
-    private let serversURL = URL(string: "https://raw.githubusercontent.com/FreeVPNServers/vpnservers/main/servers.json")!
-    private let userDefaults = UserDefaults.standard
-    private let lastServerKey = "lastConnectedServer"
-    private let lastStatusKey = "lastConnectionStatus"
-    private let autoConnectKey = "autoConnectOnLaunch"
+    private let defaults = UserDefaults.standard
+    private let manager = NEVPNManager.shared()
+    private var observer: NSObjectProtocol?
+    private var loadingConfiguration = false
+    private var starting = false
+    private var configurationLoaded = false
+    private let cacheKey = "savedVPNServers"
+
+    var serversByCountry: [String: [VPNServer]] { Dictionary(grouping: servers, by: \.country) }
+    var canDisconnect: Bool { connectionStatus != .disconnected }
 
     init() {
-        loadAutoConnectSetting()
-        loadPersistedConnection()
-        fetchServers()
+        autoConnectOnLaunch = UserDefaults.standard.bool(forKey: "autoConnectOnLaunch")
+        if let data = defaults.data(forKey: cacheKey), let cached = try? JSONDecoder().decode([VPNServer].self, from: data) {
+            servers = cached
+        }
+        if let data = defaults.data(forKey: "lastConnectedServer"), let last = try? JSONDecoder().decode(VPNServer.self, from: data) {
+            selectedServer = last
+            if !servers.contains(where: { $0.ipAddress == last.ipAddress }) { servers.append(last) }
+        }
+        // A saved status is not evidence that a VPN tunnel is still running.
+        defaults.set(VPNConnectionStatus.disconnected.rawValue, forKey: "lastConnectionStatus")
+        observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: manager.connection, queue: .main) { [weak self] _ in
+            self?.updateStatus()
+        }
+        reloadConfiguration(autoConnect: true)
     }
 
-    func loadAutoConnectSetting() {
-        autoConnectOnLaunch = userDefaults.bool(forKey: autoConnectKey)
+    deinit {
+        if let observer = observer { NotificationCenter.default.removeObserver(observer) }
     }
 
-    func saveAutoConnectSetting() {
-        userDefaults.set(autoConnectOnLaunch, forKey: autoConnectKey)
-    }
-
-    func fetchServers() {
+    func reloadConfiguration(autoConnect: Bool = false) {
+        guard !loadingConfiguration else { return }
+        loadingConfiguration = true
         isLoading = true
-        errorMessage = nil
-        var request = URLRequest(url: serversURL)
-        request.timeoutInterval = 30
-        URLSession.shared.dataTaskPublisher(for: request)
-            .tryMap { data, response -> [VPNServer] in
-                guard let http = response as? HTTPURLResponse else {
-                    throw URLError(.badServerResponse)
-                }
-                guard (200...299).contains(http.statusCode) else {
-                    let message: String
-                    if http.statusCode == 404 || http.statusCode == 410 {
-                        message = "The VPN server list is unavailable (HTTP \(http.statusCode)). The app provider needs to update the server feed URL."
-                    } else {
-                        message = "The server list request failed (HTTP \(http.statusCode)). Please try again later."
-                    }
-                    throw NSError(
-                        domain: "ServerFeed",
-                        code: http.statusCode,
-                        userInfo: [NSLocalizedDescriptionKey: message]
-                    )
-                }
-                let servers = try JSONDecoder().decode([VPNServer].self, from: data)
-                guard !servers.isEmpty else {
-                    throw NSError(
-                        domain: "ServerFeed",
-                        code: 1,
-                        userInfo: [NSLocalizedDescriptionKey: "The server feed returned no VPN servers. Please try again later."]
-                    )
-                }
-                return servers
-            }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
+        manager.loadFromPreferences { [weak self] error in
+            DispatchQueue.main.async {
                 guard let self = self else { return }
+                self.loadingConfiguration = false
                 self.isLoading = false
-                if case .failure(let error) = completion {
-                    if let decodingError = error as? DecodingError {
-                        let detail: String
-                        switch decodingError {
-                        case .keyNotFound(let key, _):
-                            detail = "Missing required field: \(key.stringValue)."
-                        case .typeMismatch(_, let context),
-                             .valueNotFound(_, let context),
-                             .dataCorrupted(let context):
-                            let path = context.codingPath.map { $0.stringValue }.joined(separator: ".")
-                            detail = path.isEmpty ? context.debugDescription : "\(path): \(context.debugDescription)"
-                        @unknown default:
-                            detail = decodingError.localizedDescription
+                if let error = error {
+                    self.configurationLoaded = false
+                    self.errorMessage = "Could not read the system VPN configuration. \(error.localizedDescription) VPN access also requires the app's Personal VPN entitlement."
+                    return
+                }
+                self.configurationLoaded = true
+                self.includeConfiguredServer()
+                self.updateStatus()
+                if autoConnect, self.autoConnectOnLaunch, self.connectionStatus == .disconnected, let server = self.selectedServer {
+                    self.connect(to: server)
+                }
+            }
+        }
+    }
+
+    private func includeConfiguredServer() {
+        guard let address = manager.protocolConfiguration?.serverAddress, !address.isEmpty else { return }
+        if !servers.contains(where: { $0.ipAddress.caseInsensitiveCompare(address) == .orderedSame }) {
+            servers.append(VPNServer(name: manager.localizedDescription ?? "Configured VPN", country: "Configured VPN", ipAddress: address))
+            saveServers()
+        }
+    }
+
+    func connect(to server: VPNServer) {
+        guard !starting, connectionStatus == .disconnected else {
+            errorMessage = "Disconnect the current VPN before selecting another server."
+            return
+        }
+        guard configurationLoaded else {
+            errorMessage = "VPN configuration is unavailable. Reload it in Settings and check the app's VPN permissions."
+            return
+        }
+        guard let configuration = manager.protocolConfiguration,
+              configuration.serverAddress?.caseInsensitiveCompare(server.ipAddress) == .orderedSame else {
+            errorMessage = "This server has no usable VPN configuration in this app. An address alone is not enough: your provider must supply a supported Personal VPN configuration and authentication. Importing a server list does not install a VPN profile."
+            return
+        }
+        guard manager.isEnabled else {
+            errorMessage = "The app's VPN configuration is disabled. Enable it in iOS Settings, then reload the configuration here."
+            return
+        }
+        errorMessage = nil
+        selectedServer = server
+        starting = true
+        do {
+            try manager.connection.startVPNTunnel()
+            // startVPNTunnel only requests a connection. The system reports success later.
+            connectionStatus = .connecting
+            updateStatus(keepStarting: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                self?.starting = false
+                self?.updateStatus()
+            }
+        } catch {
+            starting = false
+            connectionStatus = .disconnected
+            errorMessage = "Unable to start VPN: \(error.localizedDescription)"
+        }
+    }
+
+    func disconnect() {
+        starting = false
+        manager.connection.stopVPNTunnel()
+        updateStatus()
+    }
+
+    private func updateStatus(keepStarting: Bool = false) {
+        let oldStatus = connectionStatus
+        switch manager.connection.status {
+        case .connected: connectionStatus = .connected; starting = false
+        case .connecting, .reasserting: connectionStatus = .connecting
+        case .disconnecting: connectionStatus = .disconnecting
+        case .invalid, .disconnected:
+            if keepStarting { return }
+            connectionStatus = .disconnected
+        @unknown default: connectionStatus = .disconnected
+        }
+        if connectionStatus != .disconnected,
+           let address = manager.protocolConfiguration?.serverAddress,
+           let match = servers.first(where: { $0.ipAddress.caseInsensitiveCompare(address) == .orderedSame }) {
+            selectedServer = match
+        }
+        if connectionStatus == .connected, let server = selectedServer, let data = try? JSONEncoder().encode(server) {
+            defaults.set(data, forKey: "lastConnectedServer")
+        }
+        defaults.set(connectionStatus.rawValue, forKey: "lastConnectionStatus")
+        if oldStatus == .connecting && connectionStatus == .disconnected {
+            errorMessage = "The system did not establish a VPN connection. Check your provider's configuration, authentication and network connection."
+        }
+    }
+
+    static func validAddress(_ value: String) -> Bool {
+        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-:")
+        return !value.isEmpty && value.count <= 253 && value.unicodeScalars.allSatisfy { allowed.contains($0) } && value.rangeOfCharacter(from: .alphanumerics) != nil
+    }
+
+    func addServer(name: String, country: String, address: String) {
+        let server = VPNServer(name: name.trimmingCharacters(in: .whitespacesAndNewlines), country: country.trimmingCharacters(in: .whitespacesAndNewlines), ipAddress: address.trimmingCharacters(in: .whitespacesAndNewlines))
+        merge([server])
+    }
+
+    private func merge(_ incoming: [VPNServer]) {
+        for server in incoming {
+            if !servers.contains(where: { $0.ipAddress.caseInsensitiveCompare(server.ipAddress) == .orderedSame }) {
+                servers.append(server)
+            }
+        }
+        saveServers()
+    }
+
+    private func saveServers() {
+        if let data = try? JSONEncoder().encode(servers) { defaults.set(data, forKey: cacheKey) }
+    }
+
+    func importServers(from url: URL) throws -> Int {
+        let access = url.startAccessingSecurityScopedResource()
+        defer { if access { url.stopAccessingSecurityScopedResource() } }
+        let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+        guard size <= 2_000_000 else { throw ImportError.invalid("The server list must be smaller than 2 MB.") }
+        let data = try Data(contentsOf: url)
+        guard data.count <= 2_000_000 else { throw ImportError.invalid("The server list is too large.") }
+        let decoded = try JSONDecoder().decode([VPNServer].self, from: data)
+        guard !decoded.isEmpty, decoded.count <= 2000 else { throw ImportError.invalid("Import between 1 and 2,000 servers.") }
+        guard decoded.allSatisfy({ !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !$0.country.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && Self.validAddress($0.ipAddress) }) else {
+            throw ImportError.invalid("Each server needs a name, country and valid hostname or IP address, without a URL scheme or port.")
+        }
+        let before = servers.count
+        // Do not trust imported latency measurements or duplicate IDs.
+        merge(decoded.map { VPNServer(name: $0.name, country: $0.country, ipAddress: $0.ipAddress) })
+        return servers.count - before
+    }
+
+    func pingAllServers(_ targets: [VPNServer]) {
+        guard !isRefreshingLatency, !targets.isEmpty else { return }
+        isRefreshingLatency = true
+        var pending = targets
+        func next() {
+            guard !pending.isEmpty else { self.isRefreshingLatency = false; return }
+            let batch = Array(pending.prefix(12))
+            pending.removeFirst(batch.count)
+            let group = DispatchGroup()
+            for server in batch {
+                group.enter()
+                probe(server) { [weak self] latency in
+                    DispatchQueue.main.async {
+                        if let self = self, let index = self.servers.firstIndex(where: { $0.id == server.id }) {
+                            self.servers[index].latency = latency
                         }
-                        self.errorMessage = "The VPN server feed has an incompatible format. \(detail) The app provider needs to correct the feed or its decoder."
-                    } else if let networkError = error as? URLError {
-                        self.errorMessage = "Could not download VPN servers: \(networkError.localizedDescription) Check your internet connection and retry."
-                    } else {
-                        self.errorMessage = error.localizedDescription
+                        group.leave()
                     }
                 }
-            } receiveValue: { [weak self] servers in
-                self?.groupServersByCountry(servers)
-                self?.pingAllServers(servers)
             }
-            .store(in: &cancellables)
-    }
-
-    private func groupServersByCountry(_ servers: [VPNServer]) {
-        serversByCountry = Dictionary(grouping: servers, by: \.country)
-    }
-
-    func pingAllServers(_ servers: [VPNServer]) {
-        isRefreshingLatency = true
-        let group = DispatchGroup()
-        var updatedServers = servers
-        for i in updatedServers.indices {
-            group.enter()
-            ping(server: updatedServers[i]) { latency in
-                DispatchQueue.main.async {
-                    updatedServers[i].latency = latency
-                    group.leave()
-                }
-            }
+            group.notify(queue: .main) { next() }
         }
-        group.notify(queue: .main) {
-            // Preserve countries outside a country-specific refresh.
-            var merged = self.serversByCountry
-            for (country, values) in Dictionary(grouping: updatedServers, by: \.country) {
-                merged[country] = values
-            }
-            self.serversByCountry = merged
-            self.isRefreshingLatency = false
-        }
+        next()
     }
 
-    private func ping(server: VPNServer, completion: @escaping (Int?) -> Void) {
-        let queue = DispatchQueue(label: "com.example.freelocalvpn.latency")
+    private func probe(_ server: VPNServer, completion: @escaping (Int?) -> Void) {
+        let queue = DispatchQueue(label: "com.example.freelocalvpn.probe")
         let socket = NWConnection(host: NWEndpoint.Host(server.ipAddress), port: .https, using: .tcp)
-        let start = DispatchTime.now()
+        let start = DispatchTime.now().uptimeNanoseconds
         var finished = false
-        // All callbacks use this serial queue. Complete only once: cancellation
-        // and timeout must not produce extra DispatchGroup.leave() calls.
         func finish(_ latency: Int?) {
             guard !finished else { return }
             finished = true
@@ -160,102 +257,17 @@ final class VPNViewModel: ObservableObject {
         }
         socket.stateUpdateHandler = { state in
             switch state {
-            case .ready:
-                let elapsed = DispatchTime.now().uptimeNanoseconds - start.uptimeNanoseconds
-                finish(Int(elapsed / 1_000_000))
-            case .failed, .cancelled:
-                finish(nil)
-            default:
-                break
+            case .ready: finish(Int((DispatchTime.now().uptimeNanoseconds - start) / 1_000_000))
+            case .failed, .cancelled: finish(nil)
+            default: break
             }
         }
         socket.start(queue: queue)
-        queue.asyncAfter(deadline: .now() + 3) {
-            finish(nil)
-        }
+        queue.asyncAfter(deadline: .now() + 3) { finish(nil) }
     }
+}
 
-    func connect(to server: VPNServer) {
-        guard connectionStatus != .connecting else { return }
-        errorMessage = nil
-        connectionStatus = .connecting
-        selectedServer = server
-        configureVPN(server: server) { [weak self] success, error in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                if success {
-                    self.connectionStatus = .connected
-                } else {
-                    self.connectionStatus = .disconnected
-                    self.errorMessage = error?.localizedDescription ?? "Failed to connect VPN."
-                    self.selectedServer = nil
-                }
-                self.persistConnection()
-            }
-        }
-    }
-
-    func disconnect() {
-        vpnManager.connection.stopVPNTunnel()
-        connectionStatus = .disconnected
-        selectedServer = nil
-        persistConnection()
-    }
-
-    private func configureVPN(server: VPNServer, completion: @escaping (Bool, Error?) -> Void) {
-        vpnManager.loadFromPreferences { error in
-            if let error = error {
-                completion(false, error)
-                return
-            }
-            let protocolConfig = NEVPNProtocolIPSec()
-            protocolConfig.serverAddress = server.ipAddress
-            protocolConfig.authenticationMethod = .none
-            protocolConfig.useExtendedAuthentication = false
-            protocolConfig.disconnectOnSleep = false
-            self.vpnManager.protocolConfiguration = protocolConfig
-            self.vpnManager.localizedDescription = "FreeLocalVPN - \(server.name)"
-            self.vpnManager.isEnabled = true
-            self.vpnManager.saveToPreferences { error in
-                if let error = error {
-                    completion(false, error)
-                    return
-                }
-                do {
-                    try self.vpnManager.connection.startVPNTunnel()
-                    completion(true, nil)
-                } catch {
-                    completion(false, error)
-                }
-            }
-        }
-    }
-
-    private func persistConnection() {
-        if let server = selectedServer, connectionStatus == .connected {
-            if let data = try? JSONEncoder().encode(server) {
-                userDefaults.set(data, forKey: lastServerKey)
-            }
-            userDefaults.set(connectionStatus.rawValue, forKey: lastStatusKey)
-        } else {
-            userDefaults.removeObject(forKey: lastServerKey)
-            userDefaults.set(VPNConnectionStatus.disconnected.rawValue, forKey: lastStatusKey)
-        }
-    }
-
-    private func loadPersistedConnection() {
-        guard let data = userDefaults.data(forKey: lastServerKey),
-              let server = try? JSONDecoder().decode(VPNServer.self, from: data),
-              let statusRaw = userDefaults.string(forKey: lastStatusKey),
-              let status = VPNConnectionStatus(rawValue: statusRaw) else {
-            connectionStatus = .disconnected
-            selectedServer = nil
-            return
-        }
-        selectedServer = server
-        connectionStatus = status
-        if autoConnectOnLaunch && status == .connected {
-            connect(to: server)
-        }
-    }
+private enum ImportError: LocalizedError {
+    case invalid(String)
+    var errorDescription: String? { if case .invalid(let text) = self { return text }; return nil }
 }
