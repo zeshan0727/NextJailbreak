@@ -1,456 +1,420 @@
 import SwiftUI
-import Combine
+import WebKit
 
-struct Note: Identifiable, Codable, Equatable {
-    let id: UUID
-    var content: String
-    let createdAt: Date
-    var modifiedAt: Date
-    var isPinned: Bool
-
-    var title: String {
-        content.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first.map { String($0) } ?? "New Note"
-    }
-
-    var snippet: String {
-        let lines = content.split(separator: "\n", omittingEmptySubsequences: true)
-        if lines.count > 1 {
-            let secondLine = lines[1]
-            if secondLine.count > 30 {
-                return String(secondLine.prefix(30)) + "..."
-            } else {
-                return String(secondLine)
-            }
-        } else if content.count > 30 {
-            return String(content.prefix(30)) + "..."
-        } else {
-            return content
-        }
-    }
-}
-
-@MainActor
-final class NotesViewModel: ObservableObject {
-    @Published private(set) var notes: [Note] = []
-    @Published var searchText: String = ""
-    @Published var errorMessage: String? = nil
-    @Published var showErrorAlert: Bool = false
+final class BrowserViewModel: ObservableObject {
+    @Published var urlString: String = ""
     @Published var isLoading: Bool = false
+    @Published var progress: Double = 0.0
+    @Published var canGoBack: Bool = false
+    @Published var canGoForward: Bool = false
+    @Published var errorMessage: String? = nil
+    @Published var showInvalidURLAlert: Bool = false
+    @Published var history: [String] = []
 
-    private let fileURL: URL
-    private var saveCancellable: AnyCancellable?
-    private var debounceSaveSubject = PassthroughSubject<Void, Never>()
+    private let historyKey = "SimpleBrowserHistory"
+    private let maxHistoryCount = 100
 
     init() {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        self.fileURL = docs.appendingPathComponent("notes.json")
-        loadNotes()
-        setupAutoSave()
+        loadHistory()
     }
 
-    private func setupAutoSave() {
-        saveCancellable = debounceSaveSubject
-            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.saveNotes()
-            }
-    }
-
-    func loadNotes() {
-        isLoading = true
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            do {
-                let data = try Data(contentsOf: self.fileURL)
-                let decoded = try JSONDecoder().decode([Note].self, from: data)
-                DispatchQueue.main.async {
-                    self.notes = decoded
-                    self.isLoading = false
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.notes = []
-                    self.isLoading = false
-                    if (error as NSError).code != NSFileReadNoSuchFileError {
-                        self.errorMessage = "Failed to load notes: \(error.localizedDescription)"
-                        self.showErrorAlert = true
-                    }
-                }
-            }
+    func loadHistory() {
+        if let saved = UserDefaults.standard.array(forKey: historyKey) as? [String] {
+            history = saved
         }
     }
 
-    private func saveNotes() {
-        let notesCopy = notes
-        let fileURLCopy = fileURL
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            do {
-                let data = try JSONEncoder().encode(notesCopy)
-                try data.write(to: fileURLCopy, options: [.atomic])
-            } catch {
-                DispatchQueue.main.async {
-                    self?.errorMessage = "Failed to save notes: \(error.localizedDescription)"
-                    self?.showErrorAlert = true
-                }
-            }
+    func saveHistory() {
+        UserDefaults.standard.set(history, forKey: historyKey)
+    }
+
+    func addToHistory(_ url: String) {
+        guard !url.isEmpty else { return }
+        if let idx = history.firstIndex(of: url) {
+            history.remove(at: idx)
         }
-    }
-
-    func addNote() {
-        let now = Date()
-        let newNote = Note(id: UUID(), content: "", createdAt: now, modifiedAt: now, isPinned: false)
-        notes.insert(newNote, at: 0)
-        debounceSaveSubject.send()
-    }
-
-    func update(note: Note) {
-        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
-        var updatedNote = note
-        updatedNote.modifiedAt = Date()
-        notes[idx] = updatedNote
-        sortNotes()
-        debounceSaveSubject.send()
-    }
-
-    func delete(note: Note) {
-        notes.removeAll { $0.id == note.id }
-        debounceSaveSubject.send()
-    }
-
-    func togglePin(note: Note) {
-        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
-        notes[idx].isPinned.toggle()
-        notes[idx].modifiedAt = Date()
-        sortNotes()
-        debounceSaveSubject.send()
-    }
-
-    func clearAll() {
-        notes.removeAll()
-        debounceSaveSubject.send()
-    }
-
-    private func sortNotes() {
-        notes.sort {
-            if $0.isPinned != $1.isPinned {
-                return $0.isPinned && !$1.isPinned
-            }
-            return $0.modifiedAt > $1.modifiedAt
+        history.insert(url, at: 0)
+        if history.count > maxHistoryCount {
+            history.removeLast(history.count - maxHistoryCount)
         }
+        saveHistory()
     }
 
-    var filteredNotes: [Note] {
-        if searchText.isEmpty {
-            return notes
+    func validateURL(_ urlString: String) -> URL? {
+        guard let url = URL(string: urlString.trimmingCharacters(in: .whitespacesAndNewlines)) else {
+            return nil
         }
-        let lower = searchText.lowercased()
-        return notes.filter {
-            $0.content.lowercased().contains(lower) || $0.title.lowercased().contains(lower)
+        // If scheme missing, add https
+        if url.scheme == nil {
+            return URL(string: "https://" + urlString.trimmingCharacters(in: .whitespacesAndNewlines))
         }
+        return url
     }
 }
 
 struct ContentView: View {
-    @StateObject private var vm = NotesViewModel()
-    @State private var showingDeleteAlert = false
-    @State private var noteToDelete: Note? = nil
-    @State private var showingClearAllAlert = false
-    @State private var showingSettings = false
+    @StateObject private var viewModel = BrowserViewModel()
+    @State private var webView = WKWebView()
+    @FocusState private var urlFieldFocused: Bool
+    @State private var showShareSheet = false
 
     var body: some View {
         NavigationStack {
-            VStack {
-                if vm.notes.isEmpty && vm.searchText.isEmpty {
-                    EmptyStateView()
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("No notes available. Tap the plus button to add a new note.")
-                } else {
-                    List {
-                        ForEach(vm.filteredNotes) { note in
-                            NavigationLink(value: note) {
-                                NoteRow(note: note)
-                                    .accessibilityElement(children: .combine)
-                                    .accessibilityLabel("Note titled \(note.title). Preview: \(note.snippet)")
+            VStack(spacing: 0) {
+                URLBarView(urlString: $viewModel.urlString,
+                           history: viewModel.history,
+                           onCommit: loadURL,
+                           onClear: clearURL,
+                           focused: _urlFieldFocused)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(Color(UIColor.secondarySystemBackground))
+
+                ProgressView(value: viewModel.progress)
+                    .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                    .frame(height: viewModel.isLoading ? 2 : 0)
+                    .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
+
+                ZStack {
+                    WebViewWrapper(webView: webView,
+                                   urlString: $viewModel.urlString,
+                                   isLoading: $viewModel.isLoading,
+                                   progress: $viewModel.progress,
+                                   canGoBack: $viewModel.canGoBack,
+                                   canGoForward: $viewModel.canGoForward,
+                                   errorMessage: $viewModel.errorMessage)
+                        .accessibilityLabel(Text("Web content area"))
+
+                    if let error = viewModel.errorMessage {
+                        ErrorOverlayView(errorMessage: error) {
+                            viewModel.errorMessage = nil
+                            reload()
+                        }
+                        .accessibilityElement(children: .contain)
+                        .accessibilityAddTraits(.isModal)
+                    }
+                }
+
+                ToolbarView(canGoBack: viewModel.canGoBack,
+                            canGoForward: viewModel.canGoForward,
+                            onBack: goBack,
+                            onForward: goForward,
+                            onReload: reload,
+                            onShare: { showShareSheet = true })
+                .padding(.vertical, 6)
+                .background(Color(UIColor.secondarySystemBackground))
+            }
+            .navigationTitle("SimpleBrowser")
+            .navigationBarTitleDisplayMode(.inline)
+            .alert("Invalid URL", isPresented: $viewModel.showInvalidURLAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Please enter a valid URL.")
+            }
+            .sheet(isPresented: $showShareSheet) {
+                if let url = viewModel.validateURL(viewModel.urlString) {
+                    ActivityView(activityItems: [url])
+                }
+            }
+            .onAppear {
+                if let first = viewModel.history.first, let url = viewModel.validateURL(first) {
+                    load(url: url)
+                }
+            }
+        }
+    }
+
+    private func loadURL() {
+        urlFieldFocused = false
+        guard let url = viewModel.validateURL(viewModel.urlString) else {
+            viewModel.showInvalidURLAlert = true
+            return
+        }
+        load(url: url)
+    }
+
+    private func load(url: URL) {
+        viewModel.errorMessage = nil
+        webView.load(URLRequest(url: url))
+        viewModel.addToHistory(url.absoluteString)
+    }
+
+    private func clearURL() {
+        viewModel.urlString = ""
+    }
+
+    private func goBack() {
+        if webView.canGoBack {
+            webView.goBack()
+        }
+    }
+
+    private func goForward() {
+        if webView.canGoForward {
+            webView.goForward()
+        }
+    }
+
+    private func reload() {
+        webView.reload()
+    }
+}
+
+struct URLBarView: View {
+    @Binding var urlString: String
+    let history: [String]
+    let onCommit: () -> Void
+    let onClear: () -> Void
+    @FocusState var focused: Bool
+
+    @State private var filteredSuggestions: [String] = []
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                TextField("Enter URL", text: $urlString, onCommit: onCommit)
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.URL)
+                    .disableAutocorrection(true)
+                    .focused($focused)
+                    .accessibilityLabel(Text("URL input field"))
+                    .accessibilityHint(Text("Enter website address"))
+                    .onChange(of: urlString) { newValue in
+                        updateSuggestions(for: newValue)
+                    }
+
+                if !urlString.isEmpty {
+                    Button(action: onClear) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary)
+                    }
+                    .accessibilityLabel(Text("Clear URL"))
+                    .accessibilityHint(Text("Clears the URL input field"))
+                }
+            }
+            .padding(8)
+            .background(Color(UIColor.systemBackground))
+            .cornerRadius(8)
+
+            if focused && !filteredSuggestions.isEmpty {
+                ScrollView(.vertical, showsIndicators: true) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(filteredSuggestions, id: \ .self) { suggestion in
+                            Button(action: {
+                                urlString = suggestion
+                                focused = false
+                                onCommit()
+                            }) {
+                                Text(suggestion)
+                                    .foregroundColor(.primary)
+                                    .font(.body)
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 8)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                Button {
-                                    vm.togglePin(note: note)
-                                } label: {
-                                    Label(note.isPinned ? "Unpin" : "Pin", systemImage: note.isPinned ? "pin.slash" : "pin")
-                                }
-                                .tint(note.isPinned ? .gray : .yellow)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    noteToDelete = note
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
+                            .accessibilityLabel(Text("Autocomplete suggestion: \(suggestion)"))
                         }
                     }
-                    .listStyle(.plain)
-                    .searchable(text: $vm.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes")
-                    .accessibilityLabel("Notes list")
+                    .background(Color(UIColor.systemBackground))
+                    .cornerRadius(8)
+                    .shadow(radius: 2)
                 }
+                .frame(maxHeight: 120)
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
-            .navigationTitle("QuickNotes")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                    .accessibilityLabel("Settings")
-                    .accessibilityHint("Open settings")
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Button {
-                        vm.addNote()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .accessibilityLabel("Add new note")
-                    .buttonStyle(.borderedProminent)
-                }
-            }
-            .navigationDestination(for: Note.self) { note in
-                NoteDetailView(note: note, vm: vm)
-            }
-            .alert("Delete Note", isPresented: $showingDeleteAlert, presenting: noteToDelete) { note in
-                Button("Delete", role: .destructive) {
-                    vm.delete(note: note)
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: { note in
-                Text("Are you sure you want to delete the note titled \"\(note.title)\"?")
-            }
-            .alert("Error", isPresented: $vm.showErrorAlert, actions: {
-                Button("OK", role: .cancel) {}
-            }, message: {
-                Text(vm.errorMessage ?? "Unknown error")
-            })
-            .sheet(isPresented: $showingSettings) {
-                SettingsView(vm: vm, isPresented: $showingSettings)
-            }
+        }
+    }
+
+    private func updateSuggestions(for input: String) {
+        let lower = input.lowercased()
+        if lower.isEmpty {
+            filteredSuggestions = []
+        } else {
+            filteredSuggestions = history.filter { $0.lowercased().contains(lower) }
+                .prefix(5)
+                .map { $0 }
         }
     }
 }
 
-struct NoteRow: View {
-    let note: Note
+struct ToolbarView: View {
+    let canGoBack: Bool
+    let canGoForward: Bool
+    let onBack: () -> Void
+    let onForward: () -> Void
+    let onReload: () -> Void
+    let onShare: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(note.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                if note.isPinned {
-                    Image(systemName: "pin.fill")
-                        .foregroundColor(.yellow)
-                        .accessibilityLabel("Pinned")
-                }
-                Spacer()
-                Text(note.modifiedAt, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+        HStack(spacing: 40) {
+            Button(action: onBack) {
+                Image(systemName: "chevron.backward")
+                    .font(.title2)
             }
-            Text(note.snippet)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
+            .disabled(!canGoBack)
+            .accessibilityLabel(Text("Back"))
+            .accessibilityHint(Text(canGoBack ? "Go back to previous page" : "No back history"))
+
+            Button(action: onForward) {
+                Image(systemName: "chevron.forward")
+                    .font(.title2)
+            }
+            .disabled(!canGoForward)
+            .accessibilityLabel(Text("Forward"))
+            .accessibilityHint(Text(canGoForward ? "Go forward to next page" : "No forward history"))
+
+            Button(action: onReload) {
+                Image(systemName: "arrow.clockwise")
+                    .font(.title2)
+            }
+            .accessibilityLabel(Text("Reload"))
+            .accessibilityHint(Text("Reload the current page"))
+
+            Button(action: onShare) {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.title2)
+            }
+            .accessibilityLabel(Text("Share"))
+            .accessibilityHint(Text("Share the current page URL"))
         }
-        .padding(.vertical, 6)
+        .foregroundColor(.blue)
+        .padding(.horizontal, 20)
     }
 }
 
-struct EmptyStateView: View {
+struct ErrorOverlayView: View {
+    let errorMessage: String
+    let onRetry: () -> Void
+
     var body: some View {
         VStack(spacing: 16) {
-            Image(systemName: "note.text")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 120, height: 120)
-                .foregroundColor(.secondary)
-                .accessibilityHidden(true)
-            Text("No notes yet")
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.largeTitle)
+                .foregroundColor(.red)
+
+            Text("Failed to load page")
                 .font(.title2)
-                .foregroundColor(.secondary)
-            Text("Tap the plus button to create your first note.")
+                .bold()
+
+            Text(errorMessage)
                 .font(.body)
-                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Button(action: onRetry) {
+                Text("Retry")
+                    .font(.headline)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+            .accessibilityLabel(Text("Retry loading page"))
         }
         .padding()
+        .background(Color(UIColor.systemBackground).opacity(0.95))
+        .cornerRadius(12)
+        .shadow(radius: 10)
+        .padding(40)
     }
 }
 
-struct NoteDetailView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var content: String
-    @State private var isSavingError: Bool = false
-    @State private var showDeleteAlert: Bool = false
-    @FocusState private var isFocused: Bool
+struct WebViewWrapper: UIViewRepresentable {
+    let webView: WKWebView
+    @Binding var urlString: String
+    @Binding var isLoading: Bool
+    @Binding var progress: Double
+    @Binding var canGoBack: Bool
+    @Binding var canGoForward: Bool
+    @Binding var errorMessage: String?
 
-    let noteId: UUID
-    @ObservedObject var vm: NotesViewModel
-
-    private var note: Note? {
-        vm.notes.first(where: { $0.id == noteId })
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
     }
 
-    init(note: Note, vm: NotesViewModel) {
-        self.noteId = note.id
-        self._content = State(initialValue: note.content)
-        self.vm = vm
+    func makeUIView(context: Context) -> WKWebView {
+        webView.navigationDelegate = context.coordinator
+        webView.addObserver(context.coordinator, forKeyPath: "estimatedProgress", options: .new, context: nil)
+        webView.addObserver(context.coordinator, forKeyPath: "loading", options: .new, context: nil)
+        webView.addObserver(context.coordinator, forKeyPath: "canGoBack", options: .new, context: nil)
+        webView.addObserver(context.coordinator, forKeyPath: "canGoForward", options: .new, context: nil)
+        webView.allowsBackForwardNavigationGestures = true
+        webView.accessibilityTraits = .allowsDirectInteraction
+        return webView
     }
 
-    var body: some View {
-        VStack {
-            TextEditor(text: $content)
-                .font(.body)
-                .padding(8)
-                .focused($isFocused)
-                .accessibilityLabel("Note content")
-                .accessibilityHint("Editable text area for note content")
-                .onChange(of: content) { _ in
-                    scheduleSave()
-                }
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        // No update needed here
+    }
+
+    class Coordinator: NSObject, WKNavigationDelegate {
+        var parent: WebViewWrapper
+
+        init(_ parent: WebViewWrapper) {
+            self.parent = parent
         }
-        .navigationTitle(note?.title.isEmpty == false ? note!.title : "New Note")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Back") {
-                    dismiss()
-                }
-                .keyboardShortcut(.escape, modifiers: [])
-                .accessibilityLabel("Back to notes list")
-            }
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button {
-                    showDeleteAlert = true
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .keyboardShortcut(.delete, modifiers: [.command])
-                .accessibilityLabel("Delete note")
-                Button {
-                    togglePin()
-                } label: {
-                    Image(systemName: note?.isPinned == true ? "pin.slash" : "pin")
-                }
-                .accessibilityLabel(note?.isPinned == true ? "Unpin note" : "Pin note")
-            }
-        }
-        .alert("Delete Note", isPresented: $showDeleteAlert) {
-            Button("Delete", role: .destructive) {
-                if let note = note {
-                    vm.delete(note: note)
-                    dismiss()
+
+        override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+            guard let webView = object as? WKWebView else { return }
+
+            DispatchQueue.main.async {
+                switch keyPath {
+                case "estimatedProgress":
+                    self.parent.progress = webView.estimatedProgress
+                case "loading":
+                    self.parent.isLoading = webView.isLoading
+                    if !webView.isLoading {
+                        self.parent.progress = 1.0
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            self.parent.progress = 0.0
+                        }
+                    }
+                case "canGoBack":
+                    self.parent.canGoBack = webView.canGoBack
+                case "canGoForward":
+                    self.parent.canGoForward = webView.canGoForward
+                default:
+                    break
                 }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Are you sure you want to delete this note?")
         }
-        .alert("Save Error", isPresented: $isSavingError) {
-            Button("Retry") {
-                saveNow()
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            DispatchQueue.main.async {
+                self.parent.urlString = webView.url?.absoluteString ?? ""
+                self.parent.errorMessage = nil
             }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Failed to save the note. Please try again.")
         }
-        .onAppear {
-            isFocused = true
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            DispatchQueue.main.async {
+                self.parent.errorMessage = error.localizedDescription
+            }
         }
-        .onReceive(vm.$showErrorAlert) { show in
-            if show {
-                isSavingError = true
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            DispatchQueue.main.async {
+                self.parent.errorMessage = error.localizedDescription
             }
         }
     }
 
-    private func scheduleSave() {
-        guard var note = note else { return }
-        note.content = content
-        vm.update(note: note)
-    }
-
-    private func saveNow() {
-        guard var note = note else { return }
-        note.content = content
-        vm.update(note: note)
-    }
-
-    private func togglePin() {
-        guard let note = note else { return }
-        vm.togglePin(note: note)
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        uiView.removeObserver(coordinator, forKeyPath: "estimatedProgress")
+        uiView.removeObserver(coordinator, forKeyPath: "loading")
+        uiView.removeObserver(coordinator, forKeyPath: "canGoBack")
+        uiView.removeObserver(coordinator, forKeyPath: "canGoForward")
     }
 }
 
-struct SettingsView: View {
-    @ObservedObject var vm: NotesViewModel
-    @Binding var isPresented: Bool
-    @AppStorage("overrideColorScheme") private var overrideColorScheme: String = "system"
-    @State private var showingClearAllAlert = false
+struct ActivityView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    let applicationActivities: [UIActivity]? = nil
 
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section("Appearance") {
-                    Picker("Theme", selection: $overrideColorScheme) {
-                        Text("System").tag("system")
-                        Text("Light").tag("light")
-                        Text("Dark").tag("dark")
-                    }
-                    .pickerStyle(.segmented)
-                    .accessibilityLabel("Theme selection")
-                    .accessibilityHint("Choose light, dark, or system appearance")
-                }
-                Section("Data") {
-                    Button(role: .destructive) {
-                        showingClearAllAlert = true
-                    } label: {
-                        Text("Clear All Notes")
-                    }
-                    .accessibilityLabel("Clear all notes")
-                    .accessibilityHint("Deletes all notes permanently")
-                }
-            }
-            .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        isPresented = false
-                    }
-                    .accessibilityLabel("Close settings")
-                }
-            }
-            .alert("Clear All Notes", isPresented: $showingClearAllAlert) {
-                Button("Clear", role: .destructive) {
-                    vm.clearAll()
-                    isPresented = false
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Are you sure you want to delete all notes? This action cannot be undone.")
-            }
-        }
-        .preferredColorScheme(colorSchemeFromString(overrideColorScheme))
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
     }
 
-    private func colorSchemeFromString(_ string: String) -> ColorScheme? {
-        switch string {
-        case "light": return .light
-        case "dark": return .dark
-        default: return nil
-        }
-    }
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
