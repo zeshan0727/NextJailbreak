@@ -308,7 +308,7 @@ struct PileView: View {
         for provider in providers {
             if provider.canLoadObject(ofClass: NSString.self) {
                 _ = provider.loadObject(ofClass: NSString.self) { nsString, _ in
-                    if let idString = nsString as String?, let uuid = UUID(uuidString: idString) {
+                    if let idString = nsString as? NSString, let uuid = UUID(uuidString: idString as String) {
                         DispatchQueue.main.async {
                             withAnimation(reduceMotion ? nil : .easeInOut) {
                                 gameManager.handleDrop(cardID: uuid, to: pileType)
@@ -449,7 +449,7 @@ final class GameManager: ObservableObject {
     }
     
     init() {
-        loadSavedGame() || startNewGame()
+        if !loadSavedGame() { startNewGame() }
     }
     
     func startNewGame() {
