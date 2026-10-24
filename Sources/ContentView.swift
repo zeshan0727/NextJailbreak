@@ -1,456 +1,745 @@
 import SwiftUI
-import Combine
 
-struct Note: Identifiable, Codable, Equatable {
-    let id: UUID
-    var content: String
-    let createdAt: Date
-    var modifiedAt: Date
-    var isPinned: Bool
-
-    var title: String {
-        content.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first.map { String($0) } ?? "New Note"
-    }
-
-    var snippet: String {
-        let lines = content.split(separator: "\n", omittingEmptySubsequences: true)
-        if lines.count > 1 {
-            let secondLine = lines[1]
-            if secondLine.count > 30 {
-                return String(secondLine.prefix(30)) + "..."
-            } else {
-                return String(secondLine)
-            }
-        } else if content.count > 30 {
-            return String(content.prefix(30)) + "..."
-        } else {
-            return content
+struct ContentView: View {
+    @StateObject private var gameManager = GameManager()
+    @State private var path = NavigationPath()
+    @State private var showExitConfirmation = false
+    @State private var showPersistenceErrorAlert = false
+    @State private var persistenceErrorMessage = ""
+    
+    var body: some View {
+        NavigationStack(path: $path) {
+            HomeView()
+                .environmentObject(gameManager)
+                .navigationDestination(for: Screen.self) { screen in
+                    switch screen {
+                    case .game:
+                        GameView(showExitConfirmation: $showExitConfirmation)
+                            .environmentObject(gameManager)
+                    case .settings:
+                        SettingsView()
+                            .environmentObject(gameManager)
+                    }
+                }
+                .alert("Error", isPresented: $showPersistenceErrorAlert, actions: {
+                    Button("OK", role: .cancel) {}
+                } message: {
+                    Text(persistenceErrorMessage)
+                }
+                .confirmationDialog("Exit current game? Unsaved progress will be lost.", isPresented: $showExitConfirmation, titleVisibility: .visible) {
+                    Button("Exit", role: .destructive) {
+                        gameManager.resetGame()
+                        path.removeLast(path.count)
+                    }
+                    Button("Cancel", role: .cancel) {}
+                }
+                .onReceive(gameManager.$persistenceError) { error in
+                    if let error = error {
+                        persistenceErrorMessage = error.localizedDescription
+                        showPersistenceErrorAlert = true
+                        gameManager.clearPersistenceError()
+                    }
+                }
         }
     }
 }
 
-@MainActor
-final class NotesViewModel: ObservableObject {
-    @Published private(set) var notes: [Note] = []
-    @Published var searchText: String = ""
-    @Published var errorMessage: String? = nil
-    @Published var showErrorAlert: Bool = false
-    @Published var isLoading: Bool = false
+enum Screen: Hashable {
+    case game
+    case settings
+}
 
-    private let fileURL: URL
-    private var saveCancellable: AnyCancellable?
-    private var debounceSaveSubject = PassthroughSubject<Void, Never>()
-
-    init() {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        self.fileURL = docs.appendingPathComponent("notes.json")
-        loadNotes()
-        setupAutoSave()
-    }
-
-    private func setupAutoSave() {
-        saveCancellable = debounceSaveSubject
-            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.saveNotes()
-            }
-    }
-
-    func loadNotes() {
-        isLoading = true
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            do {
-                let data = try Data(contentsOf: self.fileURL)
-                let decoded = try JSONDecoder().decode([Note].self, from: data)
-                DispatchQueue.main.async {
-                    self.notes = decoded
-                    self.isLoading = false
+struct HomeView: View {
+    @EnvironmentObject private var gameManager: GameManager
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isNavigating = false
+    
+    var body: some View {
+        VStack(spacing: 40) {
+            Text("Solitaire")
+                .font(.largeTitle.bold())
+                .accessibilityAddTraits(.isHeader)
+                .padding(.top, 60)
+            Spacer()
+            VStack(spacing: 24) {
+                Button(action: {
+                    gameManager.startNewGame()
+                    isNavigating = true
+                }) {
+                    Text("New Game")
+                        .font(.title2.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.accentColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
                 }
-            } catch {
-                DispatchQueue.main.async {
-                    self.notes = []
-                    self.isLoading = false
-                    if (error as NSError).code != NSFileReadNoSuchFileError {
-                        self.errorMessage = "Failed to load notes: \(error.localizedDescription)"
-                        self.showErrorAlert = true
+                .accessibilityLabel("Start a new game")
+                .accessibilityAddTraits(.isButton)
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
+                .padding(.horizontal)
+                .disabled(isNavigating)
+                
+                Button(action: {
+                    if gameManager.canResume {
+                        gameManager.loadSavedGame()
+                        isNavigating = true
+                    }
+                }) {
+                    Text("Resume Game")
+                        .font(.title2.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(gameManager.canResume ? Color.accentColor : Color.gray.opacity(0.5))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                }
+                .accessibilityLabel(gameManager.canResume ? "Resume saved game" : "No saved game available")
+                .accessibilityAddTraits(.isButton)
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
+                .disabled(!gameManager.canResume || isNavigating)
+                
+                NavigationLink("Settings", value: Screen.settings)
+                    .font(.title2.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.accentColor)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                    .accessibilityLabel("Open settings")
+                    .accessibilityAddTraits(.isButton)
+                    .padding(.horizontal)
+            }
+            Spacer()
+        }
+        .navigationDestination(isPresented: $isNavigating) {
+            GameView(showExitConfirmation: .constant(false))
+                .environmentObject(gameManager)
+        }
+    }
+}
+
+struct GameView: View {
+    @EnvironmentObject private var gameManager: GameManager
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Binding var showExitConfirmation: Bool
+    @State private var showUndoDisabledAlert = false
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 16) {
+                Button(action: {
+                    if gameManager.canUndo {
+                        withAnimation(reduceMotion ? nil : .easeInOut) {
+                            gameManager.undoMove()
+                        }
+                    } else {
+                        showUndoDisabledAlert = true
+                    }
+                }) {
+                    Label("Undo", systemImage: "arrow.uturn.backward")
+                        .font(.title3.weight(.semibold))
+                        .frame(minWidth: 70)
+                        .padding(8)
+                        .background(gameManager.canUndo ? Color.accentColor : Color.gray.opacity(0.5))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .disabled(!gameManager.canUndo)
+                .accessibilityLabel(gameManager.canUndo ? "Undo last move" : "Undo not available")
+                
+                Button(action: {
+                    showExitConfirmation = true
+                }) {
+                    Label("Menu", systemImage: "list.bullet")
+                        .font(.title3.weight(.semibold))
+                        .frame(minWidth: 70)
+                        .padding(8)
+                        .background(Color.accentColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .accessibilityLabel("Return to menu")
+                
+                Spacer()
+                
+                Button(action: {
+                    withAnimation(reduceMotion ? nil : .easeInOut) {
+                        gameManager.startNewGame()
+                    }
+                }) {
+                    Label("Restart", systemImage: "arrow.clockwise")
+                        .font(.title3.weight(.semibold))
+                        .frame(minWidth: 70)
+                        .padding(8)
+                        .background(Color.accentColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .accessibilityLabel("Restart current game")
+            }
+            .padding(.horizontal)
+            
+            CardLayoutView()
+                .environmentObject(gameManager)
+                .padding(.horizontal)
+                .padding(.bottom)
+        }
+        .alert("Undo not available", isPresented: $showUndoDisabledAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("There are no moves to undo.")
+        }
+        .navigationBarBackButtonHidden(true)
+    }
+}
+
+struct CardLayoutView: View {
+    @EnvironmentObject private var gameManager: GameManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dragOverPile: PileType? = nil
+    
+    var body: some View {
+        GeometryReader { geo in
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    ForEach(PileType.foundationPiles, id: \.self) { pileType in
+                        PileView(pileType: pileType)
+                            .environmentObject(gameManager)
+                            .frame(width: geo.size.width / 7 - 10, height: geo.size.width / 7 * 1.4)
+                    }
+                    Spacer()
+                    StockWasteView()
+                        .environmentObject(gameManager)
+                        .frame(width: geo.size.width / 7 - 10, height: geo.size.width / 7 * 1.4)
+                }
+                HStack(spacing: 8) {
+                    ForEach(0..<7, id: \.self) { index in
+                        PileView(pileType: .tableau(index))
+                            .environmentObject(gameManager)
+                            .frame(width: geo.size.width / 7 - 10, height: geo.size.height * 0.5)
                     }
                 }
             }
-        }
-    }
-
-    private func saveNotes() {
-        let notesCopy = notes
-        let fileURLCopy = fileURL
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            do {
-                let data = try JSONEncoder().encode(notesCopy)
-                try data.write(to: fileURLCopy, options: [.atomic])
-            } catch {
-                DispatchQueue.main.async {
-                    self?.errorMessage = "Failed to save notes: \(error.localizedDescription)"
-                    self?.showErrorAlert = true
-                }
-            }
-        }
-    }
-
-    func addNote() {
-        let now = Date()
-        let newNote = Note(id: UUID(), content: "", createdAt: now, modifiedAt: now, isPinned: false)
-        notes.insert(newNote, at: 0)
-        debounceSaveSubject.send()
-    }
-
-    func update(note: Note) {
-        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
-        var updatedNote = note
-        updatedNote.modifiedAt = Date()
-        notes[idx] = updatedNote
-        sortNotes()
-        debounceSaveSubject.send()
-    }
-
-    func delete(note: Note) {
-        notes.removeAll { $0.id == note.id }
-        debounceSaveSubject.send()
-    }
-
-    func togglePin(note: Note) {
-        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
-        notes[idx].isPinned.toggle()
-        notes[idx].modifiedAt = Date()
-        sortNotes()
-        debounceSaveSubject.send()
-    }
-
-    func clearAll() {
-        notes.removeAll()
-        debounceSaveSubject.send()
-    }
-
-    private func sortNotes() {
-        notes.sort {
-            if $0.isPinned != $1.isPinned {
-                return $0.isPinned && !$1.isPinned
-            }
-            return $0.modifiedAt > $1.modifiedAt
-        }
-    }
-
-    var filteredNotes: [Note] {
-        if searchText.isEmpty {
-            return notes
-        }
-        let lower = searchText.lowercased()
-        return notes.filter {
-            $0.content.lowercased().contains(lower) || $0.title.lowercased().contains(lower)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
 
-struct ContentView: View {
-    @StateObject private var vm = NotesViewModel()
-    @State private var showingDeleteAlert = false
-    @State private var noteToDelete: Note? = nil
-    @State private var showingClearAllAlert = false
-    @State private var showingSettings = false
-
+struct PileView: View {
+    @EnvironmentObject private var gameManager: GameManager
+    let pileType: PileType
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    
     var body: some View {
-        NavigationStack {
-            VStack {
-                if vm.notes.isEmpty && vm.searchText.isEmpty {
-                    EmptyStateView()
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("No notes available. Tap the plus button to add a new note.")
-                } else {
-                    List {
-                        ForEach(vm.filteredNotes) { note in
-                            NavigationLink(value: note) {
-                                NoteRow(note: note)
-                                    .accessibilityElement(children: .combine)
-                                    .accessibilityLabel("Note titled \(note.title). Preview: \(note.snippet)")
-                            }
-                            .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                Button {
-                                    vm.togglePin(note: note)
-                                } label: {
-                                    Label(note.isPinned ? "Unpin" : "Pin", systemImage: note.isPinned ? "pin.slash" : "pin")
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(Color.secondary, lineWidth: 1)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(UIColor.systemBackground))
+                )
+                .accessibilityHidden(true)
+            
+            if let pile = gameManager.piles[pileType], !pile.cards.isEmpty {
+                pileCardsView(pile.cards)
+            } else {
+                Text(pileType.emptyLabel)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .accessibilityLabel(pileType.accessibilityEmptyLabel)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(pileType.accessibilityLabel(cardCount: gameManager.piles[pileType]?.cards.count ?? 0))
+        .onDrop(of: [.utf8PlainText], isTargeted: nil) { providers in
+            handleDrop(providers: providers)
+        }
+    }
+    
+    @ViewBuilder
+    private func pileCardsView(_ cards: [Card]) -> some View {
+        switch pileType {
+        case .foundation:
+            if let card = cards.last {
+                CardView(card: card, faceUp: true)
+                    .environmentObject(gameManager)
+                    .transition(.opacity)
+            }
+        case .tableau(let index):
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .center, spacing: -40) {
+                    ForEach(cards) { card in
+                        CardView(card: card, faceUp: card.isFaceUp)
+                            .environmentObject(gameManager)
+                            .offset(y: card.isFaceUp ? 0 : 10)
+                            .zIndex(Double(card.rank.rawValue))
+                            .onDrag {
+                                if gameManager.canDrag(card: card, from: pileType) {
+                                    return NSItemProvider(object: card.id.uuidString as NSString)
                                 }
-                                .tint(note.isPinned ? .gray : .yellow)
+                                return NSItemProvider()
                             }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    noteToDelete = note
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                    }
+                }
+                .padding(.vertical, 40)
+            }
+        case .stock, .waste:
+            if let card = cards.last {
+                CardView(card: card, faceUp: pileType == .waste)
+                    .environmentObject(gameManager)
+                    .onTapGesture {
+                        if pileType == .stock {
+                            withAnimation(reduceMotion ? nil : .easeInOut) {
+                                gameManager.drawFromStock()
                             }
                         }
                     }
-                    .listStyle(.plain)
-                    .searchable(text: $vm.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes")
-                    .accessibilityLabel("Notes list")
-                }
+                    .accessibilityAddTraits(pileType == .stock ? .isButton : [])
             }
-            .navigationTitle("QuickNotes")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
+        }
+    }
+    
+    private func handleDrop(providers: [NSItemProvider]) -> Bool {
+        for provider in providers {
+            if provider.canLoadObject(ofClass: NSString.self) {
+                _ = provider.loadObject(ofClass: NSString.self) { nsString, _ in
+                    if let idString = nsString as String?, let uuid = UUID(uuidString: idString) {
+                        DispatchQueue.main.async {
+                            withAnimation(reduceMotion ? nil : .easeInOut) {
+                                gameManager.handleDrop(cardID: uuid, to: pileType)
+                            }
+                        }
                     }
-                    .accessibilityLabel("Settings")
-                    .accessibilityHint("Open settings")
                 }
-                ToolbarItem(placement: .bottomBar) {
-                    Button {
-                        vm.addNote()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
+                return true
+            }
+        }
+        return false
+    }
+}
+
+struct StockWasteView: View {
+    @EnvironmentObject private var gameManager: GameManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(Color.secondary, lineWidth: 1)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color(UIColor.systemBackground)))
+                    .frame(width: 60, height: 90)
+                    .accessibilityLabel("Stock pile")
+                    .accessibilityAddTraits(.isButton)
+                    .onTapGesture {
+                        withAnimation(reduceMotion ? nil : .easeInOut) {
+                            gameManager.drawFromStock()
+                        }
                     }
-                    .accessibilityLabel("Add new note")
-                    .buttonStyle(.borderedProminent)
+                if let topCard = gameManager.piles[.stock]?.cards.last {
+                    CardView(card: topCard, faceUp: false)
+                        .environmentObject(gameManager)
+                        .frame(width: 60, height: 90)
                 }
             }
-            .navigationDestination(for: Note.self) { note in
-                NoteDetailView(note: note, vm: vm)
-            }
-            .alert("Delete Note", isPresented: $showingDeleteAlert, presenting: noteToDelete) { note in
-                Button("Delete", role: .destructive) {
-                    vm.delete(note: note)
+            
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(Color.secondary, lineWidth: 1)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color(UIColor.systemBackground)))
+                    .frame(width: 60, height: 90)
+                    .accessibilityLabel("Waste pile")
+                if let topCard = gameManager.piles[.waste]?.cards.last {
+                    CardView(card: topCard, faceUp: true)
+                        .environmentObject(gameManager)
+                        .frame(width: 60, height: 90)
+                        .onDrag {
+                            NSItemProvider(object: topCard.id.uuidString as NSString)
+                        }
                 }
-                Button("Cancel", role: .cancel) {}
-            } message: { note in
-                Text("Are you sure you want to delete the note titled \"\(note.title)\"?")
-            }
-            .alert("Error", isPresented: $vm.showErrorAlert, actions: {
-                Button("OK", role: .cancel) {}
-            }, message: {
-                Text(vm.errorMessage ?? "Unknown error")
-            })
-            .sheet(isPresented: $showingSettings) {
-                SettingsView(vm: vm, isPresented: $showingSettings)
             }
         }
     }
 }
 
-struct NoteRow: View {
-    let note: Note
-
+struct CardView: View {
+    @EnvironmentObject private var gameManager: GameManager
+    let card: Card
+    let faceUp: Bool
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(note.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                if note.isPinned {
-                    Image(systemName: "pin.fill")
-                        .foregroundColor(.yellow)
-                        .accessibilityLabel("Pinned")
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(faceUp ? Color.white : Color.red.opacity(0.8))
+                .shadow(radius: 2)
+            if faceUp {
+                VStack(alignment: .leading) {
+                    Text(card.rank.display)
+                        .font(.caption.bold())
+                        .foregroundColor(card.suit.color)
+                        .padding(4)
+                    Spacer()
+                    Text(card.suit.symbol)
+                        .font(.title)
+                        .foregroundColor(card.suit.color)
+                        .padding(4)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                Spacer()
-                Text(note.modifiedAt, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            Text(note.snippet)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-        }
-        .padding(.vertical, 6)
-    }
-}
-
-struct EmptyStateView: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "note.text")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 120, height: 120)
-                .foregroundColor(.secondary)
-                .accessibilityHidden(true)
-            Text("No notes yet")
-                .font(.title2)
-                .foregroundColor(.secondary)
-            Text("Tap the plus button to create your first note.")
-                .font(.body)
-                .foregroundColor(.secondary)
-        }
-        .padding()
-    }
-}
-
-struct NoteDetailView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var content: String
-    @State private var isSavingError: Bool = false
-    @State private var showDeleteAlert: Bool = false
-    @FocusState private var isFocused: Bool
-
-    let noteId: UUID
-    @ObservedObject var vm: NotesViewModel
-
-    private var note: Note? {
-        vm.notes.first(where: { $0.id == noteId })
-    }
-
-    init(note: Note, vm: NotesViewModel) {
-        self.noteId = note.id
-        self._content = State(initialValue: note.content)
-        self.vm = vm
-    }
-
-    var body: some View {
-        VStack {
-            TextEditor(text: $content)
-                .font(.body)
-                .padding(8)
-                .focused($isFocused)
-                .accessibilityLabel("Note content")
-                .accessibilityHint("Editable text area for note content")
-                .onChange(of: content) { _ in
-                    scheduleSave()
-                }
-        }
-        .navigationTitle(note?.title.isEmpty == false ? note!.title : "New Note")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Back") {
-                    dismiss()
-                }
-                .keyboardShortcut(.escape, modifiers: [])
-                .accessibilityLabel("Back to notes list")
-            }
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button {
-                    showDeleteAlert = true
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .keyboardShortcut(.delete, modifiers: [.command])
-                .accessibilityLabel("Delete note")
-                Button {
-                    togglePin()
-                } label: {
-                    Image(systemName: note?.isPinned == true ? "pin.slash" : "pin")
-                }
-                .accessibilityLabel(note?.isPinned == true ? "Unpin note" : "Pin note")
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.red)
+                    .opacity(0.8)
             }
         }
-        .alert("Delete Note", isPresented: $showDeleteAlert) {
-            Button("Delete", role: .destructive) {
-                if let note = note {
-                    vm.delete(note: note)
-                    dismiss()
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Are you sure you want to delete this note?")
-        }
-        .alert("Save Error", isPresented: $isSavingError) {
-            Button("Retry") {
-                saveNow()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Failed to save the note. Please try again.")
-        }
-        .onAppear {
-            isFocused = true
-        }
-        .onReceive(vm.$showErrorAlert) { show in
-            if show {
-                isSavingError = true
-            }
-        }
-    }
-
-    private func scheduleSave() {
-        guard var note = note else { return }
-        note.content = content
-        vm.update(note: note)
-    }
-
-    private func saveNow() {
-        guard var note = note else { return }
-        note.content = content
-        vm.update(note: note)
-    }
-
-    private func togglePin() {
-        guard let note = note else { return }
-        vm.togglePin(note: note)
+        .frame(width: 60, height: 90)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(faceUp ? card.accessibilityLabel : "Face down card")
+        .accessibilityAddTraits(.isButton)
     }
 }
 
 struct SettingsView: View {
-    @ObservedObject var vm: NotesViewModel
-    @Binding var isPresented: Bool
-    @AppStorage("overrideColorScheme") private var overrideColorScheme: String = "system"
-    @State private var showingClearAllAlert = false
-
+    @EnvironmentObject private var gameManager: GameManager
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Appearance") {
-                    Picker("Theme", selection: $overrideColorScheme) {
-                        Text("System").tag("system")
-                        Text("Light").tag("light")
-                        Text("Dark").tag("dark")
-                    }
-                    .pickerStyle(.segmented)
-                    .accessibilityLabel("Theme selection")
-                    .accessibilityHint("Choose light, dark, or system appearance")
-                }
-                Section("Data") {
-                    Button(role: .destructive) {
-                        showingClearAllAlert = true
-                    } label: {
-                        Text("Clear All Notes")
-                    }
-                    .accessibilityLabel("Clear all notes")
-                    .accessibilityHint("Deletes all notes permanently")
-                }
+        Form {
+            Section(header: Text("Sound")) {
+                Toggle("Sound Effects", isOn: $gameManager.settings.soundEffects)
             }
-            .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        isPresented = false
-                    }
-                    .accessibilityLabel("Close settings")
-                }
+            Section(header: Text("Animations")) {
+                Toggle("Animations", isOn: $gameManager.settings.animations)
             }
-            .alert("Clear All Notes", isPresented: $showingClearAllAlert) {
-                Button("Clear", role: .destructive) {
-                    vm.clearAll()
-                    isPresented = false
+            Section(header: Text("Accessibility")) {
+                Toggle("Reduce Motion", isOn: $gameManager.settings.reduceMotion)
+            }
+            Section {
+                Button("Back to Home") {
+                    dismiss()
                 }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Are you sure you want to delete all notes? This action cannot be undone.")
+                .accessibilityLabel("Return to home screen")
             }
         }
-        .preferredColorScheme(colorSchemeFromString(overrideColorScheme))
+        .navigationTitle("Settings")
     }
+}
 
-    private func colorSchemeFromString(_ string: String) -> ColorScheme? {
-        switch string {
-        case "light": return .light
-        case "dark": return .dark
-        default: return nil
+// MARK: - Models and Game Logic
+
+final class GameManager: ObservableObject {
+    @Published var piles: [PileType: Pile] = [:]
+    @Published var settings = Settings()
+    @Published var persistenceError: Error? = nil
+    private var undoStack: [[PileType: Pile]] = []
+    private let saveKey = "SolitaireSavedGame"
+    private var isLoading = false
+    
+    var canUndo: Bool {
+        !undoStack.isEmpty
+    }
+    
+    var canResume: Bool {
+        UserDefaults.standard.data(forKey: saveKey) != nil
+    }
+    
+    init() {
+        loadSavedGame() || startNewGame()
+    }
+    
+    func startNewGame() {
+        undoStack.removeAll()
+        piles = GameLogic.newGamePiles()
+        saveGame()
+    }
+    
+    func resetGame() {
+        undoStack.removeAll()
+        piles.removeAll()
+        saveGame()
+    }
+    
+    func loadSavedGame() -> Bool {
+        guard !isLoading else { return false }
+        isLoading = true
+        defer { isLoading = false }
+        guard let data = UserDefaults.standard.data(forKey: saveKey) else { return false }
+        do {
+            let saved = try JSONDecoder().decode([PileType: Pile].self, from: data)
+            piles = saved
+            undoStack.removeAll()
+            return true
+        } catch {
+            persistenceError = error
+            return false
+        }
+    }
+    
+    func saveGame() {
+        do {
+            let data = try JSONEncoder().encode(piles)
+            UserDefaults.standard.set(data, forKey: saveKey)
+        } catch {
+            persistenceError = error
+        }
+    }
+    
+    func clearPersistenceError() {
+        persistenceError = nil
+    }
+    
+    func undoMove() {
+        guard let last = undoStack.popLast() else { return }
+        piles = last
+        saveGame()
+    }
+    
+    func canDrag(card: Card, from pileType: PileType) -> Bool {
+        guard let pile = piles[pileType] else { return false }
+        if pileType.isTableau {
+            // Only allow dragging face-up cards and all cards below it
+            guard let index = pile.cards.firstIndex(of: card), pile.cards[index].isFaceUp else { return false }
+            return true
+        } else if pileType == .waste {
+            // Only top card of waste can be dragged
+            return pile.cards.last == card
+        }
+        return false
+    }
+    
+    func handleDrop(cardID: UUID, to destination: PileType) {
+        guard let sourcePileType = piles.first(where: { $0.value.cards.contains(where: { $0.id == cardID }) })?.key else { return }
+        guard let sourcePile = piles[sourcePileType] else { return }
+        guard let cardIndex = sourcePile.cards.firstIndex(where: { $0.id == cardID }) else { return }
+        let movingCards = Array(sourcePile.cards[cardIndex...])
+        
+        if GameLogic.isValidMove(cards: movingCards, from: sourcePileType, to: destination, piles: piles) {
+            undoStack.append(piles)
+            var newPiles = piles
+            newPiles[sourcePileType]?.cards.removeLast(movingCards.count)
+            newPiles[destination]?.cards.append(contentsOf: movingCards)
+            // Flip top card of tableau if needed
+            if sourcePileType.isTableau, let lastCard = newPiles[sourcePileType]?.cards.last, !lastCard.isFaceUp {
+                newPiles[sourcePileType]?.cards[newPiles[sourcePileType]!.cards.count - 1].isFaceUp = true
+            }
+            piles = newPiles
+            saveGame()
+            checkWinCondition()
+        } else {
+            // Invalid move feedback
+            // Could add animation or haptic feedback here
+        }
+    }
+    
+    func drawFromStock() {
+        guard var stockPile = piles[.stock], !stockPile.cards.isEmpty else {
+            // Reset stock from waste
+            if let wastePile = piles[.waste], !wastePile.cards.isEmpty {
+                undoStack.append(piles)
+                piles[.stock]?.cards = wastePile.cards.reversed().map { Card(id: $0.id, suit: $0.suit, rank: $0.rank, isFaceUp: false) }
+                piles[.waste]?.cards.removeAll()
+                saveGame()
+            }
+            return
+        }
+        undoStack.append(piles)
+        var newStock = stockPile.cards
+        let drawCount = min(3, newStock.count)
+        let drawnCards = newStock.suffix(drawCount).map { Card(id: $0.id, suit: $0.suit, rank: $0.rank, isFaceUp: true) }
+        newStock.removeLast(drawCount)
+        piles[.stock]?.cards = newStock
+        piles[.waste]?.cards.append(contentsOf: drawnCards)
+        saveGame()
+    }
+    
+    private func checkWinCondition() {
+        let allFoundationsComplete = PileType.foundationPiles.allSatisfy { pileType in
+            guard let pile = piles[pileType] else { return false }
+            return pile.cards.count == 13
+        }
+        if allFoundationsComplete {
+            // Could add win alert or animation
+        }
+    }
+}
+
+struct Settings: Codable {
+    var soundEffects: Bool = true
+    var animations: Bool = true
+    var reduceMotion: Bool = false
+}
+
+struct Card: Identifiable, Codable, Equatable, Hashable {
+    let id: UUID
+    let suit: Suit
+    let rank: Rank
+    var isFaceUp: Bool
+    
+    var accessibilityLabel: String {
+        "\(rank.display) of \(suit.name)"
+    }
+}
+
+enum Suit: String, Codable, CaseIterable {
+    case hearts, diamonds, clubs, spades
+    
+    var symbol: String {
+        switch self {
+        case .hearts: return "♥️"
+        case .diamonds: return "♦️"
+        case .clubs: return "♣️"
+        case .spades: return "♠️"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .hearts, .diamonds: return .red
+        case .clubs, .spades: return .black
+        }
+    }
+    
+    var name: String {
+        rawValue.capitalized
+    }
+}
+
+enum Rank: Int, Codable, CaseIterable {
+    case ace = 1, two, three, four, five, six, seven, eight, nine, ten, jack, queen, king
+    
+    var display: String {
+        switch self {
+        case .ace: return "A"
+        case .jack: return "J"
+        case .queen: return "Q"
+        case .king: return "K"
+        default: return String(rawValue)
+        }
+    }
+}
+
+struct Pile: Codable, Equatable, Hashable {
+    var cards: [Card]
+}
+
+enum PileType: Codable, Hashable {
+    case stock
+    case waste
+    case foundation(Int) // 0 to 3
+    case tableau(Int) // 0 to 6
+    
+    static let foundationPiles: [PileType] = [.foundation(0), .foundation(1), .foundation(2), .foundation(3)]
+    static let tableauPiles: [PileType] = (0..<7).map { .tableau($0) }
+    
+    var isTableau: Bool {
+        if case .tableau = self { return true }
+        return false
+    }
+    
+    var emptyLabel: String {
+        switch self {
+        case .stock: return "Stock"
+        case .waste: return "Waste"
+        case .foundation: return "Foundation"
+        case .tableau: return ""
+        }
+    }
+    
+    func accessibilityLabel(cardCount: Int) -> String {
+        switch self {
+        case .stock:
+            return "Stock pile with \(cardCount) cards"
+        case .waste:
+            return "Waste pile with \(cardCount) cards"
+        case .foundation(let index):
+            return "Foundation pile \(index + 1) with \(cardCount) cards"
+        case .tableau(let index):
+            return "Tableau pile \(index + 1) with \(cardCount) cards"
+        }
+    }
+    
+    var accessibilityEmptyLabel: String {
+        switch self {
+        case .stock: return "Empty stock pile"
+        case .waste: return "Empty waste pile"
+        case .foundation(let index): return "Empty foundation pile \(index + 1)"
+        case .tableau(let index): return "Empty tableau pile \(index + 1)"
+        }
+    }
+}
+
+enum GameLogic {
+    static func newGamePiles() -> [PileType: Pile] {
+        var deck = createDeck()
+        deck.shuffle()
+        var piles: [PileType: Pile] = [:]
+        
+        // Stock pile starts empty, will fill after dealing tableau
+        piles[.stock] = Pile(cards: [])
+        piles[.waste] = Pile(cards: [])
+        
+        // Foundation piles start empty
+        for i in 0..<4 {
+            piles[.foundation(i)] = Pile(cards: [])
+        }
+        
+        // Tableau piles
+        for i in 0..<7 {
+            var cards: [Card] = []
+            for j in 0...i {
+                var card = deck.removeFirst()
+                card.isFaceUp = (j == i)
+                cards.append(card)
+            }
+            piles[.tableau(i)] = Pile(cards: cards)
+        }
+        
+        // Remaining cards go to stock
+        piles[.stock]?.cards = deck.map { Card(id: $0.id, suit: $0.suit, rank: $0.rank, isFaceUp: false) }
+        
+        return piles
+    }
+    
+    static func createDeck() -> [Card] {
+        var deck: [Card] = []
+        for suit in Suit.allCases {
+            for rank in Rank.allCases {
+                deck.append(Card(id: UUID(), suit: suit, rank: rank, isFaceUp: false))
+            }
+        }
+        return deck
+    }
+    
+    static func isValidMove(cards: [Card], from source: PileType, to destination: PileType, piles: [PileType: Pile]) -> Bool {
+        guard !cards.isEmpty else { return false }
+        let firstCard = cards.first!
+        switch destination {
+        case .foundation(let index):
+            guard cards.count == 1 else { return false } // Only single card to foundation
+            let foundationPile = piles[.foundation(index)]?.cards ?? []
+            if foundationPile.isEmpty {
+                return firstCard.rank == .ace
+            } else if let topCard = foundationPile.last {
+                return firstCard.suit == topCard.suit && firstCard.rank.rawValue == topCard.rank.rawValue + 1
+            }
+            return false
+        case .tableau(let index):
+            let tableauPile = piles[.tableau(index)]?.cards ?? []
+            if tableauPile.isEmpty {
+                return firstCard.rank == .king
+            } else if let topCard = tableauPile.last {
+                // Opposite color and rank one less
+                if firstCard.suit.color == topCard.suit.color { return false }
+                return firstCard.rank.rawValue == topCard.rank.rawValue - 1
+            }
+            return false
+        case .waste, .stock:
+            return false
         }
     }
 }
