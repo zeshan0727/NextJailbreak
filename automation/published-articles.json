@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Official package metadata declares firmware >=15.0 and iphoneos-arm64e. That dependency and architecture do not prove RootHide or jailbreak availability for every device and firmware, and RootHide Manager is not a standalone jailbreak.",
+      "description": "RootHide Manager 1.4.0 adds guarded, asynchronous varClean scans, validates custom cleanup rules, updates modern iOS paths and changes its privileged install flow.",
+      "developer": "RootHide",
+      "entry_type": "development-update",
+      "href": "roothide-manager-1-4-varclean-ios-18-26-update/",
+      "image": "assets/articles/source-media/roothide-manager-1-4-official-icon.png",
+      "media_alt": "Official RootHide Manager app icon with a split Apple logo, rainbow code texture on the left and white on the right",
+      "media_credit": "RootHide — official RootHide Manager source-repository app icon",
+      "media_sha256": "a2f0d1eae0e9b28b965af2d35b26d2e056ce0a54ed1b30e9dcb623c54ced3947",
+      "media_source_url": "https://raw.githubusercontent.com/roothide/RootHideManagerApp/224589666166a932ec5ff4151748a20d21f0cf7e/RootHide/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "media_retrieval_status": "Official source-repository icon retrieved at the 1.4 commit, inspected, stored locally and embedded in the article and social metadata.",
+      "modified_at": "2026-10-24T01:00:43Z",
+      "name": "RootHide Manager",
+      "package": "com.roothide.manager",
+      "published_at": "2026-10-24T01:00:43Z",
+      "quality_target": 9,
+      "release": "RootHide Manager 1.4.0 — October 23, 2026",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "roothide-manager-1-4-varclean-ios-18-26-update",
+      "source_name": "Official RootHide Manager 1.4 source commit and official RootHide repository package metadata",
+      "source_page_url": "https://github.com/roothide/RootHideManagerApp/commit/224589666166a932ec5ff4151748a20d21f0cf7e",
+      "source_url": "https://github.com/roothide/RootHideManagerApp",
+      "source_visual_origin": "official-roothide-manager-source-repository-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/RootHideManagerApp/224589666166a932ec5ff4151748a20d21f0cf7e/RootHide/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "title": "RootHide Manager 1.4 Adds Safer varClean and Updated iOS 18/26 Rules",
+      "version": "1.4.0"
+    },
+    {
       "additional_media": [
         {
           "image": "assets/articles/source-media/aerial-official-split-stage-interface.jpg",
@@ -8758,8 +8790,17 @@
       "published_at": "2026-10-23T20:59:00Z",
       "run_id": "scheduled-2026-10-23T20:59:00Z",
       "version": "2.12.1"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "roothide-manager-1-4-varclean-ios-18-26-update/",
+      "package": "com.roothide.manager",
+      "published_at": "2026-10-24T01:00:43Z",
+      "run_id": "scheduled-2026-10-24T01:00:43Z",
+      "version": "1.4.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-23T20:59:00Z"
+  "updated_at": "2026-10-24T01:00:43Z"
 }

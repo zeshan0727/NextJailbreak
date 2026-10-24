@@ -1145,6 +1145,19 @@
           "retrieval_status": "Retrieved from the official Havoc listing, inspected and stored locally."
         }
       ]
+    },
+    "com.roothide.manager": {
+      "credit_label": "RootHide — official RootHide Manager source-repository app icon",
+      "source_page_url": "https://github.com/roothide/RootHideManagerApp/commit/224589666166a932ec5ff4151748a20d21f0cf7e",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/roothide/RootHideManagerApp/224589666166a932ec5ff4151748a20d21f0cf7e/RootHide/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+        "alt": "Official RootHide Manager app icon with a split Apple logo, rainbow code texture on the left and white on the right",
+        "local_path": "assets/articles/source-media/roothide-manager-1-4-official-icon.png",
+        "git_blob_sha": "ec09a7fd937ea4c1fc599942e11096f7fcd81822",
+        "sha256": "a2f0d1eae0e9b28b965af2d35b26d2e056ce0a54ed1b30e9dcb623c54ced3947"
+      },
+      "screenshots": []
     }
   }
 }

@@ -1634,4 +1634,10 @@
     <priority>0.8</priority>
   </url>
   <url><loc>https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</loc><lastmod>2026-10-22</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url>
+    <loc>https://nextjailbreak.com/roothide-manager-1-4-varclean-ios-18-26-update/</loc>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
