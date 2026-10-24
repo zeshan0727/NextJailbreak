@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-23T14:53:37Z",
+  "updatedAt": "2026-10-24T15:31:47Z",
   "files": [
+    {
+      "id": "appforge-1.1.1-targeted-repair",
+      "name": "AppForge 1.1.1 — Reasoning Model and Targeted Repair",
+      "fileName": "AppForge-1.1.1.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.1.1",
+      "url": "https://nextjailbreak.com/transfer/files/AppForge/1.1.1/AppForge-1.1.1.ipa",
+      "sha256": "525225c9b7821daeecfdd63982da706b5d583a4ba9097cd935267310a89a3e7b",
+      "sizeBytes": 648574,
+      "notes": "Compiles on iOS 16; adds separate GPT-6.1 Sol repair model, strict structured source patches, and a SwiftUI alert syntax preflight. On-device repair still needs testing."
+    },
+    {
+      "id": "solitaire-build-105-compiler-fixes",
+      "name": "Solitaire — Compiler Fixes Build 105",
+      "fileName": "Solitaire-build-105.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.0.0 (build 105)",
+      "url": "https://nextjailbreak.com/transfer/files/Solitaire/build-105/Solitaire-build-105.ipa",
+      "sha256": "70e6e8c7588b4a22bbb4f1b5fa67eb2200452edb84885a994ebc3d7d265f4159",
+      "sizeBytes": 144058,
+      "notes": "Repairs alert syntax, drop object casting, initial game loading and Swift exclusivity compilation errors. On-device gameplay is untested."
+    },
     {
       "id": "appforge-1.1.0-auto-repair",
       "name": "AppForge 1.1.0 — Improved Automatic Code Repair",
