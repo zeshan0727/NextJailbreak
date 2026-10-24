@@ -1172,6 +1172,20 @@
         "retrieval_status": "Previously retrieved from the official TrollStore 2.1.1 source tag, inspected and stored locally."
       },
       "screenshots": []
+    },
+    "moe.waru.jikan": {
+      "credit_label": "waruhachi — official Jikan 1.0.2 tagged repository banner",
+      "source_page_url": "https://github.com/waruhachi/Jikan/releases/tag/1.0.2",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/waruhachi/Jikan/1.0.2/Resources/Banner.png",
+        "alt": "Official Jikan banner showing Classic pill and Progress Ring charge-time estimates on two iPhone Lock Screens",
+        "local_path": "assets/articles/source-media/jikan-1-0-2-official-banner.jpg",
+        "git_blob_sha": "2910ef55ad17817d09ce845ec2f0c41222b6ce5f",
+        "remote_embedded": false,
+        "retrieval_status": "Retrieved from the official Jikan 1.0.2 source tag, inspected and stored locally."
+      },
+      "screenshots": []
     }
   }
 }
