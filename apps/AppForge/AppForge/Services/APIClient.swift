@@ -8,10 +8,30 @@ struct AIMessage: Encodable {
 private struct ChatRequest: Encodable {
     let model: String
     let messages: [AIMessage]
-    let temperature: Double = 0.2
+    let temperature: Double?
     let response_format: JSONFormat?
 }
-private struct JSONFormat: Encodable { let type = "json_object" }
+
+private struct PatchField: Encodable {
+    let type = "string"
+}
+private struct PatchSchemaObject: Encodable {
+    let type = "object"
+    let properties = ["path": PatchField(), "old": PatchField(), "new": PatchField()]
+    let required = ["path", "old", "new"]
+    let additionalProperties = false
+}
+private struct PatchSchemaEnvelope: Encodable {
+    let name = "swift_source_patch"
+    let strict = true
+    let schema = PatchSchemaObject()
+}
+private struct JSONFormat: Encodable {
+    let type: String
+    let json_schema: PatchSchemaEnvelope?
+    static let json = JSONFormat(type: "json_object", json_schema: nil)
+    static let patch = JSONFormat(type: "json_schema", json_schema: PatchSchemaEnvelope())
+}
 
 private struct ChatResponse: Decodable {
     struct Choice: Decodable {
@@ -27,7 +47,7 @@ struct AIClient {
     let model: String
     let token: String
 
-    func chat(system: String, user: String, jsonMode: Bool = false) async throws -> String {
+    func chat(system: String, user: String, jsonMode: Bool = false, patchMode: Bool = false) async throws -> String {
         guard !token.isEmpty, !model.trimmingCharacters(in: .whitespaces).isEmpty else {
             throw ForgeError.message("Set an AI model and API key in Settings.")
         }
@@ -47,10 +67,15 @@ struct AIClient {
         // Official OpenAI Chat Completions supports JSON object mode.
         // Omit this field for alternative providers, which may not support it.
         let openAI = components.host?.lowercased() == "api.openai.com"
+        // Reasoning models reject a fixed temperature override; omit it.
+        let reasoningModel = model.hasPrefix("gpt-6") || model.hasPrefix("gpt-5")
+            || model.hasPrefix("o1") || model.hasPrefix("o3") || model.hasPrefix("o4")
+        let format: JSONFormat? = !openAI ? nil :
+            (patchMode ? .patch : (jsonMode ? .json : nil))
         request.httpBody = try JSONEncoder().encode(ChatRequest(model: model, messages: [
             AIMessage(role: "system", content: system),
             AIMessage(role: "user", content: user)
-        ], response_format: jsonMode && openAI ? JSONFormat() : nil))
+        ], temperature: reasoningModel ? nil : 0.2, response_format: format))
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse else {

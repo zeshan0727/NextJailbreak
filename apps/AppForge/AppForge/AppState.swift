@@ -134,6 +134,14 @@ final class AppState: ObservableObject {
     private func ai() -> AIClient {
         AIClient(endpoint: preferences.aiBaseURL, model: preferences.aiModel, token: Keychain.read("ai"))
     }
+    /// A stronger reasoning model for targeted compiler fixes; keep generation economical.
+    private func repairAI() -> AIClient {
+        let model = preferences.aiBaseURL.contains("api.openai.com")
+            ? (UserDefaults.standard.string(forKey: "forgeRepairModel") ?? "gpt-6.1-sol")
+            : preferences.aiModel
+        return AIClient(endpoint: preferences.aiBaseURL, model: model, token: Keychain.read("ai"))
+    }
+
     private func github() -> GitHubClient { GitHubClient(token: Keychain.read("github")) }
 
     func generatePrompt() async {
@@ -149,7 +157,7 @@ final class AppState: ObservableObject {
         } catch { notice = error.localizedDescription }
     }
 
-    private func getProject(system: String, request: String) async throws -> ForgeProject {
+    private func getProject(system: String, request: String, repair: Bool = false) async throws -> ForgeProject {
         // Three bounded attempts: initial JSON, format repair, then compact regeneration.
         // Never treat an API rate-limit/network error as malformed JSON.
         var previous = ""
@@ -182,7 +190,7 @@ final class AppState: ObservableObject {
                 Last parsing issue: \(previousError)
                 """
             }
-            let answer = try await ai().chat(system: system, user: instruction, jsonMode: true)
+            let answer = try await (repair ? repairAI() : ai()).chat(system: system, user: instruction, jsonMode: true)
             do {
                 return try ProjectFactory.parseModelJSON(answer)
             } catch {
@@ -396,7 +404,7 @@ final class AppState: ObservableObject {
         var lastError = ""
         // Two concise attempts with different context; never commit unverified edits.
         for pass in 0..<2 {
-            let response = try await ai().chat(system: """
+            let response = try await repairAI().chat(system: """
                 You are a Swift 5 / iOS 16 compiler error fixer.
                 Return a SINGLE JSON object with path, old, new STRING properties.
                 old must be an exact contiguous substring from the source snippet,
@@ -413,7 +421,7 @@ final class AppState: ObservableObject {
                 \(String(context.prefix(11500)))
                 Previous patch problem: \(lastError)
                 Attempt \(pass + 1)/2.
-                """, jsonMode: true)
+                """, jsonMode: true, patchMode: true)
             do {
                 let start = response.firstIndex(of: "{")
                 let end = response.lastIndex(of: "}")
@@ -493,7 +501,7 @@ final class AppState: ObservableObject {
             \(String(compilerLines.prefix(12_000)))
             LAST BUILD LOG:
             \(String(failureLog.suffix(12_000)))
-            """)
+            """, repair: true)
             }
             guard corrected.bundleId == project.bundleId else {
                 throw ForgeError.message("AI tried to change bundle identifier; repair rejected")
@@ -590,6 +598,9 @@ final class AppState: ObservableObject {
             let repaired: ForgeProject
             if let known = ProjectFactory.repairKnownCompilerErrors(original, log: failureLog) {
                 repaired = known
+            } else if failureLog.contains("error:") {
+                // Compiler errors get an exact-source patch instead of a whole-app rewrite.
+                repaired = try await proposeTargetedRepair(project: original, failureLog: failureLog)
             } else {
                 let source = original.files.filter {
                     $0.path.hasSuffix(".swift") && $0.path != "Sources/AppEntry.swift"
@@ -610,7 +621,7 @@ final class AppState: ObservableObject {
                     \(String(failureLog.split(separator: "\n").filter { $0.contains("error:") }.suffix(30).joined(separator: "\n").prefix(5500)))
                     Current Swift files:
                     \(String(source.prefix(88000)))
-                    """)
+                    """, repair: true)
             }
             guard repaired.bundleId == original.bundleId,
                   repaired.appName == original.appName else {

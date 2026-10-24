@@ -5,6 +5,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var aiSecret = ""
     @State private var gitSecret = ""
+    @AppStorage("forgeRepairModel") private var repairModel = "gpt-6.1-sol"
 
     private func save() { state.saveSecrets(ai: aiSecret, github: gitSecret) }
 
@@ -23,7 +24,13 @@ struct SettingsView: View {
                         save()
                         Task { await state.testAI() }
                     }.disabled(state.busyTest)
-                    Text("Use a model/provider that supports OpenAI-compatible /chat/completions. Free usage and quotas are provider-specific.")
+                    if state.preferences.aiBaseURL.contains("api.openai.com") {
+                        TextField("Repair model ID", text: $repairModel)
+                            .textInputAutocapitalization(.never).autocorrectionDisabled()
+                        Text("For compiler repairs: gpt-6.1-sol balances coding accuracy and cost. You may choose gpt-6-astra for harder problems. Your API must have access; reasoning models are called without a temperature override.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Text("Generate with your selected model; repair with the separate reasoning model where available. AI usage is billed by your provider.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Section("GitHub access") {
@@ -69,7 +76,7 @@ struct SettingsView: View {
                     Button("Clear prompt history and generated code", role: .destructive) { state.clearHistoryAndCache() }
                 }
                 Section("About") {
-                    LabeledContent("App", value: "AppForge 1.1.0")
+                    LabeledContent("App", value: "AppForge 1.1.1")
                     Text("No external backend, tracking, or analytics. Secrets use iOS Keychain. Requests go directly to your selected AI provider and GitHub.")
                         .font(.caption).foregroundStyle(.secondary)
                 }

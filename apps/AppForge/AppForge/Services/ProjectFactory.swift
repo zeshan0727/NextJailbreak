@@ -137,8 +137,32 @@ enum ProjectFactory {
         }
     }
 
+    /// SwiftUI's alert has distinct closure overloads. Model-generated
+    /// .alert(..., actions: { ... } message: { ... }) mixes the overloads.
+    /// Correct only when a message trailing closure is immediately present.
+    private static func repairAlertActionsOverload(_ files: [ForgeFile]) -> [ForgeFile] {
+        files.map { file in
+            guard file.path.hasSuffix(".swift") else { return file }
+            var lines = file.content.components(separatedBy: "\n")
+            for index in lines.indices {
+                guard lines[index].contains(".alert("),
+                      lines[index].contains(", actions: {") else { continue }
+                let lookahead = lines[index..<min(lines.count,index+15)]
+                    .joined(separator: "\n")
+                guard lookahead.contains("} message: {") ||
+                      lookahead.contains("}, message: {") else { continue }
+                lines[index] = lines[index].replacingOccurrences(of: ", actions: {", with: ") {")
+            }
+            return ForgeFile(path: file.path, content: lines.joined(separator: "\n"))
+        }
+    }
+
     static func repairKnownCompilerErrors(_ project: ForgeProject, log: String) -> ForgeProject? {
         var updated = project
+        if log.contains("expected ',' separator") ||
+           log.contains("Expected ',' separator") {
+            updated.files = repairAlertActionsOverload(updated.files)
+        }
         if log.contains("consecutive statements on a line") ||
            log.contains("labeled block needs 'do'") ||
            log.contains("Expected expression") ||
@@ -172,7 +196,7 @@ enum ProjectFactory {
 
     static func scaffold(_ project: ForgeProject, minIOS: String) throws -> ForgeProject {
         var safe = try sanitize(project)
-        safe.files = repairAlertTrailingClosure(repairNavigationModels(safe.files))
+        safe.files = repairAlertActionsOverload(repairAlertTrailingClosure(repairNavigationModels(safe.files)))
         let target = safe.appName
         let ios = minIOS.range(of: #"^\d{1,2}\.\d{1,2}$"#, options: .regularExpression) == nil ? "16.0" : minIOS
         var yaml = """
