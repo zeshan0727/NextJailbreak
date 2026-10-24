@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-24T15:31:47Z",
+  "updatedAt": "2026-10-24T16:20:03Z",
   "files": [
+    {
+      "id": "appforge-1.1.2-my-apps",
+      "name": "AppForge 1.1.2 — My Apps + Successful Build Editing",
+      "fileName": "AppForge-1.1.2.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.1.2",
+      "url": "https://nextjailbreak.com/transfer/files/AppForge/1.1.2/AppForge-1.1.2.ipa",
+      "sha256": "ebae8b8d9472035d7f091ec6f6acda12ced73803948c4372cf5d382fd3f8f722",
+      "sizeBytes": 742098,
+      "notes": "Adds My Apps successful GitHub build picker, exact source restoration, reference build logs, user device-log attachment, and Modify / Repair / Regenerate commands. Changes create a new isolated revision branch; original successful builds remain preserved. On-device functionality not yet tested."
+    },
     {
       "id": "appforge-1.1.1-targeted-repair",
       "name": "AppForge 1.1.1 — Reasoning Model and Targeted Repair",
