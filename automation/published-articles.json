@@ -2,6 +2,39 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "TrollStore 2.1.1 officially supports iOS/iPadOS 14.0 beta 2–16.6.1, iOS 16.7 RC build 20H18, and iOS 17.0. Developer Mode exists on iOS 16 and later but does not extend TrollStore compatibility to unsupported firmware.",
+      "description": "Enable iOS 16 Developer Mode from TrollStore 2.1.1 or Apple Settings, complete the required reboot, and understand errors 182 and 183 without reinstalling apps unnecessarily.",
+      "developer": "opa334",
+      "entry_type": "guide",
+      "href": "enable-developer-mode-trollstore-apps-ios-16-guide/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_alt": "Official TrollStore app icon from the 2.1.1 source tag",
+      "media_credit": "opa334 — official TrollStore app icon from the version 2.1.1 tagged repository",
+      "media_git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+      "media_sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "media_retrieval_status": "Exact official TrollStore 2.1.1 source icon already preserved locally; source and target Git blobs match and the asset is embedded in the article and social metadata.",
+      "modified_at": "2026-10-24T04:55:29Z",
+      "name": "TrollStore Developer Mode guide",
+      "package": "guide.trollstore.developer-mode",
+      "published_at": "2026-10-24T04:55:29Z",
+      "quality_target": 9,
+      "release": "Verified against TrollStore 2.1.1, released April 1, 2026",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "enable-developer-mode-trollstore-apps-ios-16-guide",
+      "source_name": "Official TrollStore 2.1.1 tagged source, release and Apple Developer Mode documentation",
+      "source_page_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/TSSettingsListController.m",
+      "source_visual_origin": "reused-official-tagged-source-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "title": "How to Enable Developer Mode for TrollStore Apps on iOS 16",
+      "version": "TrollStore 2.1.1"
+    },
+    {
+      "category": {
         "id": "jailbreak-development",
         "label": "Current Jailbreak Development"
       },
@@ -8799,8 +8832,17 @@
       "published_at": "2026-10-24T01:00:43Z",
       "run_id": "scheduled-2026-10-24T01:00:43Z",
       "version": "1.4.0"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "enable-developer-mode-trollstore-apps-ios-16-guide/",
+      "package": "guide.trollstore.developer-mode",
+      "published_at": "2026-10-24T04:55:29Z",
+      "run_id": "scheduled-2026-10-24T04:55:29Z",
+      "version": "TrollStore 2.1.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-24T01:00:43Z"
+  "updated_at": "2026-10-24T04:55:29Z"
 }
