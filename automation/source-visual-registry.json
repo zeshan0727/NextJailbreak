@@ -92,5 +92,6 @@
   "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png": "dopamine-roothide-3-x-integration-status",
   "https://raw.githubusercontent.com/roothide/RootHideManagerApp/224589666166a932ec5ff4151748a20d21f0cf7e/RootHide/Assets.xcassets/AppIcon.appiconset/icon-1024.png": "roothide-manager-1-4-varclean-ios-18-26-update",
   "https://raw.githubusercontent.com/SideStore/SideStore/0.7.0-alpha/AltStore/Resources/Icons.xcassets/AppIcon.appiconset/1024.png": "refresh-sidestore-apps-7-day-expiry-guide",
-  "https://unc0ver.dev/img/device.png": "unc0ver-8-1-0-ios-12-5-8-support"
+  "https://unc0ver.dev/img/device.png": "unc0ver-8-1-0-ios-12-5-8-support",
+  "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png": "trollstore-jit-vs-stikdebug-vs-sidejitserver-comparison"
 }

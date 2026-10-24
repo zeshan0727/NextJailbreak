@@ -1158,6 +1158,20 @@
         "sha256": "a2f0d1eae0e9b28b965af2d35b26d2e056ce0a54ed1b30e9dcb623c54ced3947"
       },
       "screenshots": []
+    },
+    "comparison.trollstore-jit-stikdebug-sidejitserver": {
+      "credit_label": "opa334 — official TrollStore app icon from the 2.1.1 tagged source",
+      "source_page_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+        "alt": "Official TrollStore app icon with a blue rounded square and white shopping bag",
+        "local_path": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+        "git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+        "sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
+        "retrieval_status": "Previously retrieved from the official TrollStore 2.1.1 source tag, inspected and stored locally."
+      },
+      "screenshots": []
     }
   }
 }

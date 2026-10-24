@@ -1,6 +1,37 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "category": {
+        "id": "roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "TrollStore JIT follows full TrollStore firmware support; StikDebug supports iOS 17.4+ with iOS 17.4–18.x documented as fully supported and iOS 26 with limited app availability; SideJITServer documents iOS 17+ with a current compatible pymobiledevice3 stack.",
+      "description": "Compare TrollStore JIT, StikDebug 3.1.15 and SideJITServer 1.4.2 by iOS support, pairing, computer use, networking and repeat-launch workflow.",
+      "developer": "opa334 / StikDebug contributors / nythepegasus",
+      "entry_type": "roundup-comparison",
+      "href": "trollstore-jit-vs-stikdebug-vs-sidejitserver-comparison/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_credit": "opa334 — official TrollStore app icon from the 2.1.1 tagged repository",
+      "media_git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+      "media_sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "modified_at": "2026-10-24T08:57:35Z",
+      "name": "TrollStore JIT vs StikDebug vs SideJITServer",
+      "package": "comparison.trollstore-jit-stikdebug-sidejitserver",
+      "published_at": "2026-10-24T08:57:35Z",
+      "release": "TrollStore 2.1.1 / StikDebug 3.1.15 / SideJITServer 1.4.2",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "trollstore-jit-vs-stikdebug-vs-sidejitserver-comparison",
+      "source_name": "Official TrollStore, StikDebug and SideJITServer repositories and releases",
+      "source_page_url": "https://github.com/StikDebug/StikDebug/releases/tag/3.1.15",
+      "source_url": "https://github.com/nythepegasus/SideJITServer/releases/tag/1.4.2",
+      "source_visual_origin": "official-tagged-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "title": "TrollStore JIT vs StikDebug vs SideJITServer: Which Method Fits Your iPhone?",
+      "version": "TrollStore 2.1.1 / StikDebug 3.1.15 / SideJITServer 1.4.2"
+    },
+    {
       "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
@@ -8841,8 +8872,17 @@
       "published_at": "2026-10-24T04:55:29Z",
       "run_id": "scheduled-2026-10-24T04:55:29Z",
       "version": "TrollStore 2.1.1"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "trollstore-jit-vs-stikdebug-vs-sidejitserver-comparison/",
+      "package": "comparison.trollstore-jit-stikdebug-sidejitserver",
+      "published_at": "2026-10-24T08:57:35Z",
+      "run_id": "scheduled-2026-10-24T08:57:35Z",
+      "version": "TrollStore 2.1.1 / StikDebug 3.1.15 / SideJITServer 1.4.2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-24T04:55:29Z"
+  "updated_at": "2026-10-24T08:57:35Z"
 }
