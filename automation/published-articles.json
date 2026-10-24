@@ -204,8 +204,8 @@
         "id": "jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "3.x source integration is in progress, not a public support declaration. Latest public release is 2.4.9.27; availability depends on device, firmware and an official build.",
-      "description": "The official Dopamine-RootHide 3.x source branch now includes iOS 26 fixes and Dopamine 3-era changes, but the latest public RootHide download remains 2.4.9.27.",
+      "compat": "Tag 28 makes the 3.x source public but does not publish a device-and-firmware support matrix or installable IPA/TIPA. Availability still depends on device, firmware, exploit chain and an official binary.",
+      "description": "RootHide published Dopamine RootHide 3 source tag 28 on October 24, 2026. The tag has source archives but no official IPA or TIPA download.",
       "developer": "RootHide",
       "entry_type": "development",
       "href": "dopamine-roothide-3-x-integration-status/",
@@ -214,21 +214,21 @@
       "media_credit": "RootHide — official Dopamine-RootHide 3.x source-repository app icon",
       "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
       "media_retrieval_status": "Official source-repository icon retrieved, stored locally and embedded in the article and social metadata.",
-      "modified_at": "2026-10-23T01:03:42Z",
-      "name": "Dopamine RootHide 3.x integration status",
+      "modified_at": "2026-10-24T20:56:36Z",
+      "name": "Dopamine RootHide 3 open-source status",
       "package": "github.roothide.dopamine-roothide",
       "published_at": "2026-10-23T01:03:42Z",
       "quality_target": 9,
-      "release": "3.x source integration; latest public build 2.4.9.27",
+      "release": "Tag 28 / 3.x source release; no IPA or TIPA asset",
       "selection_pool": "scheduled-current-jailbreak-development",
       "slug": "dopamine-roothide-3-x-integration-status",
-      "source_name": "Official RootHide Dopamine-RootHide repository, 3.x branch and releases",
-      "source_page_url": "https://github.com/roothide/Dopamine-roothide/tree/3.x",
+      "source_name": "Official RootHide Dopamine-RootHide tag 28, 3.x branch and build documentation",
+      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/28",
       "source_url": "https://github.com/roothide/Dopamine-roothide",
       "source_visual_origin": "official-3.x-source-repository-app-icon",
       "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "Dopamine RootHide 3.x Enters Integration, but No Public Build Yet",
-      "version": "3.x source integration / 2.4.9.27 public"
+      "title": "Dopamine RootHide 3 Is Now Open Source, but Tag 28 Has No IPA",
+      "version": "Tag 28 / 3.x source / no binary asset"
     },
     {
       "additional_media": [
@@ -8902,9 +8902,20 @@
       "published_at": "2026-10-24T12:57:38Z",
       "run_id": "scheduled-2026-10-24T12:57:38Z",
       "version": "1.0.2"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "dopamine-roothide-3-x-integration-status/",
+      "package": "github.roothide.dopamine-roothide",
+      "previous_version": "3.x source integration / 2.4.9.27 public",
+      "published_at": "2026-10-24T20:56:36Z",
+      "run_id": "scheduled-2026-10-24T20:56:36Z",
+      "version": "Tag 28 / 3.x source / no binary asset"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-24T16:58:54Z"
+  "updated_at": "2026-10-24T20:56:36Z"
 }
+
 
