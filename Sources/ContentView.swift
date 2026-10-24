@@ -1,456 +1,224 @@
 import SwiftUI
-import Combine
-
-struct Note: Identifiable, Codable, Equatable {
-    let id: UUID
-    var content: String
-    let createdAt: Date
-    var modifiedAt: Date
-    var isPinned: Bool
-
-    var title: String {
-        content.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first.map { String($0) } ?? "New Note"
-    }
-
-    var snippet: String {
-        let lines = content.split(separator: "\n", omittingEmptySubsequences: true)
-        if lines.count > 1 {
-            let secondLine = lines[1]
-            if secondLine.count > 30 {
-                return String(secondLine.prefix(30)) + "..."
-            } else {
-                return String(secondLine)
-            }
-        } else if content.count > 30 {
-            return String(content.prefix(30)) + "..."
-        } else {
-            return content
-        }
-    }
-}
-
-@MainActor
-final class NotesViewModel: ObservableObject {
-    @Published private(set) var notes: [Note] = []
-    @Published var searchText: String = ""
-    @Published var errorMessage: String? = nil
-    @Published var showErrorAlert: Bool = false
-    @Published var isLoading: Bool = false
-
-    private let fileURL: URL
-    private var saveCancellable: AnyCancellable?
-    private var debounceSaveSubject = PassthroughSubject<Void, Never>()
-
-    init() {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        self.fileURL = docs.appendingPathComponent("notes.json")
-        loadNotes()
-        setupAutoSave()
-    }
-
-    private func setupAutoSave() {
-        saveCancellable = debounceSaveSubject
-            .debounce(for: .seconds(1), scheduler: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.saveNotes()
-            }
-    }
-
-    func loadNotes() {
-        isLoading = true
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            do {
-                let data = try Data(contentsOf: self.fileURL)
-                let decoded = try JSONDecoder().decode([Note].self, from: data)
-                DispatchQueue.main.async {
-                    self.notes = decoded
-                    self.isLoading = false
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.notes = []
-                    self.isLoading = false
-                    if (error as NSError).code != NSFileReadNoSuchFileError {
-                        self.errorMessage = "Failed to load notes: \(error.localizedDescription)"
-                        self.showErrorAlert = true
-                    }
-                }
-            }
-        }
-    }
-
-    private func saveNotes() {
-        let notesCopy = notes
-        let fileURLCopy = fileURL
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            do {
-                let data = try JSONEncoder().encode(notesCopy)
-                try data.write(to: fileURLCopy, options: [.atomic])
-            } catch {
-                DispatchQueue.main.async {
-                    self?.errorMessage = "Failed to save notes: \(error.localizedDescription)"
-                    self?.showErrorAlert = true
-                }
-            }
-        }
-    }
-
-    func addNote() {
-        let now = Date()
-        let newNote = Note(id: UUID(), content: "", createdAt: now, modifiedAt: now, isPinned: false)
-        notes.insert(newNote, at: 0)
-        debounceSaveSubject.send()
-    }
-
-    func update(note: Note) {
-        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
-        var updatedNote = note
-        updatedNote.modifiedAt = Date()
-        notes[idx] = updatedNote
-        sortNotes()
-        debounceSaveSubject.send()
-    }
-
-    func delete(note: Note) {
-        notes.removeAll { $0.id == note.id }
-        debounceSaveSubject.send()
-    }
-
-    func togglePin(note: Note) {
-        guard let idx = notes.firstIndex(where: { $0.id == note.id }) else { return }
-        notes[idx].isPinned.toggle()
-        notes[idx].modifiedAt = Date()
-        sortNotes()
-        debounceSaveSubject.send()
-    }
-
-    func clearAll() {
-        notes.removeAll()
-        debounceSaveSubject.send()
-    }
-
-    private func sortNotes() {
-        notes.sort {
-            if $0.isPinned != $1.isPinned {
-                return $0.isPinned && !$1.isPinned
-            }
-            return $0.modifiedAt > $1.modifiedAt
-        }
-    }
-
-    var filteredNotes: [Note] {
-        if searchText.isEmpty {
-            return notes
-        }
-        let lower = searchText.lowercased()
-        return notes.filter {
-            $0.content.lowercased().contains(lower) || $0.title.lowercased().contains(lower)
-        }
-    }
-}
 
 struct ContentView: View {
-    @StateObject private var vm = NotesViewModel()
-    @State private var showingDeleteAlert = false
-    @State private var noteToDelete: Note? = nil
-    @State private var showingClearAllAlert = false
+    @StateObject private var viewModel = VPNViewModel()
     @State private var showingSettings = false
 
     var body: some View {
         NavigationStack {
-            VStack {
-                if vm.notes.isEmpty && vm.searchText.isEmpty {
-                    EmptyStateView()
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("No notes available. Tap the plus button to add a new note.")
-                } else {
-                    List {
-                        ForEach(vm.filteredNotes) { note in
-                            NavigationLink(value: note) {
-                                NoteRow(note: note)
-                                    .accessibilityElement(children: .combine)
-                                    .accessibilityLabel("Note titled \(note.title). Preview: \(note.snippet)")
-                            }
-                            .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                Button {
-                                    vm.togglePin(note: note)
-                                } label: {
-                                    Label(note.isPinned ? "Unpin" : "Pin", systemImage: note.isPinned ? "pin.slash" : "pin")
-                                }
-                                .tint(note.isPinned ? .gray : .yellow)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    noteToDelete = note
-                                    showingDeleteAlert = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
+            content
+                .navigationTitle("FreeLocalVPN")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button { showingSettings = true } label: {
+                            Image(systemName: "gearshape")
                         }
+                        .accessibilityLabel("Settings")
                     }
-                    .listStyle(.plain)
-                    .searchable(text: $vm.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes")
-                    .accessibilityLabel("Notes list")
+                }
+                .navigationDestination(for: String.self) { country in
+                    ServerListView(country: country)
+                }
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView().environmentObject(viewModel)
+                }
+        }
+        .environmentObject(viewModel)
+    }
+
+    @ViewBuilder private var content: some View {
+        if viewModel.isLoading {
+            ProgressView("Loading servers...")
+                .accessibilityLabel("Loading VPN servers")
+        } else if let error = viewModel.errorMessage {
+            VStack(spacing: 16) {
+                Text(error)
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
+                    .accessibilityLabel("Error: \(error)")
+                Button("Retry") { viewModel.fetchServers() }
+                    .accessibilityLabel("Retry fetching VPN servers")
+            }
+            .padding()
+        } else {
+            CountryListView()
+        }
+    }
+}
+
+private struct CountryListView: View {
+    @EnvironmentObject private var viewModel: VPNViewModel
+
+    var body: some View {
+        List {
+            ForEach(viewModel.serversByCountry.keys.sorted(), id: \.self) { country in
+                NavigationLink(value: country) {
+                    HStack {
+                        Text(country)
+                            .font(.body)
+                            .accessibilityLabel("Country: \(country)")
+                        Spacer()
+                        let count = viewModel.serversByCountry[country]?.count ?? 0
+                        Text("\(count) servers")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .accessibilityLabel("\(count) servers available")
+                    }
+                    .padding(.vertical, 8)
                 }
             }
-            .navigationTitle("QuickNotes")
+        }
+        .listStyle(.insetGrouped)
+    }
+}
+
+struct ServerListView: View {
+    let country: String
+    @EnvironmentObject var viewModel: VPNViewModel
+
+    private var servers: [VPNServer] {
+        viewModel.serversByCountry[country] ?? []
+    }
+
+    // alert(item:) requires Identifiable; String does not conform. A Boolean
+    // presentation binding is the smallest safe correction and retains String?
+    // error storage. Do not add a global retroactive String conformance.
+    private var showingError: Binding<Bool> {
+        Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )
+    }
+
+    var body: some View {
+        serverList
+            .navigationTitle(country)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        showingSettings = true
+                        viewModel.pingAllServers(servers)
                     } label: {
-                        Image(systemName: "gearshape")
+                        if viewModel.isRefreshingLatency {
+                            ProgressView()
+                        } else {
+                            Image(systemName: "arrow.clockwise")
+                        }
                     }
-                    .accessibilityLabel("Settings")
-                    .accessibilityHint("Open settings")
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Button {
-                        vm.addNote()
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .accessibilityLabel("Add new note")
-                    .buttonStyle(.borderedProminent)
+                    .accessibilityLabel("Refresh server latency")
+                    .disabled(viewModel.isRefreshingLatency)
                 }
             }
-            .navigationDestination(for: Note.self) { note in
-                NoteDetailView(note: note, vm: vm)
+            .alert("Error", isPresented: showingError) {
+                Button("OK", role: .cancel) { viewModel.errorMessage = nil }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
             }
-            .alert("Delete Note", isPresented: $showingDeleteAlert, presenting: noteToDelete) { note in
-                Button("Delete", role: .destructive) {
-                    vm.delete(note: note)
+    }
+
+    private var serverList: some View {
+        List(servers) { server in
+            Button {
+                if viewModel.selectedServer?.id == server.id && viewModel.connectionStatus == .connected {
+                    viewModel.disconnect()
+                } else {
+                    viewModel.connect(to: server)
                 }
-                Button("Cancel", role: .cancel) {}
-            } message: { note in
-                Text("Are you sure you want to delete the note titled \"\(note.title)\"?")
+            } label: {
+                ServerRowView(
+                    server: server,
+                    isConnected: viewModel.selectedServer?.id == server.id && viewModel.connectionStatus == .connected,
+                    isConnecting: viewModel.selectedServer?.id == server.id && viewModel.connectionStatus == .connecting
+                )
             }
-            .alert("Error", isPresented: $vm.showErrorAlert, actions: {
-                Button("OK", role: .cancel) {}
-            }, message: {
-                Text(vm.errorMessage ?? "Unknown error")
-            })
-            .sheet(isPresented: $showingSettings) {
-                SettingsView(vm: vm, isPresented: $showingSettings)
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilityLabel(for: server))
+        }
+    }
+
+    private func accessibilityLabel(for server: VPNServer) -> String {
+        var status = "Disconnected"
+        if viewModel.selectedServer?.id == server.id {
+            switch viewModel.connectionStatus {
+            case .connected: status = "Connected"
+            case .connecting: status = "Connecting"
+            case .disconnected: status = "Disconnected"
             }
         }
+        let latency = server.latency.map { "Latency \($0) milliseconds" } ?? "Latency unknown"
+        return "Server \(server.name), \(latency), Status: \(status)"
     }
 }
 
-struct NoteRow: View {
-    let note: Note
+struct ServerRowView: View {
+    let server: VPNServer
+    let isConnected: Bool
+    let isConnecting: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(note.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                if note.isPinned {
-                    Image(systemName: "pin.fill")
-                        .foregroundColor(.yellow)
-                        .accessibilityLabel("Pinned")
-                }
-                Spacer()
-                Text(note.modifiedAt, style: .date)
+        HStack {
+            VStack(alignment: .leading) {
+                Text(server.name)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                Text(server.latency.map { "Latency: \($0) ms" } ?? "Latency: unknown")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            Text(note.snippet)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
+            Spacer()
+            if isConnecting {
+                ProgressView().accessibilityLabel("Connecting")
+            } else if isConnected {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                    .accessibilityLabel("Connected")
+            } else {
+                Image(systemName: "circle")
+                    .foregroundColor(.gray)
+                    .accessibilityLabel("Disconnected")
+            }
         }
         .padding(.vertical, 6)
-    }
-}
-
-struct EmptyStateView: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "note.text")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 120, height: 120)
-                .foregroundColor(.secondary)
-                .accessibilityHidden(true)
-            Text("No notes yet")
-                .font(.title2)
-                .foregroundColor(.secondary)
-            Text("Tap the plus button to create your first note.")
-                .font(.body)
-                .foregroundColor(.secondary)
-        }
-        .padding()
-    }
-}
-
-struct NoteDetailView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var content: String
-    @State private var isSavingError: Bool = false
-    @State private var showDeleteAlert: Bool = false
-    @FocusState private var isFocused: Bool
-
-    let noteId: UUID
-    @ObservedObject var vm: NotesViewModel
-
-    private var note: Note? {
-        vm.notes.first(where: { $0.id == noteId })
-    }
-
-    init(note: Note, vm: NotesViewModel) {
-        self.noteId = note.id
-        self._content = State(initialValue: note.content)
-        self.vm = vm
-    }
-
-    var body: some View {
-        VStack {
-            TextEditor(text: $content)
-                .font(.body)
-                .padding(8)
-                .focused($isFocused)
-                .accessibilityLabel("Note content")
-                .accessibilityHint("Editable text area for note content")
-                .onChange(of: content) { _ in
-                    scheduleSave()
-                }
-        }
-        .navigationTitle(note?.title.isEmpty == false ? note!.title : "New Note")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Back") {
-                    dismiss()
-                }
-                .keyboardShortcut(.escape, modifiers: [])
-                .accessibilityLabel("Back to notes list")
-            }
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button {
-                    showDeleteAlert = true
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .keyboardShortcut(.delete, modifiers: [.command])
-                .accessibilityLabel("Delete note")
-                Button {
-                    togglePin()
-                } label: {
-                    Image(systemName: note?.isPinned == true ? "pin.slash" : "pin")
-                }
-                .accessibilityLabel(note?.isPinned == true ? "Unpin note" : "Pin note")
-            }
-        }
-        .alert("Delete Note", isPresented: $showDeleteAlert) {
-            Button("Delete", role: .destructive) {
-                if let note = note {
-                    vm.delete(note: note)
-                    dismiss()
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Are you sure you want to delete this note?")
-        }
-        .alert("Save Error", isPresented: $isSavingError) {
-            Button("Retry") {
-                saveNow()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Failed to save the note. Please try again.")
-        }
-        .onAppear {
-            isFocused = true
-        }
-        .onReceive(vm.$showErrorAlert) { show in
-            if show {
-                isSavingError = true
-            }
-        }
-    }
-
-    private func scheduleSave() {
-        guard var note = note else { return }
-        note.content = content
-        vm.update(note: note)
-    }
-
-    private func saveNow() {
-        guard var note = note else { return }
-        note.content = content
-        vm.update(note: note)
-    }
-
-    private func togglePin() {
-        guard let note = note else { return }
-        vm.togglePin(note: note)
+        .contentShape(Rectangle())
     }
 }
 
 struct SettingsView: View {
-    @ObservedObject var vm: NotesViewModel
-    @Binding var isPresented: Bool
-    @AppStorage("overrideColorScheme") private var overrideColorScheme: String = "system"
-    @State private var showingClearAllAlert = false
+    @EnvironmentObject var viewModel: VPNViewModel
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Appearance") {
-                    Picker("Theme", selection: $overrideColorScheme) {
-                        Text("System").tag("system")
-                        Text("Light").tag("light")
-                        Text("Dark").tag("dark")
+            settingsForm
+                .navigationTitle("Settings")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") { dismiss() }
+                            .accessibilityLabel("Close settings")
                     }
-                    .pickerStyle(.segmented)
-                    .accessibilityLabel("Theme selection")
-                    .accessibilityHint("Choose light, dark, or system appearance")
                 }
-                Section("Data") {
-                    Button(role: .destructive) {
-                        showingClearAllAlert = true
-                    } label: {
-                        Text("Clear All Notes")
-                    }
-                    .accessibilityLabel("Clear all notes")
-                    .accessibilityHint("Deletes all notes permanently")
-                }
-            }
-            .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        isPresented = false
-                    }
-                    .accessibilityLabel("Close settings")
-                }
-            }
-            .alert("Clear All Notes", isPresented: $showingClearAllAlert) {
-                Button("Clear", role: .destructive) {
-                    vm.clearAll()
-                    isPresented = false
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Are you sure you want to delete all notes? This action cannot be undone.")
-            }
         }
-        .preferredColorScheme(colorSchemeFromString(overrideColorScheme))
     }
 
-    private func colorSchemeFromString(_ string: String) -> ColorScheme? {
-        switch string {
-        case "light": return .light
-        case "dark": return .dark
-        default: return nil
+    private var settingsForm: some View {
+        Form {
+            Section(header: Text("App Settings")) {
+                Toggle("Auto-connect on launch", isOn: $viewModel.autoConnectOnLaunch)
+                    .accessibilityLabel("Toggle auto-connect on app launch")
+                    .onChange(of: viewModel.autoConnectOnLaunch) { _ in
+                        viewModel.saveAutoConnectSetting()
+                    }
+            }
+            Section(header: Text("VPN Permissions")) {
+                Text("This app uses Apple's NetworkExtension framework to manage VPN connections. Please ensure VPN permissions are granted in Settings.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .accessibilityLabel("VPN permissions information")
+            }
+            Section(header: Text("App Info")) {
+                Text("FreeLocalVPN v1.0").accessibilityLabel("App version 1.0")
+                Text("© 2024 FreeLocalVPN").accessibilityLabel("Copyright 2024 FreeLocalVPN")
+            }
         }
     }
 }

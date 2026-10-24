@@ -18,31 +18,31 @@ jobs:
       - name: Build unsigned app
         run: |
           set -euo pipefail
-          xcodebuild -project QuickNotes.xcodeproj -scheme QuickNotes -configuration Release \
+          xcodebuild -project FreeLocalVPN.xcodeproj -scheme FreeLocalVPN -configuration Release \
             -sdk iphoneos -destination 'generic/platform=iOS' \
             -derivedDataPath "$PWD/DerivedData" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
       - name: Ad-hoc sign for TrollStore
         run: |
           set -euo pipefail
-          codesign --force --sign - --timestamp=none "DerivedData/Build/Products/Release-iphoneos/QuickNotes.app"
-          codesign --verify --verbose=2 "DerivedData/Build/Products/Release-iphoneos/QuickNotes.app"
+          codesign --force --sign - --timestamp=none "DerivedData/Build/Products/Release-iphoneos/FreeLocalVPN.app"
+          codesign --verify --verbose=2 "DerivedData/Build/Products/Release-iphoneos/FreeLocalVPN.app"
       - name: Package IPA
         run: |
           set -euo pipefail
           mkdir -p out/Payload
-          ditto "DerivedData/Build/Products/Release-iphoneos/QuickNotes.app" "out/Payload/QuickNotes.app"
-          (cd out && zip -qry QuickNotes.ipa Payload)
+          ditto "DerivedData/Build/Products/Release-iphoneos/FreeLocalVPN.app" "out/Payload/FreeLocalVPN.app"
+          (cd out && zip -qry FreeLocalVPN.ipa Payload)
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QuickNotes-${{ github.run_number }}
+          name: FreeLocalVPN-${{ github.run_number }}
           path: |
             out/*.ipa
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "QuickNotes-build-${{ github.run_number }}-${{ github.run_attempt }}" "out/QuickNotes.ipa" \
-            --title "QuickNotes build ${{ github.run_number }}" \
+          gh release create "FreeLocalVPN-build-${{ github.run_number }}-${{ github.run_attempt }}" "out/FreeLocalVPN.ipa" \
+            --title "FreeLocalVPN build ${{ github.run_number }}" \
             --notes "Ad-hoc signed IPA for compatible TrollStore installation." --target "$GITHUB_SHA"
