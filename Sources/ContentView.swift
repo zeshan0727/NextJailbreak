@@ -25,7 +25,7 @@ struct ContentView: View {
                     Button("OK", role: .cancel) {}
                 } message: {
                     Text(persistenceErrorMessage)
-                }
+                })
                 .confirmationDialog("Exit current game? Unsaved progress will be lost.", isPresented: $showExitConfirmation, titleVisibility: .visible) {
                     Button("Exit", role: .destructive) {
                         gameManager.resetGame()
