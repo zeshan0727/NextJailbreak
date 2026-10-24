@@ -1,4 +1,4 @@
-name: QuickNotes
+name: FreeLocalVPN
 options:
   deploymentTarget:
     iOS: "16.0"
@@ -7,23 +7,24 @@ settings:
     SWIFT_VERSION: "5.0"
     IPHONEOS_DEPLOYMENT_TARGET: "16.0"
 targets:
-  QuickNotes:
+  FreeLocalVPN:
     type: application
     platform: iOS
     sources:
-      - Sources
+      - Sources/AppEntry.swift
+      - Sources/ContentView.swift
       - Assets.xcassets
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.quicknotes
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.freelocalvpn
         INFOPLIST_FILE: Info.plist
         GENERATE_INFOPLIST_FILE: NO
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
 schemes:
-  QuickNotes:
+  FreeLocalVPN:
     build:
       targets:
-        QuickNotes: all
+        FreeLocalVPN: all
     archive:
       config: Release
