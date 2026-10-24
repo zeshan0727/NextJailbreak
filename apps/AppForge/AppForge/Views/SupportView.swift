@@ -5,6 +5,7 @@ struct SupportView: View {
     @EnvironmentObject private var state: AppState
     @State private var draft = ""
     @State private var showConfirm = false
+    @State private var editMode: SupportEditMode = .modify
 
     var body: some View {
         NavigationStack {
@@ -16,11 +17,15 @@ struct SupportView: View {
                         Spacer()
                         if state.supportBusy || state.busyFix { ProgressView() }
                     }
-                    Text("Discuss build errors and request source corrections. Uses your configured AI API, not your ChatGPT conversation.")
+                    Text("Modify, fix or regenerate the selected app using your configured AI API. This is not your ChatGPT conversation.")
                         .font(.footnote).foregroundStyle(.secondary)
                     if let project = state.project {
                         Text("Current project: \(project.appName) (\(project.bundleId))")
                             .font(.caption.bold()).lineLimit(2)
+                        if let origin = state.selectedOrigin {
+                            Label("Working from successful run #\(origin.runID)", systemImage: "checkmark.shield")
+                                .font(.caption).foregroundStyle(.green)
+                        }
                     } else {
                         Label("Generate or restore app code in the Code tab first.", systemImage: "exclamationmark.triangle")
                             .font(.caption).foregroundStyle(.orange)
@@ -85,10 +90,17 @@ struct SupportView: View {
                     }
                     .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state.supportBusy)
                 }.padding(12)
+                Picker("Action", selection: $editMode) {
+                    ForEach(SupportEditMode.allCases) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 12)
                 Button {
                     showConfirm = true
                 } label: {
-                    Label("Apply AI Fix & Rebuild IPA", systemImage: "hammer.circle.fill")
+                    Label("\(editMode.rawValue) & Build New IPA", systemImage: "hammer.circle.fill")
                         .frame(maxWidth: .infinity).padding(.vertical, 8)
                 }
                 .buttonStyle(.borderedProminent)
@@ -98,11 +110,11 @@ struct SupportView: View {
             }
             .navigationTitle("AI Support")
             .navigationBarTitleDisplayMode(.inline)
-            .confirmationDialog("Apply code changes and push an IPA build?", isPresented: $showConfirm) {
-                Button("Apply Fix & Build") { Task { await state.applySupportRepair() } }
+            .confirmationDialog("Apply \(editMode.rawValue.lowercased()) and build a new IPA?", isPresented: $showConfirm) {
+                Button("\(editMode.rawValue) & Build") { Task { await state.applyAppChange(mode: editMode) } }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("The model will propose complete Swift files. AppForge will require a changed source, preserve the bundle ID, and push only to this app's isolated GitHub branch. API usage may be charged.")
+                Text("Modify and Repair request localized edits; Regenerate recreates the app's Swift code. A new revision branch protects the selected successful build. AI API usage may be billed.")
             }
         }
     }

@@ -190,4 +190,96 @@ struct GitHubClient {
         return found.filter { !$0.ipaAssets.isEmpty }
             .sorted { $0.sortDate > $1.sortDate }
     }
+    private struct GitContentFile: Decodable {
+        let content: String?
+        let encoding: String?
+        let type: String
+    }
+
+    /// Read one file from an immutable successful build commit, not the mutable branch head.
+    private func snapshotText(owner: String, repo: String, path: String, sha: String) async throws -> String {
+        guard sha.count == 40, sha.allSatisfy({ $0.isHexDigit }),
+              !path.contains(".."), !path.hasPrefix("/") else {
+            throw ForgeError.message("Unsafe GitHub snapshot path or commit identifier.")
+        }
+        let response: GitContentFile = try await decoded(GitContentFile.self,
+            "/repos/\(owner)/\(repo)/contents/\(path)?ref=\(sha)")
+        guard response.type == "file", response.encoding == "base64",
+              let encoded = response.content,
+              let data = Data(base64Encoded: encoded, options: .ignoreUnknownCharacters),
+              data.count <= 1_500_000,
+              let source = String(data: data, encoding: .utf8) else {
+            throw ForgeError.message("Cannot read \(path) from the selected successful commit.")
+        }
+        return source
+    }
+
+    /// Lists recent successfully compiled AppForge apps, even when a branch's
+    /// newest HEAD later failed. A row points to the original passing commit.
+    func successfulAppBuilds(owner: String, repo: String) async throws -> [GitHubRun] {
+        var runs: [GitHubRun] = []
+        var seen = Set<String>()
+        for page in 1...4 {
+            let response: GitRunList = try await decoded(GitRunList.self,
+                "/repos/\(owner)/\(repo)/actions/workflows/build.yml/runs?status=success&per_page=100&page=\(page)")
+            for run in response.workflow_runs {
+                guard run.conclusion == "success", run.status == "completed",
+                      run.head_sha.count == 40,
+                      run.path == ".github/workflows/build.yml",
+                      let branch = run.head_branch, branch.hasPrefix("appforge/"),
+                      seen.insert(branch).inserted else { continue }
+                runs.append(run)
+            }
+            if response.workflow_runs.count < 100 { break }
+        }
+        return runs.sorted { $0.created_at > $1.created_at }
+    }
+
+    /// Restore only app source listed by the successful project's project.yml.
+    /// Other applications in the shared repository are never imported.
+    func successfulProject(owner: String, repo: String, sha: String, minimumIOS: String) async throws -> ForgeProject {
+        let config = try await snapshotText(owner: owner, repo: repo, path: "project.yml", sha: sha)
+        let plist = try await snapshotText(owner: owner, repo: repo, path: "Info.plist", sha: sha)
+        guard let nameLine = config.split(separator: "\n").first(where: {
+            $0.trimmingCharacters(in: .whitespaces).hasPrefix("name:")
+        }), let bundleLine = config.split(separator: "\n").first(where: {
+            $0.trimmingCharacters(in: .whitespaces).hasPrefix("PRODUCT_BUNDLE_IDENTIFIER:")
+        }) else {
+            throw ForgeError.message("Build has no recognizable AppForge XcodeGen metadata.")
+        }
+        let name = String(nameLine.split(separator: ":", maxSplits: 1).last ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\"", with: "")
+        let bundle = String(bundleLine.split(separator: ":", maxSplits: 1).last ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\"", with: "")
+        let sourceNames = config.split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { $0.hasPrefix("- Sources/") && $0.hasSuffix(".swift") }
+            .map { String($0.dropFirst(2)) }
+            .filter { $0 != "Sources/AppEntry.swift" }
+        let unique = Array(Set(sourceNames)).sorted()
+        guard !name.isEmpty, !bundle.isEmpty, !unique.isEmpty, unique.count <= 30 else {
+            throw ForgeError.message("Only AppForge-created Swift source builds with up to 30 files can be restored.")
+        }
+        var swift: [ForgeFile] = []
+        for name in unique {
+            guard !name.contains("..") && name.hasPrefix("Sources/") else {
+                throw ForgeError.message("Unsafe source file in successful build.")
+            }
+            let contents = try await snapshotText(owner: owner, repo: repo, path: name, sha: sha)
+            swift.append(ForgeFile(path: name, content: contents))
+        }
+        var rebuilt = try ProjectFactory.scaffold(
+            ForgeProject(appName: name, bundleId: bundle, files: swift),
+            minIOS: minimumIOS
+        )
+        // Preserve the exact old privacy declarations and custom plist metadata.
+        if let original = rebuilt.files.firstIndex(where: { $0.path == "Info.plist" }) {
+            rebuilt.files[original].content = plist
+        }
+        return rebuilt
+    }
+
+
 }

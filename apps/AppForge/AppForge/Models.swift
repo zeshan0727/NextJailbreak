@@ -24,7 +24,7 @@ enum ForgeTab: Int, CaseIterable, Identifiable {
 }
 
 enum ForgeMoreSection: String, CaseIterable, Identifiable {
-    case downloads, support
+    case myApps, downloads, support
     var id: String { rawValue }
 }
 
@@ -86,6 +86,7 @@ struct GitHubRun: Decodable, Identifiable {
     let status: String
     let conclusion: String?
     let head_sha: String
+    let head_branch: String?
     let created_at: String
     let updated_at: String
     let html_url: String
@@ -153,4 +154,20 @@ struct SupportMessage: Identifiable {
     let id = UUID()
     let role: String
     let content: String
+}
+
+
+/// Preserved source of an immutable, successful run.
+struct AppBuildOrigin: Codable {
+    let appName: String
+    let branch: String
+    let successfulCommit: String
+    let runID: Int
+}
+
+enum SupportEditMode: String, CaseIterable, Identifiable {
+    case modify = "Modify"
+    case repair = "Repair"
+    case regenerate = "Regenerate"
+    var id: String { rawValue }
 }

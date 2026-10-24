@@ -96,6 +96,14 @@ struct BuildView: View {
                             .frame(height: 320).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                         }
                         if state.activeRun?.conclusion == "success" {
+                            Button {
+                                state.moreSection = .myApps
+                                state.selectedTab = .more
+                                Task { await state.refreshSuccessfulApps() }
+                            } label: {
+                                Label("Manage This App", systemImage: "square.stack.3d.up")
+                            }
+                            .buttonStyle(.bordered)
                             ForgeButton(title: "Open Downloads", symbol: "arrow.down.circle.fill") {
                                 state.selectLastBuildDownloads()
                                 state.moreSection = .downloads

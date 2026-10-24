@@ -12,12 +12,13 @@ private struct SavedForgeSession: Codable {
     let commitSHA: String
     let repairs: Int
     let repairStatus: String
+    let origin: AppBuildOrigin?
 }
 
 @MainActor
 final class AppState: ObservableObject {
     @Published var selectedTab: ForgeTab = .requirement
-    @Published var moreSection: ForgeMoreSection = .downloads
+    @Published var moreSection: ForgeMoreSection = .myApps
     @Published var requirement = ""
     @Published var generatedPrompt = ""
     @Published var codePrompt = "" { didSet { persistBuildSession() } }
@@ -48,6 +49,13 @@ final class AppState: ObservableObject {
         return crash.bundleID.isEmpty ||
             crash.bundleID.caseInsensitiveCompare(project.bundleId) == .orderedSame
     }
+    @Published var successfulApps: [GitHubRun] = []
+    @Published var appsLoading = false
+    @Published var appsError: String?
+    @Published var loadingSelectedApp = false
+    @Published var selectedOrigin: AppBuildOrigin? { didSet { persistBuildSession() } }
+    @Published var referenceBuildLog = ""
+    @Published var userDiagnosticLog = ""
     @Published var releases: [GitHubRelease] = []
     @Published var downloadsOwner = ""
     @Published var downloadsRepo = ""
@@ -97,6 +105,7 @@ final class AppState: ObservableObject {
             lastCommitSHA = session.commitSHA
             repairAttempt = session.repairs
             repairStatus = session.repairStatus
+            selectedOrigin = session.origin
         }
 
         downloadsOwner = lastOwner.isEmpty ? preferences.githubUsername : lastOwner
@@ -108,7 +117,8 @@ final class AppState: ObservableObject {
         guard !restoringBuildSession else { return }
         let session = SavedForgeSession(project: project, codePrompt: codePrompt, owner: lastOwner,
             repo: lastRepo.isEmpty ? chosenRepo : lastRepo, branch: chosenBranch,
-            commitSHA: lastCommitSHA, repairs: repairAttempt, repairStatus: repairStatus)
+            commitSHA: lastCommitSHA, repairs: repairAttempt, repairStatus: repairStatus,
+            origin: selectedOrigin)
         if let data = try? JSONEncoder().encode(session) {
             UserDefaults.standard.set(data, forKey: "forgeBuildSession")
         }
@@ -219,6 +229,10 @@ final class AppState: ObservableObject {
             activeRun = nil
             jobs = []
             failureLog = ""
+            selectedOrigin = nil
+            referenceBuildLog = ""
+            userDiagnosticLog = ""
+            supportMessages = []
             repairAttempt = 0
             repairStatus = "New project ready. GitHub will create its own protected appforge/ branch."
         } catch { notice = error.localizedDescription }
@@ -556,7 +570,7 @@ final class AppState: ObservableObject {
                        || $0.contains("BUILD FAILED")
                        || $0.localizedCaseInsensitiveContains("fatal error") }
                 .suffix(35).joined(separator: "\n")
-            let diagnosis = try await ai().chat(system: """
+            let diagnosis = try await repairAI().chat(system: """
                 You are AppForge's iOS engineer support assistant. Answer the user's issue with
                 concrete explanations grounded in the supplied code and GitHub compiler diagnostics.
                 Identify the precise Swift file and likely correction, but be explicit when unverified.
@@ -572,6 +586,12 @@ final class AppState: ObservableObject {
                 \(String(problems.prefix(6000)))
                 Latest log excerpt:
                 \(String(failureLog.suffix(6500)))
+                Successful reference build log:
+                \(String(referenceBuildLog.suffix(5500)))
+                Attached device/runtime diagnostics:
+                \(String(userDiagnosticLog.suffix(7000)))
+                Source build reference:
+                \(selectedOrigin?.successfulCommit ?? "not selected")
                 Swift source:
                 \(String(swift.prefix(26000)))
                 Conversation:
@@ -581,6 +601,130 @@ final class AppState: ObservableObject {
         } catch {
             supportMessages.append(SupportMessage(role: "assistant",
                 content: "I could not analyze the issue: \(error.localizedDescription). Check Settings → Test AI connection."))
+        }
+    }
+
+
+    /// User-controlled modification to a successful app. The initial passing
+    /// commit is immutable; a fresh revision branch is created on the first push.
+    func applyAppChange(mode: SupportEditMode) async {
+        guard let original = project, !supportBusy, !busyFix, !busyPush,
+              let latestInstruction = supportMessages.last(where: { $0.role == "user" })?.content,
+              !latestInstruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            notice = "Select an app and describe the requested change in AI Support."
+            return
+        }
+        if mode == .repair, failureLog.contains("error:") {
+            await applySupportRepair()
+            return
+        }
+        busyFix = true
+        defer { busyFix = false }
+        do {
+            let revised: ForgeProject
+            if mode == .regenerate {
+                repairStatus = "Regenerating all Swift source from your requested changes…"
+                let files = original.files.filter { $0.path.hasSuffix(".swift")
+                    && $0.path != "Sources/AppEntry.swift" }
+                    .map { "PATH: \($0.path)\n\($0.content)" }.joined(separator: "\n\n")
+                let request = """
+                Regenerate this EXISTING \(original.appName) iOS 16 SwiftUI app.
+                Keep EXACTLY this name: \(original.appName)
+                Keep EXACTLY this bundleId: \(original.bundleId)
+                Preserve its existing functions, accessibility, persistence, and security.
+                Implement this latest user's request: \(latestInstruction)
+                Previous Swift files:
+                \(String(files.prefix(75_000)))
+                Return all complete Swift source files in the required JSON schema.
+                """
+                let output = try await getProject(system: AIClient.codeSystem, request: request, repair: true)
+                guard output.appName == original.appName, output.bundleId == original.bundleId else {
+                    throw ForgeError.message("Regeneration changed app identity; no files were pushed.")
+                }
+                revised = try ProjectFactory.scaffold(output, minIOS: preferences.minimumIOS)
+            } else {
+                repairStatus = "Creating a small source patch to \(mode.rawValue.lowercased()) the app…"
+                let files = original.files.filter { $0.path.hasSuffix(".swift")
+                    && $0.path != "Sources/AppEntry.swift" }
+                let source = files.map { "PATH: \($0.path)\n\($0.content)" }
+                    .joined(separator: "\n\n")
+                let messages = supportMessages.suffix(8)
+                    .map { "\($0.role): \($0.content)" }.joined(separator: "\n")
+                let response = try await repairAI().chat(system: """
+                    You are an expert iOS 16 Swift engineer performing a localized source edit.
+                    Respond with a JSON object with exactly path, old, new string keys.
+                    path must match the exact Source file path; old is an exact contiguous source
+                    substring in that file appearing ONCE; new is replacement code.
+                    Preserve all unrelated source, existing features and security.
+                    Do not remove features, replace a whole app or insert TODOs.
+                    If the change is too large for a local edit, return old="" and new=""
+                    so the client can ask the user to choose Regenerate.
+                    """, user: """
+                    Application: \(original.appName), bundle \(original.bundleId)
+                    Requested \(mode.rawValue.lowercased()) action:
+                    \(latestInstruction)
+                    Conversation:
+                    \(String(messages.prefix(9000)))
+                    Attached device log:
+                    \(String(userDiagnosticLog.suffix(8500)))
+                    Successful reference build log:
+                    \(String(referenceBuildLog.suffix(2500)))
+                    Swift source:
+                    \(String(source.prefix(80_000)))
+                    """, jsonMode: true, patchMode: true)
+                guard let start = response.firstIndex(of: "{"),
+                      let end = response.lastIndex(of: "}"), start <= end else {
+                    throw ForgeError.message("AI returned an invalid source-patch format.")
+                }
+                let patch = try JSONDecoder().decode(SourcePatch.self,
+                                             from: Data(response[start...end].utf8))
+                guard let originalFile = files.first(where: { $0.path == patch.path }),
+                      !patch.old.isEmpty, patch.old != patch.new,
+                      originalFile.content.components(separatedBy: patch.old).count == 2 else {
+                    throw ForgeError.message("AI did not provide one safe matching change. Try a narrower request or choose Regenerate.")
+                }
+                var copy = original
+                guard let position = copy.files.firstIndex(where: { $0.path == patch.path }) else {
+                    throw ForgeError.message("Proposed edit does not match any generated file.")
+                }
+                copy.files[position].content = originalFile.content
+                    .replacingOccurrences(of: patch.old, with: patch.new)
+                revised = try ProjectFactory.scaffold(
+                    ForgeProject(appName: copy.appName, bundleId: copy.bundleId,
+                        files: copy.files.filter { $0.path.hasSuffix(".swift")
+                            && $0.path != "Sources/AppEntry.swift" }),
+                    minIOS: preferences.minimumIOS
+                )
+            }
+            guard revised.appName == original.appName,
+                  revised.bundleId == original.bundleId else {
+                throw ForgeError.message("App identity mismatch; push was rejected.")
+            }
+            let oldSwift = original.files.filter { $0.path.hasSuffix(".swift") }
+                .map { $0.path + $0.content }
+            let newSwift = revised.files.filter { $0.path.hasSuffix(".swift") }
+                .map { $0.path + $0.content }
+            guard oldSwift != newSwift else {
+                throw ForgeError.message("No source changes were generated; nothing was pushed.")
+            }
+            var finalized = revised
+            // Never drop permissions/configuration from the successful baseline.
+            if let previousPlist = original.files.first(where: { $0.path == "Info.plist" }),
+               let index = finalized.files.firstIndex(where: { $0.path == "Info.plist" }) {
+                finalized.files[index].content = previousPlist.content
+            }
+            project = try CrashDoctor.preflight(finalized)
+            repairStatus = "Revised \(original.appName). Building on an isolated app branch…"
+            await pushAndBuild()
+            guard !lastCommitSHA.isEmpty else {
+                throw ForgeError.message("No new GitHub build commit was created.")
+            }
+            supportMessages.append(SupportMessage(role: "assistant", content:
+                "\(mode.rawValue) committed on \(chosenBranch), commit \(String(lastCommitSHA.prefix(12))). Check the Build tab for compiler verification. The original successful IPA is preserved."))
+        } catch {
+            repairStatus = "\(mode.rawValue) stopped: \(error.localizedDescription)"
+            notice = repairStatus
+            supportMessages.append(SupportMessage(role: "assistant", content: repairStatus))
         }
     }
 
@@ -702,6 +846,87 @@ final class AppState: ObservableObject {
 
     /// Refreshes the selected repository and pins the IPA from the last generated app.
     /// Repo selection is independent of the previous build, avoiding silently stale results.
+    /// Find successful generated IPA builds using the verified GitHub Actions run status.
+    func refreshSuccessfulApps() async {
+        guard !appsLoading else { return }
+        let owner = preferences.githubUsername.trimmingCharacters(in: .whitespacesAndNewlines)
+        let repo = chosenRepo.isEmpty ? preferences.defaultRepo : chosenRepo
+        guard !owner.isEmpty, !repo.isEmpty else {
+            appsError = "Set your GitHub username and repository in Settings."
+            return
+        }
+        appsLoading = true
+        appsError = nil
+        defer { appsLoading = false }
+        do {
+            successfulApps = try await github().successfulAppBuilds(owner: owner, repo: repo)
+            if successfulApps.isEmpty {
+                appsError = "No successful AppForge branch builds were found among recent GitHub Actions runs."
+            }
+        } catch {
+            appsError = error.localizedDescription
+        }
+    }
+
+    /// Restores a frozen, successful commit. All future changes start on a fresh
+    /// unique appforge/ branch; this original app and its successful IPA are untouched.
+    func loadSuccessfulApp(_ run: GitHubRun) async {
+        guard !loadingSelectedApp && !busyPush && !busyFix && !supportBusy,
+              run.conclusion == "success",
+              let branch = run.head_branch, branch.hasPrefix("appforge/") else {
+            appsError = "Choose a successful AppForge build."
+            return
+        }
+        let owner = preferences.githubUsername.trimmingCharacters(in: .whitespacesAndNewlines)
+        let repo = chosenRepo.isEmpty ? preferences.defaultRepo : chosenRepo
+        loadingSelectedApp = true
+        appsError = nil
+        defer { loadingSelectedApp = false }
+        do {
+            let client = github()
+            let restored = try await client.successfulProject(owner: owner, repo: repo,
+                    sha: run.head_sha, minimumIOS: preferences.minimumIOS)
+            var compiledLog = ""
+            if let jobs = try? await client.jobs(owner: owner, repo: repo, run: run.id),
+               let buildJob = jobs.first(where: { $0.conclusion == "success" }),
+               let fetched = try? await client.jobLog(owner: owner, repo: repo, job: buildJob.id) {
+                compiledLog = String(fetched.suffix(20_000))
+            }
+            // Stage complete before changing active session; preserves previous app on error.
+            project = restored
+            selectedOrigin = AppBuildOrigin(appName: restored.appName,
+                branch: branch, successfulCommit: run.head_sha, runID: run.id)
+            referenceBuildLog = compiledLog
+            userDiagnosticLog = ""
+            supportMessages = []
+            codePrompt = "Revise the existing \(restored.appName) application. Preserve functionality and bundle ID \(restored.bundleId)."
+            chosenRepo = repo
+            chosenBranch = ""
+            lastCommitSHA = ""
+            lastOwner = ""
+            lastRepo = ""
+            activeRun = nil
+            jobs = []
+            failureLog = ""
+            repairAttempt = 0
+            repairStatus = "Loaded successful \(restored.appName) build #\(run.run_number ?? run.id). Changes will use a NEW revision branch."
+            moreSection = .support
+            selectedTab = .more
+        } catch {
+            appsError = "Failed to open this successful build: \(error.localizedDescription)"
+        }
+    }
+
+    func attachDeviceLog(_ raw: String) {
+        let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else {
+            notice = "Paste a device or application log before attaching it."
+            return
+        }
+        userDiagnosticLog = String(text.suffix(24_000))
+        repairStatus = "Attached runtime log to \(project?.appName ?? "project"). AI Support can now analyze it."
+    }
+
     func refreshReleases() async {
         guard !downloadsRefreshing else { return }
         let owner = downloadsOwner.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -768,6 +993,7 @@ final class AppState: ObservableObject {
         history = []; saveHistory()
         requirement = ""; generatedPrompt = ""; codePrompt = ""; project = nil; failureLog = ""; importedCrash = nil
         repairAttempt = 0; repairStatus = ""; chosenBranch = ""; lastCommitSHA = ""; lastOwner = ""; lastRepo = ""
+        selectedOrigin = nil; referenceBuildLog = ""; userDiagnosticLog = ""; successfulApps = []
         UserDefaults.standard.removeObject(forKey: "forgeBuildSession")
         notice = "Prompt history and generated code cleared. Downloads and Keychain tokens preserved"
     }
