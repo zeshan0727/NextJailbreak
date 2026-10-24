@@ -1,2 +1,2 @@
 import SwiftUI
-@main struct QuickNotesApp: App { var body: some Scene { WindowGroup { ContentView() } } }
+@main struct PhotoCombinerApp: App { var body: some Scene { WindowGroup { ContentView() } } }
