@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")"
-VERSION="0.4.0"
-BUILD="4"
+VERSION="0.4.1"
+BUILD="5"
 DIST="$PWD/dist"
 rm -rf "$DIST" build AccountantsMobile.xcodeproj
 mkdir -p "$DIST"
