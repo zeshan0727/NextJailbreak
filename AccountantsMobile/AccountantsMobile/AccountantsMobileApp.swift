@@ -1085,21 +1085,29 @@ struct FileLinkRow: View {
     @State private var preview = false
 
     var body: some View {
-        Button { preview = true } label: {
-            HStack {
-                Image(systemName: "doc")
-                VStack(alignment: .leading) {
-                    Text((file.relative as NSString).lastPathComponent).foregroundStyle(.primary)
-                    Text(file.relative)
+        HStack(spacing: 10) {
+            Button { preview = true } label: {
+                HStack(spacing: 9) {
+                    Image(systemName: "doc")
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(file.url.lastPathComponent).foregroundStyle(.primary)
+                        Text(file.relative)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                    Spacer(minLength: 6)
+                    Text(ByteCountFormatter.string(fromByteCount: file.size, countStyle: .file))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
-                        .lineLimit(2)
                 }
-                Spacer()
-                Text(ByteCountFormatter.string(fromByteCount: file.size, countStyle: .file))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
+            ShareLink(item: file.url, preview: SharePreview(file.url.lastPathComponent)) {
+                Image(systemName: "square.and.arrow.up")
+                    .foregroundStyle(MobilePalette.accent)
+                    .padding(9)
+            }
+            .accessibilityLabel("Share unchanged original file")
         }
         .sheet(isPresented: $preview) {
             QuickLookView(url: file.url).ignoresSafeArea()
