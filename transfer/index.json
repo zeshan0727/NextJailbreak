@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-25T12:59:06Z",
+  "updatedAt": "2026-10-25T13:07:08Z",
   "files": [
     {
       "id": "accountants-mobile-0.4.0-manager-backup",
@@ -10,8 +10,8 @@
       "platform": "TrollStore / iOS 16+",
       "version": "0.4.0",
       "url": "https://nextjailbreak.com/transfer/files/AccountantsMobile/0.4.0/AccountantsMobile-0.4.0.tipa",
-      "sha256": "35b7151045d1f070f2b30256cec01cbc5c11f6f4a760e4fe4fe339e65fda28f2",
-      "sizeBytes": 2172288,
+      "sha256": "8f550ddf8dcb3102fe0d542813cfbb2b25c230cbdbdb49dcf8946e7bc8243a9c",
+      "sizeBytes": 2177343,
       "notes": "iOS 16 on-device multi-page scanner, Vision OCR review, PV and receipt submission ZIP queue, evidence hashes, existing manager reporting, HR, company, and Zee. No direct Windows posting or cloud sync until Windows bridge is integrated; on-device QA required."
     },
     {
