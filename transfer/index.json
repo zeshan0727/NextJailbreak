@@ -3,7 +3,7 @@
   "updatedAt": "2026-10-25T13:07:08Z",
   "files": [
     {
-      "id": "accountants-mobile-0.4.0-manager-backup",
+      "id": "accountants-mobile-0.4.0-capture-outbox",
       "name": "AccountantsNext Mobile 0.4.0 — Scan PV & Receipts, Reports, HR & Zee",
       "fileName": "AccountantsMobile-0.4.0.tipa",
       "type": "tipa",
