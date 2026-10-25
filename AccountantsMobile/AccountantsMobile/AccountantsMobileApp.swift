@@ -314,9 +314,11 @@ final class MobileStore: ObservableObject {
                     )
                 }
             }
-            entities = newEntities
-            if selectedEntityID == 0 || !newEntities.contains(where: { $0.id == selectedEntityID }) {
-                selectedEntityID = newEntities.first?.id ?? 0
+            // Match the seven-company OperationalEntityPolicy in the Windows 6.1.25 source.
+            // Import keeps the complete DB; the picker exposes operational entities only.
+            entities = MobileOperationalEntityPolicy.filter(newEntities)
+            if selectedEntityID == 0 || !entities.contains(where: { $0.id == selectedEntityID }) {
+                selectedEntityID = entities.first?.id ?? 0
             }
             await refreshEntityData()
             refreshFileIndex()
