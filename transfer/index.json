@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-25T12:00:39Z",
+  "updatedAt": "2026-10-25T12:10:20Z",
   "files": [
+    {
+      "id": "accountants-mobile-0.3.0-manager-backup",
+      "name": "AccountantsNext Mobile 0.3.0 — HR, Payments, Manager Reports, Company & Zee",
+      "fileName": "AccountantsMobile-0.3.0.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "0.3.0",
+      "url": "https://nextjailbreak.com/transfer/files/AccountantsMobile/0.3.0/AccountantsMobile-0.3.0.tipa",
+      "sha256": "ee92e8180c300e2cea62c09911333d824c787cbe337784695b8a18f7630a5c3d",
+      "sizeBytes": 2045965,
+      "notes": "Five-module iOS companion. Manager Reporting mobile TB drill-down and exact PC-created report downloads; validated Windows snapshot recovery with rollback, protected receipt drafts and local Zee search. No live sync or remote AI. Mac CI build; on-device testing required."
+    },
     {
       "id": "accountants-mobile-0.3.0-four-modules",
       "name": "AccountantsNext Mobile 0.3.0 — HR, Payments, Company & Agent Zee",
