@@ -29,6 +29,7 @@ final class MobileStore: ObservableObject {
     @Published var snapshotImportedAt = ""
     @Published var lastError = ""
     @Published var isBusy = false
+    @Published var importStage = ""
     @Published var entities: [EntityRow] = []
     @Published var selectedEntityID: Int64 = 0
     @Published var selectedMonth: Int = Calendar.current.component(.month, from: Date())
@@ -61,23 +62,36 @@ final class MobileStore: ObservableObject {
         return base.appendingPathComponent("AccountantsMobile/Snapshots/Current", isDirectory: true)
     }
     var documentsRoot: URL { fm.urls(for: .documentDirectory, in: .userDomainMask)[0] }
+    var previousSnapshotRoot: URL { snapshotRoot.deletingLastPathComponent().appendingPathComponent("Previous", isDirectory: true) }
+    var olderSnapshotRoot: URL { snapshotRoot.deletingLastPathComponent().appendingPathComponent("Older", isDirectory: true) }
+    var currentSnapshotInfo: ImportedSnapshotInfo? { ImportedSnapshotInfo.load(at: snapshotRoot) }
+    var previousSnapshotInfo: ImportedSnapshotInfo? { ImportedSnapshotInfo.load(at: previousSnapshotRoot) }
+    var hasPreviousSnapshot: Bool { fm.fileExists(atPath: previousSnapshotRoot.appendingPathComponent("Data/AccountantsNext.db").path) }
+
 
     func restoreCurrentSnapshot() async {
         do {
             let db = snapshotRoot.appendingPathComponent("Data/AccountantsNext.db")
-            if fm.fileExists(atPath: db.path) {
-                try openDatabase(db)
-                snapshotName = UserDefaults.standard.string(forKey: "snapshotName") ?? "Local backup"
-                snapshotImportedAt = UserDefaults.standard.string(forKey: "snapshotImportedAt") ?? ""
-                await reloadAll()
+            if !fm.fileExists(atPath: db.path), hasPreviousSnapshot {
+                // Recover a two-step mobile import interrupted while moving directories.
+                try fm.moveItem(at: previousSnapshotRoot, to: snapshotRoot)
             }
+            guard fm.fileExists(atPath: db.path) else { return }
+            try SnapshotSafety.validateDatabase(db)
+            try openDatabase(db)
+            let info = currentSnapshotInfo
+            snapshotName = info?.sourceName ?? (UserDefaults.standard.string(forKey: "snapshotName") ?? "Local backup")
+            snapshotImportedAt = info?.importedAt ?? (UserDefaults.standard.string(forKey: "snapshotImportedAt") ?? "")
+            await reloadAll()
         } catch { lastError = error.localizedDescription }
     }
 
     func importBackup(from source: URL) async {
+        guard !isBusy else { return }
         isBusy = true
+        importStage = "Checking archive"
         lastError = ""
-        defer { isBusy = false }
+        defer { isBusy = false; importStage = "" }
         let scoped = source.startAccessingSecurityScopedResource()
         defer { if scoped { source.stopAccessingSecurityScopedResource() } }
         do { try await importLocalFile(source) }
@@ -85,49 +99,44 @@ final class MobileStore: ObservableObject {
     }
 
     func scanDocumentsForBackup() async {
+        guard !isBusy else { return }
         isBusy = true
+        importStage = "Locating backup"
         lastError = ""
-        defer { isBusy = false }
+        defer { isBusy = false; importStage = "" }
         do {
             let candidates = try fm.contentsOfDirectory(
-                at: documentsRoot,
-                includingPropertiesForKeys: [.contentModificationDateKey],
+                at: documentsRoot, includingPropertiesForKeys: [.contentModificationDateKey],
                 options: [.skipsHiddenFiles]
-            )
-            .filter {
+            ).filter {
                 ["zip", "db", "sqlite", "sqlite3"].contains($0.pathExtension.lowercased())
-                || $0.lastPathComponent == "AccountantsNext.db"
-            }
-            .sorted { a, b in
+            }.sorted { a, b in
                 let da = (try? a.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
                 let db = (try? b.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
                 return da > db
             }
-            guard let newest = candidates.first else {
-                throw NSError(
-                    domain: "AccountantsMobile",
-                    code: 1,
-                    userInfo: [NSLocalizedDescriptionKey: "No .zip or AccountantsNext.db backup was found in the app Documents folder."]
-                )
-            }
+            guard let newest = candidates.first else { throw SnapshotSafetyError.missingDatabase }
             try await importLocalFile(newest)
         } catch { lastError = error.localizedDescription }
     }
 
     private func importLocalFile(_ source: URL) async throws {
+        try SnapshotSafety.checkSource(source)
         let stagingBase = fm.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("BackupImport", isDirectory: true)
+            .appendingPathComponent("AccountantsMobile/BackupImport", isDirectory: true)
         try? fm.removeItem(at: stagingBase)
         try fm.createDirectory(at: stagingBase, withIntermediateDirectories: true)
+        defer { try? fm.removeItem(at: stagingBase) }
 
+        importStage = "Preparing recovery copy"
         let ext = source.pathExtension.lowercased()
         var extractedRoot = stagingBase
-
         if ext == "zip" {
-            let localZip = stagingBase.appendingPathComponent("backup.zip")
+            let localZip = stagingBase.appendingPathComponent("source.zip")
             try fm.copyItem(at: source, to: localZip)
             extractedRoot = stagingBase.appendingPathComponent("Extracted", isDirectory: true)
             try fm.createDirectory(at: extractedRoot, withIntermediateDirectories: true)
+            importStage = "Unpacking verified archive"
             try fm.unzipItem(at: localZip, to: extractedRoot)
         } else {
             let dataDir = stagingBase.appendingPathComponent("Data", isDirectory: true)
@@ -135,50 +144,113 @@ final class MobileStore: ObservableObject {
             try fm.copyItem(at: source, to: dataDir.appendingPathComponent("AccountantsNext.db"))
         }
 
-        guard let dbURL = findDatabase(under: extractedRoot) else {
-            throw NSError(
-                domain: "AccountantsMobile",
-                code: 2,
-                userInfo: [NSLocalizedDescriptionKey: "The selected backup does not contain Data/AccountantsNext.db."]
-            )
-        }
-
-        _ = try DatabaseQueue(path: dbURL.path)
+        let dbURL = try SnapshotSafety.safeDatabaseCandidate(under: extractedRoot)
+        importStage = "Checking SQLite integrity"
+        try SnapshotSafety.validateDatabase(dbURL)
 
         let parent = snapshotRoot.deletingLastPathComponent()
         try fm.createDirectory(at: parent, withIntermediateDirectories: true)
         let incoming = parent.appendingPathComponent("Incoming", isDirectory: true)
         try? fm.removeItem(at: incoming)
         try fm.createDirectory(at: incoming, withIntermediateDirectories: true)
+        var incomingReady = false
+        defer { if !incomingReady { try? fm.removeItem(at: incoming) } }
 
+        importStage = "Preparing mobile snapshot"
         if ext == "zip" {
-            let candidateRoot = rootContainingData(for: dbURL, stopAt: extractedRoot)
-            try copyDirectoryContents(from: candidateRoot, to: incoming)
+            try copyDirectoryContents(from: rootContainingData(for: dbURL, stopAt: extractedRoot), to: incoming)
         } else {
             try fm.createDirectory(at: incoming.appendingPathComponent("Data"), withIntermediateDirectories: true)
             try fm.copyItem(at: dbURL, to: incoming.appendingPathComponent("Data/AccountantsNext.db"))
         }
+        let incomingDB = incoming.appendingPathComponent("Data/AccountantsNext.db")
+        try SnapshotSafety.validateDatabase(incomingDB)
+        let bytes = Int64((try incomingDB.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+        var fileCount = 0
+        if let walker = fm.enumerator(at: incoming, includingPropertiesForKeys: [.isRegularFileKey]) {
+            for case let entry as URL in walker {
+                if (try? entry.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true { fileCount += 1 }
+            }
+        }
+        let info = ImportedSnapshotInfo(
+            sourceName: source.lastPathComponent,
+            importedAt: ISO8601DateFormatter().string(from: Date()),
+            databaseBytes: bytes,
+            fileCount: fileCount,
+            validation: "SQLite quick_check passed; Entities table present"
+        )
+        let manifest = try JSONEncoder().encode(info)
+        try manifest.write(to: incoming.appendingPathComponent("MobileSnapshotInfo.json"), options: [.atomic, .completeFileProtection])
+        SnapshotSafety.protect(incoming)
+        importStage = "Switching verified snapshots"
 
-        guard fm.fileExists(atPath: incoming.appendingPathComponent("Data/AccountantsNext.db").path) else {
-            throw NSError(
-                domain: "AccountantsMobile",
-                code: 3,
-                userInfo: [NSLocalizedDescriptionKey: "Backup import could not normalize Data/AccountantsNext.db."]
-            )
+        // All validation is completed before touching the current snapshot.
+        let previous = previousSnapshotRoot
+        let older = olderSnapshotRoot
+        if fm.fileExists(atPath: older.path) { try fm.removeItem(at: older) }
+        if fm.fileExists(atPath: previous.path) { try fm.moveItem(at: previous, to: older) }
+        let hadCurrent = fm.fileExists(atPath: snapshotRoot.path)
+        database = nil
+        currentDatabaseURL = nil
+        do {
+            if hadCurrent { try fm.moveItem(at: snapshotRoot, to: previous) }
+            try fm.moveItem(at: incoming, to: snapshotRoot)
+            incomingReady = true
+            try openDatabase(snapshotRoot.appendingPathComponent("Data/AccountantsNext.db"))
+        } catch {
+            // Revert if promotion or reopening fails; never replace a known-good database with a failed copy.
+            if fm.fileExists(atPath: snapshotRoot.path) { try? fm.removeItem(at: snapshotRoot) }
+            if hadCurrent && fm.fileExists(atPath: previous.path) {
+                try? fm.moveItem(at: previous, to: snapshotRoot)
+                try? openDatabase(snapshotRoot.appendingPathComponent("Data/AccountantsNext.db"))
+            }
+            if !fm.fileExists(atPath: previous.path), fm.fileExists(atPath: older.path) {
+                try? fm.moveItem(at: older, to: previous)
+            }
+            throw error
         }
 
-        let previous = parent.appendingPathComponent("Previous", isDirectory: true)
-        try? fm.removeItem(at: previous)
-        if fm.fileExists(atPath: snapshotRoot.path) { try fm.moveItem(at: snapshotRoot, to: previous) }
-        try fm.moveItem(at: incoming, to: snapshotRoot)
-
-        let finalDB = snapshotRoot.appendingPathComponent("Data/AccountantsNext.db")
-        try openDatabase(finalDB)
-        snapshotName = source.lastPathComponent
-        snapshotImportedAt = ISO8601DateFormatter().string(from: Date())
+        snapshotName = info.sourceName
+        snapshotImportedAt = info.importedAt
         UserDefaults.standard.set(snapshotName, forKey: "snapshotName")
         UserDefaults.standard.set(snapshotImportedAt, forKey: "snapshotImportedAt")
         await reloadAll()
+    }
+
+    func restorePreviousMobileSnapshot() async {
+        guard !isBusy else { return }
+        isBusy = true
+        importStage = "Restoring previous verified snapshot"
+        lastError = ""
+        defer { isBusy = false; importStage = "" }
+        guard hasPreviousSnapshot else { lastError = SnapshotSafetyError.noPreviousSnapshot.localizedDescription; return }
+        let swap = snapshotRoot.deletingLastPathComponent().appendingPathComponent("RestoreSwap", isDirectory: true)
+        do {
+            try SnapshotSafety.validateDatabase(previousSnapshotRoot.appendingPathComponent("Data/AccountantsNext.db"))
+            database = nil
+            currentDatabaseURL = nil
+            try? fm.removeItem(at: swap)
+            let hadCurrent = fm.fileExists(atPath: snapshotRoot.path)
+            if hadCurrent { try fm.moveItem(at: snapshotRoot, to: swap) }
+            do {
+                try fm.moveItem(at: previousSnapshotRoot, to: snapshotRoot)
+                if hadCurrent { try fm.moveItem(at: swap, to: previousSnapshotRoot) }
+                try openDatabase(snapshotRoot.appendingPathComponent("Data/AccountantsNext.db"))
+            } catch {
+                if !fm.fileExists(atPath: snapshotRoot.path), fm.fileExists(atPath: swap.path) {
+                    try? fm.moveItem(at: swap, to: snapshotRoot)
+                }
+                if fm.fileExists(atPath: snapshotRoot.appendingPathComponent("Data/AccountantsNext.db").path) {
+                    try? openDatabase(snapshotRoot.appendingPathComponent("Data/AccountantsNext.db"))
+                }
+                throw error
+            }
+            snapshotName = currentSnapshotInfo?.sourceName ?? "Previous snapshot"
+            snapshotImportedAt = currentSnapshotInfo?.importedAt ?? ""
+            UserDefaults.standard.set(snapshotName, forKey: "snapshotName")
+            UserDefaults.standard.set(snapshotImportedAt, forKey: "snapshotImportedAt")
+            await reloadAll()
+        } catch { lastError = error.localizedDescription }
     }
 
     private func rootContainingData(for dbURL: URL, stopAt: URL) -> URL {
