@@ -237,8 +237,16 @@ final class MobileStore: ObservableObject {
                 if hadCurrent { try fm.moveItem(at: swap, to: previousSnapshotRoot) }
                 try openDatabase(snapshotRoot.appendingPathComponent("Data/AccountantsNext.db"))
             } catch {
-                if !fm.fileExists(atPath: snapshotRoot.path), fm.fileExists(atPath: swap.path) {
-                    try? fm.moveItem(at: swap, to: snapshotRoot)
+                // If the older copy reached Current but archiving the former Current failed,
+                // roll the directories back to their exact pre-restore locations.
+                if fm.fileExists(atPath: swap.path) {
+                    if fm.fileExists(atPath: snapshotRoot.path) &&
+                       !fm.fileExists(atPath: previousSnapshotRoot.path) {
+                        try? fm.moveItem(at: snapshotRoot, to: previousSnapshotRoot)
+                    }
+                    if !fm.fileExists(atPath: snapshotRoot.path) {
+                        try? fm.moveItem(at: swap, to: snapshotRoot)
+                    }
                 }
                 if fm.fileExists(atPath: snapshotRoot.appendingPathComponent("Data/AccountantsNext.db").path) {
                     try? openDatabase(snapshotRoot.appendingPathComponent("Data/AccountantsNext.db"))
