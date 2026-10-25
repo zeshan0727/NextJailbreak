@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "palera1n is limited to the project's documented checkm8 hardware scope. The official iPhone guide covers A11 and earlier devices on iOS 15.0+, with major passcode/SEP and erase requirements for A11 on iOS 16.",
+      "description": "Install palera1n on a supported iOS 16 iPhone using Mac, Linux or Windows with palen1x. Check A11 passcode limits, USB setup, DFU mode and Sileo.",
+      "developer": "palera1n team / iOS Guide contributors",
+      "entry_type": "guide",
+      "href": "how-to-jailbreak/",
+      "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
+      "media_alt": "Official palera1n graphical interface showing a connected iPhone 7 on iOS 15.7 with Quick Mode and Start controls",
+      "media_credit": "palera1n team — official GUI screenshot from the v3.0.0-beta.3 tagged source",
+      "media_git_blob_sha": "235a0b859af9093e5dac26aa8d3e22d9011a84cb",
+      "media_retrieval_status": "Exact official tagged-source screenshot already preserved locally; embedded in the article, homepage/tutorial cards and social metadata.",
+      "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
+      "media_source_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
+      "modified_at": "2026-10-25T04:57:24Z",
+      "name": "palera1n iOS 16 installation guide",
+      "package": "guide.palera1n.ios16.install",
+      "published_at": "2024-10-28T00:00:00Z",
+      "quality_target": 9,
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "how-to-jailbreak",
+      "source_name": "Official palera1n installation guide and palen1x guide",
+      "source_page_url": "https://docs.palera.in/installing-palera1n/",
+      "source_url": "https://docs.palera.in/using-palen1x/",
+      "source_visual_origin": "official-tagged-repository-screenshot-reused",
+      "source_visual_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
+      "title": "How to Jailbreak iOS 16 with palera1n on Mac, Linux or Windows",
+      "version": "Official guide revision 2026-10-25 / palera1n rootless flow"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "roundup-comparison",
@@ -8924,10 +8956,20 @@
       "published_at": "2026-10-25T00:58:24Z",
       "run_id": "scheduled-2026-10-25T00:58:24Z",
       "version": "3.0.0-beta.3"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "how-to-jailbreak/",
+      "package": "guide.palera1n.ios16.install",
+      "previous_version": "2024 legacy palera1n.sh guide",
+      "published_at": "2026-10-25T04:57:24Z",
+      "run_id": "scheduled-2026-10-25T04:57:24Z",
+      "version": "Official guide revision 2026-10-25 / palera1n rootless flow"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-25T00:58:24Z"
+  "updated_at": "2026-10-25T04:57:24Z"
 }
 
 
