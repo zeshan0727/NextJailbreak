@@ -8,7 +8,7 @@ import ZIPFoundation
 struct AccountantsMobileApp: App {
     @StateObject private var store = MobileStore()
     var body: some Scene {
-        WindowGroup { RootView().environmentObject(store) }
+        WindowGroup { MobileV2Root().environmentObject(store) }
     }
 }
 
@@ -211,7 +211,9 @@ final class MobileStore: ObservableObject {
     }
 
     private func openDatabase(_ url: URL) throws {
-        database = try DatabaseQueue(path: url.path)
+        var config = Configuration()
+        config.readonly = true
+        database = try DatabaseQueue(path: url.path, configuration: config)
         currentDatabaseURL = url
     }
 
@@ -514,7 +516,7 @@ private func int64(_ row: Row, _ c: String) -> Int64 { let v: Int64? = row[c]; r
 private func int(_ row: Row, _ c: String) -> Int { let v: Int? = row[c]; return v ?? 0 }
 private func double(_ row: Row, _ c: String) -> Double { let v: Double? = row[c]; return v ?? 0 }
 private func optionalDouble(_ row: Row, _ c: String) -> Double? { let v: Double? = row[c]; return v }
-private func money(_ value: Double, _ currency: String) -> String {
+func money(_ value: Double, _ currency: String) -> String {
     "\(currency.isEmpty ? "QAR" : currency) \(String(format: "%.2f", value))"
 }
 
@@ -1073,7 +1075,7 @@ struct MobileSettingsView: View {
                 Button("Connect Dropbox") {}.disabled(true)
                 Button("Connect OneDrive / Outlook") {}.disabled(true)
                 Button("Connect MEGA") {}.disabled(true)
-                Text("Connectors are deliberately disabled in v0.1.0. We will enable them after local backup import and all modules are validated, so cloud sync cannot corrupt or diverge from the Windows data source.")
+                Text("Connectors are deliberately disabled in v0.2.0. We will enable them after local backup import and all modules are validated, so cloud sync cannot corrupt or diverge from the Windows data source.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -1081,7 +1083,7 @@ struct MobileSettingsView: View {
             Section("Safety") {
                 LabeledContent("Data mode", value: "Read-only")
                 LabeledContent("Windows database", value: "Never modified")
-                LabeledContent("App version", value: "0.1.0 (1)")
+                LabeledContent("App version", value: "0.2.0 (2)")
             }
         }
         .navigationTitle("Settings")
