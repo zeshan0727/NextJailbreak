@@ -53,6 +53,8 @@ struct CaptureRequest: Codable, Identifiable {
     var kind: CaptureKind
     var receiptType: CaptureReceiptType
     var paymentMode: CapturePaymentMode
+    var paymentMethod: String
+    var paymentCategory: String
     var party: String
     var receivedBy: String
     var amount: Decimal
