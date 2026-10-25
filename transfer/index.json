@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-25T13:07:08Z",
+  "updatedAt": "2026-10-25T13:28:15Z",
   "files": [
+    {
+      "id": "accountants-mobile-0.4.1-manager-backup",
+      "name": "AccountantsNext Mobile 0.4.1 — Scanner Repair, HR, Payments, Reports & Zee",
+      "fileName": "AccountantsMobile-0.4.1.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "0.4.1",
+      "url": "https://nextjailbreak.com/transfer/files/AccountantsMobile/0.4.1/AccountantsMobile-0.4.1.tipa",
+      "sha256": "098613f8b12e3b2570198639aae79f6c8dc39f66e48d1248fd0ddaa9f948a462",
+      "sizeBytes": 2195353,
+      "notes": "iOS 16 UIKit camera crash workaround, Photos picker fallback, multi-page OCR, and seven operational company filter matched to Windows. Captures and other features retained. Device validation required."
+    },
     {
       "id": "accountants-mobile-0.4.0-capture-outbox",
       "name": "AccountantsNext Mobile 0.4.0 — Scan PV & Receipts, Reports, HR & Zee",
