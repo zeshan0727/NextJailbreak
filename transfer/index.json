@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-24T16:20:03Z",
+  "updatedAt": "2026-10-25T11:37:03Z",
   "files": [
+    {
+      "id": "accountants-mobile-0.2.0-four-modules",
+      "name": "AccountantsNext Mobile 0.2.0 — HR, Payments, Company & Agent Zee",
+      "fileName": "AccountantsMobile-0.2.0.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "0.2.0",
+      "url": "https://nextjailbreak.com/transfer/files/AccountantsMobile/0.2.0/AccountantsMobile-0.2.0.tipa",
+      "sha256": "212b172f5855d48f8aa9ba82260d6d820b00bfd340b43f86ae4fe385555029d3",
+      "sizeBytes": 1941364,
+      "notes": "Four-module iOS companion. Read-only Windows snapshot import, protected on-device receipt drafts, local Zee search. No live sync or remote AI. Mac CI build; on-device testing required."
+    },
     {
       "id": "appforge-1.1.2-my-apps",
       "name": "AppForge 1.1.2 — My Apps + Successful Build Editing",
