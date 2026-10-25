@@ -1,0 +1,3 @@
+b97265595ec5de2244a8d5dd267ca5653cf0884e019f56b279fcf069b17234ad  AccountantsMobile-0.4.0.tipa
+b97265595ec5de2244a8d5dd267ca5653cf0884e019f56b279fcf069b17234ad  AccountantsMobile-0.4.0.ipa
+7c5466e4105bc88dcabfd8e709ddb0eca55fac174b600c4241858c44339b7ab7  AccountantsMobile-0.4.0-source.zip
