@@ -1,33 +1,40 @@
-# AccountantsNext Mobile — 0.2.0 (build 2)
+# AccountantsNext Mobile — v0.3.0 (build 3)
 
-Native iOS 16+ companion for the Windows AccountantsNext system.
+Native SwiftUI iOS 16+ mobile companion for Windows AccountantsNext. Bundle ID \`com.nextsolution.accountantsmobile\` is unchanged to preserve installed app data and receipt drafts.
 
-## Supported modules
-- **HR:** employee profile and leave settlement viewer.
-- **Payments & receipts:** view imported payment/receipt vouchers and create encrypted, on-device **receipt drafts** with supporting files and PDF export.
-- **Company information:** view entities, legal document details and supporting files included in the Windows backup.
-- **Agent Zee:** local-only record lookup. This is NOT a networked AI agent or Windows automation.
+## Five native tabs
+1. **HR** — employee profiles and leave settlements from imported Windows data.
+2. **Payments** — payment/receipt vouchers (read-only); locally protected receipt drafts; original PC-created supporting documents when present.
+3. **Manager Reporting** — refined native Income Statement and Balance Sheet drill-downs by entity/month/year, Xero TB snapshot provenance, mapping alerts and account-level data.
+4. **Company** — entity, registration records and original supporting files, plus Backup & Recovery center.
+5. **Agent Zee** — local snapshot search. No remote LLM or PC automation until an authorized agent connection exists.
 
-No invoice module, accounting journal editor, or Xero posting. Manager Reporting remains a Windows/Xero workflow.
+## Faithful document output policy
+The Windows Manager Reporting Excel generation is **not implemented on-device**, because the authoritative Windows .NET report engine, company-specific templates, and formulas have not been imported or verified in this repository. The mobile TB drill-down is NOT represented as the official Windows P&L or Balance Sheet.
 
-## Data integrity boundary
-1. Import the Windows \`Accountants5_FULL_*.zip\` backup or \`AccountantsNext.db\` via the Company's settings panel.
-2. The app copies the snapshot into its own Application Support container.
-3. GRDB opens the imported database with \`Configuration.readonly = true\`.
-4. Receipt drafts and attachment files are saved **separately** in protected iOS app storage.
-5. No cloud sync, network calls, remote LLM data transmission, or writes to the PC database are enabled.
-6. Face ID or the device passcode is required to unlock. A device passcode must be configured.
-7. The PDF export is clearly marked LOCAL DRAFT, not a posted Windows receipt.
+To preserve exact desktop output, select **Original Windows Reports** from a restored full backup containing already-generated XLSX/PDF files. iPhone shares the **same unchanged original bytes**, which retain formulas, number formatting, tabs, comparative columns, notes and attachments as saved on PC. User selects file by company, period and filename. If absent, there is no fake mobile export.
 
-For payroll totals, HR editing, automated Agent Zee actions, sync, and official financial Manager Reports, use the desktop app until the schema and API are formally integrated.
+The same standard applies to Payments: existing PC-generated receipts can be accessed when packaged in the backup. Mobile-only receipt drafts cannot generate a differently formatted "official" receipt PDF until the real PC generator/templates are integrated.
 
-## Building
-- XcodeGen project: \`AccountantsMobile/project.yml\`
-- Native iOS deployment target: 16.0
-- GitHub Actions workflow: \`.github/workflows/build-accountants-mobile-v020.yml\`
-- Run \`bash AccountantsMobile/build.sh\` on macOS with Xcode and XcodeGen.
-- Output: \`AccountantsMobile/dist/AccountantsMobile-0.2.0.tipa\` and \`.ipa\`
-- Bundle: \`com.nextsolution.accountantsmobile\` (upgrade-safe for 0.1.0).
+## Safe Windows full backup restore
+- Import \`Accountants5_FULL_*.zip\` or \`AccountantsNext.db\` from Company → Backup & Recovery.
+- Check archive extension, compressed size, entry count, uncompressed bytes, ZIP path traversal, file links and expected DB location before decompressing.
+- Stage in a separate directory, run SQLite \`PRAGMA quick_check\` and required schema validation, copy attachments, validate again, and only then promote to active snapshot.
+- Preserve previous and older recovery points; restore previous from the mobile Recovery screen.
+- Detect interrupted promotion on startup; recover previous snapshot if the active folder is absent.
+- Active snapshot always opens with GRDB read-only mode.
+- Windows PC database/files are never changed. Separately encrypted-by-iOS-protection receipt drafts are preserved during PC snapshot import.
+- Set and use an iPhone passcode; device Face ID or passcode is required to enter the app.
+- No claim of cloud sync or real-time data. iPhone reports always display import provenance and snapshot date.
 
-## Security / release limitations
-This is a first field-test build, not a claim of complete on-device QA. Do not use it as the sole storage location for critical business records. Keep the original Windows backup. Changes drafted on iPhone do not appear on the PC without a future reviewed synchronization module.
+**Caution:** the PC recovery ZIP itself is still essential; mobile snapshot copies are not an authoritative desktop restore mechanism. No source data from real companies should be uploaded to the public GitHub repository or NS Transfer.
+
+## Build and QA
+- Build using \`.github/workflows/build-accountants-mobile-v030.yml\` or \`bash AccountantsMobile/build.sh\` on macOS.
+- iOS minimum: 16.0; output: \`AccountantsMobile-0.3.0.tipa\` / \`.ipa\`.
+- Package uses native SwiftUI, GRDB and ZIPFoundation.
+- Run \`unzip -t\` and metadata checks in CI.
+- Then test on an actual iPhone with a **copy** of a real Windows full backup. Verify entities, May/June period switch, report files/Excel formulas, and rollback. The CI build does not constitute acceptance testing.
+
+## Known limitations / next gate
+A verified current Windows Manager Reporting XLSX from at least one entity, an actual backup manifest, and the matching .NET report generation source are needed for native mobile **generation** to be byte/format equivalent, including formula engine and voucher approval formats. Current version exports **original PC files**, not newly built lookalikes.
