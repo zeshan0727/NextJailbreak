@@ -163,6 +163,54 @@
     {
       "additional_media": [
         {
+          "image": "assets/articles/source-media/podaction-1-0-1-official-settings.png",
+          "media_alt": "Official PodAction settings screen showing mappings for AirPods presses, swipes and left or right double taps",
+          "media_credit": "aronsz26/Havoc — official PodAction settings screenshot",
+          "media_sha256": "215e2c472fc719b68724f4284c6483d2f2f7b933abcec33bb3b3397b19be5548",
+          "media_source_url": "https://media.havoc.app/6acc171af27f95cb99b8792a"
+        },
+        {
+          "image": "assets/articles/source-media/podaction-1-0-1-official-actions.png",
+          "media_alt": "Official PodAction action picker listing flashlight, camera, Focus, voice memo, music recognition, controls, Shortcuts and accessibility",
+          "media_credit": "aronsz26/Havoc — official PodAction action-picker screenshot",
+          "media_sha256": "4a93dedc9ba096e146f0e58b242d89558020d3736b4c881bef635d43529dd426",
+          "media_source_url": "https://media.havoc.app/6acc1721f27f95cb99b8796b"
+        }
+      ],
+      "article_sha256": "7c0e2640c5e6b4f214497b30ad27030f711163417b1ea366ccadfcd34f77accd",
+      "candidate_fingerprint": "7838b35647062dd3bc998039b926ea0af1813015b80de0331df1bf22fc8cbb08",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 14.0–26.0.1, rootless support and a jailbreak requirement; the description also states rootful support. Package compatibility does not prove jailbreak availability for every device or firmware.",
+      "description": "PodAction 1.0.1 fixes single-press actions on newer AirPods and improves connection detection while mapping AirPods gestures to Shortcuts and iOS controls.",
+      "entry_type": "individual-update",
+      "href": "podaction-1-0-1-airpods-gestures-shortcuts-actions/",
+      "image": "assets/articles/source-media/podaction-1-0-1-official-banner.jpg",
+      "media_alt": "Official PodAction banner with the text Run any action from your AirPods",
+      "media_credit": "aronsz26/Havoc — official PodAction product banner and app-interface screenshots",
+      "media_retrieval_status": "Official Havoc banner and two app-interface screenshots retrieved directly from the listing metadata, inspected, stored locally, embedded in the article, and used in social metadata where appropriate.",
+      "media_sha256": "7d228f3f1225192c3dd29a80e674ea3c05fc70b0cf5e25ffb60f8d59556f8a70",
+      "media_source_url": "https://media.havoc.app/6acc1727f27f95cb99b87992",
+      "modified_at": "2026-10-25T17:01:10Z",
+      "name": "PodAction",
+      "package": "com.aronsz26.podaction",
+      "published_at": "2026-10-25T17:01:10Z",
+      "quality_target": 9,
+      "release": "PodAction 1.0.1 — October 25, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official PodAction Havoc package page, changelog and developer-supplied media",
+      "source_page_url": "https://havoc.app/package/podaction",
+      "source_url": "https://havoc.app/package/podaction",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshots",
+      "source_visual_url": "https://media.havoc.app/6acc1727f27f95cb99b87992",
+      "title": "PodAction 1.0.1 Maps AirPods Gestures to Shortcuts and System Actions",
+      "version": "1.0.1"
+    },
+    {
+      "additional_media": [
+        {
           "image": "assets/articles/source-media/aerial-official-split-stage-interface.jpg",
           "media_alt": "Official Aerial screenshot showing two applications arranged in a vertical Split Stage on an iPhone",
           "media_credit": "uzra/Havoc — official Aerial Split Stage interface screenshot",
@@ -9033,10 +9081,19 @@
       "published_at": "2026-10-25T12:57:03Z",
       "run_id": "scheduled-2026-10-25T12:57:03Z",
       "version": "3.0"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "podaction-1-0-1-airpods-gestures-shortcuts-actions/",
+      "package": "com.aronsz26.podaction",
+      "published_at": "2026-10-25T17:01:10Z",
+      "run_id": "scheduled-2026-10-25T17:01:10Z",
+      "version": "1.0.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-25T12:57:03Z"
+  "updated_at": "2026-10-25T17:01:10Z"
 }
 
 
