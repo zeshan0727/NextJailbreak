@@ -11,12 +11,14 @@ struct MobileCaptureComposer: View {
     @State private var kind: CaptureKind = .payment
     @State private var receiptType: CaptureReceiptType = .bank
     @State private var paymentMode: CapturePaymentMode = .manual
+    @State private var paymentMethod = "Bank Transfer"
+    @State private var paymentCategory = "Operating Expense"
     @State private var party = ""
     @State private var receivedBy = ""
     @State private var amount = ""
     @State private var date = Date()
     @State private var reference = ""
-    @State private var against = ""
+    @State private var against = "Other"
     @State private var bankDetails = ""
     @State private var purpose = ""
     @State private var notes = ""
@@ -95,6 +97,12 @@ struct MobileCaptureComposer: View {
                                 Text(mode.rawValue).tag(mode)
                             }
                         }
+                        Picker("Payment method", selection: $paymentMethod) {
+                            ForEach(["Bank Transfer", "Cash", "Cheque", "Credit Card", "Pay Card", "Other"], id: \.self) { value in Text(value) }
+                        }
+                        Picker("PV category", selection: $paymentCategory) {
+                            ForEach(["Operating Expense", "Capital Expense", "Advance Expense/Advance", "Employee Advance", "Supplier Advance", "Withdrawal", "Asset", "Liability", "Owner/Capital", "Prepayment", "Deposit", "Loan/Borrowing", "Refund/Reimbursement", "Marketing", "General", "Other"], id: \.self) { value in Text(value) }
+                        }
                         Text("Electronic PV approval evidence and prepared-by signature must be verified and applied by the Windows service, never fabricated on iPhone.")
                             .font(.caption).foregroundStyle(.secondary)
                     } else {
@@ -140,7 +148,13 @@ struct MobileCaptureComposer: View {
                     }
                     TextField("Purpose / Particulars", text: $purpose, axis: .vertical)
                         .lineLimit(2...4)
-                    TextField(kind == .payment ? "Invoice / Payment Against" : "Receipt Against", text: $against)
+                    if kind == .receipt {
+                        Picker("Receipt Against", selection: $against) {
+                            ForEach(["Customer Receipt", "Advance Received", "Refund Received", "Deposit", "Owner / Capital", "Loan / Borrowing", "Intercompany", "Other"], id: \.self) { value in Text(value) }
+                        }
+                    } else {
+                        TextField("Invoice / Payment Against", text: $against)
+                    }
                     TextField("Reference / Cheque No.", text: $reference)
                     TextField("Bank / Transfer details", text: $bankDetails, axis: .vertical)
                         .lineLimit(1...3)
@@ -227,6 +241,7 @@ struct MobileCaptureComposer: View {
             id: UUID(), schemaVersion: 1, createdAt: Date(),
             companyID: company.id, companyCode: company.code, companyName: company.name,
             kind: kind, receiptType: receiptType, paymentMode: paymentMode,
+            paymentMethod: paymentMethod, paymentCategory: paymentCategory,
             party: party.trimmingCharacters(in: .whitespacesAndNewlines),
             receivedBy: receivedBy.trimmingCharacters(in: .whitespacesAndNewlines),
             amount: value, currency: company.currency.isEmpty ? "QAR" : company.currency,
