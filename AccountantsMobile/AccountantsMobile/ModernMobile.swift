@@ -2,7 +2,7 @@ import SwiftUI
 import LocalAuthentication
 import UniformTypeIdentifiers
 
-// AccountantsNext Mobile 0.2.0 — four-module, local-snapshot-first UI.
+// AccountantsNext Mobile 0.3.0 — HR, Payments, Manager Reporting, Company and Zee.
 // No network access, no Xero posting, and no writes to the imported PC database.
 enum MobilePalette {
     static let accent = Color(red: 0.20, green: 0.39, blue: 0.94)
@@ -12,11 +12,12 @@ enum MobilePalette {
 }
 
 enum MobileSection: String, CaseIterable {
-    case hr = "HR", payments = "Payments", company = "Company", zee = "Agent Zee"
+    case hr = "HR", payments = "Payments", reporting = "Reports", company = "Company", zee = "Agent Zee"
     var symbol: String {
         switch self {
         case .hr: return "person.2.crop.square.stack.fill"
         case .payments: return "arrow.left.arrow.right.circle.fill"
+        case .reporting: return "chart.bar.doc.horizontal.fill"
         case .company: return "building.2.crop.circle.fill"
         case .zee: return "sparkles"
         }
@@ -38,6 +39,8 @@ struct MobileV2Root: View {
                     .tabItem { Label("HR", systemImage: MobileSection.hr.symbol) }
                 ModernPaymentsView()
                     .tabItem { Label("Payments", systemImage: MobileSection.payments.symbol) }
+                ManagerReportingMobileView()
+                    .tabItem { Label("Reports", systemImage: MobileSection.reporting.symbol) }
                 ModernCompanyView(importer: $showingImporter)
                     .tabItem { Label("Company", systemImage: MobileSection.company.symbol) }
                 ModernZeeView()
@@ -61,7 +64,7 @@ struct MobileV2Root: View {
         }
         .overlay(alignment: .top) {
             if store.isBusy {
-                ProgressView("Importing snapshot…")
+                ProgressView(store.importStage.isEmpty ? "Importing snapshot…" : store.importStage)
                     .padding(12)
                     .background(.regularMaterial, in: Capsule())
                     .padding(.top, 8)
@@ -467,7 +470,21 @@ struct ModernPaymentsView: View {
 }
 
 struct VoucherDetailView: View {
+    @EnvironmentObject private var store: MobileStore
     let voucher: PaymentRow
+
+    private var originalDocuments: [FileRow] {
+        let ref = voucher.number.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard ref.count >= 4 else { return [] }
+        return store.files.filter { file in
+            let ext = file.url.pathExtension.lowercased()
+            let path = file.relative.lowercased()
+            return ["pdf", "xlsx", "xls"].contains(ext)
+                && (path.contains("payment") || path.contains("receipt") || path.contains("voucher"))
+                && file.url.deletingPathExtension().lastPathComponent.lowercased().contains(ref)
+        }
+    }
+
     var body: some View {
         List {
             Section("Voucher") {
@@ -478,8 +495,23 @@ struct VoucherDetailView: View {
                 LabeledContent("Purpose", value: voucher.purpose)
                 LabeledContent("Type", value: voucher.kind)
             }
-            Section { Text("Imported from a local backup. Editing and posting to the Windows PC are disabled.").font(.footnote).foregroundStyle(.secondary) }
-        }.navigationTitle("Voucher Details").navigationBarTitleDisplayMode(.inline)
+            Section("Original PC documents") {
+                if originalDocuments.isEmpty {
+                    Text("No matching Windows-exported document was included in the restored snapshot. Mobile will not substitute a differently formatted PDF.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                } else {
+                    ForEach(originalDocuments) { file in
+                        OriginalDesktopFileRow(file: file)
+                    }
+                }
+            }
+            Section {
+                Text("Record copied from a Windows backup. It is read-only and not posted or changed on your PC.")
+                    .font(.footnote).foregroundStyle(.secondary)
+            }
+        }
+        .navigationTitle("Voucher Details")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -546,7 +578,7 @@ struct ModernCompanyView: View {
             }
             .sheet(isPresented: $showSettings) {
                 NavigationStack {
-                    MobileSettingsView(showImporter: $importer)
+                    MobileBackupCenter(showImporter: $importer)
                         .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showSettings = false } } }
                 }
             }
