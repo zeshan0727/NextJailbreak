@@ -76,6 +76,9 @@ enum SnapshotSafety {
                       entry.type != .symlink else {
                     throw SnapshotSafetyError.unsafeArchive
                 }
+                guard UInt64(entry.uncompressedSize) <= UInt64(maximumUnpackedBytes) else {
+                    throw SnapshotSafetyError.oversized
+                }
                 let size = Int64(entry.uncompressedSize)
                 guard size >= 0 && total <= maximumUnpackedBytes - size else {
                     throw SnapshotSafetyError.oversized
