@@ -55,8 +55,17 @@ struct ManagerReportingMobileView: View {
     }
 
     private var unclassified: [TBRow] {
-        let allCodes = Set(buckets.flatMap(\.rows).map(\.code))
-        return sourceRows.filter { !allCodes.contains($0.code) }
+        let classifiedIDs = Set(buckets.flatMap(\.rows).map(\.id))
+        return sourceRows.filter { row in
+            guard !classifiedIDs.contains(row.id) else { return false }
+            let kind = row.type.lowercased()
+            let isBalance = kind.contains("asset") || kind.contains("liabilit") ||
+                kind.contains("equity") || kind.contains("capital") || kind.contains("retained earning")
+            let isProfit = kind.contains("revenue") || kind.contains("income") ||
+                kind.contains("expense") || kind.contains("cost of") || kind == "sales" ||
+                kind == "cogs" || kind.contains("overhead")
+            return selectedArea == .income ? !isBalance : !isProfit
+        }
     }
 
     private var originalReportFiles: [FileRow] {
