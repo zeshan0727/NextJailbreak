@@ -90,8 +90,8 @@ jobs:
       - name: Publish independent build status
         if: always()
         env:
-          COMPILE_RESULT: \${{ steps.compile.outcome }}
-          PUBLISH_RESULT: \${{ steps.publish.outcome }}
+          COMPILE_RESULT: ${{ steps.compile.outcome }}
+          PUBLISH_RESULT: ${{ steps.publish.outcome }}
         run: |
           set -euo pipefail
           STATUS=/tmp/accountants-mobile-v020-status
@@ -100,6 +100,7 @@ jobs:
             "$GITHUB_RUN_ID" "$COMPILE_RESULT" "$PUBLISH_RESULT" "$GITHUB_SHA" > "$STATUS/latest-run.txt"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git reset --hard HEAD
           git switch --orphan accountants-mobile-v020-status
           git rm -rf --quiet . || true
           cp "$STATUS/latest-run.txt" latest-run.txt
