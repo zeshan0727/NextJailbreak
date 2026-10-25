@@ -1,5 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import PhotosUI
+import UIKit
 
 struct MobileCaptureComposer: View {
     @EnvironmentObject private var workspace: MobileStore
@@ -27,6 +29,7 @@ struct MobileCaptureComposer: View {
     @State private var importedFile: URL?
     @State private var extracted = ""
     @State private var scannerVisible = false
+    @State private var pickedPhoto: PhotosPickerItem?
     @State private var importerVisible = false
     @State private var detectingText = false
     @State private var showScanText = false
@@ -67,15 +70,33 @@ struct MobileCaptureComposer: View {
                         }
                     }
                     Button {
-                        scannerVisible = true
-                    } label: { Label("Scan Document", systemImage: "doc.viewfinder") }
-                        .disabled(detectingText)
+                        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                            scannerVisible = true
+                        } else {
+                            message = "Camera access isn't available in this iOS environment. Use Choose Photo or Attach Existing Document."
+                        }
+                    } label: {
+                        Label(scannedPages.isEmpty ? "Scan with Camera" : "Add Another Page", systemImage: "camera.viewfinder")
+                    }
+                    .disabled(detectingText || scannedPages.count >= 12)
+                    PhotosPicker(selection: $pickedPhoto, matching: .images, photoLibrary: .shared()) {
+                        Label("Choose Photo from Library", systemImage: "photo.on.rectangle.angled")
+                    }
+                    .disabled(detectingText || scannedPages.count >= 12)
                     Button { importerVisible = true } label: {
                         Label("Attach Existing Document", systemImage: "paperclip")
                     }
                     if !scannedPages.isEmpty {
-                        Label("\(scannedPages.count) scanned page(s)", systemImage: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
+                        HStack {
+                            Label("\(scannedPages.count) scanned page(s)", systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                            Spacer()
+                            Button("Clear pages") {
+                                scannedPages = []
+                                extracted = ""
+                            }
+                            .font(.caption)
+                        }
                     }
                     if let importedFile {
                         Label(importedFile.lastPathComponent, systemImage: "doc")
@@ -201,22 +222,34 @@ struct MobileCaptureComposer: View {
                 }
             }
             .sheet(isPresented: $scannerVisible) {
-                DocumentScanner(
-                    onScan: { pages in
+                SafeCameraCapture(
+                    onPhoto: { photo in
                         scannerVisible = false
-                        guard !pages.isEmpty else { return }
-                        guard pages.count <= 12 else {
-                            message = CaptureProblem.tooManyPages.localizedDescription
-                            return
-                        }
-                        scannedPages = pages
-                        detect(pages)
+                        if let photo { addPage(photo) }
                     },
                     onFailure: { error in
                         scannerVisible = false
                         message = error
                     }
                 )
+                .ignoresSafeArea()
+            }
+            .onChange(of: pickedPhoto) { newPhoto in
+                guard let newPhoto else { return }
+                Task {
+                    do {
+                        guard let data = try await newPhoto.loadTransferable(type: Data.self),
+                              let image = UIImage(data: data)
+                        else {
+                            message = "This photo could not be read. Try another image or attach the file."
+                            return
+                        }
+                        addPage(image)
+                    } catch {
+                        message = "Unable to open photo: \(error.localizedDescription)"
+                    }
+                    pickedPhoto = nil
+                }
             }
             .fileImporter(isPresented: $importerVisible, allowedContentTypes: [.pdf, .image, .data], allowsMultipleSelection: false) { result in
                 switch result {
@@ -231,13 +264,27 @@ struct MobileCaptureComposer: View {
         }
     }
 
+    private func addPage(_ image: UIImage) {
+        guard scannedPages.count < 12 else {
+            message = CaptureProblem.tooManyPages.localizedDescription
+            return
+        }
+        let reduced = MobilePhotoProcessing.normalized(image)
+        scannedPages.append(reduced)
+        detect([reduced])
+    }
+
     private func detect(_ pages: [UIImage]) {
         detectingText = true
         OnDeviceDocumentOCR.recognize(pages) { result in
             detectingText = false
             switch result {
-            case .success(let text): extracted = text
-            case .failure(let error): message = "Unable to read text: \(error.localizedDescription). You can still enter all fields manually."
+            case .success(let text):
+                if !text.isEmpty {
+                    extracted += (extracted.isEmpty ? "" : "\n--- NEXT PAGE ---\n") + text
+                }
+            case .failure(let error):
+                message = "Text recognition unavailable: \(error.localizedDescription). You can still enter the fields manually."
             }
         }
     }
