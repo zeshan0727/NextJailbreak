@@ -1,0 +1,7 @@
+run_id=40197491008
+outcome=success
+publish=success
+commit=dcdf7a310db73e85b111840f99aca99a60de3016
+version=0.4.1
+build=5
+branch=accountants-mobile-v0.4.1-scanner-company-fix
