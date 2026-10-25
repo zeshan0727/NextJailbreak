@@ -1,4 +1,4 @@
-# AccountantsNext Mobile — v0.3.0 (build 3)
+# AccountantsNext Mobile — 0.4.1 (build 5)
 
 Native SwiftUI iOS 16+ mobile companion for Windows AccountantsNext. Bundle ID \`com.nextsolution.accountantsmobile\` is unchanged to preserve installed app data and receipt drafts.
 
@@ -38,3 +38,15 @@ The same standard applies to Payments: existing PC-generated receipts can be acc
 
 ## Known limitations / next gate
 A verified current Windows Manager Reporting XLSX from at least one entity, an actual backup manifest, and the matching .NET report generation source are needed for native mobile **generation** to be byte/format equivalent, including formula engine and voucher approval formats. Current version exports **original PC files**, not newly built lookalikes.
+
+
+## 0.4.1 crash and company-selector repair
+- Replaces the v0.4.0 VisionKit document-camera controller with iOS 16 UIKit photo capture; photo-library selection is supported as a fallback. Camera is launched only when reported available; scanned pages are downsized before OCR.
+- Adds multi-page capture by repeatedly taking a photo, plus **Clear pages**.
+- Retains on-device Vision text recognition (no remote upload).
+- Company selector is restricted to the **seven operational entities** in Windows 6.1.25 OperationalEntityPolicy.cs: Barjous, Atelier Home, Erada Fitness, North Sports, The Graphitees, Stone Cafe and Levante Bags, including exact source aliases.
+- Historical and non-operational rows remain in the imported read-only SQLite database; they are not deleted. A disallowed old selection is reset to the first valid operational company.
+- Existing mobile backup, queued PC requests, attached evidence, and receipt drafts are preserved by unchanged bundle ID and storage paths.
+- This release does not enable live synchronization or bypass desktop approval.
+
+Testing on device: verify camera permission/launch, take 2 photos, run OCR, save a PC request, reopen app, verify retained capture, photo-library alternative, and the seven-company filter after backup import. An iPhone crash log is still required to definitively identify the original VisionKit crash.
