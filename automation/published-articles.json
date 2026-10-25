@@ -4872,29 +4872,45 @@
       "version": "2.4"
     },
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/adytum-2-1-official-interface.jpg",
+          "media_alt": "Official Adytum settings screenshot with toggles for its four backgrounding modes and toast duration",
+          "media_credit": "Kernelrw/Chariz — official Adytum app-interface screenshot",
+          "media_git_blob_sha": "1cee5c9315a652fb56b4dadedca205898c3638cf",
+          "media_sha256": "fbed85bf6b4229e775699bc8449c7bb468cace34341bc8a95b3a9ed8fca6a225",
+          "media_source_url": "https://cdn.chariz.cloud/asset/adytum/IDPFlIOvZTXJ4_YUW7mcQ3Hc5wlUIHEJ/assets/trwqDIsk4_o6TJVlrlEkh5cI5-2W5YG2d36qAiGNqm-MJ-sdMdt9qwRRwAbFe_Y5n6OTtFx6AI59CX5bQLy6sQ.jpg"
+        }
+      ],
       "category": {
-        "id": "system-utilities",
-        "label": "System & Utilities"
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
       },
-      "description": "Adytum 1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
-      "entry_type": "source-news",
+      "compat": "The live Chariz page lists iOS 15.0–26.0 with a jailbreak required. Version 2.2.1 declares full iOS 26.x support; package compatibility does not prove jailbreak availability for every device or firmware. RootHide and Relaxin users are directed to a pure arm64e build or RootHide Patcher.",
+      "description": "Adytum 3.0 restores a Control Center menu for frontmost apps and fixes upside-down orientation after version 2.2.1 added full iOS 26 support.",
+      "entry_type": "individual-update",
       "href": "adytum-1-0-update/",
-      "image": "assets/articles/source-media/adytum-1-0-update-976f430bd5.png",
-      "media_credit": "Source visual from github.com",
-      "media_source_url": "https://github.com/solutions/industry/nonprofits",
-      "modified_at": "2026-09-14T06:05:26+00:00",
+      "image": "assets/articles/source-media/adytum-2-1-official-chariz-banner.jpg",
+      "media_alt": "Official Adytum banner showing its backgrounding modes in an iPhone Home Screen context menu",
+      "media_credit": "Kernelrw/Chariz — official Adytum product banner and interface screenshot",
+      "media_git_blob_sha": "82eccd391e6bdfd3a81533c74e201865d37bcdb6",
+      "media_retrieval_status": "Official Chariz product banner and app-interface screenshot retrieved directly, inspected, stored locally and embedded in the article and social metadata.",
+      "media_sha256": "91db6ca65f35d2c5b820b293e644630e7b65466f1fcabad7f0e7f06f0257d820",
+      "media_source_url": "https://img.chariz.cloud/sileo-banner/adytum.jpg",
+      "modified_at": "2026-10-25T12:57:03Z",
       "name": "Adytum",
       "package": "com.kernelrw.adytum",
       "published_at": "2026-09-14T06:05:26+00:00",
       "quality_target": 9,
-      "selection_pool": "ios-repo-discovery-original-source",
-      "source_name": "repo.chariz.com",
-      "source_page_url": "https://repo.chariz.com/Packages",
-      "source_url": "https://repo.chariz.com/Packages",
-      "source_visual_origin": "og:image",
-      "source_visual_url": "https://images.ctfassets.net/8aevphvgewt8/13gbPJohG1jk7UxCJrZnqi/c2fbea2d98cc16915aa763a8f3cc70bc/fdb535fdfac20d0b031ca1630e54229640674dd8b1ee1cfda23506c9d2380a32-1200x630.png",
-      "title": "Adytum 1.0 brings four-mode backgrounding controls to jailbroken iOS 15–17.7 devices",
-      "version": "1.0"
+      "release": "Adytum 3.0 — October 18, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Adytum Chariz product page, version history and public repository index",
+      "source_page_url": "https://chariz.com/get/adytum/",
+      "source_url": "https://chariz.com/get/adytum/changelog",
+      "source_visual_origin": "official-chariz-banner-and-interface-screenshot",
+      "source_visual_url": "https://img.chariz.cloud/sileo-banner/adytum.jpg",
+      "title": "Adytum 3.0 Restores Control Center Access and Fixes Rotation",
+      "version": "3.0"
     },
     {
       "article_sha256": "38a32bb6fd6cbe507945cba3e723ef39b74267e5f4be5e7923e784a03827bf70",
@@ -9007,10 +9023,20 @@
       "published_at": "2026-10-25T08:55:35Z",
       "run_id": "scheduled-2026-10-25T08:55:35Z",
       "version": "ElleKit 1.2 official repo package / libhooker 1.6.9 OSS snapshot / current Substitute source"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "adytum-1-0-update/",
+      "package": "com.kernelrw.adytum",
+      "previous_version": "1.0",
+      "published_at": "2026-10-25T12:57:03Z",
+      "run_id": "scheduled-2026-10-25T12:57:03Z",
+      "version": "3.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-25T08:55:35Z"
+  "updated_at": "2026-10-25T12:57:03Z"
 }
 
 
