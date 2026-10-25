@@ -181,7 +181,7 @@ final class MobileStore: ObservableObject {
         )
         let manifest = try JSONEncoder().encode(info)
         try manifest.write(to: incoming.appendingPathComponent("MobileSnapshotInfo.json"), options: [.atomic, .completeFileProtection])
-        SnapshotSafety.protect(incoming)
+        try SnapshotSafety.protect(incoming)
         importStage = "Switching verified snapshots"
 
         // All validation is completed before touching the current snapshot.
