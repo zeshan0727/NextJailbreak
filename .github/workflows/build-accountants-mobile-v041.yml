@@ -1,0 +1,113 @@
+name: Build AccountantsNext Mobile 0.4.1
+
+on:
+  push:
+    branches: [accountants-mobile-v0.4.1-scanner-company-fix]
+    paths:
+      - "AccountantsMobile/**"
+      - ".github/workflows/build-accountants-mobile-v041.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: accountants-mobile-v041
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 50
+    steps:
+      - name: Checkout mobile sources
+        uses: actions/checkout@v4
+
+      - name: Compile iOS 16 application and package IPA / TIPA
+        id: compile
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          bash AccountantsMobile/build.sh
+
+      - name: Upload compiled app and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AccountantsMobile-0.4.1
+          if-no-files-found: warn
+          path: |
+            AccountantsMobile/dist/AccountantsMobile-0.4.1.tipa
+            AccountantsMobile/dist/AccountantsMobile-0.4.1.ipa
+            AccountantsMobile/dist/AccountantsMobile-0.4.1-source.zip
+            AccountantsMobile/dist/SHA256SUMS.txt
+            AccountantsMobile/dist/xcodebuild.log
+            AccountantsMobile/dist/binary.txt
+
+      - name: Publish successful build to NS Transfer
+        id: publish
+        if: steps.compile.outcome == 'success'
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          PUBLISH=/tmp/accountants-mobile-v041-publish
+          git worktree add -b "mobile-publish-$GITHUB_RUN_ID" "$PUBLISH" origin/main
+          mkdir -p "$PUBLISH/transfer/files/AccountantsMobile/0.4.1"
+          cp AccountantsMobile/dist/AccountantsMobile-0.4.1.tipa "$PUBLISH/transfer/files/AccountantsMobile/0.4.1/"
+          cp AccountantsMobile/dist/AccountantsMobile-0.4.1.ipa "$PUBLISH/transfer/files/AccountantsMobile/0.4.1/"
+          cp AccountantsMobile/dist/SHA256SUMS.txt "$PUBLISH/transfer/files/AccountantsMobile/0.4.1/"
+          cd "$PUBLISH"
+          python3 - <<'PY'
+          import json, hashlib, datetime, pathlib
+          path = pathlib.Path("transfer/index.json")
+          data = json.loads(path.read_text())
+          ipa = pathlib.Path("transfer/files/AccountantsMobile/0.4.1/AccountantsMobile-0.4.1.tipa")
+          sha = hashlib.sha256(ipa.read_bytes()).hexdigest()
+          entry = {
+              "id": "accountants-mobile-0.4.1-manager-backup",
+              "name": "AccountantsNext Mobile 0.4.1 — Scanner Repair, HR, Payments, Reports & Zee",
+              "fileName": ipa.name,
+              "type": "tipa",
+              "platform": "TrollStore / iOS 16+",
+              "version": "0.4.1",
+              "url": "https://nextjailbreak.com/transfer/files/AccountantsMobile/0.4.1/" + ipa.name,
+              "sha256": sha,
+              "sizeBytes": ipa.stat().st_size,
+              "notes": "iOS 16 UIKit camera crash workaround, Photos picker fallback, multi-page OCR, and seven operational company filter matched to Windows. Captures and other features retained. Device validation required."
+          }
+          data["files"] = [entry] + [item for item in data.get("files", []) if item.get("id") != entry["id"]]
+          data["updatedAt"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+          PY
+          git add transfer/index.json transfer/files/AccountantsMobile/0.4.1
+          git commit -m "Publish AccountantsNext Mobile 0.4.1 to NS Transfer"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Publish independent build status
+        if: always()
+        env:
+          COMPILE_RESULT: ${{ steps.compile.outcome }}
+          PUBLISH_RESULT: ${{ steps.publish.outcome }}
+        run: |
+          set -euo pipefail
+          STATUS=/tmp/accountants-mobile-v041-status
+          mkdir -p "$STATUS"
+          printf 'run_id=%s\noutcome=%s\npublish=%s\ncommit=%s\nversion=0.4.1\nbuild=5\nbranch=accountants-mobile-v0.4.1-scanner-company-fix\n' \
+            "$GITHUB_RUN_ID" "$COMPILE_RESULT" "$PUBLISH_RESULT" "$GITHUB_SHA" > "$STATUS/latest-run.txt"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git reset --hard HEAD
+          git switch --orphan accountants-mobile-v041-status
+          git rm -rf --quiet . || true
+          cp "$STATUS/latest-run.txt" latest-run.txt
+          git add latest-run.txt
+          git commit -m "Record AccountantsNext Mobile 0.3 build result"
+          git push --force origin HEAD:refs/heads/accountants-mobile-v041-status
+
+      - name: Fail if iOS compilation or publish failed
+        if: steps.compile.outcome != 'success' || steps.publish.outcome != 'success'
+        run: exit 1
