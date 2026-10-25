@@ -94,34 +94,7 @@ final class ReceiptDraftStore: ObservableObject {
         return fm.fileExists(atPath: path.path) ? path : nil
     }
 
-    func makePDF(_ draft: ReceiptDraft) throws -> URL {
-        let temp = fm.temporaryDirectory.appendingPathComponent("Receipt-Draft-\(draft.id.uuidString).pdf")
-        let bounds = CGRect(x: 0, y: 0, width: 595, height: 842)
-        let pdf = UIGraphicsPDFRenderer(bounds: bounds)
-        let format = DateFormatter()
-        format.dateStyle = .medium
-        try pdf.writePDF(to: temp) { context in
-            context.beginPage()
-            func draw(_ value: String, y: CGFloat, size: CGFloat = 12, bold: Bool = false) {
-                let font = bold ? UIFont.systemFont(ofSize: size, weight: .semibold) : UIFont.systemFont(ofSize: size)
-                let attr: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: UIColor.black]
-                (value as NSString).draw(in: CGRect(x: 48, y: y, width: 500, height: 46), withAttributes: attr)
-            }
-            draw("AccountantsNext", y: 44, size: 25, bold: true)
-            draw("RECEIPT VOUCHER — LOCAL DRAFT", y: 87, size: 14, bold: true)
-            draw("Not posted to the Windows accounting system", y: 112, size: 10)
-            draw("Company: \(draft.company)", y: 160)
-            draw("Date: \(format.string(from: draft.date))", y: 191)
-            draw("Received From: \(draft.receivedFrom)", y: 222)
-            draw("Received By: \(draft.receivedBy)", y: 253)
-            draw("Amount: \(draft.currency) \(String(format: "%.2f", draft.amount))", y: 284, size: 16, bold: true)
-            draw("Purpose: \(draft.purpose)", y: 326)
-            draw("Notes: \(draft.notes)", y: 360)
-            draw("Supporting attachments: \(draft.attachments.count)", y: 424)
-            draw("Draft ID: \(draft.id.uuidString)", y: 745, size: 9)
-        }
-        return temp
-    }
+
 }
 enum DraftError: LocalizedError {
     case invalidFields, oversize, invalidAttachment, unreadableExistingData
@@ -251,13 +224,11 @@ struct ReceiptDraftDetail: View {
                     }
                 }
             }
-            Section {
-                Button {
-                    do { shareURL = try store.makePDF(draft) }
-                    catch { errorMessage = error.localizedDescription }
-                } label: {
-                    Label("Export draft PDF", systemImage: "square.and.arrow.up")
-                }
+            Section("Desktop-compatible export") {
+                Label("PC format only", systemImage: "lock.shield")
+                    .foregroundStyle(.secondary)
+                Text("This receipt is an unposted iPhone draft. The desktop receipt template and numbering service have not been imported, so a substitute PDF is deliberately not generated. Supporting files can still be shared unchanged.")
+                    .font(.footnote).foregroundStyle(.secondary)
             }
         }
         .navigationTitle("Receipt Draft")
