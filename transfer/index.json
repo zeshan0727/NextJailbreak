@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-25T11:37:03Z",
+  "updatedAt": "2026-10-25T11:40:35Z",
   "files": [
     {
       "id": "accountants-mobile-0.2.0-four-modules",
@@ -10,7 +10,7 @@
       "platform": "TrollStore / iOS 16+",
       "version": "0.2.0",
       "url": "https://nextjailbreak.com/transfer/files/AccountantsMobile/0.2.0/AccountantsMobile-0.2.0.tipa",
-      "sha256": "212b172f5855d48f8aa9ba82260d6d820b00bfd340b43f86ae4fe385555029d3",
+      "sha256": "cc5821613af7531ec0d1a171479877f7aec92b72b39f2c2175c75f299af4cb4d",
       "sizeBytes": 1941364,
       "notes": "Four-module iOS companion. Read-only Windows snapshot import, protected on-device receipt drafts, local Zee search. No live sync or remote AI. Mac CI build; on-device testing required."
     },

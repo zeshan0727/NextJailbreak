@@ -1,3 +1,3 @@
-212b172f5855d48f8aa9ba82260d6d820b00bfd340b43f86ae4fe385555029d3  AccountantsMobile-0.2.0.tipa
-212b172f5855d48f8aa9ba82260d6d820b00bfd340b43f86ae4fe385555029d3  AccountantsMobile-0.2.0.ipa
-392f42782f3a76551efd5651a731fb1f3d419df52811bff5048b8c175bd31b73  AccountantsMobile-0.2.0-source.zip
+cc5821613af7531ec0d1a171479877f7aec92b72b39f2c2175c75f299af4cb4d  AccountantsMobile-0.2.0.tipa
+cc5821613af7531ec0d1a171479877f7aec92b72b39f2c2175c75f299af4cb4d  AccountantsMobile-0.2.0.ipa
+4e07adc941b4fbaaabe21316d85a804c9d3e485bef45cbbd8afa64dc261302ae  AccountantsMobile-0.2.0-source.zip
