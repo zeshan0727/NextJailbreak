@@ -2,7 +2,7 @@ name: Build AccountantsNext Mobile 0.4.0
 
 on:
   push:
-    branches: [accountants-mobile-v0.4.0-manager-backup]
+    branches: [accountants-mobile-v0.4.0-capture-outbox]
     paths:
       - "AccountantsMobile/**"
       - ".github/workflows/build-accountants-mobile-v040.yml"
@@ -96,7 +96,7 @@ jobs:
           set -euo pipefail
           STATUS=/tmp/accountants-mobile-v040-status
           mkdir -p "$STATUS"
-          printf 'run_id=%s\noutcome=%s\npublish=%s\ncommit=%s\nversion=0.4.0\nbuild=4\nbranch=accountants-mobile-v0.4.0-manager-backup\n' \
+          printf 'run_id=%s\noutcome=%s\npublish=%s\ncommit=%s\nversion=0.4.0\nbuild=4\nbranch=accountants-mobile-v0.4.0-capture-outbox\n' \
             "$GITHUB_RUN_ID" "$COMPILE_RESULT" "$PUBLISH_RESULT" "$GITHUB_SHA" > "$STATUS/latest-run.txt"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
