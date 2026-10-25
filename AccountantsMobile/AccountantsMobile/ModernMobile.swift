@@ -185,7 +185,8 @@ struct MobileCompanyPicker: View {
 }
 
 struct MobileCard<Content: View>: View {
-    @ViewBuilder var content: Content
+    let content: Content
+    init(@ViewBuilder content: () -> Content) { self.content = content() }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) { content }
             .padding(16)
@@ -445,7 +446,7 @@ struct ModernPaymentsView: View {
             .background(MobilePalette.canvas)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button { showingForm = true } label: { Image(systemName: "plus.circle.fill").font(.title3) }
                 }
             }
@@ -539,7 +540,7 @@ struct ModernCompanyView: View {
             }
             .background(MobilePalette.canvas)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button { showSettings = true } label: { Image(systemName: "gearshape") }
                 }
             }
