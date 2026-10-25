@@ -4124,25 +4124,27 @@
         "id": "jailbreak",
         "label": "Jailbreak"
       },
-      "description": "Explore palera1n 3.0.0 beta 2: GUI controls for DFU and PongoOS, quick-mode fixes, macOS improvements, official downloads and hardware limits.",
+      "description": "palera1n 3.0.0 beta 3 adds a recovery-mode CLI DFU helper, experimental Linux AppImages with GUI, a macOS Liquid Glass icon and corrected CLI credits.",
       "entry_type": "source-news",
       "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
-      "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-a4961ba476.png",
-      "media_credit": "Source visual from github.com",
-      "media_source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.1",
-      "modified_at": "2026-09-22T06:21:05+00:00",
+      "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
+      "media_credit": "palera1n team — official beta 3 GUI screenshot from the tagged source",
+      "media_retrieval_status": "Retrieved from the official v3.0.0-beta.3 tagged repository, inspected, stored locally and embedded in the article and social metadata.",
+      "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
+      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
+      "modified_at": "2026-10-25T00:58:24Z",
       "name": "palera1n",
       "package": "palera1n-gui-beta2",
       "published_at": "2026-09-22T06:21:05+00:00",
       "quality_target": 9,
       "selection_pool": "user-authorized-six-article-batch-20260921",
       "source_name": "github.com",
-      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
-      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
-      "source_visual_origin": "og:image",
-      "source_visual_url": "https://opengraph.githubassets.com/5bb59012a666c5d15ad5a34f1c1c47ecb5d33791f65468d391fb7bc987906525/palera1n/palera1n/releases/tag/v3.0.0-beta.1",
-      "title": "palera1n 3.0.0 Beta 2: GUI Changes and DFU Fixes Explained",
-      "version": "3.0.0"
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source_visual_origin": "official-tagged-repository-screenshot",
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
+      "title": "palera1n 3.0.0 Beta 3 Adds Linux AppImages and a CLI DFU Helper",
+      "version": "3.0.0-beta.3"
     },
     {
       "additional_media": [
@@ -8912,10 +8914,20 @@
       "published_at": "2026-10-24T20:56:36Z",
       "run_id": "scheduled-2026-10-24T20:56:36Z",
       "version": "Tag 28 / 3.x source / no binary asset"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
+      "package": "palera1n-gui-beta2",
+      "previous_version": "3.0.0-beta.2",
+      "published_at": "2026-10-25T00:58:24Z",
+      "run_id": "scheduled-2026-10-25T00:58:24Z",
+      "version": "3.0.0-beta.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-24T20:56:36Z"
+  "updated_at": "2026-10-25T00:58:24Z"
 }
 
 
