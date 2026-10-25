@@ -2,7 +2,7 @@ name: Build AccountantsNext Mobile 0.3.0
 
 on:
   push:
-    branches: [accountants-mobile-v0.3.0-four-modules]
+    branches: [accountants-mobile-v0.3.0-manager-backup]
     paths:
       - "AccountantsMobile/**"
       - ".github/workflows/build-accountants-mobile-v030.yml"
@@ -96,7 +96,7 @@ jobs:
           set -euo pipefail
           STATUS=/tmp/accountants-mobile-v030-status
           mkdir -p "$STATUS"
-          printf 'run_id=%s\noutcome=%s\npublish=%s\ncommit=%s\nversion=0.3.0\nbuild=3\nbranch=accountants-mobile-v0.3.0-four-modules\n' \
+          printf 'run_id=%s\noutcome=%s\npublish=%s\ncommit=%s\nversion=0.3.0\nbuild=3\nbranch=accountants-mobile-v0.3.0-manager-backup\n' \
             "$GITHUB_RUN_ID" "$COMPILE_RESULT" "$PUBLISH_RESULT" "$GITHUB_SHA" > "$STATUS/latest-run.txt"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -105,7 +105,7 @@ jobs:
           git rm -rf --quiet . || true
           cp "$STATUS/latest-run.txt" latest-run.txt
           git add latest-run.txt
-          git commit -m "Record AccountantsNext Mobile 0.2 build result"
+          git commit -m "Record AccountantsNext Mobile 0.3 build result"
           git push --force origin HEAD:refs/heads/accountants-mobile-v030-status
 
       - name: Fail if iOS compilation or publish failed
