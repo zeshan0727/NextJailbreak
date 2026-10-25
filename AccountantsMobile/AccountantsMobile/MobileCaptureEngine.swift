@@ -1,5 +1,4 @@
 import SwiftUI
-import VisionKit
 import Vision
 import CryptoKit
 import ZIPFoundation
@@ -251,28 +250,50 @@ enum OnDeviceDocumentOCR {
     }
 }
 
-struct DocumentScanner: UIViewControllerRepresentable {
-    var onScan: ([UIImage]) -> Void
+// Intentionally avoid VNDocumentCameraViewController. That presentation crashes on
+// some side-loaded/TrollStore iOS 16 builds even though the Vision text recognizer
+// and normal camera/photo picker remain usable. UIKit camera is an independent fallback.
+struct SafeCameraCapture: UIViewControllerRepresentable {
+    var onPhoto: (UIImage?) -> Void
     var onFailure: (String) -> Void
+
     func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
-    func makeUIViewController(context: Context) -> VNDocumentCameraViewController {
-        let view = VNDocumentCameraViewController()
-        view.delegate = context.coordinator
-        return view
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.cameraCaptureMode = .photo
+        picker.allowsEditing = false
+        picker.delegate = context.coordinator
+        return picker
     }
-    func updateUIViewController(_ uiViewController: VNDocumentCameraViewController, context: Context) {}
-    final class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
-        let parent: DocumentScanner
-        init(parent: DocumentScanner) { self.parent = parent }
-        func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
-            parent.onScan((0..<scan.pageCount).map { scan.imageOfPage(at: $0) })
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: SafeCameraCapture
+        init(parent: SafeCameraCapture) { self.parent = parent }
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            let photo = info[.originalImage] as? UIImage
+            DispatchQueue.main.async { self.parent.onPhoto(photo) }
         }
-        func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {
-            parent.onScan([])
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            DispatchQueue.main.async { self.parent.onPhoto(nil) }
         }
-        func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFailWithError error: Error) {
-            parent.onFailure(error.localizedDescription)
-        }
+    }
+}
+
+enum MobilePhotoProcessing {
+    // Downsample before holding multiple pages in memory or running Vision OCR.
+    static func normalized(_ image: UIImage, maximumDimension: CGFloat = 1800) -> UIImage {
+        let current = image.size
+        guard current.width > 0, current.height > 0 else { return image }
+        let factor = min(1.0, maximumDimension / max(current.width, current.height))
+        let target = CGSize(width: max(1, current.width * factor),
+                            height: max(1, current.height * factor))
+        let renderer = UIGraphicsImageRenderer(size: target)
+        return renderer.image { _ in image.draw(in: CGRect(origin: .zero, size: target)) }
     }
 }
 
