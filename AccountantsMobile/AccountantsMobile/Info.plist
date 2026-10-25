@@ -8,8 +8,9 @@
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
     <key>CFBundleName</key><string>AccountantsNext</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.3.0</string>
-    <key>CFBundleVersion</key><string>3</string>
+    <key>CFBundleShortVersionString</key><string>0.4.0</string>
+    <key>CFBundleVersion</key><string>4</string>
+    <key>NSCameraUsageDescription</key><string>Scan supporting documents to prepare payment and receipt requests on your iPhone.</string>
     <key>NSFaceIDUsageDescription</key><string>Face ID protects company, employee and payment records.</string>
     <key>LSRequiresIPhoneOS</key><true/>
     <key>UIFileSharingEnabled</key><true/>
