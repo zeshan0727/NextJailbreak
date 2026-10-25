@@ -2,6 +2,38 @@
   "entries": [
     {
       "category": {
+        "id": "roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "These frameworks are jailbreak-integrated runtime components, not standalone jailbreaks. ElleKit documents arm64 XNU support with testing on iOS 15–27 arm64 and iOS 15–17 arm64e; libhooker and Substitute compatibility must be taken from the bootstrap that ships them.",
+      "description": "Compare ElleKit, libhooker and Substitute by API compatibility, jailbreak integration and architecture—and learn why you usually should not switch injectors.",
+      "developer": "Evelyne / CoolStar / comex and Sam Bingner",
+      "entry_type": "roundup-comparison",
+      "href": "ellekit-vs-libhooker-vs-substitute-tweak-injection-comparison/",
+      "image": "assets/articles/source-media/ellekit-official-logo-cropped.png",
+      "media_alt": "Official ElleKit pale pink project artwork with overlapping rounded petal shapes",
+      "media_credit": "ElleKit project — official artwork from the repository that builds ellekit.space",
+      "media_git_blob_sha": "cfb0082958c9b511c8c812d08b21e4b0e85ea670",
+      "media_retrieval_status": "Exact official source-repository artwork inspected locally and embedded in the article, listings and social metadata.",
+      "media_sha256": "e3be863e6bce9f6f74127175d09a6030a5c18403f066fbf0e3e36c04e387ea53",
+      "media_source_url": "https://raw.githubusercontent.com/dhinakg/ellekit-official/762e68ae9948392d0f4c21d20d2433ff6a008f9b/static/logos/logo-cropped.png",
+      "modified_at": "2026-10-25T08:55:35Z",
+      "name": "ElleKit vs libhooker vs Substitute tweak injection comparison",
+      "package": "comparison.ellekit-libhooker-substitute",
+      "published_at": "2026-10-25T08:55:35Z",
+      "quality_target": 9,
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "ellekit-vs-libhooker-vs-substitute-tweak-injection-comparison",
+      "source_name": "Official ElleKit, libhooker and Substitute source repositories",
+      "source_page_url": "https://github.com/tealbathingsuit/ellekit",
+      "source_url": "https://github.com/dhinakg/ellekit-official",
+      "source_visual_origin": "official-project-repository-artwork",
+      "source_visual_url": "https://github.com/dhinakg/ellekit-official/blob/762e68ae9948392d0f4c21d20d2433ff6a008f9b/static/logos/logo-cropped.png",
+      "title": "ElleKit vs libhooker vs Substitute: Which Tweak Injector Should You Use?",
+      "version": "ElleKit 1.2 official repo package / libhooker 1.6.9 OSS snapshot / current Substitute source"
+    },
+    {
+      "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
@@ -8966,10 +8998,19 @@
       "published_at": "2026-10-25T04:57:24Z",
       "run_id": "scheduled-2026-10-25T04:57:24Z",
       "version": "Official guide revision 2026-10-25 / palera1n rootless flow"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "ellekit-vs-libhooker-vs-substitute-tweak-injection-comparison/",
+      "package": "comparison.ellekit-libhooker-substitute",
+      "published_at": "2026-10-25T08:55:35Z",
+      "run_id": "scheduled-2026-10-25T08:55:35Z",
+      "version": "ElleKit 1.2 official repo package / libhooker 1.6.9 OSS snapshot / current Substitute source"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-25T04:57:24Z"
+  "updated_at": "2026-10-25T08:55:35Z"
 }
 
 
