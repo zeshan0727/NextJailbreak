@@ -123,13 +123,17 @@ enum SnapshotSafety {
         return db
     }
 
-    static func protect(_ root: URL) {
+    static func protect(_ root: URL) throws {
         let fm = FileManager.default
-        for path in [root,
-                     root.appendingPathComponent("Data"),
-                     root.appendingPathComponent("Data/AccountantsNext.db")] {
-            guard fm.fileExists(atPath: path.path) else { continue }
-            try? fm.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: path.path)
+        guard let walker = fm.enumerator(
+            at: root, includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else { throw SnapshotSafetyError.unsafeArchive }
+
+        // Protect every restored document, not just AccountantsNext.db.
+        for case let path as URL in walker {
+            try fm.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: path.path)
         }
+        try fm.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: root.path)
     }
 }
