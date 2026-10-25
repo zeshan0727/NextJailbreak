@@ -28,6 +28,7 @@ struct MobileV2Root: View {
     @EnvironmentObject private var store: MobileStore
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var drafts = ReceiptDraftStore()
+    @StateObject private var captures = CaptureInbox()
     @State private var showingImporter = false
     @State private var locked = true
     @State private var authenticationMessage = ""
@@ -48,6 +49,7 @@ struct MobileV2Root: View {
             }
             .tint(MobilePalette.accent)
             .environmentObject(drafts)
+            .environmentObject(captures)
             if locked {
                 lockScreen
                     .transition(.opacity)
@@ -357,9 +359,12 @@ struct LeaveDetailView: View {
 struct ModernPaymentsView: View {
     @EnvironmentObject private var store: MobileStore
     @EnvironmentObject private var drafts: ReceiptDraftStore
+    @EnvironmentObject private var captures: CaptureInbox
     @State private var section = 0
     @State private var query = ""
     @State private var showingForm = false
+    @State private var showingCapture = false
+    @State private var captureKind: CaptureKind = .payment
 
     private var filteredRows: [PaymentRow] {
         let data = section == 0 ? store.payments : store.receipts
@@ -373,8 +378,16 @@ struct ModernPaymentsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    MobileModuleHeader(title: "Payments & Receipts", subtitle: "Vouchers and secure local receipt drafts")
+                    MobileModuleHeader(title: "Payments & Receipts", subtitle: "Scan on iPhone • review • prepare for the Windows system")
                     MobileCompanyPicker()
+                    HStack(spacing: 8) {
+                        Button { captureKind = .payment; showingCapture = true } label: {
+                            Label("Scan PV", systemImage: "doc.viewfinder").frame(maxWidth: .infinity)
+                        }.buttonStyle(.borderedProminent).tint(MobilePalette.accent)
+                        Button { captureKind = .receipt; showingCapture = true } label: {
+                            Label("Scan Receipt", systemImage: "viewfinder").frame(maxWidth: .infinity)
+                        }.buttonStyle(.borderedProminent).tint(MobilePalette.accent)
+                    }
                     HStack(spacing: 10) {
                         miniStat(label: "Payments", count: store.payments.count, icon: "arrow.up.right")
                         miniStat(label: "Receipts", count: store.receipts.count, icon: "arrow.down.left")
@@ -384,8 +397,9 @@ struct ModernPaymentsView: View {
                         Text("Payments").tag(0)
                         Text("Receipts").tag(1)
                         Text("Drafts").tag(2)
+                        Text("To PC").tag(3)
                     }.pickerStyle(.segmented)
-                    if section != 2 {
+                    if section == 0 || section == 1 {
                         HStack {
                             Picker("Month", selection: $store.selectedMonth) {
                                 ForEach(1...12, id: \.self) { n in
@@ -402,7 +416,9 @@ struct ModernPaymentsView: View {
                     TextField("Search records", text: $query)
                         .textFieldStyle(.roundedBorder)
                         .autocorrectionDisabled()
-                    if section == 2 {
+                    if section == 3 {
+                        MobileCaptureQueue()
+                    } else if section == 2 {
                         if filteredDrafts.isEmpty {
                             MobileEmpty(title: "No local drafts", detail: "Create a receipt draft without changing Windows data.", symbol: "doc.badge.plus")
                         } else {
@@ -441,7 +457,7 @@ struct ModernPaymentsView: View {
                             }
                         }
                     }
-                    Label("Imported payment records are read-only. New receipts are saved locally as drafts.", systemImage: "lock.shield")
+                    Label("Requests prepared on iPhone are not official vouchers until Windows validates and posts them.", systemImage: "lock.shield")
                         .font(.caption).foregroundStyle(.secondary).padding(.vertical, 8)
                 }
                 .padding(16)
@@ -450,10 +466,21 @@ struct ModernPaymentsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button { showingForm = true } label: { Image(systemName: "plus.circle.fill").font(.title3) }
+                    Menu {
+                        Button { captureKind = .payment; showingCapture = true } label: {
+                            Label("Scan Payment Voucher", systemImage: "doc.viewfinder")
+                        }
+                        Button { captureKind = .receipt; showingCapture = true } label: {
+                            Label("Scan Receipt", systemImage: "viewfinder")
+                        }
+                        Button { showingForm = true } label: {
+                            Label("Manual Receipt Draft", systemImage: "square.and.pencil")
+                        }
+                    } label: { Image(systemName: "plus.circle.fill").font(.title3) }
                 }
             }
             .sheet(isPresented: $showingForm) { ReceiptDraftForm() }
+            .sheet(isPresented: $showingCapture) { MobileCaptureComposer(initialKind: captureKind) }
         }
     }
 
