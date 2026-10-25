@@ -16,6 +16,7 @@ struct MobileCaptureComposer: View {
     @State private var party = ""
     @State private var receivedBy = ""
     @State private var amount = ""
+    @State private var currency = "QAR"
     @State private var date = Date()
     @State private var reference = ""
     @State private var against = "Other"
@@ -126,7 +127,9 @@ struct MobileCaptureComposer: View {
                         TextField("Received By", text: $receivedBy).textInputAutocapitalization(.words)
                     }
                     HStack {
-                        Text(workspace.selectedEntity?.currency ?? "QAR").foregroundStyle(.secondary)
+                        Picker("Currency", selection: $currency) {
+                            ForEach(["QAR", "USD", "EUR", "GBP", "SAR", "AED"], id: \.self) { code in Text(code).tag(code) }
+                        }.labelsHidden()
                         TextField("Amount", text: $amount)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
@@ -187,6 +190,10 @@ struct MobileCaptureComposer: View {
                 }
             }
             .navigationTitle(kind == .payment ? "New Payment Voucher" : "New Receipt")
+            .onAppear {
+                let value = workspace.selectedEntity?.currency ?? "QAR"
+                currency = ["QAR", "USD", "EUR", "GBP", "SAR", "AED"].contains(value) ? value : "QAR"
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -244,7 +251,7 @@ struct MobileCaptureComposer: View {
             paymentMethod: paymentMethod, paymentCategory: paymentCategory,
             party: party.trimmingCharacters(in: .whitespacesAndNewlines),
             receivedBy: receivedBy.trimmingCharacters(in: .whitespacesAndNewlines),
-            amount: value, currency: company.currency.isEmpty ? "QAR" : company.currency,
+            amount: value, currency: currency,
             transactionDate: date,
             reference: reference.trimmingCharacters(in: .whitespacesAndNewlines),
             against: against.trimmingCharacters(in: .whitespacesAndNewlines),
