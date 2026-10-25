@@ -1,0 +1,7 @@
+run_id=40195960909
+outcome=success
+publish=success
+commit=8eb030caed8d42c7d9c9494853a678d8d4d64a09
+version=0.4.0
+build=4
+branch=accountants-mobile-v0.4.0-capture-outbox
