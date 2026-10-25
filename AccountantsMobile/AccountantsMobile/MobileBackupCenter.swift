@@ -87,7 +87,7 @@ struct MobileBackupCenter: View {
             }
 
             Section {
-                LabeledContent("App version", value: "0.3.0 (3)")
+                LabeledContent("App version", value: "0.4.1 (5)")
             }
         }
         .navigationTitle("Backup & Recovery")
