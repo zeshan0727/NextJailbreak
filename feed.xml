@@ -5,6 +5,14 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <item>
+      <title>vphone-cli 2.13.4 Adds Guest Scripting and Fixes Debug Session</title>
+      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
+      <pubDate>Sun, 25 Oct 2026 21:03:32 GMT</pubDate>
+      <description>vphone-cli 2.13.4 fixes its new Debug Session window after 2.13.3 added JavaScriptCore guest scripting, a WebSocket terminal and an Objective-C bridge.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
       <title>PodAction 1.0.1 Maps AirPods Gestures to Shortcuts and System Actions</title>
       <link>https://nextjailbreak.com/podaction-1-0-1-airpods-gestures-shortcuts-actions/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/podaction-1-0-1-airpods-gestures-shortcuts-actions/</guid>
@@ -90,14 +98,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/roothide-manager-1-4-varclean-ios-18-26-update/</guid>
       <pubDate>Sat, 24 Oct 2026 01:00:43 GMT</pubDate>
       <description>RootHide Manager 1.4.0 adds guarded, asynchronous varClean scans, validates custom cleanup rules, updates modern iOS paths and changes its privileged install flow.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
-    <item>
-      <title>vphone-cli 2.12.1 Fixes macOS 26 Hosts and Research-Board Booting</title>
-      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
-      <pubDate>Fri, 23 Oct 2026 20:59:00 GMT</pubDate>
-      <description>vphone-cli 2.12.1 validates every guest family on macOS 26.6.2, fixes iOS 18 and watchOS restores, and clarifies which tvOS and HomePod guests require macOS 27.</description>
       <category>Current Jailbreak Development</category>
     </item>
     <language>en</language>
