@@ -1,0 +1,50 @@
+name: Verify Next Accountant Web Preview
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "accountants/**"
+      - ".github/workflows/test-next-accountant-web-preview.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate browser scripts
+        run: |
+          node --check accountants/app.js
+          node --check accountants/project-demo.js
+      - name: Validate ad-free and isolated test flow
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          index=Path('accountants/index.html').read_text()
+          app=Path('accountants/app.js').read_text()
+          pm=Path('accountants/project-demo.js').read_text()
+          assert 'project-demo.js' in index
+          assert index.index('project-demo.js') < index.index('app.js')
+          for forbidden in ['monetag','adsterra','adsbygoogle','googletagmanager','site-runtime.js']:
+              assert forbidden not in index.lower(), forbidden
+          assert 'connect-src' in index and 'script-src' in index
+          assert 'typeof demoModule' in app
+          assert 'sessionStorage.setItem' in pm
+          assert 'allocatedPlan(' in pm and 'allocatedReceipt(' in pm
+          assert 'receiptGenerated' in pm
+          assert 'amountCents' in pm
+          assert 'Unassign' in pm and 'Assign amount' in pm
+          assert 'DEMO WORKSPACE' in pm
+          assert 'fetch(' not in pm, 'Demo must never send customer data to a remote server'
+          assert not re.search(r'(?<!\\)\\nconst API_BASE',app[:200])
+          print('PASS: syntax, ad-free shell, safe local project/receipt demo')
+          PY
