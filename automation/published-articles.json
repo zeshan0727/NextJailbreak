@@ -1,6 +1,63 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/geranium-1-1-4-official-cleaner.png",
+          "media_alt": "Official Geranium Cleaner screen with Safari, general, OTA and leftover app cache options",
+          "media_credit": "c22dev — official Geranium Cleaner screenshot",
+          "media_sha256": "f31313220a13ea3b9ccf7c3473d10e2e3c1da819d518b6819c3745b3417a71e0",
+          "media_source_url": "https://github.com/c22dev/Geranium/assets/102235607/dc1d1818-8248-4c7a-95d7-615b00f280a4"
+        },
+        {
+          "image": "assets/articles/source-media/geranium-1-1-4-official-icon.png",
+          "media_alt": "Official Geranium 1.1.4 app icon",
+          "media_credit": "c22dev — official Geranium tagged source asset",
+          "media_sha256": "57a9ac888eca0a9eb7181f2e9265d3066e1ee4780d04a08dacd795dadf0ae559",
+          "media_source_url": "https://github.com/c22dev/Geranium/blob/1.1.4/Geranium/Assets.xcassets/AppIcon.appiconset/geranium.png"
+        },
+        {
+          "image": "assets/articles/source-media/trollbox-0-2-official-icon.png",
+          "media_alt": "Official TrollBox 0.2 app icon",
+          "media_credit": "c22dev — official TrollBox tagged source asset",
+          "media_sha256": "e0c197f28c4510528f15710bc08e2cfa26e0b1756f31fb4e81af135eda0ef6e4",
+          "media_source_url": "https://github.com/c22dev/TrollBox/blob/0.2/TrollBox/Assets.xcassets/AppIcon.appiconset/Untitled.png"
+        }
+      ],
+      "article_sha256": "feae898ef2d180ebc3fe297c5ea5ef9bc21a48c9f0e9f74e51c2f7c251b7b744",
+      "candidate_fingerprint": "comparison.geranium-1.1.4-trollbox-0.2",
+      "category": {
+        "id": "roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Geranium 1.1.4 requires TrollStore 1.3 or later and iOS 15 or later only where TrollStore supports the exact device and firmware. TrollBox 0.2 requires TrollStore 2.0.7 or later for all features; its repository is archived and development has stopped.",
+      "description": "Compare Geranium 1.1.4 and TrollBox 0.2 by maintenance status, TrollStore requirements, location tools, cleaning, daemon controls and customization.",
+      "developer": "c22dev",
+      "entry_type": "comparison",
+      "href": "geranium-vs-trollbox-trollstore-utility-comparison/",
+      "image": "assets/articles/source-media/geranium-1-1-4-official-home.png",
+      "media_alt": "Official Geranium interface showing Home, Daemons, LocSim, Cleaner and Superviser tabs",
+      "media_credit": "c22dev — official Geranium interface screenshot",
+      "media_retrieval_status": "Exact official Geranium interface screenshots were retrieved from the tagged README assets; exact 1024×1024 Geranium and TrollBox icons were copied from their tagged project source trees.",
+      "media_sha256": "18a2a4e04dafdd59ff9cd9fb250c570a86ee737a61cf2071179be4ee2b7937e4",
+      "media_source_url": "https://github.com/c22dev/Geranium/assets/102235607/ea95158f-1101-496b-b868-c3901db97543",
+      "modified_at": "2026-10-26T09:04:45Z",
+      "name": "Geranium vs TrollBox",
+      "package": "comparison.geranium-trollbox",
+      "published_at": "2026-10-26T09:04:45Z",
+      "quality_target": 9,
+      "release": "Geranium 1.1.4 / TrollBox 0.2 archive status checked 2026-10-26",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "geranium-vs-trollbox-trollstore-utility-comparison",
+      "source_name": "Official c22dev Geranium and TrollBox repositories and releases",
+      "source_page_url": "https://github.com/c22dev/Geranium/releases/tag/1.1.4",
+      "source_url": "https://github.com/c22dev/TrollBox",
+      "source_visual_origin": "official-project-repository-assets",
+      "source_visual_url": "https://github.com/c22dev/Geranium/assets/102235607/ea95158f-1101-496b-b868-c3901db97543",
+      "title": "Geranium vs TrollBox: Which TrollStore Utility Should You Use?",
+      "version": "Geranium 1.1.4 / TrollBox 0.2"
+    },
+    {
       "additional_media": [],
       "article_sha256": "336ab7e7f3a040b9c760090d3389cfd4eab31e43a707f77b6cd2cc481efab9f2",
       "candidate_fingerprint": "comparison.trollstore-2.1.1-appsync-unified-116.0",
@@ -9189,8 +9246,17 @@
       "published_at": "2026-10-26T04:58:03Z",
       "run_id": "scheduled-2026-10-26T04:58:03Z",
       "version": "TrollStore 2.1.1 / AppSync Unified 116.0"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "geranium-vs-trollbox-trollstore-utility-comparison/",
+      "package": "comparison.geranium-trollbox",
+      "published_at": "2026-10-26T09:04:45Z",
+      "run_id": "scheduled-2026-10-26T09:04:45Z",
+      "version": "Geranium 1.1.4 / TrollBox 0.2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-26T04:58:03Z"
+  "updated_at": "2026-10-26T09:04:45Z"
 }
