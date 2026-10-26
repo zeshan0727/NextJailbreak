@@ -1,0 +1,41 @@
+name: Build NextCompat 1.0.1
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'NextCompat/**'
+      - '.github/workflows/nextcompat-build.yml'
+  push:
+    branches:
+      - 'agent/nextcompat-1.0'
+    paths:
+      - 'NextCompat/**'
+      - '.github/workflows/nextcompat-build.yml'
+jobs:
+  ios:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore icon and install XcodeGen
+        run: |
+          cd NextCompat
+          base64 -D -i assets/Assets.xcassets/AppIcon.appiconset/Icon.png.base64 -o assets/Assets.xcassets/AppIcon.appiconset/Icon.png
+          brew install xcodegen
+      - name: Generate and build for iOS 16+
+        run: |
+          cd NextCompat
+          xcodegen generate --spec project.yml
+          xcodebuild -project NextCompat.xcodeproj -scheme NextCompat -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Create TrollStore package
+        run: |
+          cd NextCompat
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/NextCompat.app Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextCompat-1.0.1.tipa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextCompat-1.0.1-TrollStore
+          path: NextCompat/NextCompat-1.0.1.tipa
+          retention-days: 30
