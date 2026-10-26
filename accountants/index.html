@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f8f5ef">
+  <title>Next Accountant — Free Preview</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">NA</div>
+        <div>
+          <strong>Next Accountant</strong>
+          <span>Web Preview</span>
+        </div>
+      </div>
+      <nav id="nav"></nav>
+      <div class="local-badge">LOCAL-ONLY PREVIEW</div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">NEXT ACCOUNTANT WEB</div>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="top-actions">
+          <button class="secondary" id="exportBtn">Export Local Backup</button>
+          <label class="secondary file-label">Import Backup<input id="importFile" type="file" accept=".json,application/json"></label>
+        </div>
+      </header>
+
+      <section class="notice">
+        <strong>Free GitHub phase:</strong> this preview stores test data only in this browser. No company database, documents, passwords or API keys are stored on GitHub.
+      </section>
+
+      <section id="view" class="content"></section>
+    </main>
+  </div>
+
+  <dialog id="entityDialog">
+    <form method="dialog" id="entityForm">
+      <h2>Add test entity</h2>
+      <label>Name<input id="entityName" required maxlength="80" autocomplete="off"></label>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary">Cancel</button>
+        <button value="default" id="saveEntity">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
