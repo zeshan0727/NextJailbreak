@@ -5,7 +5,7 @@ const initialState={version:"0.2.0-browser-demo",entities:[],activeEntityId:null
 let state=load();
 let activePage="Dashboard";
 
-const modules=["Dashboard","Project Management","Payments / Receipts","Manager Reporting","Tasks","HR / Payroll","Settings"];
+const modules=["Dashboard","Project Management","Payments / Receipts","Customer SOA","Manager Reporting","Tasks","HR / Payroll","Settings"];
 const nav=document.getElementById("nav");
 const view=document.getElementById("view");
 const pageTitle=document.getElementById("pageTitle");
@@ -28,6 +28,7 @@ function render(){
   if(activePage==="Dashboard")return dashboard();
   if(activePage==="Settings")return settings();
   if((activePage==="Project Management"||activePage==="Payments / Receipts") && typeof demoModule==="function")return demoModule(activePage);
+  if(activePage==="Customer SOA" && typeof demoSoa==="function")return demoSoa();
   return modulePage(activePage);
 }
 function dashboard(){
@@ -67,6 +68,7 @@ function modulePage(name){
   const desc={
     "Project Management":"Customers, projects, contracts, payment plans, invoices, receipts and SOA will be migrated here first.",
     "Payments / Receipts":"Receipt creation, allocation, optional proof and project/payment-plan assignment will be reproduced here.",
+    "Customer SOA":"Browser-local statement demonstration based on invoices and actual payments; not official Windows/Xero records.",
     "Manager Reporting":"Income statement, balance sheet and manager reports will use the same accounting rules as Windows after reconciliation.",
     "Tasks":"Daily task tracking and reminders will be added after the core accounting migration.",
     "HR / Payroll":"Payroll, leave settlement, SIF and HR controls remain on Windows until the web accounting core is verified."
