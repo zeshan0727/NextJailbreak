@@ -48,6 +48,27 @@ try
     Console.WriteLine($"Business tables: {counts.Count:N0}");
     Console.WriteLine($"Database rows: {counts.Values.Sum():N0}");
     Console.WriteLine($"Business files: {files.Count:N0}");
+    var d1 = await D1Compatibility.InspectAsync(
+        source, verified.DatabasePath, schema, files);
+
+    Console.WriteLine();
+    Console.WriteLine("CLOUDFLARE D1 / R2 COMPATIBILITY");
+    Console.WriteLine($"SQLite DB size: {d1.DatabaseBytes:N0} bytes");
+    Console.WriteLine($"Largest estimated row: {d1.LargestRowBytes:N0} bytes");
+    Console.WriteLine($"Views: {d1.ViewCount} | Triggers: {d1.TriggerCount} | Virtual tables: {d1.VirtualTableCount}");
+    Console.WriteLine($"Foreign key violations: {d1.ForeignKeyViolations}");
+    foreach (var warning in d1.Warnings.Distinct().Take(20))
+        Console.WriteLine("WARNING: " + warning);
+    var blockers = d1.Blockers.Distinct().ToList();
+    foreach (var issue in blockers.Take(40))
+        Console.WriteLine("BLOCKER: " + issue);
+    if (blockers.Count > 40)
+        Console.WriteLine($"... plus {blockers.Count - 40:N0} additional blockers.");
+    if (blockers.Count > 0)
+        return Fail("D1/R2 compatibility preflight found " + blockers.Count +
+            " blocker(s). No cloud writes were performed.");
+    Console.WriteLine("D1/R2 COMPATIBILITY: PASS (static preflight only)");
+
 
     if (prepareOnly)
     {
