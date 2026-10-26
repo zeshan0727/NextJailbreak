@@ -48,7 +48,7 @@ jobs:
           blocked_prefixes = (
               'depictions/', 'applications/', 'DailyLedger/', 'DailyTweaks/',
               'Diagnostics/', 'ModuleGlassPreview/', 'NextPDF/', 'NextPost/',
-              'license/', 'install/', 'support/', 'payment/', 'request/'
+              'license/', 'install/', 'support/', 'payment/', 'request/', 'accountants/'
           )
           blocked_exact = {
               'about.html', 'about/index.html', 'contact.html', 'contact/index.html',
