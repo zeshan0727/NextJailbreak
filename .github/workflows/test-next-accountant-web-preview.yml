@@ -24,6 +24,10 @@ jobs:
         run: |
           node --check accountants/app.js
           node --check accountants/project-demo.js
+      - name: Test customer, contract and three-receipt allocation flow in browser DOM
+        run: |
+          npm install --no-save --no-audit --no-fund jsdom@26
+          node accountants/test-ui.mjs
       - name: Validate ad-free and isolated test flow
         run: |
           python3 - <<'PY'
