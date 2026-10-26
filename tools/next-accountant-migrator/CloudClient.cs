@@ -16,7 +16,7 @@ internal sealed class CloudClient : IDisposable
         _http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
         _http.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd("NextAccountantMigrator/0.1.0");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd("NextAccountantMigrator/0.2.0");
     }
 
     public Task<Health?> HealthAsync() => GetAsync<Health>("/health");
@@ -29,10 +29,21 @@ internal sealed class CloudClient : IDisposable
 
     public async Task<Dictionary<string,long>> CountsAsync()
     {
-        var result = await GetAsync<RemoteCounts>("/api/admin/counts")
-            ?? throw new InvalidOperationException("Cloud count response was empty.");
-        return result.Tables.ToDictionary(
-            x => x.Name, x => x.Count, StringComparer.OrdinalIgnoreCase);
+        var totals = new Dictionary<string,long>(StringComparer.OrdinalIgnoreCase);
+        for (int page = 0; page < 1000; page++)
+        {
+            var result = await GetAsync<RemoteCounts>("/api/admin/counts?page=" + page)
+                ?? throw new InvalidOperationException("Cloud count response was empty.");
+            if (result.Page != page)
+                throw new InvalidDataException("Cloud count page did not match the request.");
+            foreach (var entry in result.Tables)
+            {
+                if (!totals.TryAdd(entry.Name, entry.Count))
+                    throw new InvalidDataException("Duplicate count entry for " + entry.Name);
+            }
+            if (!result.HasMore) return totals;
+        }
+        throw new InvalidDataException("Remote count pagination limit exceeded.");
     }
 
     public async Task UploadBackupFilesAsync(
@@ -64,6 +75,8 @@ internal sealed class CloudClient : IDisposable
             request.Headers.TryAddWithoutValidation(
                 "X-File-Category", "V6BusinessBackup");
             request.Headers.TryAddWithoutValidation(
+                "X-Expected-Sha256", item.Sha256);
+            request.Headers.TryAddWithoutValidation(
                 "X-Record-Type", "MigrationFile");
             request.Headers.TryAddWithoutValidation(
                 "X-Record-Id", relative);
@@ -73,6 +86,10 @@ internal sealed class CloudClient : IDisposable
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException(
                     $"File upload failed ({(int)response.StatusCode}): {text}");
+            using var digest = JsonDocument.Parse(text);
+            if (!digest.RootElement.TryGetProperty("sha256",out var returnedHash) ||
+                !string.Equals(returnedHash.GetString(),item.Sha256,StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Cloud file hash mismatch for " + relative);
         }
     }
 
