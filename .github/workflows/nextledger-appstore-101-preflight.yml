@@ -1,0 +1,103 @@
+name: Next Ledger App Store Build 101 - SDK 26 Preflight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/nextledger-appstore-101-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nextledger-appstore-build101-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: macos-26
+    timeout-minutes: 55
+    steps:
+      - name: Checkout dedicated App Store source
+        uses: actions/checkout@v4
+        with:
+          ref: release/nextledger-1.3.84-build101-appstore
+
+      - name: Require supported App Store SDK and preserve correct identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+          python3 -c 'import sys; assert int(sys.argv[1].split(".")[0]) >= 26, "App Store requires iOS 26+ SDK"' "$SDK_VERSION"
+          grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "101"' project.yml
+          grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
+          grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'iCloud.com.nextsolution.dailyledger' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'iCloud.com.nextsolution.dailyledger' DailyLedger/Info.plist
+          grep -Fq 'static let taskIdentifier = "com.nextsolution.nextledger.backup-refresh"' DailyLedger/Services/BackupSyncService.swift
+          grep -Fq 'Sync Across Devices' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'SettingsGroupedDetailPage(title: "Backup & Sync")' DailyLedger/Views/SettingsView.swift
+          ! grep -Fq 'Section("ERP Accounting")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Section("Accounting Registers")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Section("Statements & Aging")' DailyLedger/Views/ReportsView.swift
+          plutil -lint DailyLedger/DailyLedger.entitlements DailyLedger/Info.plist
+
+      - name: Run ledger regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/nextledger-budget-tests
+          /tmp/nextledger-budget-tests
+          xcrun swiftc DailyLedger/Services/SafeDeviceMerge.swift Tests/NextLedgerDeviceSync/main.swift -o /tmp/nextledger-device-sync-tests
+          /tmp/nextledger-device-sync-tests
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+
+      - name: Compile unsigned iOS 26 or newer App Store configuration
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -project DailyLedger.xcodeproj -scheme DailyLedger \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath /tmp/nextledger-appstore-101 \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee /tmp/nextledger-appstore-101.log
+
+      - name: Verify app identity and prepare unsigned preflight artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$(find /tmp/nextledger-appstore-101/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.nextledger'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '101'
+          test "$(/usr/libexec/PlistBuddy -c 'Print NSUbiquitousContainers:iCloud.com.nextsolution.dailyledger:NSUbiquitousContainerIsDocumentScopePublic' "$APP/Info.plist")" = 'true'
+          test "$(/usr/libexec/PlistBuddy -c 'Print BGTaskSchedulerPermittedIdentifiers:0' "$APP/Info.plist")" = 'com.nextsolution.nextledger.backup-refresh'
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.84-Build101-APPSTORE-PREFLIGHT-UNSIGNED.ipa
+          unzip -t NextLedger-1.3.84-Build101-APPSTORE-PREFLIGHT-UNSIGNED.ipa >/dev/null
+          cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build101-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
+          shasum -a 256 NextLedger-1.3.84-Build101-APPSTORE-PREFLIGHT-UNSIGNED.ipa > NextLedger-1.3.84-Build101-APPSTORE-PREFLIGHT-UNSIGNED.sha256
+          echo 'PREFLIGHT ONLY: Unsigned archive cannot be uploaded to App Store Connect.'
+          echo 'Publishing requires an Apple App Store Distribution profile authorizing the EXACT com.nextsolution.nextledger App ID and iCloud.com.nextsolution.dailyledger container.'
+          echo 'Never use the Ad Hoc / TrollStore signing profile for App Store distribution.'
+
+      - name: Upload App Store SDK preflight artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.84-Build101-AppStore-Preflight-UNSIGNED
+          if-no-files-found: error
+          path: |
+            NextLedger-1.3.84-Build101-APPSTORE-PREFLIGHT-UNSIGNED.ipa
+            NextLedger-1.3.84-Build101-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
+            NextLedger-1.3.84-Build101-APPSTORE-PREFLIGHT-UNSIGNED.sha256
