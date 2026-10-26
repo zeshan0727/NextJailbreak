@@ -55,12 +55,11 @@ jobs:
           private keys are included in this ZIP.
           Windows ACCOUNTANTS is never modified by the migrator.
           '@ | Set-Content -Encoding utf8 combined/README_FIRST.txt
-          Compress-Archive -Path combined/* -DestinationPath NextAccountantStagingImport_0.2.0_OneClick.zip -Force
 
       - name: Upload combined one-click importer
         uses: actions/upload-artifact@v4
         with:
           name: NextAccountantStagingImport-0.2.0-OneClick-Encrypted
-          path: NextAccountantStagingImport_0.2.0_OneClick.zip
+          path: combined/*
           if-no-files-found: error
           retention-days: 7
