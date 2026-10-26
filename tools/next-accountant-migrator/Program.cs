@@ -3,23 +3,24 @@ using NextAccountant.Migrator;
 
 const string DefaultRoot =
     @"D:\Zeeshan - All Entites Data OCT 2024 - till date\Accountants\AccountantsNext";
-const string DefaultApi = "https://accounts-api.nextjailbreak.com";
+const string DefaultApi = "https://accounts-stage-api.nextjailbreak.com";
 
 var options = CliArgs.Parse(args);
 var installRoot = options.Get("root") ?? DefaultRoot;
 var apiBase = options.Get("api") ?? DefaultApi;
 var prepareOnly = options.Has("prepare-only") || options.Has("dry-run");
 var databaseOnly = options.Has("database-only-test");
+var commitStaging = options.Has("commit-staging-import");
 var backup = options.Get("backup") ?? BackupVerifier.FindNewest(installRoot);
 
 if (string.IsNullOrWhiteSpace(backup) || !File.Exists(backup))
     return Fail("No ACCOUNTANTS V6 business backup was found. Create a fresh verified business backup first.");
 
-Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.1.0");
+Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.2.0 - STAGING ONLY");
 Console.WriteLine("Source: " + backup);
 Console.WriteLine("Mode: " +
     (prepareOnly ? "PREPARE / VERIFY ONLY" :
-     databaseOnly ? "DATABASE-ONLY TEST" : "FULL MIGRATION"));
+     commitStaging ? "STAGING IMPORT" : "SAFE READ-ONLY (import not authorized)"));
 Console.WriteLine();
 
 var temp = Path.Combine(
@@ -70,22 +71,31 @@ try
     Console.WriteLine("D1/R2 COMPATIBILITY: PASS (static preflight only)");
 
 
-    if (prepareOnly)
+    if (prepareOnly || !commitStaging)
     {
         Console.WriteLine("PREPARE PASS: no cloud writes were performed.");
+        if (!prepareOnly) Console.WriteLine("Import requires explicit --commit-staging-import flag.");
         return 0;
     }
 
+    if (databaseOnly)
+        return Fail("Database-only imports are disabled because they can leave incomplete staging data.");
+    if (!Uri.TryCreate(apiBase, UriKind.Absolute, out var checkedUri) ||
+        checkedUri.Scheme != Uri.UriSchemeHttps ||
+        !string.Equals(checkedUri.Host,"accounts-stage-api.nextjailbreak.com",StringComparison.OrdinalIgnoreCase) ||
+        checkedUri.AbsolutePath != "/" || !string.IsNullOrEmpty(checkedUri.Query) || checkedUri.Port != 443)
+        return Fail("Refusing non-staging destination. Staging host is accounts-stage-api.nextjailbreak.com only.");
+
     var token = options.Get("token") ??
-        Environment.GetEnvironmentVariable("NEXT_ACCOUNTANT_OWNER_TOKEN");
+        Environment.GetEnvironmentVariable("NEXT_ACCOUNTANT_STAGING_OWNER_TOKEN");
     if (string.IsNullOrWhiteSpace(token))
         return Fail("Cloud owner authentication is not configured. No migration was started.");
 
     using var cloud = new CloudClient(apiBase, token);
     var health = await cloud.HealthAsync();
-    if (health is null || !health.Ok || !health.Database)
-        return Fail("Cloud database health check failed. No migration was started.");
-    if (!databaseOnly && !health.Files)
+    if (health is null || !health.Ok || !health.Database || !string.Equals(health.Environment,"staging",StringComparison.OrdinalIgnoreCase))
+        return Fail("Staging identity/database health check failed. No migration was started.");
+    if (!health.Files)
         return Fail("Private R2 file storage is not ready. Full migration was not started.");
 
     var remoteBefore = await cloud.CountsAsync();
@@ -108,8 +118,7 @@ try
         }
     }
 
-    if (!databaseOnly)
-        await cloud.UploadBackupFilesAsync(backup, files);
+    await cloud.UploadBackupFilesAsync(backup, files);
 
     var remote = await cloud.CountsAsync();
     var mismatches = counts
@@ -125,9 +134,7 @@ try
 
     Console.WriteLine();
     Console.WriteLine($"MIGRATION PASS: {imported:N0} rows imported and reconciled.");
-    Console.WriteLine(databaseOnly
-        ? "Files intentionally skipped in database-only test mode."
-        : $"MIGRATION PASS: {files.Count:N0} business files uploaded.");
+    Console.WriteLine($"MIGRATION PASS: {files.Count:N0} business files uploaded.");
     Console.WriteLine(
         "Windows ACCOUNTANTS remains authoritative until module/report reconciliation passes.");
     return 0;
