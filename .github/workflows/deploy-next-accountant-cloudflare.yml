@@ -117,6 +117,30 @@ jobs:
             echo "R2 permissions remain restricted. D1/Worker deployment will continue without file bindings." >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Diagnose R2 S3 availability
+        if: steps.cloudflare.outputs.enabled == 'true'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_EC2_METADATA_DISABLED: 'true'
+        run: |
+          set +e
+          if [ -z "${AWS_ACCESS_KEY_ID:-}" ] || [ -z "${AWS_SECRET_ACCESS_KEY:-}" ]; then
+            echo "R2_S3_FILES=credentials_missing"
+            echo "R2_S3_BACKUPS=credentials_missing"
+            exit 0
+          fi
+          python3 -m pip install --user --quiet awscli
+          export PATH="$HOME/.local/bin:$PATH"
+          ENDPOINT="https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+          aws s3api head-bucket --bucket next-accountant-files --endpoint-url "$ENDPOINT" >/dev/null 2>&1
+          if [ "$?" -eq 0 ]; then echo "R2_S3_FILES=available"; else echo "R2_S3_FILES=unavailable"; fi
+          aws s3api head-bucket --bucket next-accountant-backups --endpoint-url "$ENDPOINT" >/dev/null 2>&1
+          if [ "$?" -eq 0 ]; then echo "R2_S3_BACKUPS=available"; else echo "R2_S3_BACKUPS=unavailable"; fi
+          set -e
+
       - name: Build deployment config
         if: steps.cloudflare.outputs.enabled == 'true'
         env:
