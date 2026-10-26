@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: src/NextAccountant.Web/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Main: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      App__BaseUrl: ${APP_BASE_URL}
+      Storage__R2Endpoint: ${R2_ENDPOINT}
+      Storage__R2Bucket: ${R2_BUCKET}
+      Storage__R2AccessKeyId: ${R2_ACCESS_KEY_ID}
+      Storage__R2SecretAccessKey: ${R2_SECRET_ACCESS_KEY}
+      OpenAI__ApiKey: ${OPENAI_API_KEY}
+      OpenAI__DocumentModel: ${OPENAI_DOCUMENT_MODEL}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+      - edge
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    networks:
+      - edge
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
+
+networks:
+  backend:
+    internal: true
+  edge:
