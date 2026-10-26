@@ -5,15 +5,18 @@ import {strict as assert} from "node:assert";
 const html=readFileSync("accountants/index.html","utf8");
 const app=readFileSync("accountants/app.js","utf8");
 const pm=readFileSync("accountants/project-demo.js","utf8");
-const dom=new JSDOM(html,{url:"https://nextjailbreak.com/accountants/",runScripts:"outside-only"});
+const dom=new JSDOM(html,{url:"https://nextjailbreak.com/accountants/",runScripts:"dangerously"});
 const {window:w}=dom;
 w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};
 w.HTMLDialogElement.prototype.close=function(){this.open=false;};
 w.confirm=()=>true;
 const alerts=[];
 w.alert=message=>alerts.push(message);
-w.eval(pm);
-w.eval(app);
+for (const source of [pm,app]) {
+  const script=w.document.createElement("script");
+  script.textContent=source;
+  w.document.body.appendChild(script);
+}
 const d=w.document;
 const $=selector=>{const n=d.querySelector(selector);assert.ok(n, "Missing element: "+selector);return n;};
 const click=selector=>$(selector).click();
