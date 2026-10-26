@@ -22,7 +22,7 @@
   var path = window.location.pathname || '/';
 
   // Keep ads off repository depictions, legal/support pages and app-internal pages.
-  var blockedPrefixes = ['/depictions/', '/applications/', '/DailyLedger/', '/DailyTweaks/', '/Diagnostics/', '/ModuleGlassPreview/', '/NextPDF/', '/NextPost/', '/license/', '/install/', '/support/', '/payment/', '/request/'];
+  var blockedPrefixes = ['/depictions/', '/applications/', '/DailyLedger/', '/DailyTweaks/', '/Diagnostics/', '/ModuleGlassPreview/', '/NextPDF/', '/NextPost/', '/license/', '/install/', '/support/', '/payment/', '/request/', '/accountants/'];
   var blockedExact = ['/about/', '/about.html', '/contact/', '/contact.html', '/privacy/', '/privacy.html', '/terms/', '/terms.html', '/repo/', '/repo.html', '/videos/', '/videos.html', '/next-ledger-support.html'];
   if (blockedExact.indexOf(path) !== -1 || blockedPrefixes.some(function (prefix) { return path.indexOf(prefix) === 0; })) {
     return;
