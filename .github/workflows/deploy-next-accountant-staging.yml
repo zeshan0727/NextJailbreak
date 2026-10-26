@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/deploy-next-accountant-staging.yml"
+      - "cloudflare/next-accountant-api/worker.staging.js"
 
 permissions:
   contents: read
@@ -51,7 +52,9 @@ jobs:
         run: |
           cat > cloudflare/next-accountant-api/wrangler.staging.toml <<EOF
           name = "next-accountant-api-staging"
-          main = "worker.js"
+          main = "worker.staging.js"
+          [vars]
+          MIGRATION_ENV = "staging"
           compatibility_date = "2026-10-26"
           workers_dev = false
           routes = [{ pattern = "accounts-stage-api.nextjailbreak.com", custom_domain = true }]
@@ -81,7 +84,7 @@ jobs:
           python3 - <<'PY'
           import json
           d=json.load(open('/tmp/health.json'))
-          assert d.get('database') is True and d.get('files') is True, d
+          assert d.get('database') is True and d.get('files') is True and d.get('environment')=='staging', d
           PY
           STATUS=$(curl -sS -o /dev/null -w '%{http_code}' "$API/api/admin/tables")
           test "$STATUS" = "401" || test "$STATUS" = "503"
