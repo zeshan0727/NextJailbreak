@@ -6,7 +6,8 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/deploy-next-accountant-cloudflare.yml"
-      - "cloudflare/next-accountant-api/**"
+      - "cloudflare/next-accountant-api/worker.js"
+      - "cloudflare/next-accountant-api/schema.sql"
 
 permissions:
   contents: read
