@@ -1,6 +1,10 @@
 name: Build NextCompat 1.0
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'NextCompat/**'
+      - '.github/workflows/nextcompat-build.yml'
   push:
     branches:
       - 'agent/nextcompat-1.0'
