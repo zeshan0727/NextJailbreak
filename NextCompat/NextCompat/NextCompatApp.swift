@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import UIKit
 
 @main
 struct NextCompatApp: App {
@@ -25,30 +26,50 @@ final class CompatModel: ObservableObject {
         return !busy && app.imports.filter { $0.symbol == requestedSymbol && !$0.weak }.count == 1
     }
 
+    // Stage and inspect large IPA archives away from the UI thread. A decrypted
+    // 100+ MB package can take time to copy and unzip on an iPhone.
     func importFile(_ url: URL) {
-        let scoped = url.startAccessingSecurityScopedResource()
-        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        guard !busy else { return }
+        let ext = url.pathExtension.lowercased()
+        guard ext == "ipa" || ext == "tipa" else {
+            status = "Choose a decrypted .ipa or .tipa file from Files."
+            return
+        }
         do {
             let dir = try supportDirectory()
             let target = dir.appendingPathComponent("Original-\(UUID().uuidString).ipa")
-            try fm.copyItem(at: url, to: target)
             busy = true
-            status = "Inspecting IPA…"
+            status = "Copying and inspecting \(url.lastPathComponent)…"
             Task {
                 do {
-                    let result = try await Task.detached(priority: .userInitiated) { try IPAService().inspect(target) }.value
+                    let result = try await Task.detached(priority: .userInitiated) {
+                        let scoped = url.startAccessingSecurityScopedResource()
+                        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+                        try FileManager.default.copyItem(at: url, to: target)
+                        do {
+                            return try IPAService().inspect(target)
+                        } catch {
+                            try? FileManager.default.removeItem(at: target)
+                            throw error
+                        }
+                    }.value
                     installed = result
                     savedOriginal = target
-                    requestedSymbol = result.imports.contains(where: { $0.symbol == "_NSUserActivityTypeLiveActivity" && !$0.weak }) ? "_NSUserActivityTypeLiveActivity" : ""
+                    requestedSymbol = result.imports.contains(where: {
+                        $0.symbol == "_NSUserActivityTypeLiveActivity" && !$0.weak
+                    }) ? "_NSUserActivityTypeLiveActivity" : ""
                     exportedURL = nil
                     status = "\(result.name) imported. \(result.imports.count) symbols inspected."
                 } catch {
-                    status = "Unable to inspect IPA: \(error.localizedDescription)"
+                    status = "IPA import failed: \(error.localizedDescription)"
                     try? fm.removeItem(at: target)
                 }
                 busy = false
             }
-        } catch { status = "Import failed: \(error.localizedDescription)" }
+        } catch {
+            status = "IPA import failed: \(error.localizedDescription)"
+            busy = false
+        }
     }
 
     func importCrash(_ url: URL) {
@@ -97,8 +118,7 @@ final class CompatModel: ObservableObject {
 
 struct MainScreen: View {
     @EnvironmentObject private var model: CompatModel
-    @State private var showIPA = false
-    @State private var showCrash = false
+    @State private var activePicker: ImportKind?
     private let panel = Color(red: 0.10, green: 0.14, blue: 0.22)
     private let accent = Color(red: 0.48, green: 0.73, blue: 1.0)
 
@@ -115,18 +135,27 @@ struct MainScreen: View {
                             stat("Fixed", "\(model.patchedHistory.count)")
                         }
                         group("Select app") {
-                            Button { showIPA = true } label: {
-                                Label(model.installed?.name ?? "Import decrypted IPA", systemImage: "square.and.arrow.down").frame(maxWidth: .infinity, alignment: .leading)
+                            Button {
+                                model.status = "Opening Files — choose a decrypted .ipa or .tipa…"
+                                activePicker = .ipa
+                            } label: {
+                                Label(model.installed?.name ?? "Import decrypted IPA", systemImage: "square.and.arrow.down")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }
+                            .disabled(model.busy)
                             if let app = model.installed {
                                 Text("\(app.identifier)  •  v\(app.version)").font(.caption).foregroundStyle(.white.opacity(0.62))
                             }
                         }
                         group("Crash analysis") {
-                            Button { showCrash = true } label: {
+                            Button {
+                                model.status = "Opening Files — choose a .ips crash report…"
+                                activePicker = .crash
+                            } label: {
                                 Label(model.crashName ?? "Import .ips crash report", systemImage: "doc.text.magnifyingglass")
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
+                            .disabled(model.busy)
                             TextField("Missing symbol (exact name)", text: $model.requestedSymbol)
                                 .textInputAutocapitalization(.never).autocorrectionDisabled()
                                 .padding(12).background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
@@ -160,8 +189,15 @@ struct MainScreen: View {
                             }
                         }
                         group("Activity") {
-                            Label(model.status, systemImage: model.busy ? "hourglass" : "info.circle")
-                                .font(.subheadline).foregroundStyle(.white.opacity(0.85))
+                            HStack(alignment: .top, spacing: 10) {
+                                if model.busy {
+                                    ProgressView().tint(accent)
+                                } else {
+                                    Image(systemName: "info.circle")
+                                }
+                                Text(model.status).font(.subheadline)
+                            }
+                            .foregroundStyle(.white.opacity(0.85))
                             ForEach(model.patchedHistory, id: \.self) { record in
                                 Text(record).font(.caption2.monospaced()).foregroundStyle(.white.opacity(0.65))
                             }
@@ -173,11 +209,18 @@ struct MainScreen: View {
             }
             .navigationTitle("NextCompat").navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .fileImporter(isPresented: $showIPA, allowedContentTypes: [.item]) { result in
-                if case .success(let url) = result { model.importFile(url) }
-            }
-            .fileImporter(isPresented: $showCrash, allowedContentTypes: [.item]) { result in
-                if case .success(let url) = result { model.importCrash(url) }
+            // iOS 16 sometimes fails to present multiple SwiftUI fileImporter
+            // modifiers on the same view. One UIKit document picker is reliable,
+            // and reports selection/cancellation back to the model.
+            .sheet(item: $activePicker) { kind in
+                NativeDocumentPicker(kind: kind, onPick: { url in
+                    activePicker = nil
+                    if kind == .ipa { model.importFile(url) }
+                    else { model.importCrash(url) }
+                }, onCancel: {
+                    activePicker = nil
+                    model.status = "File selection cancelled."
+                })
             }
         }.tint(accent).preferredColorScheme(.dark)
     }
@@ -191,7 +234,7 @@ struct MainScreen: View {
                 Text("iOS 16 Compatibility Manager").font(.caption).foregroundStyle(.white.opacity(0.55))
             }
             Spacer()
-            Text("1.0").font(.caption.bold()).foregroundStyle(.green)
+            Text("1.0.1").font(.caption.bold()).foregroundStyle(.green)
         }.foregroundStyle(.white)
     }
     private func stat(_ name: String, _ value: String) -> some View {
@@ -212,3 +255,56 @@ struct MainScreen: View {
     }
 }
 
+
+// A single UIKit picker supports both IPA and crash files on iOS 16.
+private enum ImportKind: String, Identifiable {
+    case ipa
+    case crash
+    var id: String { rawValue }
+}
+
+private struct NativeDocumentPicker: UIViewControllerRepresentable {
+    let kind: ImportKind
+    let onPick: (URL) -> Void
+    let onCancel: () -> Void
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let types: [UTType] = [.item, .data]
+        let picker = UIDocumentPickerViewController(
+            forOpeningContentTypes: types,
+            asCopy: true
+        )
+        picker.allowsMultipleSelection = false
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ controller: UIDocumentPickerViewController, context: Context) { }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onPick: onPick, onCancel: onCancel)
+    }
+
+    final class Coordinator: NSObject, UIDocumentPickerDelegate {
+        private let onPick: (URL) -> Void
+        private let onCancel: () -> Void
+
+        init(onPick: @escaping (URL) -> Void, onCancel: @escaping () -> Void) {
+            self.onPick = onPick
+            self.onCancel = onCancel
+        }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController,
+                            didPickDocumentsAt urls: [URL]) {
+            guard let selected = urls.first else {
+                onCancel()
+                return
+            }
+            onPick(selected)
+        }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            onCancel()
+        }
+    }
+}
