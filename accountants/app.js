@@ -1,4 +1,4 @@
-const KEY="next-accountant-free-preview-v1";
+const KEY="next-accountant-free-preview-v1";\nconst API_BASE="https://accounts-api.nextjailbreak.com";\nlet backend={checked:false,online:false,database:false,files:false,version:""};
 const initialState={version:"0.1.0",entities:[],activeEntityId:null,lastUpdated:null};
 let state=load();
 let activePage="Dashboard";
