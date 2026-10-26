@@ -1,0 +1,49 @@
+name: Build Next Accountant Web Migrator
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "tools/next-accountant-migrator/**"
+      - ".github/workflows/build-next-accountant-migrator.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: next-accountant-migrator-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore tools/next-accountant-migrator/NextAccountant.Migrator.csproj
+
+      - name: Build
+        run: dotnet build tools/next-accountant-migrator/NextAccountant.Migrator.csproj -c Release --no-restore
+
+      - name: Publish single-file Windows x64
+        run: dotnet publish tools/next-accountant-migrator/NextAccountant.Migrator.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o out/migrator
+
+      - name: Create package
+        shell: pwsh
+        run: |
+          Copy-Item tools/next-accountant-migrator/README.md out/migrator/README.md
+          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.1.0_win-x64.zip -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextAccountantWebMigrator-0.1.0-win-x64
+          path: out/NextAccountantWebMigrator_0.1.0_win-x64.zip
+          if-no-files-found: error
