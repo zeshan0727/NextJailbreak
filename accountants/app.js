@@ -52,7 +52,7 @@ function dashboard(){
       <div class="status-list">
         <div class="status-item"><span>Responsive web interface</span><span class="good">Enabled</span></div>
         <div class="status-item"><span>Browser-local test storage</span><span class="good">Enabled</span></div>
-        <div class="status-item"><span>Staging D1/R2 infrastructure</span><span class="good">Online — migration not yet imported</span></div>
+        <div class="status-item"><span>Staging D1/R2 infrastructure</span><span class="warn">Provisioned — import not yet verified</span></div>
         <div class="status-item"><span>OpenAI document reading</span><span class="warn">Disabled until secure backend</span></div>
         <div class="status-item"><span>Private R2 document infrastructure</span><span class="good">Staging ready</span></div>
       </div>
