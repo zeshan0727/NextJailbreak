@@ -54,6 +54,23 @@ ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name";
         return string.Join(";\n\n", statements) + ";\n";
     }
 
+    public static async Task<List<string>> SchemaStatementsAsync(SqliteConnection cn)
+    {
+        var result = new List<string>();
+        await using var cmd = cn.CreateCommand();
+        cmd.CommandText = @"SELECT sql FROM sqlite_master
+WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%'
+AND type IN ('table','index')
+ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name";
+        await using var rd = await cmd.ExecuteReaderAsync();
+        while (await rd.ReadAsync())
+        {
+            var statement = rd.GetString(0).Trim().TrimEnd(';');
+            if (statement.Length > 0) result.Add(statement);
+        }
+        return result;
+    }
+
     public static async Task<List<string>> DependencyOrderAsync(SqliteConnection cn)
     {
         var tables = await TablesAsync(cn);
@@ -95,7 +112,7 @@ ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name";
     }
 
     public static async IAsyncEnumerable<List<Dictionary<string,object?>>> BatchesAsync(
-        SqliteConnection cn, string table, int maxRows = 50, int maxJsonBytes = 450_000)
+        SqliteConnection cn, string table, int maxRows = 20, int maxJsonBytes = 450_000)
     {
         await using var cmd = cn.CreateCommand();
         cmd.CommandText = $"SELECT * FROM [{Escape(table)}]";
