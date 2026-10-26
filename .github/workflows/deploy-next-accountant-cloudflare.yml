@@ -191,7 +191,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: wrangler deploy --config=wrangler.deploy.toml
 
-      - name: Configure owner and AI secrets when available
+      - name: Configure owner and AI secrets safely
         if: steps.cloudflare.outputs.enabled == 'true'
         working-directory: cloudflare/next-accountant-api
         env:
@@ -200,13 +200,38 @@ jobs:
           OWNER_TOKEN: ${{ secrets.NEXT_ACCOUNTANT_OWNER_TOKEN }}
           OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
+          cat > /tmp/next-accountant-owner-public.pem <<'PUBKEY'
+          -----BEGIN PUBLIC KEY-----
+          MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEArMfZypOqus8VUC0UMS0I
+          0zGrDSLhYyRmx4fvvostpM6j+xJu9wFV0ip5N1vSmGNjny6+YvuiVLabHoh27ZYX
+          PLJGjzclnZuSAzve9QuEEjAFv02yS5L6ULI1s+bf8QILVql41LQavDNVbzlCadI7
+          y9opnzPfuld2VhWgkV82rMfB3IedP+8VdUICGhx8C/Qv4tTKb5laXSzuZeYp+ZH8
+          VJTj8jlQjzeCyap795FE4jNxoMJVVSGswFWHZO1g2Yv0I7bc34rox40NLHvhwhS8
+          bz8YGoyH2OETHz7Aa2myZ1A2i4wGtS577a0mPM0VMllpw85bwZZ97Pv3z/hMgNWx
+          aLYJVWBo0L4e4mkq3TBHiq/NhuR+QnxcCV33fF/Zd0Nv2xxauqlLywM3ey65i/Se
+          jDTVf1YQdvRf/xEBOKs/UK+jWzQyT62rJbjcQ8kod0UIvpZJ9K8eFFzXtzR/ULgV
+          Lhh4ztxESe/4TDl2l9v/6O0JJw/xPIuaZ7j+dR4g/u1TAgMBAAE=
+          -----END PUBLIC KEY-----
+          PUBKEY
+
+          EXISTING=$(wrangler secret list --config=wrangler.deploy.toml 2>/dev/null || echo '[]')
+          HAS_OWNER=$(printf '%s' "$EXISTING" | python3 -c "import sys,json; d=json.load(sys.stdin); print('true' if any((x.get('name')=='OWNER_TOKEN') for x in d) else 'false')" 2>/dev/null || echo false)
+
           if [ -n "${OWNER_TOKEN:-}" ]; then
-            printf '%s' "$OWNER_TOKEN" | wrangler secret put OWNER_TOKEN --config=wrangler.deploy.toml
+            printf '%s' "$OWNER_TOKEN" | wrangler secret put OWNER_TOKEN --config=wrangler.deploy.toml >/dev/null
+            echo "Owner secret synchronized from protected GitHub secret." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$HAS_OWNER" = "true" ]; then
+            echo "Existing Cloudflare OWNER_TOKEN preserved; no rotation performed." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "NEXT_ACCOUNTANT_OWNER_TOKEN is not set; protected endpoints remain disabled." >> "$GITHUB_STEP_SUMMARY"
+            GENERATED_OWNER=$(openssl rand -hex 32)
+            printf '%s' "$GENERATED_OWNER" | wrangler secret put OWNER_TOKEN --config=wrangler.deploy.toml >/dev/null
+            ENCRYPTED_OWNER=$(printf '%s' "$GENERATED_OWNER" | openssl pkeyutl -encrypt -pubin -inkey /tmp/next-accountant-owner-public.pem -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 | base64 -w0)
+            echo "NEXT_ACCOUNTANT_OWNER_TOKEN_ENCRYPTED=$ENCRYPTED_OWNER"
+            echo "A new owner token was created and escrowed only as RSA-OAEP ciphertext." >> "$GITHUB_STEP_SUMMARY"
           fi
+
           if [ -n "${OPENAI_KEY:-}" ]; then
-            printf '%s' "$OPENAI_KEY" | wrangler secret put OPENAI_API_KEY --config=wrangler.deploy.toml
+            printf '%s' "$OPENAI_KEY" | wrangler secret put OPENAI_API_KEY --config=wrangler.deploy.toml >/dev/null
           else
             echo "OPENAI_API_KEY is not set for this Worker yet." >> "$GITHUB_STEP_SUMMARY"
           fi
