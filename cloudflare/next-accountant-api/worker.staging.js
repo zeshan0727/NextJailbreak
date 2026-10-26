@@ -83,7 +83,7 @@ async function tableColumns(env, table) {
 async function applySchema(request, env, origin) {
   const body = await request.json();
   const sql = String(body?.sql || '');
-  if (!/^PRAGMA foreign_keys = ON[;\s]/i.test(sql) || /\b(DROP|ATTACH|DETACH|DELETE|UPDATE|REPLACE|VACUUM|PRAGMA\s+writable_schema)\b/i.test(sql)) return json({error:'Only additive source-schema creation is allowed in staging.'},400,origin);
+  if (!/^PRAGMA foreign_keys = ON[;\s]/i.test(sql) || /(?:^|;)\s*(?:DROP|ATTACH|DETACH|DELETE|UPDATE|REPLACE|VACUUM|ALTER|INSERT|PRAGMA\s+writable_schema)\b/i.test(sql)) return json({error:'Only additive source-schema creation is allowed in staging.'},400,origin);
   if (!sql || sql.length > 250000) return json({error:'Schema SQL is missing or too large.'},400,origin);
   await env.DB.exec(sql);
   const version = Number(body?.sourceSchemaVersion || 0);
