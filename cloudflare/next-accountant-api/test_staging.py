@@ -81,6 +81,8 @@ status,_,replay=call("/api/files/smoke/test.txt","PUT",blob,
 assert status==200 and replay.get("unchanged")==True,(status,replay)
 
 status,_,_=call("/api/files/smoke/test.txt","DELETE")
-assert status==200,status
+assert status==405, "Migration credential must not delete R2 files."
+status,headers,_=call("/api/files/smoke/test.txt","HEAD")
+assert status==200 and headers.get("X-File-Sha256")==digest, "Failed DELETE must preserve R2 file."
 
 print("PASS: staging identity, locked admin, DDL, FK, three-receipt allocation, BLOB, paged counts, file SHA, and idempotent R2.")
