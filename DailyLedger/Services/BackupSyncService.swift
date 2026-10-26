@@ -7,7 +7,7 @@ import UIKit
 /// A complete off-device backup requires a valid cloud entitlement or linked provider.
 final class BackupSyncService: ObservableObject {
     static let shared = BackupSyncService()
-    static let taskIdentifier = "com.nextsolution.dailyledger.backup-refresh"
+    static let taskIdentifier = "com.nextsolution.nextledger.backup-refresh"
     static let maxBackupFiles = 10
 
     @Published private(set) var status = "Automatic backup is ready."
