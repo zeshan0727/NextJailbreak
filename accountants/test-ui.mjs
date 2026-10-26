@@ -88,6 +88,31 @@ assert.equal(model.allocations.reduce((n,x)=>n+x.amountCents,0),5000000);
 assert.equal(model.payments.filter(x=>x.receiptGenerated).length,3);
 assert.equal(model.payments.map(x=>x.reference).join(","),"R1,R2,R3");
 
+
+// Customer SOA must use invoice charges and ACTUAL customer payments,
+// not expected contract installments or receipt allocation status.
+nav("Customer SOA");
+assert.match(d.querySelector(".demo-warning").textContent,/DEMO CUSTOMER SOA/);
+click("#soaAddInvoice");
+fill('#soaInvoiceForm [name="reference"]',"INV-001");
+fill('#soaInvoiceForm [name="date"]',"2026-10-25");
+fill('#soaInvoiceForm [name="amount"]',"50000");
+submit("#soaInvoiceForm");
+let soa=state().pmDemo;
+assert.equal(soa.invoices.length,1);
+assert.equal(soa.invoices[0].amountCents,5000000);
+assert.equal(d.querySelectorAll(".soa-table tbody tr").length,4,"One invoice plus three receipts should appear");
+assert.ok(d.querySelector(".soa-table").textContent.includes("INV-001"));
+assert.match(d.querySelector(".cards").textContent,/0.00/,"Three fully paid receipts must yield zero net due");
+click("#soaAddInvoice");
+fill('#soaInvoiceForm [name="reference"]',"INV-001");
+fill('#soaInvoiceForm [name="amount"]',"1");
+submit("#soaInvoiceForm");
+assert.ok(alerts.some(x=>String(x).includes("already used")),"Duplicate invoices must be rejected");
+assert.equal(state().pmDemo.invoices.length,1);
+close();
+nav("Payments / Receipts");
+
 // Unassign/reassign one receipt without losing the project's session selection.
 const third=model.payments[2];
 const assign=[...d.querySelectorAll(".assign-btn")].find(x=>x.dataset.id===third.id);
@@ -113,8 +138,11 @@ click('.delete-btn[data-id="'+third.id+'"]');
 model=state().pmDemo;
 assert.equal(model.payments.length,2);
 assert.equal(model.allocations.length,2);
+nav("Customer SOA");
+assert.equal(d.querySelectorAll(".soa-table tbody tr").length,3);
+assert.match(d.querySelector(".cards").textContent,/15,000\.00/,"Deleted test payment increases the demo SOA balance");
 nav("Project Management");
 assert.equal($("#demoProjectChoice").value,projectId);
 assert.ok(!d.querySelector('script[src*="adsterra"]'));
 assert.ok(!d.querySelector('script[src*="googletagmanager"]'));
-console.log("PASS web UI: customer/project/installment; 3 receipts and partial allocation; assign/unassign; edit guard; delete; session project persistence; ad-free.");
+console.log("PASS web UI: customer/project/installment; 3 receipts and partial allocation; invoice-based SOA, duplicate guard and deleted-payment balance; assign/unassign; edit guard; session persistence; ad-free.");
