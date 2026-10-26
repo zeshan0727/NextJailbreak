@@ -29,6 +29,8 @@ internal sealed class Health
 
 internal sealed class RemoteCounts
 {
+    public int Page { get; set; }
+    public bool HasMore { get; set; }
     public List<RemoteTableCount> Tables { get; set; } = [];
 }
 
