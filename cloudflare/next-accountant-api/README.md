@@ -26,3 +26,5 @@ Authenticated administration endpoints:
 - PUT/GET/DELETE /api/files/<object-key>
 
 The live Windows Data folder is never modified by this service. Migration must use a verified copy/export and reconcile counts/totals before cutover.
+
+Deployment token refreshed for R2-enabled deployment verification.
