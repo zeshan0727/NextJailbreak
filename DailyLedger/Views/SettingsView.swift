@@ -164,41 +164,6 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink {
-                        SettingsSectionPage(title: "Import & Export") {
-                        Button {
-                            exportingCSV = true
-                        } label: {
-                            SettingsRow(
-                                title: "Export CSV",
-                                subtitle: "",
-                                icon: "tablecells.fill",
-                                color: AppTheme.green
-                            )
-                        }
-
-                        Button {
-                            prepareBackupForFiles()
-                        } label: {
-                            SettingsRow(
-                                title: "Save Backup to Files",
-                                subtitle: "",
-                                icon: "externaldrive.fill",
-                                color: AppTheme.blue
-                            )
-                        }
-
-                        LedgerRestoreImportControl(
-                            title: "Import Data from Files",
-                            symbol: "square.and.arrow.down.fill"
-                        )
-                        }
-                    } label: {
-                        SettingsHomeLinkLabel(title: "Import & Export", subtitle: "CSV, JSON backup and restore", icon: "arrow.left.arrow.right", tint: AppTheme.green)
-                    }
-                }
-
-                Section {
-                    NavigationLink {
                         SettingsGroupedDetailPage(title: "Backup & Sync") {
                             Section {
                                 Toggle(isOn: $iCloudSyncEnabled) {
@@ -393,27 +358,6 @@ struct SettingsView: View {
                 Section {
                     NavigationLink {
                         SettingsSectionPage(title: "Planning & Categorization") {
-                        NavigationLink {
-                            FixedBudgetDashboardView()
-                        } label: {
-                            SettingsRow(
-                                title: "Fixed Monthly Budget",
-                                subtitle: "Income, recurring expenses & 26th–25th cycle",
-                                icon: "calendar.badge.clock",
-                                color: AppTheme.purple
-                            )
-                        }
-                        NavigationLink {
-                            BudgetSettingsView()
-                        } label: {
-                            SettingsRow(
-                                title: "Budgets",
-                                subtitle: "",
-                                icon: "target",
-                                color: AppTheme.green
-                            )
-                        }
-
                         Button {
                             let summary = store.automaticallyCategorizeTransactions()
                             notice = SettingsNotice(
@@ -443,7 +387,7 @@ struct SettingsView: View {
                         .disabled(store.uncategorizedTransactions.isEmpty)
                         }
                     } label: {
-                        SettingsHomeLinkLabel(title: "Planning & Categorization", subtitle: "Budgets and uncategorized review", icon: "target", tint: AppTheme.green)
+                        SettingsHomeLinkLabel(title: "Planning & Categorization", subtitle: "Auto-categorize and review transactions", icon: "target", tint: AppTheme.green)
                     }
                 }
 
