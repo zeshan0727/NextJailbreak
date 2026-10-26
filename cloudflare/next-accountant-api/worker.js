@@ -143,6 +143,7 @@ function objectKeyFromUrl(url) {
 }
 
 async function filePut(request, env, origin) {
+  if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
   const url = new URL(request.url);
   const key = objectKeyFromUrl(url);
   const bytes = new Uint8Array(await request.arrayBuffer());
@@ -168,6 +169,7 @@ async function filePut(request, env, origin) {
 }
 
 async function fileGet(request, env, origin) {
+  if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
   const key = objectKeyFromUrl(new URL(request.url));
   const object = await env.FILES.get(key);
   if (!object) return json({error:'File not found.'},404,origin);
@@ -181,6 +183,7 @@ async function fileGet(request, env, origin) {
 }
 
 async function fileDelete(request, env, origin) {
+  if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
   const key = objectKeyFromUrl(new URL(request.url));
   await env.FILES.delete(key);
   await env.DB.prepare('DELETE FROM WebFileIndex WHERE ObjectKey=?').bind(key).run();
@@ -205,7 +208,7 @@ export default {
     try {
       if (request.method === 'GET' && url.pathname === '/api/summary') {
         const tables = await listTables(env);
-        return json({ok:true,tables:tables.length,aiConfigured:Boolean(env.OPENAI_API_KEY),filesBucket:true},200,origin);
+        return json({ok:true,tables:tables.length,aiConfigured:Boolean(env.OPENAI_API_KEY),filesBucket:Boolean(env.FILES)},200,origin);
       }
       if (request.method === 'GET' && url.pathname === '/api/admin/tables') return json({tables:await listTables(env)},200,origin);
       if (request.method === 'GET' && url.pathname === '/api/admin/counts') return await tableCounts(env,origin);
