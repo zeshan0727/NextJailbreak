@@ -45,7 +45,7 @@ internal sealed class CloudClient : IDisposable
             var entry = archive.GetEntry(item.Path)
                 ?? throw new InvalidDataException("Backup file missing: " + item.Path);
 
-            var relative = item.Path["Data/".Length..].Replace('\', '/');
+            var relative = item.Path["Data/".Length..].Replace('\\', '/');
             var key = "business/" + relative;
             Console.WriteLine($"Uploading file {++index:N0}/{files.Count:N0}: {relative}");
 
