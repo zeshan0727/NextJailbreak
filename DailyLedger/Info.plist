@@ -24,7 +24,7 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.nextsolution.dailyledger</string>
+			<string>com.nextsolution.nextledger</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>dailyledger</string>
@@ -52,7 +52,7 @@
 	<true/>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.nextsolution.dailyledger.backup-refresh</string>
+		<string>com.nextsolution.nextledger.backup-refresh</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
