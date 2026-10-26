@@ -145,24 +145,13 @@ struct ReportsView: View {
     @AppStorage("ProfessionalReportStartDateV1") private var professionalStart = Calendar.current.date(byAdding: .month, value: -1, to: Date())?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
     @AppStorage("ProfessionalReportEndDateV1") private var professionalEnd = Date().timeIntervalSince1970
     @AppStorage(DeveloperLabKey.enabled) private var devEnabled = true
-    @AppStorage(DeveloperLabKey.showReportsRegisters) private var devShowRegisters = true
     @AppStorage(DeveloperLabKey.showReportsPlanning) private var devShowPlanning = true
     @AppStorage(DeveloperLabKey.showReportsCore) private var devShowCore = true
-    @AppStorage(DeveloperLabKey.showReportsStatements) private var devShowStatements = true
 
     var body: some View {
         NavigationStack {
             List {
-                if !devEnabled || devShowRegisters {
-                Section("Accounting Registers") {
-                    NavigationLink { FixedAssetRegisterView() } label: {
-                        Label("Fixed Asset Register", systemImage: "building.2.crop.circle.fill")
-                    }
-                    NavigationLink { FixedLiabilityRegisterView() } label: {
-                        Label("Fixed Liabilities Register", systemImage: "calendar.badge.minus")
-                    }
-                }
-                }
+
                 if !devEnabled || devShowPlanning {
                 Section("Planning & Comparison") {
                     NavigationLink { ProfessionalReportExportView() } label: {
@@ -224,36 +213,9 @@ struct ReportsView: View {
                 }
                 }
 
-                Section("ERP Accounting") {
-                    NavigationLink { ERPReportDesignerView() } label: {
-                        Label("Custom ERP Report Designer", systemImage: "slider.horizontal.3")
-                    }
-                    NavigationLink { ERPTaxReportView() } label: {
-                        Label("Tax / VAT Report", systemImage: "percent")
-                    }
-                    NavigationLink { ERPAccountingCenterView() } label: {
-                        Label("ERP / Accounting Center", systemImage: "building.columns.fill")
-                    }
-                }
 
-                if !devEnabled || devShowStatements {
-                Section("Statements & Aging") {
-                    ForEach([
-                        ProfessionalReportType.incomeStatement,
-                        .balanceSheet,
-                        .payablesAging,
-                        .payablesSummary,
-                        .receivablesAging,
-                        .receivablesSummary
-                    ]) { type in
-                        NavigationLink {
-                            ProfessionalReportTypeView(type: type)
-                        } label: {
-                            Label(type.rawValue, systemImage: type.icon)
-                        }
-                    }
-                }
-                }
+
+
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Reports")
