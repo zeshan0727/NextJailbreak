@@ -5023,29 +5023,61 @@
       "version": "1.2"
     },
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/touch-viz-4-1-1-official-track.png",
+          "media_alt": "Official Touch-Viz settings screen demonstrating a curved pink touch trail over enable and color controls",
+          "media_credit": "82flex and launchctl/Havoc — official Touch-Viz interface screenshot",
+          "media_sha256": "78ddd5165553f3fadddd91d8a2d7eb5413150ba2723ed9867a3a92974d2f6c99",
+          "media_source_url": "https://media.havoc.app/66b86511328ec2048b89ae7b"
+        },
+        {
+          "image": "assets/articles/source-media/touch-viz-4-1-1-official-image.png",
+          "media_alt": "Official Touch-Viz settings screenshot showing simultaneous trails and appearance controls",
+          "media_credit": "82flex and launchctl/Havoc — official Touch-Viz interface screenshot",
+          "media_sha256": "121e39300f1a92ba5dfe31b5226f6b76359272c6a75ccdb71e9aee0a482e927f",
+          "media_source_url": "https://media.havoc.app/66b8651a328ec2048b89b07f"
+        },
+        {
+          "image": "assets/articles/source-media/touch-viz-4-1-1-official-icon.png",
+          "media_alt": "Official Touch-Viz app icon",
+          "media_credit": "82flex and launchctl/Havoc — official package icon",
+          "media_sha256": "e9f7d95813b861b69416ccd9e698784d4fdf7fcbf13cf3d31115cbb64495c468",
+          "media_source_url": "https://media.havoc.app/66b862c5328ec2048b895110"
+        }
+      ],
+      "article_sha256": "aa91f3899c22eeed5aec7d2cd666b27478ffbe6eabd3a13c32cd399148c834ea",
+      "candidate_fingerprint": "com.82flex.touchvis@4.1.1-eol-free-2026-10-26",
       "category": {
-        "id": "system-utilities",
-        "label": "System & Utilities"
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
       },
-      "description": "Touch-Viz 2.4 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
-      "entry_type": "source-news",
+      "compat": "Havoc lists iOS 15.0–26.0.1, rootless support and a jailbreak requirement. This package range does not prove jailbreak availability for every device or firmware and does not separately guarantee RootHide compatibility.",
+      "description": "Touch-Viz 4.1.1 is now free after reaching end of life, with an iOS 26 crash fix and listed iOS 15.0–26.0.1 rootless compatibility.",
+      "developer": "82flex and launchctl",
+      "entry_type": "individual-update",
       "href": "touch-viz-2-4-update/",
-      "image": "assets/articles/source-media/touch-viz-2-4-update-6d56a5f163.png",
-      "media_credit": "Source visual from havoc.app",
-      "media_source_url": "https://havoc.app/depiction/touchvis",
-      "modified_at": "2026-09-14T06:12:36+00:00",
+      "image": "assets/articles/source-media/touch-viz-4-1-1-official-banner.png",
+      "media_alt": "Official Touch-Viz banner with a hand pressing a circular touch indicator",
+      "media_credit": "82flex and launchctl/Havoc — official Touch-Viz banner and app-interface screenshots",
+      "media_retrieval_status": "Exact official banner, package icon and two interface screenshots were retrieved from the Havoc package page and inspected before publication.",
+      "media_sha256": "615bb7c82cb2402d77f184ce3fa796a862d0a956bd42572a9405bbb87643fe31",
+      "media_source_url": "https://media.havoc.app/66a489f8066c63e2b4e6e879",
+      "modified_at": "2026-10-26T13:05:50Z",
       "name": "Touch-Viz",
       "package": "com.82flex.touchvis",
       "published_at": "2026-09-14T06:12:36+00:00",
       "quality_target": 9,
-      "selection_pool": "ios-repo-discovery-original-source",
-      "source_name": "havoc.app",
-      "source_page_url": "https://havoc.app/Packages",
-      "source_url": "https://havoc.app/Packages",
-      "source_visual_origin": "img",
-      "source_visual_url": "https://media.havoc.app/66aba28af2a1d0fa1b533ce7?w=3840&q=75",
-      "title": "Touch-Viz 2.4 Fixes Settings Navigation and Morph Effects as Official Listings Show a Newer Version",
-      "version": "2.4"
+      "release": "Version 4.1.1 released 2026-09-09; end-of-life/free notice added 2026-10-26",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "touch-viz-2-4-update",
+      "source_name": "Official Touch-Viz Havoc package page and version history",
+      "source_page_url": "https://havoc.app/package/touchvis",
+      "source_url": "https://havoc.app/package/touchvis/changes",
+      "source_visual_origin": "official-havoc-banner-icon-and-interface-screenshots",
+      "source_visual_url": "https://media.havoc.app/66a489f8066c63e2b4e6e879",
+      "title": "Touch-Viz 4.1.1 Is Now Free as Developer Ends Support",
+      "version": "4.1.1"
     },
     {
       "additional_media": [
@@ -9255,8 +9287,18 @@
       "published_at": "2026-10-26T09:04:45Z",
       "run_id": "scheduled-2026-10-26T09:04:45Z",
       "version": "Geranium 1.1.4 / TrollBox 0.2"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "touch-viz-2-4-update/",
+      "package": "com.82flex.touchvis",
+      "previous_version": "2.4",
+      "published_at": "2026-10-26T13:05:50Z",
+      "run_id": "scheduled-2026-10-26T13:05:50Z",
+      "version": "4.1.1 / end-of-life and free"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-26T09:04:45Z"
+  "updated_at": "2026-10-26T13:05:50Z"
 }
