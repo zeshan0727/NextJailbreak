@@ -1,27 +1,32 @@
-# Next Accountant — GitHub Free Preview
+# Next Accountant — Static Web Preview (not production)
 
-This folder is intentionally a **static, browser-local preview** so it can run on the existing GitHub Pages site at zero server cost.
+Preview: https://nextjailbreak.com/accountants/
 
-## URL
+This GitHub Pages folder is an **isolated, browser-local test application**, not an accounting database and not the authoritative Windows/Xero source.
 
-https://nextjailbreak.com/accountants/
+## Available test flows
 
-## Security boundary
+- Create temporary demo entities, customers and projects.
+- Define contract payment installments separately from actual received payments.
+- Record payments, generate generic payment receipts and allocate multiple partial receipts to one installment.
+- Unassign, edit or delete demo payments subject to demo validation.
+- Enter demo invoices and view a Customer Statement of Account using invoice charges and actual payment credits.
+- Export a **demo-only** statement CSV; it is **not** the official Windows PDF or Xero SOA.
+- Export/import a browser-local JSON test backup.
 
-The preview must never contain:
-- AccountantsNext.db
-- company/customer/employee records
-- uploaded business documents
-- OpenAI API keys
-- passwords or access tokens
-- production backups
+## Data and security boundaries
 
-Data entered in this preview is stored only in the browser's localStorage and can be exported/imported as JSON for test purposes.
+- Never place AccountantsNext.db, employee/customer/company records, signed receipts, real account information, API keys, plaintext passwords, or backups in this public repository or GitHub Pages.
+- No live business writes are issued from this preview, and no ads or tracking scripts are included.
+- Demo records reside in browser localStorage. Do not enter confidential business information here.
+- Cloudflare Workers + D1 + private R2 buckets provide the separate staging and future production backends.
+- Staging infrastructure availability does **not** imply that the Windows V6 business backup has been imported, reconciled, or approved for production.
+- The staging-only import is initiated by the Windows migrator against a verified copy of the protected business backup.
 
-## Why AI and sync are disabled
+## Validation
 
-GitHub Pages cannot safely hold server-side secrets or operate PostgreSQL. OpenAI document reading, multi-user authentication, multi-device sync and authoritative company data will be enabled only after a secure backend is introduced.
+GitHub Actions: `.github/workflows/test-next-accountant-web-preview.yml` runs JavaScript checks, browser DOM integration tests for three receipts against one installment, and invoice-backed Customer SOA checks. It rejects accidental advertisement inclusion and remote writes from the demo modules.
 
-## Migration design
+## Cutover gate
 
-The UI is deliberately separated from future persistence. When the project moves to a secure backend, the local preview store will be replaced with authenticated API/database services while preserving the web workflow.
+Deploy production accounting access only after secure owner authentication, verified staging import, complete count/file-hash/financial reconciliation, correct Windows-format report exports, recovery testing, and module parity. Preserve Windows ACCOUNTANTS V6 as the recovery baseline.
