@@ -53,11 +53,11 @@ jobs:
           cat > cloudflare/next-accountant-api/wrangler.staging.toml <<EOF
           name = "next-accountant-api-staging"
           main = "worker.staging.js"
-          [vars]
-          MIGRATION_ENV = "staging"
           compatibility_date = "2026-10-26"
           workers_dev = false
           routes = [{ pattern = "accounts-stage-api.nextjailbreak.com", custom_domain = true }]
+          [vars]
+          MIGRATION_ENV = "staging"
           [[d1_databases]]
           binding = "DB"
           database_name = "next-accountant-staging"
