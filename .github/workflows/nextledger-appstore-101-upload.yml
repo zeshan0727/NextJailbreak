@@ -1,0 +1,176 @@
+name: Next Ledger 1.3.84 Build 101 - App Store Connect Upload
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: macos-26
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/nextledger-1.3.84-build101-appstore
+
+      - name: Require secrets and exact App Store identity
+        shell: bash
+        env:
+          P12_B64: ${{ secrets.NEXTLEDGER_APPSTORE_P12_BASE64 }}
+          P12_PASS: ${{ secrets.NEXTLEDGER_APPSTORE_P12_PASSWORD }}
+          PROFILE_B64: ${{ secrets.NEXTLEDGER_APPSTORE_PROFILE_BASE64 }}
+          API_P8_B64: ${{ secrets.NEXTLEDGER_ASC_KEY_P8_BASE64 }}
+          API_KEY_ID: ${{ secrets.NEXTLEDGER_ASC_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.NEXTLEDGER_ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          for name in P12_B64 P12_PASS PROFILE_B64 API_P8_B64 API_KEY_ID API_ISSUER_ID; do
+            if test -z "${!name}"; then
+              echo "::error::Missing encrypted App Store signing/API secret: $name"
+              exit 1
+            fi
+          done
+          python3 -c 'import sys; assert int(sys.argv[1].split(".")[0]) >= 26' "$(xcrun --sdk iphoneos --show-sdk-version)"
+          grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "101"' project.yml
+          grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'iCloud.com.nextsolution.dailyledger' DailyLedger/DailyLedger.entitlements
+
+      - name: Install temporary App Store distribution identity
+        shell: bash
+        env:
+          P12_B64: ${{ secrets.NEXTLEDGER_APPSTORE_P12_BASE64 }}
+          P12_PASS: ${{ secrets.NEXTLEDGER_APPSTORE_P12_PASSWORD }}
+          PROFILE_B64: ${{ secrets.NEXTLEDGER_APPSTORE_PROFILE_BASE64 }}
+          API_P8_B64: ${{ secrets.NEXTLEDGER_ASC_KEY_P8_BASE64 }}
+          API_KEY_ID: ${{ secrets.NEXTLEDGER_ASC_KEY_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/nextledger-signing"
+          printf '%s' "$P12_B64" | base64 -D > "$RUNNER_TEMP/nextledger-signing/Distribution.p12"
+          printf '%s' "$PROFILE_B64" | base64 -D > "$RUNNER_TEMP/nextledger-signing/appstore.mobileprovision"
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          printf '%s' "$API_P8_B64" | base64 -D > "$HOME/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8"
+          chmod 600 "$HOME/.appstoreconnect/private_keys/AuthKey_${API_KEY_ID}.p8"
+          security cms -D -i "$RUNNER_TEMP/nextledger-signing/appstore.mobileprovision" > "$RUNNER_TEMP/nextledger-signing/profile.plist"
+          python3 - "$RUNNER_TEMP/nextledger-signing/profile.plist" <<'PY'
+          import plistlib, sys
+          p = plistlib.load(open(sys.argv[1], "rb"))
+          e = p.get("Entitlements", {})
+          team = "T52CDY8W32"
+          app = "com.nextsolution.nextledger"
+          cloud = "iCloud.com.nextsolution.dailyledger"
+          assert team in p.get("TeamIdentifier", []), "Wrong Apple Developer Team"
+          assert e.get("application-identifier") == team + "." + app, "Wrong explicit App ID"
+          assert not e.get("get-task-allow", False), "Development profile is not App Store distribution"
+          assert not p.get("ProvisionedDevices"), "Ad Hoc profile cannot upload to App Store"
+          assert not p.get("ProvisionsAllDevices"), "Enterprise profile cannot upload to App Store"
+          assert cloud in e.get("com.apple.developer.icloud-container-identifiers", []), "App Store profile must authorize existing shared iCloud container"
+          services = e.get("com.apple.developer.icloud-services", [])
+          assert services == "*" or "CloudDocuments" in services, "Profile does not authorize CloudDocuments"
+          env = e.get("com.apple.developer.icloud-container-environment")
+          assert env is None or env == "*" or env == "Production" or "Production" in env, "iCloud profile lacks Production permission"
+          assert p.get("ExpirationDate"), "Invalid distribution profile"
+          print("Verified exact App Store identifier, iCloud container and distribution-style provisioning.")
+          PY
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c 'Print UUID' "$RUNNER_TEMP/nextledger-signing/profile.plist")
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print Name' "$RUNNER_TEMP/nextledger-signing/profile.plist")
+          echo "NEXTLEDGER_PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$RUNNER_TEMP/nextledger-signing/appstore.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 22)"
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
+          KEYCHAIN_PATH="$RUNNER_TEMP/nextledger-build101.keychain-db"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain-db
+          security default-keychain -s "$KEYCHAIN_PATH"
+          security import "$RUNNER_TEMP/nextledger-signing/Distribution.p12" -k "$KEYCHAIN_PATH" -P "$P12_PASS" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
+
+      - name: Run tests and generate the application project
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/ledger-budget
+          /tmp/ledger-budget
+          xcrun swiftc DailyLedger/Services/SafeDeviceMerge.swift Tests/NextLedgerDeviceSync/main.swift -o /tmp/ledger-sync
+          /tmp/ledger-sync
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+
+      - name: Build signed App Store archive
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -project DailyLedger.xcodeproj -scheme DailyLedger \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/NextLedger-Build101.xcarchive" \
+            DEVELOPMENT_TEAM=T52CDY8W32 \
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$NEXTLEDGER_PROFILE_NAME" \
+            archive 2>&1 | tee "$RUNNER_TEMP/nextledger-101-archive.log"
+
+      - name: Export Apple App Store distribution IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, plistlib
+          profile = os.environ["NEXTLEDGER_PROFILE_NAME"]
+          opts = {"method": "app-store-connect", "destination": "export",
+                  "signingStyle": "manual", "signingCertificate": "Apple Distribution",
+                  "teamID": "T52CDY8W32",
+                  "provisioningProfiles": {"com.nextsolution.nextledger": profile},
+                  "manageAppVersionAndBuildNumber": False}
+          with open("/tmp/NextLedger-Build101-ExportOptions.plist","wb") as f:
+              plistlib.dump(opts, f)
+          PY
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/NextLedger-Build101.xcarchive" \
+            -exportOptionsPlist /tmp/NextLedger-Build101-ExportOptions.plist \
+            -exportPath "$RUNNER_TEMP/NextLedger-AppStore-Export"
+          IPA="$(find "$RUNNER_TEMP/NextLedger-AppStore-Export" -name '*.ipa' -print -quit)"
+          test -n "$IPA"
+          echo "NEXTLEDGER_APPSTORE_IPA=$IPA" >> "$GITHUB_ENV"
+
+      - name: Check FINAL signed app identity and iCloud entitlements
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/ipa-verify"
+          ditto -x -k "$NEXTLEDGER_APPSTORE_IPA" "$RUNNER_TEMP/ipa-verify"
+          APP="$(find "$RUNNER_TEMP/ipa-verify/Payload" -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.nextledger'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '101'
+          codesign --verify --strict --verbose=2 "$APP"
+          codesign -d --entitlements :- "$APP" > "$RUNNER_TEMP/final-entitlements.plist" 2>/dev/null
+          python3 - "$RUNNER_TEMP/final-entitlements.plist" <<'PY'
+          import plistlib, sys
+          e = plistlib.load(open(sys.argv[1], "rb"))
+          assert e.get("application-identifier") == "T52CDY8W32.com.nextsolution.nextledger", "Signed App ID mismatch"
+          assert e.get("com.apple.developer.icloud-services") == ["CloudDocuments"], "Missing final CloudDocuments claim"
+          c = "iCloud.com.nextsolution.dailyledger"
+          assert c in e.get("com.apple.developer.icloud-container-identifiers", []), "Final app lacks shared iCloud container"
+          assert c in e.get("com.apple.developer.ubiquity-container-identifiers", []), "Final app lacks ubiquity container"
+          assert not e.get("get-task-allow", False), "App Store executable is signed for development"
+          print("FINAL signed iCloud and App Store identity verified.")
+          PY
+
+      - name: Validate and upload to App Store Connect
+        shell: bash
+        env:
+          API_KEY_ID: ${{ secrets.NEXTLEDGER_ASC_KEY_ID }}
+          API_ISSUER_ID: ${{ secrets.NEXTLEDGER_ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          xcrun altool --validate-app -f "$NEXTLEDGER_APPSTORE_IPA" -t ios \
+            --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
+          xcrun altool --upload-app -f "$NEXTLEDGER_APPSTORE_IPA" -t ios \
+            --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
+          echo "Upload requested. Wait for Apple processing before selecting Build 101 for submission."
