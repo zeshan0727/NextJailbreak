@@ -1,4 +1,4 @@
-# NextCompat 1.0 — experimental iOS 16 missing-symbol fix
+# NextCompat 1.0.1 — experimental iOS 16 missing-symbol fix
 
 A local SwiftUI utility to patch one **selected, decrypted** IPA at a time. Target: iOS 16.0 / TrollStore; no need to alter RootHide, other apps, or Apple's system frameworks.
 
@@ -24,6 +24,10 @@ A local SwiftUI utility to patch one **selected, decrypted** IPA at a time. Targ
 The workflow uses macOS/Xcode + XcodeGen and produces an unsigned `.tipa` artifact for TrollStore. Import and patch operations run entirely on-device once NextCompat is installed.
 
 To build manually: `brew install xcodegen`, `xcodegen generate --spec project.yml`, then build the Xcode scheme `NextCompat` for generic iOS with signing disabled. Packaging for TrollStore is handled by GitHub Actions.
+
+## 1.0.1 iOS 16 file picker fix
+
+Replaces two competing SwiftUI file importer modifiers with a single UIKit document picker and moves IPA copying/unpacking to a background task with visible progress. Use `.ipa` or `.tipa` from Files; importing an encrypted IPA is not supported.
 
 ## Tested
 
