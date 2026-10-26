@@ -1,21 +1,4 @@
 services:
-  db:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
   app:
     build:
       context: .
@@ -23,20 +6,21 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Main: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      ConnectionStrings__Main: Data Source=/appdata/NextAccountant.db
       App__BaseUrl: ${APP_BASE_URL}
-      Storage__R2Endpoint: ${R2_ENDPOINT}
-      Storage__R2Bucket: ${R2_BUCKET}
-      Storage__R2AccessKeyId: ${R2_ACCESS_KEY_ID}
-      Storage__R2SecretAccessKey: ${R2_SECRET_ACCESS_KEY}
+      Storage__DocumentsPath: /appdata/documents
       OpenAI__ApiKey: ${OPENAI_API_KEY}
       OpenAI__DocumentModel: ${OPENAI_DOCUMENT_MODEL}
-    depends_on:
-      db:
-        condition: service_healthy
+    volumes:
+      - appdata:/appdata
     networks:
-      - backend
       - edge
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8080/healthz >/dev/null || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
 
   caddy:
     image: caddy:2-alpine
@@ -49,16 +33,15 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     networks:
       - edge
 
 volumes:
-  pgdata:
+  appdata:
   caddy_data:
   caddy_config:
 
 networks:
-  backend:
-    internal: true
   edge:
