@@ -39,11 +39,34 @@ jobs:
         shell: pwsh
         run: |
           Copy-Item tools/next-accountant-migrator/README.md out/migrator/README.md
-          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.1.0_win-x64.zip -Force
+          @'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          echo ============================================================
+          echo NEXT ACCOUNTANT WEB - BUSINESS BACKUP SAFE PRECHECK
+          echo ============================================================
+          echo.
+          echo This test does NOT upload data and does NOT change ACCOUNTANTS.
+          echo It verifies the newest V6 business backup only.
+          echo.
+          NextAccountantMigrator.exe --prepare-only
+          set "RC=%ERRORLEVEL%"
+          echo.
+          if "%RC%"=="0" (
+            echo PRECHECK COMPLETED SUCCESSFULLY.
+          ) else (
+            echo PRECHECK STOPPED WITH ERROR %RC%.
+          )
+          echo.
+          pause
+          exit /b %RC%
+          '@ | Set-Content -Encoding ascii out/migrator/TEST_BACKUP_ONLY.bat
+          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.1.1_SAFE_PRECHECK_win-x64.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextAccountantWebMigrator-0.1.0-win-x64
-          path: out/NextAccountantWebMigrator_0.1.0_win-x64.zip
+          name: NextAccountantWebMigrator-0.1.1-safe-precheck-win-x64
+          path: out/NextAccountantWebMigrator_0.1.1_SAFE_PRECHECK_win-x64.zip
           if-no-files-found: error
