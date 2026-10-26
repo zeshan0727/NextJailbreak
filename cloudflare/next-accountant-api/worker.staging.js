@@ -70,7 +70,7 @@ async function health(env) {
 }
 
 async function listTables(env) {
-  const result = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all();
+  const result = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT GLOB '_cf_*' ORDER BY name").all();
   return (result.results || []).map(r => r.name);
 }
 
