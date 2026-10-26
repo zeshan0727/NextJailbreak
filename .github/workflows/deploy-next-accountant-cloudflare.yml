@@ -77,12 +77,24 @@ jobs:
 
       - name: Ensure private R2 buckets
         if: steps.cloudflare.outputs.enabled == 'true'
+        id: r2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
+          set +e
           wrangler r2 bucket info next-accountant-files --json >/dev/null 2>&1 || wrangler r2 bucket create next-accountant-files
+          FILES_RC=$?
           wrangler r2 bucket info next-accountant-backups --json >/dev/null 2>&1 || wrangler r2 bucket create next-accountant-backups
+          BACKUPS_RC=$?
+          set -e
+
+          if [ "$FILES_RC" -eq 0 ] && [ "$BACKUPS_RC" -eq 0 ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "R2 bucket management permission is missing. D1/Worker deployment will continue without file bindings." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Build deployment config
         if: steps.cloudflare.outputs.enabled == 'true'
@@ -103,6 +115,10 @@ jobs:
           binding = "DB"
           database_name = "next-accountant"
           database_id = "$DB_ID"
+          EOF2
+
+          if [ "${{ steps.r2.outputs.enabled }}" = "true" ]; then
+            cat >> cloudflare/next-accountant-api/wrangler.deploy.toml <<EOF2
 
           [[r2_buckets]]
           binding = "FILES"
@@ -112,6 +128,7 @@ jobs:
           binding = "BACKUPS"
           bucket_name = "next-accountant-backups"
           EOF2
+          fi
 
       - name: Apply bootstrap schema
         if: steps.cloudflare.outputs.enabled == 'true'
@@ -158,4 +175,8 @@ jobs:
           echo "### Next Accountant Cloudflare backend verified" >> "$GITHUB_STEP_SUMMARY"
           echo "- API: https://accounts-api.nextjailbreak.com/health" >> "$GITHUB_STEP_SUMMARY"
           echo "- D1: next-accountant" >> "$GITHUB_STEP_SUMMARY"
-          echo "- R2: next-accountant-files / next-accountant-backups" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.r2.outputs.enabled }}" = "true" ]; then
+            echo "- R2: next-accountant-files / next-accountant-backups" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- R2: pending API-token permission upgrade" >> "$GITHUB_STEP_SUMMARY"
+          fi
