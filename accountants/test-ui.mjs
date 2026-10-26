@@ -5,6 +5,7 @@ import {strict as assert} from "node:assert";
 const html=readFileSync("accountants/index.html","utf8");
 const app=readFileSync("accountants/app.js","utf8");
 const pm=readFileSync("accountants/project-demo.js","utf8");
+const soa=readFileSync("accountants/soa-demo.js","utf8");
 const dom=new JSDOM(html,{url:"https://nextjailbreak.com/accountants/",runScripts:"dangerously"});
 const {window:w}=dom;
 w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};
@@ -12,7 +13,7 @@ w.HTMLDialogElement.prototype.close=function(){this.open=false;};
 w.confirm=()=>true;
 const alerts=[];
 w.alert=message=>alerts.push(message);
-for (const source of [pm,app]) {
+for (const source of [pm,soa,app]) {
   const script=w.document.createElement("script");
   script.textContent=source;
   w.document.body.appendChild(script);
