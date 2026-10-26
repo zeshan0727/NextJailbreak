@@ -188,8 +188,29 @@ async function filePut(request, env, origin) {
     return json({error:'File SHA-256 mismatch or missing expected digest.'},400,origin);
   const existing = await env.FILES.head(key);
   if (existing) {
-    if (existing.customMetadata?.sha256 === hash && existing.size === bytes.length)
-      return json({ok:true,unchanged:true,key,size:bytes.length,sha256:hash},200,origin);
+    if (existing.customMetadata?.sha256 === hash && existing.size === bytes.length) {
+      // If R2 upload succeeded but the D1 index insert failed, a safe retry
+      // must repair the index rather than silently accepting orphaned storage.
+      const indexed = await env.DB.prepare('SELECT Sha256,SizeBytes FROM WebFileIndex WHERE ObjectKey=?').bind(key).first();
+      if (indexed && (String(indexed.Sha256).toLowerCase() !== hash ||
+          Number(indexed.SizeBytes) !== bytes.length))
+        return json({error:'File index conflicts with verified R2 object.'},409,origin);
+      if (!indexed) {
+        const metadata = existing.customMetadata || {};
+        const rawEntityId = request.headers.get('X-Entity-Id');
+        const entityId = rawEntityId && /^\d+$/.test(rawEntityId) ? Number(rawEntityId) : null;
+        await env.DB.prepare("INSERT OR IGNORE INTO WebFileIndex(ObjectKey,OriginalName,ContentType,SizeBytes,Sha256,EntityId,Category,RecordType,RecordId,UploadedAt) VALUES(?,?,?,?,?,?,?,?,?,datetime('now'))")
+          .bind(key,
+            metadata.originalName || request.headers.get('X-File-Name') || key.split('/').pop() || '',
+            existing.httpMetadata?.contentType || request.headers.get('Content-Type') || 'application/octet-stream',
+            bytes.length, hash, entityId,
+            metadata.category || request.headers.get('X-File-Category') || '',
+            metadata.recordType || request.headers.get('X-Record-Type') || '',
+            metadata.recordId || request.headers.get('X-Record-Id') || '').run();
+        await audit(env,'file_index_repaired','r2',key,{sha256:hash});
+      }
+      return json({ok:true,unchanged:true,indexRepaired:!indexed,key,size:bytes.length,sha256:hash},200,origin);
+    }
     return json({error:'Existing file key has a different payload. Refusing overwrite.'},409,origin);
   }
   const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
