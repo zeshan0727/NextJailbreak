@@ -26,12 +26,26 @@ jobs:
           API_ISSUER_ID: ${{ secrets.NEXTLEDGER_ASC_ISSUER_ID }}
         run: |
           set -euo pipefail
-          for name in P12_B64 P12_PASS PROFILE_B64 API_P8_B64 API_KEY_ID API_ISSUER_ID; do
-            if test -z "${!name}"; then
-              echo "::error::Missing encrypted App Store signing/API secret: $name"
-              exit 1
+          # Show ALL missing GitHub secret names in one run, not temporary env aliases.
+          missing=0
+          for entry in \
+            "P12_B64:NEXTLEDGER_APPSTORE_P12_BASE64" \
+            "P12_PASS:NEXTLEDGER_APPSTORE_P12_PASSWORD" \
+            "PROFILE_B64:NEXTLEDGER_APPSTORE_PROFILE_BASE64" \
+            "API_P8_B64:NEXTLEDGER_ASC_KEY_P8_BASE64" \
+            "API_KEY_ID:NEXTLEDGER_ASC_KEY_ID" \
+            "API_ISSUER_ID:NEXTLEDGER_ASC_ISSUER_ID"; do
+            variable="${entry%%:*}"
+            secret="${entry#*:}"
+            if test -z "${!variable}"; then
+              echo "::error::Missing GitHub Actions repository secret: $secret"
+              missing=1
             fi
           done
+          if test "$missing" -eq 1; then
+            echo "::error::Add the missing values under Settings > Secrets and variables > Actions > Repository secrets. Never paste secret contents in chat or commit them to Git."
+            exit 1
+          fi
           python3 -c 'import sys; assert int(sys.argv[1].split(".")[0]) >= 26' "$(xcrun --sdk iphoneos --show-sdk-version)"
           grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger' project.yml
           grep -Fq 'CURRENT_PROJECT_VERSION: "101"' project.yml
