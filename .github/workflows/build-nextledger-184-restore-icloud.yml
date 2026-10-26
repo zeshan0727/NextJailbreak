@@ -81,6 +81,8 @@ jobs:
           ! grep -Fq 'Section("Statements & Aging")' DailyLedger/Views/ReportsView.swift
           grep -Fq 'Section("Planning & Comparison")' DailyLedger/Views/ReportsView.swift
           grep -Fq 'Text("Choose a report")' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'struct FixedBudgetDashboardView: View' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'Text("Monthly Budget")' DailyLedger/Views/FixedBudgetDashboardView.swift
           ! grep -Fq 'SettingsSectionPage(title: "Import & Export")' DailyLedger/Views/SettingsView.swift
           ! grep -Fq 'title: "Fixed Monthly Budget"' DailyLedger/Views/SettingsView.swift
           ! grep -Fq 'title: "Budgets"' DailyLedger/Views/SettingsView.swift
@@ -147,7 +149,7 @@ jobs:
           BIN="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
           test "$(stat -f %z "$BIN")" -gt 12000000
           strings "$BIN" > /tmp/nextledger183-binary-strings.txt
-          for REQUIRED in "Fetch Latest 15 SMS" "SMS Import Console" "Loan Summary Comparison" "Fixed Monthly Budget" "Monthly Fixed Expenses" "Apply Budget Plan"; do
+          for REQUIRED in "Fetch Latest 15 SMS" "SMS Import Console" "Loan Summary Comparison" "Monthly Fixed Expenses" "Apply Budget Plan"; do
             grep -Fq "$REQUIRED" /tmp/nextledger183-binary-strings.txt
           done
           mkdir -p Payload
