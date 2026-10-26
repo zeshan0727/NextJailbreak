@@ -51,10 +51,7 @@ ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name";
             var sql = rd.GetString(2).Trim().TrimEnd(';');
             if (sql.Length > 0) statements.Add(sql);
         }
-        return string.Join(";
-
-", statements) + ";
-";
+        return string.Join(";\\n\\n", statements) + ";\\n";
     }
 
     public static async Task<List<string>> DependencyOrderAsync(SqliteConnection cn)
