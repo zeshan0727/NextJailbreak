@@ -35,6 +35,7 @@
     const e=activeEntity();if(!e)return null;
     const list=projects(),key=SESSION_PREFIX+e.id;
     let chosen=sessionStorage.getItem(key);
+    if(chosen==="")return null;
     if(!list.some(p=>p.id===chosen)){
       chosen=list[0]?.id||"";
       if(chosen)sessionStorage.setItem(key,chosen);
@@ -138,7 +139,7 @@
   }
   function receipt(id){
     const p=payment(id);if(!p)return;
-    if(!p.receiptGenerated){p.receiptGenerated=true;save();}
+    if(!p.receiptGenerated){p.receiptGenerated=true;save();demoModule(activePage);}
     const c=customer(p.customerId);
     const dialog=document.getElementById("pmDialog");
     dialog.innerHTML=`<section class="pm-receipt"><header><h2>PAYMENT RECEIPT</h2><button class="secondary" id="pmCancel">Close</button></header>
