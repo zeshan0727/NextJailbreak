@@ -86,8 +86,7 @@ try
         checkedUri.AbsolutePath != "/" || !string.IsNullOrEmpty(checkedUri.Query) || checkedUri.Port != 443)
         return Fail("Refusing non-staging destination. Staging host is accounts-stage-api.nextjailbreak.com only.");
 
-    var token = options.Get("token") ??
-        Environment.GetEnvironmentVariable("NEXT_ACCOUNTANT_STAGING_OWNER_TOKEN");
+    var token = Environment.GetEnvironmentVariable("NEXT_ACCOUNTANT_STAGING_OWNER_TOKEN");
     if (string.IsNullOrWhiteSpace(token))
         return Fail("Cloud owner authentication is not configured. No migration was started.");
 
@@ -103,8 +102,19 @@ try
         !x.Key.StartsWith("Web", StringComparison.OrdinalIgnoreCase) && x.Value > 0))
         return Fail("Cloud business tables are not empty. Refusing to overwrite web data.");
 
-    Console.WriteLine("Applying verified source schema...");
-    await cloud.ApplySchemaAsync(schema, schemaVersion);
+    Console.WriteLine("Applying source schema to isolated staging in bounded groups...");
+    var ddl = await SqliteExport.SchemaStatementsAsync(source);
+    const int maxDdlPerRequest = 8;
+    for (var i = 0; i < ddl.Count; i += maxDdlPerRequest)
+    {
+        var group = ddl.Skip(i).Take(maxDdlPerRequest);
+        var sqlGroup = "PRAGMA foreign_keys = ON;\n" +
+            string.Join(";\n", group) + ";\n";
+        if (System.Text.Encoding.UTF8.GetByteCount(sqlGroup) >= 50_000)
+            return Fail("A source-schema batch is too large for safe D1 transfer.");
+        await cloud.ApplySchemaAsync(sqlGroup,schemaVersion);
+        Console.WriteLine($"Applied schema statements {i+1:N0}-{Math.Min(i+maxDdlPerRequest,ddl.Count):N0}/{ddl.Count:N0}");
+    }
 
     long imported = 0;
     foreach (var table in await SqliteExport.DependencyOrderAsync(source))
@@ -133,8 +143,8 @@ try
             string.Join("\n  ", mismatches));
 
     Console.WriteLine();
-    Console.WriteLine($"MIGRATION PASS: {imported:N0} rows imported and reconciled.");
-    Console.WriteLine($"MIGRATION PASS: {files.Count:N0} business files uploaded.");
+    Console.WriteLine($"STAGING IMPORT CHECK: {imported:N0} rows imported and count-reconciled.");
+    Console.WriteLine($"STAGING IMPORT CHECK: {files.Count:N0} business files uploaded and SHA-256 verified.");
     Console.WriteLine(
         "Windows ACCOUNTANTS remains authoritative until module/report reconciliation passes.");
     return 0;
