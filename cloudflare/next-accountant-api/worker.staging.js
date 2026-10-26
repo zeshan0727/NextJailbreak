@@ -153,10 +153,17 @@ async function tableCounts(env, origin, url) {
   if (!Number.isSafeInteger(page) || page < 0 || page > 100000)
     return json({error:'Invalid page.'},400,origin);
   const selected = tables.slice(page * limit,(page+1)*limit);
-  const statements = selected.map(t => env.DB.prepare('SELECT COUNT(*) AS count FROM ' + cleanIdentifier(t)));
-  const result = statements.length ? await env.DB.batch(statements) : [];
-  return json({page,hasMore:(page+1)*limit < tables.length,
-    tables:result.map((x,i)=>({name:selected[i],count:Number(x.results?.[0]?.count ?? 0)}))},200,origin);
+  const output=[];
+  for (const name of selected) {
+    const safe=cleanIdentifier(name);
+    try {
+      const value = await env.DB.prepare('SELECT COUNT(*) AS total FROM "' + safe + '"').first();
+      output.push({name:safe,count:Number(value?.total ?? 0)});
+    } catch (error) {
+      return json({error:'Count query rejected for table '+safe,detail:String(error?.message || error)},500,origin);
+    }
+  }
+  return json({page,hasMore:(page+1)*limit < tables.length,tables:output},200,origin);
 }
 
 function objectKeyFromUrl(url) {
