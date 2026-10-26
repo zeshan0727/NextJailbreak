@@ -1,0 +1,88 @@
+name: Deploy Next Accountant Staging
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-next-accountant-staging.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --global wrangler@4
+      - name: Create isolated cloud resources
+        id: resources
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          wrangler d1 list --json > /tmp/dbs.json
+          DB_ID=$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/dbs.json'))
+          print(next((x.get('uuid') or x.get('id') or '' for x in d if x.get('name')=='next-accountant-staging'),''))
+          PY
+          )
+          if [ -z "$DB_ID" ]; then
+            wrangler d1 create next-accountant-staging
+            wrangler d1 list --json > /tmp/dbs.json
+            DB_ID=$(python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/dbs.json'))
+          print(next((x.get('uuid') or x.get('id') or '' for x in d if x.get('name')=='next-accountant-staging'),''))
+          PY
+            )
+          fi
+          test -n "$DB_ID"
+          echo "database_id=$DB_ID" >> "$GITHUB_OUTPUT"
+          wrangler r2 bucket info next-accountant-staging-files --json >/dev/null 2>&1 || wrangler r2 bucket create next-accountant-staging-files
+          wrangler r2 bucket info next-accountant-staging-backups --json >/dev/null 2>&1 || wrangler r2 bucket create next-accountant-staging-backups
+      - name: Build staging config
+        env:
+          DB_ID: ${{ steps.resources.outputs.database_id }}
+        run: |
+          cat > cloudflare/next-accountant-api/wrangler.staging.toml <<EOF
+          name = "next-accountant-api-staging"
+          main = "worker.js"
+          compatibility_date = "2026-10-26"
+          workers_dev = false
+          routes = [{ pattern = "accounts-stage-api.nextjailbreak.com", custom_domain = true }]
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "next-accountant-staging"
+          database_id = "$DB_ID"
+          [[r2_buckets]]
+          binding = "FILES"
+          bucket_name = "next-accountant-staging-files"
+          [[r2_buckets]]
+          binding = "BACKUPS"
+          bucket_name = "next-accountant-staging-backups"
+          EOF
+      - name: Initialize and deploy staging only
+        working-directory: cloudflare/next-accountant-api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler d1 execute next-accountant-staging --remote --file=schema.sql --config=wrangler.staging.toml --yes
+          wrangler deploy --config=wrangler.staging.toml
+      - name: Test staging bindings and closed admin API
+        run: |
+          API=https://accounts-stage-api.nextjailbreak.com
+          curl --fail --retry 8 --retry-delay 4 "$API/health" > /tmp/health.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/health.json'))
+          assert d.get('database') is True and d.get('files') is True, d
+          PY
+          STATUS=$(curl -sS -o /dev/null -w '%{http_code}' "$API/api/admin/tables")
+          test "$STATUS" = "401" || test "$STATUS" = "503"
+          echo "Staging ready, no business data imported" >> "$GITHUB_STEP_SUMMARY"
