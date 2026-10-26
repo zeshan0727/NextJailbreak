@@ -1,0 +1,56 @@
+name: Test Next Accountant Staging Import API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "cloudflare/next-accountant-api/worker.staging.js"
+      - "cloudflare/next-accountant-api/test_staging.py"
+      - ".github/workflows/test-next-accountant-staging-import.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Wrangler
+        run: npm install --global wrangler@4
+      - name: Setup temporary local D1 and R2
+        working-directory: cloudflare/next-accountant-api
+        run: |
+          set -e
+          cat > wrangler.test.toml <<'EOF'
+          name = "next-accountant-api-staging-test"
+          main = "worker.staging.js"
+          compatibility_date = "2026-10-26"
+          [vars]
+          MIGRATION_ENV = "staging"
+          [[d1_databases]]
+          binding = "DB"
+          database_name = "next-accountant-staging-test"
+          database_id = "00000000-0000-0000-0000-000000000001"
+          [[r2_buckets]]
+          binding = "FILES"
+          bucket_name = "next-accountant-staging-test-files"
+          EOF
+          printf 'OWNER_TOKEN=synthetic-fixture-only\n' > .dev.vars
+          wrangler d1 execute next-accountant-staging-test --local --config=wrangler.test.toml --file=schema.sql --yes
+          wrangler dev --local --config=wrangler.test.toml --port 8787 > /tmp/next-accountant-test-worker.log 2>&1 &
+          echo $! > /tmp/next-accountant-test-worker.pid
+          for x in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8787/health > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/next-accountant-test-worker.log
+          exit 1
+      - name: Run synthetic migration contract tests
+        working-directory: cloudflare/next-accountant-api
+        run: python3 test_staging.py
+      - name: Worker logs if failed
+        if: failure()
+        run: cat /tmp/next-accountant-test-worker.log || true
