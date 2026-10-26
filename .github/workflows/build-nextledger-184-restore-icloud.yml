@@ -1,4 +1,4 @@
-name: Build Next Ledger 1.3.84 Build 99 Device-to-Device Sync
+name: Build Next Ledger 1.3.84 Build 100 Menu Cleanup
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
       - name: Checkout full verified original Next Ledger 1.3.84 source
         uses: actions/checkout@v4
         with:
-          ref: feature/nextledger-1.3.84-build99-device-sync
+          ref: feature/nextledger-1.3.84-build100-menu-cleanup
 
       - name: Validate full original features and iCloud documents declarations
         shell: bash
@@ -40,10 +40,10 @@ jobs:
             exit 1
           fi
           grep -Fq 'private var daemonHeartbeatRecent: Bool' DailyLedger/Views/SMSImportConsoleView.swift
-          # One general Settings import and one Backup & Sync import; not two inside Backup.
-          test "$(grep -c 'LedgerRestoreImportControl(' DailyLedger/Views/SettingsView.swift)" -eq 2
+          # Backup & Sync is the sole Settings JSON import location.
+          test "$(grep -c 'LedgerRestoreImportControl(' DailyLedger/Views/SettingsView.swift)" -eq 1
           grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
-          grep -Fq 'CURRENT_PROJECT_VERSION: "99"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "100"' project.yml
           grep -Fq 'path: DailyLedger/DailyLedger.entitlements' project.yml
           grep -Fq 'com.apple.developer.icloud-services' DailyLedger/DailyLedger.entitlements
           grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
@@ -75,6 +75,19 @@ jobs:
           grep -Fq 'maxBackupFiles = 10' DailyLedger/Services/BackupSyncService.swift
           grep -Fq 'Fetch Latest 15 SMS' DailyLedger/Views/SMSImportConsoleView.swift
           grep -Fq 'Loan Summary Comparison' DailyLedger/Views/ReportsView.swift
+          # Build 100: remove only requested visible sections/shortcuts.
+          ! grep -Fq 'Section("Accounting Registers")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Section("ERP Accounting")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Section("Statements & Aging")' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'Section("Planning & Comparison")' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'Text("Choose a report")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'SettingsSectionPage(title: "Import & Export")' DailyLedger/Views/SettingsView.swift
+          ! grep -Fq 'title: "Fixed Monthly Budget"' DailyLedger/Views/SettingsView.swift
+          ! grep -Fq 'title: "Budgets"' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'title: "Auto-Categorize Transactions"' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'title: "Review Uncategorized"' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'SettingsGroupedDetailPage(title: "Backup & Sync")' DailyLedger/Views/SettingsView.swift
+
           grep -Fq 'TabOrderSettingsView' DailyLedger/Views/SettingsView.swift
           plutil -lint DailyLedger/DailyLedger.entitlements DailyLedger/Info.plist
 
@@ -129,7 +142,7 @@ jobs:
           test -n "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.dailyledger'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
-          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '99'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '100'
           test "$(/usr/libexec/PlistBuddy -c 'Print NSUbiquitousContainers:iCloud.com.nextsolution.dailyledger:NSUbiquitousContainerIsDocumentScopePublic' "$APP/Info.plist")" = 'true'
           BIN="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
           test "$(stat -f %z "$BIN")" -gt 12000000
