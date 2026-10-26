@@ -6,6 +6,11 @@ const string DefaultRoot =
 const string DefaultApi = "https://accounts-stage-api.nextjailbreak.com";
 
 var options = CliArgs.Parse(args);
+if (options.Has("prepare-staging-key"))
+{
+    KeyEnrollment.PreparePublicKey();
+    return 0;
+}
 var installRoot = options.Get("root") ?? DefaultRoot;
 var apiBase = options.Get("api") ?? DefaultApi;
 var prepareOnly = options.Has("prepare-only") || options.Has("dry-run");
@@ -86,9 +91,10 @@ try
         checkedUri.AbsolutePath != "/" || !string.IsNullOrEmpty(checkedUri.Query) || checkedUri.Port != 443)
         return Fail("Refusing non-staging destination. Staging host is accounts-stage-api.nextjailbreak.com only.");
 
-    var token = Environment.GetEnvironmentVariable("NEXT_ACCOUNTANT_STAGING_OWNER_TOKEN");
+    var token = Environment.GetEnvironmentVariable("NEXT_ACCOUNTANT_STAGING_OWNER_TOKEN") ??
+        KeyEnrollment.TryReadToken();
     if (string.IsNullOrWhiteSpace(token))
-        return Fail("Cloud owner authentication is not configured. No migration was started.");
+        return Fail("Secure staging credential is missing. Use PREPARE_STAGING_KEY.bat and place the encrypted credential file beside the migrator. No migration was started.");
 
     using var cloud = new CloudClient(apiBase, token);
     var health = await cloud.HealthAsync();
