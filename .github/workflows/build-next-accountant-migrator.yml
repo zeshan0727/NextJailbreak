@@ -62,11 +62,43 @@ jobs:
           pause
           exit /b %RC%
           '@ | Set-Content -Encoding ascii out/migrator/TEST_BACKUP_ONLY.bat
-          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.1.1_SAFE_PRECHECK_win-x64.zip -Force
+          @'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          echo Next Accountant - secure staging key preparation
+          NextAccountantMigrator.exe --prepare-staging-key
+          echo.
+          echo Send ONLY NEXT_ACCOUNTANT_STAGING_PUBLIC_KEY.pem to ChatGPT.
+          echo Never send the private Windows key, database or an authentication token.
+          pause
+          '@ | Set-Content -Encoding ascii out/migrator/PREPARE_STAGING_KEY.bat
+          @'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          echo This will upload a COPY of the latest verified V6 backup to isolated Cloudflare STAGING.
+          echo Production ACCOUNTANTS and the production Cloudflare API will NOT be changed.
+          echo.
+          if not exist "NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt" (
+            echo Secure staging credential is missing. Stop.
+            pause
+            exit /b 1
+          )
+          NextAccountantMigrator.exe --commit-staging-import
+          echo.
+          if errorlevel 1 (
+            echo STAGING IMPORT FAILED or BLOCKED. See the error above.
+          ) else (
+            echo STAGING IMPORT COMPLETED - further financial reconciliation is still required.
+          )
+          pause
+          '@ | Set-Content -Encoding ascii out/migrator/IMPORT_TO_STAGING_ONLY.bat
+          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.2.0_STAGING_ONLY_win-x64.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextAccountantWebMigrator-0.1.1-safe-precheck-win-x64
+          name: NextAccountantWebMigrator-0.2.0-staging-only-win-x64
           path: out/NextAccountantWebMigrator_0.1.1_SAFE_PRECHECK_win-x64.zip
           if-no-files-found: error
