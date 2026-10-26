@@ -24,6 +24,7 @@ jobs:
         run: |
           node --check accountants/app.js
           node --check accountants/project-demo.js
+          node --check accountants/soa-demo.js
       - name: Test customer, contract and three-receipt allocation flow in browser DOM
         run: |
           npm install --no-save --no-audit --no-fund jsdom@26
@@ -36,8 +37,9 @@ jobs:
           index=Path('accountants/index.html').read_text()
           app=Path('accountants/app.js').read_text()
           pm=Path('accountants/project-demo.js').read_text()
-          assert 'project-demo.js' in index
-          assert index.index('project-demo.js') < index.index('app.js')
+          soa=Path('accountants/soa-demo.js').read_text()
+          assert 'project-demo.js' in index and 'soa-demo.js' in index
+          assert index.index('project-demo.js') < index.index('soa-demo.js') < index.index('app.js')
           for forbidden in ['monetag','adsterra','adsbygoogle','googletagmanager','site-runtime.js']:
               assert forbidden not in index.lower(), forbidden
           assert 'connect-src' in index and 'script-src' in index
@@ -48,7 +50,8 @@ jobs:
           assert 'amountCents' in pm
           assert 'Unassign' in pm and 'Assign amount' in pm
           assert 'DEMO WORKSPACE' in pm
-          assert 'fetch(' not in pm, 'Demo must never send customer data to a remote server'
+          assert 'fetch(' not in pm and 'fetch(' not in soa, 'Demo must never send customer data to a remote server'
+          assert 'Customer SOA' in app and 'Invoice' in soa and 'Running balance' in soa
           assert not re.search(r'(?<!\\)\\nconst API_BASE',app[:200])
-          print('PASS: syntax, ad-free shell, safe local project/receipt demo')
+          print('PASS: syntax, ad-free shell, safe local project/receipt and SOA demos')
           PY
