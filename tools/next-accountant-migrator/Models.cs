@@ -23,6 +23,7 @@ internal sealed class Health
     public bool Ok { get; set; }
     public bool Database { get; set; }
     public bool Files { get; set; }
+    public string Environment { get; set; } = "";
     public string Version { get; set; } = "";
 }
 
