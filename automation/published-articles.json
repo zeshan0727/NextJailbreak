@@ -2,6 +2,41 @@
   "entries": [
     {
       "additional_media": [],
+      "article_sha256": "336ab7e7f3a040b9c760090d3389cfd4eab31e43a707f77b6cd2cc481efab9f2",
+      "candidate_fingerprint": "comparison.trollstore-2.1.1-appsync-unified-116.0",
+      "category": {
+        "id": "roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "TrollStore supports iOS/iPadOS 14.0 beta 2–16.6.1, 16.7 RC build 20H18, and 17.0 through a CoreTrust bug. AppSync Unified 116.0 supports iOS 5.0–18.2 as a jailbreak package, but requires a compatible jailbreak, tweak injection and the correct rootless or rootful architecture.",
+      "description": "Compare TrollStore 2.1.1 and AppSync Unified 116.0 by jailbreak requirement, iOS support, signing model, entitlements, app installation and persistence.",
+      "developer": "opa334 / Karen/あけみ and Linus Yang",
+      "entry_type": "comparison",
+      "href": "trollstore-vs-appsync-unified-ipa-install-comparison/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_credit": "opa334 — official TrollStore 2.1.1 app icon",
+      "media_git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+      "media_retrieval_status": "Reused the exact official 152×152 JPEG already stored from opa334's tagged TrollStore source; AppSync Unified is a system tweak and provides no standalone app interface or release artwork.",
+      "media_sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
+      "media_source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "modified_at": "2026-10-26T04:58:03Z",
+      "name": "TrollStore vs AppSync Unified",
+      "package": "comparison.trollstore-appsync-unified",
+      "published_at": "2026-10-26T04:58:03Z",
+      "quality_target": 9,
+      "release": "TrollStore 2.1.1 and AppSync Unified 116.0 checked 2026-10-26",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "trollstore-vs-appsync-unified-ipa-install-comparison",
+      "source_name": "Official TrollStore and AppSync Unified GitHub repositories and releases",
+      "source_page_url": "https://github.com/akemin-dayo/AppSync/releases/tag/116.0",
+      "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/README.md",
+      "source_visual_origin": "official-project-repository-asset",
+      "source_visual_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "title": "TrollStore vs AppSync Unified: Which IPA Method Fits Your iPhone?",
+      "version": "TrollStore 2.1.1 / AppSync Unified 116.0"
+    },
+    {
+      "additional_media": [],
       "article_sha256": "414f628e85d91eac0496354dcade74a966a8651e8d03260493dad6b279b1d960",
       "candidate_fingerprint": "414f628e85d91eac0496354dcade74a966a8651e8d03260493dad6b279b1d960",
       "category": {
@@ -9145,8 +9180,17 @@
       "published_at": "2026-10-26T01:02:28Z",
       "run_id": "scheduled-2026-10-26T01:02:28Z",
       "version": "Guide revision 2026-10-26 / Filza 4.0.1 jailbreak packages and 4.0.2 TrollStore page"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "trollstore-vs-appsync-unified-ipa-install-comparison/",
+      "package": "comparison.trollstore-appsync-unified",
+      "published_at": "2026-10-26T04:58:03Z",
+      "run_id": "scheduled-2026-10-26T04:58:03Z",
+      "version": "TrollStore 2.1.1 / AppSync Unified 116.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-26T01:02:28Z"
+  "updated_at": "2026-10-26T04:58:03Z"
 }
