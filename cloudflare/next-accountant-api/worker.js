@@ -58,13 +58,15 @@ async function health(env) {
     const row = await env.DB.prepare('SELECT 1 AS ok').first();
     db = Number(row?.ok || 0) === 1;
   } catch {}
-  try {
-    await env.FILES.head('__healthcheck__');
-    files = true;
-  } catch {
-    files = true;
+  if (env.FILES) {
+    try {
+      await env.FILES.head('__healthcheck__');
+      files = true;
+    } catch {
+      files = true;
+    }
   }
-  return {ok: db && files, service:'next-accountant-api', version:'0.1.0', database:db, files};
+  return {ok: db, service:'next-accountant-api', version:'0.1.1', database:db, files};
 }
 
 async function listTables(env) {
@@ -144,6 +146,7 @@ function objectKeyFromUrl(url) {
 
 async function filePut(request, env, origin) {
   if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
+  if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
   const url = new URL(request.url);
   const key = objectKeyFromUrl(url);
   const bytes = new Uint8Array(await request.arrayBuffer());
@@ -170,6 +173,7 @@ async function filePut(request, env, origin) {
 
 async function fileGet(request, env, origin) {
   if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
+  if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
   const key = objectKeyFromUrl(new URL(request.url));
   const object = await env.FILES.get(key);
   if (!object) return json({error:'File not found.'},404,origin);
@@ -183,6 +187,7 @@ async function fileGet(request, env, origin) {
 }
 
 async function fileDelete(request, env, origin) {
+  if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
   if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
   const key = objectKeyFromUrl(new URL(request.url));
   await env.FILES.delete(key);
