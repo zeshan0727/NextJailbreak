@@ -51,7 +51,7 @@ ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name";
             var sql = rd.GetString(2).Trim().TrimEnd(';');
             if (sql.Length > 0) statements.Add(sql);
         }
-        return string.Join(";\\n\\n", statements) + ";\\n";
+        return string.Join(";\n\n", statements) + ";\n";
     }
 
     public static async Task<List<string>> DependencyOrderAsync(SqliteConnection cn)
@@ -109,7 +109,12 @@ ORDER BY CASE type WHEN 'table' THEN 0 ELSE 1 END, name";
             for (var i = 0; i < rd.FieldCount; i++)
             {
                 object? value = rd.IsDBNull(i) ? null : rd.GetValue(i);
-                if (value is byte[] bytes) value = Convert.ToBase64String(bytes);
+                if (value is byte[] bytes)
+                {
+                    if (bytes.Length > 1_800_000)
+                        throw new InvalidDataException($"Oversized SQLite BLOB in {table}, column {rd.GetName(i)} ({bytes.Length} bytes). Store binary documents separately in R2 before importing.");
+                    value = new Dictionary<string, string> { ["$base64"] = Convert.ToBase64String(bytes) };
+                }
                 row[rd.GetName(i)] = value;
             }
 
