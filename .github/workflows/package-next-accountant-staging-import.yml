@@ -1,0 +1,66 @@
+name: Package Next Accountant One-Click Staging Import
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/package-next-accountant-staging-import.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch verified compiled migrator and encrypted credential
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Force out,credential,combined | Out-Null
+          gh run download 40330435424 --repo zeshan0727/NextJailbreak --name NextAccountantWebMigrator-0.2.0-staging-only-win-x64 --dir out
+          gh run download 40330435637 --repo zeshan0727/NextJailbreak --name NextAccountantStagingEncryptedCredential --dir credential
+          $zip = Get-ChildItem out -Filter '*.zip' | Select-Object -First 1
+          if (-not $zip) { throw "Compiled migrator ZIP missing" }
+          Expand-Archive -Path $zip.FullName -DestinationPath combined -Force
+          $cipher = "credential/NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt"
+          if (-not (Test-Path $cipher)) { throw "Encrypted credential missing" }
+          Copy-Item $cipher combined/NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt
+          foreach ($name in @('NextAccountantMigrator.exe','IMPORT_TO_STAGING_ONLY.bat','TEST_BACKUP_ONLY.bat')) {
+            if (-not (Test-Path "combined/$name")) { throw "Missing $name" }
+          }
+          if ((Get-Item "combined/NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt").Length -lt 400) { throw "Encrypted credential is unexpectedly small" }
+          @'
+          NEXT ACCOUNTANT - STAGING IMPORT 0.2.0
+          ======================================
+          This package contains a staging-only Windows migrator plus an RSA-encrypted
+          Cloudflare credential. The credential can be decrypted ONLY by the Windows
+          user profile where PREPARE_STAGING_KEY.bat generated the private key.
+
+          1. Extract this ZIP to your Windows PC. Do NOT run from inside the ZIP.
+          2. If you wish, run TEST_BACKUP_ONLY.bat (no uploads).
+          3. Run IMPORT_TO_STAGING_ONLY.bat.
+          4. The tool rechecks the latest V6 business backup before any cloud write.
+          5. Upload goes ONLY to isolated Cloudflare staging:
+             https://accounts-stage-api.nextjailbreak.com
+          6. If import stops, send the console output. Do NOT repeat the full import
+             against partially populated staging without a verified reset.
+
+          No business files, database copies, credentials in plaintext or
+          private keys are included in this ZIP.
+          Windows ACCOUNTANTS is never modified by the migrator.
+          '@ | Set-Content -Encoding utf8 combined/README_FIRST.txt
+          Compress-Archive -Path combined/* -DestinationPath NextAccountantStagingImport_0.2.0_OneClick.zip -Force
+
+      - name: Upload combined one-click importer
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextAccountantStagingImport-0.2.0-OneClick-Encrypted
+          path: NextAccountantStagingImport_0.2.0_OneClick.zip
+          if-no-files-found: error
+          retention-days: 7
