@@ -5,6 +5,14 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <item>
+      <title>iOS 27.2 Released With Security Fixes—Still No Public Jailbreak</title>
+      <link>https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</guid>
+      <pubDate>Mon, 26 Oct 2026 21:03:30 GMT</pubDate>
+      <description>Apple’s October 26 iOS 27.2 release fixes kernel-memory and sandbox issues, but its Calif credits do not identify a public jailbreak chain.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
       <title>CatMCP 1.3.0 Adds Lock-State Queries, Unlock and Power-Key Control</title>
       <link>https://nextjailbreak.com/catmcp-1-2-0-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/catmcp-1-2-0-update/</guid>
@@ -187,14 +195,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/convert-rootless-tweaks-roothide-patcher-guide/</guid>
       <pubDate>Thu, 22 Oct 2026 00:57:49 GMT</pubDate>
       <description>Use RootHide Patcher 2.1.4 to convert eligible rootless DEBs, choose the correct patch mode, install the output safely, and recognize packages that must not be converted.</description>
-    </item>
-
-    <item>
-      <title>iOS 27.2 RC Is Out While iOS 27.0.1 Remains Signed</title>
-      <link>https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</guid>
-      <pubDate>Wed, 21 Oct 2026 21:02:42 GMT</pubDate>
-      <description>Apple’s iOS 27.2 RC build 24B115 is newer than the public Calif demo, while iOS 27.0.1 remains signed across the supported iPhone list.</description>
     </item>
 
     <item>
