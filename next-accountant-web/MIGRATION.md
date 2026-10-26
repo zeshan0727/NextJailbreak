@@ -1,47 +1,63 @@
 # Windows → Web Migration Plan
 
-Baseline for preparation: ACCOUNTANTS 6.1.x Windows line, with the Windows application retained as recovery/fallback.
+Baseline: current ACCOUNTANTS 6.1.x Windows line, retained as the authoritative recovery/fallback during migration.
 
-## Phase 0 — Preparation
-- Establish private GitHub repository for production source.
-- Provision staging server.
-- Configure accounts.nextjailbreak.com.
-- Create PostgreSQL staging database.
-- Configure private object storage.
-- Establish automated backups and restore test.
+## Phase 0 — Preparation (no paid server yet)
+
+- Keep public-safe bootstrap only in the current public repository.
+- Keep proprietary ACCOUNTANTS source/data out of the public repository.
+- Build the single-user web domain/UI architecture.
+- Inventory the Windows SQLite schema and document paths from verified copies.
+- Map the existing SQLite model to the new server-side SQLite persistence layer.
+- Define backup, reconciliation and rollback rules.
 
 ## Phase 1 — Read-only migration tooling
+
 - Work only from a copied AccountantsNext.db.
-- Inventory SQLite schema and document paths.
-- Translate schema additively to PostgreSQL.
+- Inventory schema and document paths.
 - Import entities and master data first.
 - Import transactions second.
-- Import document metadata; copy binary files separately.
-- Record source-row identifiers for traceability.
+- Preserve source IDs/references for traceability.
+- Import document metadata and copy binary supporting files separately.
+- Never mutate the source copy during migration.
 
-## Phase 2 — Reconciliation
-For each module compare:
+## Phase 2 — Production infrastructure
+
+Only when the application is staging-ready:
+- provision the low-cost netcup Nano VPS
+- configure accounts.nextjailbreak.com
+- install Docker/Caddy/self-hosted GitHub runner
+- create private application data/document directories
+- configure server-side OpenAI credentials
+- configure automatic backups and restore testing
+
+## Phase 3 — Reconciliation
+
+For every migrated module compare:
 - record counts
 - transaction totals
 - customer/project balances
-- payroll totals where applicable
 - receipt/payment totals
+- contract payment-plan allocations
+- payroll totals where applicable
 - report totals and cutoff-date behavior
 
 Any mismatch blocks cutover.
 
-## Phase 3 — Web modules
-Suggested sequence:
+## Phase 4 — Module sequence
+
 1. Dashboard and entity context
 2. Project Management
-3. Receipts / payments
+3. Payments / receipts
 4. Manager reporting
 5. Task tracker
 6. HR / payroll
 7. Remaining modules
 
-## Phase 4 — Parallel run
-Windows remains operational while selected users validate the web platform.
+## Phase 5 — Parallel validation
 
-## Phase 5 — Controlled cutover
-Only after signed reconciliation and restore testing is the web database treated as primary.
+The single owner validates the web system against Windows. Windows remains operational as fallback.
+
+## Phase 6 — Controlled cutover
+
+Only after reconciliation, backup verification and restore testing is the web database treated as primary.
