@@ -1,7 +1,7 @@
 const KEY="next-accountant-free-preview-v1";
 const API_BASE="https://accounts-api.nextjailbreak.com";
 let backend={checked:false,online:false,database:false,files:false,version:""};
-const initialState={version:"0.1.0",entities:[],activeEntityId:null,lastUpdated:null};
+const initialState={version:"0.2.0-browser-demo",entities:[],activeEntityId:null,lastUpdated:null};
 let state=load();
 let activePage="Dashboard";
 
@@ -27,6 +27,7 @@ function render(){
   renderNav();pageTitle.textContent=activePage;
   if(activePage==="Dashboard")return dashboard();
   if(activePage==="Settings")return settings();
+  if((activePage==="Project Management"||activePage==="Payments / Receipts") && typeof demoModule==="function")return demoModule(activePage);
   return modulePage(activePage);
 }
 function dashboard(){
@@ -35,7 +36,7 @@ function dashboard(){
     <div class="cards">
       <div class="card"><div class="metric-label">Entities</div><div class="metric">${state.entities.length}</div></div>
       <div class="card"><div class="metric-label">Active Entity</div><div class="metric" style="font-size:18px">${e?esc(e.name):"None"}</div></div>
-      <div class="card"><div class="metric-label">Mode</div><div class="metric" style="font-size:18px">Local</div></div>
+      <div class="card"><div class="metric-label">Mode</div><div class="metric" style="font-size:18px">Isolated test</div></div>
       <div class="card"><div class="metric-label">Server Cost</div><div class="metric">QAR 0</div></div>
     </div>
     <div class="panel">
@@ -43,16 +44,16 @@ function dashboard(){
         <div><h2>Test entities</h2><div class="muted">Stored only in this browser.</div></div>
         <button id="addEntity">+ Add Test Entity</button>
       </div>
-      ${state.entities.length?entityTable():'<div class="empty">No test entities yet. The public preview starts empty intentionally.</div>'}
+      ${state.entities.length?entityTable():'<div class="empty">No test entities yet. Add a test entity to explore the project and receipt workflow.</div>'}
     </div>
     <div class="panel">
-      <div class="panel-head"><div><h2>Free-phase boundaries</h2><div class="muted">Designed so the paid backend can be added later without changing the user workflow.</div></div></div>
+      <div class="panel-head"><div><h2>Migration boundaries</h2><div class="muted">Project/receipt forms use test data until real business records are reconciled.</div></div></div>
       <div class="status-list">
         <div class="status-item"><span>Responsive web interface</span><span class="good">Enabled</span></div>
         <div class="status-item"><span>Browser-local test storage</span><span class="good">Enabled</span></div>
-        <div class="status-item"><span>Real company database / multi-device sync</span><span class="warn">Deferred</span></div>
+        <div class="status-item"><span>Staging D1/R2 infrastructure</span><span class="good">Online — migration not yet imported</span></div>
         <div class="status-item"><span>OpenAI document reading</span><span class="warn">Disabled until secure backend</span></div>
-        <div class="status-item"><span>Private document storage</span><span class="warn">Deferred</span></div>
+        <div class="status-item"><span>Private R2 document infrastructure</span><span class="good">Staging ready</span></div>
       </div>
     </div>`;
   document.getElementById("addEntity").onclick=()=>document.getElementById("entityDialog").showModal();
