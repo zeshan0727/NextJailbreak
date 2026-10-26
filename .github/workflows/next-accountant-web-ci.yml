@@ -1,0 +1,28 @@
+name: Next Accountant Web - Bootstrap CI
+
+on:
+  push:
+    branches:
+      - next-accountant-web-preparation
+    paths:
+      - "next-accountant-web/**"
+      - ".github/workflows/next-accountant-web-ci.yml"
+  pull_request:
+    paths:
+      - "next-accountant-web/**"
+      - ".github/workflows/next-accountant-web-ci.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: next-accountant-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore src/NextAccountant.Web/NextAccountant.Web.csproj
+      - run: dotnet build src/NextAccountant.Web/NextAccountant.Web.csproj -c Release --no-restore
+      - run: docker build -f src/NextAccountant.Web/Dockerfile .
