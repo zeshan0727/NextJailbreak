@@ -4179,25 +4179,43 @@
         "id": "productivity",
         "label": "Productivity"
       },
-      "description": "CatMCP 1.2.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/catmcp-1-3-0-official-interface.jpg",
+          "media_alt": "Official CatMCP Settings pane showing the Enabled switch, port 9000 and Copy MCP Config button",
+          "media_credit": "0x530c — official CatMCP interface screenshot",
+          "media_sha256": "7264018cea5c2e6fdf958de9dabb5b43aeeb7145959366d692e05564ccfd981d",
+          "media_source_url": "https://media.havoc.app/6a18335e8817ff396a914cf6"
+        },
+        {
+          "image": "assets/articles/source-media/catmcp-1-3-0-official-icon.png",
+          "media_alt": "Official CatMCP app icon with the MCP shield logo",
+          "media_credit": "0x530c — official CatMCP icon",
+          "media_sha256": "2b9f8dae408b3d7a634f74ceae04c6b541c7d364ecbc30fd705ce07d6eddbfcf",
+          "media_source_url": "https://media.havoc.app/6a182b9e8817ff396a912668"
+        }
+      ],
+      "description": "CatMCP 1.3.0 adds lock-state queries, optional-passcode unlocking, Power-key actions and clearer unknown-key errors to its jailbroken-iOS MCP server.",
       "entry_type": "source-news",
       "href": "catmcp-1-2-0-update/",
-      "image": "assets/articles/source-media/catmcp-1-2-0-update-3b1679748f.png",
-      "media_credit": "Source visual from havoc.app",
+      "image": "assets/articles/source-media/catmcp-1-3-0-official-banner.png",
+      "media_alt": "Official CatMCP banner with the MCP shield logo over a blurred iOS interface",
+      "media_credit": "0x530c — official CatMCP banner",
+      "media_sha256": "be7c5ce893c949df4c8a4fbb12050af347c2d4d9b1ac84a4ca791ffd9d8ac910",
       "media_source_url": "https://havoc.app/package/catmcp",
-      "modified_at": "2026-09-28T18:52:11+00:00",
+      "modified_at": "2026-10-26T17:02:16Z",
       "name": "CatMCP",
-      "package": "app.catscript.mcp",
+      "package": "com.catmcp.daemon",
       "published_at": "2026-09-28T18:52:11+00:00",
       "quality_target": 9,
       "selection_pool": "user-authorized-recent-tweak-batch-20260928",
       "source_name": "havoc.app",
       "source_page_url": "https://havoc.app/package/catmcp",
       "source_url": "https://havoc.app/package/catmcp",
-      "source_visual_origin": "og:image",
+      "source_visual_origin": "Havoc __NEXT_DATA__ pageProps.content.banner",
       "source_visual_url": "https://media.havoc.app/6a1829778817ff396a9119a7",
-      "title": "CatMCP brings an MCP server to jailbroken iOS",
-      "version": "1.2.0"
+      "title": "CatMCP 1.3.0 Adds Lock-State Queries, Unlock and Power-Key Control",
+      "version": "1.3.0"
     },
     {
       "category": {
@@ -9297,8 +9315,18 @@
       "published_at": "2026-10-26T13:05:50Z",
       "run_id": "scheduled-2026-10-26T13:05:50Z",
       "version": "4.1.1 / end-of-life and free"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "catmcp-1-2-0-update/",
+      "package": "com.catmcp.daemon",
+      "previous_version": "1.2.0",
+      "published_at": "2026-10-26T17:02:16Z",
+      "run_id": "scheduled-2026-10-26T17:02:16Z",
+      "version": "1.3.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-26T13:05:50Z"
+  "updated_at": "2026-10-26T17:02:16Z"
 }
