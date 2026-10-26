@@ -63,7 +63,8 @@ async function health(env) {
       await env.FILES.head('__healthcheck__');
       files = true;
     } catch {
-      files = true;
+      // A failed R2 binding must never be reported as healthy.
+      files = false;
     }
   }
   return {ok: db && files, service:'next-accountant-api-staging', version:'0.2.0', environment:'staging', database:db, files};
@@ -261,7 +262,7 @@ export default {
       if (url.pathname.startsWith('/api/files/')) {
         if (request.method === 'PUT') return await filePut(request,env,origin);
         if (request.method === 'GET' || request.method === 'HEAD') return await fileGet(request,env,origin);
-        if (request.method === 'DELETE') return await fileDelete(request,env,origin);
+        if (request.method === 'DELETE') return json({error:'Destructive file operations are disabled for staging imports.'},405,origin);
       }
       return json({error:'Not found.'},404,origin);
     } catch (error) {
