@@ -92,6 +92,22 @@ async function applySchema(request, env, origin) {
   return json({ok:true, sourceSchemaVersion:version},200,origin);
 }
 
+
+function decodeSqliteValue(value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    const keys = Object.keys(value);
+    if (keys.length !== 1 || keys[0] !== '$base64' || typeof value.$base64 !== 'string')
+      throw new Error('Unsupported structured SQLite value.');
+    if (value.$base64.length > 2_500_000) throw new Error('SQLite BLOB exceeds safe import size.');
+    const binary = atob(value.$base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    if (bytes.length > 1_800_000) throw new Error('SQLite BLOB exceeds safe D1 value size.');
+    return bytes;
+  }
+  return value ?? null;
+}
+
 async function importBatch(request, env, origin) {
   const body = await request.json();
   const table = cleanIdentifier(body?.table);
@@ -109,8 +125,8 @@ async function importBatch(request, env, origin) {
     if (!columns.length) continue;
     columns.forEach(cleanIdentifier);
     const marks = columns.map(() => '?').join(',');
-    const sql = 'INSERT OR REPLACE INTO ' + table + '(' + columns.join(',') + ') VALUES(' + marks + ')';
-    statements.push(env.DB.prepare(sql).bind(...columns.map(c => row[c] ?? null)));
+    const sql = 'INSERT INTO ' + table + '(' + columns.join(',') + ') VALUES(' + marks + ')';
+    statements.push(env.DB.prepare(sql).bind(...columns.map(c => decodeSqliteValue(row[c]))));
   }
   if (!statements.length) return json({ok:true, imported:0},200,origin);
   await env.DB.batch(statements);
