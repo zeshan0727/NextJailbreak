@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Ensure Google Analytics on every HTML page
+      - name: Ensure Google Analytics on eligible site pages
         shell: bash
         run: |
           python - <<'PY'
@@ -67,6 +67,18 @@ jobs:
 
           for path in sorted(Path('.').rglob('*.html')):
               if any(part in skip_parts for part in path.parts):
+                  continue
+
+              rel = path.as_posix().lstrip('./')
+              if rel.startswith('accountants/'):
+                  try:
+                      original = path.read_text(encoding='utf-8')
+                  except UnicodeDecodeError:
+                      continue
+                  cleaned = marker_re.sub('', original)
+                  if cleaned != original:
+                      path.write_text(cleaned, encoding='utf-8')
+                      changed.append(str(path))
                   continue
 
               try:
