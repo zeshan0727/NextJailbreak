@@ -56,6 +56,10 @@ jobs:
         run: |
           python apply_patch_v1_7.py
           python -c "from pathlib import Path; import shutil; shutil.copyfile('test_manual_filename_v17.py','tests/test_manual_filename_v17.py')"
+      - name: Diagnose helper availability before Windows tests
+        working-directory: file-manager
+        run: |
+          python -c "from pathlib import Path; import filemanager.repair as m; p=Path('filemanager/repair.py'); s=p.read_text(); print('SOURCE helper occurrences=',s.count('def _normalize_manual_filename')); print('MODULE helper=',hasattr(m,'_normalize_manual_filename')); print('SOURCE offset=',s.find('def _normalize_manual_filename')); print('MODULE path=',m.__file__); print('PREFIX=',repr(s[max(0,s.find('def _normalize_manual_filename')-140):s.find('def _normalize_manual_filename')+90]))"
       - name: Install build dependencies
         working-directory: file-manager
         run: |
