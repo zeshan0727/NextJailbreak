@@ -169,6 +169,35 @@ status,_,source_payments=req("/api/web/records?type=PaymentVouchers&entityId=1",
 assert status==200 and source_payments["total"]==1,"Draft wrote into imported Windows ledger"
 print("PASS staging drafts: company scope, CSRF origin, PV creation, attachment, integrity, duplicate guard and source-ledger isolation.")
 
+
+# Archived Windows-format reports remain unchanged in private R2, scoped by entity.
+report_key="business/Audit/LegacyImported/Reports/Manager/Stone_Cafe/2026/2026-08-31/Smoke_Manager_Report.xlsx"
+report_payload=b"synthetic original Excel archive fixture"
+report_sha=hashlib.sha256(report_payload).hexdigest()
+status,_,put=req("/api/files/"+quote(report_key,safe="/"),"PUT",
+                 body=report_payload,bearer=True,extra_headers={
+                   "Content-Type":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                   "X-File-Name":"Smoke_Manager_Report.xlsx",
+                   "X-File-Category":"V6BusinessBackup",
+                   "X-Record-Type":"MigrationFile",
+                   "X-Expected-Sha256":report_sha
+                 })
+assert status==200 and put["sha256"]==report_sha,(status,put)
+status,_,archive=req("/api/web/manager-archive?entityId=1",cookie=browser_cookie)
+assert status==200 and len(archive["files"])==1 and archive["files"][0]["Sha256"]==report_sha,(status,archive)
+status,_,_=req("/api/web/manager-archive?entityId=2",cookie=browser_cookie)
+assert status==404,"Unmanaged company can browse reports"
+status,_,_=req("/api/web/manager-archive?entityId=1")
+assert status==401,"Anonymous report archive can be browsed"
+download="/api/web/manager-report-file?entityId=1&key="+quote(report_key,safe="")
+status,headers,report=req(download,cookie=browser_cookie)
+assert status==200 and headers["X-Report-Sha256"]==report_sha,(status,headers)
+status,_,_=req("/api/web/manager-report-file?entityId=1&key="+quote(
+  "business/Audit/LegacyImported/Reports/Manager/Erada_Fitness/private.xlsx",safe=""),
+  cookie=browser_cookie)
+assert status==404,"Cross-company report path was not blocked"
+print("PASS: original report archive is integrity checked, authenticated and company-scoped.")
+
 status,_,_=req("/api/web/logout","POST",cookie=browser_cookie,origin=HOST)
 assert status==204,status
 status,_,_=req("/api/web/entities",cookie=browser_cookie)
