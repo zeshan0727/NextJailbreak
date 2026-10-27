@@ -124,6 +124,20 @@ fingerprints={x["name"]:x for x in fingerprint["aggregates"]}
 assert fingerprints["SalesInvoices"]["count"]==1 and fingerprints["SalesInvoices"]["total"]==500.25,fingerprints
 assert fingerprints["PMPayments"]["count"]==1 and fingerprints["PMPayments"]["total"]==125.0,fingerprints
 assert fingerprints["PMPaymentPlanAllocations"]["total"]==100.0,fingerprints
+status,_,_=req("/api/admin/financial-breakdown",cookie=browser_cookie)
+assert status==401,"Read-only browser cookie exposed private financial reconciliation aggregates"
+status,_,detail=req("/api/admin/financial-breakdown",bearer=True)
+assert status==200 and detail["schemaVersion"]==21,(status,detail)
+detail_by_name={x["name"]:x for x in detail["groups"]}
+assert len(detail_by_name)==6,(status,detail)
+assert detail_by_name["SalesInvoices"]["period"]=="2026-10",detail_by_name
+assert detail_by_name["SalesInvoices"]["currency"]=="SOURCE",detail_by_name
+assert detail_by_name["SalesInvoices"]["total"]==500.25,detail_by_name
+assert detail_by_name["PaymentVouchers"]["currency"]=="QAR",detail_by_name
+assert detail_by_name["PMPayments"]["currency"]=="UNSPECIFIED",detail_by_name
+assert detail_by_name["PMPaymentPlanAllocations"]["total"]==100.0,detail_by_name
+assert all(x["entityId"]==1 and x["nullAmounts"]==0 for x in detail["groups"]),detail
+print("PASS: owner-only per-company/month/currency accounting breakdown against original source schema.")
 status,_,_=req("/api/web/records?type=SalaryHistory&entityId=1",cookie=browser_cookie)
 assert status==400,"Unapproved payroll table was exposed"
 status,_,_=req("/api/web/records?type=Invoices&entityId=1%20OR%201=1",cookie=browser_cookie)
