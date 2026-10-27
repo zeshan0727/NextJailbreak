@@ -1,0 +1,51 @@
+name: File Manager Windows EXE (Light)
+on:
+  push:
+    branches: [file-manager-windows-v1-1]
+    paths:
+      - 'file-manager/build_source.zip'
+      - '.github/workflows/file-manager-windows.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: file-manager
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand application sources
+        shell: pwsh
+        working-directory: .
+        run: |
+          Expand-Archive -LiteralPath 'file-manager/build_source.zip' -DestinationPath 'file-manager' -Force
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: file-manager/requirements.txt
+      - name: Install runtime and packager
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+      - name: Run automated tests
+        run: python -m unittest discover -s tests -v
+      - name: Compile light-mode Windows executable
+        run: >
+          python -m PyInstaller --clean --noconfirm --onefile --windowed
+          --name "File Manager" --icon "assets/file_manager.ico"
+          --collect-all tkinterdnd2 file_manager.py
+      - name: Assert binary built
+        shell: pwsh
+        run: |
+          if (!(Test-Path 'dist/File Manager.exe')) { throw 'No Windows EXE was produced' }
+          Write-Host 'Windows EXE successfully compiled.'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: File-Manager-v1.1-Light-Portable-EXE
+          path: file-manager/dist/File Manager.exe
+          if-no-files-found: error
+          retention-days: 30
