@@ -1,0 +1,80 @@
+name: Verify Next Accountant Completed Staging - Read Only
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/verify-next-accountant-complete-staging.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Wrangler
+        run: npm install --global wrangler@4
+      - name: Independently verify imported table counts and file index
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re, subprocess, sys
+          def query(sql):
+              proc = subprocess.run(
+                  ["wrangler", "d1", "execute", "next-accountant-staging",
+                   "--remote", "--yes", "--json", "--command", sql],
+                  capture_output=True, text=True, timeout=100, env=os.environ)
+              if proc.returncode:
+                  raise RuntimeError("Read-only Cloudflare D1 query failed; staging not verified.")
+              try:
+                  payload = json.loads(proc.stdout)
+                  return payload[0].get("results", []) if isinstance(payload, list) else payload.get("results", [])
+              except (ValueError, KeyError) as exc:
+                  raise RuntimeError("Invalid D1 query response; staging not verified.") from exc
+          names = [x["name"] for x in query(
+              "SELECT name FROM sqlite_master WHERE type='table' "
+              "AND name NOT LIKE 'sqlite_%' AND name NOT GLOB '_cf_*' "
+              "AND name NOT IN ('WebMeta','WebAuditLog','WebFileIndex','WebMigrationRuns')")]
+          assert len(names) == 109, "Expected exactly 109 Windows source tables"
+          assert all(re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', x) for x in names), "Unexpected source identifier"
+          counts = {}
+          for name in names:
+              counts[name] = int(query('SELECT COUNT(*) AS n FROM "' + name + '"')[0]['n'])
+          total = sum(counts.values())
+          assert total == 11913, "Staging row count does not match original 11,913-row backup"
+          # High-value module sample counts observed in the original Windows import log.
+          expected = {
+              "Entities":25, "Customers":234, "Employees":57,
+              "SalesInvoices":823, "PaymentVouchers":55,
+              "ReceiptVouchers":8, "PMPaymentPlan":8,
+              "PMPayments":7, "PMPaymentReceipts":4,
+              "PMPaymentPlanAllocations":3,
+          }
+          failures = [k for k,v in expected.items() if counts.get(k) != v]
+          assert not failures, "Sample source-table counts mismatched; staging financial reconciliation blocked."
+          files = query(
+              "SELECT COUNT(*) AS file_count, "
+              "COALESCE(SUM(SizeBytes),0) AS total_bytes, "
+              "SUM(CASE WHEN SizeBytes=0 THEN 1 ELSE 0 END) AS empty_files, "
+              "SUM(CASE WHEN LENGTH(Sha256)<>64 OR Sha256 GLOB '*[^0-9a-fA-F]*' "
+              "OR SizeBytes<0 OR OriginalName='' OR ObjectKey NOT LIKE 'business/%' "
+              "OR Category<>'V6BusinessBackup' OR RecordType<>'MigrationFile' "
+              "THEN 1 ELSE 0 END) AS invalid "
+              "FROM WebFileIndex")
+          assert files, "File index unreadable"
+          f = files[0]
+          assert int(f['file_count']) == 909, "Expected all 909 R2 file-index entries"
+          assert int(f['invalid'] or 0) == 0, "Invalid R2 object metadata or digests"
+          print("PASS: 109 source tables, 11,913 business rows")
+          print("PASS: 10 key accounting and HR table counts match Windows import log")
+          print("PASS: 909 private file index entries with valid SHA-256 metadata")
+          print("PASS: zero-byte source files preserved:", int(f['empty_files'] or 0))
+          print("NOTE: Source-to-staging monetary value and report-by-report parity NOT yet certified.")
+          print("NOTE: No business records or staging objects were modified during verification.")
+          PY
