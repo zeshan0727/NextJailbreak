@@ -16,7 +16,7 @@ internal sealed class CloudClient : IDisposable
         _http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
         _http.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd("NextAccountantMigrator/0.2.0");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd("NextAccountantMigrator/0.2.1");
     }
 
     public Task<Health?> HealthAsync() => GetAsync<Health>("/health");
