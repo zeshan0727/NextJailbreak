@@ -4,7 +4,7 @@ root=Path(__file__).resolve().parent
 p=root/'filemanager/repair.py'
 s=p.read_text(encoding='utf-8')
 start=s.index('def manual_repair_proposal(')
-end=s.index('\ndef apply_repair(',start)
+end=len(s)  # v1.6 appends manual_repair_proposal at module EOF
 replacement='''def _normalize_manual_filename(value: str, source_ext: str) -> str:
     """Accept a stem or full filename. Keep original extension without doubling."""
     raw=str(value or "").strip()
