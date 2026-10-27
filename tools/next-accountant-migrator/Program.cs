@@ -24,7 +24,7 @@ var backup = options.Get("backup") ?? BackupVerifier.FindNewest(installRoot);
 if (string.IsNullOrWhiteSpace(backup) || !File.Exists(backup))
     return Fail("No ACCOUNTANTS V6 business backup was found. Create a fresh verified business backup first.");
 
-Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.2.1 - STAGING ONLY");
+Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.2.2 - STAGING ONLY");
 Console.WriteLine("Source: " + backup);
 Console.WriteLine("Mode: " +
     (prepareOnly ? "PREPARE / VERIFY ONLY" :
