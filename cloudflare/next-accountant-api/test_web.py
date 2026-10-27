@@ -47,6 +47,7 @@ sql=[
 "CREATE TABLE Customers(Id INTEGER PRIMARY KEY,EntityId INTEGER,Reference TEXT,ContactName TEXT,NeedsReview INTEGER)",
 "CREATE TABLE Employees(Id INTEGER PRIMARY KEY,EntityId INTEGER,EmployeeNo TEXT,Name TEXT,Position TEXT,Department TEXT,IsActive INTEGER)",
 "CREATE TABLE DailyTasks(Id INTEGER PRIMARY KEY,EntityId INTEGER,Title TEXT,Status TEXT,Priority TEXT,DueAt TEXT,CreatedAt TEXT,UpdatedAt TEXT)",
+"CREATE TABLE ManagerReportAccountsV6A(SnapshotId TEXT,AccountKey TEXT,DebitYtd REAL,CreditYtd REAL,CurrentBalance REAL)",
 ]
 for i in range(0,len(sql),8):
     status,_,response=req("/api/admin/apply-schema","POST",
@@ -65,7 +66,8 @@ rows={
 "PMPaymentPlanAllocations":[{"Id":1,"PaymentPlanId":1,"PaymentId":1,"ReceivedDate":"2026-10-04","Amount":100.0}],
 "Customers":[{"Id":1,"EntityId":1,"Reference":"C1","ContactName":"Synthetic Contact","NeedsReview":0}],
 "Employees":[{"Id":1,"EntityId":1,"EmployeeNo":"T001","Name":"Synthetic Person","Position":"Accountant","Department":"Finance","IsActive":1}],
-"DailyTasks":[{"Id":1,"EntityId":1,"Title":"Review synthetic voucher","Status":"Open","Priority":"Normal","DueAt":"2026-11-05","CreatedAt":"2026-10-27","UpdatedAt":"2026-10-27"}]
+"DailyTasks":[{"Id":1,"EntityId":1,"Title":"Review synthetic voucher","Status":"Open","Priority":"Normal","DueAt":"2026-11-05","CreatedAt":"2026-10-27","UpdatedAt":"2026-10-27"}],
+"ManagerReportAccountsV6A":[{"SnapshotId":"synthetic-snapshot","AccountKey":"1000","DebitYtd":500.25,"CreditYtd":125.50,"CurrentBalance":374.75}]
 }
 for table,payload in rows.items():
     status,_,result=req("/api/admin/import-batch","POST",{"table":table,"rows":payload},bearer=True)
@@ -137,6 +139,14 @@ assert detail_by_name["PaymentVouchers"]["currency"]=="QAR",detail_by_name
 assert detail_by_name["PMPayments"]["currency"]=="UNSPECIFIED",detail_by_name
 assert detail_by_name["PMPaymentPlanAllocations"]["total"]==100.0,detail_by_name
 assert all(x["entityId"]==1 and x["nullAmounts"]==0 for x in detail["groups"]),detail
+status,_,_=req("/api/admin/tb-snapshot",cookie=browser_cookie)
+assert status==401,"Browser viewer can access private manager-report account totals"
+status,_,snapshots=req("/api/admin/tb-snapshot",bearer=True)
+assert status==200 and snapshots["count"]==1,(status,snapshots)
+assert snapshots["groups"][0]["debitYtd"]==500.25,snapshots
+assert snapshots["groups"][0]["creditYtd"]==125.5,snapshots
+assert snapshots["groups"][0]["currentBalance"]==374.75,snapshots
+print("PASS: private manager-report debit/credit/snapshot integrity aggregates.")
 print("PASS: owner-only per-company/month/currency accounting breakdown against original source schema.")
 status,_,_=req("/api/web/records?type=SalaryHistory&entityId=1",cookie=browser_cookie)
 assert status==400,"Unapproved payroll table was exposed"
