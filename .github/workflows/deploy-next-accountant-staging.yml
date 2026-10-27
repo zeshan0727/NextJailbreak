@@ -91,5 +91,13 @@ jobs:
           PY
           STATUS=$(curl -sS -o /dev/null -w '%{http_code}' "$API/api/admin/tables")
           test "$STATUS" = "401" || test "$STATUS" = "503"
+          # Private staging business data must not leak without an authenticated cookie.
+          for path in /web /api/web/entities /api/web/overview?entityId=1; do
+            STATUS=$(curl -sS -o /dev/null -w '%{http_code}' "$API$path")
+            test "$STATUS" = "401"
+          done
+          STATUS=$(curl -sS -X POST -o /dev/null -w '%{http_code}' "$API/api/web/session/start")
+          test "$STATUS" = "401"
+          echo "Private web routes closed to anonymous traffic" >> "$GITHUB_STEP_SUMMARY"
           echo "Staging backend updated; V6 source import remains read-only to web clients." >> "$GITHUB_STEP_SUMMARY"
           echo "Existing migrated source tables and R2 files were not reset." >> "$GITHUB_STEP_SUMMARY"
