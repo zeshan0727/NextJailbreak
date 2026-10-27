@@ -55,7 +55,9 @@ jobs:
         working-directory: file-manager
         run: |
           python apply_patch_v1_7.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -c "from pathlib import Path; import shutil; shutil.copyfile('test_manual_filename_v17.py','tests/test_manual_filename_v17.py')"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Diagnose helper availability before Windows tests
         working-directory: file-manager
         run: |
