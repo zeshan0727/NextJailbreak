@@ -51,7 +51,7 @@ for i in range(0,len(sql),8):
          "sourceSchemaVersion":21},bearer=True)
     assert status==200,(status,response)
 rows={
-"Entities":[{"Id":1,"Name":"Synthetic Stone Cafe","Code":"SC","IsActive":1}],
+"Entities":[{"Id":1,"Name":"Synthetic Stone Cafe","Code":"SC","IsActive":1},{"Id":2,"Name":"Unmanaged Company","Code":"X","IsActive":1}],
 "SalesInvoices":[{"Id":3,"EntityId":1,"InvoiceNumber":"TEST-INV-3","InvoiceDate":"2026-10-01","CustomerName":"Test Customer","Amount":500.25,"Year":2026,"Month":10,"IsCancelled":0}],
 "PaymentVouchers":[{"Id":8,"EntityId":1,"VoucherNo":"PV-8","VoucherDate":"2026-10-02","Payee":"Test Payee","Amount":100.0,"Currency":"QAR","Category":"Services","PaymentMode":"Bank","Purpose":"Synthetic"}],
 "ReceiptVouchers":[{"Id":9,"EntityId":1,"ReceiptNo":"RV-9","ReceiptDate":"2026-10-03","ReceivedFrom":"Test","Amount":125.5,"Currency":"QAR","ReceiptType":"Bank","ReferenceNo":"T-9"}],
@@ -89,7 +89,11 @@ assert status==401,"One-time login ticket was re-used"
 status,_,html=req("/web",cookie=browser_cookie)
 assert status==200 and "Next Accountant" in html,(status,html[:200])
 status,_,entities=req("/api/web/entities",cookie=browser_cookie)
-assert status==200 and entities["entities"][0]["Name"]=="Synthetic Stone Cafe",entities
+assert status==200 and len(entities["entities"])==1 and entities["entities"][0]["Name"]=="Synthetic Stone Cafe",entities
+status,_,_=req("/api/web/overview?entityId=2",cookie=browser_cookie)
+assert status==404,"Unauthorized company visible through direct ID request"
+status,_,_=req("/api/web/records?type=Invoices&entityId=2",cookie=browser_cookie)
+assert status==404,"Unmanaged entity is accessible from records endpoint"
 status,_,summary=req("/api/web/overview?entityId=1",cookie=browser_cookie)
 assert status==200 and summary["invoiceCount"]==1 and summary["invoiceAmount"]==500.25,summary
 assert summary["paymentCount"]==1 and summary["receiptCount"]==1,summary
