@@ -4,6 +4,7 @@
 import { webAsset } from './web-view.js';
 import {listDrafts,createDraft,attachDraft,downloadDraft} from './voucher-drafts.js';
 import {listWindowsReports,downloadWindowsReport} from './report-archive.js';
+import {managerSnapshots,managerAccounts,managerMappings} from './manager-ledger.js';
 
 const COOKIE = '__Host-na-staging';
 const MAX_AGE = 8 * 60 * 60;
@@ -272,6 +273,15 @@ export async function handleWeb(request,env) {
     if(url.pathname==='/web') {
       const asset=webAsset('/web');
       return new Response(asset.body,{headers:secureHeaders(asset.type)});
+    }
+    if(url.pathname==='/api/web/report-snapshots' ||
+       url.pathname==='/api/web/report-accounts' ||
+       url.pathname==='/api/web/report-mappings') {
+      const id=queryId(url);
+      if(!id||!await ensureEntity(env,id))return json({error:'Company not accessible.'},404);
+      if(url.pathname==='/api/web/report-snapshots')return await managerSnapshots(env,id);
+      if(url.pathname==='/api/web/report-accounts')return await managerAccounts(env,id,url);
+      return await managerMappings(env,id,url);
     }
     if(url.pathname==='/api/web/manager-archive'||url.pathname==='/api/web/manager-report-file') {
       const id=queryId(url);
