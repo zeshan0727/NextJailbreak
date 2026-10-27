@@ -47,7 +47,9 @@ sql=[
 "CREATE TABLE Customers(Id INTEGER PRIMARY KEY,EntityId INTEGER,Reference TEXT,ContactName TEXT,NeedsReview INTEGER)",
 "CREATE TABLE Employees(Id INTEGER PRIMARY KEY,EntityId INTEGER,EmployeeNo TEXT,Name TEXT,Position TEXT,Department TEXT,IsActive INTEGER)",
 "CREATE TABLE DailyTasks(Id INTEGER PRIMARY KEY,EntityId INTEGER,Title TEXT,Status TEXT,Priority TEXT,DueAt TEXT,CreatedAt TEXT,UpdatedAt TEXT)",
-"CREATE TABLE ManagerReportAccountsV6A(SnapshotId TEXT,AccountKey TEXT,DebitYtd REAL,CreditYtd REAL,CurrentBalance REAL)",
+"CREATE TABLE ManagerReportAccountsV6A(SnapshotId TEXT,AccountKey TEXT,AccountCode TEXT,AccountName TEXT,AccountType TEXT,Element TEXT,DebitYtd REAL,CreditYtd REAL,CurrentBalance REAL)",
+"CREATE TABLE ManagerReportTbSnapshotsV6A(SnapshotId TEXT,Company TEXT,SnapshotDate TEXT,Version INTEGER,AccountCount INTEGER,PeriodCount INTEGER,Balanced INTEGER,UnmappedCount INTEGER,Active INTEGER,FinalLocked INTEGER)",
+"CREATE TABLE ManagerReportMappingsV6A(MappingKey TEXT,Company TEXT,AccountCode TEXT,AccountName TEXT,SourceType TEXT,SubMapping TEXT,StatementType TEXT,TemplateCode TEXT,TemplateRow TEXT,TemplateOrder INTEGER,SourceKind TEXT)",
 ]
 for i in range(0,len(sql),8):
     status,_,response=req("/api/admin/apply-schema","POST",
@@ -67,7 +69,9 @@ rows={
 "Customers":[{"Id":1,"EntityId":1,"Reference":"C1","ContactName":"Synthetic Contact","NeedsReview":0}],
 "Employees":[{"Id":1,"EntityId":1,"EmployeeNo":"T001","Name":"Synthetic Person","Position":"Accountant","Department":"Finance","IsActive":1}],
 "DailyTasks":[{"Id":1,"EntityId":1,"Title":"Review synthetic voucher","Status":"Open","Priority":"Normal","DueAt":"2026-11-05","CreatedAt":"2026-10-27","UpdatedAt":"2026-10-27"}],
-"ManagerReportAccountsV6A":[{"SnapshotId":"synthetic-snapshot","AccountKey":"1000","DebitYtd":500.25,"CreditYtd":125.50,"CurrentBalance":374.75}]
+"ManagerReportAccountsV6A":[{"SnapshotId":"synthetic-snapshot","AccountKey":"1000","AccountCode":"1000","AccountName":"Synthetic Bank","AccountType":"Asset","Element":"Asset","DebitYtd":500.25,"CreditYtd":125.50,"CurrentBalance":374.75}],
+"ManagerReportTbSnapshotsV6A":[{"SnapshotId":"synthetic-snapshot","Company":"Synthetic Stone Cafe","SnapshotDate":"2026-09-30","Version":1,"AccountCount":1,"PeriodCount":12,"Balanced":1,"UnmappedCount":0,"Active":1,"FinalLocked":1},{"SnapshotId":"foreign-snapshot","Company":"Unmanaged Company","SnapshotDate":"2026-09-30","Version":1,"AccountCount":0,"PeriodCount":12,"Balanced":1,"UnmappedCount":0,"Active":1,"FinalLocked":1}],
+"ManagerReportMappingsV6A":[{"MappingKey":"map-1","Company":"Synthetic Stone Cafe","AccountCode":"1000","AccountName":"Synthetic Bank","SourceType":"Asset","SubMapping":"Cash","StatementType":"BS","TemplateCode":"CASH","TemplateRow":"Cash","TemplateOrder":1,"SourceKind":"Test"}]
 }
 for table,payload in rows.items():
     status,_,result=req("/api/admin/import-batch","POST",{"table":table,"rows":payload},bearer=True)
@@ -146,6 +150,23 @@ assert status==200 and snapshots["count"]==1,(status,snapshots)
 assert snapshots["groups"][0]["debitYtd"]==500.25,snapshots
 assert snapshots["groups"][0]["creditYtd"]==125.5,snapshots
 assert snapshots["groups"][0]["currentBalance"]==374.75,snapshots
+status,_,source_snapshots=req("/api/web/report-snapshots?entityId=1",cookie=browser_cookie)
+assert status==200 and len(source_snapshots["snapshots"])==1,(status,source_snapshots)
+assert source_snapshots["snapshots"][0]["SnapshotId"]=="synthetic-snapshot",source_snapshots
+status,_,accounts=req("/api/web/report-accounts?entityId=1&snapshotId=synthetic-snapshot",cookie=browser_cookie)
+assert status==200 and accounts["total"]==1 and accounts["rows"][0]["AccountCode"]=="1000",(status,accounts)
+status,_,mapped=req("/api/web/report-mappings?entityId=1",cookie=browser_cookie)
+assert status==200 and mapped["total"]==1 and mapped["rows"][0]["StatementType"]=="BS",(status,mapped)
+status,_,_=req("/api/web/report-accounts?entityId=1&snapshotId=foreign-snapshot",cookie=browser_cookie)
+assert status==404,"Cross-company report account snapshot exposed"
+status,_,_=req("/api/web/report-snapshots?entityId=2",cookie=browser_cookie)
+assert status==404,"Unmanaged company report explorer exposed"
+status,_,_=req("/api/web/report-accounts?entityId=1&snapshotId=synthetic-snapshot")
+assert status==401,"Anonymous source trial balance account access allowed"
+status,_,_=req("/api/web/report-accounts?entityId=1&snapshotId=synthetic-snapshot&page=10001",cookie=browser_cookie)
+assert status==400,"Unlimited account-page read accepted"
+print("PASS: authenticated source manager snapshots, account pages and original mappings are company-scoped.")
+
 print("PASS: private manager-report debit/credit/snapshot integrity aggregates.")
 print("PASS: owner-only per-company/month/currency accounting breakdown against original source schema.")
 status,_,_=req("/api/web/records?type=SalaryHistory&entityId=1",cookie=browser_cookie)
