@@ -1,0 +1,54 @@
+name: Inspect Next Accountant Staging (Read Only)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/inspect-next-accountant-staging-readonly.yml"
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Cloudflare Wrangler
+        run: npm install --global wrangler@4
+      - name: Confirm no partial staging business records
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json,os,re,subprocess,sys
+          def query(sql):
+              run=subprocess.run(
+                  ['wrangler','d1','execute','next-accountant-staging','--remote',
+                   '--command',sql,'--json','--yes'],
+                  capture_output=True,text=True,timeout=90,env=os.environ)
+              if run.returncode:
+                  raise RuntimeError("D1 read-only staging inspection failed; no import clearance issued.")
+              payload=json.loads(run.stdout)
+              if isinstance(payload,list):
+                  return payload[0].get('results',[]) if payload else []
+              return payload.get('results',[])
+          # Do not print or upload business table names or individual row counts.
+          names=[r['name'] for r in query(
+              "SELECT name FROM sqlite_master WHERE type='table' "+
+              "AND name NOT LIKE 'sqlite_%' AND name NOT GLOB '_cf_*' "+
+              "AND name NOT IN ('WebMeta','WebAuditLog','WebFileIndex','WebMigrationRuns')")]
+          total=0
+          for name in names:
+              if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',name):
+                  raise RuntimeError('Unexpected source table identifier; manual review required.')
+              rows=query('SELECT COUNT(*) AS n FROM "'+name+'"')
+              total+=int(rows[0]['n'])
+          file_index=int(query("SELECT COUNT(*) AS n FROM WebFileIndex")[0]['n'])
+          print('Staging source schema objects present:',len(names))
+          print('Staging business data empty:',total == 0)
+          print('Staging file index empty:',file_index == 0)
+          if total or file_index:
+              sys.exit('STOP: staging has rows or file index entries. Do not restart the importer.')
+          print('PASS: no source-table rows or indexed business files in staging; no data changed.')
+          PY
