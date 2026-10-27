@@ -44,6 +44,8 @@ internal sealed class CloudClient : IDisposable
         GetAsync<FinancialFingerprint>("/api/admin/financial-fingerprint");
     public Task<FinancialBreakdownResponse?> FinancialBreakdownAsync() =>
         GetAsync<FinancialBreakdownResponse>("/api/admin/financial-breakdown");
+    public Task<TrialBalanceSnapshotResponse?> TrialBalanceSnapshotAsync() =>
+        GetAsync<TrialBalanceSnapshotResponse>("/api/admin/tb-snapshot");
 
 
     public async Task ApplySchemaAsync(string sql, int sourceSchemaVersion) =>
