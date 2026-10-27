@@ -1,3 +1,5 @@
+import {DRAFT_JS} from './voucher-view.js';
+
 // Next Accountant — private, staging-only web interface assets.
 // This file contains NO business data, credentials or private identifiers.
 const HTML = String.raw`<!doctype html>
@@ -8,6 +10,7 @@ const HTML = String.raw`<!doctype html>
 <meta name="theme-color" content="#f7f8fb">
 <title>Next Accountant | Secure Staging</title>
 <link rel="stylesheet" href="/web/app.css">
+<script defer src="/web/drafts.js"></script>
 <script defer src="/web/app.js"></script>
 </head>
 <body>
@@ -96,6 +99,7 @@ const JS = String.raw`(function () {
     {id:"Invoices",label:"Sales invoices"},
     {id:"PaymentVouchers",label:"Payment vouchers"},
     {id:"ReceiptVouchers",label:"Receipt vouchers"},
+    {id:"Drafts",label:"PV / RV drafts"},
     {id:"Customers",label:"Customers"},
     {id:"ManagerReports",label:"Manager reports"}
   ];
@@ -217,6 +221,10 @@ const JS = String.raw`(function () {
         work.append(p);
         const note=panel("Accounting integrity","Structural migration passed. The following still require financial tie-out against Windows: invoice totals, opening balances, aged receivables, manager-report worksheets and every entity's trial balance.");
         work.append(note);
+      }else if(state.tab==="Drafts"){
+        if(typeof window.renderVoucherDrafts!=="function")
+          throw Error("Draft editor unavailable; refresh private staging.");
+        await window.renderVoucherDrafts(work,state.entity);
       }else{
         const data=await api("/api/web/records?type="+encodeURIComponent(state.tab)+"&entityId="+id+"&page="+state.page);
         work.appendChild(recordPanel(data));
@@ -248,5 +256,6 @@ export function webAsset(path) {
   if (path === "/web") return {body:HTML,type:"text/html; charset=utf-8"};
   if (path === "/web/app.css") return {body:CSS,type:"text/css; charset=utf-8"};
   if (path === "/web/app.js") return {body:JS,type:"application/javascript; charset=utf-8"};
+  if (path === "/web/drafts.js") return {body:DRAFT_JS,type:"application/javascript; charset=utf-8"};
   return null;
 }
