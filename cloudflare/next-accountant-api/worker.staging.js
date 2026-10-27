@@ -1,6 +1,7 @@
 import { handleWeb, createWebTicket } from './web-readonly.js';
 import { financeFingerprint } from './financial-fingerprint.js';
 import { financialBreakdown } from './financial-breakdown.js';
+import { trialBalanceSnapshotFingerprint } from './tb-snapshot.js';
 const ALLOWED_ORIGINS = new Set([
   'https://nextjailbreak.com',
   'https://www.nextjailbreak.com',
@@ -382,6 +383,8 @@ export default {
         const tables = await listTables(env);
         return json({ok:true,tables:tables.length,aiConfigured:Boolean(env.OPENAI_API_KEY),filesBucket:Boolean(env.FILES)},200,origin);
       }
+      if (request.method === 'GET' && url.pathname === '/api/admin/tb-snapshot')
+        return await trialBalanceSnapshotFingerprint(request,env);
       if (request.method === 'GET' && url.pathname === '/api/admin/financial-breakdown')
         return await financialBreakdown(request,env);
       if (request.method === 'GET' && url.pathname === '/api/admin/financial-fingerprint')
