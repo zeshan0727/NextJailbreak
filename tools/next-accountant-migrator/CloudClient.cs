@@ -40,6 +40,9 @@ internal sealed class CloudClient : IDisposable
     }
 
     public Task<Health?> HealthAsync() => GetAsync<Health>("/health");
+    public Task<FinancialFingerprint?> FinancialFingerprintAsync() =>
+        GetAsync<FinancialFingerprint>("/api/admin/financial-fingerprint");
+
 
     public async Task ApplySchemaAsync(string sql, int sourceSchemaVersion) =>
         await PostAsync("/api/admin/apply-schema", new { sql, sourceSchemaVersion });
