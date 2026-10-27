@@ -20,14 +20,15 @@ Log in through the encrypted Windows ZIP using `OPEN_ACCOUNTANT_WEB.bat` on the 
 
 - Company dashboard with source invoice/receipt/voucher summaries.
 - Original Windows V6 invoice, customer, payment/receipt voucher, contract project, installment and receipt allocation data in read-only tables.
-- Download unchanged archived manager Excel reports from the private R2 backup, where present.
+- Browse the 27 original historical manager trial-balance snapshots, source account code/type/element, debit/credit/balance rows, and original report mappings. Six managed companies have snapshots; Levante Bags has none in the imported V6 backup. These are source records, not recomputed statements.
+- Download unchanged archived manager Excel/PDF reports from the private R2 backup, where present; a read-only source audit found 46 indexed archive files at the expected manager-report prefix.
 - Company-scoped daily tasks and HR employee directory (read only; payroll amounts not exposed).
 - Create **isolated PV/RV staging drafts** and optionally attach a scanned PDF/phone photo (up to 12 MB), with audit trail. These are NOT posted to the original Windows voucher tables or reconciled accounts.
 - Session expiration, signed-out session revocation, CSRF origin verification for draft writes, private per-company report access, no anonymous access.
 
 ### Next required validation
 
-The v0.4 Windows financial check passed against the exact 2026-10-26 backup: 109 tables, 11,913 rows, 909 indexed files, and six source-table monetary totals. The enhanced v0.5 `VERIFY_FINANCIALS_ONLY.bat` additionally compares each dataset by original company, source period and currency, and verifies manager-report account snapshot debit/credit/balance aggregates. Run it locally on the same Windows user profile; it performs no business writes.
+The v0.5 Windows financial check has also passed on the exact 2026-10-26 backup: 109 tables, 11,913 rows, 909 indexed files, six source-table monetary totals, all 39 company/month/currency aggregates, and 27 manager-report source snapshot account balances. The enhanced v0.5 `VERIFY_FINANCIALS_ONLY.bat` additionally compares each dataset by original company, source period and currency, and verifies manager-report account snapshot debit/credit/balance aggregates. Run it locally on the same Windows user profile; it performs no business writes.
 
 **Do not certify finance cutover based only on matching six sums or source snapshot totals.** Full production approval requires per-company and per-period trial balance/balance-sheet/income-statement reconciliation, exchange-rate correctness, manager-report rendering/export parity, controlled source-to-web voucher posting with audit and rollback tests, full HR module parity, multiuser security, protected storage/backups, and user acceptance testing.
 
