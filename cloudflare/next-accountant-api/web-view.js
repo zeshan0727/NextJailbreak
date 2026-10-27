@@ -1,4 +1,5 @@
 import {DRAFT_JS} from './voucher-view.js';
+import {REPORT_JS} from './manager-view.js';
 
 // Next Accountant — private, staging-only web interface assets.
 // This file contains NO business data, credentials or private identifiers.
@@ -11,6 +12,7 @@ const HTML = String.raw`<!doctype html>
 <title>Next Accountant | Secure Staging</title>
 <link rel="stylesheet" href="/web/app.css">
 <script defer src="/web/drafts.js"></script>
+<script defer src="/web/reports.js"></script>
 <script defer src="/web/app.js"></script>
 </head>
 <body>
@@ -32,7 +34,7 @@ const HTML = String.raw`<!doctype html>
     </header>
     <section class="safety-strip"><span class="safety-icon">◎</span>
       <span>Verified staging copy • 109 source tables • 11,913 records • 909 indexed files.
-      Monetary and report-format reconciliation is still required. No changes to Windows data.</span></section>
+      The v0.5 source totals, company/month/currency groups and 27 TB snapshots reconciled. Generated report parity remains pending. No Windows changes.</span></section>
     <div class="page-content">
       <div id="error" role="alert" hidden></div>
       <div class="control-bar">
@@ -89,6 +91,9 @@ button:disabled{opacity:.4;cursor:not-allowed}footer{border-top:1px solid #e7ebf
 textarea.draft-input{resize:vertical}.draft-form-grid select{width:100%;min-width:0}
 .draft-submit{margin-top:15px;background:#254e7b;color:#fff;border:0;padding:12px 20px;border-radius:10px;font-weight:700;font-size:13px}
 .draft-feedback{margin-top:9px;color:#375c49;font-size:12px;min-height:20px}.draft-link{color:#185aaa;font-weight:650}
+.report-snapshot-select{margin:16px 0 12px;min-width:min(100%,370px)}
+.report-snapshot-meta{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 17px}
+.report-snapshot-meta .pill{font-size:11px}
 @media(max-width:760px){.draft-form-grid{grid-template-columns:1fr}}
 @media(max-width:1080px){.metrics{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;z-index:30;top:0;bottom:0;left:0;width:252px}.sidebar.open{display:flex}.icon-button{display:inline-flex}.topbar{padding:15px 18px;min-height:75px}.page-content{padding:17px}.safety-strip{margin:16px}.metrics{grid-template-columns:1fr 1fr}.metric-card{padding:15px}.metric-value{font-size:20px}select{min-width:215px}.read-tag{display:none}.panel{padding:15px}}
@@ -260,8 +265,11 @@ const JS = String.raw`(function () {
           throw Error("Draft editor unavailable; refresh private staging.");
         await window.renderVoucherDrafts(work,state.entity);
       }else if(state.tab==="ManagerReports"){
+        if(typeof window.renderManagerLedger!=="function")
+          throw Error("Manager report viewer unavailable. Refresh private staging.");
+        await window.renderManagerLedger(work,state.entity);
         const archive=await api("/api/web/manager-archive?entityId="+id);
-        work.append(archivePanel(archive,id));
+        if(String(state.entity)===String(id))work.append(archivePanel(archive,id));
       }else{
         const data=await api("/api/web/records?type="+encodeURIComponent(state.tab)+"&entityId="+id+"&page="+state.page);
         work.appendChild(recordPanel(data));
@@ -294,5 +302,6 @@ export function webAsset(path) {
   if (path === "/web/app.css") return {body:CSS,type:"text/css; charset=utf-8"};
   if (path === "/web/app.js") return {body:JS,type:"application/javascript; charset=utf-8"};
   if (path === "/web/drafts.js") return {body:DRAFT_JS,type:"application/javascript; charset=utf-8"};
+  if (path === "/web/reports.js") return {body:REPORT_JS,type:"application/javascript; charset=utf-8"};
   return null;
 }
