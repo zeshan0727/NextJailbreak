@@ -14,7 +14,7 @@ bundle = zipfile.ZipFile(io.BytesIO(lzma.decompress(base64.b64decode(encoded))))
 patch = root / "_upgrade_v1_3.patch"
 parts = re.split(r"(?=^--- a/)", bundle.read("upgrade.patch").decode("utf-8"), flags=re.M)
 functional_patch = "".join(part for part in parts if part.startswith("--- a/filemanager/"))
-patch.write_text(functional_patch, encoding="utf-8")
+patch.write_bytes(functional_patch.encode("utf-8"))
 try:
     subprocess.run(["git", "apply", "--check", str(patch)], cwd=root, check=True)
     subprocess.run(["git", "apply", str(patch)], cwd=root, check=True)
