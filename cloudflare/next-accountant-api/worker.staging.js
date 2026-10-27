@@ -81,19 +81,96 @@ async function tableColumns(env, table) {
   return (result.results || []).map(r => String(r.name));
 }
 
+// The Windows migrator sends a PRAGMA preamble followed by multiline SQL DDL.
+// D1.exec() splits at newlines, including newlines inside CREATE TABLE.
+// Parse complete definitions and execute each as a prepared statement instead.
+function splitSqlStatements(sql) {
+  const result = [];
+  let start = 0, quote = '', comment = '';
+  for (let i = 0; i < sql.length; i++) {
+    const ch = sql[i], next = sql[i + 1];
+    if (comment === 'line') {
+      if (ch === '\n') comment = '';
+      continue;
+    }
+    if (comment === 'block') {
+      if (ch === '*' && next === '/') {comment = ''; i++;}
+      continue;
+    }
+    if (quote) {
+      const closer = quote === '[' ? ']' : quote;
+      if (ch === closer) {
+        if (next === closer) i++;
+        else quote = '';
+      }
+      continue;
+    }
+    if (ch === '-' && next === '-') {comment = 'line'; i++; continue;}
+    if (ch === '/' && next === '*') {comment = 'block'; i++; continue;}
+    if (ch === "'" || ch === '"' || ch === '\x60' || ch === '[') {quote = ch; continue;}
+    if (ch === ';') {
+      const statement = sql.slice(start, i).trim();
+      if (statement) result.push(statement);
+      start = i + 1;
+    }
+  }
+  if (quote || comment === 'block') throw new Error('SQL definition has an unterminated quote or comment.');
+  const remaining = sql.slice(start).trim();
+  if (remaining) result.push(remaining);
+  return result;
+}
+function schemaObject(statement) {
+  const match = statement.match(/^\s*CREATE\s+(UNIQUE\s+)?(TABLE|INDEX)\s+(?:IF\s+NOT\s+EXISTS\s+)?("(?:""|[^"])+"|\x60(?:\x60\x60|[^\x60])+\x60|\[(?:\]\]|[^\]])+\]|'(?:''|[^'])+'|[A-Za-z_][A-Za-z0-9_]*)\s*(?:\(|ON\b)/i);
+  if (!match) return null;
+  const type = match[2].toLowerCase();
+  const identifier = match[3];
+  const first = identifier[0];
+  const name = first === '"' ? identifier.slice(1,-1).replace(/""/g,'"') :
+    first === '\x60' ? identifier.slice(1,-1).replace(/\x60\x60/g,'\x60') :
+    first === '[' ? identifier.slice(1,-1).replace(/\]\]/g,']') :
+    first === "'" ? identifier.slice(1,-1).replace(/''/g,"'") : identifier;
+  return name && !name.toLowerCase().startsWith('sqlite_') &&
+    !name.toLowerCase().startsWith('_cf_') ? {type,name} : null;
+}
+function normalizedSourceDdl(value) {
+  return String(value || '').trim().replace(/;\s*$/,'')
+    .replace(/\bIF\s+NOT\s+EXISTS\b/ig,'').replace(/\s+/g,' ').trim();
+}
 async function applySchema(request, env, origin) {
   const body = await request.json();
   const sql = String(body?.sql || '');
-  if (!/^PRAGMA foreign_keys = ON[;\s]/i.test(sql) || /(?:^|;)\s*(?:DROP|ATTACH|DETACH|DELETE|UPDATE|REPLACE|VACUUM|ALTER|INSERT|PRAGMA\s+writable_schema)\b/i.test(sql)) return json({error:'Only additive source-schema creation is allowed in staging.'},400,origin);
   if (!sql || sql.length > 250000) return json({error:'Schema SQL is missing or too large.'},400,origin);
-  await env.DB.exec(sql);
+  const statements = splitSqlStatements(sql);
+  if (!statements.length || !/^\s*PRAGMA\s+foreign_keys\s*=\s*ON\s*$/i.test(statements[0]))
+    return json({error:'Expected foreign-key preamble from the verified Windows migrator.'},400,origin);
+  const ddl = statements.slice(1);
+  if (!ddl.length || ddl.length > 8)
+    return json({error:'Expected between one and eight source schema definitions.'},400,origin);
+  const objects = ddl.map(schemaObject);
+  if (objects.some(x => !x))
+    return json({error:'Only CREATE TABLE and CREATE INDEX definitions are permitted.'},400,origin);
+  const existing = [];
+  for (let i = 0; i < ddl.length; i++) {
+    const definition = objects[i];
+    const row = await env.DB.prepare(
+      "SELECT sql FROM sqlite_master WHERE type=? AND name=?"
+    ).bind(definition.type,definition.name).first();
+    if (row && normalizedSourceDdl(row.sql) !== normalizedSourceDdl(ddl[i]))
+      return json({error:'Conflicting existing staging schema definition; manual review required.',object:definition.name},409,origin);
+    existing.push(Boolean(row));
+  }
+  let created = 0, reused = 0;
+  for (let i = 0; i < ddl.length; i++) {
+    if (existing[i]) {reused++; continue;}
+    await env.DB.prepare(ddl[i]).run();
+    created++;
+  }
   const version = Number(body?.sourceSchemaVersion || 0);
   await env.DB.prepare("INSERT OR REPLACE INTO WebMeta(Key,Value,UpdatedAt) VALUES('windows_source_schema_version',?,datetime('now'))")
     .bind(String(version)).run();
-  await audit(env,'apply_schema','database','',{sourceSchemaVersion:version,bytes:sql.length});
-  return json({ok:true, sourceSchemaVersion:version},200,origin);
+  await audit(env,'apply_schema','database','',{sourceSchemaVersion:version,statements:ddl.length,created,reused});
+  return json({ok:true,sourceSchemaVersion:version,created,reused},200,origin);
 }
-
 
 function decodeSqliteValue(value) {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
