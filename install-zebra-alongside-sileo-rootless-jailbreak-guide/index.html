@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1118">
+  <title>How to Install Zebra Alongside Sileo on a Rootless Jailbreak | Next Jailbreak</title>
+  <meta name="description" content="Add Zebra's official repository to Sileo, install the compatible rootless build, keep both package managers, and avoid unsafe architecture or source changes.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://nextjailbreak.com/install-zebra-alongside-sileo-rootless-jailbreak-guide/">
+  <link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg">
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="/assets/community-comments.css">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Next Jailbreak">
+  <meta property="og:url" content="https://nextjailbreak.com/install-zebra-alongside-sileo-rootless-jailbreak-guide/">
+  <meta property="og:title" content="How to Install Zebra Alongside Sileo on a Rootless Jailbreak">
+  <meta property="og:description" content="Install Zebra from its official repository without removing Sileo, then verify the source, architecture and package queue before making changes.">
+  <meta property="og:image" content="https://nextjailbreak.com/assets/articles/source-media/zebra-official-app-icon.png">
+  <meta property="og:image:secure_url" content="https://nextjailbreak.com/assets/articles/source-media/zebra-official-app-icon.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="167">
+  <meta property="og:image:height" content="167">
+  <meta property="og:image:alt" content="Official Zebra package manager app icon">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@nextjailbreak">
+  <meta name="twitter:title" content="How to Install Zebra Alongside Sileo on a Rootless Jailbreak">
+  <meta name="twitter:description" content="Use Zebra's official repository, install the compatible rootless package, and keep Sileo as a working fallback.">
+  <meta name="twitter:image" content="https://nextjailbreak.com/assets/articles/source-media/zebra-official-app-icon.png">
+  <meta name="twitter:image:alt" content="Official Zebra package manager app icon">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"How to Install Zebra Alongside Sileo on a Rootless Jailbreak","description":"Add Zebra's official repository to Sileo, install the compatible rootless build, keep both package managers, and avoid unsafe architecture or source changes.","datePublished":"2026-10-27T00:58:38Z","dateModified":"2026-10-27T00:58:38Z","author":{"@type":"Person","name":"Zeeshan Barvi"},"publisher":{"@type":"Organization","name":"Next Jailbreak","url":"https://nextjailbreak.com"},"mainEntityOfPage":"https://nextjailbreak.com/install-zebra-alongside-sileo-rootless-jailbreak-guide/","image":["https://nextjailbreak.com/assets/articles/source-media/zebra-official-app-icon.png"],"about":["Zebra package manager","Sileo","rootless jailbreak","Dopamine 3","APT"]},{"@type":"SoftwareApplication","name":"Zebra","applicationCategory":"UtilitiesApplication","operatingSystem":"iOS on a compatible jailbroken device","softwareVersion":"1.1.37","url":"https://getzbra.com/","image":"https://nextjailbreak.com/assets/articles/source-media/zebra-official-app-icon.png"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Next Jailbreak","item":"https://nextjailbreak.com/"},{"@type":"ListItem","position":2,"name":"Jailbreak guides","item":"https://nextjailbreak.com/tutorials/#jailbreak-guides"},{"@type":"ListItem","position":3,"name":"Install Zebra alongside Sileo","item":"https://nextjailbreak.com/install-zebra-alongside-sileo-rootless-jailbreak-guide/"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can Zebra and Sileo stay installed together?","acceptedAnswer":{"@type":"Answer","text":"Yes. They are APT package-manager frontends for the same jailbreak package database; keeping Sileo installed provides a useful fallback while you confirm Zebra works."}},{"@type":"Question","name":"Does Zebra jailbreak an iPhone?","acceptedAnswer":{"@type":"Answer","text":"No. Zebra requires an already-jailbroken device and installs packages through APT."}},{"@type":"Question","name":"Which Zebra package should a rootless jailbreak use?","acceptedAnswer":{"@type":"Answer","text":"Use the compatible package offered by Zebra's official repository for the active jailbreak. Rootless environments use the iphoneos-arm64 package architecture; do not force a traditional iphoneos-arm build into them."}}]}]}</script>
+  <!-- google-analytics-auto:start -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7GJ4N0HV92"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7GJ4N0HV92');
+</script>
+<!-- google-analytics-auto:end -->
+  <script data-clean-url-redirect>(function(){var path=window.location.pathname;if(path.endsWith('.html')&&path.toLowerCase()!='/index.html'){window.location.replace(path.slice(0,-5)+'/'+window.location.search+window.location.hash);}}());</script>
+  <meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324">
+</head>
+<body>
+  <div class="topline"><div class="topline-inner"><span>iPhone jailbreak guides, tweak reviews and practical fixes</span><span class="topline-status"><i aria-hidden="true"></i> @nextjailbreak everywhere</span></div></div>
+  <header class="site-header"><div class="nav-shell"><a class="brand" href="/" aria-label="Next Jailbreak home"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><nav aria-label="Primary navigation"><ul class="nav-links"><li><a href="/">Blog</a></li><li><a href="/tutorials/#verified-articles">Cydia Tweaks</a></li><li><a href="/tutorials/#jailbreak-guides" aria-current="page">Jailbreak</a></li><li><a href="/videos/">Videos</a></li><li><a href="https://repo.nextjailbreak.com/">Repo</a></li></ul></nav></div></header>
+  <main class="container article-main">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/tutorials/#jailbreak-guides">Jailbreak guides</a><span aria-hidden="true">/</span><span>Install Zebra alongside Sileo</span></nav>
+    <article>
+      <header class="article-hero"><span class="article-kicker">Evergreen guide · Zebra 1.1.37 · Rootless</span><h1>How to Install Zebra Alongside Sileo on a Rootless Jailbreak</h1><p class="article-summary">Zebra and Sileo can coexist. Add Zebra’s official repository to a working Sileo installation, let APT select the build compatible with your jailbreak, review the queue, and keep Sileo until Zebra has completed a clean source refresh and package transaction.</p><p class="article-footnote">By Zeeshan Barvi · Published October 27, 2026 · Verified against Zebra’s official site, repository and releases</p></header>
+      <figure class="article-visual"><img src="/assets/articles/source-media/zebra-official-app-icon.png" alt="Official Zebra package manager app icon from the Zebra Team repository" width="167" height="167" fetchpriority="high" style="object-fit:contain"><figcaption>Official Zebra app icon from the <a href="https://github.com/zbrateam/Zebra/blob/main/Zebra/Assets.xcassets/App%20Icons/AppIcon.appiconset/Icon-App-83.5x83.5%402x.png" rel="nofollow noopener noreferrer">Zebra Team source repository</a>.</figcaption></figure>
+      <div class="article-layout">
+        <div class="article-content">
+          <div class="article-disclaimer"><strong>Before you begin:</strong> Zebra is not a jailbreak. The official project requires a jailbroken device. This guide assumes Sileo already works in a compatible rootless environment; it does not expand the device or firmware support of Dopamine, palera1n, or any other jailbreak.</div>
+          <h2>What this method changes</h2>
+          <p>Zebra and Sileo are interfaces for APT, the package system used by modern jailbreak bootstraps. Installing Zebra does not create a second bootstrap or duplicate every installed tweak. Both managers read the same installed-package state, so a package installed in one should appear installed in the other after a refresh.</p>
+          <p>The practical reason to keep both is recovery and preference: you can learn Zebra’s interface while retaining a known-working manager. Do not remove Sileo merely to make Zebra the daily manager. First confirm that Zebra can refresh sources, display installed packages and complete a harmless package transaction on your setup.</p>
+          <h2>Requirements</h2>
+          <ul>
+            <li>An already-jailbroken iPhone or iPad with an active, supported rootless environment.</li>
+            <li>A working Sileo installation that can refresh its current sources without APT or dpkg errors.</li>
+            <li>The official Zebra repository: <code>https://getzbra.com/repo/</code>.</li>
+            <li>A compatible Zebra package offered to the active jailbreak. Rootless packages use the <code>iphoneos-arm64</code> architecture.</li>
+          </ul>
+          <p>Zebra’s official site calls it an open-source package manager for jailbroken iOS devices and publishes the repository address above. Zebra 1.1.37, released August 7, 2026, is the current tagged release checked for this guide. Its initial release channel was tied to Dopamine 3, so users of other jailbreaks should install only the version their official repo or bootstrap actually offers rather than forcing a downloaded DEB.</p>
+          <h2>Step 1: make sure the jailbreak is active</h2>
+          <p>After a full device reboot, a semi-untethered jailbreak such as Dopamine is no longer active until you run its jailbreak process again. Open your jailbreak app and confirm the environment is active before troubleshooting Sileo or trying to add another manager. Zebra cannot replace that step.</p>
+          <p>Open Sileo and refresh the existing sources once. If the refresh already reports dependency, lock or interrupted-dpkg errors, resolve those first with the <a href="/fix-sileo-dpkg-interrupted-package-manager-lock-guide/">Sileo package-manager repair guide</a>. Adding another frontend does not repair a broken package database.</p>
+          <h2>Step 2: add Zebra’s official repository in Sileo</h2>
+          <ol>
+            <li>Copy <code>https://getzbra.com/repo/</code> exactly from Zebra’s official site.</li>
+            <li>In Sileo, open <strong>Sources</strong>, tap the add button, and paste the repository address.</li>
+            <li>Confirm the addition and wait for Sileo to finish refreshing. Do not close Sileo or respring while the source indexes are downloading.</li>
+            <li>Open the new Zebra source from the Sources list. If the address redirects somewhere unexpected or the source shows unsigned or unrelated packages, cancel and re-check the URL.</li>
+          </ol>
+          <p>Avoid search-result download pages, signing services and repositories that repackage Zebra. The project states that Zebra and jailbreaks are free and warns that anyone charging for the download is a scam.</p>
+          <h2>Step 3: verify the package before installing</h2>
+          <p>Search for Zebra from the official source and inspect the package page before tapping Get. Confirm the developer or source is Zebra Team, the displayed version is the one offered for your environment, and the queue does not propose removing the jailbreak bootstrap, core APT packages or Sileo.</p>
+          <table><thead><tr><th>Check</th><th>Expected for this guide</th><th>Stop if</th></tr></thead><tbody>
+            <tr><td>Source</td><td><code>https://getzbra.com/repo/</code></td><td>The package comes from a mirror or unrelated repository.</td></tr>
+            <tr><td>Environment</td><td>Already-jailbroken, active rootless bootstrap</td><td>The device is not jailbroken or the jailbreak session ended after reboot.</td></tr>
+            <tr><td>Architecture</td><td><code>iphoneos-arm64</code> for rootless</td><td>The package is a traditional <code>iphoneos-arm</code> build intended for another setup.</td></tr>
+            <tr><td>Queue</td><td>Zebra and its valid dependencies</td><td>Core bootstrap packages, Sileo or many unrelated packages are marked for removal.</td></tr>
+          </tbody></table>
+          <p>The Zebra 1.1.29 release documentation explains the architecture split: <code>iphoneos-arm</code> is for traditional root-filesystem jailbreaks, while <code>iphoneos-arm64</code> is for rootless jailbreaks on iOS 15 and later. That architecture information describes the package format; it is not proof that every iOS version or device has a compatible jailbreak.</p>
+          <h2>Step 4: install, return to the Home Screen, and test</h2>
+          <ol>
+            <li>Tap <strong>Get</strong> or <strong>Install</strong> only after the queue passes the checks above.</li>
+            <li>Let dpkg finish. Use the return, respring or restart action that the package manager presents; do not force-close the app during configuration.</li>
+            <li>Open Zebra and allow its initial source refresh to complete.</li>
+            <li>Open Zebra’s installed-packages view and confirm that packages previously installed through Sileo are visible.</li>
+            <li>Install or update only a small, known-compatible package as a first transaction. Review the queue again before confirming.</li>
+          </ol>
+          <p>If Zebra’s icon does not appear even though the package installed, use the jailbreak’s supported app-registration or SpringBoard refresh controls. On Dopamine, follow the order in the <a href="/fix-missing-sileo-jailbreak-app-icons-dopamine-guide/">missing Sileo and jailbreak-app icons guide</a> instead of repeatedly reinstalling the package.</p>
+          <h2>Alternative on Dopamine: use its package-manager control</h2>
+          <p>Dopamine includes a <strong>Reinstall Package Managers</strong> action that can repair or install its supported managers. If Zebra is offered there for the version of Dopamine you are running, this is a valid bootstrap-managed route. Select Zebra deliberately, allow the action to finish, and restart SpringBoard if the app icon does not register immediately.</p>
+          <p>Use that control as a package-manager install or repair action, not as a universal fix for every missing jailbreak application. If Sileo, Zebra, Filza and other apps all disappear together, refresh jailbreak app registrations first.</p>
+          <h2>How to use both managers safely</h2>
+          <ul>
+            <li>Let one package transaction finish before opening the other manager. Do not run simultaneous installs or source refreshes.</li>
+            <li>Keep repository URLs consistent. A source added in one frontend may need to be added or refreshed in the other depending on its source-list handling.</li>
+            <li>Judge each tweak separately. Appearing in Zebra or Sileo does not prove rootless, RootHide, device or firmware compatibility.</li>
+            <li>Do not use one manager to override dependency warnings raised by the other; both ultimately rely on the same package database.</li>
+            <li>Before a large upgrade, use the <a href="/backup-sileo-sources-installed-tweaks-before-jailbreak-update/">source and installed-package backup guide</a>.</li>
+          </ul>
+          <h2>Removing Zebra without removing your tweaks</h2>
+          <p>If you decide to return to Sileo only, confirm Sileo still opens and refreshes first. Then remove the Zebra application package through Sileo and review the removal queue. Cancel if the queue includes bootstrap essentials or installed tweaks that are unrelated to Zebra.</p>
+          <p>Removing the frontend should not be treated as removing the jailbreak or all packages. Do not manually delete Zebra files from Filza, and do not erase APT or dpkg databases to “clean up” the manager.</p>
+          <h2>Frequently asked questions</h2>
+          <div class="faq-list">
+            <details><summary>Can Zebra replace Sileo?</summary><p>It can be your preferred APT frontend on a supported jailbreak, but keep Sileo until Zebra has refreshed sources and completed a normal transaction. Having a working fallback is useful.</p></details>
+            <details><summary>Can Zebra and Sileo install different versions of the same tweak?</summary><p>They use the same package state, so forcing conflicting versions is unsafe. Refresh sources and resolve the repository or dependency difference instead of trying simultaneous transactions.</p></details>
+            <details><summary>Why does Sileo show an incompatible-architecture error?</summary><p>The package does not match the bootstrap architecture. Rootless environments use <code>iphoneos-arm64</code>; do not force a rootful <code>iphoneos-arm</code> DEB into them.</p></details>
+            <details><summary>Can I install Zebra without a jailbreak?</summary><p>No. The official Zebra project explicitly requires a jailbroken iOS device. A sideloaded lookalike cannot provide the jailbreak package-management environment.</p></details>
+            <details><summary>Is Zebra 1.1.37 compatible with every jailbreak?</summary><p>No universal claim is made here. The release was initially distributed for Dopamine 3. Other environments should use only the build their official bootstrap or Zebra repository offers.</p></details>
+          </div>
+          <p>For feature and release differences rather than installation steps, see <a href="/sileo-vs-zebra-package-manager/">Sileo vs Zebra in 2026</a>. For jailbreak and firmware boundaries, check the applicable jailbreak’s official documentation instead of inferring support from the package manager.</p>
+        </div>
+        <aside class="article-sidebar" aria-label="Official Zebra sources"><h2>Official sources</h2><p>Use Zebra’s own site and repository for the source URL, releases and project documentation.</p><div class="button-stack"><a class="button button-primary" href="https://getzbra.com/" rel="nofollow noopener noreferrer">Official Zebra site</a><a class="button button-primary" href="https://getzbra.com/repo/" rel="nofollow noopener noreferrer">Official Zebra repository</a><a class="button button-primary" href="https://github.com/zbrateam/Zebra" rel="nofollow noopener noreferrer">Official source code</a><a class="button button-primary" href="https://github.com/zbrateam/Zebra/releases/tag/v1.1.37" rel="nofollow noopener noreferrer">Zebra 1.1.37 release</a></div><p class="source-note">Next Jailbreak does not mirror Zebra packages or charge for jailbreak downloads.</p></aside>
+      </div>
+    </article>
+    <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_START -->
+    <section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title"><div class="nj-comments-head"><div><h2 id="community-comments-title">Community comments</h2><p>Questions, setup notes and experiences from Next Jailbreak readers. Be respectful and do not post personal information.</p></div><span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span></div><form class="nj-comment-form" data-comment-form><label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label><label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label><label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful comment or ask a question…" required></textarea></label><div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div></form><div class="nj-comment-list" data-comment-list></div></section>
+    <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_END -->
+  </main>
+  <footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="brand" href="/"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><p>Jailbreak news, useful tweak information, practical guides, and original videos.</p></div><div class="footer-column"><strong>Read</strong><a href="/#latest">Latest articles</a><a href="/tutorials/#verified-articles">Cydia tweaks</a><a href="/tutorials/#jailbreak-guides">Jailbreak guides</a><a href="/videos/">Videos</a></div><div class="footer-column"><strong>Follow</strong><a href="/feed.xml">RSS feed</a><a href="https://x.com/nextjailbreak" target="_blank" rel="noopener noreferrer">X · @nextjailbreak</a><a href="https://instagram.com/nextjailbreak" target="_blank" rel="noopener noreferrer">Instagram · @nextjailbreak</a></div><div class="footer-column"><strong>Legal</strong><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div><div class="footer-bottom"><div class="container"><span>© 2026 Next Jailbreak</span><span>iPhone jailbreak guides, tweaks &amp; videos</span></div></div></footer>
+  <script src="/assets/community-comments.js" defer></script>
+  <script defer src="/assets/adsterra.js?v=20260910-1" data-ns-monetag-loader="1"></script>
+  <script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>
+</body>
+</html>
