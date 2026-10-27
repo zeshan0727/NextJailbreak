@@ -56,6 +56,15 @@ jobs:
           done
           cat /tmp/next-accountant-test-worker.log
           exit 1
+      - name: Validate private web app scripts and draft form syntax
+        working-directory: cloudflare/next-accountant-api
+        run: |
+          node --check worker.staging.js
+          node --check web-readonly.js
+          node --check voucher-drafts.js
+          node --check financial-fingerprint.js
+          node --check report-archive.js
+          node --input-type=module -e "import('./web-view.js').then(({webAsset}) => { new Function(webAsset('/web/app.js').body); new Function(webAsset('/web/drafts.js').body); if (!webAsset('/web').body.includes('STAGING')) throw Error('Missing staging disclosure'); console.log('PASS: private web frontend scripts compile') })"
       - name: Run synthetic migration contract tests
         working-directory: cloudflare/next-accountant-api
         run: python3 test_staging.py
