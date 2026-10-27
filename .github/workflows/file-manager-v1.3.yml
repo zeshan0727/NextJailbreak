@@ -8,7 +8,7 @@ on:
       - 'file-manager/patch_v1_3.b64'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: windows-latest
@@ -58,3 +58,14 @@ jobs:
           path: file-manager/dist/File Manager v1.3.exe
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish direct downloadable EXE in GitHub Releases
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: file-manager-v1.3-ai-review-windows
+          target_commitish: ${{ github.sha }}
+          name: File Manager v1.3 - Windows EXE
+          body: "Portable Windows 10/11 64-bit app. Download File Manager v1.3.exe under Assets. AI document review requires a user-configured OpenAI API key."
+          files: file-manager/dist/File Manager v1.3.exe
+          fail_on_unmatched_files: true
+          make_latest: false
