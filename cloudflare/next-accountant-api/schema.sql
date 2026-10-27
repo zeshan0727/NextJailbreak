@@ -43,5 +43,21 @@ CREATE TABLE IF NOT EXISTS WebMigrationRuns (
   CompletedAt TEXT
 );
 
+
+-- Private web read-only access. Tokens are SHA-256 hashes, never plaintext.
+-- These are separate Web tables, leaving imported Windows accounting rows unchanged.
+CREATE TABLE IF NOT EXISTS WebReadTickets (
+  Hash TEXT PRIMARY KEY,
+  ExpiresAt INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS IX_WebReadTickets_Expires ON WebReadTickets(ExpiresAt);
+
+CREATE TABLE IF NOT EXISTS WebReadSessions (
+  Hash TEXT PRIMARY KEY,
+  CreatedAt INTEGER NOT NULL,
+  ExpiresAt INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS IX_WebReadSessions_Expires ON WebReadSessions(ExpiresAt);
+
 INSERT OR REPLACE INTO WebMeta(Key,Value,UpdatedAt)
 VALUES('backend_schema','1',datetime('now'));
