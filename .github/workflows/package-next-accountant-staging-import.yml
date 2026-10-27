@@ -1,11 +1,9 @@
 name: Package Next Accountant One-Click Staging Import
 
+# PAUSED 2026-10-27: Windows ACCOUNTANTS is the active development path.
+# No automatic web deployment/build. Keep for manual resumption only.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/package-next-accountant-staging-import.yml"
 
 permissions:
   contents: read
