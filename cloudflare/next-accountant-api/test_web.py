@@ -107,6 +107,14 @@ status,_,_=req("/api/web/records?type=Invoices&entityId=1",method="POST",cookie=
 assert status==405,"Read-only endpoint permitted POST"
 status,_,_=req("/api/admin/counts",cookie=browser_cookie)
 assert status==401,"Viewer cookie incorrectly gave administrator access"
+status,_,_=req("/api/admin/financial-fingerprint",cookie=browser_cookie)
+assert status==401,"Read-only viewer session could read privileged financial reconciliation API"
+status,_,fingerprint=req("/api/admin/financial-fingerprint",bearer=True)
+assert status==200 and fingerprint["fileIndexCount"]>=0,(status,fingerprint)
+fingerprints={x["name"]:x for x in fingerprint["aggregates"]}
+assert fingerprints["SalesInvoices"]["count"]==1 and fingerprints["SalesInvoices"]["total"]==500.25,fingerprints
+assert fingerprints["PMPayments"]["count"]==1 and fingerprints["PMPayments"]["total"]==125.0,fingerprints
+assert fingerprints["PMPaymentPlanAllocations"]["total"]==100.0,fingerprints
 status,_,_=req("/api/web/records?type=Employees&entityId=1",cookie=browser_cookie)
 assert status==400,"Sensitive unapproved table was exposed"
 status,_,_=req("/api/web/records?type=Invoices&entityId=1%20OR%201=1",cookie=browser_cookie)
