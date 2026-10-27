@@ -2,6 +2,7 @@
 export const REPORT_JS=String.raw`(function () {
   "use strict";
   const fmt=new Intl.NumberFormat("en-QA",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const formatAmount=v=>v==null?"—":Number.isFinite(Number(v))?fmt.format(Number(v)):"Invalid source amount";
   function node(tag,value,css){
     const el=document.createElement(tag);
     if(value!==undefined && value!==null)el.textContent=String(value);
@@ -71,8 +72,8 @@ export const REPORT_JS=String.raw`(function () {
         accountArea.replaceChildren(d.rows.length?
           table(["Account code","Account name","Account type","Element","Debit YTD","Credit YTD","Current balance"],
             d.rows.map(x=>[x.AccountCode,x.AccountName,x.AccountType,x.Element,
-              fmt.format(Number(x.DebitYtd)||0),fmt.format(Number(x.CreditYtd)||0),
-              fmt.format(Number(x.CurrentBalance)||0)])):
+              formatAmount(x.DebitYtd),formatAmount(x.CreditYtd),
+              formatAmount(x.CurrentBalance)])):
           node("div","No source-account rows in this snapshot.","empty"));
         const prev=miniButton("Previous",()=>loadAccounts(page-1));
         prev.disabled=page===0;
