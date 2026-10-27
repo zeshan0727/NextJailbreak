@@ -35,7 +35,7 @@ const HTML = String.raw`<!doctype html>
       <div class="control-bar">
         <label class="field-label">Company
         <select id="entity-picker" aria-label="Choose company"></select></label>
-        <label class="inline-check"><input id="managed-filter" type="checkbox" checked> Show seven managed companies</label>
+        <span class="pill">Seven managed companies only</span>
         <button id="refresh" class="outline-button">Refresh</button>
       </div>
       <section id="summary"></section>
@@ -99,7 +99,6 @@ const JS = String.raw`(function () {
     {id:"Customers",label:"Customers"},
     {id:"ManagerReports",label:"Manager reports"}
   ];
-  const managed=/stone|graphitees|barjous|levante|atelier|erada|north sports/i;
   const byId=id=>document.getElementById(id);
   const el=(tag,txt,cls)=>{
     const node=document.createElement(tag);
@@ -130,8 +129,7 @@ const JS = String.raw`(function () {
   }
   function fillEntities(){
     const picker=byId("entity-picker");
-    let eligible=state.entities.filter(x=>!byId("managed-filter").checked || managed.test(x.Name||""));
-    if(!eligible.length) eligible=state.entities;
+    const eligible=state.entities;
     picker.replaceChildren();
     for(const item of eligible){
       const option=el("option",item.Name+(item.Code?" · "+item.Code:""));
@@ -234,7 +232,6 @@ const JS = String.raw`(function () {
       finally{location.replace("/web");}
     };
     byId("entity-picker").onchange=e=>{state.entity=e.target.value;state.page=0;loadRecords();};
-    byId("managed-filter").onchange=()=>{fillEntities();state.page=0;loadRecords();};
     try{
       const data=await api("/api/web/entities");
       state.entities=data.entities||[];
