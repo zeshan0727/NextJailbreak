@@ -1,0 +1,35 @@
+name: Inspect Next Accountant Staging Schema for Web Read Models
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/inspect-next-accountant-web-schema.yml"
+permissions:
+  contents: read
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --global wrangler@4
+      - name: Read selected public-safe column metadata only (no business values)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess,re
+          names=['Entities','Customers','PMCustomers','PMProjects','PMPaymentPlan','PMPayments','PMPaymentReceipts','PMPaymentPlanAllocations','PMPaymentReceiptPlanAssignments','SalesInvoices','PaymentVouchers','ReceiptVouchers','ManagerReportHistory','ManagerReportHistoryV6A','ManagerReportAccountsV6A','Employees','DailyTasks']
+          def q(sql):
+              r=subprocess.run(['wrangler','d1','execute','next-accountant-staging','--remote','--json','--yes','--command',sql],capture_output=True,text=True,timeout=60,env=os.environ)
+              if r.returncode:raise RuntimeError("Cannot retrieve metadata (no business values accessed).")
+              rows=json.loads(r.stdout)
+              return rows[0].get('results',[]) if isinstance(rows,list) else rows.get('results',[])
+          for table in names:
+              assert re.fullmatch('[A-Za-z][A-Za-z0-9]*',table)
+              columns=q('PRAGMA table_info("'+table+'")')
+              print('SCHEMA',table,':',','.join(x['name']+':'+x['type'] for x in columns))
+          print('PASS: schema metadata only; no row values extracted.')
+          PY
