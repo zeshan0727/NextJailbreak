@@ -1,32 +1,40 @@
-# Next Accountant — Static Web Preview (not production)
+# Next Accountant Web — Private Staging v0.4
 
-Preview: https://nextjailbreak.com/accountants/
+**Production is NOT enabled.** Windows ACCOUNTANTS V6 remains authoritative. The static GitHub Pages demo at https://nextjailbreak.com/accountants/ is unrelated to the private staging database.
 
-This GitHub Pages folder is an **isolated, browser-local test application**, not an accounting database and not the authoritative Windows/Xero source.
+## Staging (authenticated only)
 
-## Available test flows
+Address: https://accounts-stage-api.nextjailbreak.com/web
 
-- Create temporary demo entities, customers and projects.
-- Define contract payment installments separately from actual received payments.
-- Record payments, generate generic payment receipts and allocate multiple partial receipts to one installment.
-- Unassign, edit or delete demo payments subject to demo validation.
-- Enter demo invoices and view a Customer Statement of Account using invoice charges and actual payment credits.
-- Export a **demo-only** statement CSV; it is **not** the official Windows PDF or Xero SOA.
-- Export/import a browser-local JSON test backup.
+Log in through the encrypted Windows ZIP using `OPEN_ACCOUNTANT_WEB.bat` on the same Windows profile as the migration. The browser receives a short-lived, read-only session cookie. The powerful migration bearer credential stays protected by Windows DPAPI; it must **never** be committed, shared or entered in the web app.
 
-## Data and security boundaries
+### Verified migration baseline
 
-- Never place AccountantsNext.db, employee/customer/company records, signed receipts, real account information, API keys, plaintext passwords, or backups in this public repository or GitHub Pages.
-- No live business writes are issued from this preview, and no ads or tracking scripts are included.
-- Demo records reside in browser localStorage. Do not enter confidential business information here.
-- Cloudflare Workers + D1 + private R2 buckets provide the separate staging and future production backends.
-- Staging infrastructure availability does **not** imply that the Windows V6 business backup has been imported, reconciled, or approved for production.
-- The staging-only import is initiated by the Windows migrator against a verified copy of the protected business backup.
+- Original V6 SQLite schema v21; 109 business tables; 11,913 records.
+- Original R2 source files: 909 of 909, SHA-256 checked; two legitimate zero-byte files preserved.
+- Independently verified D1 counts and file index.
+- Seven managed companies uniquely resolved and enforced **server-side**, not merely filtered in JavaScript.
+- Imported business tables are never modified by web staging UI.
 
-## Validation
+### Available private web functionality
 
-GitHub Actions: `.github/workflows/test-next-accountant-web-preview.yml` runs JavaScript checks, browser DOM integration tests for three receipts against one installment, and invoice-backed Customer SOA checks. It rejects accidental advertisement inclusion and remote writes from the demo modules.
+- Company dashboard with source invoice/receipt/voucher summaries.
+- Original Windows V6 invoice, customer, payment/receipt voucher, contract project, installment and receipt allocation data in read-only tables.
+- Download unchanged archived manager Excel reports from the private R2 backup, where present.
+- Company-scoped daily tasks and HR employee directory (read only; payroll amounts not exposed).
+- Create **isolated PV/RV staging drafts** and optionally attach a scanned PDF/phone photo (up to 12 MB), with audit trail. These are NOT posted to the original Windows voucher tables or reconciled accounts.
+- Session expiration, signed-out session revocation, CSRF origin verification for draft writes, private per-company report access, no anonymous access.
 
-## Cutover gate
+### Next required validation
 
-Deploy production accounting access only after secure owner authentication, verified staging import, complete count/file-hash/financial reconciliation, correct Windows-format report exports, recovery testing, and module parity. Preserve Windows ACCOUNTANTS V6 as the recovery baseline.
+Run `VERIFY_FINANCIALS_ONLY.bat` from the private Windows v0.4 package. This verifies source and staging count parity plus six monetary amount-field sums from the exact Oct 26 original backup without posting or uploading new business records.
+
+**Do not certify finance cutover based only on matching six sums.** Full production approval requires per-company and per-period trial balance/balance-sheet/income-statement reconciliation, exchange-rate correctness, manager-report rendering/export parity, controlled source-to-web voucher posting with audit and rollback tests, full HR module parity, multiuser security, protected storage/backups, and user acceptance testing.
+
+### Security
+
+Only public-safe code is committed to this repository; never store a V6 business ZIP, the D1 database, extracted records, plaintext tokens, or private RSA keys in GitHub. Staging D1/R2 are private and separate from production.
+
+Synthetic tests: `.github/workflows/test-next-accountant-staging-import.yml`
+
+Private staging deployment: `.github/workflows/deploy-next-accountant-staging.yml`
