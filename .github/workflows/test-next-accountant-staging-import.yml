@@ -11,6 +11,7 @@ on:
       - "cloudflare/next-accountant-api/web-readonly.js"
       - "cloudflare/next-accountant-api/financial-fingerprint.js"
       - "cloudflare/next-accountant-api/financial-breakdown.js"
+      - "cloudflare/next-accountant-api/tb-snapshot.js"
       - "cloudflare/next-accountant-api/voucher-drafts.js"
       - "cloudflare/next-accountant-api/voucher-view.js"
       - "cloudflare/next-accountant-api/report-archive.js"
@@ -65,6 +66,7 @@ jobs:
           node --check voucher-drafts.js
           node --check financial-fingerprint.js
           node --check financial-breakdown.js
+          node --check tb-snapshot.js
           node --check report-archive.js
           node --input-type=module -e "import('./web-view.js').then(({webAsset}) => { new Function(webAsset('/web/app.js').body); new Function(webAsset('/web/drafts.js').body); if (!webAsset('/web').body.includes('STAGING')) throw Error('Missing staging disclosure'); console.log('PASS: private web frontend scripts compile') })"
       - name: Run synthetic migration contract tests
