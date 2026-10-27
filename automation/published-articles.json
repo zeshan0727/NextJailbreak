@@ -4395,29 +4395,38 @@
       "version": "1.3.0"
     },
     {
+      "article_sha256": "1c27a2f8dd2b1f5489691e5256dbe0ae8d648c03fbbadc0ce42e7852c3b220ad",
       "category": {
         "id": "productivity",
         "label": "Productivity"
       },
-      "description": "Prism 1.6.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "compat": "Havoc lists iOS 15.0–26.0.1, jailbreak required, rootless; package index architecture iphoneos-arm64 with firmware >=15.0, MobileSubstrate-compatible injection and PreferenceLoader",
+      "description": "Prism 1.6.4 adds iOS 26 support, improves URL-scheme responsiveness and fixes activation from Control Center, with rootless-package limits explained.",
       "entry_type": "source-news",
       "href": "prism-1-6-1-update/",
-      "image": "assets/articles/source-media/prism-1-6-1-update-b850e0b6b3.png",
-      "media_credit": "Source visual from havoc.app",
+      "image": "assets/articles/source-media/prism-1-6-3-official-banner.png",
+      "media_credit": "blacknoisy — official Prism banner, application icon and interface screenshots from Havoc",
+      "media_files": [
+        {"path":"assets/articles/source-media/prism-1-6-3-official-banner.png","sha256":"6b45b6baddeddb96dc3c84a3cfcfde9a4cb792ff1aa57fa83c82a3fea32aaec0","origin":"https://media.havoc.app/6a7835029e5377f2c5170dce"},
+        {"path":"assets/articles/source-media/prism-1-6-4-official-icon.png","sha256":"3a0a204cd03b0a5ec6dee01dad050a04b9a40c11ce6672421d4be00eaf9c29a5","origin":"https://media.havoc.app/6a7834ee9e5377f2c5170cd0"},
+        {"path":"assets/articles/source-media/prism-1-6-4-official-capture-editor.png","sha256":"e3fce225777423cc07e66a1111b81236ae31f77681bc12fc6f14ced436370281","origin":"https://media.havoc.app/6a7834f49e5377f2c5170d12"},
+        {"path":"assets/articles/source-media/prism-1-6-4-official-shape-controls.png","sha256":"8ca11f32d1d139379f235807cf199d4bdc638105d3dae5247cece43e25cef2b8","origin":"https://media.havoc.app/6a7834fc9e5377f2c5170d93"}
+      ],
       "media_source_url": "https://havoc.app/package/prism",
-      "modified_at": "2026-09-28T18:52:10+00:00",
+      "modified_at": "2026-10-27T16:57:28Z",
       "name": "Prism",
       "package": "com.blacknoisy.prism",
       "published_at": "2026-09-28T18:52:10+00:00",
       "quality_target": 9,
       "selection_pool": "user-authorized-recent-tweak-batch-20260928",
-      "source_name": "havoc.app",
+      "release": "Prism 1.6.4 released 2026-10-25",
+      "source_name": "Official Havoc Prism listing and package index",
       "source_page_url": "https://havoc.app/package/prism",
       "source_url": "https://havoc.app/package/prism",
-      "source_visual_origin": "og:image",
+      "source_visual_origin": "Havoc __NEXT_DATA__ pageProps.info banner/icon and pageProps.content.screenshots",
       "source_visual_url": "https://media.havoc.app/6a7835029e5377f2c5170dce",
-      "title": "Prism: A Focused Tool for Capture, Annotation, OCR, Translation and Pinning",
-      "version": "1.6.1"
+      "title": "Prism 1.6.4 Adds iOS 26 Support and Fixes Control Center Launching",
+      "version": "1.6.4"
     },
     {
       "category": {
@@ -9538,8 +9547,18 @@
       "published_at": "2026-10-27T13:01:43Z",
       "run_id": "scheduled-2026-10-27T13:01:43Z",
       "version": "1.0"
+    },
+    {
+      "action": "update",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "prism-1-6-1-update/",
+      "package": "com.blacknoisy.prism",
+      "previous_version": "1.6.1",
+      "published_at": "2026-10-27T16:57:28Z",
+      "run_id": "scheduled-2026-10-27T16:57:28Z",
+      "version": "1.6.4"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-27T13:01:43Z"
+  "updated_at": "2026-10-27T16:57:28Z"
 }
