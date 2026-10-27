@@ -19,6 +19,26 @@ internal sealed class CloudClient : IDisposable
         _http.DefaultRequestHeaders.UserAgent.ParseAdd("NextAccountantMigrator/0.2.2");
     }
 
+    public async Task<Uri> BeginReadOnlyWebSessionAsync()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, _base + "/api/web/session/start");
+        using var response = await _http.SendAsync(request);
+        var body = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException("Private web login could not be started (HTTP " +
+                (int)response.StatusCode + "). Verify Cloudflare staging deployment.");
+        using var parsed = JsonDocument.Parse(body);
+        var url = parsed.RootElement.GetProperty("launchUrl").GetString();
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var verified) ||
+            verified.Scheme != Uri.UriSchemeHttps ||
+            verified.Host != "accounts-stage-api.nextjailbreak.com" ||
+            verified.Port != 443 ||
+            verified.AbsolutePath != "/web/activate" ||
+            !verified.Query.StartsWith("?ticket=",StringComparison.Ordinal))
+            throw new InvalidDataException("Unexpected private web login URL. Refusing to open it.");
+        return verified;
+    }
+
     public Task<Health?> HealthAsync() => GetAsync<Health>("/health");
 
     public async Task ApplySchemaAsync(string sql, int sourceSchemaVersion) =>
