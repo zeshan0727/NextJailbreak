@@ -43,6 +43,9 @@ jobs:
             if distinct>1 or mdistinct>1:failures.append(label)
           all_snapshots=int(q('SELECT COUNT(*) AS n FROM ManagerReportTbSnapshotsV6A')[0]['n'])
           print('Accessible matched snapshots',total_snapshots,'All imported snapshots',all_snapshots)
+          reports=q("SELECT COUNT(*) AS n FROM WebFileIndex WHERE ObjectKey LIKE 'business/Audit/LegacyImported/Reports/Manager/%'")
+          print('Original Windows report documents at current web archive prefix:',int(reports[0]['n']))
+          print('Total privately indexed source documents:',int(q('SELECT COUNT(*) AS n FROM WebFileIndex')[0]['n']))
           if failures:raise RuntimeError('Ambiguous source labels for: '+','.join(failures))
           print('PASS: no ambiguous historical report companies; unmatched snapshots are intentionally hidden.')
           PY
