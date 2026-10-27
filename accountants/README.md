@@ -1,3 +1,5 @@
+> **WEB DEVELOPMENT PAUSED — 2026-10-27.** Work has returned to the native Windows ACCOUNTANTS WPF/.NET 8 application because major functionality changes and stability validation are required. Web staging is preserved strictly as a frozen, non-authoritative reference. Cloudflare D1, R2, source code and snapshots must not be deleted, reset, migrated, or treated as production. Automated web deployments, migrator builds, test runs and staging-credential provisioning have been made manual-only. No further web modifications or imports until explicitly resumed. Windows ACCOUNTANTS and its Data directory are the authoritative operational baseline.
+
 # Next Accountant Web — Private Staging v0.5
 
 **Production is NOT enabled.** Windows ACCOUNTANTS V6 remains authoritative. The static GitHub Pages demo at https://nextjailbreak.com/accountants/ is unrelated to the private staging database.
