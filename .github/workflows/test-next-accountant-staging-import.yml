@@ -1,25 +1,9 @@
 name: Test Next Accountant Staging Import API
 
+# PAUSED 2026-10-27: Windows ACCOUNTANTS is the active development path.
+# No automatic web deployment/build. Keep for manual resumption only.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "cloudflare/next-accountant-api/worker.staging.js"
-      - "cloudflare/next-accountant-api/test_staging.py"
-      - "cloudflare/next-accountant-api/test_web.py"
-      - "cloudflare/next-accountant-api/web-readonly.js"
-      - "cloudflare/next-accountant-api/financial-fingerprint.js"
-      - "cloudflare/next-accountant-api/financial-breakdown.js"
-      - "cloudflare/next-accountant-api/tb-snapshot.js"
-      - "cloudflare/next-accountant-api/voucher-drafts.js"
-      - "cloudflare/next-accountant-api/voucher-view.js"
-      - "cloudflare/next-accountant-api/report-archive.js"
-      - "cloudflare/next-accountant-api/manager-ledger.js"
-      - "cloudflare/next-accountant-api/manager-view.js"
-      - "cloudflare/next-accountant-api/web-view.js"
-      - "cloudflare/next-accountant-api/schema.sql"
-      - ".github/workflows/test-next-accountant-staging-import.yml"
 
 permissions:
   contents: read
