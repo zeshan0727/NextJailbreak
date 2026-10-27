@@ -9,7 +9,7 @@ function cors(origin) {
   return {
     'Access-Control-Allow-Origin': allow,
     'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,HEAD,OPTIONS',
-    'Access-Control-Allow-Headers': 'Authorization,Content-Type,X-File-Name,X-File-Category,X-Record-Type,X-Record-Id,X-Entity-Id,X-Expected-Sha256',
+    'Access-Control-Allow-Headers': 'Authorization,Content-Type,X-File-Name,X-File-Category,X-Record-Type,X-Record-Id,X-File-Name-Encoded,X-Record-Id-Encoded,X-Entity-Id,X-Expected-Sha256',
     'Access-Control-Max-Age': '86400',
     'Vary': 'Origin'
   };
@@ -252,6 +252,19 @@ function objectKeyFromUrl(url) {
   return key;
 }
 
+// The Windows client percent-encodes UTF-8 metadata into ASCII-only HTTP
+// headers. Decode only the explicitly marked headers; older callers are unchanged.
+function fileMetadataHeader(request, encodedKey, legacyKey, fallback = '') {
+  const encoded = request.headers.get(encodedKey);
+  if (encoded === null) return request.headers.get(legacyKey) || fallback;
+  if (encoded.length > 16000)
+    throw new URIError('Encoded file metadata exceeds the safe header size.');
+  const decoded = decodeURIComponent(encoded);
+  if (/[\u0000-\u001f\u007f]/.test(decoded))
+    throw new URIError('File metadata contains forbidden control characters.');
+  return decoded;
+}
+
 async function filePut(request, env, origin) {
   if (!env.FILES) return json({error:'Private R2 file storage is not configured yet.'},503,origin);
   const url = new URL(request.url);
@@ -279,12 +292,12 @@ async function filePut(request, env, origin) {
         const entityId = rawEntityId && /^\d+$/.test(rawEntityId) ? Number(rawEntityId) : null;
         await env.DB.prepare("INSERT OR IGNORE INTO WebFileIndex(ObjectKey,OriginalName,ContentType,SizeBytes,Sha256,EntityId,Category,RecordType,RecordId,UploadedAt) VALUES(?,?,?,?,?,?,?,?,?,datetime('now'))")
           .bind(key,
-            metadata.originalName || request.headers.get('X-File-Name') || key.split('/').pop() || '',
+            metadata.originalName || fileMetadataHeader(request,'X-File-Name-Encoded','X-File-Name',key.split('/').pop() || ''),
             existing.httpMetadata?.contentType || request.headers.get('Content-Type') || 'application/octet-stream',
             bytes.length, hash, entityId,
             metadata.category || request.headers.get('X-File-Category') || '',
             metadata.recordType || request.headers.get('X-Record-Type') || '',
-            metadata.recordId || request.headers.get('X-Record-Id') || '').run();
+            metadata.recordId || fileMetadataHeader(request,'X-Record-Id-Encoded','X-Record-Id')).run();
         await audit(env,'file_index_repaired','r2',key,{sha256:hash});
       }
       return json({ok:true,unchanged:true,indexRepaired:!indexed,key,size:bytes.length,sha256:hash},200,origin);
@@ -292,10 +305,10 @@ async function filePut(request, env, origin) {
     return json({error:'Existing file key has a different payload. Refusing overwrite.'},409,origin);
   }
   const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
-  const originalName = request.headers.get('X-File-Name') || key.split('/').pop() || '';
+  const originalName = fileMetadataHeader(request,'X-File-Name-Encoded','X-File-Name',key.split('/').pop() || '');
   const category = request.headers.get('X-File-Category') || '';
   const recordType = request.headers.get('X-Record-Type') || '';
-  const recordId = request.headers.get('X-Record-Id') || '';
+  const recordId = fileMetadataHeader(request,'X-Record-Id-Encoded','X-Record-Id');
   const entityIdRaw = request.headers.get('X-Entity-Id');
   const entityId = entityIdRaw && /^\d+$/.test(entityIdRaw) ? Number(entityIdRaw) : null;
 
