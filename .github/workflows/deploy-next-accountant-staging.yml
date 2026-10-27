@@ -9,6 +9,8 @@ on:
       - "cloudflare/next-accountant-api/worker.staging.js"
       - "cloudflare/next-accountant-api/web-readonly.js"
       - "cloudflare/next-accountant-api/financial-fingerprint.js"
+      - "cloudflare/next-accountant-api/voucher-drafts.js"
+      - "cloudflare/next-accountant-api/voucher-view.js"
       - "cloudflare/next-accountant-api/web-view.js"
       - "cloudflare/next-accountant-api/schema.sql"
 
