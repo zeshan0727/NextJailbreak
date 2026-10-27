@@ -45,6 +45,8 @@ sql=[
 "CREATE TABLE PMPayments(Id INTEGER PRIMARY KEY,CustomerId INTEGER,ProjectId INTEGER,PaymentDate TEXT,Reference TEXT,Amount REAL,PaymentMethod TEXT,IsAdvance INTEGER)",
 "CREATE TABLE PMPaymentPlanAllocations(Id INTEGER PRIMARY KEY,PaymentPlanId INTEGER,PaymentId INTEGER,ReceivedDate TEXT,Amount REAL)",
 "CREATE TABLE Customers(Id INTEGER PRIMARY KEY,EntityId INTEGER,Reference TEXT,ContactName TEXT,NeedsReview INTEGER)",
+"CREATE TABLE Employees(Id INTEGER PRIMARY KEY,EntityId INTEGER,EmployeeNo TEXT,Name TEXT,Position TEXT,Department TEXT,IsActive INTEGER)",
+"CREATE TABLE DailyTasks(Id INTEGER PRIMARY KEY,EntityId INTEGER,Title TEXT,Status TEXT,Priority TEXT,DueAt TEXT,CreatedAt TEXT,UpdatedAt TEXT)",
 ]
 for i in range(0,len(sql),8):
     status,_,response=req("/api/admin/apply-schema","POST",
@@ -61,7 +63,9 @@ rows={
 "PMPaymentPlan":[{"Id":1,"ProjectId":1,"SequenceNo":1,"Title":"Installment","DueDate":"2026-12-01","Percentage":100,"Amount":300.0,"Currency":"QAR"}],
 "PMPayments":[{"Id":1,"CustomerId":1,"ProjectId":1,"PaymentDate":"2026-10-04","Reference":"PAY-1","Amount":125.0,"PaymentMethod":"Bank","IsAdvance":0}],
 "PMPaymentPlanAllocations":[{"Id":1,"PaymentPlanId":1,"PaymentId":1,"ReceivedDate":"2026-10-04","Amount":100.0}],
-"Customers":[{"Id":1,"EntityId":1,"Reference":"C1","ContactName":"Synthetic Contact","NeedsReview":0}]
+"Customers":[{"Id":1,"EntityId":1,"Reference":"C1","ContactName":"Synthetic Contact","NeedsReview":0}],
+"Employees":[{"Id":1,"EntityId":1,"EmployeeNo":"T001","Name":"Synthetic Person","Position":"Accountant","Department":"Finance","IsActive":1}],
+"DailyTasks":[{"Id":1,"EntityId":1,"Title":"Review synthetic voucher","Status":"Open","Priority":"Normal","DueAt":"2026-11-05","CreatedAt":"2026-10-27","UpdatedAt":"2026-10-27"}]
 }
 for table,payload in rows.items():
     status,_,result=req("/api/admin/import-batch","POST",{"table":table,"rows":payload},bearer=True)
@@ -102,6 +106,10 @@ status,_,contracts=req("/api/web/contracts?entityId=1",cookie=browser_cookie)
 assert status==200 and len(contracts["projects"])==1 and contracts["projects"][0]["Allocated"]==100.0,contracts
 status,_,plans=req("/api/web/records?type=Plans&entityId=1&page=0",cookie=browser_cookie)
 assert status==200 and plans["total"]==1 and plans["rows"][0]["Amount"]==300.0,plans
+status,_,employees=req("/api/web/records?type=Employees&entityId=1",cookie=browser_cookie)
+assert status==200 and employees["total"]==1 and employees["rows"][0]["EmployeeNo"]=="T001",(status,employees)
+status,_,tasks=req("/api/web/records?type=Tasks&entityId=1",cookie=browser_cookie)
+assert status==200 and tasks["total"]==1 and tasks["rows"][0]["Title"]=="Review synthetic voucher",(status,tasks)
 status,_,invoice=req("/api/web/records?type=Invoices&entityId=1&page=0",cookie=browser_cookie)
 assert status==200 and invoice["total"]==1 and invoice["rows"][0]["InvoiceNumber"]=="TEST-INV-3",invoice
 status,_,_=req("/api/web/records?type=Invoices&entityId=1",method="POST",cookie=browser_cookie)
@@ -116,8 +124,8 @@ fingerprints={x["name"]:x for x in fingerprint["aggregates"]}
 assert fingerprints["SalesInvoices"]["count"]==1 and fingerprints["SalesInvoices"]["total"]==500.25,fingerprints
 assert fingerprints["PMPayments"]["count"]==1 and fingerprints["PMPayments"]["total"]==125.0,fingerprints
 assert fingerprints["PMPaymentPlanAllocations"]["total"]==100.0,fingerprints
-status,_,_=req("/api/web/records?type=Employees&entityId=1",cookie=browser_cookie)
-assert status==400,"Sensitive unapproved table was exposed"
+status,_,_=req("/api/web/records?type=SalaryHistory&entityId=1",cookie=browser_cookie)
+assert status==400,"Unapproved payroll table was exposed"
 status,_,_=req("/api/web/records?type=Invoices&entityId=1%20OR%201=1",cookie=browser_cookie)
 assert status==400,"SQL injection-like ID accepted"
 
