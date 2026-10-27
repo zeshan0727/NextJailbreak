@@ -1,0 +1,43 @@
+name: Verify Seven Managed ACCOUNTANTS Entities - Names Only
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/verify-next-accountant-managed-entities.yml"
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --global wrangler@4
+      - name: Count each expected entity without printing company names or records
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import subprocess,json,os
+          groups={
+            "Stone Cafe":"stone",
+            "Graphitees":"graphitees",
+            "Barjous":"barjous",
+            "Levante":"levante",
+            "Atelier":"atelier",
+            "Erada":"erada",
+            "North Sports":"north sports"
+          }
+          for label,term in groups.items():
+              query="SELECT COUNT(*) AS n FROM Entities WHERE lower(Name) LIKE '%"+term+"%'"
+              p=subprocess.run(['wrangler','d1','execute','next-accountant-staging','--remote','--yes','--json','--command',query],capture_output=True,text=True,timeout=90,env=os.environ)
+              if p.returncode:raise RuntimeError('Cannot verify staging company mapping.')
+              z=json.loads(p.stdout)
+              rows=z[0]['results'] if isinstance(z,list) else z['results']
+              n=int(rows[0]['n'])
+              print(label,'candidate matches:',n)
+              if n!=1:raise RuntimeError('Expected exactly one match for '+label+'; do not enable entity scoping.')
+          print('PASS: all seven expected accounting entities exist without ambiguity')
+          PY
