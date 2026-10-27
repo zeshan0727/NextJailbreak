@@ -122,6 +122,16 @@ function tableConfig(type){
       where:'c.EntityId=?',sort:'x.Id DESC',
       fields:[['Id','ID'],['PaymentId','Payment ID'],['PaymentPlanId','Installment ID'],
         ['ReceivedDate','Received'],['Amount','Allocated amount',true]]
+    },
+    Tasks:{
+      from:'DailyTasks x',where:'x.EntityId=?',sort:'x.Id DESC',
+      fields:[['Id','ID'],['Title','Task'],['Status','Status'],['Priority','Priority'],
+        ['DueAt','Due date'],['CreatedAt','Created'],['UpdatedAt','Last updated']]
+    },
+    Employees:{
+      from:'Employees x',where:'x.EntityId=?',sort:'x.Id DESC',
+      fields:[['Id','ID'],['EmployeeNo','Employee no.'],['Name','Employee'],
+        ['Position','Position'],['Department','Department'],['IsActive','Active']]
     }
   };
   return base[type]||null;
