@@ -34,8 +34,11 @@ jobs:
               sys.exit('BLOCK: unexpected schema identifier.')
           if len(names)!=109:
               sys.exit('BLOCK: staging table count does not match verified backup.')
-          union=" UNION ALL ".join('SELECT COUNT(*) AS n FROM "'+name+'"' for name in names)
-          total=int(q('SELECT SUM(n) AS n FROM ('+union+')')[0]['n'])
+          total=0
+          for offset in range(0,len(names),10):
+              batch=names[offset:offset+10]
+              union=" UNION ALL ".join('SELECT COUNT(*) AS n FROM "'+name+'"' for name in batch)
+              total+=int(q('SELECT SUM(n) AS n FROM ('+union+')')[0]['n'])
           indexed=int(q("SELECT COUNT(*) AS n FROM WebFileIndex")[0]['n'])
           print('Verified source tables:',len(names))
           print('Verified imported database rows:',total)
