@@ -1,0 +1,48 @@
+name: Audit Next Accountant Managed Report Coverage (Read Only)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/audit-next-accountant-manager-report-coverage.yml"]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --global wrangler@4
+      - name: Inspect report-company mapping uniqueness without values
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json,subprocess,os
+          def q(sql):
+            p=subprocess.run(['wrangler','d1','execute','next-accountant-staging','--remote','--yes','--json','--command',sql],capture_output=True,text=True,timeout=90,env=os.environ)
+            if p.returncode:raise RuntimeError('Staging read-only audit query failed.')
+            obj=json.loads(p.stdout)
+            return obj[0]['results'] if isinstance(obj,list) else obj['results']
+          groups={
+            'Stone Cafe':'%stone%', 'Graphitees':'%graphitees%',
+            'Barjous':'%barjous%','Levante Bags':'%levante%bags%',
+            'Atelier':'%atelier%','Erada':'%erada%',
+            'North Sports':'%north%sports%'
+          }
+          total_snapshots=0
+          failures=[]
+          for label,mask in groups.items():
+            query="SELECT COUNT(*) AS n,COUNT(DISTINCT Company) AS labels FROM ManagerReportTbSnapshotsV6A WHERE lower(Company) LIKE '"+mask+"'"
+            row=q(query)[0]
+            maps=q("SELECT COUNT(*) AS n,COUNT(DISTINCT Company) AS labels FROM ManagerReportMappingsV6A WHERE lower(Company) LIKE '"+mask+"'")[0]
+            n=int(row['n']);distinct=int(row['labels']);mdistinct=int(maps['labels'])
+            print(label,'snapshot_count',n,'source_labels',distinct,'mapping_count',int(maps['n']),'mapping_labels',mdistinct)
+            total_snapshots+=n
+            if distinct>1 or mdistinct>1:failures.append(label)
+          all_snapshots=int(q('SELECT COUNT(*) AS n FROM ManagerReportTbSnapshotsV6A')[0]['n'])
+          print('Accessible matched snapshots',total_snapshots,'All imported snapshots',all_snapshots)
+          if failures:raise RuntimeError('Ambiguous source labels for: '+','.join(failures))
+          print('PASS: no ambiguous historical report companies; unmatched snapshots are intentionally hidden.')
+          PY
