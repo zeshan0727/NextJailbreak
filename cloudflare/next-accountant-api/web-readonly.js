@@ -2,6 +2,7 @@
 // Never re-use this session cookie as a migration/administrator credential.
 // All business SELECTs are explicitly allowlisted; no browser mutation exists.
 import { webAsset } from './web-view.js';
+import {listDrafts,createDraft,attachDraft,downloadDraft} from './voucher-drafts.js';
 
 const COOKIE = '__Host-na-staging';
 const MAX_AGE = 8 * 60 * 60;
@@ -228,8 +229,20 @@ export async function handleWeb(request,env) {
         ...secureHeaders('text/plain; charset=utf-8'), 'Set-Cookie':cookie('',0)
       }});
     }
-    if(request.method!=='GET')return json({error:'Read-only staging web. Writes are disabled.'},405);
-    if(url.pathname==='/web/app.css'||url.pathname==='/web/app.js'){
+    // Preview drafts are the only viewer-writable records. They cannot post
+    // into imported Windows source ledgers or other accounting tables.
+    const documentMatch=url.pathname.match(/^\/api\/web\/drafts\/([0-9a-f-]{36})\/document$/);
+    if((url.pathname==='/api/web/drafts'&&request.method==='POST') ||
+       (documentMatch && request.method==='PUT')) {
+      if(!await isViewer(request,env))return denied();
+      if(request.headers.get('Origin')!==url.origin)
+        return json({error:'Cross-origin draft changes are blocked.'},403);
+      if(url.pathname==='/api/web/drafts')
+        return await createDraft(request,env,ensureEntity);
+      return await attachDraft(request,env,documentMatch[1]);
+    }
+    if(request.method!=='GET')return json({error:'Read-only source ledger. Only isolated draft creation is available.'},405);
+    if(url.pathname==='/web/app.css'||url.pathname==='/web/app.js'||url.pathname==='/web/drafts.js'){
       const asset=webAsset(url.pathname);
       return new Response(asset.body,{headers:secureHeaders(asset.type)});
     }
@@ -249,6 +262,12 @@ export async function handleWeb(request,env) {
       const asset=webAsset('/web');
       return new Response(asset.body,{headers:secureHeaders(asset.type)});
     }
+    if(url.pathname==='/api/web/drafts') {
+      const id=queryId(url);
+      if(!id||!await ensureEntity(env,id))return json({error:'Company not accessible.'},404);
+      return await listDrafts(env,id);
+    }
+    if(documentMatch)return await downloadDraft(env,documentMatch[1]);
     if(url.pathname==='/api/web/entities') {
       const result=await env.DB.prepare(
         'SELECT Id,Name,Code,IsActive FROM Entities WHERE ('+MANAGED_SQL+') ORDER BY Name LIMIT 7'
