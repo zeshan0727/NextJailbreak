@@ -24,7 +24,9 @@ jobs:
           def q(sql):
               proc=subprocess.run(['wrangler','d1','execute','next-accountant-staging','--remote','--yes','--json','--command',sql],capture_output=True,text=True,timeout=100,env=os.environ)
               if proc.returncode:
-                  raise RuntimeError("Unable to inspect staging D1. Do not resume file recovery.")
+                  error=(proc.stderr or "").strip()[-900:]
+                  error=re.sub(r'"[A-Za-z_][A-Za-z0-9_]*"','"[redacted table]"',error)
+                  raise RuntimeError("Read-only query rejected (no data modified): "+error)
               data=json.loads(proc.stdout)
               if isinstance(data,list):
                   return data[0]['results']
@@ -35,10 +37,8 @@ jobs:
           if len(names)!=109:
               sys.exit('BLOCK: staging table count does not match verified backup.')
           total=0
-          for offset in range(0,len(names),10):
-              batch=names[offset:offset+10]
-              union=" UNION ALL ".join('SELECT COUNT(*) AS n FROM "'+name+'"' for name in batch)
-              total+=int(q('SELECT SUM(n) AS n FROM ('+union+')')[0]['n'])
+          for name in names:
+              total+=int(q('SELECT COUNT(*) AS n FROM "'+name+'"')[0]['n'])
           indexed=int(q("SELECT COUNT(*) AS n FROM WebFileIndex")[0]['n'])
           print('Verified source tables:',len(names))
           print('Verified imported database rows:',total)
