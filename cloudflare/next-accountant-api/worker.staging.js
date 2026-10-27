@@ -1,4 +1,5 @@
 import { handleWeb, createWebTicket } from './web-readonly.js';
+import { financeFingerprint } from './financial-fingerprint.js';
 const ALLOWED_ORIGINS = new Set([
   'https://nextjailbreak.com',
   'https://www.nextjailbreak.com',
@@ -380,6 +381,8 @@ export default {
         const tables = await listTables(env);
         return json({ok:true,tables:tables.length,aiConfigured:Boolean(env.OPENAI_API_KEY),filesBucket:Boolean(env.FILES)},200,origin);
       }
+      if (request.method === 'GET' && url.pathname === '/api/admin/financial-fingerprint')
+        return await financeFingerprint(request,env);
       if (request.method === 'GET' && url.pathname === '/api/admin/tables') return json({tables:await listTables(env)},200,origin);
       if (request.method === 'GET' && url.pathname === '/api/admin/counts') return await tableCounts(env,origin,url);
       if (request.method === 'POST' && url.pathname === '/api/admin/apply-schema') return await applySchema(request,env,origin);
