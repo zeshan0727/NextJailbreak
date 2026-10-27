@@ -171,13 +171,13 @@ jobs:
           pause
           exit /b %RC%
           '@ | Set-Content -Encoding ascii out/migrator/VERIFY_FINANCIALS_ONLY.bat
-          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.4.0_STAGING_ONLY_win-x64.zip -Force
+          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.5.0_STAGING_ONLY_win-x64.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextAccountantWebMigrator-0.4.0-staging-only-win-x64
-          path: out/NextAccountantWebMigrator_0.4.0_STAGING_ONLY_win-x64.zip
+          name: NextAccountantWebMigrator-0.5.0-staging-only-win-x64
+          path: out/NextAccountantWebMigrator_0.5.0_STAGING_ONLY_win-x64.zip
           if-no-files-found: error
 
       - name: Assemble encrypted file-only recovery bundle
@@ -239,7 +239,7 @@ jobs:
             throw "Encrypted staging credential unavailable; private web package not built."
           }
           @'
-          NEXT ACCOUNTANT PRIVATE WEB STAGING v0.4.0
+          NEXT ACCOUNTANT PRIVATE WEB STAGING v0.5.0
           ========================================
           Extract the folder on the same Windows user profile used for
           the V6 staging migration.
@@ -262,7 +262,7 @@ jobs:
       - name: Upload private web viewer (no full migration launcher)
         uses: actions/upload-artifact@v4
         with:
-          name: NextAccountantPrivateWeb-0.4.0-WindowsEncrypted
+          name: NextAccountantPrivateWeb-0.5.0-WindowsEncrypted
           path: out/webaccess/*
           if-no-files-found: error
           retention-days: 7
