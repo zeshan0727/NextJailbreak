@@ -7,6 +7,19 @@ const COOKIE = '__Host-na-staging';
 const MAX_AGE = 8 * 60 * 60;
 const CODE_AGE = 90;
 const enc = new TextEncoder();
+// Only seven user-managed entities may be read through private web sessions.
+// Mapping was checked against private staging with exactly one entity per
+// expected company. It applies in the API, not just the frontend selector.
+const MANAGED_SQL = [
+  "lower(Name) LIKE '%stone%'",
+  "lower(Name) LIKE '%graphitees%'",
+  "lower(Name) LIKE '%barjous%'",
+  "lower(Name) LIKE '%levante%bags%'",
+  "lower(Name) LIKE '%atelier%'",
+  "lower(Name) LIKE '%erada%'",
+  "lower(Name) LIKE '%north sports%'"
+].join(' OR ');
+
 
 function json(payload, status=200, headers={}) {
   return new Response(JSON.stringify(payload), {
@@ -117,7 +130,9 @@ function queryId(url){
   return Number(raw);
 }
 async function ensureEntity(env,id){
-  return Boolean(await env.DB.prepare('SELECT Id FROM Entities WHERE Id=?').bind(id).first());
+  return Boolean(await env.DB.prepare(
+    'SELECT Id FROM Entities WHERE Id=? AND ('+MANAGED_SQL+')'
+  ).bind(id).first());
 }
 async function overview(env,id){
   const r=await env.DB.prepare(
@@ -236,7 +251,7 @@ export async function handleWeb(request,env) {
     }
     if(url.pathname==='/api/web/entities') {
       const result=await env.DB.prepare(
-        'SELECT Id,Name,Code,IsActive FROM Entities ORDER BY Name LIMIT 100'
+        'SELECT Id,Name,Code,IsActive FROM Entities WHERE ('+MANAGED_SQL+') ORDER BY Name LIMIT 7'
       ).all();
       return json({entities:result.results||[]});
     }
@@ -244,7 +259,7 @@ export async function handleWeb(request,env) {
        url.pathname==='/api/web/records') {
       const id=queryId(url);
       if(!id)return json({error:'Select a valid entity.'},400);
-      if(!await ensureEntity(env,id))return json({error:'Entity not found.'},404);
+      if(!await ensureEntity(env,id))return json({error:'Company not accessible in this private workspace.'},404);
       if(url.pathname==='/api/web/overview')return await overview(env,id);
       if(url.pathname==='/api/web/contracts')return await contracts(env,id);
       return await records(env,id,url);
