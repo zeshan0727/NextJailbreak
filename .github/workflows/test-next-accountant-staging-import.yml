@@ -9,6 +9,7 @@ on:
       - "cloudflare/next-accountant-api/test_staging.py"
       - "cloudflare/next-accountant-api/test_web.py"
       - "cloudflare/next-accountant-api/web-readonly.js"
+      - "cloudflare/next-accountant-api/financial-fingerprint.js"
       - "cloudflare/next-accountant-api/web-view.js"
       - "cloudflare/next-accountant-api/schema.sql"
       - ".github/workflows/test-next-accountant-staging-import.yml"
