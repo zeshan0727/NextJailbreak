@@ -94,11 +94,82 @@ jobs:
           )
           pause
           '@ | Set-Content -Encoding ascii out/migrator/IMPORT_TO_STAGING_ONLY.bat
-          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.2.0_STAGING_ONLY_win-x64.zip -Force
+          @'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          echo ============================================================
+          echo NEXT ACCOUNTANT - STAGING FILE-ONLY RECOVERY
+          echo ============================================================
+          echo This mode NEVER reimports database rows or source schema.
+          echo It requires the exact source V6 backup and verifies every
+          echo staging source table count matches before touching R2.
+          echo Completed R2 files are SHA-256 validated, not overwritten.
+          if not exist "NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt" (
+            echo Encrypted credential missing. No changes made.
+            pause
+            exit /b 1
+          )
+          NextAccountantMigrator.exe --resume-staging-files-only
+          set "RC=%ERRORLEVEL%"
+          echo.
+          if "%RC%"=="0" (
+            echo FILE RECOVERY COMPLETE - FINANCIAL RECONCILIATION STILL REQUIRED.
+          ) else (
+            echo FILE RECOVERY BLOCKED OR FAILED. DO NOT RE-RUN. SEND LOG.
+          )
+          pause
+          exit /b %RC%
+          '@ | Set-Content -Encoding ascii out/migrator/RESUME_FILES_ONLY.bat
+          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.2.1_STAGING_ONLY_win-x64.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextAccountantWebMigrator-0.2.0-staging-only-win-x64
-          path: out/NextAccountantWebMigrator_0.2.0_STAGING_ONLY_win-x64.zip
+          name: NextAccountantWebMigrator-0.2.1-staging-only-win-x64
+          path: out/NextAccountantWebMigrator_0.2.1_STAGING_ONLY_win-x64.zip
           if-no-files-found: error
+
+      - name: Assemble encrypted file-only recovery bundle
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Force out/recovery | Out-Null
+          gh run download 40330435637 --repo zeshan0727/NextJailbreak --name NextAccountantStagingEncryptedCredential --dir out/recovery
+          foreach ($name in @('NextAccountantMigrator.exe','RESUME_FILES_ONLY.bat')) {
+            Copy-Item "out/migrator/$name" "out/recovery/$name" -ErrorAction Stop
+          }
+          $credential = "out/recovery/NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt"
+          if (-not (Test-Path $credential) -or (Get-Item $credential).Length -lt 400) {
+            throw "Encrypted staging credential missing. Will not create recovery package."
+          }
+          @'
+          NEXT ACCOUNTANT STAGING FILE-ONLY RECOVERY v0.2.1
+          =================================================
+          THIS IS NOT THE FULL IMPORTER. It contains no full-import launcher.
+
+          1. Extract this ZIP on the SAME Windows user account that
+             generated the staging RSA private key.
+          2. Double click RESUME_FILES_ONLY.bat.
+          3. The executable verifies the source business backup (schema
+             21, 109 tables, 11,913 rows, 909 files, exact source filename).
+          4. It remotely checks every staging table row count and verifies
+             the partial R2 file index before any file writes.
+          5. It does not reimport, delete, or alter any existing DB rows.
+          6. Existing R2 objects are SHA-256 checked and reused.
+          7. All 909 files must be hash-verified and indexed for success.
+          8. On ANY failure, do NOT rerun; send the console error.
+
+          Staging token is RSA encrypted; no plaintext credentials,
+          business data, personal files or private keys are included.
+          Financial statement and contract reconciliation follows separately.
+          '@ | Set-Content -Encoding utf8 out/recovery/README_FIRST.txt
+
+      - name: Upload encrypted file-only recovery artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextAccountantStagingFileRecovery-0.2.1-OneClick-Encrypted
+          path: out/recovery/*
+          if-no-files-found: error
+          retention-days: 7
