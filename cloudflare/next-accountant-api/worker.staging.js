@@ -1,3 +1,4 @@
+import { handleWeb, createWebTicket } from './web-readonly.js';
 const ALLOWED_ORIGINS = new Set([
   'https://nextjailbreak.com',
   'https://www.nextjailbreak.com',
@@ -358,6 +359,19 @@ export default {
     }
 
     if (env.MIGRATION_ENV !== 'staging') return json({error:'Staging worker configuration missing.'},503,origin);
+
+    // User-facing staging records never use the migration token in the browser.
+    // The native Windows app exchanges it for a 90-second, single-use ticket;
+    // the browser receives only an HttpOnly read-only session cookie.
+    if (url.pathname === '/api/web/session/start') {
+      const ownerAuth=await isAuthorized(request,env);
+      if (!ownerAuth.ok) return json({error:ownerAuth.error},ownerAuth.status,origin);
+      return await createWebTicket(request,env);
+    }
+    if (url.pathname === '/web' || url.pathname.startsWith('/web/') ||
+        url.pathname.startsWith('/api/web/')) {
+      return await handleWeb(request,env);
+    }
     const auth = await isAuthorized(request,env);
     if (!auth.ok) return json({error:auth.error},auth.status,origin);
 
