@@ -87,12 +87,14 @@ internal static class FinancialReconciler
         Console.WriteLine();
         Console.WriteLine("CHECKING COMPANY / MONTH / SOURCE CURRENCY...");
         await PeriodReconciler.VerifyAsync(source, cloud, sourceSchemaVersion);
+        await SnapshotReconciler.VerifyAsync(source, cloud);
         Console.WriteLine();
         Console.WriteLine("FINANCIAL RECONCILIATION PASSED");
         Console.WriteLine("  Exact source database row counts: PASS");
         Console.WriteLine("  V6 staging supporting-file index: PASS");
         Console.WriteLine("  Six financial source monetary totals: PASS");
         Console.WriteLine("  Grouped monetary and record-count reconciliation: PASS");
+        Console.WriteLine("  Manager report source snapshot account totals: PASS");
         Console.WriteLine("  No business records or Windows data were modified.");
         Console.WriteLine("  Windows report-format and trial-balance parity still require independent approval.");
     }
