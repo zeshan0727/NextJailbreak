@@ -1,13 +1,9 @@
 name: Deploy Next Accountant Cloudflare backend
 
+# PAUSED 2026-10-27: Windows ACCOUNTANTS is the active development path.
+# No automatic web deployment/build. Keep for manual resumption only.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/deploy-next-accountant-cloudflare.yml"
-      - "cloudflare/next-accountant-api/worker.js"
-      - "cloudflare/next-accountant-api/schema.sql"
 
 permissions:
   contents: read
