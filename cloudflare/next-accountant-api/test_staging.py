@@ -107,4 +107,22 @@ assert status==405, "Migration credential must not delete R2 files."
 status,headers,_=call("/api/files/smoke/test.txt","HEAD")
 assert status==200 and headers.get("X-File-Sha256")==digest, "Failed DELETE must preserve R2 file."
 
-print("PASS: staging identity, locked admin, DDL, FK, three-receipt allocation, BLOB, paged counts, file SHA, and idempotent R2.")
+# The Windows V6 backup includes valid zero-byte lock files. They must be
+# stored, hashed and indexed, not discarded or rejected.
+empty=b""
+empty_digest=hashlib.sha256(empty).hexdigest()
+status,_,uploaded=call("/api/files/smoke/empty.lock","PUT",empty,
+ {"Content-Type":"application/octet-stream","X-File-Name":"empty.lock",
+  "X-Expected-Sha256":empty_digest})
+assert status==200 and uploaded["sha256"]==empty_digest and uploaded["size"]==0,(status,uploaded)
+status,headers,_=call("/api/files/smoke/empty.lock","HEAD")
+assert status==200 and headers.get("X-File-Sha256")==empty_digest,(status,headers)
+status,_,repeated=call("/api/files/smoke/empty.lock","PUT",empty,
+ {"Content-Type":"application/octet-stream","X-File-Name":"empty.lock",
+  "X-Expected-Sha256":empty_digest})
+assert status==200 and repeated.get("unchanged") is True and repeated["size"]==0,(status,repeated)
+status,_,index=call("/api/admin/export-table?table=WebFileIndex")
+assert status==200 and any(row["ObjectKey"]=="smoke/empty.lock" and
+  row["Sha256"]==empty_digest and row["SizeBytes"]==0 for row in index["rows"]),index
+
+print("PASS: multiline DDL, schema idempotence, FK, receipts, BLOB, row counts, R2 sha256, zero-byte entries and idempotent R2.")
