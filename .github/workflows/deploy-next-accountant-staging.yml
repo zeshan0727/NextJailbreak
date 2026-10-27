@@ -104,6 +104,10 @@ jobs:
           done
           STATUS=$(curl -sS -X POST -o /dev/null -w '%{http_code}' "$API/api/web/session/start")
           test "$STATUS" = "401"
+          for path in /api/admin/financial-fingerprint /api/admin/financial-breakdown /api/admin/tb-snapshot; do
+            STATUS=$(curl -sS -o /dev/null -w '%{http_code}' "$API$path")
+            test "$STATUS" = "401"
+          done
           echo "Private web routes closed to anonymous traffic" >> "$GITHUB_STEP_SUMMARY"
           echo "Staging backend updated; V6 source import remains read-only to web clients." >> "$GITHUB_STEP_SUMMARY"
           echo "Existing migrated source tables and R2 files were not reset." >> "$GITHUB_STEP_SUMMARY"
