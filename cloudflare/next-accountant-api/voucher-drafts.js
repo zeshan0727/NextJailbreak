@@ -72,13 +72,17 @@ export async function createDraft(request,env,isAllowedEntity) {
   if(Number(current?.n||0)>=200)
     return response({error:'Draft preview limit reached for this entity.'},409);
   const id=crypto.randomUUID();
-  await env.DB.prepare(
-    "INSERT INTO WebVoucherDrafts(Id,EntityId,Kind,TransactionDate,Currency,"+
-    "AmountMinor,Counterparty,Narrative,Reference) VALUES(?,?,?,?,?,?,?,?,?)"
-  ).bind(id,entityId,kind,date,currency,amount,counterparty,narrative,reference).run();
-  await env.DB.prepare(
-    "INSERT INTO WebVoucherDraftAudit(DraftId,Action) VALUES(?,'CREATED')"
-  ).bind(id).run();
+  // D1.batch executes as a transaction, so an audit-write failure cannot
+  // leave a voucher draft silently created without its audit event.
+  await env.DB.batch([
+    env.DB.prepare(
+      "INSERT INTO WebVoucherDrafts(Id,EntityId,Kind,TransactionDate,Currency,"+
+      "AmountMinor,Counterparty,Narrative,Reference) VALUES(?,?,?,?,?,?,?,?,?)"
+    ).bind(id,entityId,kind,date,currency,amount,counterparty,narrative,reference),
+    env.DB.prepare(
+      "INSERT INTO WebVoucherDraftAudit(DraftId,Action) VALUES(?,'CREATED')"
+    ).bind(id)
+  ]);
   return response({ok:true,id,status:'DRAFT',postedToWindows:false},201);
 }
 export async function attachDraft(request,env,id) {
