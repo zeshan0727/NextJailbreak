@@ -7,6 +7,9 @@ on:
     paths:
       - ".github/workflows/deploy-next-accountant-staging.yml"
       - "cloudflare/next-accountant-api/worker.staging.js"
+      - "cloudflare/next-accountant-api/web-readonly.js"
+      - "cloudflare/next-accountant-api/web-view.js"
+      - "cloudflare/next-accountant-api/schema.sql"
 
 permissions:
   contents: read
@@ -88,4 +91,5 @@ jobs:
           PY
           STATUS=$(curl -sS -o /dev/null -w '%{http_code}' "$API/api/admin/tables")
           test "$STATUS" = "401" || test "$STATUS" = "503"
-          echo "Staging ready, no business data imported" >> "$GITHUB_STEP_SUMMARY"
+          echo "Staging backend updated; V6 source import remains read-only to web clients." >> "$GITHUB_STEP_SUMMARY"
+          echo "Existing migrated source tables and R2 files were not reset." >> "$GITHUB_STEP_SUMMARY"
