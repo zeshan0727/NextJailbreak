@@ -3,6 +3,7 @@
 // All business SELECTs are explicitly allowlisted; no browser mutation exists.
 import { webAsset } from './web-view.js';
 import {listDrafts,createDraft,attachDraft,downloadDraft} from './voucher-drafts.js';
+import {listWindowsReports,downloadWindowsReport} from './report-archive.js';
 
 const COOKIE = '__Host-na-staging';
 const MAX_AGE = 8 * 60 * 60;
@@ -261,6 +262,12 @@ export async function handleWeb(request,env) {
     if(url.pathname==='/web') {
       const asset=webAsset('/web');
       return new Response(asset.body,{headers:secureHeaders(asset.type)});
+    }
+    if(url.pathname==='/api/web/manager-archive'||url.pathname==='/api/web/manager-report-file') {
+      const id=queryId(url);
+      if(!id||!await ensureEntity(env,id))return json({error:'Company not accessible.'},404);
+      if(url.pathname==='/api/web/manager-archive')return await listWindowsReports(env,id);
+      return await downloadWindowsReport(env,id,url.searchParams.get('key'));
     }
     if(url.pathname==='/api/web/drafts') {
       const id=queryId(url);
