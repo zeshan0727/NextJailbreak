@@ -1,4 +1,4 @@
-# Next Accountant Web — Private Staging v0.4
+# Next Accountant Web — Private Staging v0.5
 
 **Production is NOT enabled.** Windows ACCOUNTANTS V6 remains authoritative. The static GitHub Pages demo at https://nextjailbreak.com/accountants/ is unrelated to the private staging database.
 
@@ -27,9 +27,9 @@ Log in through the encrypted Windows ZIP using `OPEN_ACCOUNTANT_WEB.bat` on the 
 
 ### Next required validation
 
-Run `VERIFY_FINANCIALS_ONLY.bat` from the private Windows v0.4 package. This verifies source and staging count parity plus six monetary amount-field sums from the exact Oct 26 original backup without posting or uploading new business records.
+The v0.4 Windows financial check passed against the exact 2026-10-26 backup: 109 tables, 11,913 rows, 909 indexed files, and six source-table monetary totals. The enhanced v0.5 `VERIFY_FINANCIALS_ONLY.bat` additionally compares each dataset by original company, source period and currency, and verifies manager-report account snapshot debit/credit/balance aggregates. Run it locally on the same Windows user profile; it performs no business writes.
 
-**Do not certify finance cutover based only on matching six sums.** Full production approval requires per-company and per-period trial balance/balance-sheet/income-statement reconciliation, exchange-rate correctness, manager-report rendering/export parity, controlled source-to-web voucher posting with audit and rollback tests, full HR module parity, multiuser security, protected storage/backups, and user acceptance testing.
+**Do not certify finance cutover based only on matching six sums or source snapshot totals.** Full production approval requires per-company and per-period trial balance/balance-sheet/income-statement reconciliation, exchange-rate correctness, manager-report rendering/export parity, controlled source-to-web voucher posting with audit and rollback tests, full HR module parity, multiuser security, protected storage/backups, and user acceptance testing.
 
 ### Security
 
