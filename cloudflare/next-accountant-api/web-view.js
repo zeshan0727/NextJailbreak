@@ -107,7 +107,9 @@ const JS = String.raw`(function () {
     {id:"ReceiptVouchers",label:"Receipt vouchers"},
     {id:"Drafts",label:"PV / RV drafts"},
     {id:"Customers",label:"Customers"},
-    {id:"ManagerReports",label:"Manager reports"}
+    {id:"ManagerReports",label:"Manager reports"},
+    {id:"Tasks",label:"Daily tasks"},
+    {id:"Employees",label:"HR · Employees"}
   ];
   const byId=id=>document.getElementById(id);
   const el=(tag,txt,cls)=>{
