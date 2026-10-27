@@ -1,0 +1,55 @@
+name: File Manager v1.2 Light Windows EXE
+on:
+  push:
+    branches: [file-manager-windows-v1-1]
+    paths:
+      - '.github/workflows/file-manager-v1.2.yml'
+      - 'file-manager/patch_v1_2.b64'
+      - 'file-manager/apply_patch_v1_2.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract v1.1 original sources
+        shell: pwsh
+        run: |
+          Expand-Archive -LiteralPath 'file-manager/build_source.zip' -DestinationPath 'file-manager' -Force
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply and verify v1.2 source update
+        working-directory: file-manager
+        run: python apply_patch_v1_2.py
+      - name: Install dependencies and build tools
+        working-directory: file-manager
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+      - name: Run 17 backend tests
+        working-directory: file-manager
+        run: python -m unittest discover -s tests -v
+      - name: Build portable Windows GUI executable
+        working-directory: file-manager
+        run: >-
+          python -m PyInstaller --clean --noconfirm --onefile --windowed
+          --name "File Manager" --icon "assets/file_manager.ico"
+          --collect-all tkinterdnd2 file_manager.py
+      - name: Verify executable is present
+        shell: pwsh
+        run: |
+          if (!(Test-Path 'file-manager/dist/File Manager.exe')) { throw 'Windows executable was not created' }
+          $binary = Get-Item 'file-manager/dist/File Manager.exe'
+          if ($binary.Length -lt 2000000) { throw 'Executable unexpectedly small' }
+          Write-Host "Executable size: $($binary.Length) bytes"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: File-Manager-v1.2-Light-Portable-Windows-EXE
+          path: file-manager/dist/File Manager.exe
+          if-no-files-found: error
+          retention-days: 30
