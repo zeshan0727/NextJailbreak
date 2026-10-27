@@ -35,6 +35,9 @@ jobs:
         run: |
           python -c "from pathlib import Path; p=Path('.'); (p/'patch_v1_4.b64').write_text(''.join((p/'v14patch-part1.txt').read_text().split()) + ''.join((p/'v14patch-part2.txt').read_text().split()))"
           python apply_patch_v1_4.py
+      - name: Align old tests with stricter v1.4 classification rules
+        working-directory: file-manager
+        run: python refresh_v14_tests.py
       - name: Install build dependencies
         working-directory: file-manager
         run: |
