@@ -2,6 +2,7 @@ import hashlib
 import json
 import urllib.request
 import urllib.error
+from urllib.parse import quote
 
 BASE = "http://127.0.0.1:8787"
 TOKEN = "synthetic-fixture-only"
@@ -124,5 +125,31 @@ assert status==200 and repeated.get("unchanged") is True and repeated["size"]==0
 status,_,index=call("/api/admin/export-table?table=WebFileIndex")
 assert status==200 and any(row["ObjectKey"]=="smoke/empty.lock" and
   row["Sha256"]==empty_digest and row["SizeBytes"]==0 for row in index["rows"]),index
+
+# Synthetic UTF-8 filename regression: ASCII HTTP headers must retain names.
+original="\u062A\u0642\u0631\u064A\u0631 \u4E2D\u6587 100%.txt"
+record_id="Smoke/" + original
+object_key="business/" + record_id
+encoded_path="/api/files/" + quote(object_key,safe="/")
+payload=b"synthetic unicode header fixture"
+digest_unicode=hashlib.sha256(payload).hexdigest()
+encoded_headers={
+ "Content-Type":"text/plain",
+ "X-File-Name-Encoded":quote(original,safe=""),
+ "X-Record-Id-Encoded":quote(record_id,safe=""),
+ "X-File-Category":"V6BusinessBackup",
+ "X-Record-Type":"MigrationFile",
+ "X-Expected-Sha256":digest_unicode,
+}
+assert all(value.isascii() for value in encoded_headers.values())
+status,_,result=call(encoded_path,"PUT",payload,encoded_headers)
+assert status==200 and result["sha256"]==digest_unicode,(status,result)
+status,_,replay=call(encoded_path,"PUT",payload,encoded_headers)
+assert status==200 and replay.get("unchanged") is True,(status,replay)
+status,_,rows=call("/api/admin/export-table?table=WebFileIndex")
+assert status==200
+found=[x for x in rows["rows"] if x["ObjectKey"]==object_key]
+assert len(found)==1 and found[0]["OriginalName"]==original and found[0]["RecordId"]==record_id,found
+print("PASS: encoded Unicode filename metadata and safe R2 retry.")
 
 print("PASS: multiline DDL, schema idempotence, FK, receipts, BLOB, row counts, R2 sha256, zero-byte entries and idempotent R2.")
