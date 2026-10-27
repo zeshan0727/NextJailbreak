@@ -1,6 +1,7 @@
 // Staging-only voucher DRAFTS. Never writes imported Windows V6 source tables.
 const ALLOWED_TYPES=new Map([
-  ['application/pdf','.pdf'],['image/jpeg','.jpg'],['image/png','.png']
+  ['application/pdf','.pdf'],['image/jpeg','.jpg'],['image/png','.png'],
+  ['image/heic','.heic'],['image/heif','.heif'],['image/webp','.webp']
 ]);
 function response(data,status=200){
   return new Response(JSON.stringify(data),{
