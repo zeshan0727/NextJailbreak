@@ -16,6 +16,9 @@ var apiBase = options.Get("api") ?? DefaultApi;
 var prepareOnly = options.Has("prepare-only") || options.Has("dry-run");
 var databaseOnly = options.Has("database-only-test");
 var commitStaging = options.Has("commit-staging-import");
+var resumeFilesOnly = options.Has("resume-staging-files-only");
+if (commitStaging && resumeFilesOnly)
+    return Fail("Select only one import mode. Full import and file-only recovery cannot be combined.");
 var backup = options.Get("backup") ?? BackupVerifier.FindNewest(installRoot);
 
 if (string.IsNullOrWhiteSpace(backup) || !File.Exists(backup))
@@ -25,6 +28,7 @@ Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.2.0 - STAGING ONLY");
 Console.WriteLine("Source: " + backup);
 Console.WriteLine("Mode: " +
     (prepareOnly ? "PREPARE / VERIFY ONLY" :
+     resumeFilesOnly ? "SAFE STAGING FILE-ONLY RECOVERY (no database writes)" :
      commitStaging ? "STAGING IMPORT" : "SAFE READ-ONLY (import not authorized)"));
 Console.WriteLine();
 
@@ -76,7 +80,7 @@ try
     Console.WriteLine("D1/R2 COMPATIBILITY: PASS (static preflight only)");
 
 
-    if (prepareOnly || !commitStaging)
+    if (prepareOnly || (!commitStaging && !resumeFilesOnly))
     {
         Console.WriteLine("PREPARE PASS: no cloud writes were performed.");
         if (!prepareOnly) Console.WriteLine("Import requires explicit --commit-staging-import flag.");
@@ -104,9 +108,47 @@ try
         return Fail("Private R2 file storage is not ready. Full migration was not started.");
 
     var remoteBefore = await cloud.CountsAsync();
+    if (resumeFilesOnly)
+    {
+        // File-only recovery is permitted ONLY for the exact verified V6 backup
+        // that produced the interrupted 2026-10-27 staging migration.
+        const string expectedBackup = "Accountants6_BUSINESS_DESKTOP-BL913CT_20261026_092040.zip";
+        if (!string.Equals(Path.GetFileName(backup), expectedBackup, StringComparison.OrdinalIgnoreCase))
+            return Fail("File-only recovery requires the original verified 2026-10-26 09:20:40 V6 backup, not another/newer backup.");
+        if (counts.Count != 109 || counts.Values.Sum() != 11913 || files.Count != 909 || schemaVersion != 21)
+            return Fail("This backup's identity/record and file counts differ from the verified interrupted migration. No writes performed.");
+        var mismatched = counts.Where(x =>
+                !remoteBefore.TryGetValue(x.Key, out var n) || n != x.Value)
+            .Select(x => x.Key)
+            .ToList();
+        var extra = remoteBefore.Where(x =>
+                !x.Key.StartsWith("Web", StringComparison.OrdinalIgnoreCase) &&
+                !counts.ContainsKey(x.Key) && x.Value > 0)
+            .Select(x => x.Key).ToList();
+        if (mismatched.Count > 0 || extra.Count > 0)
+            return Fail("STAGING FILE RECOVERY BLOCKED: source data row counts do not exactly match staging. No writes performed. Mismatched tables: " +
+                string.Join(", ", mismatched.Take(12)) + " Extra populated tables: " + string.Join(", ", extra.Take(12)));
+        if (!remoteBefore.TryGetValue("WebFileIndex", out var existingIndexedFiles) ||
+            existingIndexedFiles <= 0 || existingIndexedFiles >= files.Count)
+            return Fail("File-only recovery expected a partial but nonempty staging file index. No writes performed.");
+        Console.WriteLine($"PASS: verified {counts.Count:N0} staging source tables and {counts.Values.Sum():N0} rows match source.");
+        Console.WriteLine($"PASS: found {existingIndexedFiles:N0} indexed R2 files. No schema or business rows will be imported again.");
+        Console.WriteLine("Resuming file upload in IDEMPOTENT mode; completed files will be hash-checked and skipped.");
+        await cloud.UploadBackupFilesAsync(backup, files);
+        var after = await cloud.CountsAsync();
+        var finalBad = counts.Where(x => !after.TryGetValue(x.Key, out var n) || n != x.Value).ToList();
+        if (finalBad.Count > 0)
+            return Fail("Post-resume staging row reconciliation failed. No additional SQL rows were written.");
+        if (!after.TryGetValue("WebFileIndex", out var indexedAfter) || indexedAfter != files.Count)
+            return Fail($"File index reconciliation failed: expected {files.Count:N0}, indexed {indexedAfter:N0}. Review staging before retry.");
+        Console.WriteLine();
+        Console.WriteLine($"STAGING FILE RECOVERY PASS: {counts.Values.Sum():N0} database rows untouched, {indexedAfter:N0} files hash-verified and indexed.");
+        Console.WriteLine("Financial reconciliation and production approval remain separate.");
+        return 0;
+    }
     if (remoteBefore.Any(x =>
         !x.Key.StartsWith("Web", StringComparison.OrdinalIgnoreCase) && x.Value > 0))
-        return Fail("Cloud business tables are not empty. Refusing to overwrite web data.");
+        return Fail("Cloud business tables are not empty. Refusing full import.");
 
     Console.WriteLine("Applying source schema to isolated staging in bounded groups...");
     var ddl = await SqliteExport.SchemaStatementsAsync(source);
