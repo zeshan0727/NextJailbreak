@@ -1,0 +1,60 @@
+name: File Manager v1.3 AI Review Windows EXE
+on:
+  push:
+    branches: [file-manager-windows-v1-3]
+    paths:
+      - '.github/workflows/file-manager-v1.3.yml'
+      - 'file-manager/apply_patch_v1_3.py'
+      - 'file-manager/patch_v1_3.b64'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract original desktop source
+        shell: pwsh
+        run: |
+          Expand-Archive -LiteralPath 'file-manager/build_source.zip' -DestinationPath 'file-manager' -Force
+      - name: Configure Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply v1.2 light UI and bulk management updates
+        working-directory: file-manager
+        run: python apply_patch_v1_2.py
+      - name: Apply verified v1.3 automatic AI vision and import updates
+        working-directory: file-manager
+        run: python apply_patch_v1_3.py
+      - name: Install application and build dependencies
+        working-directory: file-manager
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+      - name: Verify all document manager and AI classification tests
+        working-directory: file-manager
+        run: python -m unittest discover -s tests -v
+      - name: Compile standalone light-theme Windows 64-bit EXE
+        working-directory: file-manager
+        run: >-
+          python -m PyInstaller --clean --noconfirm --onefile --windowed
+          --name "File Manager v1.3" --icon "assets/file_manager.ico"
+          --collect-all tkinterdnd2 --collect-all fitz --collect-all pymupdf --collect-all PIL
+          file_manager.py
+      - name: Verify EXE binary
+        shell: pwsh
+        run: |
+          $path = 'file-manager/dist/File Manager v1.3.exe'
+          if (!(Test-Path $path)) { throw "Missing compiled EXE: $path" }
+          $binary = Get-Item $path
+          if ($binary.Length -lt 5000000) { throw "EXE is unexpectedly small" }
+          Write-Host "Windows EXE verified: $($binary.Length) bytes"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: File-Manager-v1.3-AI-Review-Light-Windows-EXE
+          path: file-manager/dist/File Manager v1.3.exe
+          if-no-files-found: error
+          retention-days: 30
