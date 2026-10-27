@@ -7,11 +7,12 @@ from urllib.parse import quote
 
 HOST="http://127.0.0.1:8787"
 OWNER="synthetic-fixture-only"
-def req(path,method="GET",body=None,bearer=False,cookie=None,follow=True,origin=None):
+def req(path,method="GET",body=None,bearer=False,cookie=None,follow=True,origin=None,extra_headers=None):
     headers={"Accept":"application/json"}
     if bearer:headers["Authorization"]="Bearer "+OWNER
     if cookie:headers["Cookie"]=cookie
     if origin:headers["Origin"]=origin
+    if extra_headers:headers.update(extra_headers)
     if isinstance(body,(dict,list)):
         body=json.dumps(body).encode()
         headers["Content-Type"]="application/json"
@@ -119,6 +120,55 @@ status,_,_=req("/api/web/records?type=Employees&entityId=1",cookie=browser_cooki
 assert status==400,"Sensitive unapproved table was exposed"
 status,_,_=req("/api/web/records?type=Invoices&entityId=1%20OR%201=1",cookie=browser_cookie)
 assert status==400,"SQL injection-like ID accepted"
+
+# PV / RV staging drafts: allow scoped writes in separate tables only.
+new_pv={"entityId":1,"kind":"PV","date":"2026-10-04","currency":"QAR",
+        "amountMinor":12550,"counterparty":"Test Payee",
+        "narrative":"Synthetic transport cost","reference":"SYN-1"}
+status,_,_=req("/api/web/drafts","POST",body=new_pv,origin=HOST)
+assert status==401,"Anonymous draft creation was allowed"
+status,_,_=req("/api/web/drafts","POST",body=new_pv,cookie=browser_cookie,
+               origin="https://unrelated.example")
+assert status==403,"Cross-origin draft creation was allowed"
+bad=dict(new_pv,entityId=2)
+status,_,_=req("/api/web/drafts","POST",body=bad,cookie=browser_cookie,origin=HOST)
+assert status==404,"Unmanaged company draft was allowed"
+status,_,created=req("/api/web/drafts","POST",body=new_pv,cookie=browser_cookie,origin=HOST)
+assert status==201 and created["status"]=="DRAFT" and not created["postedToWindows"],(status,created)
+draft=created["id"]
+status,_,listed=req("/api/web/drafts?entityId=1",cookie=browser_cookie)
+assert status==200 and len(listed["records"])==1 and listed["records"][0]["AmountMinor"]==12550,listed
+status,_,untouched=req("/api/web/records?type=PaymentVouchers&entityId=1",cookie=browser_cookie)
+assert status==200 and untouched["total"]==1,"Draft mutated source payment vouchers"
+content=b"%PDF-1.4 synthetic private voucher proof"
+encoded_doc="Test Proof 100%.pdf"
+status,_,uploaded=req("/api/web/drafts/"+draft+"/document","PUT",body=content,
+                      cookie=browser_cookie,origin=HOST,extra_headers={
+                        "Content-Type":"application/pdf",
+                        "X-File-Name-Encoded":quote(encoded_doc,safe="")
+                      })
+assert status==200 and uploaded["ok"] and not uploaded["postedToWindows"],(status,uploaded)
+status,headers,returned=req("/api/web/drafts/"+draft+"/document",
+                            cookie=browser_cookie)
+assert status==200 and headers.get("X-Document-Sha256")==hashlib.sha256(content).hexdigest(),(status,headers)
+status,_,again=req("/api/web/drafts/"+draft+"/document","PUT",body=content,
+                   cookie=browser_cookie,origin=HOST,extra_headers={
+                     "Content-Type":"application/pdf",
+                     "X-File-Name-Encoded":quote(encoded_doc,safe="")
+                   })
+assert status==200 and again.get("unchanged") is True,(status,again)
+status,_,conflict=req("/api/web/drafts/"+draft+"/document","PUT",body=b"different",
+                      cookie=browser_cookie,origin=HOST,extra_headers={
+                        "Content-Type":"application/pdf",
+                        "X-File-Name-Encoded":"different.pdf"
+                      })
+assert status==409,"Draft file was overwritten"
+status,_,_=req("/api/web/drafts?entityId=2",cookie=browser_cookie)
+assert status==404,"Unmanaged company draft listing was allowed"
+status,_,source_payments=req("/api/web/records?type=PaymentVouchers&entityId=1",cookie=browser_cookie)
+assert status==200 and source_payments["total"]==1,"Draft wrote into imported Windows ledger"
+print("PASS staging drafts: company scope, CSRF origin, PV creation, attachment, integrity, duplicate guard and source-ledger isolation.")
+
 status,_,_=req("/api/web/logout","POST",cookie=browser_cookie,origin=HOST)
 assert status==204,status
 status,_,_=req("/api/web/entities",cookie=browser_cookie)
