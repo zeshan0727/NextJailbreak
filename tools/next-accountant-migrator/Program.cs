@@ -11,6 +11,30 @@ if (options.Has("prepare-staging-key"))
     KeyEnrollment.PreparePublicKey();
     return 0;
 }
+if (options.Has("open-staging-web"))
+{
+    // This operation does not load, read or modify the Windows business backup.
+    // Only the Windows DPAPI-protected existing staging credential is used.
+    try
+    {
+        var token = Environment.GetEnvironmentVariable("NEXT_ACCOUNTANT_STAGING_OWNER_TOKEN") ??
+            KeyEnrollment.TryReadToken();
+        if (string.IsNullOrWhiteSpace(token))
+            return Fail("The private encrypted staging credential is missing from this Windows user profile.");
+        using var client = new CloudClient(DefaultApi, token);
+        var link = await client.BeginReadOnlyWebSessionAsync();
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = link.AbsoluteUri,
+            UseShellExecute = true
+        });
+        Console.WriteLine("Private read-only Next Accountant staging opened in your browser.");
+        Console.WriteLine("The migration token was NOT sent to your browser.");
+        Console.WriteLine("The web session expires automatically after eight hours.");
+        return 0;
+    }
+    catch (Exception ex) { return Fail("Could not open secure staging: " + ex.Message); }
+}
 var installRoot = options.Get("root") ?? DefaultRoot;
 var apiBase = options.Get("api") ?? DefaultApi;
 var prepareOnly = options.Has("prepare-only") || options.Has("dry-run");
@@ -24,7 +48,7 @@ var backup = options.Get("backup") ?? BackupVerifier.FindNewest(installRoot);
 if (string.IsNullOrWhiteSpace(backup) || !File.Exists(backup))
     return Fail("No ACCOUNTANTS V6 business backup was found. Create a fresh verified business backup first.");
 
-Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.2.2 - STAGING ONLY");
+Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.3.0 - STAGING ONLY");
 Console.WriteLine("Source: " + backup);
 Console.WriteLine("Mode: " +
     (prepareOnly ? "PREPARE / VERIFY ONLY" :
