@@ -1,0 +1,41 @@
+name: Inspect ACCOUNTANTS Manager Report Relationships (Read Only)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/inspect-next-accountant-manager-report-map.yml"]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --global wrangler@4
+      - name: Read schema names and aggregate mapping only
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os,json,subprocess,re
+          def q(sql):
+            p=subprocess.run(['wrangler','d1','execute','next-accountant-staging','--remote','--json','--yes','--command',sql],capture_output=True,text=True,env=os.environ,timeout=90)
+            if p.returncode:raise RuntimeError('Private staging introspection could not complete')
+            obj=json.loads(p.stdout)
+            return obj[0].get('results',[]) if isinstance(obj,list) else obj.get('results',[])
+          names=[r['name'] for r in q("SELECT name FROM sqlite_master WHERE type='table' AND (lower(name) LIKE '%manager%' OR lower(name) LIKE '%snapshot%' OR lower(name) LIKE '%trial%' OR lower(name) LIKE '%tb%') ORDER BY name")]
+          print('RELATED TABLE SCHEMA:')
+          for name in names:
+            if not re.fullmatch(r'[A-Za-z0-9_]+',name):continue
+            columns=q('PRAGMA table_info("'+name+'")')
+            print(name,':',','.join(c['name'] for c in columns))
+          known=['ManagerReportHistoryV6A','ManagerReportAccountsV6A','ManagerReportHistory']
+          for name in known:
+            print('COUNTS:',name,int(q('SELECT COUNT(*) AS n FROM "'+name+'"')[0]['n']))
+          print('REPORT ACCOUNT SNAPSHOT COUNT:',q("SELECT COUNT(DISTINCT SnapshotId) AS n, SUM(CASE WHEN SnapshotId IS NULL THEN 1 ELSE 0 END) AS missing FROM ManagerReportAccountsV6A"))
+          print('REPORT HISTORY DATE/COMPANY ID COUNTS:',q("SELECT COUNT(*) AS total,COUNT(DISTINCT Company) AS companies,COUNT(DISTINCT SourceTbId) AS sourceTbs FROM ManagerReportHistoryV6A"))
+          print('JOIN SNAPSHOT SOURCE TB LINK MATCH COUNT:',q("SELECT COUNT(DISTINCT a.SnapshotId) AS matched FROM ManagerReportAccountsV6A a JOIN ManagerReportHistoryV6A h ON a.SnapshotId=h.SourceTbId"))
+          print('PASS metadata and relationship counts only; no row values shown')
+          PY
