@@ -32,7 +32,7 @@ expected = {
     "tests/test_ai_intake.py": "32f218c0757f46dd5adde3b00ca5c01b241741eb87e1b2ce2c783535a468e01d",
 }
 for filename, checksum in expected.items():
-    actual = hashlib.sha256((root / filename).read_bytes()).hexdigest()
+    actual = hashlib.sha256((root / filename).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     if actual != checksum:
         raise RuntimeError(f"v1.3 source integrity mismatch: {filename}")
 
