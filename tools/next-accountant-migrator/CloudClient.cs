@@ -16,7 +16,7 @@ internal sealed class CloudClient : IDisposable
         _http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
         _http.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd("NextAccountantMigrator/0.2.1");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd("NextAccountantMigrator/0.2.2");
     }
 
     public Task<Health?> HealthAsync() => GetAsync<Health>("/health");
@@ -70,8 +70,11 @@ internal sealed class CloudClient : IDisposable
                 HttpMethod.Put, _base + "/api/files/" + EscapePath(key))
             { Content = content };
 
+            // Header values must be ASCII; percent-encode original UTF-8 names.
+            // The staging Worker decodes these explicit metadata headers.
+            // Do NOT send Unicode directly through .NET HttpRequestHeaders.
             request.Headers.TryAddWithoutValidation(
-                "X-File-Name", Path.GetFileName(relative));
+                "X-File-Name-Encoded", Uri.EscapeDataString(Path.GetFileName(relative)));
             request.Headers.TryAddWithoutValidation(
                 "X-File-Category", "V6BusinessBackup");
             request.Headers.TryAddWithoutValidation(
@@ -79,7 +82,7 @@ internal sealed class CloudClient : IDisposable
             request.Headers.TryAddWithoutValidation(
                 "X-Record-Type", "MigrationFile");
             request.Headers.TryAddWithoutValidation(
-                "X-Record-Id", relative);
+                "X-Record-Id-Encoded", Uri.EscapeDataString(relative));
 
             using var response = await _http.SendAsync(request);
             var text = await response.Content.ReadAsStringAsync();
