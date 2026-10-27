@@ -10,6 +10,7 @@ on:
       - "cloudflare/next-accountant-api/web-readonly.js"
       - "cloudflare/next-accountant-api/financial-fingerprint.js"
       - "cloudflare/next-accountant-api/financial-breakdown.js"
+      - "cloudflare/next-accountant-api/tb-snapshot.js"
       - "cloudflare/next-accountant-api/voucher-drafts.js"
       - "cloudflare/next-accountant-api/voucher-view.js"
       - "cloudflare/next-accountant-api/report-archive.js"
