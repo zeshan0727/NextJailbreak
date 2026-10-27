@@ -257,7 +257,8 @@ async function filePut(request, env, origin) {
   const url = new URL(request.url);
   const key = objectKeyFromUrl(url);
   const bytes = new Uint8Array(await request.arrayBuffer());
-  if (!bytes.length) return json({error:'Empty file.'},400,origin);
+  // Empty files (for example an audit write.lock) are valid V6 backup entries.
+  // Require their manifest SHA-256 exactly as for nonempty R2 objects.
   if (bytes.length > 50 * 1024 * 1024) return json({error:'Maximum file size is 50 MB.'},413,origin);
   const hash = await sha256Hex(bytes);
   const expected = request.headers.get('X-Expected-Sha256');
