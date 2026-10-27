@@ -1,6 +1,41 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "article_sha256": "b836e2dbb71c6f1420fcb0cdee952aef9626acadc86657f4ad3c44c9f9e0095d",
+      "candidate_fingerprint": "evergreen-guide.zebra-1.1.37-sileo-rootless-install",
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Requires an already-jailbroken device and the Zebra package compatible with the active bootstrap; rootless environments use iphoneos-arm64. Package-manager availability does not establish jailbreak support for a device or firmware.",
+      "description": "Add Zebra's official repository to Sileo, install the compatible rootless build, keep both package managers, and avoid unsafe architecture or source changes.",
+      "developer": "Zebra Team",
+      "entry_type": "evergreen-guide",
+      "href": "install-zebra-alongside-sileo-rootless-jailbreak-guide/",
+      "image": "assets/articles/source-media/zebra-official-app-icon.png",
+      "media_alt": "Official Zebra package manager app icon from the Zebra Team repository",
+      "media_credit": "Zebra Team — official Zebra application icon",
+      "media_retrieval_status": "Reused the exact official 167×167 Zebra icon already registered from the Zebra Team source repository; the article embeds that committed asset and credits its source.",
+      "media_sha256": "9c1302292780f0f428639aa8fc9c3d63723c6e63122adec960546ee8ea37c4bb",
+      "media_source_url": "https://github.com/zbrateam/Zebra/blob/main/Zebra/Assets.xcassets/App%20Icons/AppIcon.appiconset/Icon-App-83.5x83.5%402x.png",
+      "modified_at": "2026-10-27T00:58:38Z",
+      "name": "Install Zebra alongside Sileo",
+      "package": "xyz.willy.zebra",
+      "published_at": "2026-10-27T00:58:38Z",
+      "quality_target": 9,
+      "release": "Zebra 1.1.37 (2026-08-07); official repository and current project documentation checked 2026-10-27",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "install-zebra-alongside-sileo-rootless-jailbreak-guide",
+      "source_name": "Official Zebra site, repository and GitHub project",
+      "source_page_url": "https://getzbra.com/",
+      "source_url": "https://github.com/zbrateam/Zebra/releases/tag/v1.1.37",
+      "source_visual_origin": "official-project-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/zbrateam/Zebra/main/Zebra/Assets.xcassets/App%20Icons/AppIcon.appiconset/Icon-App-83.5x83.5%402x.png",
+      "title": "How to Install Zebra Alongside Sileo on a Rootless Jailbreak",
+      "version": "Zebra 1.1.37"
+    },
+    {
       "additional_media": [
         {
           "image": "assets/articles/source-media/geranium-1-1-4-official-cleaner.png",
@@ -6343,6 +6378,15 @@
   "events": [
     {
       "action": "create",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "install-zebra-alongside-sileo-rootless-jailbreak-guide/",
+      "package": "xyz.willy.zebra",
+      "published_at": "2026-10-27T00:58:38Z",
+      "run_id": "scheduled-2026-10-27T00:58:38Z",
+      "version": "Zebra 1.1.37"
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "b8c9a1cd18ecc02b854d4909cbf559d0b43c0cbc5bbff92d089f2f2439938126",
       "href": "phonehub-tweak.html",
       "package": "eg.anubistweaks.phonehub",
@@ -9328,5 +9372,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-26T17:02:16Z"
+  "updated_at": "2026-10-27T00:58:38Z"
 }
