@@ -41,17 +41,19 @@ var prepareOnly = options.Has("prepare-only") || options.Has("dry-run");
 var databaseOnly = options.Has("database-only-test");
 var commitStaging = options.Has("commit-staging-import");
 var resumeFilesOnly = options.Has("resume-staging-files-only");
-if (commitStaging && resumeFilesOnly)
-    return Fail("Select only one import mode. Full import and file-only recovery cannot be combined.");
+var financialOnly = options.Has("financial-reconcile-only");
+if ((commitStaging ? 1 : 0) + (resumeFilesOnly ? 1 : 0) + (financialOnly ? 1 : 0) > 1)
+    return Fail("Select only one staging mode: full import, file recovery or financial verification.");
 var backup = options.Get("backup") ?? BackupVerifier.FindNewest(installRoot);
 
 if (string.IsNullOrWhiteSpace(backup) || !File.Exists(backup))
     return Fail("No ACCOUNTANTS V6 business backup was found. Create a fresh verified business backup first.");
 
-Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.3.0 - STAGING ONLY");
+Console.WriteLine("NEXT ACCOUNTANT WEB MIGRATOR 0.4.0 - STAGING ONLY");
 Console.WriteLine("Source: " + backup);
 Console.WriteLine("Mode: " +
     (prepareOnly ? "PREPARE / VERIFY ONLY" :
+     financialOnly ? "STAGING FINANCIAL RECONCILIATION (read only)" :
      resumeFilesOnly ? "SAFE STAGING FILE-ONLY RECOVERY (no database writes)" :
      commitStaging ? "STAGING IMPORT" : "SAFE READ-ONLY (import not authorized)"));
 Console.WriteLine();
@@ -103,6 +105,25 @@ try
             " blocker(s). No cloud writes were performed.");
     Console.WriteLine("D1/R2 COMPATIBILITY: PASS (static preflight only)");
 
+
+    if (financialOnly)
+    {
+        const string verifiedSnapshot = "Accountants6_BUSINESS_DESKTOP-BL913CT_20261026_092040.zip";
+        if (!string.Equals(Path.GetFileName(backup),verifiedSnapshot,StringComparison.OrdinalIgnoreCase))
+            return Fail("Financial reconciliation requires the original imported V6 snapshot. No changes performed.");
+        if (counts.Count != 109 || counts.Values.Sum() != 11913 || files.Count != 909 || schemaVersion != 21)
+            return Fail("Source snapshot identity does not match staging import baseline.");
+        var verifyToken = Environment.GetEnvironmentVariable("NEXT_ACCOUNTANT_STAGING_OWNER_TOKEN") ??
+            KeyEnrollment.TryReadToken();
+        if (string.IsNullOrWhiteSpace(verifyToken))
+            return Fail("Missing Windows-protected staging credential; no comparison possible.");
+        using var verifyCloud = new CloudClient(DefaultApi,verifyToken);
+        var verifyHealth = await verifyCloud.HealthAsync();
+        if (verifyHealth is null || !verifyHealth.Ok || verifyHealth.Environment != "staging")
+            return Fail("Staging API failed identity/health check. No changes performed.");
+        await FinancialReconciler.VerifyAsync(source,verifyCloud,counts,files.Count,schemaVersion);
+        return 0;
+    }
 
     if (prepareOnly || (!commitStaging && !resumeFilesOnly))
     {
