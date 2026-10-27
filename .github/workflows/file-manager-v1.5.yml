@@ -57,7 +57,7 @@ jobs:
         working-directory: file-manager
         run: >-
           python -m PyInstaller --clean --noconfirm --onefile --windowed
-          --name "FileManager-v1.4" --icon "assets/file_manager.ico"
+          --name "FileManager-v1.5" --icon "assets/file_manager.ico"
           --collect-all tkinterdnd2 --collect-all fitz --collect-all pymupdf --collect-all PIL
           file_manager.py
       - name: Verify the compiled Windows binary
