@@ -44,7 +44,10 @@ var resumeFilesOnly = options.Has("resume-staging-files-only");
 var financialOnly = options.Has("financial-reconcile-only");
 if ((commitStaging ? 1 : 0) + (resumeFilesOnly ? 1 : 0) + (financialOnly ? 1 : 0) > 1)
     return Fail("Select only one staging mode: full import, file recovery or financial verification.");
-var backup = options.Get("backup") ?? BackupVerifier.FindNewest(installRoot);
+var backup = options.Get("backup") ?? (financialOnly
+    ? Path.Combine(installRoot,"Data","Backups","CloudPackages",
+        "Accountants6_BUSINESS_DESKTOP-BL913CT_20261026_092040.zip")
+    : BackupVerifier.FindNewest(installRoot));
 
 if (string.IsNullOrWhiteSpace(backup) || !File.Exists(backup))
     return Fail("No ACCOUNTANTS V6 business backup was found. Create a fresh verified business backup first.");
