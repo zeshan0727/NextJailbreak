@@ -28,12 +28,34 @@ assert status==200 and health["environment"]=="staging" and health["database"] a
 status,_,_=call("/api/admin/tables",authorized=False)
 assert status==401, status
 
-sql=("PRAGMA foreign_keys = ON;"
-     "CREATE TABLE IF NOT EXISTS SmokePlan (Id TEXT PRIMARY KEY, Planned INTEGER NOT NULL);"
-     "CREATE TABLE IF NOT EXISTS SmokePayment (Id TEXT PRIMARY KEY, PlanId TEXT NOT NULL REFERENCES SmokePlan(Id), Amount INTEGER NOT NULL);"
-     "CREATE TABLE IF NOT EXISTS SmokeBinary (Id INTEGER PRIMARY KEY, Bytes BLOB);")
+# Reproduce the actual Windows 0.2.0 migrator payload: SQL statement
+# definitions spread across many lines and a semicolon in a quoted string.
+sql=("PRAGMA foreign_keys = ON;\n"
+     "CREATE TABLE IF NOT EXISTS SmokePlan (\n"
+     "  Id TEXT PRIMARY KEY,\n"
+     "  Planned INTEGER NOT NULL,\n"
+     "  Note TEXT DEFAULT 'pending; review'\n"
+     ");\n"
+     "CREATE TABLE IF NOT EXISTS SmokePayment (\n"
+     "  Id TEXT PRIMARY KEY,\n"
+     "  PlanId TEXT NOT NULL REFERENCES SmokePlan(Id),\n"
+     "  Amount INTEGER NOT NULL\n"
+     ");\n"
+     "CREATE TABLE IF NOT EXISTS SmokeBinary (Id INTEGER PRIMARY KEY, Bytes BLOB);\n"
+     "CREATE INDEX IF NOT EXISTS SmokePaymentPlanIdx ON SmokePayment(PlanId);\n")
 status,_,result=call("/api/admin/apply-schema","POST",{"sql":sql,"sourceSchemaVersion":21})
-assert status==200 and result["ok"], (status,result)
+assert status==200 and result["ok"] and result["created"]==4, (status,result)
+
+# Replaying CREATE definitions must be safe if the previous attempt ended
+# after some successful schema statements, but must reject incompatible DDL.
+status,_,replay=call("/api/admin/apply-schema","POST",{"sql":sql,"sourceSchemaVersion":21})
+assert status==200 and replay["reused"]==4 and replay["created"]==0,(status,replay)
+conflict="PRAGMA foreign_keys = ON;\nCREATE TABLE SmokePlan (Id TEXT PRIMARY KEY, Planned TEXT);"
+status,_,_=call("/api/admin/apply-schema","POST",{"sql":conflict,"sourceSchemaVersion":21})
+assert status==409,status
+danger="PRAGMA foreign_keys = ON;\nDROP TABLE SmokePlan;"
+status,_,_=call("/api/admin/apply-schema","POST",{"sql":danger,"sourceSchemaVersion":21})
+assert status==400,status
 
 status,_,data=call("/api/admin/import-batch","POST",{"table":"SmokePlan","rows":[{"Id":"fifth","Planned":50000}]})
 assert status==200 and data["imported"]==1,(status,data)
