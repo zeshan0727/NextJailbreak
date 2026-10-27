@@ -2,6 +2,41 @@
   "entries": [
     {
       "additional_media": [],
+      "article_sha256": "e419ae5b15de2ad658364c1fef3ab9d04e86840c286bee2a24f6b3f6e34d3151",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.12-hide-jailbreak-use-restore",
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Requires an official Dopamine-supported device and firmware, an active conventional rootless Dopamine session, and a recoverable TrollStore-installed Dopamine app. The feature does not extend jailbreak availability or guarantee that an app will stop detecting the jailbreak.",
+      "description": "Use Dopamine 3’s Hide Jailbreak control safely, understand what it conceals, restore the jailbreak and app icons, and know why it is not RootHide.",
+      "developer": "Lars Fröder (opa334)",
+      "entry_type": "evergreen-guide",
+      "href": "dopamine-hide-jailbreak-use-restore-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_alt": "Official green Dopamine jailbreak app icon from the Dopamine source repository",
+      "media_credit": "opa334 — official Dopamine application icon from the 3.0.12 source tag",
+      "media_retrieval_status": "Reused the exact official 167×167 Dopamine icon already registered in source media; the 3.0.12 tag contains the same image bytes, and the article embeds and credits that committed asset.",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-10-27T05:05:40Z",
+      "name": "Dopamine Hide Jailbreak use and restore guide",
+      "package": "guide.dopamine.hide-jailbreak",
+      "published_at": "2026-10-27T05:05:40Z",
+      "quality_target": 9,
+      "release": "Dopamine 3.0.12 (2026-10-20); hide/unhide source and warning text checked 2026-10-27",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "dopamine-hide-jailbreak-use-restore-guide",
+      "source_name": "Official Dopamine 3.0.12 source tag",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.12",
+      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.12/Application/Dopamine/Jailbreak/DOEnvironmentManager.m#L638-L677",
+      "source_visual_origin": "official-project-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5@2x.png",
+      "title": "How to Use Dopamine’s Hide Jailbreak—and Restore It Safely",
+      "version": "Dopamine 3.0.12"
+    },
+    {
+      "additional_media": [],
       "article_sha256": "b836e2dbb71c6f1420fcb0cdee952aef9626acadc86657f4ad3c44c9f9e0095d",
       "candidate_fingerprint": "evergreen-guide.zebra-1.1.37-sileo-rootless-install",
       "category": {
@@ -6379,6 +6414,15 @@
     {
       "action": "create",
       "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "dopamine-hide-jailbreak-use-restore-guide/",
+      "package": "guide.dopamine.hide-jailbreak",
+      "published_at": "2026-10-27T05:05:40Z",
+      "run_id": "scheduled-2026-10-27T05:05:40Z",
+      "version": "Dopamine 3.0.12"
+    },
+    {
+      "action": "create",
+      "channel": "scheduled-evergreen-jailbreak-guide",
       "href": "install-zebra-alongside-sileo-rootless-jailbreak-guide/",
       "package": "xyz.willy.zebra",
       "published_at": "2026-10-27T00:58:38Z",
@@ -9372,5 +9416,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-27T00:58:38Z"
+  "updated_at": "2026-10-27T05:05:40Z"
 }
