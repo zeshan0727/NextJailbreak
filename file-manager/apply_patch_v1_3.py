@@ -3,6 +3,7 @@ import base64
 import hashlib
 import io
 import lzma
+import re
 import subprocess
 import zipfile
 from pathlib import Path
@@ -11,7 +12,9 @@ root = Path(__file__).resolve().parent
 encoded = (root / "patch_v1_3.b64").read_text("ascii")
 bundle = zipfile.ZipFile(io.BytesIO(lzma.decompress(base64.b64decode(encoded))))
 patch = root / "_upgrade_v1_3.patch"
-patch.write_bytes(bundle.read("upgrade.patch"))
+parts = re.split(r"(?=^--- a/)", bundle.read("upgrade.patch").decode("utf-8"), flags=re.M)
+functional_patch = "".join(part for part in parts if part.startswith("--- a/filemanager/"))
+patch.write_text(functional_patch, encoding="utf-8")
 try:
     subprocess.run(["git", "apply", "--check", str(patch)], cwd=root, check=True)
     subprocess.run(["git", "apply", str(patch)], cwd=root, check=True)
