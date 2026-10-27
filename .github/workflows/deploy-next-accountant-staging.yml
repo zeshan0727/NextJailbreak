@@ -11,6 +11,7 @@ on:
       - "cloudflare/next-accountant-api/financial-fingerprint.js"
       - "cloudflare/next-accountant-api/voucher-drafts.js"
       - "cloudflare/next-accountant-api/voucher-view.js"
+      - "cloudflare/next-accountant-api/report-archive.js"
       - "cloudflare/next-accountant-api/web-view.js"
       - "cloudflare/next-accountant-api/schema.sql"
 
