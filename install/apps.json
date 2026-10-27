@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-nyxian",
+      "name": "Nyxian",
+      "version": "0.11.4",
+      "build": "20260910.92.RELEASE",
+      "platform": "iPhone",
+      "minimumOS": "iOS 18.0+",
+      "bundleId": "com.nextsolution.nyxian",
+      "icon": "/install/icons/com-nextsolution-nyxian-f45d9b38560e.png",
+      "manifest": "/install/com-nextsolution-nyxian.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-nyxian/0.11.4/com-nextsolution-nyxian-0.11.4-20260910.92.RELEASE.ipa",
+      "sha256": "f45d9b38560e2c8cd3000785337a0041c61123b0d795bb58a1131c95a60cfdf0",
+      "sizeBytes": 114331566,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-township",
       "name": "Township",
       "version": "39.1.1",
