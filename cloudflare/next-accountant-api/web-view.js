@@ -202,6 +202,32 @@ const JS = String.raw`(function () {
     foot.append(back,el("span",num(data.total)+" records · page "+(state.page+1),"muted"),next);
     p.append(foot);return p;
   }
+  function archivePanel(data,entityId){
+    const p=panel("Original manager-report archive",
+      "These Excel/PDF files are the unchanged Windows-generated reports from the imported V6 backup. This is an archive, not a newly generated or certified report.");
+    const files=data.files||[];
+    if(!files.length){
+      p.append(el("div","No archived manager-report files found for this company.","empty"));
+      return p;
+    }
+    const wrapper=el("div",null,"data-scroll"),table=el("table");
+    const head=el("thead"),tr=el("tr");
+    ["Windows file","Size","Source","Download"].forEach(x=>tr.append(el("th",x)));
+    head.append(tr);
+    const body=el("tbody");
+    files.forEach(file=>{
+      const row=el("tr");
+      row.append(el("td",file.OriginalName),el("td",num(file.SizeBytes)+" bytes"),
+        el("td","V6 backup · unchanged"));
+      const cell=el("td"),a=el("a","Download original");
+      a.href="/api/web/manager-report-file?entityId="+encodeURIComponent(entityId)+
+        "&key="+encodeURIComponent(file.ObjectKey);
+      a.rel="noopener noreferrer";a.className="draft-link";
+      cell.append(a);row.append(cell);body.append(row);
+    });
+    table.append(head,body);wrapper.append(table);p.append(wrapper);
+    return p;
+  }
   async function loadRecords(){
     showError(null);
     if(state.entity===null)return;
@@ -231,6 +257,9 @@ const JS = String.raw`(function () {
         if(typeof window.renderVoucherDrafts!=="function")
           throw Error("Draft editor unavailable; refresh private staging.");
         await window.renderVoucherDrafts(work,state.entity);
+      }else if(state.tab==="ManagerReports"){
+        const archive=await api("/api/web/manager-archive?entityId="+id);
+        work.append(archivePanel(archive,id));
       }else{
         const data=await api("/api/web/records?type="+encodeURIComponent(state.tab)+"&entityId="+id+"&page="+state.page);
         work.appendChild(recordPanel(data));
