@@ -85,7 +85,10 @@ export const DRAFT_JS = String.raw`(function () {
         }
         const rows=data.records.map(d=>{
           const tr=node("tr");
-          const cols=[d.TransactionDate,d.Kind,d.Counterparty,money(d.AmountMinor),
+          const displayAmount=new Intl.NumberFormat("en-QA",{
+            style:"currency",currency:d.Currency||"QAR"
+          }).format(Number(d.AmountMinor||0)/100);
+          const cols=[d.TransactionDate,d.Kind,d.Counterparty,displayAmount,
             d.Reference||"—",d.Status];
           cols.forEach(x=>tr.append(node("td",x)));
           const docCell=node("td");
@@ -96,7 +99,7 @@ export const DRAFT_JS = String.raw`(function () {
           }else docCell.textContent="—";
           tr.append(docCell);return tr;
         });
-        list.append(table(["Date","Type","Counterparty","Amount (QAR units)","Reference","Status","Document"],rows));
+        list.append(table(["Date","Type","Counterparty","Amount","Reference","Status","Document"],rows));
       }catch(e){list.replaceChildren(node("div",e.message,"empty"));}
     }
     form.onsubmit=async e=>{
