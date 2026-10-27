@@ -122,13 +122,38 @@ jobs:
           pause
           exit /b %RC%
           '@ | Set-Content -Encoding ascii out/migrator/RESUME_FILES_ONLY.bat
-          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.2.2_STAGING_ONLY_win-x64.zip -Force
+          @'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          echo ==================================================
+          echo NEXT ACCOUNTANT WEB - PRIVATE STAGING LOGIN
+          echo ==================================================
+          echo This opens a read-only, authenticated web session.
+          echo The business database and private files stay in Cloudflare.
+          echo Your Windows encrypted credential stays on this PC.
+          echo.
+          if not exist "NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt" (
+            echo Encrypted credential missing. Login was not started.
+            pause
+            exit /b 1
+          )
+          NextAccountantMigrator.exe --open-staging-web
+          set "RC=%ERRORLEVEL%"
+          if NOT "%RC%"=="0" (
+            echo.
+            echo PRIVATE LOGIN FAILED. See the error above.
+          )
+          pause
+          exit /b %RC%
+          '@ | Set-Content -Encoding ascii out/migrator/OPEN_ACCOUNTANT_WEB.bat
+          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.3.0_STAGING_ONLY_win-x64.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextAccountantWebMigrator-0.2.2-staging-only-win-x64
-          path: out/NextAccountantWebMigrator_0.2.2_STAGING_ONLY_win-x64.zip
+          name: NextAccountantWebMigrator-0.3.0-staging-only-win-x64
+          path: out/NextAccountantWebMigrator_0.3.0_STAGING_ONLY_win-x64.zip
           if-no-files-found: error
 
       - name: Assemble encrypted file-only recovery bundle
@@ -172,5 +197,45 @@ jobs:
         with:
           name: NextAccountantStagingFileRecovery-0.2.2-OneClick-Encrypted
           path: out/recovery/*
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Assemble encrypted one-click private web login package
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Force out/webaccess | Out-Null
+          gh run download 40330435637 --repo zeshan0727/NextJailbreak --name NextAccountantStagingEncryptedCredential --dir out/webaccess
+          foreach ($name in @('NextAccountantMigrator.exe','OPEN_ACCOUNTANT_WEB.bat')) {
+            Copy-Item "out/migrator/$name" "out/webaccess/$name" -ErrorAction Stop
+          }
+          $cipher="out/webaccess/NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt"
+          if (!(Test-Path $cipher) -or (Get-Item $cipher).Length -lt 400) {
+            throw "Encrypted staging credential unavailable; private web package not built."
+          }
+          @'
+          NEXT ACCOUNTANT PRIVATE WEB STAGING v0.3.0
+          ========================================
+          Extract the folder on the same Windows user profile used for
+          the V6 staging migration. Run OPEN_ACCOUNTANT_WEB.bat.
+
+          This program never uploads/changes accounting records when
+          launched in private-web mode. It uses the original DPAPI
+          protected staging credential to request a single-use login
+          ticket (90 seconds). The browser receives a scoped HttpOnly
+          read-only session cookie, not the migration credential.
+
+          Keep these files private; do not upload them to GitHub.
+          Web access expires after 8 hours. Repeat the launcher to login.
+          Imported business data is in a private Cloudflare staging DB.
+          This is NOT approved as the production accounting system.
+          '@ | Set-Content -Encoding utf8 out/webaccess/README_FIRST.txt
+
+      - name: Upload private web viewer (no full migration launcher)
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextAccountantPrivateWeb-0.3.0-WindowsEncrypted
+          path: out/webaccess/*
           if-no-files-found: error
           retention-days: 7
