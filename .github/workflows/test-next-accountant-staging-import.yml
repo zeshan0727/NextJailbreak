@@ -7,6 +7,10 @@ on:
     paths:
       - "cloudflare/next-accountant-api/worker.staging.js"
       - "cloudflare/next-accountant-api/test_staging.py"
+      - "cloudflare/next-accountant-api/test_web.py"
+      - "cloudflare/next-accountant-api/web-readonly.js"
+      - "cloudflare/next-accountant-api/web-view.js"
+      - "cloudflare/next-accountant-api/schema.sql"
       - ".github/workflows/test-next-accountant-staging-import.yml"
 
 permissions:
@@ -51,6 +55,9 @@ jobs:
       - name: Run synthetic migration contract tests
         working-directory: cloudflare/next-accountant-api
         run: python3 test_staging.py
+      - name: Test private staging web sessions and read-only accounting
+        working-directory: cloudflare/next-accountant-api
+        run: python3 test_web.py
       - name: Worker logs if failed
         if: failure()
         run: cat /tmp/next-accountant-test-worker.log || true
