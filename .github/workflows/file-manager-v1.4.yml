@@ -1,0 +1,77 @@
+name: File Manager v1.4 AI Repair Windows EXE
+on:
+  push:
+    branches: [file-manager-windows-v1-4]
+    paths:
+      - '.github/workflows/file-manager-v1.4.yml'
+      - 'file-manager/v14patch-part1.txt'
+      - 'file-manager/v14patch-part2.txt'
+      - 'file-manager/apply_patch_v1_4.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand original File Manager sources
+        shell: pwsh
+        run: |
+          Expand-Archive -LiteralPath 'file-manager/build_source.zip' -DestinationPath 'file-manager' -Force
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply base light-theme improvements
+        working-directory: file-manager
+        run: python apply_patch_v1_2.py
+      - name: Apply v1.3 AI document review
+        working-directory: file-manager
+        run: python apply_patch_v1_3.py
+      - name: Assemble and apply v1.4 existing-library repair
+        working-directory: file-manager
+        shell: pwsh
+        run: |
+          python -c "from pathlib import Path; p=Path('.'); (p/'patch_v1_4.b64').write_text(''.join((p/'v14patch-part1.txt').read_text().split()) + ''.join((p/'v14patch-part2.txt').read_text().split()))"
+          python apply_patch_v1_4.py
+      - name: Install build dependencies
+        working-directory: file-manager
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+      - name: Run document library and AI repair tests
+        working-directory: file-manager
+        run: python -m unittest discover -s tests -v
+      - name: Compile portable Windows EXE (light mode)
+        working-directory: file-manager
+        run: >-
+          python -m PyInstaller --clean --noconfirm --onefile --windowed
+          --name "FileManager-v1.4" --icon "assets/file_manager.ico"
+          --collect-all tkinterdnd2 --collect-all fitz --collect-all pymupdf --collect-all PIL
+          file_manager.py
+      - name: Verify the compiled Windows binary
+        shell: pwsh
+        run: |
+          $app = 'file-manager/dist/FileManager-v1.4.exe'
+          if (!(Test-Path $app)) { throw "EXE not produced" }
+          if ((Get-Item $app).Length -lt 5000000) { throw "Unexpected EXE size" }
+          $bytes = [System.IO.File]::ReadAllBytes($app)
+          if ([System.Text.Encoding]::ASCII.GetString($bytes, 0, 2) -ne 'MZ') { throw "Not a Windows executable" }
+          Write-Host "Verified Windows executable size: $((Get-Item $app).Length) bytes"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FileManager-v1.4-Windows-EXE
+          path: file-manager/dist/FileManager-v1.4.exe
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish standalone Windows EXE as release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: file-manager-v1.4-ai-repair-windows
+          target_commitish: ${{ github.sha }}
+          name: File Manager v1.4 - AI Library Repair (Windows)
+          body: "Portable Windows 10/11 64-bit EXE. Includes in-place AI Repair Existing Files, bulk company/category fixes, automatic short filenames, review and undo. Your document library and existing API settings are preserved."
+          files: file-manager/dist/FileManager-v1.4.exe
+          fail_on_unmatched_files: true
+          make_latest: false
