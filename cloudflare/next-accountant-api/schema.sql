@@ -59,5 +59,34 @@ CREATE TABLE IF NOT EXISTS WebReadSessions (
 );
 CREATE INDEX IF NOT EXISTS IX_WebReadSessions_Expires ON WebReadSessions(ExpiresAt);
 
+-- Draft vouchers are isolated from the imported V6 ledger and source vouchers.
+-- They never post into PaymentVouchers or ReceiptVouchers automatically.
+CREATE TABLE IF NOT EXISTS WebVoucherDrafts (
+  Id TEXT PRIMARY KEY,
+  EntityId INTEGER NOT NULL,
+  Kind TEXT NOT NULL CHECK(Kind IN ('PV','RV')),
+  Status TEXT NOT NULL DEFAULT 'DRAFT' CHECK(Status='DRAFT'),
+  TransactionDate TEXT NOT NULL,
+  Currency TEXT NOT NULL DEFAULT 'QAR',
+  AmountMinor INTEGER NOT NULL CHECK(AmountMinor > 0),
+  Counterparty TEXT NOT NULL,
+  Narrative TEXT NOT NULL DEFAULT '',
+  Reference TEXT NOT NULL DEFAULT '',
+  AttachmentKey TEXT,
+  AttachmentName TEXT,
+  AttachmentSha256 TEXT,
+  AttachmentBytes INTEGER,
+  AttachmentType TEXT,
+  CreatedAt TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS IX_WebVoucherDrafts_Entity ON WebVoucherDrafts(EntityId,CreatedAt);
+
+CREATE TABLE IF NOT EXISTS WebVoucherDraftAudit (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  DraftId TEXT NOT NULL,
+  Action TEXT NOT NULL,
+  OccurredAt TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 INSERT OR REPLACE INTO WebMeta(Key,Value,UpdatedAt)
 VALUES('backend_schema','1',datetime('now'));
