@@ -147,13 +147,37 @@ jobs:
           pause
           exit /b %RC%
           '@ | Set-Content -Encoding ascii out/migrator/OPEN_ACCOUNTANT_WEB.bat
-          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.3.0_STAGING_ONLY_win-x64.zip -Force
+          @'
+          @echo off
+          setlocal
+          cd /d "%~dp0"
+          echo NEXT ACCOUNTANT - READ ONLY FINANCIAL RECONCILIATION
+          echo Comparing exact imported October 26 V6 backup with Cloudflare staging.
+          echo No accounting or R2 writes occur during this check.
+          echo.
+          if not exist "NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt" (
+            echo Encrypted credential missing. Reconciliation stopped.
+            pause
+            exit /b 1
+          )
+          NextAccountantMigrator.exe --financial-reconcile-only
+          set "RC=%ERRORLEVEL%"
+          echo.
+          if "%RC%"=="0" (
+            echo FINANCIAL SOURCE TO STAGING RECONCILIATION: PASS
+          ) else (
+            echo FINANCIAL CHECK FAILED. DO NOT CUT OVER PRODUCTION.
+          )
+          pause
+          exit /b %RC%
+          '@ | Set-Content -Encoding ascii out/migrator/VERIFY_FINANCIALS_ONLY.bat
+          Compress-Archive -Path out/migrator/* -DestinationPath out/NextAccountantWebMigrator_0.4.0_STAGING_ONLY_win-x64.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextAccountantWebMigrator-0.3.0-staging-only-win-x64
-          path: out/NextAccountantWebMigrator_0.3.0_STAGING_ONLY_win-x64.zip
+          name: NextAccountantWebMigrator-0.4.0-staging-only-win-x64
+          path: out/NextAccountantWebMigrator_0.4.0_STAGING_ONLY_win-x64.zip
           if-no-files-found: error
 
       - name: Assemble encrypted file-only recovery bundle
@@ -207,7 +231,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force out/webaccess | Out-Null
           gh run download 40330435637 --repo zeshan0727/NextJailbreak --name NextAccountantStagingEncryptedCredential --dir out/webaccess
-          foreach ($name in @('NextAccountantMigrator.exe','OPEN_ACCOUNTANT_WEB.bat')) {
+          foreach ($name in @('NextAccountantMigrator.exe','OPEN_ACCOUNTANT_WEB.bat','VERIFY_FINANCIALS_ONLY.bat')) {
             Copy-Item "out/migrator/$name" "out/webaccess/$name" -ErrorAction Stop
           }
           $cipher="out/webaccess/NEXT_ACCOUNTANT_STAGING_CREDENTIAL.txt"
@@ -215,10 +239,13 @@ jobs:
             throw "Encrypted staging credential unavailable; private web package not built."
           }
           @'
-          NEXT ACCOUNTANT PRIVATE WEB STAGING v0.3.0
+          NEXT ACCOUNTANT PRIVATE WEB STAGING v0.4.0
           ========================================
           Extract the folder on the same Windows user profile used for
-          the V6 staging migration. Run OPEN_ACCOUNTANT_WEB.bat.
+          the V6 staging migration.
+          Run OPEN_ACCOUNTANT_WEB.bat to inspect private staging.
+          Run VERIFY_FINANCIALS_ONLY.bat to compare the original backup
+          and Cloudflare amounts without modifying either database.
 
           This program never uploads/changes accounting records when
           launched in private-web mode. It uses the original DPAPI
@@ -235,7 +262,7 @@ jobs:
       - name: Upload private web viewer (no full migration launcher)
         uses: actions/upload-artifact@v4
         with:
-          name: NextAccountantPrivateWeb-0.3.0-WindowsEncrypted
+          name: NextAccountantPrivateWeb-0.4.0-WindowsEncrypted
           path: out/webaccess/*
           if-no-files-found: error
           retention-days: 7
