@@ -5,6 +5,14 @@
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <item>
+      <title>How to Verify an IPA or TIPA SHA-256 Before TrollStore</title>
+      <link>https://nextjailbreak.com/verify-ipa-tipa-sha256-trollstore-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/verify-ipa-tipa-sha256-trollstore-guide/</guid>
+      <pubDate>Wed, 28 Oct 2026 04:57:45 GMT</pubDate>
+      <category>Evergreen Jailbreak Guide</category>
+      <description>Compute SHA-256 on macOS, Windows or Linux, compare an IPA or TIPA with the developer's official digest, and stop safely on a mismatch.</description>
+    </item>
+    <item>
       <title>How to Install RootHide Bootstrap 2.2.1 with TrollStore</title>
       <link>https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</guid>
@@ -413,5 +421,6 @@
     </item>
   </channel>
 </rss>
+
 
 

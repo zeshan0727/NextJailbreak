@@ -2,6 +2,42 @@
   "entries": [
     {
       "additional_media": [],
+      "article_sha256": "837772704d7de8f91986d40e95a92b8641c83683c963206fb5675fcf6758c47e",
+      "candidate_fingerprint": "837772704d7de8f91986d40e95a92b8641c83683c963206fb5675fcf6758c47e",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "TrollStore 2.1.1 officially lists iOS 14.0 beta 2–16.6.1, iOS 16.7 RC build 20H18, and iOS 17.0. A matching SHA-256 verifies file identity only; it does not create a TrollStore installation method or prove app, device, firmware or jailbreak compatibility.",
+      "description": "Verify an IPA or TIPA SHA-256 on macOS, Windows or Linux before TrollStore installation, compare it with the developer's official digest and handle mismatches safely.",
+      "developer": "Next Jailbreak editorial guide using opa334/TrollStore and platform documentation",
+      "entry_type": "evergreen-guide",
+      "href": "verify-ipa-tipa-sha256-trollstore-guide/",
+      "image": "assets/articles/source-media/trollstore-2-1-1-official-icon.jpg",
+      "media_alt": "Official TrollStore troll-face app icon on a blue background from the 2.1.1 source tag",
+      "media_credit": "opa334/TrollStore — official TrollStore app icon from the 2.1.1 source tag",
+      "media_git_blob_sha": "743db4fab0b86a8ed5db479e805e3e0c1f00bbe9",
+      "media_retrieval_status": "Reused the exact 180×180 official TrollStore icon already stored and registered from the 2.1.1 source tag; embedded in the article and social metadata.",
+      "media_sha256": "f2d2931f6be7fea1662d5d7069bf35ca6f7c43ca715b1edebb92f184a7c42b82",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon60x60%403x.png",
+      "modified_at": "2026-10-28T04:57:45Z",
+      "name": "Verify IPA or TIPA SHA-256 before TrollStore",
+      "package": "guide.trollstore.ipa-tipa.sha256.verify",
+      "published_at": "2026-10-28T04:57:45Z",
+      "quality_target": 9,
+      "release": "Evergreen workflow verified 2026-10-28 / TrollStore 2.1.1",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "verify-ipa-tipa-sha256-trollstore-guide",
+      "source_name": "Official TrollStore repository plus GitHub, Apple, Microsoft and GNU SHA-256 documentation",
+      "source_page_url": "https://docs.github.com/en/rest/releases/assets",
+      "source_url": "https://github.com/opa334/TrollStore",
+      "source_visual_origin": "official-trollstore-2.1.1-source-repository-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon60x60%403x.png",
+      "title": "How to Verify an IPA or TIPA SHA-256 Before TrollStore",
+      "version": "Guide revision 2026-10-28 / TrollStore 2.1.1"
+    },
+    {
+      "additional_media": [],
       "article_sha256": "8c054ea01f81a6e735bb4d93ca40bfc80c18f0c5ec4d44bbbc18325af19cad17",
       "candidate_fingerprint": "8c054ea01f81a6e735bb4d93ca40bfc80c18f0c5ec4d44bbbc18325af19cad17",
       "category": {
@@ -9617,3 +9653,4 @@
   "schema_version": 1,
   "updated_at": "2026-10-28T01:00:09Z"
 }
+
