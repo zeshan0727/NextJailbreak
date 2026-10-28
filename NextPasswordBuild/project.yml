@@ -1,0 +1,44 @@
+name: NextPassword
+options:
+  bundleIdPrefix: app.nextsolution
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: 16.0
+    SWIFT_VERSION: 5.0
+targets:
+  NextPassword:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources: [NextPassword]
+    entitlements:
+      path: NextPassword/NextPassword.entitlements
+    dependencies:
+      - target: PasswordKeyboard
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.nextsolution.nextpassword
+        PRODUCT_NAME: NextPassword
+        CODE_SIGNING_ALLOWED: NO
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Next Password
+        INFOPLIST_KEY_NSFaceIDUsageDescription: Face ID protects your saved passwords.
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  PasswordKeyboard:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources: [PasswordKeyboard]
+    info:
+      path: PasswordKeyboard/Info.plist
+    entitlements:
+      path: PasswordKeyboard/PasswordKeyboard.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.nextsolution.nextpassword.keyboard
+        PRODUCT_NAME: PasswordKeyboard
+        CODE_SIGNING_ALLOWED: NO
+        SKIP_INSTALL: YES
+        TARGETED_DEVICE_FAMILY: "1"
