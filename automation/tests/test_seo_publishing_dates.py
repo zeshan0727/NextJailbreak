@@ -51,7 +51,10 @@ class SeoPublishingDateTests(unittest.TestCase):
         urls = [node.text for node in sitemap.findall(f"{SITEMAP_NS}url/{SITEMAP_NS}loc")]
         self.assertEqual(len(urls), len(set(urls)), "Sitemap must not contain duplicates")
         for entry in articles:
-            self.assertIn(BASE + "/" + entry["href"], urls, entry["href"])
+            route = entry["href"]
+            if route.endswith(".html"):
+                route = route[:-5].rstrip("/") + "/"
+            self.assertIn(BASE + "/" + route, urls, entry["href"])
 
 
 if __name__ == "__main__":
