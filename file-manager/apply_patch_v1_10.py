@@ -93,7 +93,7 @@ s=s[:start]+'''    def manage_companies(self):
             if not entry:return
             state,c=entry
             if state=="removed":return messagebox.showinfo("Already deleted","Use Restore to show this company again.",parent=win)
-            msg=f"Delete {c['name']} from company navigation?\n\n{c['file_count']} indexed file(s) stay stored and searchable, without moving or deleting them. Restore anytime."
+            msg=f"Delete {c['name']} from company navigation?\\n\\n{c['file_count']} indexed file(s) stay stored and searchable, without moving or deleting them. Restore anytime."
             if not messagebox.askyesno("Delete company safely",msg,parent=win):return
             try:
                 self.core.archive_company(c['id']);win.destroy()
