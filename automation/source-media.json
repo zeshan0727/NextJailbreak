@@ -1003,14 +1003,15 @@
       "screenshots": []
     },
     "github.lakr233.irisin": {
-      "credit_label": "Lakr233 — official Irisin 4.6.1 app icon",
-      "source_page_url": "https://github.com/Lakr233/Irisin/tree/v4.6.1/Irisin/Resources/Assets.xcassets/AppIcon.appiconset",
+      "credit_label": "Lakr233 — official Irisin 5.0.3 app icon",
+      "source_page_url": "https://github.com/Lakr233/Irisin/blob/v5.0.3/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
       "official_source": true,
       "hero": {
-        "url": "https://raw.githubusercontent.com/Lakr233/Irisin/v4.6.1/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
-        "alt": "Official Irisin 4.6.1 app icon",
-        "local_path": "assets/articles/source-media/irisin-4-6-1-official-app-icon.jpg",
-        "git_blob_sha": "c41d8012a052bdae5f340a372dac6fdbb308a48e"
+        "url": "https://raw.githubusercontent.com/Lakr233/Irisin/v5.0.3/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
+        "alt": "Official Irisin 5.0.3 app icon showing a white package box on a blue background",
+        "local_path": "assets/articles/source-media/irisin-5-0-3-official-app-icon.jpg",
+        "git_blob_sha": "c41d8012a052bdae5f340a372dac6fdbb308a48e",
+        "sha256": "20e801d3b7e32c8ac3ad9863149a831ac8b14d502eb52ca2e8831741474d2e9d"
       },
       "screenshots": []
     },

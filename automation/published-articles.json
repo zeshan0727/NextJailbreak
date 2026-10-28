@@ -2,6 +2,42 @@
   "entries": [
     {
       "additional_media": [
+        "assets/articles/source-media/sileo-2-5-1-official-icon.png"
+      ],
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Irisin 5.0.3 provides iphoneos-arm64 for conventional rootless, iphoneos-arm64e for RootHide on iPhone/iPad, and appletvos-arm64e for RootHide on Apple TV. Sileo 2.5.1 provides iphoneos-arm and iphoneos-arm64 upstream assets. Package-manager targets do not prove jailbreak availability for every device or firmware.",
+      "description": "Compare Irisin 5.0.3 and Sileo 2.5.1: architectures, RootHide limits, package filtering, tvOS support, repositories, troubleshooting and which manager to keep.",
+      "developer": "Lakr233 / Sileo Team",
+      "entry_type": "comparison",
+      "href": "irisin-vs-sileo-package-manager-comparison/",
+      "image": "assets/articles/source-media/irisin-5-0-3-official-app-icon.jpg",
+      "media_credit": "Lakr233 — official Irisin 5.0.3 app icon; Sileo Team — official Sileo 2.5.1 app icon",
+      "media_source_url": "https://raw.githubusercontent.com/Lakr233/Irisin/v5.0.3/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
+      "name": "Irisin vs Sileo",
+      "package": "comparison.irisin-sileo",
+      "published_at": "2026-10-14T09:03:43Z",
+      "release": "Irisin 5.0.3 released 2026-10-28; Sileo 2.5.1 released 2024-10-08",
+      "slug": "irisin-vs-sileo-package-manager-comparison",
+      "source_name": "Official Irisin 5.0.0–5.0.3 and Sileo 2.5.1 releases and source documentation",
+      "source_page_url": "https://github.com/Lakr233/Irisin/releases/tag/v5.0.3",
+      "source_url": "https://github.com/Sileo/Sileo/releases/tag/2.5.1",
+      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/Irisin/v5.0.3/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
+      "title": "Irisin vs Sileo: Which Jailbreak Package Manager Should You Use?",
+      "version": "Irisin 5.0.3 / Sileo 2.5.1",
+      "media_alt": "Official Irisin 5.0.3 app icon showing a white package box on a blue background",
+      "media_sha256": "20e801d3b7e32c8ac3ad9863149a831ac8b14d502eb52ca2e8831741474d2e9d",
+      "media_git_blob_sha": "c41d8012a052bdae5f340a372dac6fdbb308a48e",
+      "media_retrieval_status": "Retrieved byte-for-byte from the official Irisin v5.0.3 source tag and embedded in the article and social metadata.",
+      "modified_at": "2026-10-28T21:00:00Z",
+      "candidate_fingerprint": "irisin-5.0.3-sileo-2.5.1-2026-10-29-architecture-filtering",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "quality_target": 9
+    },
+    {
+      "additional_media": [
         {
           "image": "assets/articles/source-media/soko-1-1-0-official-widgets.png",
           "media_alt": "Official Soko screenshot showing bottom Lock Screen widgets with notifications and Now Playing kept above them",
@@ -12,7 +48,10 @@
       ],
       "article_sha256": "5c1cfa1b6b1ee851bcad3928b5a1a2fb3ede35346383ce29c697c42fcc6488fb",
       "candidate_fingerprint": "soko-1.1.0-2026-10-28-home-button-roothide",
-      "category": {"id":"individual-tweak-update","label":"Individual Tweak Update"},
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
       "compat": "Havoc lists iOS 16.0–18.7.9 and jailbreak required. The official 1.1.0 release supplies separate iphoneos-arm, iphoneos-arm64 and iphoneos-arm64e packages for rootful, conventional rootless and RootHide environments. The listed firmware range does not prove jailbreak availability for every device.",
       "description": "Soko 1.1.0 moves iOS 16–18 Lock Screen widgets to an iOS 26-style bottom position, fixes Home Button devices and ships rootful, rootless and RootHide packages.",
       "developer": "waruhachi",
@@ -2443,34 +2482,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/SideloadLabs/EeveeSpotifyReincarnated/v7.0.0/Images/banner.png",
       "title": "EeveeSpotify 7.0.0 Adds iOS 26 Liquid Glass, Custom Tabs and Word-Synced Lyrics",
       "version": "7.0.0"
-    },
-    {
-      "additional_media": [
-        "assets/articles/source-media/sileo-2-5-1-official-icon.png"
-      ],
-      "category": {
-        "id": "tweak-roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "Irisin 4.6.1 supports conventional rootless and RootHide environments on iOS/iPadOS 15 or later; Sileo 2.5.1 is an APT frontend for compatible jailbreak environments. Package-manager support does not establish jailbreak availability for an exact device and firmware.",
-      "description": "Compare Irisin 4.6.1 and Sileo 2.5.1 by jailbreak environment, iOS range, package handling, repositories, RootHide support, updates and setup.",
-      "developer": "Lakr233 / Sileo Team",
-      "entry_type": "comparison",
-      "href": "irisin-vs-sileo-package-manager-comparison/",
-      "image": "assets/articles/source-media/irisin-4-6-1-official-app-icon.jpg",
-      "media_credit": "Lakr233 — official Irisin 4.6.1 app icon; Sileo Team — official Sileo 2.5.1 app icon",
-      "media_source_url": "https://raw.githubusercontent.com/Lakr233/Irisin/v4.6.1/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
-      "name": "Irisin vs Sileo",
-      "package": "comparison.irisin-sileo",
-      "published_at": "2026-10-14T09:03:43Z",
-      "release": "Irisin 4.6.1 released 2026-10-13; Sileo 2.5.1 released 2024-10-08",
-      "slug": "irisin-vs-sileo-package-manager-comparison",
-      "source_name": "Official Irisin 4.6.1 and Sileo 2.5.1 releases and source documentation",
-      "source_page_url": "https://github.com/Lakr233/Irisin/releases/tag/v4.6.1",
-      "source_url": "https://github.com/Sileo/Sileo/releases/tag/2.5.1",
-      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/Irisin/v4.6.1/Irisin/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.jpg",
-      "title": "Irisin vs Sileo: Which Jailbreak Package Manager Should You Use?",
-      "version": "Irisin 4.6.1 / Sileo 2.5.1"
     },
     {
       "additional_media": [],
