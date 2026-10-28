@@ -20,7 +20,7 @@ permissions:
   pages: write
 
 concurrency:
-  group: generate-clean-website-urls
+  group: nextsolution-content-state
   cancel-in-progress: false
 
 jobs:
@@ -53,7 +53,26 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add --all
           git commit -m "Generate clean public website URLs"
-          git push origin HEAD:main
+          # Site publishers share a serialization group; a separate maintenance
+          # action can still move main, so rebase and retry without force-pushing.
+          pushed=false
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              pushed=true
+              break
+            fi
+            echo "main changed during generation; rebase attempt $attempt/3"
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo "::error::Clean URL changes conflict with new main; manual review required."
+              exit 1
+            fi
+          done
+          if [ "$pushed" != true ]; then
+            echo "::error::Clean URL push could not complete after three rebases."
+            exit 1
+          fi
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Rebuild GitHub Pages from generated routes
