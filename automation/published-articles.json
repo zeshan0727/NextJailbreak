@@ -1,6 +1,47 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/soko-1-1-0-official-widgets.png",
+          "media_alt": "Official Soko screenshot showing bottom Lock Screen widgets with notifications and Now Playing kept above them",
+          "media_credit": "waruhachi — official Soko interface preview from Havoc and the source repository",
+          "media_sha256": "79199b284da4d2d5d7cad1dd491405a63414eeaa5631177c56516691db00d117",
+          "media_source_url": "https://media.havoc.app/6adec8d2ace0657e666ff9f0"
+        }
+      ],
+      "article_sha256": "5c1cfa1b6b1ee851bcad3928b5a1a2fb3ede35346383ce29c697c42fcc6488fb",
+      "candidate_fingerprint": "soko-1.1.0-2026-10-28-home-button-roothide",
+      "category": {"id":"individual-tweak-update","label":"Individual Tweak Update"},
+      "compat": "Havoc lists iOS 16.0–18.7.9 and jailbreak required. The official 1.1.0 release supplies separate iphoneos-arm, iphoneos-arm64 and iphoneos-arm64e packages for rootful, conventional rootless and RootHide environments. The listed firmware range does not prove jailbreak availability for every device.",
+      "description": "Soko 1.1.0 moves iOS 16–18 Lock Screen widgets to an iOS 26-style bottom position, fixes Home Button devices and ships rootful, rootless and RootHide packages.",
+      "developer": "waruhachi",
+      "entry_type": "tweak-update",
+      "href": "soko-1-1-0-lock-screen-widgets-roothide-update/",
+      "image": "assets/articles/source-media/soko-1-1-0-official-banner.jpg",
+      "media_alt": "Official Soko artwork showing Lock Screen widgets moved above the flashlight and camera buttons",
+      "media_credit": "waruhachi — official Soko banner from Havoc",
+      "media_git_blob_sha": "d8cecc9937a7b5107f4019ec0f38402eee01c0cb",
+      "media_retrieval_status": "Retrieved from the official Havoc __NEXT_DATA__ banner and screenshot fields, downloaded, inspected and embedded in the article and social metadata.",
+      "media_sha256": "d555dd66dc0eb7c19ee97a0b6890421743a3282dc6b8acca1ad6166714d53c95",
+      "media_source_url": "https://media.havoc.app/6adec8ceace0657e666ff999",
+      "modified_at": "2026-10-28T15:00:41Z",
+      "name": "Soko",
+      "package": "moe.waru.soko",
+      "published_at": "2026-10-28T15:00:41Z",
+      "quality_target": 9,
+      "release": "Soko 1.1.0 / official GitHub release published 2026-10-26T22:20:22Z / Havoc updated 2026-10-28T04:38:10.805Z",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "soko-1-1-0-lock-screen-widgets-roothide-update",
+      "source_name": "Official Soko Havoc listing and waruhachi/Soko repository",
+      "source_page_url": "https://havoc.app/package/soko",
+      "source_url": "https://github.com/waruhachi/Soko/releases/tag/1.1.0",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshot",
+      "source_visual_url": "https://media.havoc.app/6adec8ceace0657e666ff999",
+      "title": "Soko 1.1.0 Fixes Home Button Layout and Improves RootHide Support",
+      "version": "1.1.0"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
