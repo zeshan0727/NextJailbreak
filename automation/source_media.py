@@ -18,6 +18,9 @@ TRUSTED_MEDIA_HOSTS = {
     "cdn.chariz.cloud",
     "tools4hack.santalab.me",
     "raw.githubusercontent.com",
+    # Curated, attributed primary/first-hand article visuals only.
+    "images.macrumors.com",
+    "besiktasliseba.github.io",
 }
 LOCAL_MEDIA = re.compile(
     r"^(?:assets/articles|video-production)/[A-Za-z0-9._/-]+\.(?:jpe?g|png|webp)$",
@@ -44,7 +47,7 @@ def is_safe_media_reference(value: Any) -> bool:
         and parsed.hostname in TRUSTED_MEDIA_HOSTS
         and not parsed.username
         and not parsed.password
-        and not parsed.query
+        and (not parsed.query or (parsed.hostname == "images.macrumors.com" and parsed.query == "lossy="))
         and not parsed.fragment
     )
 
