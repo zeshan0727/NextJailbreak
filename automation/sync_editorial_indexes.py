@@ -21,7 +21,7 @@ JAIL_END = "<!-- AUTO_ARTICLES_JAILBREAK_END -->"
 def ordered(entries):
     return sorted(
         [e for e in entries if isinstance(e, dict) and e.get("href")],
-        key=lambda e: str(e.get("modified_at") or e.get("published_at") or ""),
+        key=lambda e: str(e.get("modified_at") or e.get("published_at") or e.get("published") or ""),
         reverse=True,
     )
 
