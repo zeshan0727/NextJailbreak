@@ -37,6 +37,7 @@ class CompanyDeletionTests(unittest.TestCase):
         self.core.archive_company(self.cid)
         self.core.close()
         self.core=FileManagerCore(self.root/'library',seed_companies=False)
+        self.addCleanup(self.core.close)  # Release reopened SQLite file before Windows temp cleanup.
         self.assertNotIn('Stone Café',[x['name'] for x in self.core.companies()])
         self.core.restore_company(self.cid)
         self.assertIn('Stone Café',[x['name'] for x in self.core.companies()])
