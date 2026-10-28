@@ -6,6 +6,7 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 from automation.publisher import _render_feed, _update_sitemap
+from automation.sync_editorial_indexes import render_article_archive, href
 
 
 BASE = "https://nextjailbreak.com"
@@ -42,6 +43,16 @@ class SeoPublishingDateTests(unittest.TestCase):
         self.assertIsNone(page.find(f"{SITEMAP_NS}lastmod"))
         feed = ElementTree.fromstring(_render_feed([undated], self.site))
         self.assertIsNone(feed.find("channel/item/pubDate"))
+
+    def test_archive_links_to_every_canonical_article(self):
+        root = Path(__file__).resolve().parents[2]
+        articles = json.loads((root / "automation/published-articles.json").read_text(encoding="utf-8"))["entries"]
+        html_doc = render_article_archive(articles)
+        canonical_paths = {href(entry["href"]) for entry in articles}
+        for link in canonical_paths:
+            self.assertIn('href="' + link + '"', html_doc, link)
+        self.assertEqual(html_doc.count('data-archive-entry>'), len(canonical_paths))
+        self.assertIn('rel="canonical" href="https://nextjailbreak.com/articles/"', html_doc)
 
     def test_every_audited_article_is_present_in_sitemap(self):
         root = Path(__file__).resolve().parents[2]
