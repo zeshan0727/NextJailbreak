@@ -201,6 +201,8 @@ def render_article_archive(entries):
   <meta name="description" content="Browse verified-source jailbreak news, iOS tutorials, TrollStore and RootHide guides, Cydia tweaks, and technical comparisons from Next Jailbreak.">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://nextjailbreak.com/articles/">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7GJ4N0HV92"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag('js',new Date());gtag('config','G-7GJ4N0HV92');</script>
   <link rel="stylesheet" href="/assets/site.css">
   <link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg">
   <style>
