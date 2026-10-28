@@ -118,4 +118,12 @@ s=s[:start]+'''    def manage_companies(self):
 
 '''+s[end:]
 p.write_text(s,encoding='utf-8')
+# Explicit immediate scans must ignore filesystem clock rounding.
+# Background scans retain their 3-second stability guard.
+p=base/'filemanager/core.py'
+s=p.read_text(encoding='utf-8')
+s=change(s,'if not st.st_size or st.st_mtime>cutoff:',
+         'if not st.st_size or (stable_seconds > 0 and st.st_mtime>cutoff):')
+p.write_text(s,encoding='utf-8')
+
 print('v1.10 patch applied')
