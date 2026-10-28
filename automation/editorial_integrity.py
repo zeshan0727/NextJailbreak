@@ -59,7 +59,7 @@ def enforce_manifest_consistency() -> int:
         # comparable to one version token in a headline, and must not be
         # quarantined on that basis alone.
         simple_version = re.fullmatch(r"v?(\d+(?:\.\d+){1,4})", version)
-        normalize = lambda v: ".".join(str(int(part)) for part in v.split(".")).rstrip(".0")
+        normalize = lambda v: re.sub(r"(?:\.0)+$", "", ".".join(str(int(part)) for part in v.split(".")))
         if simple_version and versions and normalize(simple_version.group(1)) not in {normalize(v) for v in versions}:
             quarantine_page(str(entry.get("href") or ""))
             quarantined.append({"href": entry.get("href"), "version": version, "title_versions": sorted(versions)})
