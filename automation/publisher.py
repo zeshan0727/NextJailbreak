@@ -331,12 +331,18 @@ def _render_feed(entries: list[dict[str, Any]], site: dict[str, Any]) -> str:
         ElementTree.SubElement(item, "link").text = canonical
         guid = ElementTree.SubElement(item, "guid", {"isPermaLink": "true"})
         guid.text = canonical
-        published = datetime.fromisoformat(
-            str(entry.get("modified_at") or entry["published_at"]).replace("Z", "+00:00")
-        )
-        ElementTree.SubElement(item, "pubDate").text = format_datetime(
-            published.astimezone(timezone.utc), usegmt=True
-        )
+        # Historical editorial entries may use "published" instead of "published_at".
+        published_text = entry.get("modified_at") or entry.get("published_at") or entry.get("published")
+        if published_text:
+            try:
+                published = datetime.fromisoformat(str(published_text).replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise PublishingError(f"invalid publication date for {entry['href']}: {published_text}") from exc
+            if published.tzinfo is None:
+                published = published.replace(tzinfo=timezone.utc)
+            ElementTree.SubElement(item, "pubDate").text = format_datetime(
+                published.astimezone(timezone.utc), usegmt=True
+            )
         ElementTree.SubElement(item, "description").text = str(entry["description"])
         category = entry.get("category", {})
         ElementTree.SubElement(item, "category").text = str(
@@ -374,10 +380,13 @@ def _update_sitemap(
         if node is None:
             node = ElementTree.SubElement(root, f"{{{SITEMAP_NAMESPACE}}}url")
             ElementTree.SubElement(node, f"{{{SITEMAP_NAMESPACE}}}loc").text = canonical
-        lastmod = node.find(f"{{{SITEMAP_NAMESPACE}}}lastmod")
-        if lastmod is None:
-            lastmod = ElementTree.SubElement(node, f"{{{SITEMAP_NAMESPACE}}}lastmod")
-        lastmod.text = str(entry.get("modified_at") or entry["published_at"])[:10]
+        # Never invent a lastmod date: keep an existing value if no reliable date exists.
+        date_value = entry.get("modified_at") or entry.get("published_at") or entry.get("published")
+        if date_value:
+            lastmod = node.find(f"{{{SITEMAP_NAMESPACE}}}lastmod")
+            if lastmod is None:
+                lastmod = ElementTree.SubElement(node, f"{{{SITEMAP_NAMESPACE}}}lastmod")
+            lastmod.text = str(date_value)[:10]
         changefreq = node.find(f"{{{SITEMAP_NAMESPACE}}}changefreq")
         if changefreq is None:
             changefreq = ElementTree.SubElement(node, f"{{{SITEMAP_NAMESPACE}}}changefreq")
