@@ -248,6 +248,17 @@ def render_article_archive(entries):
 """
 
 
+
+def ensure_archive_navigation(text):
+    """Ensure the full archive is reachable through a normal, crawlable link."""
+    if 'href="/articles/"' in text:
+        return text
+    needle = '<li><a href="/videos/">Videos</a></li>'
+    if needle not in text:
+        raise RuntimeError("Main navigation has no Videos link anchor")
+    return text.replace(needle, needle + '\n          <li><a href="/articles/">All articles</a></li>', 1)
+
+
 def main():
     data = json.loads(AUDIT.read_text(encoding="utf-8"))
     manifest_changed = normalize_manifest_descriptions(data)
@@ -261,7 +272,7 @@ def main():
 
     home_text = HOME.read_text(encoding="utf-8")
     home_text = replace(home_text, HOME_START, HOME_END, "\n".join(card(e) for e in entries[:5]))
-    home_text = dedupe_blogposting_jsonld(home_text)
+    home_text = ensure_archive_navigation(dedupe_blogposting_jsonld(home_text))
     HOME.write_text(home_text, encoding="utf-8")
 
     tweaks = [e for e in entries if not is_jailbreak(e)]
@@ -271,7 +282,7 @@ def main():
         text = replace(text, TWEAK_START, TWEAK_END, "\n".join(card(e) for e in tweaks[:60]))
         if JAIL_START in text and JAIL_END in text:
             text = replace(text, JAIL_START, JAIL_END, "\n".join(card(e) for e in jailbreaks[:60]))
-        path.write_text(text, encoding="utf-8")
+        path.write_text(ensure_archive_navigation(text), encoding="utf-8")
 
     archive = ROOT / "articles" / "index.html"
     archive.parent.mkdir(parents=True, exist_ok=True)
