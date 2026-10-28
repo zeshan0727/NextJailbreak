@@ -1,0 +1,54 @@
+name: SEO publishing regression validation
+
+on:
+  pull_request:
+    paths:
+      - "automation/**"
+      - "articles/**"
+      - "index.html"
+      - "tutorials.html"
+      - "tutorials/**"
+      - "sitemap.xml"
+      - ".github/workflows/seo-publishing-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo-publishing-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile publishing and archive generators
+        run: python3 -m py_compile automation/publisher.py automation/editorial_integrity.py automation/sync_editorial_indexes.py automation/source_media.py
+      - name: Run targeted regression suite
+        run: |
+          python3 -m unittest automation.tests.test_publisher automation.tests.test_seo_publishing_dates automation.tests.test_source_media -v
+      - name: Validate sitemap and regenerate searchable archive
+        run: |
+          python3 automation/sync_editorial_indexes.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from xml.etree import ElementTree
+          root=Path('.')
+          entries=json.loads((root/'automation/published-articles.json').read_text())['entries']
+          sitemap=ElementTree.fromstring((root/'sitemap.xml').read_text())
+          ns='{http://www.sitemaps.org/schemas/sitemap/0.9}'
+          urls=[el.text for el in sitemap.findall(f'{ns}url/{ns}loc')]
+          assert len(urls)==len(set(urls)), 'duplicate sitemap URLs'
+          article_urls={'https://nextjailbreak.com/'+(e['href'][:-5]+'/' if e['href'].endswith('.html') else e['href']) for e in entries}
+          assert article_urls <= set(urls), f'missing sitemap URLs: {article_urls-set(urls)}'
+          archive=(root/'articles/index.html').read_text()
+          for u in article_urls:
+              assert 'href="/'+u.removeprefix('https://nextjailbreak.com/')+'"' in archive, u
+          for name in ('index.html','tutorials.html','tutorials/index.html'):
+              assert 'href="/articles/"' in (root/name).read_text(), name
+          print(f'Validated {len(article_urls)} canonical articles, {len(urls)} unique sitemap URLs and archive navigation')
+          PY

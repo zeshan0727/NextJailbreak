@@ -42,10 +42,11 @@
       "source_page_url": "https://developer.apple.com/news/releases/",
       "official_source": true,
       "hero": {
-        "url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
+        "url": "assets/articles/source-media/ios-27-2-rc-official-apple-art.png",
         "alt": "Official Apple iOS 27 artwork showing the Lock Screen and Home Screen",
         "local_path": "assets/articles/source-media/ios-27-2-rc-official-apple-art.png",
-        "sha256": "1d48443343b64a4e533377591025ddbfc7924d13679b04c77d67e5cc5b923f79"
+        "sha256": "1d48443343b64a4e533377591025ddbfc7924d13679b04c77d67e5cc5b923f79",
+        "original_source_asset_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png"
       },
       "screenshots": []
     },
@@ -194,10 +195,11 @@
       "source_page_url": "https://unc0ver.dev/",
       "official_source": true,
       "hero": {
-        "url": "https://unc0ver.dev/img/device.png",
+        "url": "assets/articles/source-media/unc0ver-official-device-interface.png",
         "alt": "Official unc0ver website artwork showing the app interface on an iPhone",
         "local_path": "assets/articles/source-media/unc0ver-official-device-interface.png",
-        "git_blob_sha": "70dcb65201130c91d4ed72cd3d7fe90e44ac8f93"
+        "git_blob_sha": "70dcb65201130c91d4ed72cd3d7fe90e44ac8f93",
+        "original_source_asset_url": "https://unc0ver.dev/img/device.png"
       },
       "screenshots": []
     },
@@ -819,17 +821,19 @@
       "source_page_url": "https://www.tigisoftware.com/default/?p=439",
       "official_source": true,
       "hero": {
-        "url": "https://www.tigisoftware.com/default/wp-content/uploads/2015/07/IMG_0878-copy-1024x606.png",
+        "url": "assets/articles/source-media/filza-official-apps-manager.png",
         "alt": "Official Filza screenshot showing Apps Manager and the root file system",
         "local_path": "assets/articles/source-media/filza-official-apps-manager.png",
-        "git_blob_sha": "159bbcb69c5f060f82d88bb412d415b9d06a867e"
+        "git_blob_sha": "159bbcb69c5f060f82d88bb412d415b9d06a867e",
+        "original_source_asset_url": "https://www.tigisoftware.com/default/wp-content/uploads/2015/07/IMG_0878-copy-1024x606.png"
       },
       "screenshots": [
         {
-          "url": "https://github.com/NSAntoine/Santander/blob/main/Santander/Assets.xcassets/AppIcon.appiconset/1024.png",
+          "url": "assets/articles/source-media/santander-official-app-icon.png",
           "alt": "Official Santander app icon with a white folder and magnifying glass on a blue and pink gradient",
           "local_path": "assets/articles/source-media/santander-official-app-icon.png",
-          "git_blob_sha": "f79547be21eca220c06debd2802b6fd9d4517c8a"
+          "git_blob_sha": "f79547be21eca220c06debd2802b6fd9d4517c8a",
+          "original_source_asset_url": "https://github.com/NSAntoine/Santander/blob/main/Santander/Assets.xcassets/AppIcon.appiconset/1024.png"
         }
       ]
     },
@@ -850,11 +854,12 @@
       "source_page_url": "https://github.com/Dr-Sauce/TrollStoreChecker",
       "official_source": true,
       "hero": {
-        "url": "https://user-images.githubusercontent.com/82555878/197333210-428913ba-c8d0-476b-9ae8-c3b981e73f2f.png",
+        "url": "assets/articles/source-media/trollstore-checker-official-icon.png",
         "alt": "Official TrollStore Checker icon showing a laughing white face on a blue background",
         "local_path": "assets/articles/source-media/trollstore-checker-official-icon.png",
         "sha256": "a4788edb15c93155bb64fa972dea52da7321582b4e82119627c03dbc7c1b8d95",
-        "git_blob_sha": "fe4eb1d4b937c5be1f64977e85409227559d9466"
+        "git_blob_sha": "fe4eb1d4b937c5be1f64977e85409227559d9466",
+        "original_source_asset_url": "https://user-images.githubusercontent.com/82555878/197333210-428913ba-c8d0-476b-9ae8-c3b981e73f2f.png"
       },
       "screenshots": []
     },
@@ -1080,11 +1085,12 @@
       "source_page_url": "https://github.com/ryannair05/Cylinder-Reborn",
       "official_source": true,
       "hero": {
-        "url": "/assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png",
+        "url": "assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png",
         "alt": "Official Cylinder Reborn icon showing a white top hat and cylinder on a green background",
         "local_path": "assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png",
         "remote_embedded": false,
-        "retrieval_status": "Retrieved from the official developer repository and stored locally."
+        "retrieval_status": "Retrieved from the official developer repository and stored locally.",
+        "original_source_asset_url": "/assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png"
       },
       "screenshots": []
     },
@@ -1201,4 +1207,3 @@
     }
   }
 }
-

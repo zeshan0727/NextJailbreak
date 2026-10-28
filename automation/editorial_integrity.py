@@ -54,7 +54,13 @@ def enforce_manifest_consistency() -> int:
         versions = title_versions(str(entry.get("title") or ""))
         # Fail closed only when the title itself makes a concrete dotted-version claim
         # and that claim does not include the manifest/source version.
-        if version and versions and version not in versions:
+        # Compare only a single unambiguous dotted release number. Manifest fields
+        # containing guide revisions, multiple products or commentary are not
+        # comparable to one version token in a headline, and must not be
+        # quarantined on that basis alone.
+        simple_version = re.fullmatch(r"v?(\d+(?:\.\d+){1,4})", version)
+        normalize = lambda v: re.sub(r"(?:\.0)+$", "", ".".join(str(int(part)) for part in v.split(".")))
+        if simple_version and versions and normalize(simple_version.group(1)) not in {normalize(v) for v in versions}:
             quarantine_page(str(entry.get("href") or ""))
             quarantined.append({"href": entry.get("href"), "version": version, "title_versions": sorted(versions)})
             continue
