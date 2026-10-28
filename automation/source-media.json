@@ -829,10 +829,11 @@
       },
       "screenshots": [
         {
-          "url": "https://github.com/NSAntoine/Santander/blob/main/Santander/Assets.xcassets/AppIcon.appiconset/1024.png",
+          "url": "assets/articles/source-media/santander-official-app-icon.png",
           "alt": "Official Santander app icon with a white folder and magnifying glass on a blue and pink gradient",
           "local_path": "assets/articles/source-media/santander-official-app-icon.png",
-          "git_blob_sha": "f79547be21eca220c06debd2802b6fd9d4517c8a"
+          "git_blob_sha": "f79547be21eca220c06debd2802b6fd9d4517c8a",
+          "original_source_asset_url": "https://github.com/NSAntoine/Santander/blob/main/Santander/Assets.xcassets/AppIcon.appiconset/1024.png"
         }
       ]
     },
