@@ -166,6 +166,10 @@ def dedupe_blogposting_jsonld(text):
 
 
 
+def esc(value):
+    return html.escape(str(value or ""), quote=True)
+
+
 def render_article_archive(entries):
     """Build a lightweight crawlable archive without overcrowding the homepage."""
     rows = []
