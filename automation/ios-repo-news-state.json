@@ -106,11 +106,11 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-10-20T10:31:55.328692+00:00",
+      "checked_at": "2026-10-28T12:17:36+00:00",
       "package": "com.fouadraheb.regram",
-      "status": "duplicate",
-      "target_path": "regram-for-instagram-6-4-update/",
-      "version": "6.4"
+      "status": "published",
+      "target_path": "regram-for-instagram-6-5-update/",
+      "version": "6.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
       "checked_at": "2026-10-20T10:31:55+00:00",
@@ -287,7 +287,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytx/": {
-      "checked_at": "2026-10-03T10:44:23.580867+00:00",
+      "checked_at": "2026-10-28T12:17:36.333871+00:00",
       "package": "com.ps.ytx",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -2441,6 +2441,47 @@
       "package": "com.fouadraheb.watusi3",
       "target_path": "watusi-3-for-whatsapp-1-3-27-update/",
       "version": "1.3.27"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_062b0250624ac1da016ae1e8022ce487d19cfb359fb74d6bf2",
+          "usage": {
+            "input_tokens": 23779,
+            "input_tokens_details": {
+              "cache_write_tokens": 23776,
+              "cached_tokens": 0
+            },
+            "output_tokens": 509,
+            "output_tokens_details": {
+              "reasoning_tokens": 409
+            },
+            "total_tokens": 24288
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_093a3e7ddc878d4a016ae1e7ea445087d1bdf31f7e709f8d85",
+          "usage": {
+            "input_tokens": 21388,
+            "input_tokens_details": {
+              "cache_write_tokens": 21385,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2623,
+            "output_tokens_details": {
+              "reasoning_tokens": 49
+            },
+            "total_tokens": 24011
+          }
+        }
+      },
+      "at": "2026-10-28T12:17:36+00:00",
+      "package": "com.fouadraheb.regram",
+      "target_path": "regram-for-instagram-6-5-update/",
+      "version": "6.5"
     }
   ],
   "schema_version": 1

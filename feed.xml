@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Regram 6.5 updates Instagram compatibility, follow-request tracking and Messages Only controls</title>
+      <link>https://nextjailbreak.com/regram-for-instagram-6-5-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/regram-for-instagram-6-5-update/</guid>
+      <pubDate>Wed, 28 Oct 2026 12:17:36 GMT</pubDate>
+      <description>Regram for Instagram 6.5 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>CopyLog vs Kayoko: Which Clipboard Manager Should You Use?</title>
       <link>https://nextjailbreak.com/copylog-vs-kayoko-clipboard-manager-comparison/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/copylog-vs-kayoko-clipboard-manager-comparison/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Fri, 23 Oct 2026 04:56:37 GMT</pubDate>
       <description>Use RootHide Manager’s blacklist, app-data reset and varClean carefully, check URL-scheme and Developer Mode leaks, and understand why some apps may still detect a jailbreak.</description>
       <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>AnxieTea 1.0.5 Adds Company Blocking, Server Details and Statistics</title>
-      <link>https://nextjailbreak.com/anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/</guid>
-      <pubDate>Thu, 22 Oct 2026 16:56:21 GMT</pubDate>
-      <description>AnxieTea 1.0.5 adds company ownership to its World Map, detailed server pages, company-wide blocking, daily and weekly statistics, and meter fixes.</description>
-      <category>Individual Tweak Update</category>
     </item>
   </channel>
 </rss>

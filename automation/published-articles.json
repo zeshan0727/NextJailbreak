@@ -1,14 +1,60 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Regram for Instagram 6.5 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "regram-for-instagram-6-5-update/",
+      "image": "assets/articles/source-media/regram-for-instagram-6-5-update-0eff71efce.jpg",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/resources/events",
+      "modified_at": "2026-10-28T12:17:36+00:00",
+      "name": "Regram for Instagram",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-10-28T12:17:36+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://images.ctfassets.net/8aevphvgewt8/6aEF0LnKI9Tjgv81ggzpCD/e1fef9537bd5b227d67b988fe8117579/github-platform-og-img.jpg",
+      "title": "Regram 6.5 updates Instagram compatibility, follow-request tracking and Messages Only controls",
+      "version": "6.5"
+    },
+    {
       "additional_media": [
-        {"image":"assets/articles/source-media/copylog-1-7-1-official-ipad.png","media_alt":"Official CopyLog iPad Clipboard Manager screen showing saved clipboard entries and snippets","media_credit":"tomt000 — official CopyLog interface screenshot from Havoc","media_sha256":"24843af381fd7a1230a3df03298d1cbf1d7f9b74791e3958c4393faaeca1ab35","media_source_url":"https://media.havoc.app/62743b30be1498ea597790e7"},
-        {"image":"assets/articles/source-media/kayoko-4-3-3-official-banner.jpg","media_alt":"Official Kayoko artwork showing favorite clipboard entries in its interface","media_credit":"82flex — official Kayoko banner from Havoc","media_sha256":"0478576a263c2c3cac2b60a30a16afb619af4acb78bf975a7d103e34cc423d23","media_source_url":"https://media.havoc.app/6a4b790cfe3a1a36714a5ade"},
-        {"image":"assets/articles/source-media/kayoko-4-3-3-official-settings.png","media_alt":"Official Kayoko settings screen with activation, history length, text, image and custom-tag options","media_credit":"82flex — official Kayoko interface screenshot from Havoc","media_sha256":"b23659ee0552042988f1ac4bebbc858b293a24a71f8c78cef5b56cfda9f3d8d8","media_source_url":"https://media.havoc.app/6a5379470f02a353b76066d3"}
+        {
+          "image": "assets/articles/source-media/copylog-1-7-1-official-ipad.png",
+          "media_alt": "Official CopyLog iPad Clipboard Manager screen showing saved clipboard entries and snippets",
+          "media_credit": "tomt000 — official CopyLog interface screenshot from Havoc",
+          "media_sha256": "24843af381fd7a1230a3df03298d1cbf1d7f9b74791e3958c4393faaeca1ab35",
+          "media_source_url": "https://media.havoc.app/62743b30be1498ea597790e7"
+        },
+        {
+          "image": "assets/articles/source-media/kayoko-4-3-3-official-banner.jpg",
+          "media_alt": "Official Kayoko artwork showing favorite clipboard entries in its interface",
+          "media_credit": "82flex — official Kayoko banner from Havoc",
+          "media_sha256": "0478576a263c2c3cac2b60a30a16afb619af4acb78bf975a7d103e34cc423d23",
+          "media_source_url": "https://media.havoc.app/6a4b790cfe3a1a36714a5ade"
+        },
+        {
+          "image": "assets/articles/source-media/kayoko-4-3-3-official-settings.png",
+          "media_alt": "Official Kayoko settings screen with activation, history length, text, image and custom-tag options",
+          "media_credit": "82flex — official Kayoko interface screenshot from Havoc",
+          "media_sha256": "b23659ee0552042988f1ac4bebbc858b293a24a71f8c78cef5b56cfda9f3d8d8",
+          "media_source_url": "https://media.havoc.app/6a5379470f02a353b76066d3"
+        }
       ],
       "article_sha256": "dd6a75f77016de4d1f2374389abb928b7400681a6f8718c5aaee191e76ddbd97",
       "candidate_fingerprint": "copylog-1.7.1-vs-kayoko-4.3.3-2026-10-28",
-      "category": {"id":"tweak-roundup-comparison","label":"Tweak Roundup & Comparison"},
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
       "compat": "CopyLog 1.7.1 lists iOS 11.0–18.3.2, jailbreak required and rootless support; Kayoko 4.3.3 lists iOS 15.0–26.0.1, jailbreak required and rootless support. Package compatibility does not prove jailbreak availability, and neither listing documents a separate RootHide lane.",
       "description": "Compare CopyLog 1.7.1 and Kayoko 4.3.3 by price, maintenance, iOS support, search, tags, iPad support, migration and TrollStore options.",
       "developer": "tomt000 / 82flex",
@@ -108,6 +154,87 @@
       "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
       "title": "How to Install RootHide Bootstrap 2.2.1 with TrollStore",
       "version": "Guide revision 2026-10-28 / RootHide Bootstrap 2.2.1"
+    },
+    {
+      "category": {
+        "id": "jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Tag 28 now includes official IPA and TIPA assets, but its release note does not publish a separate RootHide device-and-firmware matrix. Availability still depends on device, firmware, exploit chain and installation method.",
+      "description": "RootHide added official IPA and TIPA downloads to Dopamine RootHide 3.0.12-28 on October 25, 2026; both assets have the same size and SHA-256 digest.",
+      "developer": "RootHide",
+      "entry_type": "development",
+      "href": "dopamine-roothide-3-x-integration-status/",
+      "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
+      "media_alt": "Official Dopamine RootHide app icon from the project’s 3.x source branch",
+      "media_credit": "RootHide — official Dopamine-RootHide 3.x source-repository app icon",
+      "media_retrieval_status": "Official source-repository icon retrieved, stored locally, embedded in the article and used in social metadata.",
+      "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified_at": "2026-10-27T21:01:15Z",
+      "name": "Dopamine RootHide 3.0.12-28 release status",
+      "package": "github.roothide.dopamine-roothide",
+      "published_at": "2026-10-23T01:03:42Z",
+      "quality_target": 9,
+      "release": "3.0.12-28 / tag 28 with official IPA and TIPA assets",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "dopamine-roothide-3-x-integration-status",
+      "source_name": "Official RootHide Dopamine-RootHide tag 28 release, asset metadata and upstream Dopamine 3.0.12 release",
+      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/28",
+      "source_url": "https://github.com/roothide/Dopamine-roothide",
+      "source_visual_origin": "official-3.x-source-repository-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Dopamine RootHide 3.0.12-28 Now Has Official IPA and TIPA Downloads",
+      "version": "3.0.12-28 / official IPA and TIPA assets"
+    },
+    {
+      "article_sha256": "1c27a2f8dd2b1f5489691e5256dbe0ae8d648c03fbbadc0ce42e7852c3b220ad",
+      "category": {
+        "id": "productivity",
+        "label": "Productivity"
+      },
+      "compat": "Havoc lists iOS 15.0–26.0.1, jailbreak required, rootless; package index architecture iphoneos-arm64 with firmware >=15.0, MobileSubstrate-compatible injection and PreferenceLoader",
+      "description": "Prism 1.6.4 adds iOS 26 support, improves URL-scheme responsiveness and fixes activation from Control Center, with rootless-package limits explained.",
+      "entry_type": "source-news",
+      "href": "prism-1-6-1-update/",
+      "image": "assets/articles/source-media/prism-1-6-3-official-banner.png",
+      "media_credit": "blacknoisy — official Prism banner, application icon and interface screenshots from Havoc",
+      "media_files": [
+        {
+          "origin": "https://media.havoc.app/6a7835029e5377f2c5170dce",
+          "path": "assets/articles/source-media/prism-1-6-3-official-banner.png",
+          "sha256": "6b45b6baddeddb96dc3c84a3cfcfde9a4cb792ff1aa57fa83c82a3fea32aaec0"
+        },
+        {
+          "origin": "https://media.havoc.app/6a7834ee9e5377f2c5170cd0",
+          "path": "assets/articles/source-media/prism-1-6-4-official-icon.png",
+          "sha256": "3a0a204cd03b0a5ec6dee01dad050a04b9a40c11ce6672421d4be00eaf9c29a5"
+        },
+        {
+          "origin": "https://media.havoc.app/6a7834f49e5377f2c5170d12",
+          "path": "assets/articles/source-media/prism-1-6-4-official-capture-editor.png",
+          "sha256": "e3fce225777423cc07e66a1111b81236ae31f77681bc12fc6f14ced436370281"
+        },
+        {
+          "origin": "https://media.havoc.app/6a7834fc9e5377f2c5170d93",
+          "path": "assets/articles/source-media/prism-1-6-4-official-shape-controls.png",
+          "sha256": "8ca11f32d1d139379f235807cf199d4bdc638105d3dae5247cece43e25cef2b8"
+        }
+      ],
+      "media_source_url": "https://havoc.app/package/prism",
+      "modified_at": "2026-10-27T16:57:28Z",
+      "name": "Prism",
+      "package": "com.blacknoisy.prism",
+      "published_at": "2026-09-28T18:52:10+00:00",
+      "quality_target": 9,
+      "release": "Prism 1.6.4 released 2026-10-25",
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "source_name": "Official Havoc Prism listing and package index",
+      "source_page_url": "https://havoc.app/package/prism",
+      "source_url": "https://havoc.app/package/prism",
+      "source_visual_origin": "Havoc __NEXT_DATA__ pageProps.info banner/icon and pageProps.content.screenshots",
+      "source_visual_url": "https://media.havoc.app/6a7835029e5377f2c5170dce",
+      "title": "Prism 1.6.4 Adds iOS 26 Support and Fixes Control Center Launching",
+      "version": "1.6.4"
     },
     {
       "additional_media": [
@@ -287,6 +414,136 @@
       "version": "Zebra 1.1.37"
     },
     {
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Apple lists iOS 27.2 for iPhone 11 and later, with builds 24B91020 and 24B119. No public jailbreak, installation tool or iOS 27.2 support matrix accompanied the October 26 release.",
+      "description": "Apple’s October 26 iOS 27.2 release fixes kernel-memory and sandbox issues, but its Calif credits do not identify a public jailbreak chain.",
+      "developer": "Apple",
+      "entry_type": "current-jailbreak-development",
+      "href": "ios-27-2-rc-jailbreak-status-update/",
+      "image": "assets/articles/source-media/ios-27-2-rc-official-apple-art.png",
+      "media_credit": "Apple — official iOS 27 artwork from the Apple Developer releases page",
+      "media_sha256": "1d48443343b64a4e533377591025ddbfc7924d13679b04c77d67e5cc5b923f79",
+      "media_source_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
+      "modified_at": "2026-10-26T21:03:30Z",
+      "name": "iOS 27.2",
+      "package": "com.apple.ios-27.2-status",
+      "published_at": "2026-10-19T20:56:22Z",
+      "quality_target": 9,
+      "release": "iOS 27.2 builds 24B91020 and 24B119; released October 26, 2026",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "ios-27-2-rc-jailbreak-status-update",
+      "source_name": "Apple Developer releases and Apple security content for iOS 27.2, iOS 26.7.2 and iOS 18.7.11",
+      "source_page_url": "https://support.apple.com/149230",
+      "source_url": "https://developer.apple.com/news/releases/",
+      "source_visual_origin": "official-apple-ios-release-artwork",
+      "source_visual_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
+      "title": "iOS 27.2 Released With Security Fixes—Still No Public Jailbreak",
+      "version": "27.2 (24B91020 and 24B119)"
+    },
+    {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/catmcp-1-3-0-official-interface.jpg",
+          "media_alt": "Official CatMCP Settings pane showing the Enabled switch, port 9000 and Copy MCP Config button",
+          "media_credit": "0x530c — official CatMCP interface screenshot",
+          "media_sha256": "7264018cea5c2e6fdf958de9dabb5b43aeeb7145959366d692e05564ccfd981d",
+          "media_source_url": "https://media.havoc.app/6a18335e8817ff396a914cf6"
+        },
+        {
+          "image": "assets/articles/source-media/catmcp-1-3-0-official-icon.png",
+          "media_alt": "Official CatMCP app icon with the MCP shield logo",
+          "media_credit": "0x530c — official CatMCP icon",
+          "media_sha256": "2b9f8dae408b3d7a634f74ceae04c6b541c7d364ecbc30fd705ce07d6eddbfcf",
+          "media_source_url": "https://media.havoc.app/6a182b9e8817ff396a912668"
+        }
+      ],
+      "category": {
+        "id": "productivity",
+        "label": "Productivity"
+      },
+      "description": "CatMCP 1.3.0 adds lock-state queries, optional-passcode unlocking, Power-key actions and clearer unknown-key errors to its jailbroken-iOS MCP server.",
+      "entry_type": "source-news",
+      "href": "catmcp-1-2-0-update/",
+      "image": "assets/articles/source-media/catmcp-1-3-0-official-banner.png",
+      "media_alt": "Official CatMCP banner with the MCP shield logo over a blurred iOS interface",
+      "media_credit": "0x530c — official CatMCP banner",
+      "media_sha256": "be7c5ce893c949df4c8a4fbb12050af347c2d4d9b1ac84a4ca791ffd9d8ac910",
+      "media_source_url": "https://havoc.app/package/catmcp",
+      "modified_at": "2026-10-26T17:02:16Z",
+      "name": "CatMCP",
+      "package": "com.catmcp.daemon",
+      "published_at": "2026-09-28T18:52:11+00:00",
+      "quality_target": 9,
+      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
+      "source_name": "havoc.app",
+      "source_page_url": "https://havoc.app/package/catmcp",
+      "source_url": "https://havoc.app/package/catmcp",
+      "source_visual_origin": "Havoc __NEXT_DATA__ pageProps.content.banner",
+      "source_visual_url": "https://media.havoc.app/6a1829778817ff396a9119a7",
+      "title": "CatMCP 1.3.0 Adds Lock-State Queries, Unlock and Power-Key Control",
+      "version": "1.3.0"
+    },
+    {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/touch-viz-4-1-1-official-track.png",
+          "media_alt": "Official Touch-Viz settings screen demonstrating a curved pink touch trail over enable and color controls",
+          "media_credit": "82flex and launchctl/Havoc — official Touch-Viz interface screenshot",
+          "media_sha256": "78ddd5165553f3fadddd91d8a2d7eb5413150ba2723ed9867a3a92974d2f6c99",
+          "media_source_url": "https://media.havoc.app/66b86511328ec2048b89ae7b"
+        },
+        {
+          "image": "assets/articles/source-media/touch-viz-4-1-1-official-image.png",
+          "media_alt": "Official Touch-Viz settings screenshot showing simultaneous trails and appearance controls",
+          "media_credit": "82flex and launchctl/Havoc — official Touch-Viz interface screenshot",
+          "media_sha256": "121e39300f1a92ba5dfe31b5226f6b76359272c6a75ccdb71e9aee0a482e927f",
+          "media_source_url": "https://media.havoc.app/66b8651a328ec2048b89b07f"
+        },
+        {
+          "image": "assets/articles/source-media/touch-viz-4-1-1-official-icon.png",
+          "media_alt": "Official Touch-Viz app icon",
+          "media_credit": "82flex and launchctl/Havoc — official package icon",
+          "media_sha256": "e9f7d95813b861b69416ccd9e698784d4fdf7fcbf13cf3d31115cbb64495c468",
+          "media_source_url": "https://media.havoc.app/66b862c5328ec2048b895110"
+        }
+      ],
+      "article_sha256": "aa91f3899c22eeed5aec7d2cd666b27478ffbe6eabd3a13c32cd399148c834ea",
+      "candidate_fingerprint": "com.82flex.touchvis@4.1.1-eol-free-2026-10-26",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 15.0–26.0.1, rootless support and a jailbreak requirement. This package range does not prove jailbreak availability for every device or firmware and does not separately guarantee RootHide compatibility.",
+      "description": "Touch-Viz 4.1.1 is now free after reaching end of life, with an iOS 26 crash fix and listed iOS 15.0–26.0.1 rootless compatibility.",
+      "developer": "82flex and launchctl",
+      "entry_type": "individual-update",
+      "href": "touch-viz-2-4-update/",
+      "image": "assets/articles/source-media/touch-viz-4-1-1-official-banner.png",
+      "media_alt": "Official Touch-Viz banner with a hand pressing a circular touch indicator",
+      "media_credit": "82flex and launchctl/Havoc — official Touch-Viz banner and app-interface screenshots",
+      "media_retrieval_status": "Exact official banner, package icon and two interface screenshots were retrieved from the Havoc package page and inspected before publication.",
+      "media_sha256": "615bb7c82cb2402d77f184ce3fa796a862d0a956bd42572a9405bbb87643fe31",
+      "media_source_url": "https://media.havoc.app/66a489f8066c63e2b4e6e879",
+      "modified_at": "2026-10-26T13:05:50Z",
+      "name": "Touch-Viz",
+      "package": "com.82flex.touchvis",
+      "published_at": "2026-09-14T06:12:36+00:00",
+      "quality_target": 9,
+      "release": "Version 4.1.1 released 2026-09-09; end-of-life/free notice added 2026-10-26",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "touch-viz-2-4-update",
+      "source_name": "Official Touch-Viz Havoc package page and version history",
+      "source_page_url": "https://havoc.app/package/touchvis",
+      "source_url": "https://havoc.app/package/touchvis/changes",
+      "source_visual_origin": "official-havoc-banner-icon-and-interface-screenshots",
+      "source_visual_url": "https://media.havoc.app/66a489f8066c63e2b4e6e879",
+      "title": "Touch-Viz 4.1.1 Is Now Free as Developer Ends Support",
+      "version": "4.1.1"
+    },
+    {
       "additional_media": [
         {
           "image": "assets/articles/source-media/geranium-1-1-4-official-cleaner.png",
@@ -414,6 +671,128 @@
       "version": "Guide revision 2026-10-26 / Filza 4.0.1 jailbreak packages and 4.0.2 TrollStore page"
     },
     {
+      "additional_media": [],
+      "article_sha256": "450fc800ca96a75584c1ea312e6420e1e27303c09fbb8ab51a62389243361ae9",
+      "category": {
+        "id": "jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Physical Apple Silicon Mac. The 2.13 series adds guest JavaScriptCore scripting and a Mac Debug Session terminal; script_js is unavailable on watchOS. tvOS 27.2 research guests require macOS 27 because of LZRAVEN. This is virtualization research, not a physical-device jailbreak.",
+      "description": "vphone-cli 2.13.4 fixes its new Debug Session window after 2.13.3 added JavaScriptCore guest scripting, a WebSocket terminal and an Objective-C bridge.",
+      "developer": "Lakr Aream",
+      "entry_type": "development-update",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
+      "media_credit": "Lakr233 — official vphone-cli demo retained in the 2.13.4 tagged repository",
+      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
+      "media_retrieval_status": "Official tagged repository demo is stored locally; the committed asset exactly matches Documents/demo.jpeg from tag 2.13.4.",
+      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.13.4/Documents/demo.jpeg",
+      "modified_at": "2026-10-25T21:03:32Z",
+      "name": "vphone-cli 2.13.4",
+      "package": "project.vphone-cli",
+      "published_at": "2026-09-15T08:07:38+00:00",
+      "quality_target": 9,
+      "release": "vphone-cli 2.13.4 released 2026-10-25",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
+      "source_name": "Official vphone-cli 2.13.4, 2.13.3 and 2.13.2 release notes and tagged project source",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.13.4",
+      "source_url": "https://github.com/Lakr233/vphone-cli",
+      "source_visual_origin": "official-tagged-repository-asset",
+      "source_visual_url": "https://github.com/Lakr233/vphone-cli/blob/2.13.4/Documents/demo.jpeg",
+      "title": "vphone-cli 2.13.4 Adds Guest Scripting and Fixes Debug Session",
+      "version": "2.13.4"
+    },
+    {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/podaction-1-0-1-official-settings.png",
+          "media_alt": "Official PodAction settings screen showing mappings for AirPods presses, swipes and left or right double taps",
+          "media_credit": "aronsz26/Havoc — official PodAction settings screenshot",
+          "media_sha256": "215e2c472fc719b68724f4284c6483d2f2f7b933abcec33bb3b3397b19be5548",
+          "media_source_url": "https://media.havoc.app/6acc171af27f95cb99b8792a"
+        },
+        {
+          "image": "assets/articles/source-media/podaction-1-0-1-official-actions.png",
+          "media_alt": "Official PodAction action picker listing flashlight, camera, Focus, voice memo, music recognition, controls, Shortcuts and accessibility",
+          "media_credit": "aronsz26/Havoc — official PodAction action-picker screenshot",
+          "media_sha256": "4a93dedc9ba096e146f0e58b242d89558020d3736b4c881bef635d43529dd426",
+          "media_source_url": "https://media.havoc.app/6acc1721f27f95cb99b8796b"
+        }
+      ],
+      "article_sha256": "7c0e2640c5e6b4f214497b30ad27030f711163417b1ea366ccadfcd34f77accd",
+      "candidate_fingerprint": "7838b35647062dd3bc998039b926ea0af1813015b80de0331df1bf22fc8cbb08",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 14.0–26.0.1, rootless support and a jailbreak requirement; the description also states rootful support. Package compatibility does not prove jailbreak availability for every device or firmware.",
+      "description": "PodAction 1.0.1 fixes single-press actions on newer AirPods and improves connection detection while mapping AirPods gestures to Shortcuts and iOS controls.",
+      "entry_type": "individual-update",
+      "href": "podaction-1-0-1-airpods-gestures-shortcuts-actions/",
+      "image": "assets/articles/source-media/podaction-1-0-1-official-banner.jpg",
+      "media_alt": "Official PodAction banner with the text Run any action from your AirPods",
+      "media_credit": "aronsz26/Havoc — official PodAction product banner and app-interface screenshots",
+      "media_retrieval_status": "Official Havoc banner and two app-interface screenshots retrieved directly from the listing metadata, inspected, stored locally, embedded in the article, and used in social metadata where appropriate.",
+      "media_sha256": "7d228f3f1225192c3dd29a80e674ea3c05fc70b0cf5e25ffb60f8d59556f8a70",
+      "media_source_url": "https://media.havoc.app/6acc1727f27f95cb99b87992",
+      "modified_at": "2026-10-25T17:01:10Z",
+      "name": "PodAction",
+      "package": "com.aronsz26.podaction",
+      "published_at": "2026-10-25T17:01:10Z",
+      "quality_target": 9,
+      "release": "PodAction 1.0.1 — October 25, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official PodAction Havoc package page, changelog and developer-supplied media",
+      "source_page_url": "https://havoc.app/package/podaction",
+      "source_url": "https://havoc.app/package/podaction",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshots",
+      "source_visual_url": "https://media.havoc.app/6acc1727f27f95cb99b87992",
+      "title": "PodAction 1.0.1 Maps AirPods Gestures to Shortcuts and System Actions",
+      "version": "1.0.1"
+    },
+    {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/adytum-2-1-official-interface.jpg",
+          "media_alt": "Official Adytum settings screenshot with toggles for its four backgrounding modes and toast duration",
+          "media_credit": "Kernelrw/Chariz — official Adytum app-interface screenshot",
+          "media_git_blob_sha": "1cee5c9315a652fb56b4dadedca205898c3638cf",
+          "media_sha256": "fbed85bf6b4229e775699bc8449c7bb468cace34341bc8a95b3a9ed8fca6a225",
+          "media_source_url": "https://cdn.chariz.cloud/asset/adytum/IDPFlIOvZTXJ4_YUW7mcQ3Hc5wlUIHEJ/assets/trwqDIsk4_o6TJVlrlEkh5cI5-2W5YG2d36qAiGNqm-MJ-sdMdt9qwRRwAbFe_Y5n6OTtFx6AI59CX5bQLy6sQ.jpg"
+        }
+      ],
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "The live Chariz page lists iOS 15.0–26.0 with a jailbreak required. Version 2.2.1 declares full iOS 26.x support; package compatibility does not prove jailbreak availability for every device or firmware. RootHide and Relaxin users are directed to a pure arm64e build or RootHide Patcher.",
+      "description": "Adytum 3.0 restores a Control Center menu for frontmost apps and fixes upside-down orientation after version 2.2.1 added full iOS 26 support.",
+      "entry_type": "individual-update",
+      "href": "adytum-1-0-update/",
+      "image": "assets/articles/source-media/adytum-2-1-official-chariz-banner.jpg",
+      "media_alt": "Official Adytum banner showing its backgrounding modes in an iPhone Home Screen context menu",
+      "media_credit": "Kernelrw/Chariz — official Adytum product banner and interface screenshot",
+      "media_git_blob_sha": "82eccd391e6bdfd3a81533c74e201865d37bcdb6",
+      "media_retrieval_status": "Official Chariz product banner and app-interface screenshot retrieved directly, inspected, stored locally and embedded in the article and social metadata.",
+      "media_sha256": "91db6ca65f35d2c5b820b293e644630e7b65466f1fcabad7f0e7f06f0257d820",
+      "media_source_url": "https://img.chariz.cloud/sileo-banner/adytum.jpg",
+      "modified_at": "2026-10-25T12:57:03Z",
+      "name": "Adytum",
+      "package": "com.kernelrw.adytum",
+      "published_at": "2026-09-14T06:05:26+00:00",
+      "quality_target": 9,
+      "release": "Adytum 3.0 — October 18, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Adytum Chariz product page, version history and public repository index",
+      "source_page_url": "https://chariz.com/get/adytum/",
+      "source_url": "https://chariz.com/get/adytum/changelog",
+      "source_visual_origin": "official-chariz-banner-and-interface-screenshot",
+      "source_visual_url": "https://img.chariz.cloud/sileo-banner/adytum.jpg",
+      "title": "Adytum 3.0 Restores Control Center Access and Fixes Rotation",
+      "version": "3.0"
+    },
+    {
       "category": {
         "id": "roundup-comparison",
         "label": "Tweak Roundup & Comparison"
@@ -478,6 +857,102 @@
       "version": "Official guide revision 2026-10-25 / palera1n rootless flow"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Source visual from github.com",
+          "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-detail-b8ad42813f.png",
+          "image_url": "https://opengraph.githubassets.com/8696974cc13c7691ed71889df3af88bb03a172a7b7c0cc714e395ff3865cede7/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
+          "origin": "og:image",
+          "source_host": "github.com",
+          "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2"
+        }
+      ],
+      "category": {
+        "id": "jailbreak",
+        "label": "Jailbreak"
+      },
+      "description": "palera1n 3.0.0 beta 3 adds a recovery-mode CLI DFU helper, experimental Linux AppImages with GUI, a macOS Liquid Glass icon and corrected CLI credits.",
+      "entry_type": "source-news",
+      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
+      "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
+      "media_credit": "palera1n team — official beta 3 GUI screenshot from the tagged source",
+      "media_retrieval_status": "Retrieved from the official v3.0.0-beta.3 tagged repository, inspected, stored locally and embedded in the article and social metadata.",
+      "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
+      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
+      "modified_at": "2026-10-25T00:58:24Z",
+      "name": "palera1n",
+      "package": "palera1n-gui-beta2",
+      "published_at": "2026-09-22T06:21:05+00:00",
+      "quality_target": 9,
+      "selection_pool": "user-authorized-six-article-batch-20260921",
+      "source_name": "github.com",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source_visual_origin": "official-tagged-repository-screenshot",
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
+      "title": "palera1n 3.0.0 Beta 3 Adds Linux AppImages and a CLI DFU Helper",
+      "version": "3.0.0-beta.3"
+    },
+    {
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Calif’s October 23 demonstration identifies one iPhone Duo on iOS 27.1. It does not establish support for other iPhones, package managers or tweaks, and Calif did not disclose whether the Duo result is untethered.",
+      "description": "Calif demonstrated an iPhone Duo jailbreak on iOS 27.1 on launch day, but published no tool, exploit chain, compatibility list or release date.",
+      "developer": "Calif",
+      "entry_type": "editorial-news-update",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "image": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+      "media_credit": "Calif — official iPhone Duo demonstration; still hosted by MacRumors",
+      "media_source_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+      "modified_at": "2026-10-24T16:58:54Z",
+      "name": "Calif iPhone Duo iOS 27.1 jailbreak demonstration",
+      "package": "editorial.ios27-jailbreak-status",
+      "published_at": "2026-09-15T07:47:49Z",
+      "quality_target": 9,
+      "release": "Calif demonstrated the iPhone Duo on iOS 27.1 on October 23, 2026; no end-user tool was released",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Calif official iPhone Duo posts, Calif Hexacon disclosure and Stefan Esser’s Heise interview",
+      "source_page_url": "https://x.com/calif_io/status/2113570095549337977",
+      "source_url": "https://x.com/calif_io/status/2113578130543882697",
+      "source_visual_origin": "still-from-official-calif-demo-hosted-by-macrumors",
+      "source_visual_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+      "title": "iPhone Duo Jailbroken on iOS 27.1, but No Public Tool Is Planned",
+      "version": "iPhone Duo / iOS 27.1 demo October 23, 2026"
+    },
+    {
+      "additional_media": [],
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Official 1.0.2 release provides rootful iphoneos-arm, rootless iphoneos-arm64 and RootHide iphoneos-arm64e packages; tagged control requires iOS 14.0+, MobileSubstrate 0.9.5000+ and PreferenceLoader. Package compatibility does not establish jailbreak availability.",
+      "description": "Jikan 1.0.2 adds a Hide Swipe to Unlock Text option, Turkish localization and older rootful-iOS fixes after 1.0.1 expanded date-row estimates and RootHide reliability.",
+      "developer": "waruhachi",
+      "entry_type": "individual-tweak-update",
+      "href": "jikan-1-0-0-lock-screen-charge-time-estimate/",
+      "image": "assets/articles/source-media/jikan-1-0-2-official-banner.jpg",
+      "media_credit": "waruhachi — official Jikan 1.0.2 banner from the tagged source repository",
+      "media_git_blob_sha": "2910ef55ad17817d09ce845ec2f0c41222b6ce5f",
+      "media_sha256": "7aa333eb16e774cc0376e7a1c94b9a597c04f5298c9d767cb07f79612af4ed6c",
+      "media_source_url": "https://raw.githubusercontent.com/waruhachi/Jikan/1.0.2/Resources/Banner.png",
+      "modified_at": "2026-10-24T12:57:38Z",
+      "name": "Jikan",
+      "package": "moe.waru.jikan",
+      "published_at": "2026-10-09T13:04:59Z",
+      "release": "Jikan 1.0.2 released 2026-10-20",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "jikan-1-0-0-lock-screen-charge-time-estimate",
+      "source_name": "Official Jikan 1.0.2 and 1.0.1 GitHub releases, tagged documentation and Havoc listing",
+      "source_page_url": "https://github.com/waruhachi/Jikan/releases/tag/1.0.2",
+      "source_url": "https://github.com/waruhachi/Jikan/releases/tag/1.0.2",
+      "source_visual_origin": "official-tagged-repository-banner",
+      "source_visual_url": "https://raw.githubusercontent.com/waruhachi/Jikan/1.0.2/Resources/Banner.png",
+      "title": "Jikan 1.0.2 Adds Swipe-to-Unlock Hiding and Expands Older iOS Support",
+      "version": "1.0.2"
+    },
+    {
       "additional_media": [],
       "category": {
         "id": "roundup-comparison",
@@ -522,9 +997,9 @@
       "media_alt": "Official TrollStore app icon from the 2.1.1 source tag",
       "media_credit": "opa334 — official TrollStore app icon from the version 2.1.1 tagged repository",
       "media_git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+      "media_retrieval_status": "Exact official TrollStore 2.1.1 source icon already preserved locally; source and target Git blobs match and the asset is embedded in the article and social metadata.",
       "media_sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
       "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
-      "media_retrieval_status": "Exact official TrollStore 2.1.1 source icon already preserved locally; source and target Git blobs match and the asset is embedded in the article and social metadata.",
       "modified_at": "2026-10-24T04:55:29Z",
       "name": "TrollStore Developer Mode guide",
       "package": "guide.trollstore.developer-mode",
@@ -554,9 +1029,9 @@
       "image": "assets/articles/source-media/roothide-manager-1-4-official-icon.png",
       "media_alt": "Official RootHide Manager app icon with a split Apple logo, rainbow code texture on the left and white on the right",
       "media_credit": "RootHide — official RootHide Manager source-repository app icon",
+      "media_retrieval_status": "Official source-repository icon retrieved at the 1.4 commit, inspected, stored locally and embedded in the article and social metadata.",
       "media_sha256": "a2f0d1eae0e9b28b965af2d35b26d2e056ce0a54ed1b30e9dcb623c54ced3947",
       "media_source_url": "https://raw.githubusercontent.com/roothide/RootHideManagerApp/224589666166a932ec5ff4151748a20d21f0cf7e/RootHide/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-      "media_retrieval_status": "Official source-repository icon retrieved at the 1.4 commit, inspected, stored locally and embedded in the article and social metadata.",
       "modified_at": "2026-10-24T01:00:43Z",
       "name": "RootHide Manager",
       "package": "com.roothide.manager",
@@ -572,54 +1047,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/roothide/RootHideManagerApp/224589666166a932ec5ff4151748a20d21f0cf7e/RootHide/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
       "title": "RootHide Manager 1.4 Adds Safer varClean and Updated iOS 18/26 Rules",
       "version": "1.4.0"
-    },
-    {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/podaction-1-0-1-official-settings.png",
-          "media_alt": "Official PodAction settings screen showing mappings for AirPods presses, swipes and left or right double taps",
-          "media_credit": "aronsz26/Havoc — official PodAction settings screenshot",
-          "media_sha256": "215e2c472fc719b68724f4284c6483d2f2f7b933abcec33bb3b3397b19be5548",
-          "media_source_url": "https://media.havoc.app/6acc171af27f95cb99b8792a"
-        },
-        {
-          "image": "assets/articles/source-media/podaction-1-0-1-official-actions.png",
-          "media_alt": "Official PodAction action picker listing flashlight, camera, Focus, voice memo, music recognition, controls, Shortcuts and accessibility",
-          "media_credit": "aronsz26/Havoc — official PodAction action-picker screenshot",
-          "media_sha256": "4a93dedc9ba096e146f0e58b242d89558020d3736b4c881bef635d43529dd426",
-          "media_source_url": "https://media.havoc.app/6acc1721f27f95cb99b8796b"
-        }
-      ],
-      "article_sha256": "7c0e2640c5e6b4f214497b30ad27030f711163417b1ea366ccadfcd34f77accd",
-      "candidate_fingerprint": "7838b35647062dd3bc998039b926ea0af1813015b80de0331df1bf22fc8cbb08",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Havoc lists iOS 14.0–26.0.1, rootless support and a jailbreak requirement; the description also states rootful support. Package compatibility does not prove jailbreak availability for every device or firmware.",
-      "description": "PodAction 1.0.1 fixes single-press actions on newer AirPods and improves connection detection while mapping AirPods gestures to Shortcuts and iOS controls.",
-      "entry_type": "individual-update",
-      "href": "podaction-1-0-1-airpods-gestures-shortcuts-actions/",
-      "image": "assets/articles/source-media/podaction-1-0-1-official-banner.jpg",
-      "media_alt": "Official PodAction banner with the text Run any action from your AirPods",
-      "media_credit": "aronsz26/Havoc — official PodAction product banner and app-interface screenshots",
-      "media_retrieval_status": "Official Havoc banner and two app-interface screenshots retrieved directly from the listing metadata, inspected, stored locally, embedded in the article, and used in social metadata where appropriate.",
-      "media_sha256": "7d228f3f1225192c3dd29a80e674ea3c05fc70b0cf5e25ffb60f8d59556f8a70",
-      "media_source_url": "https://media.havoc.app/6acc1727f27f95cb99b87992",
-      "modified_at": "2026-10-25T17:01:10Z",
-      "name": "PodAction",
-      "package": "com.aronsz26.podaction",
-      "published_at": "2026-10-25T17:01:10Z",
-      "quality_target": 9,
-      "release": "PodAction 1.0.1 — October 25, 2026",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "source_name": "Official PodAction Havoc package page, changelog and developer-supplied media",
-      "source_page_url": "https://havoc.app/package/podaction",
-      "source_url": "https://havoc.app/package/podaction",
-      "source_visual_origin": "official-havoc-banner-and-interface-screenshots",
-      "source_visual_url": "https://media.havoc.app/6acc1727f27f95cb99b87992",
-      "title": "PodAction 1.0.1 Maps AirPods Gestures to Shortcuts and System Actions",
-      "version": "1.0.1"
     },
     {
       "additional_media": [
@@ -643,9 +1070,9 @@
       "image": "assets/articles/source-media/aerial-5-1-official-banner.png",
       "media_alt": "Official Aerial banner with its colorful A logo and the text Stage Manager redesigned for iOS",
       "media_credit": "uzra/Havoc — official Aerial banner and Split Stage interface screenshot",
+      "media_retrieval_status": "Official Havoc banner and interface screenshot retrieved, inspected, stored locally, and embedded in the article.",
       "media_sha256": "a140456211eda1d5f479c083e8201423a48657dc277f94baf9ea408109202349",
       "media_source_url": "https://media.havoc.app/6913433dd707490685941f1d",
-      "media_retrieval_status": "Official Havoc banner and interface screenshot retrieved, inspected, stored locally, and embedded in the article.",
       "modified_at": "2026-10-23T13:04:58Z",
       "name": "Aerial",
       "package": "jp.uzra.aerial",
@@ -675,8 +1102,8 @@
       "image": "assets/articles/source-media/newterm-3-official-banner.jpg",
       "media_alt": "Official NewTerm banner showing the app icon and NewTerm name over a terminal window",
       "media_credit": "HASHBANG Productions — official NewTerm source-repository banner",
-      "media_source_url": "https://raw.githubusercontent.com/hbang/NewTerm/main/assets/banner.jpg",
       "media_retrieval_status": "Official source-repository banner retrieved, stored locally, inspected and embedded in the article and social metadata.",
+      "media_source_url": "https://raw.githubusercontent.com/hbang/NewTerm/main/assets/banner.jpg",
       "modified_at": "2026-10-23T09:04:05Z",
       "name": "NewTerm 3 vs OpenSSH comparison",
       "package": "comparison.newterm3-openssh",
@@ -706,8 +1133,8 @@
       "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
       "media_alt": "Official RootHide Bootstrap app icon from the project source repository",
       "media_credit": "RootHide — official Bootstrap source-repository app icon",
-      "media_source_url": "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
       "media_retrieval_status": "Official source-repository icon retrieved, stored locally and embedded in the article and social metadata.",
+      "media_source_url": "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
       "modified_at": "2026-10-23T04:56:37Z",
       "name": "RootHide jailbreak-detection troubleshooting guide",
       "package": "github.roothide.bootstrap-detection-guide",
@@ -723,37 +1150,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
       "title": "How to Troubleshoot Jailbreak Detection in RootHide",
       "version": "2.2.1"
-    },
-    {
-      "category": {
-        "id": "jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Tag 28 now includes official IPA and TIPA assets, but its release note does not publish a separate RootHide device-and-firmware matrix. Availability still depends on device, firmware, exploit chain and installation method.",
-      "description": "RootHide added official IPA and TIPA downloads to Dopamine RootHide 3.0.12-28 on October 25, 2026; both assets have the same size and SHA-256 digest.",
-      "developer": "RootHide",
-      "entry_type": "development",
-      "href": "dopamine-roothide-3-x-integration-status/",
-      "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
-      "media_alt": "Official Dopamine RootHide app icon from the project’s 3.x source branch",
-      "media_credit": "RootHide — official Dopamine-RootHide 3.x source-repository app icon",
-      "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "media_retrieval_status": "Official source-repository icon retrieved, stored locally, embedded in the article and used in social metadata.",
-      "modified_at": "2026-10-27T21:01:15Z",
-      "name": "Dopamine RootHide 3.0.12-28 release status",
-      "package": "github.roothide.dopamine-roothide",
-      "published_at": "2026-10-23T01:03:42Z",
-      "quality_target": 9,
-      "release": "3.0.12-28 / tag 28 with official IPA and TIPA assets",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "dopamine-roothide-3-x-integration-status",
-      "source_name": "Official RootHide Dopamine-RootHide tag 28 release, asset metadata and upstream Dopamine 3.0.12 release",
-      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/28",
-      "source_url": "https://github.com/roothide/Dopamine-roothide",
-      "source_visual_origin": "official-3.x-source-repository-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "Dopamine RootHide 3.0.12-28 Now Has Official IPA and TIPA Downloads",
-      "version": "3.0.12-28 / official IPA and TIPA assets"
     },
     {
       "additional_media": [
@@ -786,6 +1182,7 @@
       "href": "anxietea-1-0-2-network-monitor-firewall-jailbreak-tweak/",
       "image": "assets/articles/source-media/anxietea-1-0-5-official-icon.png",
       "media_credit": "Official current AnxieTea icon from AADiOS’s Havoc listing; current interface screenshot also embedded from Havoc",
+      "media_retrieval_status": "Official current package icon stored locally; official current Havoc interface screenshot embedded directly.",
       "media_sha256": "adc112410868342102a448cd6daa8e2b46d5354818fcb4320f69c44452eecdd2",
       "media_source_url": "https://media.havoc.app/6acf782e6e46a2bf96db5ba0?q=90&w=512",
       "modified_at": "2026-10-22T16:56:21Z",
@@ -801,8 +1198,7 @@
       "source_visual_origin": "official-current-havoc-icon-banner-and-interface-screenshots",
       "source_visual_url": "https://media.havoc.app/6acf7921d01780d140fd150a",
       "title": "AnxieTea 1.0.5 Adds Company Blocking, Server Details and Statistics",
-      "version": "1.0.5",
-      "media_retrieval_status": "Official current package icon stored locally; official current Havoc interface screenshot embedded directly."
+      "version": "1.0.5"
     },
     {
       "category": {
@@ -817,8 +1213,8 @@
       "image": "assets/articles/source-media/iconorder-1-0-5-official-icon.png",
       "media_alt": "Official IconOrder app icon from the developer source repository",
       "media_credit": "ichitaso — official IconOrder source-repository icon; official 1.0.5 Settings screenshot also embedded from Havoc",
-      "media_source_url": "https://raw.githubusercontent.com/ichitaso/IconOrder/refs/heads/main/Prefs/Resources/Icon%403x.png",
       "media_retrieval_status": "Official source-repository icon stored locally; official Havoc 1.0.5 Settings screenshot embedded from the marketplace source.",
+      "media_source_url": "https://raw.githubusercontent.com/ichitaso/IconOrder/refs/heads/main/Prefs/Resources/Icon%403x.png",
       "modified_at": "2026-10-22T13:02:06Z",
       "name": "IconOrder layout backup update",
       "package": "com.ichitaso.iconorder",
@@ -848,8 +1244,8 @@
       "image": "https://media.havoc.app/69a292778a1a1189920b5c18",
       "media_alt": "Official SetupManager interface listing Packages, Tweaks, Repos, Preferences, Themes and Paid Tweaks",
       "media_credit": "Mysteryexe/Havoc — official SetupManager interface screenshot; Lightmann/Chariz official IAmLazy screenshot also embedded",
-      "media_source_url": "https://media.havoc.app/69a292778a1a1189920b5c18",
       "media_retrieval_status": "Official remote marketplace media embedded directly; local binary retrieval was unavailable in the connected publishing environment.",
+      "media_source_url": "https://media.havoc.app/69a292778a1a1189920b5c18",
       "modified_at": "2026-10-22T08:55:36Z",
       "name": "Jailbreak backup tool comparison",
       "package": "comparison.setupmanager-iamlazy",
@@ -927,175 +1323,34 @@
       "version": "2.1.4"
     },
     {
+      "additional_media": [],
       "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "Apple lists iOS 27.2 for iPhone 11 and later, with builds 24B91020 and 24B119. No public jailbreak, installation tool or iOS 27.2 support matrix accompanied the October 26 release.",
-      "description": "Apple’s October 26 iOS 27.2 release fixes kernel-memory and sandbox issues, but its Calif credits do not identify a public jailbreak chain.",
-      "developer": "Apple",
-      "entry_type": "current-jailbreak-development",
-      "href": "ios-27-2-rc-jailbreak-status-update/",
-      "image": "assets/articles/source-media/ios-27-2-rc-official-apple-art.png",
-      "media_credit": "Apple — official iOS 27 artwork from the Apple Developer releases page",
-      "media_sha256": "1d48443343b64a4e533377591025ddbfc7924d13679b04c77d67e5cc5b923f79",
-      "media_source_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
-      "modified_at": "2026-10-26T21:03:30Z",
-      "name": "iOS 27.2",
-      "package": "com.apple.ios-27.2-status",
-      "published_at": "2026-10-19T20:56:22Z",
-      "quality_target": 9,
-      "release": "iOS 27.2 builds 24B91020 and 24B119; released October 26, 2026",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "ios-27-2-rc-jailbreak-status-update",
-      "source_name": "Apple Developer releases and Apple security content for iOS 27.2, iOS 26.7.2 and iOS 18.7.11",
-      "source_page_url": "https://support.apple.com/149230",
-      "source_url": "https://developer.apple.com/news/releases/",
-      "source_visual_origin": "official-apple-ios-release-artwork",
-      "source_visual_url": "https://developer.apple.com/download/images/ios-27-128x128_2x.png",
-      "title": "iOS 27.2 Released With Security Fixes—Still No Public Jailbreak",
-      "version": "27.2 (24B91020 and 24B119)"
-    },
-    {
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Havoc lists iOS 14.0–26.0.1 and marks rootless support. Package compatibility does not establish jailbreak availability for every device and firmware.",
-      "description": "SleepSaver 2 version 1.4 adds a dedicated screensaver brightness control, gapless playlist playback, and improved Emerald tweak compatibility.",
-      "developer": "iCraze",
-      "entry_type": "individual-update",
-      "href": "sleepsaver-2-1-4-brightness-gapless-playback-update/",
-      "image": "https://media.havoc.app/697bc869e8ad76edf69c4b1c",
-      "media_alt": "Official SleepSaver 2 screenshot showing a dark screensaver scene with a dining table, flowers and hanging lights",
-      "media_credit": "iCraze/Havoc — official SleepSaver 2 interface screenshot",
-      "modified": "2026-10-21T16:55:57Z",
-      "published": "2026-10-21T16:55:57Z",
-      "name": "SleepSaver 2",
-      "package": "com.icraze.sleepsaver2",
-      "quality_target": 9,
-      "release": "SleepSaver 2 1.4",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "source_name": "Official Havoc package page and iCraze developer page",
-      "source_page_url": "https://havoc.app/package/sleepsaver2",
-      "source_url": "https://havoc.app/package/sleepsaver2/changes",
-      "source_visual_origin": "Official SleepSaver 2 interface screenshot from Havoc",
-      "source_visual_url": "https://media.havoc.app/697bc869e8ad76edf69c4b1c",
-      "title": "SleepSaver 2 1.4 Adds Brightness Control and Gapless Playlists",
-      "version": "1.4"
-    },
-    {
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Chariz lists iOS 11.0–26.0 and requires a jailbreak. Version 1.2.0 explicitly adds RootHide and all-rootless support; package compatibility does not establish jailbreak availability for every device and firmware.",
-      "description": "Cylinder Reborn 1.2.0 adds RootHide and all-rootless support, major performance improvements, repaired icon effects and Lua 5.5 scripting.",
-      "developer": "Ryan Nair",
-      "entry_type": "individual-update",
-      "href": "cylinder-reborn-1-2-0-roothide-rootless-performance-update/",
-      "image": "https://nextjailbreak.com/assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png",
-      "media_alt": "Official Cylinder Reborn icon showing a white top hat and cylinder on a green background",
-      "media_credit": "Ryan Nair/Cylinder Reborn GitHub repository — official project icon",
-      "modified": "2026-10-21T13:03:18Z",
-      "published": "2026-10-21T13:03:18Z",
-      "name": "Cylinder Reborn",
-      "package": "com.ryannair05.cylinder",
-      "quality_target": 9,
-      "release": "Cylinder Reborn 1.2.0",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "source_name": "Official Chariz package page and Ryan Nair GitHub repository",
-      "source_page_url": "https://chariz.com/get/cylinder-reborn",
-      "source_url": "https://github.com/ryannair05/Cylinder-Reborn/releases/tag/v1.2.0",
-      "source_visual_origin": "Official Cylinder Reborn project icon from the developer repository",
-      "source_visual_url": "https://github.com/ryannair05/Cylinder-Reborn/blob/master/Cylinder%20Icon.png",
-      "title": "Cylinder Reborn 1.2.0 Adds RootHide Support and Faster Icon Animations",
-      "version": "1.2.0"
-    },
-    {
-      "category": {
-        "id": "tweak-roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "Snapper 3 1.2.1: iOS 14.0–17.2; ScreenshotActions 1.2: iOS 12.0–15.7.5; Unseen 0.0.5: iOS 15.0–18.7.9. Havoc marks all three as supporting rootless, but package compatibility does not establish jailbreak availability for every device and firmware.",
-      "description": "Compare Snapper 3, ScreenshotActions and Unseen by screenshot workflow, iOS compatibility, rootless support, price and privacy limits.",
-      "developer": "jontelang / p2kdev / 82flex",
-      "entry_type": "comparison",
-      "href": "snapper-3-vs-screenshotactions-vs-unseen-comparison/",
-      "image": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
-      "media_alt": "Official Snapper 3 interface showing a cropped screenshot pinned over another app",
-      "media_credit": "jontelang/Havoc — official Snapper 3 interface screenshot; p2kdev/Havoc and 82flex/Havoc screenshots embedded in article",
-      "modified": "2026-10-21T08:58:29Z",
-      "published": "2026-10-21T08:58:29Z",
-      "name": "Screenshot jailbreak tweak comparison",
-      "package": "comparison.snapper3-screenshotactions-unseen",
-      "quality_target": 9,
-      "release": "Snapper 3 1.2.1 / ScreenshotActions 1.2 / Unseen 0.0.5",
-      "selection_pool": "scheduled-tweak-roundup-comparison",
-      "source_name": "Official Havoc package pages and Unseen developer repository",
-      "source_page_url": "https://havoc.app/package/snapper3",
-      "source_url": "https://github.com/owngoal-dev/Unseen",
-      "source_visual_origin": "Official package interface screenshots from Havoc",
-      "source_visual_url": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
-      "title": "Snapper 3 vs ScreenshotActions vs Unseen: Which Screenshot Tweak Fits You?",
-      "version": "1.2.1 / 1.2 / 0.0.5"
-    },
-    {
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "TrollStore 2.1.1 supports iOS/iPadOS 14.0 beta 2–16.6.1, iOS 16.7 RC (20H18), and iOS 17.0 according to the official README. The standard uninstall row is excluded from TrollStore Lite builds.",
-      "description": "Remove TrollStore 2.1.1 through its official Settings control, understand Preserve Apps versus Uninstall Apps, and remove the persistence helper separately.",
-      "developer": "opa334",
-      "entry_type": "guide",
-      "href": "uninstall-trollstore-preserve-apps-guide/",
-      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
-      "media_alt": "Official TrollStore app icon from the 2.1.1 source",
-      "media_credit": "opa334 — official TrollStore app icon from the 2.1.1 tagged repository",
-      "media_sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
-      "modified": "2026-10-21T05:00:44Z",
-      "published": "2026-10-21T05:00:44Z",
-      "name": "TrollStore 2.1.1 uninstall guide",
-      "package": "guide.trollstore.uninstall-preserve-apps",
-      "quality_target": 9,
-      "release": "TrollStore 2.1.1 released 2026-04-01",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "source_name": "opa334/TrollStore 2.1.1 tagged source",
-      "source_page_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
-      "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/Shared/TSListControllerShared.m",
-      "source_visual_origin": "Reused official app icon from the TrollStore 2.1.1 source tag",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
-      "title": "How to Uninstall TrollStore Safely—and Choose Whether to Keep Apps",
-      "version": "2.1.1"
-    },
-    {
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Calif’s October 23 demonstration identifies one iPhone Duo on iOS 27.1. It does not establish support for other iPhones, package managers or tweaks, and Calif did not disclose whether the Duo result is untethered.",
-      "description": "Calif demonstrated an iPhone Duo jailbreak on iOS 27.1 on launch day, but published no tool, exploit chain, compatibility list or release date.",
-      "developer": "Calif",
-      "entry_type": "editorial-news-update",
-      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
-      "modified_at": "2026-10-24T16:58:54Z",
-      "name": "Calif iPhone Duo iOS 27.1 jailbreak demonstration",
-      "package": "editorial.ios27-jailbreak-status",
-      "published_at": "2026-09-15T07:47:49Z",
-      "quality_target": 9,
-      "release": "Calif demonstrated the iPhone Duo on iOS 27.1 on October 23, 2026; no end-user tool was released",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Calif official iPhone Duo posts, Calif Hexacon disclosure and Stefan Esser’s Heise interview",
-      "source_page_url": "https://x.com/calif_io/status/2113570095549337977",
-      "source_url": "https://x.com/calif_io/status/2113578130543882697",
-      "source_visual_origin": "still-from-official-calif-demo-hosted-by-macrumors",
-      "source_visual_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "title": "iPhone Duo Jailbroken on iOS 27.1, but No Public Tool Is Planned",
-      "version": "iPhone Duo / iOS 27.1 demo October 23, 2026",
-      "image": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "media_credit": "Calif — official iPhone Duo demonstration; still hosted by MacRumors",
-      "media_source_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy="
+      "compat": "No compatibility expansion. Dopamine 3.0.12 retains arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. The touch workaround specifically targets certain A10/A11 devices with aftermarket screens after userspace reboot.",
+      "description": "Dopamine 3.0.12 fixes touch after userspace reboot on certain A10/A11 aftermarket screens and corrects rootless system-plist redirection.",
+      "developer": "opa334 and contributors",
+      "entry_type": "development-update",
+      "href": "dopamine-main-branch-replacement-screen-rootless-plist-fixes/",
+      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
+      "media_credit": "opa334 — official Dopamine 3.0.11 app icon",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified_at": "2026-10-21T00:59:16Z",
+      "name": "Dopamine 3.0.12",
+      "package": "org.coolstar.dopamine",
+      "published_at": "2026-10-15T16:56:13Z",
+      "release": "3.0.12 published 2026-10-20T05:34:02Z",
+      "selection_pool": "fallback-current-jailbreak-development",
+      "slug": "dopamine-main-branch-replacement-screen-rootless-plist-fixes",
+      "source_name": "Official Dopamine 3.0.12 release, tagged README and source commits",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.12",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.12",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Dopamine 3.0.12 Fixes Replacement-Screen Touch and Rootless Plists",
+      "version": "3.0.12"
     },
     {
       "category": {
@@ -1109,8 +1364,8 @@
       "href": "nextalarmsx-2-0-0-ios-17-18-support/",
       "image": "https://media.havoc.app/6620daa86764ac007f731106",
       "media_credit": "Joshua Seltzer/Havoc — official NextAlarmSX Lock Screen interface screenshot",
-      "media_source_url": "https://media.havoc.app/6620daa86764ac007f731106",
       "media_retrieval_status": "Embedded from the official Havoc media URL; binary download was blocked by the automation execution environment.",
+      "media_source_url": "https://media.havoc.app/6620daa86764ac007f731106",
       "modified_at": "2026-10-20T16:56:15Z",
       "name": "NextAlarmSX 2.0.0",
       "package": "com.joshuaseltzer.nextalarmsx",
@@ -1805,39 +2060,6 @@
       "version": "2.1.1"
     },
     {
-      "additional_media": [],
-      "category": {
-        "id": "jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "article_sha256": "450fc800ca96a75584c1ea312e6420e1e27303c09fbb8ab51a62389243361ae9",
-      "compat": "Physical Apple Silicon Mac. The 2.13 series adds guest JavaScriptCore scripting and a Mac Debug Session terminal; script_js is unavailable on watchOS. tvOS 27.2 research guests require macOS 27 because of LZRAVEN. This is virtualization research, not a physical-device jailbreak.",
-      "description": "vphone-cli 2.13.4 fixes its new Debug Session window after 2.13.3 added JavaScriptCore guest scripting, a WebSocket terminal and an Objective-C bridge.",
-      "developer": "Lakr Aream",
-      "entry_type": "development-update",
-      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
-      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
-      "media_credit": "Lakr233 — official vphone-cli demo retained in the 2.13.4 tagged repository",
-      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
-      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.13.4/Documents/demo.jpeg",
-      "modified_at": "2026-10-25T21:03:32Z",
-      "name": "vphone-cli 2.13.4",
-      "package": "project.vphone-cli",
-      "published_at": "2026-09-15T08:07:38+00:00",
-      "quality_target": 9,
-      "release": "vphone-cli 2.13.4 released 2026-10-25",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
-      "source_name": "Official vphone-cli 2.13.4, 2.13.3 and 2.13.2 release notes and tagged project source",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.13.4",
-      "source_url": "https://github.com/Lakr233/vphone-cli",
-      "source_visual_origin": "official-tagged-repository-asset",
-      "source_visual_url": "https://github.com/Lakr233/vphone-cli/blob/2.13.4/Documents/demo.jpeg",
-      "title": "vphone-cli 2.13.4 Adds Guest Scripting and Fixes Debug Session",
-      "version": "2.13.4",
-      "media_retrieval_status": "Official tagged repository demo is stored locally; the committed asset exactly matches Documents/demo.jpeg from tag 2.13.4."
-    },
-    {
       "additional_media": [
         "assets/articles/source-media/battman-1-1-0-official-charging-limit.png"
       ],
@@ -2032,36 +2254,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
       "title": "RootHide Bootstrap Main Branch Preserves Core Functions When Tweaks Are Disabled",
       "version": "main-branch development after 2.2.1"
-    },
-    {
-      "additional_media": [],
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "No compatibility expansion. Dopamine 3.0.12 retains arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. The touch workaround specifically targets certain A10/A11 devices with aftermarket screens after userspace reboot.",
-      "description": "Dopamine 3.0.12 fixes touch after userspace reboot on certain A10/A11 aftermarket screens and corrects rootless system-plist redirection.",
-      "developer": "opa334 and contributors",
-      "entry_type": "development-update",
-      "href": "dopamine-main-branch-replacement-screen-rootless-plist-fixes/",
-      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
-      "media_credit": "opa334 — official Dopamine 3.0.11 app icon",
-      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
-      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "modified_at": "2026-10-21T00:59:16Z",
-      "name": "Dopamine 3.0.12",
-      "package": "org.coolstar.dopamine",
-      "published_at": "2026-10-15T16:56:13Z",
-      "release": "3.0.12 published 2026-10-20T05:34:02Z",
-      "selection_pool": "fallback-current-jailbreak-development",
-      "slug": "dopamine-main-branch-replacement-screen-rootless-plist-fixes",
-      "source_name": "Official Dopamine 3.0.12 release, tagged README and source commits",
-      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.12",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.12",
-      "source_visual_origin": "official-repository-asset-reused",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "Dopamine 3.0.12 Fixes Replacement-Screen Touch and Rootless Plists",
-      "version": "3.0.12"
     },
     {
       "additional_media": [
@@ -3028,37 +3220,6 @@
       "source_visual_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
       "title": "NowLyrics 1.1.2 Fixes Dynamic Island Lyrics and Improves Musixmatch Matching",
       "version": "1.1.2"
-    },
-    {
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Official 1.0.2 release provides rootful iphoneos-arm, rootless iphoneos-arm64 and RootHide iphoneos-arm64e packages; tagged control requires iOS 14.0+, MobileSubstrate 0.9.5000+ and PreferenceLoader. Package compatibility does not establish jailbreak availability.",
-      "description": "Jikan 1.0.2 adds a Hide Swipe to Unlock Text option, Turkish localization and older rootful-iOS fixes after 1.0.1 expanded date-row estimates and RootHide reliability.",
-      "developer": "waruhachi",
-      "entry_type": "individual-tweak-update",
-      "href": "jikan-1-0-0-lock-screen-charge-time-estimate/",
-      "image": "assets/articles/source-media/jikan-1-0-2-official-banner.jpg",
-      "media_credit": "waruhachi — official Jikan 1.0.2 banner from the tagged source repository",
-      "media_sha256": "7aa333eb16e774cc0376e7a1c94b9a597c04f5298c9d767cb07f79612af4ed6c",
-      "media_source_url": "https://raw.githubusercontent.com/waruhachi/Jikan/1.0.2/Resources/Banner.png",
-      "modified_at": "2026-10-24T12:57:38Z",
-      "name": "Jikan",
-      "package": "moe.waru.jikan",
-      "published_at": "2026-10-09T13:04:59Z",
-      "release": "Jikan 1.0.2 released 2026-10-20",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "jikan-1-0-0-lock-screen-charge-time-estimate",
-      "source_name": "Official Jikan 1.0.2 and 1.0.1 GitHub releases, tagged documentation and Havoc listing",
-      "source_page_url": "https://github.com/waruhachi/Jikan/releases/tag/1.0.2",
-      "source_url": "https://github.com/waruhachi/Jikan/releases/tag/1.0.2",
-      "source_visual_origin": "official-tagged-repository-banner",
-      "source_visual_url": "https://raw.githubusercontent.com/waruhachi/Jikan/1.0.2/Resources/Banner.png",
-      "title": "Jikan 1.0.2 Adds Swipe-to-Unlock Hiding and Expands Older iOS Support",
-      "version": "1.0.2",
-      "additional_media": [],
-      "media_git_blob_sha": "2910ef55ad17817d09ce845ec2f0c41222b6ce5f"
     },
     {
       "additional_media": [
@@ -4465,83 +4626,6 @@
         "id": "productivity",
         "label": "Productivity"
       },
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/catmcp-1-3-0-official-interface.jpg",
-          "media_alt": "Official CatMCP Settings pane showing the Enabled switch, port 9000 and Copy MCP Config button",
-          "media_credit": "0x530c — official CatMCP interface screenshot",
-          "media_sha256": "7264018cea5c2e6fdf958de9dabb5b43aeeb7145959366d692e05564ccfd981d",
-          "media_source_url": "https://media.havoc.app/6a18335e8817ff396a914cf6"
-        },
-        {
-          "image": "assets/articles/source-media/catmcp-1-3-0-official-icon.png",
-          "media_alt": "Official CatMCP app icon with the MCP shield logo",
-          "media_credit": "0x530c — official CatMCP icon",
-          "media_sha256": "2b9f8dae408b3d7a634f74ceae04c6b541c7d364ecbc30fd705ce07d6eddbfcf",
-          "media_source_url": "https://media.havoc.app/6a182b9e8817ff396a912668"
-        }
-      ],
-      "description": "CatMCP 1.3.0 adds lock-state queries, optional-passcode unlocking, Power-key actions and clearer unknown-key errors to its jailbroken-iOS MCP server.",
-      "entry_type": "source-news",
-      "href": "catmcp-1-2-0-update/",
-      "image": "assets/articles/source-media/catmcp-1-3-0-official-banner.png",
-      "media_alt": "Official CatMCP banner with the MCP shield logo over a blurred iOS interface",
-      "media_credit": "0x530c — official CatMCP banner",
-      "media_sha256": "be7c5ce893c949df4c8a4fbb12050af347c2d4d9b1ac84a4ca791ffd9d8ac910",
-      "media_source_url": "https://havoc.app/package/catmcp",
-      "modified_at": "2026-10-26T17:02:16Z",
-      "name": "CatMCP",
-      "package": "com.catmcp.daemon",
-      "published_at": "2026-09-28T18:52:11+00:00",
-      "quality_target": 9,
-      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
-      "source_name": "havoc.app",
-      "source_page_url": "https://havoc.app/package/catmcp",
-      "source_url": "https://havoc.app/package/catmcp",
-      "source_visual_origin": "Havoc __NEXT_DATA__ pageProps.content.banner",
-      "source_visual_url": "https://media.havoc.app/6a1829778817ff396a9119a7",
-      "title": "CatMCP 1.3.0 Adds Lock-State Queries, Unlock and Power-Key Control",
-      "version": "1.3.0"
-    },
-    {
-      "article_sha256": "1c27a2f8dd2b1f5489691e5256dbe0ae8d648c03fbbadc0ce42e7852c3b220ad",
-      "category": {
-        "id": "productivity",
-        "label": "Productivity"
-      },
-      "compat": "Havoc lists iOS 15.0–26.0.1, jailbreak required, rootless; package index architecture iphoneos-arm64 with firmware >=15.0, MobileSubstrate-compatible injection and PreferenceLoader",
-      "description": "Prism 1.6.4 adds iOS 26 support, improves URL-scheme responsiveness and fixes activation from Control Center, with rootless-package limits explained.",
-      "entry_type": "source-news",
-      "href": "prism-1-6-1-update/",
-      "image": "assets/articles/source-media/prism-1-6-3-official-banner.png",
-      "media_credit": "blacknoisy — official Prism banner, application icon and interface screenshots from Havoc",
-      "media_files": [
-        {"path":"assets/articles/source-media/prism-1-6-3-official-banner.png","sha256":"6b45b6baddeddb96dc3c84a3cfcfde9a4cb792ff1aa57fa83c82a3fea32aaec0","origin":"https://media.havoc.app/6a7835029e5377f2c5170dce"},
-        {"path":"assets/articles/source-media/prism-1-6-4-official-icon.png","sha256":"3a0a204cd03b0a5ec6dee01dad050a04b9a40c11ce6672421d4be00eaf9c29a5","origin":"https://media.havoc.app/6a7834ee9e5377f2c5170cd0"},
-        {"path":"assets/articles/source-media/prism-1-6-4-official-capture-editor.png","sha256":"e3fce225777423cc07e66a1111b81236ae31f77681bc12fc6f14ced436370281","origin":"https://media.havoc.app/6a7834f49e5377f2c5170d12"},
-        {"path":"assets/articles/source-media/prism-1-6-4-official-shape-controls.png","sha256":"8ca11f32d1d139379f235807cf199d4bdc638105d3dae5247cece43e25cef2b8","origin":"https://media.havoc.app/6a7834fc9e5377f2c5170d93"}
-      ],
-      "media_source_url": "https://havoc.app/package/prism",
-      "modified_at": "2026-10-27T16:57:28Z",
-      "name": "Prism",
-      "package": "com.blacknoisy.prism",
-      "published_at": "2026-09-28T18:52:10+00:00",
-      "quality_target": 9,
-      "selection_pool": "user-authorized-recent-tweak-batch-20260928",
-      "release": "Prism 1.6.4 released 2026-10-25",
-      "source_name": "Official Havoc Prism listing and package index",
-      "source_page_url": "https://havoc.app/package/prism",
-      "source_url": "https://havoc.app/package/prism",
-      "source_visual_origin": "Havoc __NEXT_DATA__ pageProps.info banner/icon and pageProps.content.screenshots",
-      "source_visual_url": "https://media.havoc.app/6a7835029e5377f2c5170dce",
-      "title": "Prism 1.6.4 Adds iOS 26 Support and Fixes Control Center Launching",
-      "version": "1.6.4"
-    },
-    {
-      "category": {
-        "id": "productivity",
-        "label": "Productivity"
-      },
       "description": "CatScript and CatScript Lite 1.6.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "catscript-and-catscript-lite-1-6-1-update/",
@@ -4661,43 +4745,6 @@
       "source_visual_url": "https://opengraph.githubassets.com/48fc7c99dd1aa29623cb56b1c77de2e40e7fd9a616a5c5ca9fe888447f35141c/FouadRaheb/Regram-for-Instagram/commit/0ce35181a2daeb25be88bb9446fb6101dfce9b90",
       "title": "Regram 6.2 Adds Stacked Notifications, Reels Controls and Expanded Local Spoofing",
       "version": "6.2"
-    },
-    {
-      "additional_media": [
-        {
-          "credit": "Source visual from github.com",
-          "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-detail-b8ad42813f.png",
-          "image_url": "https://opengraph.githubassets.com/8696974cc13c7691ed71889df3af88bb03a172a7b7c0cc714e395ff3865cede7/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
-          "origin": "og:image",
-          "source_host": "github.com",
-          "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2"
-        }
-      ],
-      "category": {
-        "id": "jailbreak",
-        "label": "Jailbreak"
-      },
-      "description": "palera1n 3.0.0 beta 3 adds a recovery-mode CLI DFU helper, experimental Linux AppImages with GUI, a macOS Liquid Glass icon and corrected CLI credits.",
-      "entry_type": "source-news",
-      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
-      "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
-      "media_credit": "palera1n team — official beta 3 GUI screenshot from the tagged source",
-      "media_retrieval_status": "Retrieved from the official v3.0.0-beta.3 tagged repository, inspected, stored locally and embedded in the article and social metadata.",
-      "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
-      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
-      "modified_at": "2026-10-25T00:58:24Z",
-      "name": "palera1n",
-      "package": "palera1n-gui-beta2",
-      "published_at": "2026-09-22T06:21:05+00:00",
-      "quality_target": 9,
-      "selection_pool": "user-authorized-six-article-batch-20260921",
-      "source_name": "github.com",
-      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
-      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
-      "source_visual_origin": "official-tagged-repository-screenshot",
-      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
-      "title": "palera1n 3.0.0 Beta 3 Adds Linux AppImages and a CLI DFU Helper",
-      "version": "3.0.0-beta.3"
     },
     {
       "additional_media": [
@@ -5334,104 +5381,6 @@
       "source_visual_url": "https://media.havoc.app/6a8cd2b11daa073b7fd0cd8d?w=3840&q=75",
       "title": "ASJTikTok 1.2 adds saved-story storage controls and expands TikTok customization",
       "version": "1.2"
-    },
-    {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/touch-viz-4-1-1-official-track.png",
-          "media_alt": "Official Touch-Viz settings screen demonstrating a curved pink touch trail over enable and color controls",
-          "media_credit": "82flex and launchctl/Havoc — official Touch-Viz interface screenshot",
-          "media_sha256": "78ddd5165553f3fadddd91d8a2d7eb5413150ba2723ed9867a3a92974d2f6c99",
-          "media_source_url": "https://media.havoc.app/66b86511328ec2048b89ae7b"
-        },
-        {
-          "image": "assets/articles/source-media/touch-viz-4-1-1-official-image.png",
-          "media_alt": "Official Touch-Viz settings screenshot showing simultaneous trails and appearance controls",
-          "media_credit": "82flex and launchctl/Havoc — official Touch-Viz interface screenshot",
-          "media_sha256": "121e39300f1a92ba5dfe31b5226f6b76359272c6a75ccdb71e9aee0a482e927f",
-          "media_source_url": "https://media.havoc.app/66b8651a328ec2048b89b07f"
-        },
-        {
-          "image": "assets/articles/source-media/touch-viz-4-1-1-official-icon.png",
-          "media_alt": "Official Touch-Viz app icon",
-          "media_credit": "82flex and launchctl/Havoc — official package icon",
-          "media_sha256": "e9f7d95813b861b69416ccd9e698784d4fdf7fcbf13cf3d31115cbb64495c468",
-          "media_source_url": "https://media.havoc.app/66b862c5328ec2048b895110"
-        }
-      ],
-      "article_sha256": "aa91f3899c22eeed5aec7d2cd666b27478ffbe6eabd3a13c32cd399148c834ea",
-      "candidate_fingerprint": "com.82flex.touchvis@4.1.1-eol-free-2026-10-26",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Havoc lists iOS 15.0–26.0.1, rootless support and a jailbreak requirement. This package range does not prove jailbreak availability for every device or firmware and does not separately guarantee RootHide compatibility.",
-      "description": "Touch-Viz 4.1.1 is now free after reaching end of life, with an iOS 26 crash fix and listed iOS 15.0–26.0.1 rootless compatibility.",
-      "developer": "82flex and launchctl",
-      "entry_type": "individual-update",
-      "href": "touch-viz-2-4-update/",
-      "image": "assets/articles/source-media/touch-viz-4-1-1-official-banner.png",
-      "media_alt": "Official Touch-Viz banner with a hand pressing a circular touch indicator",
-      "media_credit": "82flex and launchctl/Havoc — official Touch-Viz banner and app-interface screenshots",
-      "media_retrieval_status": "Exact official banner, package icon and two interface screenshots were retrieved from the Havoc package page and inspected before publication.",
-      "media_sha256": "615bb7c82cb2402d77f184ce3fa796a862d0a956bd42572a9405bbb87643fe31",
-      "media_source_url": "https://media.havoc.app/66a489f8066c63e2b4e6e879",
-      "modified_at": "2026-10-26T13:05:50Z",
-      "name": "Touch-Viz",
-      "package": "com.82flex.touchvis",
-      "published_at": "2026-09-14T06:12:36+00:00",
-      "quality_target": 9,
-      "release": "Version 4.1.1 released 2026-09-09; end-of-life/free notice added 2026-10-26",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "touch-viz-2-4-update",
-      "source_name": "Official Touch-Viz Havoc package page and version history",
-      "source_page_url": "https://havoc.app/package/touchvis",
-      "source_url": "https://havoc.app/package/touchvis/changes",
-      "source_visual_origin": "official-havoc-banner-icon-and-interface-screenshots",
-      "source_visual_url": "https://media.havoc.app/66a489f8066c63e2b4e6e879",
-      "title": "Touch-Viz 4.1.1 Is Now Free as Developer Ends Support",
-      "version": "4.1.1"
-    },
-    {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/adytum-2-1-official-interface.jpg",
-          "media_alt": "Official Adytum settings screenshot with toggles for its four backgrounding modes and toast duration",
-          "media_credit": "Kernelrw/Chariz — official Adytum app-interface screenshot",
-          "media_git_blob_sha": "1cee5c9315a652fb56b4dadedca205898c3638cf",
-          "media_sha256": "fbed85bf6b4229e775699bc8449c7bb468cace34341bc8a95b3a9ed8fca6a225",
-          "media_source_url": "https://cdn.chariz.cloud/asset/adytum/IDPFlIOvZTXJ4_YUW7mcQ3Hc5wlUIHEJ/assets/trwqDIsk4_o6TJVlrlEkh5cI5-2W5YG2d36qAiGNqm-MJ-sdMdt9qwRRwAbFe_Y5n6OTtFx6AI59CX5bQLy6sQ.jpg"
-        }
-      ],
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "The live Chariz page lists iOS 15.0–26.0 with a jailbreak required. Version 2.2.1 declares full iOS 26.x support; package compatibility does not prove jailbreak availability for every device or firmware. RootHide and Relaxin users are directed to a pure arm64e build or RootHide Patcher.",
-      "description": "Adytum 3.0 restores a Control Center menu for frontmost apps and fixes upside-down orientation after version 2.2.1 added full iOS 26 support.",
-      "entry_type": "individual-update",
-      "href": "adytum-1-0-update/",
-      "image": "assets/articles/source-media/adytum-2-1-official-chariz-banner.jpg",
-      "media_alt": "Official Adytum banner showing its backgrounding modes in an iPhone Home Screen context menu",
-      "media_credit": "Kernelrw/Chariz — official Adytum product banner and interface screenshot",
-      "media_git_blob_sha": "82eccd391e6bdfd3a81533c74e201865d37bcdb6",
-      "media_retrieval_status": "Official Chariz product banner and app-interface screenshot retrieved directly, inspected, stored locally and embedded in the article and social metadata.",
-      "media_sha256": "91db6ca65f35d2c5b820b293e644630e7b65466f1fcabad7f0e7f06f0257d820",
-      "media_source_url": "https://img.chariz.cloud/sileo-banner/adytum.jpg",
-      "modified_at": "2026-10-25T12:57:03Z",
-      "name": "Adytum",
-      "package": "com.kernelrw.adytum",
-      "published_at": "2026-09-14T06:05:26+00:00",
-      "quality_target": 9,
-      "release": "Adytum 3.0 — October 18, 2026",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "source_name": "Official Adytum Chariz product page, version history and public repository index",
-      "source_page_url": "https://chariz.com/get/adytum/",
-      "source_url": "https://chariz.com/get/adytum/changelog",
-      "source_visual_origin": "official-chariz-banner-and-interface-screenshot",
-      "source_visual_url": "https://img.chariz.cloud/sileo-banner/adytum.jpg",
-      "title": "Adytum 3.0 Restores Control Center Access and Fixes Rotation",
-      "version": "3.0"
     },
     {
       "article_sha256": "38a32bb6fd6cbe507945cba3e723ef39b74267e5f4be5e7923e784a03827bf70",
@@ -6633,6 +6582,119 @@
       "source_url": "https://havoc.app/package/phonehub",
       "title": "Phonehub Adds Caller ID, Auto Redial and Smarter Call Controls to iPhone",
       "version": "1.1.3"
+    },
+    {
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 14.0–26.0.1 and marks rootless support. Package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "SleepSaver 2 version 1.4 adds a dedicated screensaver brightness control, gapless playlist playback, and improved Emerald tweak compatibility.",
+      "developer": "iCraze",
+      "entry_type": "individual-update",
+      "href": "sleepsaver-2-1-4-brightness-gapless-playback-update/",
+      "image": "https://media.havoc.app/697bc869e8ad76edf69c4b1c",
+      "media_alt": "Official SleepSaver 2 screenshot showing a dark screensaver scene with a dining table, flowers and hanging lights",
+      "media_credit": "iCraze/Havoc — official SleepSaver 2 interface screenshot",
+      "modified": "2026-10-21T16:55:57Z",
+      "name": "SleepSaver 2",
+      "package": "com.icraze.sleepsaver2",
+      "published": "2026-10-21T16:55:57Z",
+      "quality_target": 9,
+      "release": "SleepSaver 2 1.4",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Havoc package page and iCraze developer page",
+      "source_page_url": "https://havoc.app/package/sleepsaver2",
+      "source_url": "https://havoc.app/package/sleepsaver2/changes",
+      "source_visual_origin": "Official SleepSaver 2 interface screenshot from Havoc",
+      "source_visual_url": "https://media.havoc.app/697bc869e8ad76edf69c4b1c",
+      "title": "SleepSaver 2 1.4 Adds Brightness Control and Gapless Playlists",
+      "version": "1.4"
+    },
+    {
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Chariz lists iOS 11.0–26.0 and requires a jailbreak. Version 1.2.0 explicitly adds RootHide and all-rootless support; package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "Cylinder Reborn 1.2.0 adds RootHide and all-rootless support, major performance improvements, repaired icon effects and Lua 5.5 scripting.",
+      "developer": "Ryan Nair",
+      "entry_type": "individual-update",
+      "href": "cylinder-reborn-1-2-0-roothide-rootless-performance-update/",
+      "image": "https://nextjailbreak.com/assets/articles/source-media/cylinder-reborn-1-2-0-official-icon.png",
+      "media_alt": "Official Cylinder Reborn icon showing a white top hat and cylinder on a green background",
+      "media_credit": "Ryan Nair/Cylinder Reborn GitHub repository — official project icon",
+      "modified": "2026-10-21T13:03:18Z",
+      "name": "Cylinder Reborn",
+      "package": "com.ryannair05.cylinder",
+      "published": "2026-10-21T13:03:18Z",
+      "quality_target": 9,
+      "release": "Cylinder Reborn 1.2.0",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Chariz package page and Ryan Nair GitHub repository",
+      "source_page_url": "https://chariz.com/get/cylinder-reborn",
+      "source_url": "https://github.com/ryannair05/Cylinder-Reborn/releases/tag/v1.2.0",
+      "source_visual_origin": "Official Cylinder Reborn project icon from the developer repository",
+      "source_visual_url": "https://github.com/ryannair05/Cylinder-Reborn/blob/master/Cylinder%20Icon.png",
+      "title": "Cylinder Reborn 1.2.0 Adds RootHide Support and Faster Icon Animations",
+      "version": "1.2.0"
+    },
+    {
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Snapper 3 1.2.1: iOS 14.0–17.2; ScreenshotActions 1.2: iOS 12.0–15.7.5; Unseen 0.0.5: iOS 15.0–18.7.9. Havoc marks all three as supporting rootless, but package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "Compare Snapper 3, ScreenshotActions and Unseen by screenshot workflow, iOS compatibility, rootless support, price and privacy limits.",
+      "developer": "jontelang / p2kdev / 82flex",
+      "entry_type": "comparison",
+      "href": "snapper-3-vs-screenshotactions-vs-unseen-comparison/",
+      "image": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
+      "media_alt": "Official Snapper 3 interface showing a cropped screenshot pinned over another app",
+      "media_credit": "jontelang/Havoc — official Snapper 3 interface screenshot; p2kdev/Havoc and 82flex/Havoc screenshots embedded in article",
+      "modified": "2026-10-21T08:58:29Z",
+      "name": "Screenshot jailbreak tweak comparison",
+      "package": "comparison.snapper3-screenshotactions-unseen",
+      "published": "2026-10-21T08:58:29Z",
+      "quality_target": 9,
+      "release": "Snapper 3 1.2.1 / ScreenshotActions 1.2 / Unseen 0.0.5",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "source_name": "Official Havoc package pages and Unseen developer repository",
+      "source_page_url": "https://havoc.app/package/snapper3",
+      "source_url": "https://github.com/owngoal-dev/Unseen",
+      "source_visual_origin": "Official package interface screenshots from Havoc",
+      "source_visual_url": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
+      "title": "Snapper 3 vs ScreenshotActions vs Unseen: Which Screenshot Tweak Fits You?",
+      "version": "1.2.1 / 1.2 / 0.0.5"
+    },
+    {
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "TrollStore 2.1.1 supports iOS/iPadOS 14.0 beta 2–16.6.1, iOS 16.7 RC (20H18), and iOS 17.0 according to the official README. The standard uninstall row is excluded from TrollStore Lite builds.",
+      "description": "Remove TrollStore 2.1.1 through its official Settings control, understand Preserve Apps versus Uninstall Apps, and remove the persistence helper separately.",
+      "developer": "opa334",
+      "entry_type": "guide",
+      "href": "uninstall-trollstore-preserve-apps-guide/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_alt": "Official TrollStore app icon from the 2.1.1 source",
+      "media_credit": "opa334 — official TrollStore app icon from the 2.1.1 tagged repository",
+      "media_sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361",
+      "modified": "2026-10-21T05:00:44Z",
+      "name": "TrollStore 2.1.1 uninstall guide",
+      "package": "guide.trollstore.uninstall-preserve-apps",
+      "published": "2026-10-21T05:00:44Z",
+      "quality_target": 9,
+      "release": "TrollStore 2.1.1 released 2026-04-01",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "opa334/TrollStore 2.1.1 tagged source",
+      "source_page_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/Shared/TSListControllerShared.m",
+      "source_visual_origin": "Reused official app icon from the TrollStore 2.1.1 source tag",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "title": "How to Uninstall TrollStore Safely—and Choose Whether to Keep Apps",
+      "version": "2.1.1"
     }
   ],
   "events": [
@@ -9685,10 +9747,17 @@
       "published_at": "2026-10-28T01:00:09Z",
       "run_id": "scheduled-2026-10-28T01:00:09Z",
       "version": "Guide revision 2026-10-28 / RootHide Bootstrap 2.2.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "regram-for-instagram-6-5-update/",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-10-28T12:17:36+00:00",
+      "run_id": "40686530608",
+      "version": "6.5"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-28T01:00:09Z"
+  "updated_at": "2026-10-28T12:17:36+00:00"
 }
-
-
