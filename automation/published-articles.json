@@ -1,6 +1,43 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {"image":"assets/articles/source-media/copylog-1-7-1-official-ipad.png","media_alt":"Official CopyLog iPad Clipboard Manager screen showing saved clipboard entries and snippets","media_credit":"tomt000 — official CopyLog interface screenshot from Havoc","media_sha256":"24843af381fd7a1230a3df03298d1cbf1d7f9b74791e3958c4393faaeca1ab35","media_source_url":"https://media.havoc.app/62743b30be1498ea597790e7"},
+        {"image":"assets/articles/source-media/kayoko-4-3-3-official-banner.jpg","media_alt":"Official Kayoko artwork showing favorite clipboard entries in its interface","media_credit":"82flex — official Kayoko banner from Havoc","media_sha256":"0478576a263c2c3cac2b60a30a16afb619af4acb78bf975a7d103e34cc423d23","media_source_url":"https://media.havoc.app/6a4b790cfe3a1a36714a5ade"},
+        {"image":"assets/articles/source-media/kayoko-4-3-3-official-settings.png","media_alt":"Official Kayoko settings screen with activation, history length, text, image and custom-tag options","media_credit":"82flex — official Kayoko interface screenshot from Havoc","media_sha256":"b23659ee0552042988f1ac4bebbc858b293a24a71f8c78cef5b56cfda9f3d8d8","media_source_url":"https://media.havoc.app/6a5379470f02a353b76066d3"}
+      ],
+      "article_sha256": "dd6a75f77016de4d1f2374389abb928b7400681a6f8718c5aaee191e76ddbd97",
+      "candidate_fingerprint": "copylog-1.7.1-vs-kayoko-4.3.3-2026-10-28",
+      "category": {"id":"tweak-roundup-comparison","label":"Tweak Roundup & Comparison"},
+      "compat": "CopyLog 1.7.1 lists iOS 11.0–18.3.2, jailbreak required and rootless support; Kayoko 4.3.3 lists iOS 15.0–26.0.1, jailbreak required and rootless support. Package compatibility does not prove jailbreak availability, and neither listing documents a separate RootHide lane.",
+      "description": "Compare CopyLog 1.7.1 and Kayoko 4.3.3 by price, maintenance, iOS support, search, tags, iPad support, migration and TrollStore options.",
+      "developer": "tomt000 / 82flex",
+      "entry_type": "comparison",
+      "href": "copylog-vs-kayoko-clipboard-manager-comparison/",
+      "image": "assets/articles/source-media/copylog-1-7-1-official-banner.jpg",
+      "media_alt": "Official CopyLog artwork showing clipboard history and snippets on an iPad",
+      "media_credit": "tomt000 — official CopyLog banner from Havoc",
+      "media_git_blob_sha": "f89dbe2eecf2319f232a356eb60735210db96a00",
+      "media_retrieval_status": "Retrieved from Havoc page __NEXT_DATA__ content.banner and content.screenshots; all four exact assets inspected and embedded.",
+      "media_sha256": "b6492d2f787f468d06dc0e77215c7f14fc6112dd3fcb54c06ffce1e915ec618b",
+      "media_source_url": "https://media.havoc.app/62743b2fbe1498ea597790e4",
+      "modified_at": "2026-10-28T08:58:08Z",
+      "name": "CopyLog vs Kayoko clipboard manager comparison",
+      "package": "comparison.copylog.kayoko",
+      "published_at": "2026-10-28T08:58:08Z",
+      "quality_target": 9,
+      "release": "CopyLog 1.7.1 / Kayoko 4.3.3",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "copylog-vs-kayoko-clipboard-manager-comparison",
+      "source_name": "Official CopyLog, Kayoko and CopyLog TrollStore Edition Havoc listings",
+      "source_page_url": "https://havoc.app/package/kayoko",
+      "source_url": "https://havoc.app/package/copylog",
+      "source_visual_origin": "official-havoc-banner-and-screenshots",
+      "source_visual_url": "https://media.havoc.app/62743b2fbe1498ea597790e4",
+      "title": "CopyLog vs Kayoko: Which Clipboard Manager Should You Use?",
+      "version": "CopyLog 1.7.1 / Kayoko 4.3.3"
+    },
+    {
       "additional_media": [],
       "article_sha256": "837772704d7de8f91986d40e95a92b8641c83683c963206fb5675fcf6758c47e",
       "candidate_fingerprint": "837772704d7de8f91986d40e95a92b8641c83683c963206fb5675fcf6758c47e",
@@ -9653,4 +9690,5 @@
   "schema_version": 1,
   "updated_at": "2026-10-28T01:00:09Z"
 }
+
 
