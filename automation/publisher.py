@@ -321,12 +321,15 @@ def _render_feed(entries: list[dict[str, Any]], site: dict[str, Any]) -> str:
     ElementTree.SubElement(channel, "language").text = "en"
     sorted_entries = sorted(
         entries,
-        key=lambda item: str(item.get("modified_at") or item.get("published_at") or ""),
+        key=lambda item: str(item.get("modified_at") or item.get("published_at") or item.get("published") or ""),
         reverse=True,
     )[:30]
     for entry in sorted_entries:
         item = ElementTree.SubElement(channel, "item")
-        canonical = f"{str(site['base_url']).rstrip('/')}/{entry['href']}"
+        article_href = str(entry["href"]).lstrip("/")
+        if article_href.endswith(".html"):
+            article_href = article_href[:-5].rstrip("/") + "/"
+        canonical = f"{str(site['base_url']).rstrip('/')}/{article_href}"
         ElementTree.SubElement(item, "title").text = str(entry["title"])
         ElementTree.SubElement(item, "link").text = canonical
         guid = ElementTree.SubElement(item, "guid", {"isPermaLink": "true"})
@@ -375,7 +378,10 @@ def _update_sitemap(
             existing[canonical_location] = node
     base_url = str(site["base_url"]).rstrip("/")
     for entry in entries:
-        canonical = f"{base_url}/{entry['href']}"
+        article_href = str(entry["href"]).lstrip("/")
+        if article_href.endswith(".html"):
+            article_href = article_href[:-5].rstrip("/") + "/"
+        canonical = f"{base_url}/{article_href}"
         node = existing.get(canonical)
         if node is None:
             node = ElementTree.SubElement(root, f"{{{SITEMAP_NAMESPACE}}}url")
