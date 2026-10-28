@@ -1,0 +1,124 @@
+name: File Manager v1.9 AI Repair Validation Fix Windows EXE
+on:
+  push:
+    branches: [file-manager-windows-v1-9]
+    paths:
+      - '.github/workflows/file-manager-v1.9.yml'
+      - 'file-manager/apply_patch_v1_5.py'
+      - 'file-manager/apply_patch_v1_6.py'
+      - 'file-manager/apply_patch_v1_7.py'
+      - 'file-manager/delta_v1_8.b64'
+      - 'file-manager/v19payload.b64'
+      - 'file-manager/test_manual_filename_v17.py'
+      - 'file-manager/test_repair_validation_v15.py'
+      - 'file-manager/v14patch-part1.txt'
+      - 'file-manager/v14patch-part2.txt'
+      - 'file-manager/apply_patch_v1_4.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand original File Manager sources
+        shell: pwsh
+        run: |
+          Expand-Archive -LiteralPath 'file-manager/build_source.zip' -DestinationPath 'file-manager' -Force
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply base light-theme improvements
+        working-directory: file-manager
+        run: python apply_patch_v1_2.py
+      - name: Apply v1.3 AI document review
+        working-directory: file-manager
+        run: python apply_patch_v1_3.py
+      - name: Assemble and apply v1.4 existing-library repair
+        working-directory: file-manager
+        shell: pwsh
+        run: |
+          python -c "from pathlib import Path; p=Path('.'); (p/'patch_v1_4.b64').write_text(''.join((p/'v14patch-part1.txt').read_text().split()) + ''.join((p/'v14patch-part2.txt').read_text().split()))"
+          python apply_patch_v1_4.py
+      - name: Align old tests with stricter v1.4 classification rules
+        working-directory: file-manager
+        run: python refresh_v14_tests.py
+      - name: Apply v1.6 evidence-safe nonblocking AI correction fix
+        working-directory: file-manager
+        run: |
+          python apply_patch_v1_5.py
+          python -c "from pathlib import Path; import shutil; shutil.copyfile('test_repair_validation_v15.py','tests/test_repair_validation_v15.py')"
+      - name: Apply v1.6 company sidebar and manual review fix
+        working-directory: file-manager
+        run: python apply_patch_v1_6.py
+      - name: Apply v1.7 filename validation fix and regression tests
+        working-directory: file-manager
+        run: |
+          python apply_patch_v1_7.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -c "from pathlib import Path; import shutil; shutil.copyfile('test_manual_filename_v17.py','tests/test_manual_filename_v17.py')"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Diagnose helper availability before Windows tests
+        working-directory: file-manager
+        run: |
+          python -c "from pathlib import Path; import filemanager.repair as m; p=Path('filemanager/repair.py'); s=p.read_text(); print('SOURCE helper occurrences=',s.count('def _normalize_manual_filename')); print('MODULE helper=',hasattr(m,'_normalize_manual_filename')); print('SOURCE offset=',s.find('def _normalize_manual_filename')); print('MODULE path=',m.__file__); print('PREFIX=',repr(s[max(0,s.find('def _normalize_manual_filename')-140):s.find('def _normalize_manual_filename')+90]))"
+      - name: Apply v1.9 smart home, folders, global search and directory inbox
+        working-directory: file-manager
+        shell: pwsh
+        run: |
+          python -c "from pathlib import Path; from zipfile import ZipFile; from io import BytesIO; import base64; ZipFile(BytesIO(base64.b64decode(Path('delta_v1_8.b64').read_text()))).extractall('.')"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python apply_patch_v1_8.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Apply v1.9 clean home and 10 recent file limit
+        working-directory: file-manager
+        shell: pwsh
+        run: |
+          python -c "import base64,lzma,tarfile,io; from pathlib import Path; data=lzma.decompress(base64.b64decode(Path('v19payload.b64').read_text().strip())); tarfile.open(fileobj=io.BytesIO(data),mode='r:').extractall('.')"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python apply_patch_v1_9.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -c "from filemanager.core import FileManagerCore; assert hasattr(FileManagerCore,'recent_files'); from filemanager.gui import FileManagerApp; assert hasattr(FileManagerApp,'_render_home_recent')"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install build dependencies
+        working-directory: file-manager
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+      - name: Run document library and AI repair tests
+        working-directory: file-manager
+        run: python -m unittest discover -s tests -v
+      - name: Compile portable Windows EXE (light mode)
+        working-directory: file-manager
+        run: >-
+          python -m PyInstaller --clean --noconfirm --onefile --windowed
+          --name "FileManager-v1.9" --icon "assets/file_manager.ico"
+          --collect-all tkinterdnd2 --collect-all fitz --collect-all pymupdf --collect-all PIL
+          file_manager.py
+      - name: Verify the compiled Windows binary
+        shell: pwsh
+        run: |
+          $app = 'file-manager/dist/FileManager-v1.9.exe'
+          if (!(Test-Path $app)) { throw "EXE not produced" }
+          if ((Get-Item $app).Length -lt 5000000) { throw "Unexpected EXE size" }
+          $bytes = [System.IO.File]::ReadAllBytes($app)
+          if ([System.Text.Encoding]::ASCII.GetString($bytes, 0, 2) -ne 'MZ') { throw "Not a Windows executable" }
+          Write-Host "Verified Windows executable size: $((Get-Item $app).Length) bytes"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FileManager-v1.9-Windows-EXE
+          path: file-manager/dist/FileManager-v1.9.exe
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish standalone Windows EXE as release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: file-manager-v1.9-clean-home-windows
+          target_commitish: ${{ github.sha }}
+          name: File Manager v1.9 - Clean Home and 10 Recent Files (Windows)
+          body: "Windows 10/11 portable EXE. Clean Home opens by default with only the last 10 documents, search-first navigation, no bulky dashboard stats/upload banner/details pane. All Documents still shows everything on request. Company folders, copied-file inbox, AI, original files, and settings are retained."
+          files: file-manager/dist/FileManager-v1.9.exe
+          fail_on_unmatched_files: true
+          make_latest: false
