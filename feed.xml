@@ -245,13 +245,5 @@
       <description>Aerial 5.1 replaces the iPad one-third split with a four-way layout, fixes landscape Split Stage reversion and close-animation enlargement, and targets keyboard sizing during rotation.</description>
       <category>Individual Tweak Update</category>
     </item>
-    <item>
-      <title>NewTerm 3 vs OpenSSH: Local Terminal or Remote Shell?</title>
-      <link>https://nextjailbreak.com/newterm-3-vs-openssh-local-terminal-remote-shell-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/newterm-3-vs-openssh-local-terminal-remote-shell-comparison/</guid>
-      <pubDate>Fri, 23 Oct 2026 09:04:05 GMT</pubDate>
-      <description>Compare NewTerm 3 and OpenSSH on jailbroken iPhones by local access, remote control, file transfer, network exposure, authentication and rootless availability.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
-    </item>
   </channel>
 </rss>
