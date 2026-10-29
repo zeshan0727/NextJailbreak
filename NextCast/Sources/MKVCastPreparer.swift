@@ -84,6 +84,9 @@ final class MKVCastPreparer: ObservableObject {
                     } catch {
                         self.errorMessage = "Cannot save prepared MP4: \(error.localizedDescription)"
                     }
+                } else if ReturnCode.isCancel(result.getReturnCode()) {
+                    self.status = "Preparation cancelled"
+                    try? FileManager.default.removeItem(at: temp)
                 } else {
                     let message = result.getOutput() ?? ""
                     self.errorMessage = "This MKV could not be prepared for Chromecast. Its video/audio codecs may be unsupported by MP4, or the file may be damaged. \(String(message.suffix(220)))"
