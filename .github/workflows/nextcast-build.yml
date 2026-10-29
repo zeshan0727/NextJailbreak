@@ -8,7 +8,7 @@ on:
       - ".github/workflows/nextcast-build.yml"
   push:
     branches:
-      - agent/next-cast-1.0.0
+      - agent/next-cast-1.1.0
     paths:
       - "NextCast/**"
       - ".github/workflows/nextcast-build.yml"
@@ -31,7 +31,7 @@ jobs:
 
       - name: Install XcodeGen and icon generation dependency
         run: |
-          brew install xcodegen
+          brew install xcodegen cocoapods
           python3 -m venv .iconvenv
           .iconvenv/bin/pip install --disable-pip-version-check pillow
 
@@ -42,13 +42,14 @@ jobs:
         working-directory: NextCast
         run: |
           xcodegen generate
-          xcodebuild -resolvePackageDependencies -project NextCast.xcodeproj -scheme NextCast
+          pod install --repo-update
+          xcodebuild -resolvePackageDependencies -workspace NextCast.xcworkspace -scheme NextCast
 
       - name: Build iOS 16 device application
         working-directory: NextCast
         run: |
           set -o pipefail
-          xcodebuild -project NextCast.xcodeproj -scheme NextCast \
+          xcodebuild -workspace NextCast.xcworkspace -scheme NextCast \
             -configuration Release -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -derivedDataPath build \
@@ -62,13 +63,13 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.0.0.tipa" Payload)
+          (cd dist && zip -qry "../NextCast-1.1.0.tipa" Payload)
           ls -lh NextCast-1.0.0.tipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-TIPA
+          name: NextCast-iOS16-V1-1-TIPA
           path: |
             NextCast-1.0.0.tipa
             NextCast/nextcast-build.log
