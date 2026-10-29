@@ -37,17 +37,22 @@ final class SafeStreamDownload: NSObject, URLSessionDataDelegate, URLSessionTask
     }
 
     func start() throws {
-        try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(),
-                                                withIntermediateDirectories: true)
+        let folder = destination.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         if FileManager.default.fileExists(atPath: destination.path) {
             try FileManager.default.removeItem(at: destination)
         }
-        guard FileManager.default.createFile(atPath: destination.path, contents: nil,
-                  attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]) else {
+        // Verify writable access BEFORE the HTTP request starts, not after
+        // multiple gigabytes have reached 100%. A zero-byte atomic write
+        // avoids the misleading success of FileManager.createFile().
+        do {
+            try Data().write(to: destination, options: .atomic)
+            handle = try FileHandle(forWritingTo: destination)
+        } catch {
             throw NSError(domain: "NextCast.SafeStream", code: 101,
-                          userInfo: [NSLocalizedDescriptionKey: "Could not create a writable download file."])
+                          userInfo: [NSLocalizedDescriptionKey:
+                            "Cannot create a video file in Movies. No download data was used. \(error.localizedDescription)"])
         }
-        handle = try FileHandle(forWritingTo: destination)
         let config = URLSessionConfiguration.default
         config.waitsForConnectivity = true
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
@@ -85,6 +90,18 @@ final class SafeStreamDownload: NSObject, URLSessionDataDelegate, URLSessionTask
             return
         }
         expected = response.expectedContentLength
+        // Check usable free space before receiving the large response body.
+        // The movie is streamed in-place, without a second full-size copy.
+        if expected > 0,
+           let available = try? destination.deletingLastPathComponent()
+              .resourceValues(forKeys: [.volumeAvailableCapacityKey]).volumeAvailableCapacity,
+           Int64(available) < expected + 128 * 1024 * 1024 {
+            serverError = NSError(domain: "NextCast.SafeStream", code: 104,
+                userInfo: [NSLocalizedDescriptionKey:
+                    "Not enough free iPhone storage for this movie. Free space before retrying."])
+            completionHandler(.cancel)
+            return
+        }
         completionHandler(.allow)
     }
 
@@ -125,6 +142,8 @@ final class SafeStreamDownload: NSObject, URLSessionDataDelegate, URLSessionTask
             return
         }
         let file = destination
+        // The file already resides in the app-owned Movies directory.
+        // Finalization only renames it and updates the library manifest.
         DispatchQueue.main.async { [completed] in completed(.success(file)) }
     }
 }
