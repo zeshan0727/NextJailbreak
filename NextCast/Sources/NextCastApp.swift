@@ -224,11 +224,12 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         lastLoadedMovieID = nil
         if let error { errorMessage = error.localizedDescription }
     }
-    func sessionManager(_ sessionManager: GCKSessionManager, didFailToStart session: GCKSession, withError error: Error?) {
-        errorMessage = error?.localizedDescription ?? "Unable to connect to Chromecast."
+    func sessionManager(_ sessionManager: GCKSessionManager, didFailToStart session: GCKSession, withError error: Error) {
+        errorMessage = error.localizedDescription
     }
     func remoteMediaClient(_ client: GCKRemoteMediaClient, didUpdate mediaStatus: GCKMediaStatus?) {
-        duration = max(0, mediaStatus?.streamDuration ?? 0)
+        let receivedDuration = mediaStatus?.mediaInformation?.streamDuration ?? 0
+        duration = receivedDuration.isFinite ? max(0, receivedDuration) : 0
         position = max(0, client.approximateStreamPosition())
         isPlaying = mediaStatus?.playerState == .playing
     }
