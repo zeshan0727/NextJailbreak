@@ -106,18 +106,18 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-10-28T12:17:36+00:00",
+      "checked_at": "2026-10-29T05:39:23.503020+00:00",
       "package": "com.fouadraheb.regram",
-      "status": "published",
+      "status": "duplicate",
       "target_path": "regram-for-instagram-6-5-update/",
       "version": "6.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-10-20T10:31:55+00:00",
+      "checked_at": "2026-10-29T05:39:23+00:00",
       "package": "com.fouadraheb.watusi3",
       "status": "published",
-      "target_path": "watusi-3-for-whatsapp-1-3-27-update/",
-      "version": "1.3.27"
+      "target_path": "watusi-3-for-whatsapp-1-3-28-update/",
+      "version": "1.3.28"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.82flex.touchvis/": {
       "checked_at": "2026-09-14T09:26:07.020998+00:00",
@@ -2482,6 +2482,47 @@
       "package": "com.fouadraheb.regram",
       "target_path": "regram-for-instagram-6-5-update/",
       "version": "6.5"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_057cdef35fea3db6016ae2dc36430087d1982bb8643621a755",
+          "usage": {
+            "input_tokens": 28702,
+            "input_tokens_details": {
+              "cache_write_tokens": 28699,
+              "cached_tokens": 0
+            },
+            "output_tokens": 354,
+            "output_tokens_details": {
+              "reasoning_tokens": 237
+            },
+            "total_tokens": 29056
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0159a09a5e9ccdac016ae2dc1b642887d1a7ab7fbbe69271ed",
+          "usage": {
+            "input_tokens": 26367,
+            "input_tokens_details": {
+              "cache_write_tokens": 26364,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2636,
+            "output_tokens_details": {
+              "reasoning_tokens": 86
+            },
+            "total_tokens": 29003
+          }
+        }
+      },
+      "at": "2026-10-29T05:39:23+00:00",
+      "package": "com.fouadraheb.watusi3",
+      "target_path": "watusi-3-for-whatsapp-1-3-28-update/",
+      "version": "1.3.28"
     }
   ],
   "schema_version": 1
