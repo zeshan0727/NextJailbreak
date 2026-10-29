@@ -57,32 +57,35 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build 2>&1 | tee nextcast-build.log
 
-      - name: Bundle iOS 16-compatible Swift CoreMedia runtime and validate FFmpeg dependencies
+      - name: Verify iOS 16 dynamic library compatibility
         run: |
           set -euo pipefail
           APP="NextCast/build/Build/Products/Release-iphoneos/NextCast.app"
-          test -d "$APP/Frameworks/libavdevice.framework"
-          SWIFT_LIB_ROOT="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos"
-          SWIFT_MEDIA="$SWIFT_LIB_ROOT/libswiftCoreMedia.dylib"
-          if [ ! -f "$SWIFT_MEDIA" ]; then
-            SWIFT_MEDIA="$(find "$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift" -name libswiftCoreMedia.dylib -print -quit)"
-          fi
-          if [ -z "$SWIFT_MEDIA" ] || [ ! -f "$SWIFT_MEDIA" ]; then
-            echo "::error::Required Swift CoreMedia runtime is unavailable in Xcode."
+          test -d "$APP"
+          test -s "$APP/NextCast"
+          echo "Auditing app Mach-O binary and embedded dynamic frameworks"
+          FOUND_MISSING=0
+          while IFS= read -r -d '' BINARY; do
+            case "$(file -b "$BINARY")" in
+              *Mach-O*)
+                if otool -L "$BINARY" | grep -F "libswiftCoreMedia.dylib"; then
+                  echo "::error::Unsupported libswiftCoreMedia dependency in $BINARY"
+                  FOUND_MISSING=1
+                fi
+                ;;
+            esac
+          done < <(find "$APP" -type f -print0)
+          if [ "$FOUND_MISSING" -ne 0 ]; then
             exit 1
           fi
-          cp "$SWIFT_MEDIA" "$APP/Frameworks/libswiftCoreMedia.dylib"
-          chmod 755 "$APP/Frameworks/libswiftCoreMedia.dylib"
-          echo "Included $(ls -lh "$APP/Frameworks/libswiftCoreMedia.dylib")"
-          # This specific dynamic dependency caused a DYLD abort on iOS 16.0.
-          otool -L "$APP/Frameworks/libavdevice.framework/libavdevice" | grep libswiftCoreMedia
-          test -s "$APP/Frameworks/libswiftCoreMedia.dylib"
+          echo "No references to the missing Swift CoreMedia runtime"
+          du -sh "$APP"
 
       - name: Produce ad-hoc signed TrollStore package
         run: |
           APP="NextCast/build/Build/Products/Release-iphoneos/NextCast.app"
           test -d "$APP"
-          test -s "$APP/Frameworks/libswiftCoreMedia.dylib"
+          test -s "$APP/NextCast"
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
