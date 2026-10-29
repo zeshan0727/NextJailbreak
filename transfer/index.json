@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T09:37:28Z",
+  "updatedAt": "2026-10-29T09:38:05Z",
   "files": [
+    {
+      "id": "nextstorage-1.0.4-ios16-roothide",
+      "name": "Next Storage 1.0.4 — Low-Memory Media Scan Fix",
+      "fileName": "NextStorage-1.0.4.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.4",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.4/NextStorage-1.0.4.tipa",
+      "sha256": "ca7f0fd2db87f157b09b11bb6524e5077b03fd577105cfbf12afa63b00614906",
+      "sizeBytes": 305619,
+      "notes": "Low-memory metadata-only media scan, no full-file reads or hashes during scanning; 250-row render cap; on-demand exact resource measurement and verified Filza path; Photos API deletion preserved. iOS 16 RootHide/TrollStore."
+    },
     {
       "id": "nextcast-1.3.5",
       "name": "Next Cast 1.3.5 — iOS Video Player, Chromecast and Downloads",
