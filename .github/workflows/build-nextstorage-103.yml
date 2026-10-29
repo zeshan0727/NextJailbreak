@@ -1,0 +1,108 @@
+name: Build Next Storage iOS 16 TIPA and Publish NS Transfer
+
+on:
+  push:
+    branches:
+      - feature/next-storage-1.0.3-filza
+    paths:
+      - "NextStorage/**"
+      - ".github/workflows/build-nextstorage-103.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: build-nextstorage-103
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - name: Checkout development source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Select Xcode and install free tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          brew install xcodegen ldid
+      - name: Generate Xcode project and compile native iOS 16
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd NextStorage
+          xcodegen generate --spec project.yml
+          xcodebuild -project NextStorage.xcodeproj -scheme NextStorage \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/nextstorage-build" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO clean build
+      - name: Package and validate TrollStore installation file
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/nextstorage-build/Build/Products/Release-iphoneos/NextStorage.app"
+          test -x "$APP/NextStorage"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$APP/Info.plist")" = "16.0"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = "com.nextjailbreak.storage"
+          mkdir -p "$RUNNER_TEMP/tipa/Payload"
+          ditto "$APP" "$RUNNER_TEMP/tipa/Payload/NextStorage.app"
+          ldid -SNextStorage/NextStorage.entitlements "$RUNNER_TEMP/tipa/Payload/NextStorage.app/NextStorage"
+          cd "$RUNNER_TEMP/tipa"
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/NextStorage-1.0.3.tipa" Payload
+          unzip -t "$GITHUB_WORKSPACE/NextStorage-1.0.3.tipa" >/dev/null
+          shasum -a 256 "$GITHUB_WORKSPACE/NextStorage-1.0.3.tipa" | tee "$GITHUB_WORKSPACE/NextStorage-1.0.3.tipa.sha256"
+          test -s "$GITHUB_WORKSPACE/NextStorage-1.0.3.tipa"
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextStorage-1.0.3-TrollStore
+          path: |
+            NextStorage-1.0.3.tipa
+            NextStorage-1.0.3.tipa.sha256
+          if-no-files-found: error
+      - name: Publish verified TIPA to existing NS Transfer feed on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp NextStorage-1.0.3.tipa "$RUNNER_TEMP/NextStorage-1.0.3.tipa"
+          git fetch origin main
+          git checkout -B publish-next-storage origin/main
+          mkdir -p transfer/files/NextStorage/1.0.3
+          cp "$RUNNER_TEMP/NextStorage-1.0.3.tipa" transfer/files/NextStorage/1.0.3/NextStorage-1.0.3.tipa
+          python3 - <<'PY'
+          import json, hashlib
+          from datetime import datetime, timezone
+          from pathlib import Path
+          p = Path("transfer/index.json")
+          doc = json.loads(p.read_text())
+          target = Path("transfer/files/NextStorage/1.0.3/NextStorage-1.0.3.tipa")
+          content = target.read_bytes()
+          entry = {
+              "id": "nextstorage-1.0.3-ios16-roothide",
+              "name": "Next Storage 1.0.3 — Photos & Videos Storage Analyzer",
+              "fileName": "NextStorage-1.0.3.tipa",
+              "type": "tipa",
+              "platform": "TrollStore / RootHide / iOS 16+",
+              "version": "1.0.3",
+              "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.3/NextStorage-1.0.3.tipa",
+              "sha256": hashlib.sha256(content).hexdigest(),
+              "sizeBytes": len(content),
+              "notes": "PhotoKit-based photo and video storage analysis, previews, size/date sorting, confirm-before-delete through Photos and cryptographically verified exact Filza paths for accessible DCIM originals. iOS 16 RootHide/TrollStore."
+          }
+          doc["files"] = [entry] + [x for x in doc.get("files", []) if x.get("id") != entry["id"]]
+          doc["updatedAt"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00","Z")
+          p.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add transfer/files/NextStorage/1.0.3/NextStorage-1.0.3.tipa transfer/index.json
+          git commit -m "Publish Next Storage 1.0.3 iOS 16 TIPA to NS Transfer"
+          git pull --rebase origin main
+          git push origin HEAD:main
