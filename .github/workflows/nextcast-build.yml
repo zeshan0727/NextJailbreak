@@ -79,6 +79,16 @@ jobs:
           # import WEAK so dyld can launch without the overlay. The iOS 16
           # artwork path never invokes it.
           python3 NextCast/tools/weak_link_coremedia.py "$APP"
+
+          # A real iOS 16.0 crash on 1.4.3 (Build 17) was a SIGBUS when
+          # the legacy FFmpeg av_format_init_next wrote an app __DATA_CONST
+          # registry pointer. Reject release packages until it is absent.
+          echo "Auditing writable FFmpeg registry section"
+          if otool -l "$APP/NextCast" | grep -E 'segname __DATA_CONST' ; then
+            echo "::error::Main executable still has __DATA_CONST: iOS 16 FFmpeg SIGBUS regression"
+            exit 1
+          fi
+          echo "Main executable has no read-only __DATA_CONST segment"
           echo "Auditing app Mach-O binary and embedded dynamic frameworks"
           FOUND_MISSING=0
           while IFS= read -r -d '' BINARY; do
@@ -110,17 +120,17 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.4.3.tipa" Payload)
-          cp NextCast-1.4.3.tipa NextCast-1.4.3.ipa
-          ls -lh NextCast-1.4.3.tipa NextCast-1.4.3.ipa
+          (cd dist && zip -qry "../NextCast-1.4.4.tipa" Payload)
+          cp NextCast-1.4.4.tipa NextCast-1.4.4.ipa
+          ls -lh NextCast-1.4.4.tipa NextCast-1.4.4.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-4-3-IPA-TIPA
+          name: NextCast-iOS16-V1-4-4-IPA-TIPA
           path: |
-            NextCast-1.4.3.tipa
-            NextCast-1.4.3.ipa
+            NextCast-1.4.4.tipa
+            NextCast-1.4.4.ipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
