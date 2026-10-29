@@ -26,6 +26,8 @@ struct DownloadsTab: View {
     @ObservedObject var browserDownloads: BrowserDownloadStore
     @ObservedObject var transfers: TransferStore
     var openMovies: () -> Void
+    @State private var refreshItem: DownloadRecord?
+    @State private var newLinkText = ""
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -129,6 +131,38 @@ struct DownloadsTab: View {
                 }.padding(18)
             }
             .navigationTitle("Downloads")
+            .sheet(item: $refreshItem) { item in
+                NavigationStack {
+                    Form {
+                        Section("Replace a stalled or expired download link") {
+                            Text(item.name).font(.headline)
+                            TextField("New direct video link", text: $newLinkText, axis: .vertical)
+                                .lineLimit(3...6)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                .keyboardType(.URL)
+                            Button("Paste from Clipboard") {
+                                if let text = UIPasteboard.general.string { newLinkText = text }
+                            }
+                        }
+                        Section {
+                            Button("Apply Link and Restart") {
+                                transfers.retry(item.id, replacementURL: newLinkText)
+                                refreshItem = nil
+                            }
+                            .disabled(newLinkText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        } footer: {
+                            Text("Replacing a download URL restarts this transfer safely from zero, to avoid mixing parts from different versions of a file. Pause/Resume preserves downloaded bytes while iOS retains the existing session.")
+                        }
+                    }
+                    .navigationTitle("Refresh Link")
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Cancel") { refreshItem = nil }
+                        }
+                    }
+                }
+            }
             .onAppear { transfers.attach(library); transfers.refresh() }
             .onReceive(timer) { _ in
                 transfers.refresh()
@@ -158,7 +192,7 @@ struct DownloadsTab: View {
                 Spacer()
                 if item.isActive { ProgressView().tint(.cyan) }
             }
-            if item.isActive {
+            if item.isActive || item.isPaused {
                 if item.expected > 0 {
                     ProgressView(value: item.fraction).tint(.cyan)
                 } else {
@@ -178,9 +212,34 @@ struct DownloadsTab: View {
                 HStack {
                     Text(item.mode).font(.caption2).foregroundStyle(.secondary)
                     Spacer()
-                    Button("Cancel", role: .destructive) { transfers.cancel(item.id) }
+                    if item.isPaused {
+                        Button {
+                            transfers.resume(item.id)
+                        } label: { Label("Resume", systemImage: "play.fill") }
+                            .buttonStyle(.borderedProminent)
+                    } else if item.status != "Finalizing" {
+                        Button {
+                            transfers.pause(item.id)
+                        } label: { Label("Pause", systemImage: "pause.fill") }
+                            .buttonStyle(.bordered)
+                    }
+                    Button("Stop", role: .destructive) { transfers.cancel(item.id) }
                         .font(.caption)
                 }
+                HStack {
+                    Button {
+                        transfers.retry(item.id)
+                    } label: {
+                        Label("Retry", systemImage: "arrow.clockwise")
+                    }
+                    Button {
+                        newLinkText = item.url
+                        refreshItem = item
+                    } label: {
+                        Label("Refresh Link", systemImage: "link")
+                    }
+                    Spacer()
+                }.font(.caption).buttonStyle(.bordered)
             } else {
                 HStack {
                     Text(item.origin).font(.caption).foregroundStyle(.secondary)
@@ -194,6 +253,22 @@ struct DownloadsTab: View {
                     }
                     Button("Clear", role: .destructive) { transfers.delete(item.id) }
                         .font(.caption)
+                }
+                if item.canRetry {
+                    HStack {
+                        Button {
+                            transfers.retry(item.id)
+                        } label: {
+                            Label("Retry", systemImage: "arrow.clockwise")
+                        }
+                        Button {
+                            newLinkText = item.url
+                            refreshItem = item
+                        } label: {
+                            Label("Refresh Link", systemImage: "link")
+                        }
+                        Spacer()
+                    }.font(.caption).buttonStyle(.bordered)
                 }
             }
         }.nextSurface()
