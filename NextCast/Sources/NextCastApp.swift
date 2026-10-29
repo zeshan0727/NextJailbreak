@@ -7,6 +7,7 @@ import Combine
 // MARK: - App
 @main
 struct NextCastApp: App {
+    @UIApplicationDelegateAdaptor(NextCastBackgroundDelegate.self) private var backgroundDelegate
     @AppStorage("appearance") private var appearance = "system"
     init() {
         let criteria = GCKDiscoveryCriteria(applicationID: kGCKDefaultMediaReceiverApplicationID)
