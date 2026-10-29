@@ -397,6 +397,13 @@ struct PhotosStoragePage: View {
                 if !store.status.isEmpty {
                     Text(store.status).font(.caption).foregroundStyle(.secondary)
                 }
+                if let notice = store.deletionNotice {
+                    Label(notice, systemImage: "info.circle")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                if store.deletingID != nil {
+                    ProgressView("Waiting for Photos permission…")
+                }
             }
             if store.isAllowed && !store.running {
                 Section {
@@ -440,10 +447,7 @@ struct PhotosStoragePage: View {
         .searchable(text: $search, prompt: "Search photo or video filename")
         .sheet(item: $selection) { item in
             NavigationStack {
-                MediaDetailsPage(itemID: item.id, fallback: item, store: store) {
-                    selection = nil
-                    deleteID = item.id
-                }
+                MediaDetailsPage(itemID: item.id, fallback: item, store: store)
             }
         }
         .confirmationDialog("Move to Recently Deleted?", isPresented: Binding(
@@ -451,8 +455,13 @@ struct PhotosStoragePage: View {
             set: { if !$0 { deleteID = nil } }
         ), titleVisibility: .visible) {
             Button("Delete from Photos", role: .destructive) {
-                if let id = deleteID { store.delete(id) }
+                let target = deleteID
                 deleteID = nil
+                if let target {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        store.delete(target)
+                    }
+                }
             }
             Button("Cancel", role: .cancel) { deleteID = nil }
         } message: {
@@ -540,7 +549,7 @@ struct MediaDetailsPage: View {
     let itemID: String
     let fallback: LibraryMedia
     @ObservedObject var store: LibraryMediaStore
-    let requestDelete: () -> Void
+    @State private var confirmingDelete = false
     @Environment(\.dismiss) private var dismiss
     @State private var image: UIImage?
     @State private var player: AVPlayer?
@@ -609,8 +618,14 @@ struct MediaDetailsPage: View {
                 Button {
                     UIPasteboard.general.string = item.verifiedPath ?? item.filename
                 } label: { Label("Copy File Name or Verified Path", systemImage: "doc.on.doc") }
-                Button(role: .destructive, action: requestDelete) {
-                    Label("Delete from Photos…", systemImage: "trash")
+                Button(role: .destructive) {
+                    confirmingDelete = true
+                } label: {
+                    Label("Delete This Item from Photos…", systemImage: "trash")
+                }
+                .disabled(store.deletingID != nil)
+                if store.deletingID == item.id {
+                    ProgressView("Deleting selected item…")
                 }
             }
         }
@@ -625,6 +640,37 @@ struct MediaDetailsPage: View {
             player?.pause()
             player = nil
             image = nil
+        }
+        // Present on the active details sheet, NOT behind it on the Media tab.
+        .confirmationDialog("Move this selected item to Recently Deleted?",
+                            isPresented: $confirmingDelete, titleVisibility: .visible) {
+            Button("Delete This Item", role: .destructive) {
+                // Let SwiftUI close its confirmation sheet before PhotoKit
+                // displays the iOS Photos permission dialog.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    store.delete(itemID)
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Deletes only the selected photo or video. iOS will request deletion permission when required.")
+        }
+        .onChange(of: store.lastDeletedID) { deleted in
+            if deleted == itemID { dismiss() }
+        }
+        .alert("Photos Operation Failed", isPresented: Binding(
+            get: { store.alertError != nil },
+            set: { if !$0 { store.alertError = nil } }
+        )) {
+            Button("OK", role: .cancel) { store.alertError = nil }
+            Button("Open Settings") {
+                store.alertError = nil
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+        } message: {
+            Text(store.alertError ?? "PhotoKit returned an unknown error.")
         }
     }
 
