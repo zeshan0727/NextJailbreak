@@ -203,20 +203,20 @@ struct RemoteTab: View {
     }
 
     private var remoteFace: some View {
-        VStack(spacing: 13) {
-            HStack(spacing: 9) {
+        VStack(spacing: 18) {
+            HStack(spacing: 15) {
                 keyButton(.power, symbol: "power", title: "Power", tint: Color(red: 1, green: 0.35, blue: 0.38))
                 keyButton(.home, symbol: "house.fill", title: "Home")
                 keyButton(.back, symbol: "arrow.uturn.backward", title: "Back")
             }
 
-            VStack(spacing: 3) {
+            VStack(spacing: 0) {
                 HStack {
                     Spacer()
                     arrowButton(.up, "chevron.up")
                     Spacer()
                 }
-                HStack(spacing: 9) {
+                HStack(spacing: 14) {
                     arrowButton(.left, "chevron.left")
                     Spacer(minLength: 0)
                     Button {
@@ -225,7 +225,7 @@ struct RemoteTab: View {
                         Text("OK")
                             .font(.headline.bold())
                             .foregroundStyle(.white)
-                            .frame(width: 62, height: 58)
+                            .frame(width: 74, height: 74)
                     }
                     .buttonStyle(SolidRemoteKeyStyle(
                         fill: Color(red: 0.03, green: 0.53, blue: 0.74), radius: 20))
@@ -240,23 +240,23 @@ struct RemoteTab: View {
                     Spacer()
                 }
             }
-            .padding(11)
-            .background(Color.secondary.opacity(0.085), in: RoundedRectangle(cornerRadius: 24))
+            .padding(16)
+            .background(Color.secondary.opacity(0.075), in: RoundedRectangle(cornerRadius: 38))
 
-            HStack(spacing: 9) {
+            HStack(spacing: 18) {
                 keyButton(.rewind, symbol: "backward.end.fill", title: "Back 10s")
                 keyButton(.playPause, symbol: cast.isPlaying && remote.brand == .cast ? "pause.fill" : "playpause.fill", title: "Play / Pause")
                 keyButton(.forward, symbol: "forward.end.fill", title: "Forward 10s")
             }
 
-            HStack(spacing: 9) {
-                VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                VStack(spacing: 11) {
                     Text("VOLUME").font(.caption2.bold()).tracking(1.6).foregroundStyle(.secondary)
                     keyButton(.volumeUp, symbol: "speaker.plus.fill", title: "Vol +")
                     keyButton(.volumeDown, symbol: "speaker.minus.fill", title: "Vol −")
                 }
                 .frame(maxWidth: .infinity)
-                VStack(spacing: 8) {
+                VStack(spacing: 11) {
                     Text("AUDIO").font(.caption2.bold()).tracking(1.6).foregroundStyle(.secondary)
                     keyButton(.mute, symbol: "speaker.slash.fill", title: "Mute")
                     if remote.brand == .cast {
@@ -270,21 +270,21 @@ struct RemoteTab: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .padding(13)
-        .background(.secondary.opacity(0.04), in: RoundedRectangle(cornerRadius: 23))
+        .padding(22)
+        .background(.secondary.opacity(0.035), in: RoundedRectangle(cornerRadius: 28))
         .overlay {
-            RoundedRectangle(cornerRadius: 23).strokeBorder(.secondary.opacity(0.10))
+            RoundedRectangle(cornerRadius: 28).strokeBorder(.secondary.opacity(0.10))
         }
     }
 
     private func arrowButton(_ key: RemoteCommand, _ symbol: String) -> some View {
         Button { send(key) } label: {
             Image(systemName: symbol)
-                .font(.system(size: 22, weight: .bold))
-                .frame(width: 61, height: 54)
+                .font(.system(size: 26, weight: .bold))
+                .frame(width: 75, height: 67)
                 .foregroundStyle(.white)
         }
-        .buttonStyle(SolidRemoteKeyStyle(radius: 17))
+        .buttonStyle(SolidRemoteKeyStyle(radius: 20))
         .disabled(!ready || remote.brand == .cast)
         .opacity(ready && remote.brand != .cast ? 1 : 0.35)
         .accessibilityLabel(key.rawValue.capitalized)
@@ -295,20 +295,19 @@ struct RemoteTab: View {
         let unsupported = remote.brand == .cast &&
             ![RemoteCommand.playPause, .rewind, .forward, .volumeUp, .volumeDown, .mute].contains(key)
         return Button { send(key) } label: {
-            VStack(spacing: 4) {
+            VStack(spacing: 7) {
                 Image(systemName: symbol)
-                    .font(.system(size: 19, weight: .semibold))
+                    .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(tint)
-                    .frame(height: 23)
+                    .frame(height: 29)
                 Text(title)
                     .font(.caption2.bold())
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .frame(maxWidth: .infinity, minHeight: 53)
-            .padding(.horizontal, 4)
-            .padding(.vertical, 3)
+            .frame(maxWidth: .infinity, minHeight: 68)
+            .padding(6)
         }
         .buttonStyle(SolidRemoteKeyStyle())
         .disabled(!ready || unsupported)
