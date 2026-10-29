@@ -249,6 +249,7 @@ final class StorageModel: ObservableObject {
 
 struct DiskRow: View {
     @EnvironmentObject var model: StorageModel
+    @EnvironmentObject var filza: FilzaLauncher
     let item: DiskItem
     var body: some View {
         HStack(spacing: 11) {
@@ -262,7 +263,16 @@ struct DiskRow: View {
             }
             Spacer(minLength: 0)
             Text(readable(item.bytes)).font(.caption).monospacedDigit().foregroundStyle(Theme.muted)
-        }.padding(.vertical, 4)
+        }
+        .padding(.vertical, 4)
+        .contextMenu {
+            FilzaAction(path: item.path)
+            Button {
+                UIPasteboard.general.string = item.path
+            } label: {
+                Label("Copy Exact Path", systemImage: "doc.on.doc")
+            }
+        }
     }
 }
 struct SortMenu: View {
@@ -358,8 +368,14 @@ struct AppsPage: View {
                         LabeledContent("App package", value: readable(app.bundleSize))
                         LabeledContent("Documents & data", value: readable(app.dataSize))
                         LabeledContent("Total allocated", value: readable(app.total))
-                        if !app.bundle.isEmpty { NavigationLink("Browse application bundle") { FolderPage(path: app.bundle) } }
-                        if let data = app.data { NavigationLink("Browse app data") { FolderPage(path: data) } }
+                        if !app.bundle.isEmpty {
+                            NavigationLink("Browse application bundle") { FolderPage(path: app.bundle) }
+                            FilzaAction(path: app.bundle, label: "Open App Bundle in Filza")
+                        }
+                        if let data = app.data {
+                            NavigationLink("Browse app data") { FolderPage(path: data) }
+                            FilzaAction(path: data, label: "Open App Data in Filza")
+                        }
                     }.navigationTitle(app.name)
                 } label: {
                     HStack {
@@ -386,6 +402,10 @@ struct FolderPage: View {
         List {
             Section {
                 Text(path).font(.caption2).textSelection(.enabled).foregroundStyle(Theme.muted)
+                FilzaAction(path: path).buttonStyle(.borderedProminent)
+                Button {
+                    UIPasteboard.general.string = path
+                } label: { Label("Copy Folder Path", systemImage: "doc.on.doc") }
                 if !model.hasRun { Text("Folder totals require a completed scan.").font(.caption).foregroundStyle(.orange) }
             }
             ForEach(sort.ordered(model.directory(path))) { item in
@@ -393,17 +413,35 @@ struct FolderPage: View {
                     NavigationLink { FolderPage(path: item.path) } label: { DiskRow(item: item) }
                 } else {
                     NavigationLink {
-                        List {
-                            LabeledContent("Name", value: item.name)
-                            LabeledContent("Allocated", value: readable(item.bytes))
-                            LabeledContent("Modified", value: dateString(item.modified))
-                            Text(item.path).font(.footnote).textSelection(.enabled)
-                        }.navigationTitle("File details")
+                        FileDetailPage(item: item)
                     } label: { DiskRow(item: item) }
                 }
             }
         }.navigationTitle(URL(fileURLWithPath: path).lastPathComponent)
             .toolbar { SortMenu(selected: $sort) }
+    }
+}
+struct FileDetailPage: View {
+    let item: DiskItem
+
+    var body: some View {
+        List {
+            Section("File") {
+                LabeledContent("Name", value: item.name)
+                LabeledContent("Allocated size", value: readable(item.bytes))
+                LabeledContent("Modified", value: dateString(item.modified))
+                Text(item.path).font(.footnote).textSelection(.enabled)
+            }
+            Section("Location") {
+                FilzaAction(path: item.path, label: "Go to File in Filza")
+                    .buttonStyle(.borderedProminent)
+                Button {
+                    UIPasteboard.general.string = item.path
+                } label: {
+                    Label("Copy File Path", systemImage: "doc.on.doc")
+                }
+            }
+        }.navigationTitle("File Details")
     }
 }
 struct SearchPage: View {
@@ -423,9 +461,13 @@ struct SearchPage: View {
                 if item.folder {
                     NavigationLink { FolderPage(path: item.path) } label: { DiskRow(item: item) }
                 } else {
-                    VStack(alignment: .leading) {
-                        DiskRow(item: item)
-                        Text(item.path).font(.caption2).foregroundStyle(Theme.muted).lineLimit(2)
+                    NavigationLink {
+                        FileDetailPage(item: item)
+                    } label: {
+                        VStack(alignment: .leading) {
+                            DiskRow(item: item)
+                            Text(item.path).font(.caption2).foregroundStyle(Theme.muted).lineLimit(2)
+                        }
                     }
                 }
             }
@@ -467,7 +509,7 @@ struct SettingsPage: View {
             }
             Section("Credits") {
                 Text("Next Jailbreak · Zeshan0727")
-                Text("Next Storage 1.0.1")
+                Text("Next Storage 1.0.2")
             }
         }.navigationTitle("Settings")
     }
@@ -475,6 +517,7 @@ struct SettingsPage: View {
 @main
 struct NextStorageApp: App {
     @StateObject private var model = StorageModel()
+    @StateObject private var filza = FilzaLauncher()
     var body: some Scene {
         WindowGroup {
             TabView {
@@ -483,7 +526,15 @@ struct NextStorageApp: App {
                 NavigationStack { FolderPage(path: "/") }.tabItem { Label("Explorer", systemImage: "folder.fill") }
                 NavigationStack { SearchPage() }.tabItem { Label("Search", systemImage: "magnifyingglass") }
                 NavigationStack { SettingsPage() }.tabItem { Label("Settings", systemImage: "gearshape.fill") }
-            }.environmentObject(model).tint(Theme.accent).preferredColorScheme(.dark)
+            }.environmentObject(model)
+                .environmentObject(filza)
+                .tint(Theme.accent)
+                .preferredColorScheme(.dark)
+                .alert("Filza Could Not Open", isPresented: $filza.showLinkFailure) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text("This Filza edition may not support filza:// links. The exact location has been copied. Open Filza and paste this path:\n\n\\(filza.fallbackPath)")
+                }
         }
     }
 }
