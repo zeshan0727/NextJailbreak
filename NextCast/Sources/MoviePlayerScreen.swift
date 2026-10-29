@@ -72,7 +72,6 @@ struct MoviePlayerScreen: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 14))
                             Button {
                                 player.activate(.fullscreen)
-                                player.activate(.fullscreen)
                             fullScreen = true
                             } label: {
                                 Label("Full screen", systemImage: "arrow.up.left.and.arrow.down.right")
