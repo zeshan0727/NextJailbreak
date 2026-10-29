@@ -9,9 +9,11 @@ s = s.replace(
 )
 old_call = 'bundle.SignFolder(&zsa, strFolder, strBundleId, strBundleVersion, strDisplayName, arrDylibFiles, bForce, bWeakInject, bEnableCache, excludeprovion)'
 new_call = 'bundle.SignFolder(&zsa, strFolder, strBundleId, strBundleVersion, strDisplayName, arrDylibFiles, arrDisDylibFiles, bForce, bWeakInject, bEnableCache, excludeprovion)'
-if old_call not in s:
-    raise SystemExit('Expected stale SignFolder bridge call not found')
-s = s.replace(old_call, new_call)
+if old_call in s:
+    s = s.replace(old_call, new_call)
+elif new_call not in s:
+    candidates = [line.strip() for line in s.splitlines() if 'SignFolder(' in line]
+    raise SystemExit('Unsupported Zsign SignFolder signature: ' + repr(candidates))
 s = s.replace('completionHandler(bRet);', 'if (completionHandler) { completionHandler(bRet); }')
 bridge.write_text(s)
 
@@ -23,9 +25,12 @@ old = '''if (!pSignAsset->m_strProvData.empty()) {
 new = '''if (!pSignAsset->m_strProvData.empty()) {
 \t\tif (!bRemoveProvision) {
 \t\t\tif (!ZFile::WriteFileV(pSignAsset->m_strProvData, "%s/embedded.mobileprovision", m_strAppFolder.c_str())) { // embedded.mobileprovision'''
-if old not in b:
-    raise SystemExit('Expected inverted embedded.mobileprovision condition not found')
-bundle.write_text(b.replace(old, new, 1))
+if old in b:
+    b = b.replace(old, new, 1)
+elif new not in b:
+    candidates = [line.strip() for line in b.splitlines() if 'bRemoveProvision' in line]
+    raise SystemExit('Unsupported Zsign embedded profile condition: ' + repr(candidates[:12]))
+bundle.write_text(b)
 
 # The upstream package target uses path "src" while listing Objective-C++ bridge
 # files from ../swift. SwiftPM currently resolves the target but silently omits
