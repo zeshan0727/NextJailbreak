@@ -50,6 +50,7 @@ extension View {
 struct MoviesTab: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var cast: CastController
+    @StateObject private var covers = ArtworkCache.shared
     @State private var showPicker = false
     @State private var showMultiPicker = false
     @State private var showSwiftUIFallback = false
@@ -125,21 +126,46 @@ struct MoviesTab: View {
                             ForEach(visible) { movie in
                                 Button { selected = movie } label: {
                                     HStack(spacing: 14) {
-                                        Image(systemName: "play.rectangle.fill")
-                                            .font(.title2).foregroundStyle(.cyan)
-                                            .frame(width: 58, height: 58)
-                                            .background(.cyan.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+                                        ZStack {
+                                            if let image = covers.images[movie.id] {
+                                                Image(uiImage: image)
+                                                    .resizable()
+                                                    .scaledToFill()
+                                                    .frame(width: 93, height: 91)
+                                                    .clipped()
+                                            } else {
+                                                ZStack {
+                                                    Color.cyan.opacity(0.1)
+                                                    Image(systemName: "film")
+                                                        .font(.title2)
+                                                        .foregroundStyle(.cyan)
+                                                }.frame(width: 93, height: 91)
+                                            }
+                                        }
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
                                         VStack(alignment: .leading, spacing: 5) {
-                                            Text(movie.name).font(.subheadline.bold()).lineLimit(2)
+                                            Text(movie.name)
+                                                .font(.subheadline.bold())
+                                                .lineLimit(2)
                                                 .foregroundStyle(.primary)
+                                            if let info = covers.details[movie.id] {
+                                                Text(info.durationLabel)
+                                                    .font(.caption.bold())
+                                                    .foregroundStyle(.secondary)
+                                                Text(info.resolutionLabel)
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.secondary)
+                                            }
                                             Text("\(movie.format) · \(movie.fileSizeLabel)")
-                                                .font(.caption).foregroundStyle(.secondary)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
                                         }
                                         Spacer(minLength: 0)
                                         Image(systemName: "play.circle.fill")
                                             .font(.title2).foregroundStyle(.cyan)
                                     }.nextSurface()
                                 }.buttonStyle(.plain)
+                                .onAppear { covers.load(movie) }
                                 .contextMenu {
                                     Button(role: .destructive) { library.delete(movie) } label: {
                                         Label("Remove from iPhone", systemImage: "trash")
