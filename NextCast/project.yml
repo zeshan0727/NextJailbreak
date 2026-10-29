@@ -35,8 +35,8 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: Next Cast
-        CFBundleShortVersionString: "1.3.5"
-        CFBundleVersion: "9"
+        CFBundleShortVersionString: "1.3.6"
+        CFBundleVersion: "10"
         UILaunchScreen: {}
         CFBundleDocumentTypes:
           - CFBundleTypeName: Next Cast Video
@@ -59,7 +59,7 @@ targets:
                 - video/x-matroska
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
-        NSLocalNetworkUsageDescription: "Next Cast finds Chromecast devices and shares imported videos with your TV over your local Wi-Fi network."
+        NSLocalNetworkUsageDescription: "Next Cast discovers Chromecast devices and connects to Samsung, Roku and LG televisions on your local Wi-Fi network."
         NSBonjourServices:
           - "_googlecast._tcp"
           - "_CC1AD845._googlecast._tcp"
