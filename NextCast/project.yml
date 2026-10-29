@@ -35,9 +35,28 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: Next Cast
-        CFBundleShortVersionString: "1.1.0"
-        CFBundleVersion: "2"
+        CFBundleShortVersionString: "1.2.0"
+        CFBundleVersion: "3"
         UILaunchScreen: {}
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Next Cast Video
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - public.movie
+              - public.video
+              - org.matroska.mkv
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: org.matroska.mkv
+            UTTypeDescription: Matroska Video
+            UTTypeConformsTo:
+              - public.movie
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - mkv
+              public.mime-type:
+                - video/x-matroska
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
         NSLocalNetworkUsageDescription: "Next Cast finds Chromecast devices and shares imported videos with your TV over your local Wi-Fi network."
