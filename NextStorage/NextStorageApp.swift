@@ -8,10 +8,10 @@ private enum Theme {
     static let accent = Color(red: 0.3, green: 0.92, blue: 0.77)
     static let muted = Color(red: 0.68, green: 0.75, blue: 0.82)
 }
-private func readable(_ size: Int64) -> String {
+func readable(_ size: Int64) -> String {
     ByteCountFormatter.string(fromByteCount: max(0, size), countStyle: .file)
 }
-private func dateString(_ date: Date?) -> String {
+func dateString(_ date: Date?) -> String {
     guard let date = date else { return "Unknown" }
     return DateFormatter.localizedString(from: date, dateStyle: .medium, timeStyle: .none)
 }
