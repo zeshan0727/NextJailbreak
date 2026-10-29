@@ -157,10 +157,26 @@ struct RemoteTab: View {
                         .foregroundStyle(cast.isConnected ? Color.green : Color.secondary)
                     Text("Chromecast controls media only. For Home, Back, arrows and OK, you must pair a separate TV remote connection for your television's brand.")
                         .font(.caption).foregroundStyle(.secondary)
+                    if !cast.tvModelName.isEmpty {
+                        Text("Detected Cast model: \(cast.tvModelName)")
+                            .font(.caption.bold()).foregroundStyle(.secondary)
+                    }
                     Menu {
-                        Button("Samsung Smart TV") { remote.select(.samsung); showSetup = true }
-                        Button("LG webOS TV") { remote.select(.lg); showSetup = true }
-                        Button("Roku TV") { remote.select(.roku); showSetup = true }
+                        Button("Samsung Smart TV") {
+                            remote.select(.samsung)
+                            if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
+                            showSetup = true
+                        }
+                        Button("LG webOS TV") {
+                            remote.select(.lg)
+                            if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
+                            showSetup = true
+                        }
+                        Button("Roku TV") {
+                            remote.select(.roku)
+                            if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
+                            showSetup = true
+                        }
                     } label: {
                         Label("Set Up TV Navigation Remote", systemImage: "appletvremote.gen4")
                             .frame(maxWidth: .infinity, minHeight: 48)
