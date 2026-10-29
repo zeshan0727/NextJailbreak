@@ -191,6 +191,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     @Published private(set) var position: TimeInterval = 0
     @Published private(set) var duration: TimeInterval = 0
     @Published private(set) var isPlaying = false
+    @Published private(set) var remoteVolume: Double = 0.5
+    @Published private(set) var remoteMuted = false
     @Published var errorMessage: String?
     var selectedMovie: Movie?
 
@@ -257,7 +259,20 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         position = options.interval
     }
     func skip(_ seconds: TimeInterval) { seek(to: position + seconds) }
-    func changeVolume(_ value: Double) { _ = client?.setStreamVolume(Float(value)) }
+    func changeVolume(_ value: Double) {
+        let next = max(0, min(1, value))
+        remoteVolume = next
+        _ = client?.setStreamVolume(Float(next))
+    }
+
+    func toggleRemoteMute() {
+        remoteMuted.toggle()
+        _ = client?.setStreamMuted(remoteMuted)
+    }
+
+    func stopRemotePlayback() {
+        _ = client?.stop()
+    }
 
     private func attachIfConnected() {
         guard manager.hasConnectedCastSession() else { return }
