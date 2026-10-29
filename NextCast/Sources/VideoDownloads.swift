@@ -112,9 +112,16 @@ struct DownloadsTab: View {
                                             browserDownloads.cancel(item)
                                         }.font(.caption)
                                     } else {
-                                        HStack {
+                                        HStack(spacing: 10) {
                                             if let file = browserDownloads.fileURL(item) {
-                                                ShareLink(item: file) { Label("Share file", systemImage: "square.and.arrow.up") }
+                                                Button {
+                                                    browserDownloads.moveToMovies(item, library: library)
+                                                } label: {
+                                                    Label("Move to Movies", systemImage: "film")
+                                                }
+                                                ShareLink(item: file) {
+                                                    Label("Share", systemImage: "square.and.arrow.up")
+                                                }
                                             }
                                             Spacer()
                                             Button("Clear", role: .destructive) {
@@ -169,12 +176,22 @@ struct DownloadsTab: View {
                 browserDownloads.tick()
             }
             .alert("Download Manager", isPresented: Binding(
-                get: { downloads.errorMessage != nil || transfers.error != nil },
-                set: { if !$0 { downloads.errorMessage = nil; transfers.error = nil } }
+                get: { downloads.errorMessage != nil || transfers.error != nil || browserDownloads.notice != nil },
+                set: {
+                    if !$0 {
+                        downloads.errorMessage = nil
+                        transfers.error = nil
+                        browserDownloads.notice = nil
+                    }
+                }
             )) {
-                Button("OK") { downloads.errorMessage = nil; transfers.error = nil }
+                Button("OK") {
+                    downloads.errorMessage = nil
+                    transfers.error = nil
+                    browserDownloads.notice = nil
+                }
             } message: {
-                Text(downloads.errorMessage ?? transfers.error ?? "")
+                Text(downloads.errorMessage ?? transfers.error ?? browserDownloads.notice ?? "")
             }
         }
     }
@@ -247,6 +264,11 @@ struct DownloadsTab: View {
                     if item.status == "Added to Movies" {
                         Button("Open Movies") { openMovies() }.font(.caption.bold())
                     } else if let path = item.savedPath {
+                        Button {
+                            transfers.moveToMovies(item.id, library: library)
+                        } label: {
+                            Label("Move to Movies", systemImage: "film")
+                        }.font(.caption)
                         ShareLink(item: URL(fileURLWithPath: path)) {
                             Label("Share", systemImage: "square.and.arrow.up")
                         }.font(.caption)
