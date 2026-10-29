@@ -2,10 +2,6 @@ name: Build Next Cast iOS
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "NextCast/**"
-      - ".github/workflows/nextcast-build.yml"
   push:
     branches:
       - agent/next-cast-1.4.2-ios16-dyld-androidtv
