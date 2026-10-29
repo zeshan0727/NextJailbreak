@@ -53,14 +53,55 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         return URLSession(configuration: config, delegate: self, delegateQueue: .main)
     }()
 
+    // Isolate incomplete transfers from the user-visible Documents area.
+    // The former Documents/Transfer Staging directory can have restrictive
+    // ownership after TrollStore updates or Files-provider operations.
+    // A fresh, privately owned Application Support directory prevents that
+    // permission issue and is suitable for secure background file assembly.
     private static var stagingFolder: URL {
-        let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return root.appendingPathComponent("Transfer Staging", isDirectory: true)
+        let root = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        return root.appendingPathComponent("NextCastTransferWork-v2", isDirectory: true)
+    }
+
+    private static func prepareWorkingDirectory() throws {
+        let directory = stagingFolder
+        try FileManager.default.createDirectory(
+            at: directory,
+            withIntermediateDirectories: true,
+            attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
+        )
+        var resource = URLResourceValues()
+        resource.isExcludedFromBackup = true
+        var directoryURL = directory
+        try? directoryURL.setResourceValues(resource)
+    }
+
+    private static func safeStage(_ source: URL, at destination: URL) throws {
+        try prepareWorkingDirectory()
+        if FileManager.default.fileExists(atPath: destination.path) {
+            try FileManager.default.removeItem(at: destination)
+        }
+        do {
+            try FileManager.default.moveItem(at: source, to: destination)
+        } catch {
+            // Background URLSession uses a transient download location.
+            // A copy is safer when a file-provider denies moving the source.
+            try FileManager.default.copyItem(at: source, to: destination)
+        }
+        guard FileManager.default.isReadableFile(atPath: destination.path) else {
+            throw NSError(domain: "NextCast.TransferStorage", code: 13, userInfo: [
+                NSLocalizedDescriptionKey: "Downloaded file could not be read after staging."
+            ])
+        }
     }
 
     override private init() {
         super.init()
-        try? FileManager.default.createDirectory(at: Self.stagingFolder, withIntermediateDirectories: true)
+        do {
+            try Self.prepareWorkingDirectory()
+        } catch {
+            self.error = "Download storage setup failed: \(error.localizedDescription)"
+        }
         if let data = UserDefaults.standard.data(forKey: storeKey),
            let records = try? JSONDecoder().decode([DownloadRecord].self, from: data) {
             items = records
@@ -89,6 +130,12 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
                allowParallel: Bool = true) {
         guard let url = request.url, ["http","https"].contains(url.scheme?.lowercased() ?? "") else {
             error = "Only direct HTTP and HTTPS files can use the background downloader."
+            return
+        }
+        do {
+            try Self.prepareWorkingDirectory()
+        } catch {
+            self.error = "Cannot access private download workspace: \(error.localizedDescription)"
             return
         }
         let suggested = name ?? url.lastPathComponent
@@ -419,8 +466,7 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         }
         do {
             let staged = partFile(id, part: part)
-            try? FileManager.default.removeItem(at: staged)
-            try FileManager.default.moveItem(at: location, to: staged)
+            try Self.safeStage(location, at: staged)
             finishedParts[id, default: []].insert(part)
             if pieces == 1 || finishedParts[id]?.count == pieces {
                 items[i].status = "Finalizing"
@@ -465,7 +511,15 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         let result = Self.stagingFolder.appendingPathComponent(id.uuidString + ".complete")
         DispatchQueue.global(qos: .utility).async { [weak self] in
             do {
-                FileManager.default.createFile(atPath: result.path, contents: nil)
+                try Self.prepareWorkingDirectory()
+                if FileManager.default.fileExists(atPath: result.path) {
+                    try FileManager.default.removeItem(at: result)
+                }
+                guard FileManager.default.createFile(atPath: result.path, contents: nil) else {
+                    throw NSError(domain: "NextCast.TransferStorage", code: 14, userInfo: [
+                        NSLocalizedDescriptionKey: "Unable to create assembled download."
+                    ])
+                }
                 let destination = try FileHandle(forWritingTo: result)
                 defer { try? destination.close() }
                 for part in paths {
@@ -492,31 +546,69 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
     private func finishMerged(_ id: UUID, result: URL) {
         guard let index = items.firstIndex(where: { $0.id == id }) else { return }
         let entry = items[index]
-        let ext = URL(fileURLWithPath: entry.name).pathExtension.lowercased()
         do {
-            if VideoFormats.extensions.contains(ext) {
-                let destination = Self.stagingFolder.appendingPathComponent(id.uuidString + "." + ext)
-                try FileManager.default.moveItem(at: result, to: destination)
-                let library = self.library ?? MovieLibrary()
-                try library.addDownloadedFile(destination, suggestedName:
-                    URL(fileURLWithPath: entry.name).deletingPathExtension().lastPathComponent)
+            // Classify the REAL assembled file by name, video MIME and magic
+            // bytes, not the temporary UUID filename. Signed direct links
+            // commonly omit the .mp4/.mkv extension altogether.
+            if let video = try VideoFileInspector.preparedVideoURL(result, name: entry.name) {
+                let targetLibrary = library ?? MovieLibrary()
+                try targetLibrary.addDownloadedFile(
+                    video,
+                    suggestedName: VideoFileInspector.cleanTitle(entry.name)
+                )
                 items[index].status = "Added to Movies"
+                items[index].savedPath = nil
             } else {
-                let folder = BrowserDownloadStore.folder
-                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-                let destination = folder.appendingPathComponent(id.uuidString + "-" + entry.name)
-                try FileManager.default.moveItem(at: result, to: destination)
+                try FileManager.default.createDirectory(
+                    at: BrowserDownloadStore.folder,
+                    withIntermediateDirectories: true
+                )
+                let safeName = URL(fileURLWithPath: entry.name).lastPathComponent
+                let destination = BrowserDownloadStore.folder.appendingPathComponent(
+                    id.uuidString + "-" + (safeName.isEmpty ? "download.bin" : safeName)
+                )
+                try Self.safeStage(result, at: destination)
                 items[index].savedPath = destination.path
                 items[index].status = "Saved to Downloads"
             }
             items[index].speed = 0
             if items[index].expected > 0 { items[index].received = items[index].expected }
             persist()
-        } catch { markFailed(id, error.localizedDescription) }
+        } catch {
+            markFailed(id, "Unable to move download into Movies: \(error.localizedDescription)")
+            // Keep assembled file for recovery when transfer finalization fails.
+        }
         requestByID.removeValue(forKey: id)
         taskBytes.removeValue(forKey: id)
         samples.removeValue(forKey: id)
         finishedParts.removeValue(forKey: id)
+    }
+
+    // Import an already downloaded item into Movies without downloading again.
+    func moveToMovies(_ id: UUID, library targetLibrary: MovieLibrary) {
+        guard let i = items.firstIndex(where: { $0.id == id }),
+              let path = items[i].savedPath,
+              FileManager.default.fileExists(atPath: path) else {
+            error = "The downloaded file is not available in storage."
+            return
+        }
+        do {
+            guard let video = try VideoFileInspector.preparedVideoURL(
+                URL(fileURLWithPath: path), name: items[i].name
+            ) else {
+                error = "The saved file is not recognized as a video."
+                return
+            }
+            try targetLibrary.addDownloadedFile(
+                video,
+                suggestedName: VideoFileInspector.cleanTitle(items[i].name)
+            )
+            items[i].savedPath = nil
+            items[i].status = "Added to Movies"
+            persist()
+        } catch {
+            error = "Could not add to Movies: \(error.localizedDescription)"
+        }
     }
 
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
