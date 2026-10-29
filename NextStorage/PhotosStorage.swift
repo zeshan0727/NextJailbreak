@@ -360,7 +360,10 @@ struct PhotosStoragePage: View {
         let shown = matches
         List {
             Section {
-                HStack(spacing: 10) {
+                LazyVGrid(columns: [
+                    GridItem(.flexible(minimum: 0), spacing: 10),
+                    GridItem(.flexible(minimum: 0), spacing: 10)
+                ], spacing: 10) {
                     StorageSummaryPill(
                         title: "Photos",
                         value: readable(store.media.filter { !$0.video }.reduce(Int64(0)) { $0 + ($1.byteCount ?? 0) }),
@@ -373,10 +376,12 @@ struct PhotosStoragePage: View {
                         color: StorageDesign.purple)
                 }
                 .listRowBackground(StorageDesign.background)
-                HStack {
+                HStack(spacing: 8) {
                     Text("\(store.media.count) items indexed")
-                    Spacer()
+                        .lineLimit(1).minimumScaleFactor(0.75)
+                    Spacer(minLength: 4)
                     Text(readable(store.measuredSize)).fontWeight(.semibold)
+                        .lineLimit(1).minimumScaleFactor(0.7)
                 }
                 .font(.caption).foregroundStyle(StorageDesign.muted)
                 .listRowBackground(StorageDesign.panel)
@@ -500,7 +505,10 @@ private struct MediaListRow: View {
                 .frame(width: 60, height: 60)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.filename).font(.subheadline.weight(.semibold)).lineLimit(2).foregroundStyle(.white)
+                Text(item.filename).font(.subheadline.weight(.semibold))
+                    .lineLimit(2).truncationMode(.middle)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 HStack(spacing: 4) {
                     Image(systemName: item.video ? "video.fill" : "photo.fill")
                     Text(dateString(item.created))
@@ -509,14 +517,19 @@ private struct MediaListRow: View {
             Spacer(minLength: 2)
             VStack(alignment: .trailing, spacing: 4) {
                 Text(item.byteCount.map(readable) ?? "Unknown")
-                    .font(.caption.weight(.semibold)).foregroundStyle(.white).monospacedDigit()
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white).monospacedDigit()
+                    .lineLimit(1).minimumScaleFactor(0.7)
+                    .frame(maxWidth: 88, alignment: .trailing)
                 if item.isEstimated {
                     Text("PhotoKit").font(.caption2).foregroundStyle(.orange)
                 } else if item.verifiedPath != nil {
                     Image(systemName: "checkmark.shield.fill").foregroundStyle(.mint)
                 }
             }
-        }.padding(.vertical, 2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 2)
     }
 }
 
@@ -588,7 +601,11 @@ struct MediaDetailsPage: View {
             }
             Section("Information") {
                 Text(item.filename).font(.headline).foregroundStyle(.white)
-                LabeledContent("Name", value: item.filename)
+                    .lineLimit(2).truncationMode(.middle)
+                LabeledContent("Name") {
+                    Text(item.filename).lineLimit(2).truncationMode(.middle)
+                        .multilineTextAlignment(.trailing)
+                }
                 LabeledContent("Type", value: item.video ? "Video" : "Photo")
                 LabeledContent(item.isEstimated ? "Photos resource size" : "Verified primary size",
                                value: item.byteCount.map(readable) ?? "Unknown")
@@ -608,6 +625,8 @@ struct MediaDetailsPage: View {
                     tryOpenSelectedInPhotos()
                 } label: {
                     Label("Open in Photos", systemImage: "eye.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(1).minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity).padding(.vertical, 5)
                 }
                 .buttonStyle(.borderedProminent).tint(StorageDesign.blue)
@@ -644,6 +663,8 @@ struct MediaDetailsPage: View {
                     confirmingDelete = true
                 } label: {
                     Label("Delete from Photos", systemImage: "trash")
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(1).minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity).padding(.vertical, 5)
                 }
                 .buttonStyle(.borderedProminent).tint(.red)
