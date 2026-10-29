@@ -1,0 +1,72 @@
+name: Build Next Cast iOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/next-cast-1.0.0
+    paths:
+      - "NextCast/**"
+      - ".github/workflows/nextcast-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    name: Build and package TrollStore TIPA
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Install XcodeGen and icon generation dependency
+        run: |
+          brew install xcodegen
+          python3 -m venv .iconvenv
+          .iconvenv/bin/pip install --disable-pip-version-check pillow
+
+      - name: Generate 1024 px Next Cast app icon
+        run: .iconvenv/bin/python NextCast/tools/create_icon.py
+
+      - name: Generate project and resolve official Google Cast SDK
+        working-directory: NextCast
+        run: |
+          xcodegen generate
+          xcodebuild -resolvePackageDependencies -project NextCast.xcodeproj -scheme NextCast
+
+      - name: Build iOS 16 device application
+        working-directory: NextCast
+        run: |
+          set -o pipefail
+          xcodebuild -project NextCast.xcodeproj -scheme NextCast \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tee nextcast-build.log
+
+      - name: Produce ad-hoc signed TrollStore package
+        run: |
+          APP="NextCast/build/Build/Products/Release-iphoneos/NextCast.app"
+          test -d "$APP"
+          mkdir -p dist/Payload
+          ditto "$APP" dist/Payload/NextCast.app
+          codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
+          (cd dist && zip -qry "../NextCast-1.0.0.tipa" Payload)
+          ls -lh NextCast-1.0.0.tipa
+
+      - name: Upload TIPA and build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextCast-iOS16-TIPA
+          path: |
+            NextCast-1.0.0.tipa
+            NextCast/nextcast-build.log
+          if-no-files-found: error
+          retention-days: 30
