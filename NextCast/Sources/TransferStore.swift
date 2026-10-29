@@ -18,6 +18,7 @@ struct DownloadRecord: Codable, Identifiable {
     var origin: String = "Direct"
     var savedPath: String?
     var segmentCount: Int = 1
+    var runToken: String? = nil
 
     var fraction: Double { expected > 0 ? min(1, Double(received) / Double(expected)) : 0 }
     var remaining: TimeInterval? {
@@ -25,6 +26,8 @@ struct DownloadRecord: Codable, Identifiable {
         return Double(expected - received) / speed
     }
     var isActive: Bool { status == "Downloading" || status == "Checking server" || status == "Finalizing" }
+    var isPaused: Bool { status == "Paused" }
+    var canRetry: Bool { status != "Finalizing" && status != "Added to Movies" && status != "Saved to Downloads" }
 }
 
 @MainActor
@@ -91,11 +94,20 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         let suggested = name ?? url.lastPathComponent
         let label = suggested.isEmpty ? (url.host ?? "File") : suggested
         let id = UUID()
-        items.insert(DownloadRecord(id: id, name: label, url: url.absoluteString,
-                                    status: "Checking server", created: Date(), origin: origin), at: 0)
+        var record = DownloadRecord(id: id, name: label, url: url.absoluteString,
+                                    status: "Checking server", created: Date(), origin: origin)
+        record.runToken = UUID().uuidString
+        items.insert(record, at: 0)
         requestByID[id] = request
         persist()
-        guard allowParallel else { startSingle(id) ; return }
+        beginTransfer(id, allowParallel: allowParallel)
+    }
+
+    private func beginTransfer(_ id: UUID, allowParallel: Bool = true) {
+        guard let i = items.firstIndex(where: { $0.id == id }), items[i].isActive else { return }
+        let request = requestByID[id] ?? URLRequest(url: URL(string: items[i].url)!)
+        requestByID[id] = request
+        guard allowParallel else { startSingle(id); return }
         var head = request
         head.httpMethod = "HEAD"
         head.setValue(nil, forHTTPHeaderField: "Range")
@@ -135,7 +147,7 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         taskBytes[id] = [:]
         persist()
         let task = session.downloadTask(with: request)
-        task.taskDescription = "\(id.uuidString)#0"
+        task.taskDescription = taskTag(id, part: 0)
         task.resume()
     }
 
@@ -158,14 +170,28 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
             // Accept-Encoding identity keeps byte ranges aligned with file offsets.
             ranged.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
             let task = session.downloadTask(with: ranged)
-            task.taskDescription = "\(id.uuidString)#\(part)"
+            task.taskDescription = taskTag(id, part: part)
             task.resume()
         }
     }
 
+    private func taskTag(_ id: UUID, part: Int) -> String {
+        let token = items.first(where: { $0.id == id })?.runToken ?? "legacy"
+        return "\(id.uuidString)#\(part)#\(token)"
+    }
+
     private func decode(_ task: URLSessionTask) -> (UUID, Int)? {
-        guard let parts = task.taskDescription?.split(separator: "#"), parts.count == 2,
-              let id = UUID(uuidString: String(parts[0])), let part = Int(parts[1]) else { return nil }
+        guard let parts = task.taskDescription?.split(separator: "#"),
+              (parts.count == 2 || parts.count == 3),
+              let id = UUID(uuidString: String(parts[0])),
+              let part = Int(parts[1]),
+              let entry = items.first(where: { $0.id == id }) else { return nil }
+        // Ignore late callbacks from a cancelled or refreshed URL generation.
+        if parts.count == 3 {
+            guard String(parts[2]) == (entry.runToken ?? "legacy") else { return nil }
+        } else if entry.runToken != nil {
+            return nil
+        }
         return (id, part)
     }
     private func partFile(_ id: UUID, part: Int) -> URL {
@@ -176,6 +202,94 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         items[i].status = "Failed: " + reason
         items[i].speed = 0
         persist()
+    }
+
+    // Pause is implemented by suspending existing URLSession tasks rather
+    // than cancelling them. Their already-received bytes remain with iOS.
+    func pause(_ id: UUID) {
+        guard let i = items.firstIndex(where: { $0.id == id }),
+              items[i].status == "Downloading" || items[i].status == "Checking server" else { return }
+        items[i].status = "Paused"
+        items[i].speed = 0
+        persist()
+        session.getAllTasks { [weak self] tasks in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                for task in tasks where self.decode(task)?.0 == id {
+                    task.suspend()
+                }
+            }
+        }
+    }
+
+    func resume(_ id: UUID) {
+        guard let i = items.firstIndex(where: { $0.id == id }), items[i].isPaused else { return }
+        session.getAllTasks { [weak self] tasks in
+            DispatchQueue.main.async {
+                guard let self, let i = self.items.firstIndex(where: { $0.id == id }),
+                      self.items[i].isPaused else { return }
+                let matching = tasks.filter { self.decode($0)?.0 == id }
+                if !matching.isEmpty {
+                    self.items[i].status = "Downloading"
+                    self.items[i].speed = 0
+                    self.samples.removeValue(forKey: id)
+                    self.persist()
+                    for task in matching { task.resume() }
+                } else {
+                    // The OS no longer has the suspended task (for example after
+                    // termination). It is unsafe to pretend the bytes survived.
+                    self.retry(id)
+                    self.error = "The previous transfer was no longer available. Download restarted safely."
+                }
+            }
+        }
+    }
+
+    // Retry preserves the Movies list ID and download entry. Refresh Link
+    // replaces an expired signed URL, cancels older tasks, and starts a new
+    // verified transfer. Partial data is reset intentionally to avoid mixing
+    // bytes from two different server resources.
+    func retry(_ id: UUID, replacementURL: String? = nil) {
+        guard let i = items.firstIndex(where: { $0.id == id }),
+              items[i].canRetry else { return }
+        let original = items[i].url
+        let newText = (replacementURL ?? original).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: newText),
+              ["http", "https"].contains(url.scheme?.lowercased() ?? ""),
+              url.host != nil else {
+            error = "Enter a valid HTTP or HTTPS download URL."
+            return
+        }
+
+        // Invalidate generation FIRST so cancelled callbacks cannot affect
+        // the next transfer, then terminate any previous tasks.
+        items[i].runToken = UUID().uuidString
+        items[i].url = newText
+        items[i].status = "Checking server"
+        items[i].received = 0
+        items[i].expected = 0
+        items[i].speed = 0
+        items[i].segmentCount = 1
+        items[i].mode = "Reconnecting · validating link"
+        taskBytes[id] = [:]
+        samples.removeValue(forKey: id)
+        finishedParts.removeValue(forKey: id)
+        segmentFallbackIDs.remove(id)
+        requestByID[id] = URLRequest(url: url)
+        persist()
+
+        session.getAllTasks { [weak self] tasks in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                for task in tasks where task.taskDescription?.hasPrefix(id.uuidString + "#") == true {
+                    task.cancel()
+                }
+                for part in 0..<3 { try? FileManager.default.removeItem(at: self.partFile(id, part: part)) }
+                try? FileManager.default.removeItem(at:
+                    Self.stagingFolder.appendingPathComponent(id.uuidString + ".complete"))
+                self.beginTransfer(id)
+            }
+        }
     }
 
     func cancel(_ id: UUID) {
