@@ -141,6 +141,7 @@ private enum PhotosDiskIndex {
 
 @MainActor
 final class LibraryMediaStore: ObservableObject {
+    static let shared = LibraryMediaStore()
     @Published private(set) var media = [LibraryMedia]()
     @Published private(set) var permission = PHPhotoLibrary.authorizationStatus(for: .readWrite)
     @Published private(set) var running = false
@@ -334,7 +335,7 @@ private enum MediaSort: String, CaseIterable {
 }
 
 struct PhotosStoragePage: View {
-    @StateObject private var store = LibraryMediaStore()
+    @ObservedObject private var store = LibraryMediaStore.shared
     @State private var kind = MediaKind.all
     @State private var sort = MediaSort.largest
     @State private var search = ""
@@ -359,27 +360,27 @@ struct PhotosStoragePage: View {
         let shown = matches
         List {
             Section {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Photos & Videos").font(.title2.bold())
-                        Text("\(store.media.count) indexed assets")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "photo.on.rectangle.angled").foregroundStyle(.mint)
+                HStack(spacing: 10) {
+                    StorageSummaryPill(
+                        title: "Photos",
+                        value: readable(store.media.filter { !$0.video }.reduce(Int64(0)) { $0 + ($1.byteCount ?? 0) }),
+                        symbol: "photo.fill",
+                        color: StorageDesign.cyan)
+                    StorageSummaryPill(
+                        title: "Videos",
+                        value: readable(store.media.filter { $0.video }.reduce(Int64(0)) { $0 + ($1.byteCount ?? 0) }),
+                        symbol: "play.fill",
+                        color: StorageDesign.purple)
                 }
+                .listRowBackground(StorageDesign.background)
                 HStack {
-                    VStack(alignment: .leading) {
-                        Text("Photos library resources").font(.caption).foregroundStyle(.secondary)
-                        Text(readable(store.measuredSize)).font(.headline)
-                    }
+                    Text("\(store.media.count) items indexed")
                     Spacer()
-                    VStack(alignment: .trailing) {
-                        Text("Unknown size").font(.caption).foregroundStyle(.secondary)
-                        Text("\(store.unknown)").font(.headline)
-                    }
+                    Text(readable(store.measuredSize)).fontWeight(.semibold)
                 }
-                Text("Counts reported Photos resources including videos, Live Photo companions and edited copies, even outside accessible DCIM. No full files are read in this scan. Library resource totals can differ from on-device Photos storage due to APFS, caching and iCloud.")
+                .font(.caption).foregroundStyle(StorageDesign.muted)
+                .listRowBackground(StorageDesign.panel)
+                Text("PhotoKit resource sizes are estimates; on-device storage may differ due to cached, shared, or cloud-backed resources.")
                     .font(.caption).foregroundStyle(.secondary)
                 if store.permission == .limited {
                     Text("Limited Photos access: only selected items are indexed.")
@@ -391,8 +392,10 @@ struct PhotosStoragePage: View {
                 } else {
                     Button { store.requestAndScan() } label: {
                         Label(store.media.isEmpty ? "Scan Photos & Videos" : "Rescan Photos & Videos",
-                              systemImage: "arrow.clockwise")
+                              systemImage: "magnifyingglass")
+                            .frame(maxWidth: .infinity)
                     }.buttonStyle(.borderedProminent)
+                        .tint(StorageDesign.blue)
                 }
                 if !store.status.isEmpty {
                     Text(store.status).font(.caption).foregroundStyle(.secondary)
@@ -413,8 +416,8 @@ struct PhotosStoragePage: View {
                     Picker("Sort", selection: $sort) {
                         ForEach(MediaSort.allCases, id: \.self) { entry in Text(entry.rawValue).tag(entry) }
                     }
-                    Text("\(shown.count) results · showing the first \(min(250, shown.count)). Refine the search for more.")
-                        .font(.caption).foregroundStyle(.secondary)
+                    Text("\(shown.count) results · first \(min(250, shown.count)) shown")
+                        .font(.caption).foregroundStyle(StorageDesign.muted)
                 }
                 Section("Files") {
                     ForEach(Array(shown.prefix(250))) { item in
@@ -451,7 +454,10 @@ struct PhotosStoragePage: View {
                 }
             }
         }
-        .navigationTitle("Media")
+        .scrollContentBackground(.hidden)
+        .background(StorageDesign.background)
+        .tint(StorageDesign.blue)
+        .navigationTitle("Photos & Videos")
         .searchable(text: $search, prompt: "Search photo or video filename")
         .sheet(item: $selection) { item in
             NavigationStack {
@@ -491,10 +497,10 @@ private struct MediaListRow: View {
     var body: some View {
         HStack(spacing: 10) {
             MediaThumbnail(identifier: item.id, video: item.video)
-                .frame(width: 64, height: 64)
+                .frame(width: 60, height: 60)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.filename).font(.subheadline.weight(.semibold)).lineLimit(2)
+                Text(item.filename).font(.subheadline.weight(.semibold)).lineLimit(2).foregroundStyle(.white)
                 HStack(spacing: 4) {
                     Image(systemName: item.video ? "video.fill" : "photo.fill")
                     Text(dateString(item.created))
@@ -503,7 +509,7 @@ private struct MediaListRow: View {
             Spacer(minLength: 2)
             VStack(alignment: .trailing, spacing: 4) {
                 Text(item.byteCount.map(readable) ?? "Unknown")
-                    .font(.caption).foregroundStyle(.primary).monospacedDigit()
+                    .font(.caption.weight(.semibold)).foregroundStyle(.white).monospacedDigit()
                 if item.isEstimated {
                     Text("PhotoKit").font(.caption2).foregroundStyle(.orange)
                 } else if item.verifiedPath != nil {
