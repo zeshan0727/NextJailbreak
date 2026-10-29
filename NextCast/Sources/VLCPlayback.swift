@@ -15,8 +15,55 @@ final class VLCPlayback: ObservableObject {
     private var queuedResumeSeconds: Double?
     private var resumeAttempts = 0
 
-    func attach(_ view: UIView) {
-        engine.drawable = view
+    // libVLC must never be handed two competing SwiftUI-created drawables.
+    // Keep one native drawable alive and move that exact view between
+    // inline and full-screen containers without stopping the decoder.
+    enum SurfaceRole { case inline, fullscreen }
+    private let videoView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .black
+        v.translatesAutoresizingMaskIntoConstraints = false
+        return v
+    }()
+    private weak var inlineContainer: UIView?
+    private weak var fullscreenContainer: UIView?
+    private var activeSurface: SurfaceRole = .inline
+
+    init() {
+        engine.drawable = videoView
+    }
+
+    func mount(into container: UIView, role: SurfaceRole) {
+        switch role {
+        case .inline: inlineContainer = container
+        case .fullscreen: fullscreenContainer = container
+        }
+        guard role == activeSurface else { return }
+        attachPersistentView(to: container)
+    }
+
+    func activate(_ role: SurfaceRole) {
+        activeSurface = role
+        switch role {
+        case .inline:
+            if let inlineContainer { attachPersistentView(to: inlineContainer) }
+        case .fullscreen:
+            if let fullscreenContainer { attachPersistentView(to: fullscreenContainer) }
+        }
+    }
+
+    private func attachPersistentView(to container: UIView) {
+        guard videoView.superview !== container else { return }
+        videoView.removeFromSuperview()
+        container.addSubview(videoView)
+        NSLayoutConstraint.activate([
+            videoView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            videoView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            videoView.topAnchor.constraint(equalTo: container.topAnchor),
+            videoView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        container.setNeedsLayout()
+        container.layoutIfNeeded()
     }
     func open(_ url: URL) {
         guard loadedURL != url else { return }
@@ -82,13 +129,15 @@ final class VLCPlayback: ObservableObject {
 
 struct VLCVideoSurface: UIViewRepresentable {
     @ObservedObject var player: VLCPlayback
+    var role: VLCPlayback.SurfaceRole = .inline
+
     func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        view.backgroundColor = .black
-        player.attach(view)
-        return view
+        let container = UIView()
+        container.backgroundColor = .black
+        player.mount(into: container, role: role)
+        return container
     }
     func updateUIView(_ uiView: UIView, context: Context) {
-        player.attach(uiView)
+        player.mount(into: uiView, role: role)
     }
 }
