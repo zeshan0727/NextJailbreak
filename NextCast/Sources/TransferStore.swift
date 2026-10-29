@@ -108,13 +108,14 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         let request = requestByID[id] ?? URLRequest(url: URL(string: items[i].url)!)
         requestByID[id] = request
         guard allowParallel else { startSingle(id); return }
+        let startingToken = items[i].runToken
         var head = request
         head.httpMethod = "HEAD"
         head.setValue(nil, forHTTPHeaderField: "Range")
         let check = URLSession.shared.dataTask(with: head) { [weak self] _, response, _ in
             Task { @MainActor in
                 guard let self, let current = self.items.first(where: { $0.id == id }),
-                      current.isActive else { return }
+                      current.isActive, current.runToken == startingToken else { return }
                 guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
                     self.startSingle(id); return
                 }
