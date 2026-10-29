@@ -40,6 +40,11 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         CODE_SIGN_STYLE: Automatic
         ENABLE_BITCODE: NO
+        # CoreMedia's optional Swift overlay is absent on the tested iOS 16.0
+        # runtime; never make it a required launch-time dependency.
+        OTHER_LDFLAGS:
+          - "$(inherited)"
+          - "-weak-lswiftCoreMedia"
         GENERATE_INFOPLIST_FILE: NO
     info:
       path: Sources/Info.plist
