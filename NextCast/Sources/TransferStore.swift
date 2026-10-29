@@ -611,7 +611,7 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
             items[i].status = "Added to Movies"
             persist()
         } catch {
-            error = "Could not add to Movies: \(error.localizedDescription)"
+            self.error = "Could not add to Movies: \(error.localizedDescription)"
         }
     }
 
