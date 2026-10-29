@@ -5,6 +5,7 @@ import GoogleCast
 struct NextCastTabs: View {
     @StateObject private var library = MovieLibrary()
     @StateObject private var cast = CastController()
+    @StateObject private var remote = RemoteControlModel()
     @StateObject private var downloads = VideoDownloads()
     @StateObject private var browserDownloads = BrowserDownloadStore()
     @StateObject private var transfers = TransferStore.shared
@@ -12,7 +13,7 @@ struct NextCastTabs: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            MoviesTab(library: library, cast: cast)
+            MoviesTab(library: library, cast: cast, remote: remote)
                 .tabItem { Label("Movies", systemImage: "film.stack") }.tag(0)
             DownloadsTab(library: library, downloads: downloads, browserDownloads: browserDownloads, transfers: transfers) {
                 tab = 0
@@ -22,8 +23,10 @@ struct NextCastTabs: View {
                 tab = 1
             }
                 .tabItem { Label("Browser", systemImage: "globe") }.tag(2)
+            RemoteTab(remote: remote, cast: cast)
+                .tabItem { Label("Remote", systemImage: "appletvremote.gen4.fill") }.tag(3)
             SettingsTab(library: library)
-                .tabItem { Label("Settings", systemImage: "gearshape") }.tag(3)
+                .tabItem { Label("Settings", systemImage: "gearshape") }.tag(4)
         }
         .tint(.cyan)
         .onAppear { transfers.attach(library) }
@@ -50,6 +53,8 @@ extension View {
 struct MoviesTab: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var cast: CastController
+    @ObservedObject var remote: RemoteControlModel
+    @State private var showRemote = false
     @StateObject private var covers = ArtworkCache.shared
     @State private var showPicker = false
     @State private var showMultiPicker = false
@@ -201,6 +206,20 @@ struct MoviesTab: View {
                 .padding(18)
             }
             .navigationTitle("Next Cast")
+            .overlay(alignment: .bottomTrailing) {
+                Button {
+                    showRemote = true
+                } label: {
+                    Image(systemName: "appletvremote.gen4.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 55, height: 55)
+                        .background(Color.cyan, in: Circle())
+                        .shadow(color: .black.opacity(0.22), radius: 11, y: 5)
+                }
+                .accessibilityLabel("Open TV Remote")
+                .padding(.trailing, 19).padding(.bottom, 18)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     CastButton().frame(width: 40, height: 40)
@@ -234,6 +253,9 @@ struct MoviesTab: View {
                 case .failure(let error):
                     library.errorMessage = "Alternate picker: \(error.localizedDescription)"
                 }
+            }
+            .sheet(isPresented: $showRemote) {
+                RemoteTab(remote: remote, cast: cast)
             }
             .sheet(item: $selected) { movie in
                 MoviePlayerScreen(movie: movie, cast: cast)
