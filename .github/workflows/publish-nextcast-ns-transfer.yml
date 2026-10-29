@@ -1,0 +1,129 @@
+name: Publish Next Cast to NS Transfer
+
+on:
+  workflow_run:
+    workflows: ["Build Next Cast iOS"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Next Cast Actions run ID
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: nextcast-ns-transfer-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && startsWith(github.event.workflow_run.head_branch, 'agent/next-cast-')) }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NEXTCAST_RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+    steps:
+      - name: Checkout production NS Transfer catalog
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Retrieve and validate the successful build
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$NEXTCAST_RUN_ID"
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${NEXTCAST_RUN_ID}" > "$RUNNER_TEMP/run.json"
+          python3 - "$RUNNER_TEMP/run.json" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1]))
+          assert r['conclusion']=='success' and r['name']=='Build Next Cast iOS', 'Not a successful Next Cast build'
+          assert r['head_branch'].startswith('agent/next-cast-'), 'Not an approved Next Cast branch'
+          print('Verified build',r['id'],r['head_sha'])
+          PY
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${NEXTCAST_RUN_ID}/artifacts?per_page=100" > "$RUNNER_TEMP/artifacts.json"
+          ARTIFACT_ID="$(python3 - "$RUNNER_TEMP/artifacts.json" <<'PY'
+          import json,sys
+          a=json.load(open(sys.argv[1]))['artifacts']
+          matches=[x for x in a if x['name'].startswith('NextCast-iOS16-') and x['name'].endswith('-TIPA') and not x['expired']]
+          assert len(matches)==1, f'Expected one Next Cast build artifact, got {len(matches)}'
+          print(matches[0]['id'])
+          PY
+          )"
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" > "$RUNNER_TEMP/artifact.zip"
+          mkdir -p "$RUNNER_TEMP/cast-artifact"
+          unzip -q "$RUNNER_TEMP/artifact.zip" -d "$RUNNER_TEMP/cast-artifact"
+          FILE="$(find "$RUNNER_TEMP/cast-artifact" -type f -name 'NextCast-*.tipa' -print -quit)"
+          test -s "$FILE"
+          VERSION="$(basename "$FILE" | sed -nE 's/^NextCast-([0-9]+\.[0-9]+\.[0-9]+)\.tipa$/\1/p')"
+          test -n "$VERSION"
+          python3 - "$FILE" "$VERSION" <<'PY'
+          import sys,zipfile,plistlib
+          path,version=sys.argv[1:]
+          with zipfile.ZipFile(path) as z:
+            assert z.testzip() is None, 'Corrupted TIPA archive'
+            info=plistlib.loads(z.read('Payload/NextCast.app/Info.plist'))
+            assert info['CFBundleIdentifier']=='uk.zeshanbarvi.nextcast'
+            assert info['CFBundleShortVersionString']==version
+            assert 'Payload/NextCast.app/NextCast' in z.namelist()
+          print('Verified iOS app bundle',version)
+          PY
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "TIPA=$FILE" >> "$GITHUB_ENV"
+          echo "TIPA_SHA=$(sha256sum "$FILE" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "TIPA_SIZE=$(stat -c %s "$FILE")" >> "$GITHUB_ENV"
+
+      - name: Copy verified TIPA into NS Transfer and register it
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s transfer/index.json
+          DEST="transfer/files/NextCast/$VERSION"
+          mkdir -p "$DEST"
+          cp "$TIPA" "$DEST/NextCast-$VERSION.tipa"
+          test "$(sha256sum "$DEST/NextCast-$VERSION.tipa" | awk '{print $1}')" = "$TIPA_SHA"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          from datetime import datetime,timezone
+          p=Path('transfer/index.json')
+          j=json.loads(p.read_text())
+          v=os.environ['VERSION']
+          entry={
+            'id':f'nextcast-{v}',
+            'name':f'Next Cast {v} — iOS Video Player, Chromecast and Downloads',
+            'fileName':f'NextCast-{v}.tipa',
+            'type':'tipa',
+            'platform':'TrollStore / iOS 16+',
+            'version':v,
+            'url':f'https://nextjailbreak.com/transfer/files/NextCast/{v}/NextCast-{v}.tipa',
+            'sha256':os.environ['TIPA_SHA'],
+            'sizeBytes':int(os.environ['TIPA_SIZE']),
+            'notes':'Native VLC player, local video library, Chromecast and download manager. Build verified; on-device validation required.'
+          }
+          j['files']=[entry]+[x for x in j.get('files',[]) if x.get('id')!=entry['id']]
+          j['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(j,indent=2,ensure_ascii=False)+'\n')
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+
+      - name: Commit NS Transfer catalog to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "transfer/files/NextCast/$VERSION/NextCast-$VERSION.tipa" transfer/index.json
+          if git diff --cached --quiet; then
+            echo "Already published"
+          else
+            git commit -m "Publish Next Cast $VERSION to NS Transfer"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          echo "Published version $VERSION to https://nextjailbreak.com/transfer/"
