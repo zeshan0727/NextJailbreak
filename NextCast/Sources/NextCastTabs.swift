@@ -167,6 +167,9 @@ struct MoviesTab: View {
                                 }.buttonStyle(.plain)
                                 .onAppear { covers.load(movie) }
                                 .contextMenu {
+                                    Button { covers.regenerate(movie) } label: {
+                                        Label("Regenerate Cover", systemImage: "photo.on.rectangle.angled")
+                                    }
                                     Button(role: .destructive) { library.delete(movie) } label: {
                                         Label("Remove from iPhone", systemImage: "trash")
                                     }
