@@ -21,7 +21,9 @@ struct NextSignerLocalSignView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Next Signer")
+            .navigationTitle("Sign IPA")
+            .navigationBarTitleDisplayMode(.inline)
+            .background(SignerDesign.canvas.ignoresSafeArea())
             .sheet(isPresented: $showPicker) {
                 ManualDocumentPicker(
                     documentTypes: ["public.item", "public.data", "public.archive", "com.apple.itunes.ipa"],
@@ -80,14 +82,27 @@ struct NextSignerLocalSignView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Local signing", systemImage: "iphone.and.arrow.forward")
-                .font(.title2.bold())
-            Text("The IPA is signed entirely on this iPhone. GitHub is not contacted until you manually publish a signed app from the Signed Apps tab.")
+        VStack(alignment: .leading, spacing: 13) {
+            Label("LOCAL SIGNING", systemImage: "lock.shield.fill")
+                .font(.caption2.bold())
+                .tracking(1.5)
+                .foregroundStyle(.white.opacity(0.85))
+            Text("Your IPA.\nYour signature.")
+                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+            Text("Sign securely on your iPhone. Nothing is uploaded unless you choose Publish.")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.9))
+            HStack {
+                Image(systemName: local.credentialsReady ? "checkmark.seal.fill" : "exclamationmark.shield.fill")
+                Text(local.credentialsReady ? "Signing profile ready" : "Set up signing credentials first")
+            }
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.white)
         }
+        .padding(21)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background(SignerDesign.hero, in: RoundedRectangle(cornerRadius: 24))
     }
 
     private var sourceCard: some View {
@@ -909,6 +924,9 @@ struct NextSignerLocalProfileView: View {
 struct NextSignerLocalSettingsView: View {
     @ObservedObject var store: SignerStore
     @ObservedObject var local: LocalSigningController
+    @AppStorage("nextsigner.appearance") private var appearance = SignerAppearance.system.rawValue
+    @State private var showingProfiles = false
+    @State private var showingActivity = false
     @State private var revealToken = false
     @State private var shareURL: URL?
     @State private var restorePicker = false
@@ -918,6 +936,27 @@ struct NextSignerLocalSettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Appearance") {
+                    Picker("Theme", selection: $appearance) {
+                        ForEach(SignerAppearance.allCases) { mode in
+                            Text(mode.label).tag(mode.rawValue)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    Text("System follows your iPhone appearance. Light and Dark override it for Next Signer.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("Workspace") {
+                    Button { showingProfiles = true } label: {
+                        Label("Signing profiles & certificates", systemImage: "person.badge.key.fill")
+                    }
+                    Button { showingActivity = true } label: {
+                        Label("Signing & publishing activity", systemImage: "clock.arrow.circlepath")
+                    }
+                }
+
                 Section {
                     Text("GitHub is used only after you manually tap Publish on a signed app. Local signing, local IPA storage and TrollStore installation work without GitHub.")
                         .font(.caption)
@@ -1012,7 +1051,15 @@ struct NextSignerLocalSettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .scrollContentBackground(.hidden)
+            .background(SignerDesign.canvas.ignoresSafeArea())
             .onDisappear { store.persistConfiguration() }
+            .sheet(isPresented: $showingProfiles) {
+                NextSignerLocalProfileView(local: local)
+            }
+            .sheet(isPresented: $showingActivity) {
+                NextSignerActivityView(store: store)
+            }
             .sheet(isPresented: $restorePicker) {
                 ManualDocumentPicker(
                     documentTypes: ["public.json", "public.text", "public.data", "public.item"],
