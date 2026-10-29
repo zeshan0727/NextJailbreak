@@ -261,6 +261,27 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         let http = downloadTask.response as? HTTPURLResponse
         let code = http?.statusCode ?? 0
         let mime = (http?.mimeType ?? "").lowercased()
+        // Signed URLs may hide extensions in query parameters. Prefer the
+        // response's Content-Disposition filename, then the media MIME type.
+        if let suggested = http?.suggestedFilename,
+           VideoFormats.supported(URL(fileURLWithPath: suggested)),
+           !VideoFormats.supported(URL(fileURLWithPath: items[i].name)) {
+            items[i].name = suggested
+        }
+        if !VideoFormats.supported(URL(fileURLWithPath: items[i].name)) {
+            let videoExtension: String?
+            switch mime {
+            case "video/mp4": videoExtension = "mp4"
+            case "video/quicktime": videoExtension = "mov"
+            case "video/webm": videoExtension = "webm"
+            case "video/x-matroska": videoExtension = "mkv"
+            case "video/x-msvideo": videoExtension = "avi"
+            default: videoExtension = nil
+            }
+            if let videoExtension {
+                items[i].name += "." + videoExtension
+            }
+        }
         guard !mime.contains("html") && !mime.contains("json"),
               !mime.contains("text/plain") else {
             markFailed(id, "The server delivered a webpage or text, not media.")
@@ -279,8 +300,10 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
                 fallbackToSingle(id)
                 return
             }
-        } else if !(200...299).contains(code) {
-            markFailed(id, "Server returned HTTP \(code)")
+        } else if part != 0 || code != 200 {
+            // Ignore late range callbacks from cancelled chunk tasks; never
+            // save a partial file as a successful single-file download.
+            if part == 0 { markFailed(id, "Server returned HTTP \(code)") }
             return
         }
         do {
