@@ -8,7 +8,7 @@ on:
       - ".github/workflows/nextcast-build.yml"
   push:
     branches:
-      - agent/next-cast-1.3.7-solid-remote-haptics
+      - agent/next-cast-1.3.9-fullwidth-dpad
     paths:
       - "NextCast/**"
       - ".github/workflows/nextcast-build.yml"
@@ -63,17 +63,17 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.3.8.tipa" Payload)
-          cp NextCast-1.3.8.tipa NextCast-1.3.8.ipa
-          ls -lh NextCast-1.3.8.tipa NextCast-1.3.8.ipa
+          (cd dist && zip -qry "../NextCast-1.3.9.tipa" Payload)
+          cp NextCast-1.3.9.tipa NextCast-1.3.9.ipa
+          ls -lh NextCast-1.3.9.tipa NextCast-1.3.9.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-3-8-IPA-TIPA
+          name: NextCast-iOS16-V1-3-9-IPA-TIPA
           path: |
-            NextCast-1.3.8.tipa
-            NextCast-1.3.8.ipa
+            NextCast-1.3.9.tipa
+            NextCast-1.3.9.ipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
