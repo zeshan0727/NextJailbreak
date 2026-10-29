@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T08:46:45Z",
+  "updatedAt": "2026-10-29T08:47:44Z",
   "files": [
     {
       "id": "nextcast-1.3.3",
@@ -10,8 +10,8 @@
       "platform": "TrollStore / iOS 16+",
       "version": "1.3.3",
       "url": "https://nextjailbreak.com/transfer/files/NextCast/1.3.3/NextCast-1.3.3.tipa",
-      "sha256": "509c5289a3002e60fbdcb2d2dd48ee2caa1b57842640372e0039184e1cd35a00",
-      "sizeBytes": 19624085,
+      "sha256": "12d842d6236f24024ec63eb267503b6fa43be1fb075f4db211c29e003357e461",
+      "sizeBytes": 19624089,
       "notes": "Native VLC player, local video library, Chromecast and download manager. Build verified; on-device validation required."
     },
     {
