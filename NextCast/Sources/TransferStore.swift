@@ -152,7 +152,15 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         items.insert(record, at: 0)
         requestByID[id] = request
         persist()
-        if let host = url.host?.lowercased(), safeHosts.contains(host) {
+        // Reliable app-owned streaming is the default on both standard
+        // and TrollStore installations. On some iOS configurations the OS
+        // background downloader delivers an inaccessible temporary file
+        // *after* transferring the complete movie. Do not risk that by default.
+        // Power users can explicitly opt into iOS background mode.
+        let backgroundPreferred = UserDefaults.standard.bool(
+            forKey: "nextcast.preferBackgroundDownloads"
+        )
+        if !backgroundPreferred || (url.host.map { safeHosts.contains($0.lowercased()) } ?? false) {
             startSafeStream(id)
         } else {
             beginTransfer(id, allowParallel: allowParallel)
@@ -204,6 +212,7 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
               let url = URL(string: items[i].url) else { return }
         safeStreams[id]?.cancel()
         safeStreams.removeValue(forKey: id)
+        let previousModeWasBackground = items[i].mode.hasPrefix("Background")
         items[i].runToken = UUID().uuidString
         let token = items[i].runToken
         items[i].status = "Downloading"
@@ -217,13 +226,21 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         finishedParts.removeValue(forKey: id)
         segmentFallbackIDs.remove(id)
         persist()
-        // Cancel prior native background tasks only AFTER invalidating token.
-        session.getAllTasks { tasks in
-            for task in tasks where task.taskDescription?.hasPrefix(id.uuidString + "#") == true {
-                task.cancel()
+        // Only touch the background session when changing from an existing
+        // background transfer; creating one for a safe stream is unnecessary.
+        if previousModeWasBackground {
+            session.getAllTasks { tasks in
+                for task in tasks where task.taskDescription?.hasPrefix(id.uuidString + "#") == true {
+                    task.cancel()
+                }
             }
         }
-        let destination = Self.stagingFolder.appendingPathComponent(id.uuidString + "-safe.stream")
+        // Write partial downloads directly to Movies. Completing the movie
+        // will only rename within the same filesystem, not make a second
+        // multi-gigabyte copy into Documents/Movies.
+        let destination = MovieLibrary.folder.appendingPathComponent(
+            id.uuidString + ".nextcastpartial"
+        )
         let request = requestByID[id] ?? URLRequest(url: url)
         let transfer = SafeStreamDownload(
             id: id, request: request, destination: destination,
@@ -253,11 +270,13 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         )
         safeStreams[id] = transfer
         do {
-            try Self.prepareWorkingDirectory()
+            try FileManager.default.createDirectory(
+                at: MovieLibrary.folder, withIntermediateDirectories: true
+            )
             try transfer.start()
         } catch {
             safeStreams.removeValue(forKey: id)
-            markFailed(id, "Safe download cannot write file: \(error.localizedDescription)")
+            markFailed(id, "Could not prepare Movies storage before downloading: \(error.localizedDescription)")
         }
     }
 
@@ -427,7 +446,10 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
                 for part in 0..<3 { try? FileManager.default.removeItem(at: self.partFile(id, part: part)) }
                 try? FileManager.default.removeItem(at:
                     Self.stagingFolder.appendingPathComponent(id.uuidString + ".complete"))
-                if let host = url.host?.lowercased(), self.safeHosts.contains(host) {
+                let backgroundPreferred = UserDefaults.standard.bool(
+                    forKey: "nextcast.preferBackgroundDownloads"
+                )
+                if !backgroundPreferred || (url.host.map { self.safeHosts.contains($0.lowercased()) } ?? false) {
                     self.startSafeStream(id)
                 } else {
                     self.beginTransfer(id)
@@ -618,6 +640,12 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
 
     private func finalize(_ id: UUID, pieces: Int) {
         let paths = (0..<pieces).map { partFile(id, part: $0) }
+        // Single-part native download already exists as a completed staged
+        // file. Do not allocate another full-size .complete copy.
+        if pieces == 1, let source = paths.first {
+            finishMerged(id, result: source)
+            return
+        }
         let result = Self.stagingFolder.appendingPathComponent(id.uuidString + ".complete")
         DispatchQueue.global(qos: .utility).async { [weak self] in
             do {
@@ -689,7 +717,13 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
             persist()
         } catch {
             markFailed(id, "Unable to move download into Movies: \(error.localizedDescription)")
-            // Keep assembled file for recovery when transfer finalization fails.
+            // Leave the downloaded file in place and expose recovery controls;
+            // do not silently delete or restart a multi-GB transfer.
+            if items[index].savedPath == nil &&
+               FileManager.default.fileExists(atPath: result.path) {
+                items[index].savedPath = result.path
+            }
+            persist()
         }
         requestByID.removeValue(forKey: id)
         taskBytes.removeValue(forKey: id)
