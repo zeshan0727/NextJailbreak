@@ -57,6 +57,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build 2>&1 | tee nextcast-build.log
 
+      # Fail the workflow before packaging if any framework still depends on
+      # the unavailable Swift CoreMedia overlay on the user's iOS 16 device.
       - name: Verify iOS 16 dynamic library compatibility
         run: |
           set -euo pipefail
