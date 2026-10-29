@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T12:55:19Z",
+  "updatedAt": "2026-10-29T13:09:48Z",
   "files": [
+    {
+      "id": "nextstorage-1.0.7-ipa",
+      "name": "Next Storage 1.0.7 — Approved Design IPA",
+      "fileName": "NextStorage-1.0.7.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.7",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.7/NextStorage-1.0.7.ipa",
+      "sha256": "febf96059174006f9e9362809a14b29a53d51bb1c05de60ecffd7af64b2aa1a0",
+      "sizeBytes": 682649,
+      "notes": "iOS 16 TrollStore-compatible IPA with approved blue-and-black interface, existing working Photos deletion, and credits Next Jailbreak · Zeshan0727."
+    },
+    {
+      "id": "nextstorage-1.0.7-ios16-roothide",
+      "name": "Next Storage 1.0.7 — Approved Blue Reference Design",
+      "fileName": "NextStorage-1.0.7.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.7",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.7/NextStorage-1.0.7.tipa",
+      "sha256": "febf96059174006f9e9362809a14b29a53d51bb1c05de60ecffd7af64b2aa1a0",
+      "sizeBytes": 682649,
+      "notes": "Approved blue-and-black design with five-tab Overview, Apps, Media, Files and Settings. Retains working Photos deletion, PhotoKit scanning and Filza access. Credits Next Jailbreak · Zeshan0727; iOS 16 RootHide/TrollStore."
+    },
     {
       "id": "nextstorage-1.0.6-ipa",
       "name": "Next Storage 1.0.6 — IPA / Photos Delete Fix",
