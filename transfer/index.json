@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T09:47:44Z",
+  "updatedAt": "2026-10-29T12:52:42Z",
   "files": [
+    {
+      "id": "nextcast-1.3.6",
+      "name": "Next Cast 1.3.6 — iOS Video Player, Chromecast and Downloads",
+      "fileName": "NextCast-1.3.6.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.3.6",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.3.6/NextCast-1.3.6.tipa",
+      "sha256": "2f073e4ed40fdf8df5ed331ce4541dad0dd6785157b4ac85c25eedb5114cfeeb",
+      "sizeBytes": 19754233,
+      "notes": "Native VLC player, local video library, Chromecast and download manager. Build verified; on-device validation required."
+    },
     {
       "id": "nextstorage-1.0.5-ios16-roothide",
       "name": "Next Storage 1.0.5 — Full Photos Library Size + Photos Link",
