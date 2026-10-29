@@ -11,9 +11,13 @@ private enum CastAudioCompatibility {
         guard ["mp4", "m4v"].contains(url.pathExtension.lowercased()) else { return false }
         let asset = AVURLAsset(url: url)
         guard let audio = asset.tracks(withMediaType: .audio).first,
-              let description = audio.formatDescriptions.first else {
+              let rawDescription = audio.formatDescriptions.first else {
             return false
         }
+        // AVFoundation exposes an array of Any here. Track format descriptions
+        // are CoreMedia CMFormatDescription objects; a conditional CF downcast
+        // is rejected by the Swift compiler, whereas an explicit bridge is valid.
+        let description = rawDescription as! CMFormatDescription
         let codec = CMFormatDescriptionGetMediaSubType(description)
         let channels = CMAudioFormatDescriptionGetStreamBasicDescription(description)?
             .pointee.mChannelsPerFrame ?? 0
