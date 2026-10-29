@@ -55,6 +55,7 @@ struct MoviesTab: View {
     @ObservedObject var cast: CastController
     @ObservedObject var remote: RemoteControlModel
     @State private var showRemote = false
+    @State private var showConverter = false
     @StateObject private var covers = ArtworkCache.shared
     @State private var showPicker = false
     @State private var showMultiPicker = false
@@ -109,6 +110,15 @@ struct MoviesTab: View {
                     .tint(.cyan)
                     .foregroundStyle(.black)
                     .disabled(library.isImporting)
+
+                    Button { showConverter = true } label: {
+                        Label("Video Converter · Fast MP4 + AAC", systemImage: "arrow.triangle.2.circlepath")
+                            .font(.subheadline.bold())
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 9)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(library.movies.isEmpty)
 
                     HStack {
                         Text("Movies").font(.title3.bold())
@@ -257,6 +267,9 @@ struct MoviesTab: View {
             .sheet(isPresented: $showRemote) {
                 RemoteTab(remote: remote, cast: cast)
             }
+            .sheet(isPresented: $showConverter) {
+                VideoConverterScreen(library: library, cast: cast)
+            }
             .sheet(item: $selected) { movie in
                 MoviePlayerScreen(movie: movie, cast: cast)
             }
@@ -301,7 +314,7 @@ struct SettingsTab: View {
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("About") {
-                    LabeledContent("App", value: "Next Cast 1.4.2")
+                    LabeledContent("App", value: "Next Cast 1.4.3")
                     LabeledContent("Credits", value: "Next Jailbreak – Zeshan0727")
                     LabeledContent("Playback", value: "MobileVLCKit")
                     LabeledContent("Casting", value: "Google Cast")

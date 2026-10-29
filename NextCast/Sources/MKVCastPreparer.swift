@@ -1,112 +1,161 @@
 import Foundation
 import Combine
+import AVFoundation
+import AudioToolbox
 import FFmpegSupport
 
-/// Local MKV -> Cast-compatible MP4 preparation. Video packets are remuxed
-/// without quality loss; audio is converted to AAC when necessary. No file
-/// is uploaded to a third-party server. A complete MP4 is created before
-/// Chromecast receives the media URL, avoiding incomplete-range playback.
+/// Inspects the *contained audio codec*, not merely the filename extension.
+/// AAC-LC stereo in MP4 is the conservative default for Cast receivers.
+private enum CastAudioCompatibility {
+    static func canCastDirectly(_ url: URL) -> Bool {
+        guard ["mp4", "m4v"].contains(url.pathExtension.lowercased()) else { return false }
+        let asset = AVURLAsset(url: url)
+        guard let audio = asset.tracks(withMediaType: .audio).first,
+              let description = audio.formatDescriptions.first as? CMFormatDescription else {
+            return false
+        }
+        let codec = CMFormatDescriptionGetMediaSubType(description)
+        let channels = CMAudioFormatDescriptionGetStreamBasicDescription(description)?
+            .pointee.mChannelsPerFrame ?? 0
+        return codec == kAudioFormatMPEG4AAC && channels > 0 && channels <= 2
+    }
+}
+
+/// Shared fast path for imported MP4, MKV and other video files.
+/// Never touches the original. Copies the video packets and encodes AAC-LC
+/// stereo audio only; a video requiring H.264 re-encoding is NOT silently
+/// claimed compatible. All embedded FFmpeg CLI calls are serialized.
 @MainActor
 final class MKVCastPreparer: ObservableObject {
     @Published private(set) var preparing = false
     @Published private(set) var status = ""
+    @Published private(set) var bytesWritten: Int64 = 0
+    @Published private(set) var elapsedSeconds = 0
     @Published var errorMessage: String?
+    private static let conversionQueue = DispatchQueue(label: "uk.zeshanbarvi.nextcast.ffmpeg.serial", qos: .userInitiated)
     private var cancelRequested = false
+    private var monitor: Timer?
 
-    func prepare(_ movie: Movie, completion: @escaping (Movie) -> Void) {
+    func prepare(_ movie: Movie, forceConversion: Bool = false,
+                 completion: @escaping (Movie) -> Void) {
         guard !preparing else { return }
-        guard movie.localURL.pathExtension.lowercased() == "mkv" else {
-            completion(movie)
-            return
-        }
-        let folder = MovieLibrary.folder
-        let final = folder.appendingPathComponent(movie.id.uuidString + ".cast.mp4")
-        let temp = folder.appendingPathComponent(movie.id.uuidString + ".castbuilding.mp4")
-
-        func preparedMovie(_ file: URL) -> Movie {
-            let bytes = ((try? FileManager.default.attributesOfItem(atPath: file.path)[.size]) as? NSNumber)?.int64Value ?? 0
-            return Movie(id: movie.id, name: movie.name, fileName: file.lastPathComponent,
-                         importedAt: movie.importedAt, fileSize: bytes)
-        }
-        if let attributes = try? FileManager.default.attributesOfItem(atPath: final.path),
-           ((attributes[.size] as? NSNumber)?.int64Value ?? 0) > 1024 * 1024 {
-            status = "Prepared for Chromecast"
-            completion(preparedMovie(final))
-            return
-        }
-
-        // An MKV copy requires extra storage; never unexpectedly fill the phone.
-        let estimatedSize = max(movie.fileSize, 512 * 1024 * 1024)
-        if let capacity = try? folder.resourceValues(
-            forKeys: [.volumeAvailableCapacityKey]).volumeAvailableCapacity,
-           Int64(capacity) < estimatedSize + 256 * 1024 * 1024 {
-            errorMessage = "Not enough free storage to prepare the MKV for casting. Free at least \(ByteCountFormatter.string(fromByteCount: estimatedSize + 256 * 1024 * 1024, countStyle: .file)) and try again. Your original MKV will remain untouched."
-            return
-        }
-        do {
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-            if FileManager.default.fileExists(atPath: temp.path) {
-                try FileManager.default.removeItem(at: temp)
-            }
-        } catch {
-            errorMessage = "Cannot prepare video output: \(error.localizedDescription)"
-            return
-        }
+        errorMessage = nil
         preparing = true
         cancelRequested = false
-        status = "Preparing MKV for Chromecast · copying video and converting audio to AAC"
-        let arguments = [
-            "ffmpeg",
-            "-hide_banner", "-nostdin", "-loglevel", "error", "-y",
-            "-i", movie.localURL.path,
-            "-map", "0:v:0", "-map", "0:a:0?",
-            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-            "-sn", "-dn", "-movflags", "+faststart",
-            temp.path
-        ]
-        DispatchQueue.global(qos: .utility).async { [weak self] in
-            // The alternative FFmpeg iOS build targets iOS 13+, avoiding the
-            // unavailable libswiftCoreMedia Swift runtime in the old fork.
-            // Do not block SwiftUI or the main actor during MKV preparation.
-            let exitCode = ffmpeg(arguments)
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { return }
-                self.preparing = false
-                if self.cancelRequested {
-                    self.status = "Preparation cancelled"
-                    try? FileManager.default.removeItem(at: temp)
+        bytesWritten = 0
+        elapsedSeconds = 0
+        status = "Checking TV audio compatibility…"
+        let folder = MovieLibrary.folder
+        let finalURL = folder.appendingPathComponent(movie.id.uuidString + ".cast.mp4")
+        let temporaryURL = folder.appendingPathComponent(movie.id.uuidString + ".castbuilding.mp4")
+        let original = movie.localURL
+        let started = Date()
+        monitor?.invalidate()
+        monitor = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.elapsedSeconds = Int(Date().timeIntervalSince(started))
+            self.bytesWritten = ((try? FileManager.default.attributesOfItem(atPath: temporaryURL.path)[.size])
+                as? NSNumber)?.int64Value ?? 0
+        }
+        Self.conversionQueue.async { [weak self] in
+            func preparedMovie(_ file: URL) -> Movie {
+                let bytes = ((try? FileManager.default.attributesOfItem(atPath: file.path)[.size])
+                    as? NSNumber)?.int64Value ?? 0
+                return Movie(id: movie.id, name: movie.name,
+                             fileName: file.lastPathComponent,
+                             importedAt: movie.importedAt, fileSize: bytes)
+            }
+            func finish(_ output: Movie?, _ error: String?, _ message: String) {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    self.monitor?.invalidate()
+                    self.monitor = nil
+                    self.preparing = false
+                    if self.cancelRequested {
+                        self.status = "Preparation cancelled"
+                        try? FileManager.default.removeItem(at: temporaryURL)
+                    } else if let error {
+                        self.status = "Preparation failed"
+                        self.errorMessage = error
+                    } else if let output {
+                        self.status = message
+                        completion(output)
+                    }
+                }
+            }
+            guard FileManager.default.fileExists(atPath: original.path) else {
+                finish(nil, "Source video is no longer available.", "")
+                return
+            }
+            // Fastest path: already-playable H.264/AAC-style MP4 with AAC stereo.
+            // This check is deliberately restricted to known AAC stereo MP4 files.
+            if !forceConversion && CastAudioCompatibility.canCastDirectly(original) {
+                finish(movie, nil, "MP4 contains compatible stereo AAC · no conversion needed")
+                return
+            }
+            // Reuse a verified finished output. Never recode a 5+ GB movie twice.
+            if let attrs = try? FileManager.default.attributesOfItem(atPath: finalURL.path),
+               (attrs[.size] as? NSNumber)?.int64Value ?? 0 > 4096 {
+                finish(preparedMovie(finalURL), nil, "Using previously prepared TV MP4")
+                return
+            }
+            do {
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                let required = max(movie.fileSize, 256 * 1024 * 1024) + 256 * 1024 * 1024
+                if let available = try folder.resourceValues(forKeys: [.volumeAvailableCapacityKey]).volumeAvailableCapacity,
+                   Int64(available) < required {
+                    finish(nil, "Not enough free storage. Allow approximately " +
+                        ByteCountFormatter.string(fromByteCount: required, countStyle: .file) +
+                        " for a separate MP4. Your original is preserved.", "")
                     return
                 }
-                if exitCode == 0 {
-                    do {
-                        guard let attrs = try? FileManager.default.attributesOfItem(atPath: temp.path),
-                              ((attrs[.size] as? NSNumber)?.int64Value ?? 0) > 1024 * 1024 else {
-                            throw NSError(domain: "NextCast.MKVCast", code: 1,
-                                userInfo: [NSLocalizedDescriptionKey: "Prepared file is empty."])
-                        }
-                        if FileManager.default.fileExists(atPath: final.path) {
-                            try FileManager.default.removeItem(at: final)
-                        }
-                        try FileManager.default.moveItem(at: temp, to: final)
-                        self.status = "MKV prepared successfully"
-                        completion(preparedMovie(final))
-                    } catch {
-                        self.errorMessage = "Cannot save the prepared MP4: \(error.localizedDescription)"
-                    }
-                } else {
-                    self.errorMessage = "MKV conversion failed (FFmpeg exit code \(exitCode)). The source codec or file may be unsupported. The original MKV remains unchanged."
-                    try? FileManager.default.removeItem(at: temp)
+                if FileManager.default.fileExists(atPath: temporaryURL.path) {
+                    try FileManager.default.removeItem(at: temporaryURL)
                 }
+            } catch {
+                finish(nil, "Cannot prepare output: \(error.localizedDescription)", "")
+                return
+            }
+            DispatchQueue.main.async { [weak self] in
+                self?.status = "Fast conversion: copying video · AAC stereo audio"
+            }
+            // Video stream copy is typically dramatically faster than transcoding.
+            // -map 0:a:0 makes a silent source a clear error, not a silent TV MP4.
+            // The output is generated on-device; no uploading or extra download.
+            let args = [
+                "ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-y",
+                "-i", original.path, "-map", "0:v:0", "-map", "0:a:0",
+                "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+                "-ac", "2", "-ar", "48000", "-threads", "0",
+                "-sn", "-dn", "-max_muxing_queue_size", "1024",
+                "-movflags", "+faststart", temporaryURL.path
+            ]
+            let code = ffmpeg(args)
+            if code != 0 {
+                try? FileManager.default.removeItem(at: temporaryURL)
+                finish(nil, "Conversion failed (FFmpeg exit \(code)). The video track may not be MP4-compatible, or the file may lack an audio track. Video re-encoding is not part of Fast Copy mode.", "")
+                return
+            }
+            do {
+                guard let attrs = try? FileManager.default.attributesOfItem(atPath: temporaryURL.path),
+                      (attrs[.size] as? NSNumber)?.int64Value ?? 0 > 4096 else {
+                    throw NSError(domain: "NextCast.Converter", code: 1,
+                                  userInfo: [NSLocalizedDescriptionKey: "Output file was empty."])
+                }
+                // Only publish a fully completed MP4, never an unfinished temp file.
+                try FileManager.default.moveItem(at: temporaryURL, to: finalURL)
+                finish(preparedMovie(finalURL), nil, "TV-ready MP4 with stereo AAC sound")
+            } catch {
+                finish(nil, "Cannot save converted MP4: \(error.localizedDescription)", "")
             }
         }
     }
 
     func cancel() {
         guard preparing else { return }
-        // This native FFmpeg build has no task-level cancellation API.
-        // The request is honored after the current conversion returns;
-        // the temporary output is then discarded without casting.
         cancelRequested = true
-        status = "Cancel requested — discarding output after conversion"
+        status = "Cancellation requested · output will be discarded when FFmpeg returns"
     }
+
+    deinit { monitor?.invalidate() }
 }

@@ -179,20 +179,19 @@ struct MoviePlayerScreen: View {
                             CastButton().frame(width: 46, height: 46)
                         }
                         Button(broadcast ? "Playing on TV" :
-                               castPreparer.preparing ? "Preparing MKV…" :
+                               castPreparer.preparing ? "Preparing TV MP4…" :
                                movie.format == "MKV" ? "Prepare MKV & Cast" : "Play on TV") {
                             requestedCast = true
                             if cast.isConnected { playOnTV() }
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(broadcast || castPreparer.preparing ||
-                            (!movie.castCompatible && movie.format != "MKV"))
+                        .disabled(broadcast || castPreparer.preparing)
                         if castPreparer.preparing {
                             VStack(alignment: .leading, spacing: 7) {
                                 ProgressView()
                                 Text(castPreparer.status)
                                     .font(.caption).foregroundStyle(.secondary)
-                                Text("Preparation is local, may take time and needs extra free space. Keep Next Cast open.")
+                                Text("Local conversion · copying video and encoding TV-compatible AAC audio. Keep Next Cast open.")
                                     .font(.caption2).foregroundStyle(.secondary)
                                 Button("Cancel preparation", role: .destructive) {
                                     castPreparer.cancel()
@@ -208,10 +207,10 @@ struct MoviePlayerScreen: View {
                             }
                         }
                         if movie.format == "MKV" {
-                            Text("Chromecast does not decode MKV directly. Next Cast can prepare an MP4 copy locally (video copy + AAC audio) and cast it. This needs free space approximately equal to the movie size. Your MKV remains unchanged.")
+                            Text("Next Cast prepares a compatible MP4 locally, copies the video, and encodes stereo AAC audio for TV. Your MKV remains unchanged.")
                                 .font(.caption).foregroundStyle(.orange)
                         } else if !movie.castCompatible {
-                            Text("This format is not supported by Chromecast. MKV can be prepared locally; other formats need compatible MP4 video.")
+                            Text("Next Cast will attempt fast MP4 preparation. Some codecs need full video re-encoding, which Fast Copy mode cannot provide.")
                                 .font(.caption).foregroundStyle(.orange)
                         }
                     }
@@ -308,19 +307,12 @@ struct MoviePlayerScreen: View {
         }
     }
     private func playOnTV() {
-        guard cast.isConnected else { return }
-        if movie.format == "MKV" {
-            castPreparer.prepare(movie) { readyMovie in
-                guard cast.isConnected, requestedCast else { return }
-                persistPlayback()
-                player.pause()
-                cast.load(readyMovie)
-                broadcast = true
-            }
-        } else if movie.castCompatible {
+        guard cast.isConnected, !broadcast else { return }
+        castPreparer.prepare(movie) { readyMovie in
+            guard cast.isConnected, requestedCast else { return }
             persistPlayback()
             player.pause()
-            cast.load(movie)
+            cast.load(readyMovie)
             broadcast = true
         }
     }
