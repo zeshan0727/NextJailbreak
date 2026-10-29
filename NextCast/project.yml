@@ -1,0 +1,77 @@
+name: NextCast
+options:
+  bundleIdPrefix: uk.zeshanbarvi
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+packages:
+  GoogleCast:
+    url: https://github.com/googlecast/google-cast-ios-sdk
+    from: 4.8.6
+targets:
+  NextCast:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+      - path: Assets.xcassets
+    dependencies:
+      - package: GoogleCast
+        product: GoogleCastDynamic
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: uk.zeshanbarvi.nextcast
+        PRODUCT_NAME: NextCast
+        SWIFT_VERSION: 5.0
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_BITCODE: NO
+        GENERATE_INFOPLIST_FILE: NO
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: Next Cast
+        CFBundleShortVersionString: "1.3.9"
+        CFBundleVersion: "13"
+        UILaunchScreen: {}
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Next Cast Video
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - public.movie
+              - public.video
+              - org.matroska.mkv
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: org.matroska.mkv
+            UTTypeDescription: Matroska Video
+            UTTypeConformsTo:
+              - public.movie
+              - public.data
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - mkv
+              public.mime-type:
+                - video/x-matroska
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        NSLocalNetworkUsageDescription: "Next Cast discovers Chromecast devices and connects to Samsung, Roku and LG televisions on your local Wi-Fi network."
+        NSBonjourServices:
+          - "_googlecast._tcp"
+          - "_CC1AD845._googlecast._tcp"
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+          NSAllowsArbitraryLoads: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
