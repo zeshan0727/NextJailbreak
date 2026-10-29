@@ -9,6 +9,9 @@ packages:
   GoogleCast:
     url: https://github.com/googlecast/google-cast-ios-sdk
     from: 4.8.6
+  FFmpegKit:
+    url: https://github.com/jaywcjlove/ffmpeg-kit
+    branch: main
 targets:
   NextCast:
     type: application
@@ -19,6 +22,8 @@ targets:
     dependencies:
       - package: GoogleCast
         product: GoogleCastDynamic
+      - package: FFmpegKit
+        product: ffmpegkit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: uk.zeshanbarvi.nextcast
@@ -35,8 +40,8 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: Next Cast
-        CFBundleShortVersionString: "1.4.0"
-        CFBundleVersion: "14"
+        CFBundleShortVersionString: "1.4.1"
+        CFBundleVersion: "15"
         UILaunchScreen: {}
         CFBundleDocumentTypes:
           - CFBundleTypeName: Next Cast Video
