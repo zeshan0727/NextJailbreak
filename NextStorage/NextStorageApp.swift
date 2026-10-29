@@ -3,10 +3,10 @@ import Foundation
 import Darwin
 
 private enum Theme {
-    static let bg = Color(red: 0.055, green: 0.082, blue: 0.145)
-    static let card = Color(red: 0.115, green: 0.16, blue: 0.24)
-    static let accent = Color(red: 0.3, green: 0.92, blue: 0.77)
-    static let muted = Color(red: 0.68, green: 0.75, blue: 0.82)
+    static let bg = StorageDesign.background
+    static let card = StorageDesign.panel
+    static let accent = StorageDesign.blue
+    static let muted = StorageDesign.muted
 }
 func readable(_ size: Int64) -> String {
     ByteCountFormatter.string(fromByteCount: max(0, size), countStyle: .file)
@@ -518,7 +518,7 @@ struct SettingsPage: View {
             }
             Section("Credits") {
                 Text("Next Jailbreak · Zeshan0727")
-                Text("Next Storage 1.0.6")
+                Text("Next Storage 1.0.7")
             }
         }.navigationTitle("Settings")
     }
@@ -530,14 +530,16 @@ struct NextStorageApp: App {
     var body: some Scene {
         WindowGroup {
             TabView {
-                NavigationStack { OverviewPage() }.tabItem { Label("Overview", systemImage: "chart.pie.fill") }
-                NavigationStack { AppsPage() }.tabItem { Label("Apps", systemImage: "square.grid.2x2.fill") }
-                NavigationStack { FolderPage(path: "/") }.tabItem { Label("Explorer", systemImage: "folder.fill") }
-                NavigationStack { SearchPage() }.tabItem { Label("Search", systemImage: "magnifyingglass") }
-                NavigationStack { PhotosStoragePage() }.tabItem { Label("Media", systemImage: "photo.on.rectangle.angled") }
+                NavigationStack { ReferenceOverviewPage() }.tabItem { Label("Overview", systemImage: "chart.pie.fill") }
+                NavigationStack { ReferenceAppsPage() }.tabItem { Label("Apps", systemImage: "square.grid.2x2.fill") }
+                NavigationStack { PhotosStoragePage() }.tabItem { Label("Media", systemImage: "play.rectangle.fill") }
+                NavigationStack { ReferenceFilesPage() }.tabItem { Label("Files", systemImage: "folder.fill") }
+                NavigationStack { SettingsPage() }.tabItem { Label("Settings", systemImage: "gearshape.fill") }
             }.environmentObject(model)
                 .environmentObject(filza)
-                .tint(Theme.accent)
+                .tint(StorageDesign.blue)
+                .toolbarBackground(StorageDesign.background, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
                 .preferredColorScheme(.dark)
                 .alert("Filza Could Not Open", isPresented: $filza.showLinkFailure) {
                     Button("OK", role: .cancel) { }
