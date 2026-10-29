@@ -22,7 +22,7 @@ struct StorageCard<Content: View>: View {
         self.content = content()
     }
     var body: some View {
-        content.padding(16)
+        content.padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(StorageDesign.panel, in: RoundedRectangle(cornerRadius: 17))
             .overlay(RoundedRectangle(cornerRadius: 17).stroke(StorageDesign.border.opacity(0.52)))
@@ -36,18 +36,26 @@ struct StorageSummaryPill: View {
     let color: Color
     var body: some View {
         StorageCard {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: symbol)
-                    .font(.system(size: 22, weight: .medium))
-                    .frame(width: 36, height: 42)
+                    .font(.system(size: 19, weight: .medium))
+                    .frame(width: 34, height: 39)
                     .foregroundStyle(.white)
                     .background(color, in: RoundedRectangle(cornerRadius: 10))
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(title).font(.caption).foregroundStyle(StorageDesign.muted)
-                    Text(value).font(.headline.weight(.bold)).foregroundStyle(.white)
-                        .minimumScaleFactor(0.6).lineLimit(1)
+                    Text(title).font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(StorageDesign.muted)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(value).font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1).minimumScaleFactor(0.55)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -55,22 +63,24 @@ struct StorageSummaryPill: View {
 struct StorageDonut: View {
     let used: Int64
     let total: Int64
+    var diameter: CGFloat = 155
     var fraction: Double {
         guard total > 0 else { return 0 }
         return min(1, max(0, Double(used) / Double(total)))
     }
     var body: some View {
         ZStack {
-            Circle().stroke(StorageDesign.orange, lineWidth: 16)
+            Circle().stroke(StorageDesign.orange, lineWidth: max(12, diameter * 0.1))
             Circle().trim(from: 0, to: fraction)
-                .stroke(StorageDesign.blue, style: StrokeStyle(lineWidth: 16, lineCap: .butt))
+                .stroke(StorageDesign.blue, style: StrokeStyle(lineWidth: max(12, diameter * 0.1), lineCap: .butt))
                 .rotationEffect(.degrees(-90))
             VStack(spacing: 2) {
-                Text(readable(total)).font(.system(size: 16, weight: .bold))
-                    .minimumScaleFactor(0.66).lineLimit(1)
+                Text(readable(total)).font(.system(size: 15, weight: .bold))
+                    .minimumScaleFactor(0.6).lineLimit(1)
+                    .padding(.horizontal, 8)
                 Text("Total").font(.caption2).foregroundStyle(StorageDesign.muted)
             }
-        }.frame(width: 155, height: 155).padding(8)
+        }.frame(width: diameter, height: diameter).padding(6)
     }
 }
 
@@ -126,35 +136,43 @@ struct ReferenceOverviewPage: View {
             VStack(alignment: .leading, spacing: 16) {
                 StorageCard {
                     Text("Device Storage").font(.headline)
-                    HStack(spacing: 18) {
-                        StorageDonut(used: model.usedSize, total: model.totalSize)
-                        VStack(alignment: .leading, spacing: 15) {
-                            HStack(spacing: 7) {
-                                Circle().fill(StorageDesign.blue).frame(width: 9, height: 9)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Used").font(.caption).foregroundStyle(StorageDesign.muted)
-                                    Text(readable(model.usedSize)).font(.subheadline.bold())
-                                    Text(String(format:"%.1f%%", model.totalSize > 0 ? Double(model.usedSize)*100/Double(model.totalSize) : 0))
-                                        .font(.caption2).foregroundStyle(StorageDesign.muted)
+                    GeometryReader { space in
+                        let diameter = min(155, max(104, space.size.width * 0.42))
+                        HStack(alignment: .center, spacing: 12) {
+                            StorageDonut(used: model.usedSize, total: model.totalSize, diameter: diameter)
+                                .frame(width: diameter + 12, height: diameter + 12)
+                                .accessibilityLabel("Total storage \(readable(model.totalSize))")
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack(alignment: .top, spacing: 7) {
+                                    Circle().fill(StorageDesign.blue).frame(width: 9, height: 9).padding(.top, 4)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Used").font(.caption).foregroundStyle(StorageDesign.muted)
+                                        Text(readable(model.usedSize)).font(.subheadline.bold())
+                                            .lineLimit(1).minimumScaleFactor(0.65)
+                                        Text(String(format:"%.1f%%", model.totalSize > 0 ? Double(model.usedSize)*100/Double(model.totalSize) : 0))
+                                            .font(.caption2).foregroundStyle(StorageDesign.muted)
+                                    }.frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                HStack(alignment: .top, spacing: 7) {
+                                    Circle().fill(StorageDesign.orange).frame(width: 9, height: 9).padding(.top, 4)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Free").font(.caption).foregroundStyle(StorageDesign.muted)
+                                        Text(readable(model.availableSize)).font(.subheadline.bold())
+                                            .lineLimit(1).minimumScaleFactor(0.65)
+                                    }.frame(maxWidth: .infinity, alignment: .leading)
                                 }
                             }
-                            HStack(spacing: 7) {
-                                Circle().fill(StorageDesign.orange).frame(width: 9, height: 9)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Free").font(.caption).foregroundStyle(StorageDesign.muted)
-                                    Text(readable(model.availableSize)).font(.subheadline.bold())
-                                }
-                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        Spacer(minLength: 0)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     }
+                    .frame(height: 168)
                 }
 
-                HStack(spacing: 10) {
+                LazyVGrid(columns: [GridItem(.flexible(minimum: 0), spacing: 10),
+                                     GridItem(.flexible(minimum: 0), spacing: 10)], spacing: 10) {
                     StorageSummaryPill(title: "Apps", value: model.hasRun ? readable(measuredApps) : "Scan", symbol: "app.fill", color: StorageDesign.blue)
                     StorageSummaryPill(title: "Photos & Videos", value: photos.finished ? readable(activePhotoSize) : "Scan", symbol: "photo.on.rectangle", color: .orange)
-                }
-                HStack(spacing: 10) {
                     StorageSummaryPill(title: "System", value: "Not indexed", symbol: "gearshape", color: .gray)
                     StorageSummaryPill(title: "Other", value: "Not indexed", symbol: "square.grid.2x2.fill", color: Color(red: 0.36, green: 0.47, blue: 0.65))
                 }
@@ -211,18 +229,20 @@ struct ReferenceOverviewPage: View {
                             NavigationLink {
                                 FolderPage(path: item.path)
                             } label: {
-                                HStack(spacing: 11) {
+                                HStack(spacing: 9) {
                                     Image(systemName: "folder.fill")
                                         .foregroundStyle(StorageDesign.orange)
                                         .frame(width: 30)
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(model.catalog.label(for:item.path,fallback:item.name))
                                             .lineLimit(1).font(.subheadline.weight(.medium))
+                                            .truncationMode(.middle)
                                         Text(dateString(item.modified)).font(.caption2)
                                             .foregroundStyle(StorageDesign.muted)
                                     }
                                     Spacer()
                                     Text(readable(item.bytes)).font(.caption).foregroundStyle(StorageDesign.muted)
+                                        .lineLimit(1).minimumScaleFactor(0.7)
                                     Image(systemName:"chevron.right").font(.caption2).foregroundStyle(StorageDesign.muted)
                                 }.padding(.vertical, 10)
                             }
@@ -307,10 +327,12 @@ struct ReferenceAppsPage: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(app.name).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
                                 Text(app.id).font(.caption2).foregroundStyle(StorageDesign.muted)
-                                    .lineLimit(1)
+                                    .lineLimit(1).truncationMode(.middle)
                             }
                             Spacer()
                             Text(readable(app.total)).font(.caption).foregroundStyle(StorageDesign.muted)
+                                .lineLimit(1).minimumScaleFactor(0.7)
+                                .frame(maxWidth: 90, alignment: .trailing)
                         }.padding(.vertical, 3)
                     }.listRowBackground(StorageDesign.panel)
                 }
