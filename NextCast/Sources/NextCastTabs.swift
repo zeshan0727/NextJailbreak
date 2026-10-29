@@ -279,7 +279,7 @@ struct SettingsTab: View {
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("About") {
-                    LabeledContent("App", value: "Next Cast 1.3.3")
+                    LabeledContent("App", value: "Next Cast 1.3.5")
                     LabeledContent("Credits", value: "Next Jailbreak – Zeshan0727")
                     LabeledContent("Playback", value: "MobileVLCKit")
                     LabeledContent("Casting", value: "Google Cast")
