@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-storage",
+      "name": "Next Storage",
+      "version": "1.0.7",
+      "build": "8",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.storage",
+      "icon": "/install/icons/com-nextsolution-storage-d2787f7d4cac.png",
+      "manifest": "/install/com-nextsolution-storage.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-storage/1.0.7/com-nextsolution-storage-1.0.7-8.ipa",
+      "sha256": "d2787f7d4cacb0056c03344a0da22370e73699cd1a70f5b80a5a935dc0d1c37a",
+      "sizeBytes": 699047,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-multibrowser",
       "name": "Next Multi Browser",
       "version": "1.1.10",
