@@ -109,6 +109,7 @@ final class VideoDownloads: ObservableObject {
 struct DownloadsTab: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var downloads: VideoDownloads
+    @ObservedObject var browserDownloads: BrowserDownloadStore
     var openMovies: () -> Void
     private let timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
 
@@ -186,6 +187,45 @@ struct DownloadsTab: View {
                         }
                     }
 
+                    if !browserDownloads.items.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Browser Downloads").font(.title3.bold())
+                            ForEach(browserDownloads.items) { item in
+                                VStack(alignment: .leading, spacing: 7) {
+                                    HStack {
+                                        Image(systemName: item.status == "Downloading" ? "arrow.down.circle" : "doc")
+                                            .foregroundStyle(.cyan)
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(item.name).font(.subheadline.bold()).lineLimit(2)
+                                            Text(item.status).font(.caption).foregroundStyle(.secondary)
+                                        }
+                                        Spacer()
+                                        if let url = browserDownloads.fileURL(item),
+                                           item.status == "Saved to Downloads" {
+                                            ShareLink(item: url) {
+                                                Image(systemName: "square.and.arrow.up")
+                                            }
+                                        }
+                                    }
+                                    if item.status == "Downloading" {
+                                        ProgressView(value: item.progress)
+                                        HStack {
+                                            Text("\(Int(item.progress * 100))%")
+                                                .font(.caption.monospacedDigit())
+                                            Spacer()
+                                            Button("Cancel", role: .destructive) {
+                                                browserDownloads.cancel(item)
+                                            }.font(.caption)
+                                        }
+                                    } else {
+                                        Button("Remove from list", role: .destructive) {
+                                            browserDownloads.delete(item)
+                                        }.font(.caption)
+                                    }
+                                }.nextSurface()
+                            }
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 10) {
                         Label("Supported downloads", systemImage: "info.circle")
                             .font(.subheadline.bold())
@@ -195,7 +235,10 @@ struct DownloadsTab: View {
                 }.padding(18)
             }
             .navigationTitle("Downloads")
-            .onReceive(timer) { _ in downloads.refresh() }
+            .onReceive(timer) { _ in
+                downloads.refresh()
+                browserDownloads.tick()
+            }
             .alert("Download", isPresented: Binding(
                 get: { downloads.errorMessage != nil },
                 set: { if !$0 { downloads.errorMessage = nil } }
