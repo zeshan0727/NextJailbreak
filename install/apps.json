@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-multibrowser",
+      "name": "Next Multi Browser",
+      "version": "1.1.10",
+      "build": "18",
+      "platform": "iPhone",
+      "minimumOS": "iOS 15.0+",
+      "bundleId": "com.nextsolution.multibrowser",
+      "icon": "/install/icons/com-nextsolution-multibrowser-a985cf38a9ea.png",
+      "manifest": "/install/com-nextsolution-multibrowser.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-multibrowser/1.1.10/com-nextsolution-multibrowser-1.1.10-18.ipa",
+      "sha256": "a985cf38a9ea49033829cacce79e2bf5f60ea7368661370c99c7c0b438847ee8",
+      "sizeBytes": 7017966,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-nyxian",
       "name": "Nyxian",
       "version": "0.11.4",
@@ -368,5 +389,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-10-27"
+  "updated": "2026-10-29"
 }
