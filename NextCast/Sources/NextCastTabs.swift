@@ -35,7 +35,7 @@ private struct Surface: ViewModifier {
     }
 }
 extension View {
-    fileprivate func nextSurface() -> some View { modifier(Surface()) }
+    func nextSurface() -> some View { modifier(Surface()) }
 }
 
 struct MoviesTab: View {
