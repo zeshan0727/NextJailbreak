@@ -5,6 +5,7 @@ import Security
 
 enum RemoteBrand: String, CaseIterable, Identifiable {
     case cast = "Chromecast"
+    case android = "Android TV"
     case roku = "Roku TV"
     case samsung = "Samsung TV"
     case lg = "LG webOS"
@@ -12,6 +13,7 @@ enum RemoteBrand: String, CaseIterable, Identifiable {
     var symbol: String {
         switch self {
         case .cast: return "dot.radiowaves.left.and.right"
+        case .android: return "tv.fill"
         case .roku: return "tv"
         case .samsung: return "display"
         case .lg: return "tv.and.hifispeaker.fill"
@@ -99,7 +101,10 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
     @Published var status = "Choose your TV."
     @Published var alertText: String?
     @Published var pairing = false
+    @Published var androidPINRequired = false
+    @Published var androidPIN = ""
 
+    private var androidBridge: AndroidTVRemoteBridge?
     private var controlSession: URLSession?
     private var controlSocket: URLSessionWebSocketTask?
     private var pointerSocket: URLSessionWebSocketTask?
@@ -156,6 +161,7 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
         status = "Connecting…"
         UserDefaults.standard.set(host, forKey: savedHostKey + brand.rawValue)
         switch brand {
+        case .android: connectAndroid(host: host, generation: serial)
         case .roku: connectRoku(host: host, generation: serial)
         case .samsung: connectSamsung(host: host, generation: serial)
         case .lg: connectLG(host: host, generation: serial)
@@ -165,6 +171,10 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
 
     func disconnect() {
         serial = UUID()
+        androidBridge?.disconnect()
+        androidBridge = nil
+        androidPINRequired = false
+        androidPIN = ""
         controlSocket?.cancel(with: .goingAway, reason: nil)
         pointerSocket?.cancel(with: .goingAway, reason: nil)
         controlSession?.invalidateAndCancel()
@@ -176,6 +186,64 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
         connected = false
         deviceName = ""
         pairing = false
+    }
+
+    private func connectAndroid(host: String, generation: UUID) {
+        pairing = true
+        connected = false
+        deviceName = "Skyworth / Android TV"
+        do {
+            let bridge = try AndroidTVRemoteBridge()
+            androidBridge = bridge
+            bridge.onStatus = { [weak self] message in
+                guard let self, self.serial == generation else { return }
+                self.status = message
+            }
+            bridge.onPairingCodeRequired = { [weak self] in
+                guard let self, self.serial == generation else { return }
+                self.androidPIN = ""
+                self.androidPINRequired = true
+                self.status = "Enter the six-character TV pairing code."
+            }
+            bridge.onConnected = { [weak self] connected in
+                guard let self, self.serial == generation else { return }
+                self.connected = connected
+                self.pairing = !connected
+                if connected {
+                    self.androidPINRequired = false
+                    self.status = "Android TV remote paired · D-pad enabled"
+                }
+            }
+            bridge.onError = { [weak self] message in
+                guard let self, self.serial == generation else { return }
+                self.pairing = false
+                self.status = message
+                self.alertText = message
+            }
+            status = "Connecting Skyworth Android TV Remote v2…"
+            bridge.connect(host)
+        } catch {
+            pairing = false
+            alertText = "Android TV pairing identity error: \(error.localizedDescription)"
+            status = "Could not establish Android TV remote connection"
+        }
+    }
+
+    func submitAndroidTVCode() {
+        guard brand == .android else { return }
+        let code = androidPIN.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        guard code.count == 6, code.allSatisfy({ $0.isHexDigit }) else {
+            alertText = "Enter the six-character code shown on the TV (0–9, A–F)."
+            return
+        }
+        androidPINRequired = false
+        androidBridge?.submitCode(code)
+    }
+
+    func retryAndroidTVPairing() {
+        guard brand == .android, !activeHost.isEmpty else { return }
+        pairing = true
+        androidBridge?.startPairing()
     }
 
     private func connectRoku(host: String, generation: UUID) {
@@ -396,6 +464,9 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
         switch brand {
         case .cast:
             alertText = "Chromecast's default media receiver cannot accept general text input."
+        case .android:
+            androidBridge?.sendText(text)
+            status = "Sent basic keyboard keys to Android TV; focus a TV text field first."
         case .roku:
             // Roku ECP accepts Lit_ followed by one percent-encoded UTF-8
             // Unicode scalar. Keep requests in order, never launch them all
@@ -450,6 +521,8 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
     func finishTextEntry() {
         guard connected, activeBrand == brand else { return }
         switch brand {
+        case .android:
+            androidBridge?.send(.ok)
         case .roku:
             pressRokuEnter()
         case .samsung:
@@ -491,6 +564,8 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
             return
         }
         switch brand {
+        case .android:
+            androidBridge?.send(command)
         case .roku:
             guard let url = URL(string: "http://\(activeHost):8060/keypress/\(command.rokuKey)") else { return }
             var request = URLRequest(url: url)
