@@ -3,7 +3,7 @@ name: Build Next Storage iOS 16 TIPA and Publish NS Transfer
 on:
   push:
     branches:
-      - feature/next-storage-1.0.6-full-media-size
+      - feature/next-storage-1.0.6-icon-delete
     paths:
       - "NextStorage/**"
       - ".github/workflows/build-nextstorage-106.yml"
