@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Set Up vphone-cli 2.13.8 on an Apple Silicon Mac</title>
+      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
+      <pubDate>Thu, 29 Oct 2026 03:00:00 GMT</pubDate>
+      <description>Set up vphone-cli 2.13.8 on a physical Apple Silicon Mac, choose a verified firmware pair, create and launch a research guest, and fix the most common host and restore failures.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
       <title>Irisin vs Sileo: Which Jailbreak Package Manager Should You Use?</title>
       <link>https://nextjailbreak.com/irisin-vs-sileo-package-manager-comparison/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/irisin-vs-sileo-package-manager-comparison/</guid>
@@ -149,14 +157,7 @@
       <description>Install the correct official Filza build through Sileo on a rootless jailbreak or as a TrollStore IPA, then back up settings and avoid unsafe file edits.</description>
       <category>Evergreen Jailbreak Guide</category>
     </item>
-    <item>
-      <title>vphone-cli 2.13.4 Adds Guest Scripting and Fixes Debug Session</title>
-      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
-      <pubDate>Sun, 25 Oct 2026 21:03:32 GMT</pubDate>
-      <description>vphone-cli 2.13.4 fixes its new Debug Session window after 2.13.3 added JavaScriptCore guest scripting, a WebSocket terminal and an Objective-C bridge.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
+    
     <item>
       <title>PodAction 1.0.1 Maps AirPods Gestures to Shortcuts and System Actions</title>
       <link>https://nextjailbreak.com/podaction-1-0-1-airpods-gestures-shortcuts-actions/</link>

@@ -1,6 +1,42 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "article_sha256": "450fc800ca96a75584c1ea312e6420e1e27303c09fbb8ab51a62389243361ae9",
+      "category": {
+        "key": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Physical Apple Silicon Mac running macOS 15 or later; nested macOS virtualization is unsupported. Requires the official research-guest security setup, a verified matching iPhone/cloudOS firmware pair, network access for restore tickets and root for the CFW stage. This is virtualization research, not a physical-device jailbreak.",
+      "description": "Set up vphone-cli 2.13.8 on a physical Apple Silicon Mac, choose a verified firmware pair, create and launch a research guest, and fix the most common host and restore failures.",
+      "developer": "Lakr Aream",
+      "entry_type": "guide",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
+      "media_credit": "Lakr233 — official vphone-cli demo from the 2.13.8 tagged repository",
+      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
+      "media_retrieval_status": "Official tagged repository demo is stored locally; the committed asset exactly matches Documents/demo.jpeg from tag 2.13.8.",
+      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.13.8/Documents/demo.jpeg",
+      "modified_at": "2026-10-29T03:00:00Z",
+      "name": "vphone-cli setup",
+      "package": "project.vphone-cli",
+      "published_at": "2026-09-15T08:07:38+00:00",
+      "quality_target": 9,
+      "release": "vphone-cli 2.13.8 released 2026-10-26",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
+      "source_name": "Official vphone-cli 2.13.8 release, downloads, host setup, creation, compatibility and troubleshooting documentation",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.13.8",
+      "source_url": "https://github.com/Lakr233/vphone-cli",
+      "source_visual_origin": "official-tagged-repository-asset",
+      "source_visual_url": "https://github.com/Lakr233/vphone-cli/blob/2.13.8/Documents/demo.jpeg",
+      "title": "How to Set Up vphone-cli 2.13.8 on an Apple Silicon Mac",
+      "version": "2.13.8",
+      "candidate_fingerprint": "vphone-cli-2.13.8-2026-10-29-apple-silicon-setup-guide",
+      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest terminal on an Apple Silicon Mac",
+      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f"
+    },
+    {
       "additional_media": [
         "assets/articles/source-media/sileo-2-5-1-official-icon.png"
       ],
@@ -749,39 +785,6 @@
       "source_visual_url": "https://www.tigisoftware.com/default/wp-content/uploads/2020/08/IMG_7248X-fs8.png",
       "title": "How to Install Filza on a Rootless Jailbreak or TrollStore",
       "version": "Guide revision 2026-10-26 / Filza 4.0.1 jailbreak packages and 4.0.2 TrollStore page"
-    },
-    {
-      "additional_media": [],
-      "article_sha256": "450fc800ca96a75584c1ea312e6420e1e27303c09fbb8ab51a62389243361ae9",
-      "category": {
-        "id": "jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Physical Apple Silicon Mac. The 2.13 series adds guest JavaScriptCore scripting and a Mac Debug Session terminal; script_js is unavailable on watchOS. tvOS 27.2 research guests require macOS 27 because of LZRAVEN. This is virtualization research, not a physical-device jailbreak.",
-      "description": "vphone-cli 2.13.4 fixes its new Debug Session window after 2.13.3 added JavaScriptCore guest scripting, a WebSocket terminal and an Objective-C bridge.",
-      "developer": "Lakr Aream",
-      "entry_type": "development-update",
-      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
-      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
-      "media_credit": "Lakr233 — official vphone-cli demo retained in the 2.13.4 tagged repository",
-      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
-      "media_retrieval_status": "Official tagged repository demo is stored locally; the committed asset exactly matches Documents/demo.jpeg from tag 2.13.4.",
-      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.13.4/Documents/demo.jpeg",
-      "modified_at": "2026-10-25T21:03:32Z",
-      "name": "vphone-cli 2.13.4",
-      "package": "project.vphone-cli",
-      "published_at": "2026-09-15T08:07:38+00:00",
-      "quality_target": 9,
-      "release": "vphone-cli 2.13.4 released 2026-10-25",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
-      "source_name": "Official vphone-cli 2.13.4, 2.13.3 and 2.13.2 release notes and tagged project source",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.13.4",
-      "source_url": "https://github.com/Lakr233/vphone-cli",
-      "source_visual_origin": "official-tagged-repository-asset",
-      "source_visual_url": "https://github.com/Lakr233/vphone-cli/blob/2.13.4/Documents/demo.jpeg",
-      "title": "vphone-cli 2.13.4 Adds Guest Scripting and Fixes Debug Session",
-      "version": "2.13.4"
     },
     {
       "additional_media": [
@@ -9808,8 +9811,19 @@
       "published_at": "2026-10-28T12:17:36+00:00",
       "run_id": "40686530608",
       "version": "6.5"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "vphone-cli-2.13.8-2026-10-29-apple-silicon-setup-guide",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "package": "project.vphone-cli",
+      "previous_version": "2.13.4",
+      "published_at": "2026-10-29T03:00:00Z",
+      "run_id": "scheduled-2026-10-29T03:00:00Z",
+      "version": "2.13.8"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-28T12:17:36+00:00"
+  "updated_at": "2026-10-29T03:00:00Z"
 }
