@@ -551,6 +551,9 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
             // bytes, not the temporary UUID filename. Signed direct links
             // commonly omit the .mp4/.mkv extension altogether.
             if let video = try VideoFileInspector.preparedVideoURL(result, name: entry.name) {
+                // Retain a recovery path before moving into Movies. If import
+                // fails due to storage pressure, Move to Movies can retry it.
+                items[index].savedPath = video.path
                 let targetLibrary = library ?? MovieLibrary()
                 try targetLibrary.addDownloadedFile(
                     video,
@@ -599,6 +602,7 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
                 error = "The saved file is not recognized as a video."
                 return
             }
+            items[i].savedPath = video.path
             try targetLibrary.addDownloadedFile(
                 video,
                 suggestedName: VideoFileInspector.cleanTitle(items[i].name)
