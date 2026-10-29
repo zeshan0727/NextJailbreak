@@ -28,6 +28,7 @@ struct DownloadsTab: View {
     var openMovies: () -> Void
     @State private var refreshItem: DownloadRecord?
     @State private var newLinkText = ""
+    @AppStorage("nextcast.preferBackgroundDownloads") private var preferBackgroundDownloads = false
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -36,7 +37,7 @@ struct DownloadsTab: View {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Download Manager").font(.title2.bold())
-                        Text("Background transfers · live MB/s · estimated time remaining")
+                        Text("Reliable movie downloads · live MB/s · estimated time remaining")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                     VStack(spacing: 13) {
@@ -68,10 +69,21 @@ struct DownloadsTab: View {
                         }
                     }.nextSurface()
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("Optimized and background-ready", systemImage: "bolt.fill")
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("Download method", systemImage: "externaldrive.fill.badge.checkmark")
                             .font(.subheadline.bold()).foregroundStyle(.cyan)
-                        Text("Large files can use up to 3 parallel ranged connections when the server permits. Other servers use a standard download. Transfers can continue after switching apps or locking the iPhone; iOS controls actual scheduling.")
+                        Toggle(isOn: $preferBackgroundDownloads) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Use iOS background downloading")
+                                    .font(.subheadline.bold())
+                                Text(preferBackgroundDownloads
+                                    ? "Optional: runs when switching apps, but iOS temporary-file access can fail on some devices."
+                                    : "Recommended: saves directly to Movies from the first byte. Keep Next Cast open until complete.")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                        .tint(.cyan)
+                        Text("The selected method applies to new direct links and browser downloads. Reliable mode prevents a full transfer from being lost to a temporary-file permission failure. Background mode can use up to 3 server-approved connections.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }.nextSurface()
 
@@ -133,7 +145,7 @@ struct DownloadsTab: View {
                             }
                         }
                     }
-                    Text("If iOS blocks a CFNetwork temporary file, the app automatically switches to Safe Download and writes directly to private storage. Safe Download requires keeping Next Cast open. Speed and ETA are estimates; protected streams may not download.")
+                    Text("Reliable mode writes directly to Movies and requires keeping Next Cast open. Background mode is optional and may fail at finalization on some phones. File access and available storage are checked before downloading in reliable mode. Protected streams are not supported.")
                         .font(.footnote).foregroundStyle(.secondary).padding(.bottom, 10)
                 }.padding(18)
             }
