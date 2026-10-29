@@ -71,7 +71,7 @@ jobs:
         with:
           name: NextCast-iOS16-V1-1-TIPA
           path: |
-            NextCast-1.0.0.tipa
+            NextCast-1.1.0.tipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
