@@ -216,38 +216,52 @@ struct RemoteTab: View {
                 keyButton(.back, symbol: "arrow.uturn.backward", title: "Back")
             }
 
-            VStack(spacing: 0) {
-                HStack {
-                    Spacer()
-                    arrowButton(.up, "chevron.up")
-                    Spacer()
-                }
-                HStack(spacing: 14) {
-                    arrowButton(.left, "chevron.left")
-                    Spacer(minLength: 0)
-                    Button {
-                        send(.ok)
-                    } label: {
-                        Text("OK")
-                            .font(.headline.bold())
-                            .foregroundStyle(.white)
-                            .frame(width: 74, height: 74)
+            // Fill the available remote width with a 3 × 3 directional grid.
+            // Each key occupies a complete square cell; no layout Spacers push
+            // the buttons apart. The 5 active keys form the classic D-pad cross.
+            GeometryReader { geometry in
+                let gap: CGFloat = 7
+                let tile = max(1, (geometry.size.width - gap * 2) / 3)
+                VStack(spacing: gap) {
+                    HStack(spacing: gap) {
+                        Color.clear.frame(width: tile, height: tile)
+                            .accessibilityHidden(true)
+                        arrowButton(.up, "chevron.up", tile: tile)
+                        Color.clear.frame(width: tile, height: tile)
+                            .accessibilityHidden(true)
                     }
-                    .buttonStyle(SolidRemoteKeyStyle(
-                        fill: Color(red: 0.03, green: 0.53, blue: 0.74), radius: 20))
-                    .disabled(!ready || remote.brand == .cast)
-                    .opacity(ready && remote.brand != .cast ? 1 : 0.35)
-                    Spacer(minLength: 0)
-                    arrowButton(.right, "chevron.right")
+                    HStack(spacing: gap) {
+                        arrowButton(.left, "chevron.left", tile: tile)
+                        Button {
+                            send(.ok)
+                        } label: {
+                            Text("OK")
+                                .font(.system(size: max(19, tile * 0.24), weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: tile, height: tile)
+                                .contentShape(RoundedRectangle(cornerRadius: 20))
+                        }
+                        .buttonStyle(SolidRemoteKeyStyle(
+                            fill: Color(red: 0.03, green: 0.53, blue: 0.74), radius: 20))
+                        .disabled(!ready || remote.brand == .cast)
+                        .opacity(ready && remote.brand != .cast ? 1 : 0.65)
+                        .accessibilityLabel("OK")
+                        arrowButton(.right, "chevron.right", tile: tile)
+                    }
+                    HStack(spacing: gap) {
+                        Color.clear.frame(width: tile, height: tile)
+                            .accessibilityHidden(true)
+                        arrowButton(.down, "chevron.down", tile: tile)
+                        Color.clear.frame(width: tile, height: tile)
+                            .accessibilityHidden(true)
+                    }
                 }
-                HStack {
-                    Spacer()
-                    arrowButton(.down, "chevron.down")
-                    Spacer()
-                }
+                .frame(width: geometry.size.width, height: geometry.size.width)
             }
-            .padding(16)
-            .background(Color.secondary.opacity(0.075), in: RoundedRectangle(cornerRadius: 38))
+            .aspectRatio(1, contentMode: .fit)
+            .padding(7)
+            .background(Color.secondary.opacity(0.075),
+                        in: RoundedRectangle(cornerRadius: 26))
 
             Button {
                 keyboardText = ""
@@ -297,16 +311,18 @@ struct RemoteTab: View {
         }
     }
 
-    private func arrowButton(_ key: RemoteCommand, _ symbol: String) -> some View {
+    private func arrowButton(_ key: RemoteCommand, _ symbol: String,
+                             tile: CGFloat) -> some View {
         Button { send(key) } label: {
             Image(systemName: symbol)
-                .font(.system(size: 26, weight: .bold))
-                .frame(width: 75, height: 67)
+                .font(.system(size: max(25, min(42, tile * 0.34)), weight: .bold))
+                .frame(width: tile, height: tile)
                 .foregroundStyle(.white)
+                .contentShape(RoundedRectangle(cornerRadius: 20))
         }
         .buttonStyle(SolidRemoteKeyStyle(radius: 20))
         .disabled(!ready || remote.brand == .cast)
-        .opacity(ready && remote.brand != .cast ? 1 : 0.35)
+        .opacity(ready && remote.brand != .cast ? 1 : 0.65)
         .accessibilityLabel(key.rawValue.capitalized)
     }
 
