@@ -18,6 +18,7 @@ targets:
       - path: PhotosStorage.swift
       - path: MediaSizeBridge.m
       - path: MediaSizeBridge.h
+      - path: Assets.xcassets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nextjailbreak.storage
@@ -27,8 +28,9 @@ targets:
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "Analyze local photo and video storage, preview media and delete selected items with permission."
         INFOPLIST_KEY_UIRequiresFullScreen: 'NO'
         TARGETED_DEVICE_FAMILY: '1,2'
-        MARKETING_VERSION: '1.0.5'
-        CURRENT_PROJECT_VERSION: '6'
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        MARKETING_VERSION: '1.0.6'
+        CURRENT_PROJECT_VERSION: '7'
         CODE_SIGN_ENTITLEMENTS: NextStorage.entitlements
         SWIFT_STRICT_CONCURRENCY: minimal
         SWIFT_OBJC_BRIDGING_HEADER: MediaSizeBridge.h
