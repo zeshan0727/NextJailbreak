@@ -150,6 +150,9 @@ final class LibraryMediaStore: ObservableObject {
     @Published private(set) var status = ""
     @Published private(set) var inspectingID: String?
     @Published var alertError: String?
+    @Published private(set) var deletingID: String?
+    @Published private(set) var lastDeletedID: String?
+    @Published private(set) var deletionNotice: String?
     private var flag: ScanFlag?
     private var generation = UUID()
 
@@ -281,23 +284,46 @@ final class LibraryMediaStore: ObservableObject {
         }
     }
 
+    /// Delete through PhotoKit; never unlink Photos' backing files.
     func delete(_ id: String) {
-        guard !running, isAllowed else { alertError = "Complete the scan and grant Photos access first."; return }
-        let target = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
-        guard let asset = target.firstObject else { alertError = "This file no longer exists."; return }
+        guard deletingID == nil else { return }
+        let current = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        permission = current
+        guard current == .authorized || current == .limited else {
+            alertError = "Photos deletion requires Read & Write access. Open iOS Settings → Next Storage → Photos."
+            return
+        }
+        guard !running else {
+            alertError = "Complete or stop the scan before deleting a photo or video."
+            return
+        }
+        guard let asset = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil).firstObject else {
+            alertError = "Selected item could not be found in Photos. Check access and rescan."
+            return
+        }
+        deletingID = id
+        deletionNotice = "Requesting Photos deletion approval…"
         PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.deleteAssets([asset] as NSArray)
+            PHAssetChangeRequest.deleteAssets(NSArray(object: asset))
         }, completionHandler: { [weak self] success, error in
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.async {
                 guard let self else { return }
+                self.deletingID = nil
                 if success {
                     self.media.removeAll { $0.id == id }
+                    self.lastDeletedID = id
+                    self.deletionNotice = "Moved item to Recently Deleted."
                 } else {
-                    self.alertError = error?.localizedDescription ?? "Photos could not delete this item."
+                    self.deletionNotice = nil
+                    let e = error as NSError?
+                    let detail = error?.localizedDescription ?? "Photos did not complete deletion"
+                    let code = e.map { " (\($0.domain):\($0.code))" } ?? ""
+                    self.alertError = "Unable to delete: \(detail)\(code). Check Photos permission in iOS Settings."
                 }
             }
         })
     }
+
 }
 
 private enum MediaKind: String, CaseIterable {
