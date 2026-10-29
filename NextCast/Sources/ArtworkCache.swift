@@ -1,6 +1,5 @@
 import SwiftUI
 import AVFoundation
-import MobileVLCKit
 import UIKit
 import Combine
 
@@ -23,11 +22,12 @@ struct VideoDetails: Codable {
 }
 
 /// A small disk-backed artwork pipeline. At most one decoder is active.
-/// MP4/MOV use AVFoundation first; every other container (and failures) use
-/// MobileVLCKit asynchronously, one item at a time. If decoding fails,
-/// generate a readable title cover instead of an empty placeholder.
+/// Uses native AVFoundation only for background cover extraction. The older
+/// VLCMediaThumbnailer crashed iOS 16 in libvlc_media_player_new on startup
+/// when a saved movie was queued. No libVLC decoding or player creation occurs
+/// from this cache. Unsupported files get a readable deterministic cover.
 @MainActor
-final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegate {
+final class ArtworkCache: NSObject, ObservableObject {
     static let shared = ArtworkCache()
     @Published private(set) var images: [UUID: UIImage] = [:]
     @Published private(set) var details: [UUID: VideoDetails] = [:]
@@ -35,7 +35,6 @@ final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegat
     private var queued: [Movie] = []
     private var queuedIDs = Set<UUID>()
     private var activeMovie: Movie?
-    private var thumbnailer: VLCMediaThumbnailer?
     private var lastMetadata = VideoDetails()
     private let worker = DispatchQueue(label: "nextcast.artwork.one-at-a-time", qos: .utility)
 
@@ -100,7 +99,9 @@ final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegat
             if ["mp4", "m4v", "mov", "3gp"].contains(movie.localURL.pathExtension.lowercased()) {
                 self.generateAppleFrame(for: movie)
             } else {
-                self.generateVLCFrame(for: movie)
+                // VLC thumbnailer can segfault before its delegate or Swift
+                // error handler executes. Never instantiate it here.
+                self.finish(movie, image: self.createTitleCover(movie), metadata: VideoDetails())
             }
         }
     }
@@ -140,48 +141,10 @@ final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegat
                 if let frame {
                     self.finish(movie, image: UIImage(cgImage: frame), metadata: metadata)
                 } else {
-                    self.generateVLCFrame(for: movie)
+                    self.finish(movie, image: self.createTitleCover(movie), metadata: metadata)
                 }
             }
         }
-    }
-
-    private func generateVLCFrame(for movie: Movie) {
-        guard activeMovie?.id == movie.id else { return }
-        // Only one thumbnailer instance is ever retained at a time.
-        let media = VLCMedia(url: movie.localURL)
-        let decoder = VLCMediaThumbnailer()
-        decoder.media = media
-        decoder.delegate = self
-        decoder.thumbnailWidth = 540
-        decoder.thumbnailHeight = 400
-        decoder.snapshotPosition = 0.25
-        thumbnailer = decoder
-        decoder.fetchThumbnail()
-        // A misbehaving file may never send its delegate callback.
-        // Bound the time spent on a single file so subsequent covers progress.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 25) { [weak self, weak decoder] in
-            guard let self, let decoder, self.thumbnailer === decoder,
-                  let pending = self.activeMovie, pending.id == movie.id else { return }
-            self.thumbnailer = nil
-            self.finish(pending, image: self.createTitleCover(pending), metadata: self.lastMetadata)
-        }
-    }
-
-    func mediaThumbnailer(_ mediaThumbnailer: VLCMediaThumbnailer,
-                          didFinishThumbnail thumbnail: CGImage) {
-        guard thumbnailer === mediaThumbnailer, let movie = activeMovie else { return }
-        let duration = Double(mediaThumbnailer.media.length.intValue) / 1000.0
-        var info = lastMetadata
-        if duration.isFinite && duration > 0 { info.seconds = duration }
-        thumbnailer = nil
-        finish(movie, image: UIImage(cgImage: thumbnail), metadata: info)
-    }
-
-    func mediaThumbnailerDidTimeOut(_ mediaThumbnailer: VLCMediaThumbnailer) {
-        guard thumbnailer === mediaThumbnailer, let movie = activeMovie else { return }
-        thumbnailer = nil
-        finish(movie, image: createTitleCover(movie), metadata: lastMetadata)
     }
 
     private func finish(_ movie: Movie, image: UIImage, metadata: VideoDetails) {
