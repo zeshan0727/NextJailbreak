@@ -104,6 +104,9 @@ struct RemoteTab: View {
             .sheet(isPresented: $showKeyboard) {
                 keyboardSheet
             }
+            .sheet(isPresented: $remote.androidPINRequired) {
+                androidPairingSheet
+            }
         }
     }
 
@@ -132,6 +135,9 @@ struct RemoteTab: View {
                     ForEach(RemoteBrand.allCases) { brand in
                         Button {
                             remote.select(brand)
+                            if brand == .android, !cast.tvIPAddress.isEmpty {
+                                remote.address = cast.tvIPAddress
+                            }
                             showSetup = true
                         } label: {
                             HStack(spacing: 6) {
@@ -162,6 +168,11 @@ struct RemoteTab: View {
                             .font(.caption.bold()).foregroundStyle(.secondary)
                     }
                     Menu {
+                        Button("Skyworth / Android TV") {
+                            remote.select(.android)
+                            if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
+                            showSetup = true
+                        }
                         Button("Samsung Smart TV") {
                             remote.select(.samsung)
                             if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
@@ -223,8 +234,17 @@ struct RemoteTab: View {
                         Label("Accept the pairing prompt on the television.", systemImage: "hand.tap")
                             .font(.footnote).foregroundStyle(.orange)
                     }
-                    Text("Find the TV IP in its Network Settings. Some TVs require enabling mobile remote control.")
+                    Text(remote.brand == .android
+                        ? "Skyworth Android TV: use the TV's IP address (Settings → Network). Android TV Remote Service must be available on the TV; approve pairing and enter its six-character code."
+                        : "Find the TV IP in its Network Settings. Some TVs require enabling mobile remote control.")
                         .font(.caption).foregroundStyle(.secondary)
+                    if remote.brand == .android && !remote.connected {
+                        Button("Pair Android TV Again") {
+                            remote.retryAndroidTVPairing()
+                        }
+                        .font(.caption)
+                        .buttonStyle(.bordered)
+                    }
                 }
             }
         }
@@ -392,6 +412,45 @@ struct RemoteTab: View {
         remote.press(command, cast: cast)
     }
 
+    private var androidPairingSheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                Label("Skyworth Android TV pairing", systemImage: "tv")
+                    .font(.headline)
+                Text("Your TV should show a 6-character pairing code. Enter those characters here to authorize Next Cast as a navigation remote.")
+                    .font(.subheadline).foregroundStyle(.secondary)
+                TextField("TV code · 6 characters", text: $remote.androidPIN)
+                    .font(.title3.monospaced())
+                    .textInputAutocapitalization(.characters)
+                    .autocorrectionDisabled()
+                    .keyboardType(.asciiCapable)
+                    .padding(13)
+                    .background(.secondary.opacity(0.10), in: RoundedRectangle(cornerRadius: 12))
+                Button("Pair & Enable Remote") {
+                    remote.submitAndroidTVCode()
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.cyan)
+                .frame(maxWidth: .infinity)
+                .disabled(remote.androidPIN.count != 6)
+                Text("The Android TV Remote v2 pairing service generally uses ports 6467 and 6466 over local Wi-Fi. If no code appears, check whether Android TV Remote Service is enabled/updated on the TV.")
+                    .font(.caption).foregroundStyle(.secondary)
+                Spacer()
+            }
+            .padding(20)
+            .navigationTitle("Pair Android TV")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Cancel") {
+                        remote.androidPINRequired = false
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+
     private var keyboardSheet: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 15) {
@@ -435,7 +494,7 @@ struct RemoteTab: View {
                 }
                 .buttonStyle(.bordered)
 
-                Text("TV text input varies by app and model. Samsung and LG need an active TV text field; Roku accepts text when its on-screen keyboard is visible. Chromecast media receivers do not support general typing.")
+                Text("Typing requires a TV text field to be focused. Android TV accepts basic ASCII key events, while Roku, Samsung and LG use their respective input protocols. Chromecast media receivers do not support general typing.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 0)
@@ -464,6 +523,8 @@ struct RemoteTab: View {
         switch remote.brand {
         case .cast:
             return "Cast playback and volume work when a media session is active. The default Cast receiver does not expose a universal TV-keyboard or D-pad."
+        case .android:
+            return "Skyworth Android TV uses Remote v2 over Wi-Fi with a one-time on-TV pairing code. Cast media and TV navigation are separate connections; Home, D-pad, Back and OK enable after remote pairing."
         case .roku:
             return "Roku ECP over Wi-Fi (port 8060). On Roku OS 14.1+, enable Settings → System → Advanced system settings → Control by mobile apps. Volume and power require a Roku TV or supported device."
         case .samsung:
