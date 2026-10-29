@@ -6,17 +6,20 @@ struct NextCastTabs: View {
     @StateObject private var library = MovieLibrary()
     @StateObject private var cast = CastController()
     @StateObject private var downloads = VideoDownloads()
+    @StateObject private var browserDownloads = BrowserDownloadStore()
     @State private var tab = 0
 
     var body: some View {
         TabView(selection: $tab) {
             MoviesTab(library: library, cast: cast)
                 .tabItem { Label("Movies", systemImage: "film.stack") }.tag(0)
-            DownloadsTab(library: library, downloads: downloads) {
+            DownloadsTab(library: library, downloads: downloads, browserDownloads: browserDownloads) {
                 tab = 0
             }
                 .tabItem { Label("Downloads", systemImage: "arrow.down.circle") }.tag(1)
-            BrowserTab()
+            BrowserTab(library: library, downloads: browserDownloads) {
+                tab = 1
+            }
                 .tabItem { Label("Browser", systemImage: "globe") }.tag(2)
             SettingsTab(library: library)
                 .tabItem { Label("Settings", systemImage: "gearshape") }.tag(3)
