@@ -122,7 +122,7 @@ final class LocalMediaServer {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 8192) {
             [weak self] data, _, isComplete, error in
             guard let self else { connection.cancel(); return }
-            if error != nil || isComplete { connection.cancel(); return }
+            if error != nil { connection.cancel(); return }
             var collected = accumulated
             if let data { collected.append(data) }
             guard collected.count <= 32768 else {
@@ -131,6 +131,8 @@ final class LocalMediaServer {
             }
             if collected.range(of: Data("\r\n\r\n".utf8)) != nil {
                 self.respond(to: collected, connection: connection)
+            } else if isComplete {
+                connection.cancel()
             } else {
                 self.receiveHeaders(connection, accumulated: collected)
             }
