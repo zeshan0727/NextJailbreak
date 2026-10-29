@@ -2,6 +2,74 @@
   "entries": [
     {
       "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Lasso 1.0.0: iOS 15.0–26.0.1, rootless; Snapper 3 1.2.1: iOS 14.0–17.2, rootless with additional alternative-jailbreak notes; Unseen 0.0.5: iOS 15.0–18.7.9, rootless. Package ranges do not establish jailbreak availability for every device and firmware.",
+      "description": "Compare Lasso 1.0.0, Snapper 3 1.2.1 and Unseen 0.0.5 by capture tools, pinned screenshots, OCR, recording, privacy controls, iOS support and jailbreak environment.",
+      "developer": "AADiOS / jontelang / 82flex",
+      "entry_type": "comparison",
+      "href": "snapper-3-vs-screenshotactions-vs-unseen-comparison/",
+      "image": "assets/articles/source-media/lasso-1-0-0-official-banner.png",
+      "media_alt": "Official Lasso banner showing its crop frame, app icon and call recording indicator",
+      "media_credit": "AADiOS, jontelang and 82flex/Havoc — official package banner and interface screenshots",
+      "modified": "2026-10-29T09:00:00Z",
+      "name": "Screenshot jailbreak tweak comparison",
+      "package": "comparison.lasso-snapper3-unseen",
+      "published": "2026-10-21T08:58:29Z",
+      "quality_target": 9,
+      "release": "Lasso 1.0.0 / Snapper 3 1.2.1 / Unseen 0.0.5",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "source_name": "Official Lasso, Snapper 3 and Unseen Havoc listings plus the Unseen developer repository",
+      "source_page_url": "https://havoc.app/package/lasso",
+      "source_url": "https://havoc.app/package/snapper3",
+      "source_visual_origin": "Official Havoc package banner and interface screenshots",
+      "source_visual_url": "https://media.havoc.app/6add4d07ef706587524ec8b9",
+      "title": "Lasso vs Snapper 3 vs Unseen: Which Screenshot Tweak Should You Use?",
+      "version": "1.0.0 / 1.2.1 / 0.0.5",
+      "media_retrieval_status": "Official Havoc __NEXT_DATA__ assets were retrieved through ordinary read-only HTTP, visually inspected and stored locally.",
+      "media_source_url": "https://media.havoc.app/6add4d07ef706587524ec8b9",
+      "modified_at": "2026-10-29T09:00:00Z",
+      "slug": "snapper-3-vs-screenshotactions-vs-unseen-comparison",
+      "media_git_blob_sha": "503498e3982710723887e1ee7b07a134491f444f",
+      "media_sha256": "4f9cb5117aebbc13920f199a52b64ae5e2c88cf157cfe837e003db928eccd284",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/lasso-1-0-0-official-snap-workflow.png",
+          "media_alt": "Official Lasso interface showing a selected Home Screen region and capture action toolbar",
+          "media_credit": "Official Havoc package media",
+          "media_source_url": "https://media.havoc.app/6add4cbbef706587524ec63f",
+          "media_git_blob_sha": "7f3675a0bf1ec964d4b9d1076030805a7ce8e1b9",
+          "media_sha256": "824e791d9e9689a4401c7f5671e99a56a4ef4c04aecb9681701bd852cc150f61"
+        },
+        {
+          "image": "assets/articles/source-media/lasso-1-0-0-official-call-transcript.png",
+          "media_alt": "Official Lasso call transcript interface separating the other participant and the device owner",
+          "media_credit": "Official Havoc package media",
+          "media_source_url": "https://media.havoc.app/6add4cc4ef706587524ec68f",
+          "media_git_blob_sha": "b4204b66059c8d5559017a67643e46832e53eb01",
+          "media_sha256": "cc67fb54dab97ca0fce2f9dae5b35ca7a2bd09e7af118e0f57de8e2eae4705c3"
+        },
+        {
+          "image": "assets/articles/source-media/snapper-3-official-pinned-capture.png",
+          "media_alt": "Official Snapper 3 interface showing a cropped Notes region ready to pin, copy, save, scan or extract text",
+          "media_credit": "Official Havoc package media",
+          "media_source_url": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
+          "media_git_blob_sha": "98f4936d5ebf957c7a8973118c5be5189d34cd85",
+          "media_sha256": "a0e0585f78e9a40ad901c317164148f6b41c56bc9f70d07c9da94b3590c4c29e"
+        },
+        {
+          "image": "assets/articles/source-media/unseen-0-0-5-official-screenshot-example.jpg",
+          "media_alt": "Official Unseen example showing a messaging app screenshot and its nested captured result",
+          "media_credit": "Official Havoc package media",
+          "media_source_url": "https://media.havoc.app/6a45f1ef3c99d317b705c17e",
+          "media_git_blob_sha": "e3ec2e30ef584021b5962f76947638880371569c",
+          "media_sha256": "46c69de8ce5214ad6547b2385be0578bbc5488b3254a43697c41a94d002e835f"
+        }
+      ]
+    },
+    {
+      "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
       },
@@ -6721,34 +6789,6 @@
     },
     {
       "category": {
-        "id": "tweak-roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "Snapper 3 1.2.1: iOS 14.0–17.2; ScreenshotActions 1.2: iOS 12.0–15.7.5; Unseen 0.0.5: iOS 15.0–18.7.9. Havoc marks all three as supporting rootless, but package compatibility does not establish jailbreak availability for every device and firmware.",
-      "description": "Compare Snapper 3, ScreenshotActions and Unseen by screenshot workflow, iOS compatibility, rootless support, price and privacy limits.",
-      "developer": "jontelang / p2kdev / 82flex",
-      "entry_type": "comparison",
-      "href": "snapper-3-vs-screenshotactions-vs-unseen-comparison/",
-      "image": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
-      "media_alt": "Official Snapper 3 interface showing a cropped screenshot pinned over another app",
-      "media_credit": "jontelang/Havoc — official Snapper 3 interface screenshot; p2kdev/Havoc and 82flex/Havoc screenshots embedded in article",
-      "modified": "2026-10-21T08:58:29Z",
-      "name": "Screenshot jailbreak tweak comparison",
-      "package": "comparison.snapper3-screenshotactions-unseen",
-      "published": "2026-10-21T08:58:29Z",
-      "quality_target": 9,
-      "release": "Snapper 3 1.2.1 / ScreenshotActions 1.2 / Unseen 0.0.5",
-      "selection_pool": "scheduled-tweak-roundup-comparison",
-      "source_name": "Official Havoc package pages and Unseen developer repository",
-      "source_page_url": "https://havoc.app/package/snapper3",
-      "source_url": "https://github.com/owngoal-dev/Unseen",
-      "source_visual_origin": "Official package interface screenshots from Havoc",
-      "source_visual_url": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
-      "title": "Snapper 3 vs ScreenshotActions vs Unseen: Which Screenshot Tweak Fits You?",
-      "version": "1.2.1 / 1.2 / 0.0.5"
-    },
-    {
-      "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
@@ -9856,8 +9896,19 @@
       "published_at": "2026-10-29T05:39:23+00:00",
       "run_id": "40824577082",
       "version": "1.3.28"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "lasso-1.0.0-snapper3-1.2.1-unseen-0.0.5-2026-10-29",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "snapper-3-vs-screenshotactions-vs-unseen-comparison/",
+      "package": "comparison.lasso-snapper3-unseen",
+      "previous_version": "1.2.1 / 1.2 / 0.0.5",
+      "published_at": "2026-10-29T09:00:00Z",
+      "run_id": "scheduled-2026-10-29T09:00:00Z",
+      "version": "1.0.0 / 1.2.1 / 0.0.5"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-29T05:39:23+00:00"
+  "updated_at": "2026-10-29T09:00:00Z"
 }

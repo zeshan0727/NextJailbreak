@@ -1055,33 +1055,6 @@
         }
       ]
     },
-    "comparison.snapper3-screenshotactions-unseen": {
-      "credit_label": "jontelang, p2kdev and 82flex/Havoc — official package interface screenshots",
-      "source_page_url": "https://havoc.app/package/snapper3",
-      "secondary_source_page_urls": [
-        "https://havoc.app/package/ssactions",
-        "https://havoc.app/package/unseen"
-      ],
-      "official_source": true,
-      "hero": {
-        "url": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
-        "alt": "Official Snapper 3 interface showing a cropped screenshot pinned over another app",
-        "remote_embedded": true,
-        "retrieval_status": "Official media rendered and inspected; binary download was blocked by the automation execution environment, so the Havoc CDN asset is embedded directly."
-      },
-      "screenshots": [
-        {
-          "url": "https://media.havoc.app/621fd40e71ead574d78c47ee",
-          "alt": "Official ScreenshotActions preview menu showing Copy and Delete, Save, Share, Upload, and Save to Album actions",
-          "remote_embedded": true
-        },
-        {
-          "url": "https://media.havoc.app/6a45f1ef3c99d317b705c17e",
-          "alt": "Official Unseen settings screen with switches for hidden content, screenshot events, recording state, and system UI protection",
-          "remote_embedded": true
-        }
-      ]
-    },
     "com.ryannair05.cylinder": {
       "credit_label": "Ryan Nair/Cylinder Reborn GitHub repository — official project icon",
       "source_page_url": "https://github.com/ryannair05/Cylinder-Reborn",
@@ -1206,6 +1179,52 @@
         "retrieval_status": "Retrieved from the official Jikan 1.0.2 source tag, inspected and stored locally."
       },
       "screenshots": []
+    },
+    "comparison.lasso-snapper3-unseen": {
+      "credit_label": "AADiOS, jontelang and 82flex/Havoc — official package banner and interface screenshots",
+      "source_page_url": "https://havoc.app/package/lasso",
+      "secondary_source_page_urls": [
+        "https://havoc.app/package/snapper3",
+        "https://havoc.app/package/unseen"
+      ],
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6add4d07ef706587524ec8b9",
+        "alt": "Official Lasso banner showing its crop frame, app icon and call recording indicator",
+        "local_path": "assets/articles/source-media/lasso-1-0-0-official-banner.png",
+        "git_blob_sha": "503498e3982710723887e1ee7b07a134491f444f",
+        "sha256": "4f9cb5117aebbc13920f199a52b64ae5e2c88cf157cfe837e003db928eccd284"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6add4cbbef706587524ec63f",
+          "alt": "Official Lasso interface showing a selected Home Screen region and capture action toolbar",
+          "local_path": "assets/articles/source-media/lasso-1-0-0-official-snap-workflow.png",
+          "git_blob_sha": "7f3675a0bf1ec964d4b9d1076030805a7ce8e1b9",
+          "sha256": "824e791d9e9689a4401c7f5671e99a56a4ef4c04aecb9681701bd852cc150f61"
+        },
+        {
+          "url": "https://media.havoc.app/6add4cc4ef706587524ec68f",
+          "alt": "Official Lasso call transcript interface separating the other participant and the device owner",
+          "local_path": "assets/articles/source-media/lasso-1-0-0-official-call-transcript.png",
+          "git_blob_sha": "b4204b66059c8d5559017a67643e46832e53eb01",
+          "sha256": "cc67fb54dab97ca0fce2f9dae5b35ca7a2bd09e7af118e0f57de8e2eae4705c3"
+        },
+        {
+          "url": "https://media.havoc.app/648e1903fe8700fb22dd38b3",
+          "alt": "Official Snapper 3 interface showing a cropped Notes region ready to pin, copy, save, scan or extract text",
+          "local_path": "assets/articles/source-media/snapper-3-official-pinned-capture.png",
+          "git_blob_sha": "98f4936d5ebf957c7a8973118c5be5189d34cd85",
+          "sha256": "a0e0585f78e9a40ad901c317164148f6b41c56bc9f70d07c9da94b3590c4c29e"
+        },
+        {
+          "url": "https://media.havoc.app/6a45f1ef3c99d317b705c17e",
+          "alt": "Official Unseen example showing a messaging app screenshot and its nested captured result",
+          "local_path": "assets/articles/source-media/unseen-0-0-5-official-screenshot-example.jpg",
+          "git_blob_sha": "e3ec2e30ef584021b5962f76947638880371569c",
+          "sha256": "46c69de8ce5214ad6547b2385be0578bbc5488b3254a43697c41a94d002e835f"
+        }
+      ]
     }
   }
 }
