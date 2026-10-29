@@ -1082,14 +1082,15 @@
       "screenshots": []
     },
     "github.roothide.dopamine-roothide": {
-      "credit_label": "RootHide — official Dopamine-RootHide 3.x source-repository app icon",
-      "source_page_url": "https://github.com/roothide/Dopamine-roothide/tree/3.x",
+      "credit_label": "RootHide — exact Dopamine-RootHide app icon from official release 29 source tag",
+      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/29",
       "official_source": true,
       "hero": {
-        "url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-        "alt": "Official green Dopamine RootHide app icon from the project’s 3.x source branch",
+        "url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/29/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+        "alt": "Official Dopamine RootHide app icon from release 3.0.12-29",
         "local_path": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
-        "git_blob_sha": "9ea200d790af0c89b8781469b32b9720745e80c3"
+        "git_blob_sha": "74b017bf008532c15a92f1d8420fcc2bd44efae7",
+        "sha256": "572f64ad1e3c2b4b0809d53e769e88769d6292596d6a808fa113044fed7c0490"
       },
       "screenshots": []
     },

@@ -2,6 +2,40 @@
   "entries": [
     {
       "category": {
+        "id": "jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Release 29 carries Dopamine source ranges for arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. RootHide's release note does not publish a separate matrix; exact device, firmware, exploit chain and installation method must still be verified.",
+      "description": "Dopamine RootHide 3.0.12-29 fixes a Messages app lag issue, updates bundled Sileo, and provides official IPA/TIPA downloads with a new SHA-256.",
+      "developer": "RootHide",
+      "entry_type": "development",
+      "href": "dopamine-roothide-3-x-integration-status/",
+      "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
+      "media_alt": "Official Dopamine RootHide app icon from release 3.0.12-29",
+      "media_credit": "RootHide — exact app icon from official release 29 source tag",
+      "media_retrieval_status": "Exact official release 29 source icon retrieved, visually inspected, stored locally, embedded in the article and used in social metadata.",
+      "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/29/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified_at": "2026-10-29T21:00:00Z",
+      "name": "Dopamine RootHide 3.0.12-29 release status",
+      "package": "github.roothide.dopamine-roothide",
+      "published_at": "2026-10-23T01:03:42Z",
+      "quality_target": 9,
+      "release": "3.0.12-29 / tag 29 with official IPA and TIPA assets",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "dopamine-roothide-3-x-integration-status",
+      "source_name": "Official RootHide Dopamine-RootHide release 29, asset metadata, source tag and upstream Dopamine 3.0.12 release",
+      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/29",
+      "source_url": "https://github.com/roothide/Dopamine-roothide",
+      "source_visual_origin": "official-release-29-source-tag-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/29/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Dopamine RootHide 3.0.12-29 Fixes Messages Lag and Updates Sileo",
+      "version": "3.0.12-29",
+      "modified": "2026-10-29T21:00:00Z",
+      "media_sha256": "572f64ad1e3c2b4b0809d53e769e88769d6292596d6a808fa113044fed7c0490",
+      "media_git_blob_sha": "74b017bf008532c15a92f1d8420fcc2bd44efae7"
+    },
+    {
+      "category": {
         "id": "individual-tweak-update",
         "label": "Individual Tweak Update"
       },
@@ -416,37 +450,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
       "title": "How to Install RootHide Bootstrap 2.2.1 with TrollStore",
       "version": "Guide revision 2026-10-28 / RootHide Bootstrap 2.2.1"
-    },
-    {
-      "category": {
-        "id": "jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Tag 28 now includes official IPA and TIPA assets, but its release note does not publish a separate RootHide device-and-firmware matrix. Availability still depends on device, firmware, exploit chain and installation method.",
-      "description": "RootHide added official IPA and TIPA downloads to Dopamine RootHide 3.0.12-28 on October 25, 2026; both assets have the same size and SHA-256 digest.",
-      "developer": "RootHide",
-      "entry_type": "development",
-      "href": "dopamine-roothide-3-x-integration-status/",
-      "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
-      "media_alt": "Official Dopamine RootHide app icon from the project’s 3.x source branch",
-      "media_credit": "RootHide — official Dopamine-RootHide 3.x source-repository app icon",
-      "media_retrieval_status": "Official source-repository icon retrieved, stored locally, embedded in the article and used in social metadata.",
-      "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "modified_at": "2026-10-27T21:01:15Z",
-      "name": "Dopamine RootHide 3.0.12-28 release status",
-      "package": "github.roothide.dopamine-roothide",
-      "published_at": "2026-10-23T01:03:42Z",
-      "quality_target": 9,
-      "release": "3.0.12-28 / tag 28 with official IPA and TIPA assets",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "dopamine-roothide-3-x-integration-status",
-      "source_name": "Official RootHide Dopamine-RootHide tag 28 release, asset metadata and upstream Dopamine 3.0.12 release",
-      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/28",
-      "source_url": "https://github.com/roothide/Dopamine-roothide",
-      "source_visual_origin": "official-3.x-source-repository-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/3.x/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "Dopamine RootHide 3.0.12-28 Now Has Official IPA and TIPA Downloads",
-      "version": "3.0.12-28 / official IPA and TIPA assets"
     },
     {
       "article_sha256": "1c27a2f8dd2b1f5489691e5256dbe0ae8d648c03fbbadc0ce42e7852c3b220ad",

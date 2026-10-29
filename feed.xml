@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Dopamine RootHide 3.0.12-29 Fixes Messages Lag and Updates Sileo</title>
+      <link>https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</guid>
+      <pubDate>Thu, 29 Oct 2026 21:00:00 GMT</pubDate>
+      <description>Dopamine RootHide 3.0.12-29 fixes a Messages app lag issue, updates bundled Sileo, and provides official IPA/TIPA downloads with a new SHA-256.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
       <title>CamHop 1.0.0 Turns a Computer Webcam into an iPhone Camera</title>
       <link>https://nextjailbreak.com/camhop-1-0-computer-webcam-iphone-camera/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/camhop-1-0-computer-webcam-iphone-camera/</guid>
@@ -84,14 +92,6 @@
       <pubDate>Wed, 28 Oct 2026 01:00:09 GMT</pubDate>
       <description>Install RootHide Bootstrap 2.2.1 from its official TIPA with TrollStore, check iOS and device requirements, and avoid conflicts with active jailbreaks.</description>
       <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Dopamine RootHide 3.0.12-28 Now Has Official IPA and TIPA Downloads</title>
-      <link>https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</guid>
-      <pubDate>Tue, 27 Oct 2026 21:01:15 GMT</pubDate>
-      <description>RootHide added official IPA and TIPA downloads to Dopamine RootHide 3.0.12-28 on October 25, 2026; both assets have the same size and SHA-256 digest.</description>
-      <category>Current Jailbreak Development</category>
     </item>
     <item>
       <title>Prism 1.6.4 Adds iOS 26 Support and Fixes Control Center Launching</title>
