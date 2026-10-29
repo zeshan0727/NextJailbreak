@@ -5,28 +5,36 @@ import PhotosUI
 struct NextSignerRootView: View {
     @StateObject private var store = SignerStore()
     @StateObject private var local = LocalSigningController()
+    @State private var selectedTab: SignerMainTab = .home
+    @AppStorage("nextsigner.appearance") private var appearance = SignerAppearance.system.rawValue
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
+            NextSignerDashboardView(store: store, local: local, selectedTab: $selectedTab)
+                .tabItem { Label("Home", systemImage: "square.grid.2x2.fill") }
+                .tag(SignerMainTab.home)
+
             NextSignerLocalSignView(store: store, local: local)
                 .tabItem { Label("Sign", systemImage: "signature") }
+                .tag(SignerMainTab.sign)
 
             NextSignerSignedAppsView(store: store, local: local)
-                .tabItem { Label("Signed Apps", systemImage: "checkmark.seal.fill") }
+                .tabItem { Label("Signed", systemImage: "checkmark.seal.fill") }
+                .tag(SignerMainTab.signedApps)
 
             NextSignerLibraryView(store: store)
                 .tabItem { Label("Library", systemImage: "square.stack.3d.up.fill") }
-
-            NextSignerActivityView(store: store)
-                .tabItem { Label("Activity", systemImage: "clock.arrow.circlepath") }
-
-            NextSignerLocalProfileView(local: local)
-                .tabItem { Label("Profiles", systemImage: "person.badge.key.fill") }
+                .tag(SignerMainTab.library)
 
             NextSignerLocalSettingsView(store: store, local: local)
-                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+                .tag(SignerMainTab.settings)
         }
-        .tint(.accentColor)
+        .tint(SignerDesign.blue)
+        .groupBoxStyle(SignerModernGroupBoxStyle())
+        .preferredColorScheme(
+            (SignerAppearance(rawValue: appearance) ?? .system).preferredScheme
+        )
     }
 }
 
@@ -590,7 +598,7 @@ private struct NextSignerLibraryView: View {
     }
 }
 
-private struct NextSignerActivityView: View {
+struct NextSignerActivityView: View {
     @ObservedObject var store: SignerStore
 
     var body: some View {
