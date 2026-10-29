@@ -1,13 +1,42 @@
 import SwiftUI
 import GoogleCast
 
+/// Dark, solid tactile remote keys. Haptic fires at finger-down instead
+/// of waiting for the remote command to finish on finger-up.
+private struct SolidRemoteKeyStyle: ButtonStyle {
+    var fill: Color = Color(red: 0.17, green: 0.19, blue: 0.23)
+    var radius: CGFloat = 15
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .fill(fill)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .strokeBorder(.white.opacity(configuration.isPressed ? 0.08 : 0.14), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(configuration.isPressed ? 0.06 : 0.23),
+                    radius: configuration.isPressed ? 1 : 4,
+                    y: configuration.isPressed ? 1 : 3)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1)
+            .offset(y: configuration.isPressed ? 1 : 0)
+            .animation(.easeOut(duration: 0.10), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { pressed in
+                if pressed {
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.55)
+                }
+            }
+    }
+}
+
 /// Original Next Cast full-screen remote, designed around the actual
 /// capabilities of each supported TV protocol.
 struct RemoteTab: View {
     @ObservedObject var remote: RemoteControlModel
     @ObservedObject var cast: CastController
     @State private var showSetup = true
-    @State private var showNumbers = false
     @Environment(\.dismiss) private var dismiss
 
     private var ready: Bool {
@@ -174,21 +203,20 @@ struct RemoteTab: View {
     }
 
     private var remoteFace: some View {
-        VStack(spacing: 18) {
-            HStack(spacing: 15) {
-                keyButton(.power, symbol: "power", title: "Power", tint: .red)
-                Spacer()
+        VStack(spacing: 13) {
+            HStack(spacing: 9) {
+                keyButton(.power, symbol: "power", title: "Power", tint: Color(red: 1, green: 0.35, blue: 0.38))
                 keyButton(.home, symbol: "house.fill", title: "Home")
                 keyButton(.back, symbol: "arrow.uturn.backward", title: "Back")
             }
 
-            VStack(spacing: 0) {
+            VStack(spacing: 3) {
                 HStack {
                     Spacer()
                     arrowButton(.up, "chevron.up")
                     Spacer()
                 }
-                HStack(spacing: 14) {
+                HStack(spacing: 9) {
                     arrowButton(.left, "chevron.left")
                     Spacer(minLength: 0)
                     Button {
@@ -197,10 +225,10 @@ struct RemoteTab: View {
                         Text("OK")
                             .font(.headline.bold())
                             .foregroundStyle(.white)
-                            .frame(width: 74, height: 74)
-                            .background(.cyan, in: Circle())
+                            .frame(width: 62, height: 58)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(SolidRemoteKeyStyle(
+                        fill: Color(red: 0.03, green: 0.53, blue: 0.74), radius: 20))
                     .disabled(!ready || remote.brand == .cast)
                     .opacity(ready && remote.brand != .cast ? 1 : 0.35)
                     Spacer(minLength: 0)
@@ -212,23 +240,23 @@ struct RemoteTab: View {
                     Spacer()
                 }
             }
-            .padding(16)
-            .background(Color.secondary.opacity(0.075), in: RoundedRectangle(cornerRadius: 38))
+            .padding(11)
+            .background(Color.secondary.opacity(0.085), in: RoundedRectangle(cornerRadius: 24))
 
-            HStack(spacing: 18) {
+            HStack(spacing: 9) {
                 keyButton(.rewind, symbol: "backward.end.fill", title: "Back 10s")
                 keyButton(.playPause, symbol: cast.isPlaying && remote.brand == .cast ? "pause.fill" : "playpause.fill", title: "Play / Pause")
                 keyButton(.forward, symbol: "forward.end.fill", title: "Forward 10s")
             }
 
-            HStack(spacing: 10) {
-                VStack(spacing: 11) {
+            HStack(spacing: 9) {
+                VStack(spacing: 8) {
                     Text("VOLUME").font(.caption2.bold()).tracking(1.6).foregroundStyle(.secondary)
                     keyButton(.volumeUp, symbol: "speaker.plus.fill", title: "Vol +")
                     keyButton(.volumeDown, symbol: "speaker.minus.fill", title: "Vol −")
                 }
                 .frame(maxWidth: .infinity)
-                VStack(spacing: 11) {
+                VStack(spacing: 8) {
                     Text("AUDIO").font(.caption2.bold()).tracking(1.6).foregroundStyle(.secondary)
                     keyButton(.mute, symbol: "speaker.slash.fill", title: "Mute")
                     if remote.brand == .cast {
@@ -242,23 +270,21 @@ struct RemoteTab: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .padding(22)
-        .background(.secondary.opacity(0.035), in: RoundedRectangle(cornerRadius: 28))
+        .padding(13)
+        .background(.secondary.opacity(0.04), in: RoundedRectangle(cornerRadius: 23))
         .overlay {
-            RoundedRectangle(cornerRadius: 28).strokeBorder(.secondary.opacity(0.10))
+            RoundedRectangle(cornerRadius: 23).strokeBorder(.secondary.opacity(0.10))
         }
     }
 
     private func arrowButton(_ key: RemoteCommand, _ symbol: String) -> some View {
         Button { send(key) } label: {
             Image(systemName: symbol)
-                .font(.system(size: 26, weight: .bold))
-                .frame(width: 75, height: 67)
-                .foregroundStyle(.primary)
-                .background(Color.secondary.opacity(0.11),
-                            in: RoundedRectangle(cornerRadius: 20))
+                .font(.system(size: 22, weight: .bold))
+                .frame(width: 61, height: 54)
+                .foregroundStyle(.white)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SolidRemoteKeyStyle(radius: 17))
         .disabled(!ready || remote.brand == .cast)
         .opacity(ready && remote.brand != .cast ? 1 : 0.35)
         .accessibilityLabel(key.rawValue.capitalized)
@@ -269,30 +295,28 @@ struct RemoteTab: View {
         let unsupported = remote.brand == .cast &&
             ![RemoteCommand.playPause, .rewind, .forward, .volumeUp, .volumeDown, .mute].contains(key)
         return Button { send(key) } label: {
-            VStack(spacing: 7) {
+            VStack(spacing: 4) {
                 Image(systemName: symbol)
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(size: 19, weight: .semibold))
                     .foregroundStyle(tint)
-                    .frame(height: 29)
+                    .frame(height: 23)
                 Text(title)
                     .font(.caption2.bold())
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .frame(maxWidth: .infinity, minHeight: 68)
-            .padding(6)
-            .background(Color.secondary.opacity(0.095),
-                        in: RoundedRectangle(cornerRadius: 16))
+            .frame(maxWidth: .infinity, minHeight: 53)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 3)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SolidRemoteKeyStyle())
         .disabled(!ready || unsupported)
         .opacity((ready && !unsupported) ? 1 : 0.35)
     }
 
     private func send(_ command: RemoteCommand) {
         remote.press(command, cast: cast)
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private var protocolFootnote: String {
