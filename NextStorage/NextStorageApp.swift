@@ -518,7 +518,7 @@ struct SettingsPage: View {
             }
             Section("Credits") {
                 Text("Next Jailbreak · Zeshan0727")
-                Text("Next Storage 1.0.5")
+                Text("Next Storage 1.0.6")
             }
         }.navigationTitle("Settings")
     }
