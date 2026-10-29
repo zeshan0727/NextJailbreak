@@ -33,6 +33,7 @@ struct MoviePlayerScreen: View {
     let movie: Movie
     @ObservedObject var cast: CastController
     @StateObject private var player = VLCPlayback()
+    @StateObject private var castPreparer = MKVCastPreparer()
     @State private var broadcast = false
     @State private var requestedCast = false
     @State private var dragging = false
@@ -177,12 +178,27 @@ struct MoviePlayerScreen: View {
                             Spacer()
                             CastButton().frame(width: 46, height: 46)
                         }
-                        Button(broadcast ? "Playing on TV" : "Play on TV") {
+                        Button(broadcast ? "Playing on TV" :
+                               castPreparer.preparing ? "Preparing MKV…" :
+                               movie.format == "MKV" ? "Prepare MKV & Cast" : "Play on TV") {
                             requestedCast = true
                             if cast.isConnected { playOnTV() }
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(broadcast || !movie.castCompatible)
+                        .disabled(broadcast || castPreparer.preparing ||
+                            (!movie.castCompatible && movie.format != "MKV"))
+                        if castPreparer.preparing {
+                            VStack(alignment: .leading, spacing: 7) {
+                                ProgressView()
+                                Text(castPreparer.status)
+                                    .font(.caption).foregroundStyle(.secondary)
+                                Text("Preparation is local, may take time and needs extra free space. Keep Next Cast open.")
+                                    .font(.caption2).foregroundStyle(.secondary)
+                                Button("Cancel preparation", role: .destructive) {
+                                    castPreparer.cancel()
+                                }.font(.caption)
+                            }
+                        }
                         if broadcast {
                             HStack {
                                 Image(systemName: "speaker.wave.2")
@@ -191,8 +207,11 @@ struct MoviePlayerScreen: View {
                                 }
                             }
                         }
-                        if !movie.castCompatible {
-                            Text("This format plays locally but isn't a direct Chromecast format. For TV casting, MP4 with H.264/AAC is recommended.")
+                        if movie.format == "MKV" {
+                            Text("Chromecast does not decode MKV directly. Next Cast can prepare an MP4 copy locally (video copy + AAC audio) and cast it. This needs free space approximately equal to the movie size. Your MKV remains unchanged.")
+                                .font(.caption).foregroundStyle(.orange)
+                        } else if !movie.castCompatible {
+                            Text("This format is not supported by Chromecast. MKV can be prepared locally; other formats need compatible MP4 video.")
                                 .font(.caption).foregroundStyle(.orange)
                         }
                     }
@@ -210,6 +229,14 @@ struct MoviePlayerScreen: View {
                     }
                 }
             }
+        }
+        .alert("TV Cast preparation", isPresented: Binding(
+            get: { castPreparer.errorMessage != nil },
+            set: { if !$0 { castPreparer.errorMessage = nil } }
+        )) {
+            Button("OK") { castPreparer.errorMessage = nil }
+        } message: {
+            Text(castPreparer.errorMessage ?? "")
         }
         .alert("Continue watching?", isPresented: $showResumeAlert) {
             Button("Resume from \(timeLabel(savedResumeTime))") {
@@ -269,6 +296,7 @@ struct MoviePlayerScreen: View {
             if !fullScreen {
                 persistPlayback()
                 player.stop()
+                castPreparer.cancel()
                 requestedCast = false
             }
         }
@@ -280,11 +308,21 @@ struct MoviePlayerScreen: View {
         }
     }
     private func playOnTV() {
-        guard movie.castCompatible, cast.isConnected else { return }
-        persistPlayback()
-        player.pause()
-        cast.load(movie)
-        broadcast = true
+        guard cast.isConnected else { return }
+        if movie.format == "MKV" {
+            castPreparer.prepare(movie) { readyMovie in
+                guard cast.isConnected, requestedCast else { return }
+                persistPlayback()
+                player.pause()
+                cast.load(readyMovie)
+                broadcast = true
+            }
+        } else if movie.castCompatible {
+            persistPlayback()
+            player.pause()
+            cast.load(movie)
+            broadcast = true
+        }
     }
     private func skip(_ seconds: Double) {
         if broadcast { cast.skip(seconds) }
