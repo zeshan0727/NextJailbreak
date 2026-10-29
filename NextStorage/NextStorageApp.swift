@@ -60,12 +60,15 @@ final class StorageAnalyzer {
     private var shouldStop = false
     private var filesystemDevice: dev_t = 0
     private var visited = Set<String>()
+    private var visitedDirectories = Set<String>()
+    private var deniedPaths = [String]()
     private var records = [DiskItem]()
     private var sizes = [String: Int64]()
     private var dates = [String: Date]()
     private var denied = 0
     private var processed = 0
     private var limited = false
+    private let excluded = Set(["/dev", "/proc", "/private/var/run", "/private/var/vm"])
     func stop() { cancelLock.lock(); shouldStop = true; cancelLock.unlock() }
     private var stopped: Bool { cancelLock.lock(); defer { cancelLock.unlock() }; return shouldStop }
     struct Result {
@@ -76,6 +79,7 @@ final class StorageAnalyzer {
         let used: Int64
         let processed: Int
         let denied: Int
+        let deniedPaths: [String]
         let limited: Bool
     }
     func run(_ root: String, update: @escaping (Int, String) -> Void) -> Result {
@@ -86,17 +90,23 @@ final class StorageAnalyzer {
         } else { denied += 1 }
         let apps = installedApps()
         return Result(records: records, sizes: sizes, dates: dates, apps: apps,
-                      used: sizes[root] ?? 0, processed: processed, denied: denied, limited: limited)
+                      used: sizes[root] ?? 0, processed: processed, denied: denied, deniedPaths: deniedPaths, limited: limited || stopped)
     }
     private func walk(_ path: String, depth: Int, update: @escaping (Int, String) -> Void) -> Int64 {
         if stopped { return 0 }
         var info = stat()
-        guard lstat(path, &info) == 0 else { denied += 1; return 0 }
-        if info.st_dev != filesystemDevice { return 0 }
+        guard lstat(path, &info) == 0 else {
+            denied += 1
+            if deniedPaths.count < 25 { deniedPaths.append(path + " (errno \(errno))") }
+            return 0
+        }
+        // APFS user data and system root can be different devices.
+        // Traverse both; prevent infinite loops via (device,inode) visit keys.
+        if excluded.contains(path) { return 0 }
         let kind = mode_t(info.st_mode) & mode_t(S_IFMT)
         if kind == mode_t(S_IFLNK) { return 0 }
         if kind != mode_t(S_IFDIR) && kind != mode_t(S_IFREG) { return 0 }
-        if processed >= 350_000 { limited = true; return 0 }
+        if processed >= 950_000 { limited = true; return 0 }
         processed += 1
         if processed % 1500 == 0 { update(processed, path) }
         let size = max(Int64(0), Int64(info.st_blocks) * 512)
@@ -106,14 +116,16 @@ final class StorageAnalyzer {
                 let fingerprint = "\(info.st_dev):\(info.st_ino)"
                 if !visited.insert(fingerprint).inserted { return 0 }
             }
-            if records.count < 200_000 {
+            if records.count < 550_000 {
                 records.append(DiskItem(path: path, bytes: size, modified: modified, folder: false))
             } else { limited = true }
             return size
         }
         var total = size
         var newest = modified
-        if depth < 70 {
+        let fingerprint = "\(info.st_dev):\(info.st_ino)"
+        if !visitedDirectories.insert(fingerprint).inserted { return 0 }
+        if depth < 128 {
             do {
                 let names = try fm.contentsOfDirectory(atPath: path)
                 for name in names {
@@ -122,47 +134,29 @@ final class StorageAnalyzer {
                     total += walk(child, depth: depth + 1, update: update)
                     if let d = dates[child], d > newest { newest = d }
                 }
-            } catch { denied += 1 }
+            } catch {
+                denied += 1
+                if deniedPaths.count < 25 { deniedPaths.append(path + " (\(error.localizedDescription))") }
+            }
         } else { limited = true }
-        if sizes.count < 200_000 {
+        if sizes.count < 550_000 {
             sizes[path] = total
             dates[path] = newest
         } else { limited = true }
-        if records.count < 200_000 {
+        if records.count < 550_000 {
             records.append(DiskItem(path: path, bytes: total, modified: newest, folder: true))
         } else { limited = true }
         return total
     }
     private func installedApps() -> [InstalledFootprint] {
-        let base = "/private/var/containers/Bundle/Application"
-        let dataBase = "/private/var/mobile/Containers/Data/Application"
-        let dataDirs = (try? fm.contentsOfDirectory(atPath: dataBase)) ?? []
-        var dataMap = [String: String]()
-        for uuid in dataDirs {
-            let path = dataBase + "/" + uuid
-            let metadata = path + "/.com.apple.mobile_container_manager.metadata.plist"
-            if let dict = NSDictionary(contentsOfFile: metadata),
-               let id = dict["MCMMetadataIdentifier"] as? String { dataMap[id] = path }
-        }
-        var output = [InstalledFootprint]()
-        for uuid in (try? fm.contentsOfDirectory(atPath: base)) ?? [] {
-            let path = base + "/" + uuid
-            guard let appName = (try? fm.contentsOfDirectory(atPath: path))?.first(where: { $0.hasSuffix(".app") }),
-                  let info = NSDictionary(contentsOfFile: path + "/" + appName + "/Info.plist"),
-                  let bundle = info["CFBundleIdentifier"] as? String else { continue }
-            let name = info["CFBundleDisplayName"] as? String ?? info["CFBundleName"] as? String ?? appName
-            let data = dataMap[bundle]
-            output.append(InstalledFootprint(id: bundle, name: name, bundle: path, data: data,
-                                              bundleSize: sizes[path] ?? 0,
-                                              dataSize: data.flatMap { sizes[$0] } ?? 0))
-        }
-        return output.sorted { $0.total > $1.total }
+        AppCatalog().installedFootprints(sizes: sizes)
     }
+
 }
 
 @MainActor
 final class StorageModel: ObservableObject {
-    @Published var selectedRoot = "/private/var"
+    @Published var selectedRoot = "/"
     @Published var scanning = false
     @Published var files = [DiskItem]()
     @Published var apps = [InstalledFootprint]()
@@ -171,6 +165,9 @@ final class StorageModel: ObservableObject {
     @Published var scanned = 0
     @Published var denied = 0
     @Published var limited = false
+    @Published var deniedSamples = [String]()
+    @Published var catalog = AppCatalog()
+    @Published var largestAppFolders = [DiskItem]()
     @Published var currentPath = ""
     @Published var hasRun = false
     @Published var totalSize: Int64 = 0
@@ -186,10 +183,8 @@ final class StorageModel: ObservableObject {
             availableSize = Int64(system.f_bavail) * Int64(system.f_bsize)
             usedSize = max(0, totalSize - availableSize)
         }
-        let base = "/private/var/containers/Bundle/Application"
-        if let names = try? FileManager.default.contentsOfDirectory(atPath: base) {
-            rootHidePath = names.first(where: { $0.hasPrefix(".jbroot-") }).map { base + "/" + $0 }
-        }
+        catalog.refresh()
+        rootHidePath = catalog.bootstrapPath
     }
     func scan() {
         guard !scanning else { return }
@@ -217,6 +212,16 @@ final class StorageModel: ObservableObject {
                 self.scanned = result.processed
                 self.denied = result.denied
                 self.limited = result.limited
+                self.deniedSamples = result.deniedPaths
+                self.catalog.refresh()
+                self.largestAppFolders = result.records.filter { item in
+                    guard item.folder else { return false }
+                    for root in [AppCatalog.dataRoot, AppCatalog.appGroupRoot, AppCatalog.systemGroupRoot, AppCatalog.bundleRoot] {
+                        if item.path.hasPrefix(root + "/") &&
+                           !item.path.dropFirst(root.count + 1).contains("/") { return true }
+                    }
+                    return false
+                }.sorted { $0.bytes > $1.bytes }
                 self.currentPath = ""
                 self.hasRun = true
                 self.scanning = false
@@ -243,14 +248,17 @@ final class StorageModel: ObservableObject {
 }
 
 struct DiskRow: View {
+    @EnvironmentObject var model: StorageModel
     let item: DiskItem
     var body: some View {
         HStack(spacing: 11) {
             Image(systemName: item.folder ? "folder.fill" : "doc.fill")
                 .foregroundStyle(item.folder ? .purple : Theme.accent).frame(width: 34)
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.name).lineLimit(1).font(.subheadline.weight(.semibold))
-                Text(dateString(item.modified)).font(.caption2).foregroundStyle(Theme.muted)
+                Text(model.catalog.label(for: item.path, fallback: item.name))
+                    .lineLimit(2).font(.subheadline.weight(.semibold))
+                Text((model.catalog.description(for: item.path).map { $0 + " · " } ?? "") + dateString(item.modified))
+                    .font(.caption2).foregroundStyle(Theme.muted).lineLimit(2)
             }
             Spacer(minLength: 0)
             Text(readable(item.bytes)).font(.caption).monospacedDigit().foregroundStyle(Theme.muted)
@@ -294,9 +302,11 @@ struct OverviewPage: View {
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Deep storage scan").font(.title2.bold())
+                    Text("Reads all accessible APFS storage areas. Any paths denied by iOS permissions are reported in diagnostics.")
+                        .font(.caption).foregroundStyle(Theme.muted)
                     Picker("Area", selection: $model.selectedRoot) {
+                        Text("Whole device (accessible)").tag("/")
                         Text("User data & caches").tag("/private/var")
-                        Text("Entire filesystem").tag("/")
                         Text("App data").tag("/private/var/mobile/Containers/Data/Application")
                         Text("App bundles").tag("/private/var/containers/Bundle/Application")
                     }.pickerStyle(.menu)
@@ -312,9 +322,19 @@ struct OverviewPage: View {
                     }
                 }.padding().background(Theme.card, in: RoundedRectangle(cornerRadius: 16))
                 if model.hasRun {
-                    Text("Largest scanned folders").font(.title2.bold())
+                    Text("Largest app storage containers").font(.title2.bold())
+                    Text("App names from iOS metadata; shared groups stay separate.")
+                        .font(.caption).foregroundStyle(Theme.muted)
+                    ForEach(model.largestAppFolders.prefix(20)) { item in
+                        NavigationLink { FolderPage(path: item.path) } label: { DiskRow(item: item) }
+                    }
+                    Text("Largest storage areas").font(.title2.bold())
                     ForEach(model.directory(model.selectedRoot).filter { $0.folder }.sorted { $0.bytes > $1.bytes }.prefix(15)) { item in
                         NavigationLink { FolderPage(path: item.path) } label: { DiskRow(item: item) }
+                    }
+                    if model.denied > 0 {
+                        Label("\(model.denied) unreadable paths; details in Settings", systemImage: "lock.shield")
+                            .foregroundStyle(.orange).font(.footnote)
                     }
                 } else {
                     Text("Start a deep scan to rank applications, directories, and files by allocated space.")
@@ -330,7 +350,7 @@ struct AppsPage: View {
     @State private var sort: ListingSort = .largest
     var body: some View {
         List {
-            if !model.hasRun { Text("Run a scan of User data & caches to measure application storage.").foregroundStyle(Theme.muted) }
+            if !model.hasRun { Text("Run a Whole device or User data scan to measure application storage.").foregroundStyle(Theme.muted) }
             ForEach(sort.orderedApps(model.apps).filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || $0.id.localizedCaseInsensitiveContains(search) }) { app in
                 NavigationLink {
                     List {
@@ -338,7 +358,7 @@ struct AppsPage: View {
                         LabeledContent("App package", value: readable(app.bundleSize))
                         LabeledContent("Documents & data", value: readable(app.dataSize))
                         LabeledContent("Total allocated", value: readable(app.total))
-                        NavigationLink("Browse application bundle") { FolderPage(path: app.bundle) }
+                        if !app.bundle.isEmpty { NavigationLink("Browse application bundle") { FolderPage(path: app.bundle) } }
                         if let data = app.data { NavigationLink("Browse app data") { FolderPage(path: data) } }
                     }.navigationTitle(app.name)
                 } label: {
@@ -423,10 +443,21 @@ struct SettingsPage: View {
                 LabeledContent("Installer", value: "TrollStore")
                 LabeledContent("Jailbreak", value: "RootHide")
                 LabeledContent("Detected bootstrap", value: model.rootHidePath ?? "Not detected")
+                LabeledContent("Process UID", value: "\(getuid())")
+                LabeledContent("Effective UID", value: "\(geteuid())")
+                Text("Sandbox entitlements do not turn a mobile-user process into root. Unix-restricted directories need a separate trusted privileged service.")
+                    .font(.footnote).foregroundStyle(Theme.muted)
             }
             Section("Storage diagnostics") {
                 LabeledContent("Indexed items", value: "\(model.scanned)")
                 LabeledContent("Unreadable directories", value: "\(model.denied)")
+                LabeledContent("Unidentified app containers", value: "\(model.catalog.unresolvedPaths.count)")
+                if !model.deniedSamples.isEmpty {
+                    Text("First blocked paths").font(.subheadline.weight(.semibold))
+                    ForEach(model.deniedSamples, id: \.self) { path in
+                        Text(path).font(.caption2).textSelection(.enabled).foregroundStyle(.orange)
+                    }
+                }
                 LabeledContent("Scan status", value: model.limited ? "Partial" : model.hasRun ? "Complete" : "Not scanned")
                 Button("Refresh access checks") { model.refresh() }
             }
@@ -436,7 +467,7 @@ struct SettingsPage: View {
             }
             Section("Credits") {
                 Text("Next Jailbreak · Zeshan0727")
-                Text("Next Storage 1.0.0")
+                Text("Next Storage 1.0.1")
             }
         }.navigationTitle("Settings")
     }
@@ -449,7 +480,7 @@ struct NextStorageApp: App {
             TabView {
                 NavigationStack { OverviewPage() }.tabItem { Label("Overview", systemImage: "chart.pie.fill") }
                 NavigationStack { AppsPage() }.tabItem { Label("Apps", systemImage: "square.grid.2x2.fill") }
-                NavigationStack { FolderPage(path: "/private/var") }.tabItem { Label("Explorer", systemImage: "folder.fill") }
+                NavigationStack { FolderPage(path: "/") }.tabItem { Label("Explorer", systemImage: "folder.fill") }
                 NavigationStack { SearchPage() }.tabItem { Label("Search", systemImage: "magnifyingglass") }
                 NavigationStack { SettingsPage() }.tabItem { Label("Settings", systemImage: "gearshape.fill") }
             }.environmentObject(model).tint(Theme.accent).preferredColorScheme(.dark)
