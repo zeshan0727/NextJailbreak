@@ -1,0 +1,1 @@
+Publish the successfully compiled NextSigner-1.4.4-32-Test artifact (run 40883095947) to NS Transfer as a separate test entry. Keep stable versions untouched.
