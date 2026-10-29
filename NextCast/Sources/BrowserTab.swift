@@ -233,8 +233,12 @@ struct BrowserTab: View {
                 NavigationStack {
                     List {
                         if model.bookmarks.isEmpty {
-                            ContentUnavailableView("No bookmarks", systemImage: "book",
-                                description: Text("Tap the star while browsing to save a page."))
+                            VStack(spacing: 10) {
+                                Image(systemName: "book").font(.largeTitle)
+                                Text("No bookmarks yet").font(.headline)
+                                Text("Tap the star while browsing to save a page.")
+                                    .font(.subheadline).foregroundStyle(.secondary)
+                            }.frame(maxWidth: .infinity).padding(24)
                         }
                         ForEach(model.bookmarks) { mark in
                             Button {
