@@ -521,6 +521,9 @@ struct SettingsPage: View {
                 Text("Next Storage 1.0.7")
             }
         }.navigationTitle("Settings")
+            .scrollContentBackground(.hidden)
+            .background(StorageDesign.background)
+            .tint(StorageDesign.blue)
     }
 }
 @main
