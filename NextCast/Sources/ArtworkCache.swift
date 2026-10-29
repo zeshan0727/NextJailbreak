@@ -25,12 +25,13 @@ struct VideoDetails: Codable {
 /// For MKV/AVI or other non-AVFoundation containers, use the existing
 /// MobileVLCKit decoder rather than guessing third-party movie posters.
 @MainActor
-final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegate {
+final class ArtworkCache: NSObject, ObservableObject {
     static let shared = ArtworkCache()
     @Published private(set) var images: [UUID: UIImage] = [:]
     @Published private(set) var details: [UUID: VideoDetails] = [:]
     private var processing = Set<UUID>()
-    private var thumbnailers: [UUID: VLCMediaThumbnailer] = [:]
+    // Only one decoder is allowed at once to prevent a startup burst.
+    private let renderingQueue = DispatchQueue(label: "nextcast.artwork.serial", qos: .utility)
 
     private static var folder: URL {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
@@ -61,7 +62,15 @@ final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegat
             processing.remove(movie.id)
             return
         }
-        DispatchQueue.global(qos: .utility).async { [weak self] in
+        // Avoid invoking Apple's image generator on MKV/AVI containers and
+        // do not launch VLCMediaThumbnailer automatically: some iOS 16
+        // configurations crash while constructing its decoder.
+        guard ["mp4", "m4v", "mov", "3gp"].contains(movie.localURL.pathExtension.lowercased()) else {
+            details[movie.id] = VideoDetails()
+            processing.remove(movie.id)
+            return
+        }
+        renderingQueue.async { [weak self] in
             let asset = AVURLAsset(url: movie.localURL)
             let length = CMTimeGetSeconds(asset.duration)
             let seconds = length.isFinite && length > 0 ? length : nil
@@ -87,38 +96,10 @@ final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegat
                     self.finish(movie.id, image: UIImage(cgImage: frame), metadata: metadata)
                 } else {
                     self.details[movie.id] = metadata
-                    self.beginVLC(movie)
+                    self.processing.remove(movie.id)
                 }
             }
         }
-    }
-
-    private func beginVLC(_ movie: Movie) {
-        let media = VLCMedia(url: movie.localURL)
-        let thumb = VLCMediaThumbnailer()
-        thumb.media = media
-        thumb.delegate = self
-        thumb.thumbnailWidth = 540
-        thumb.thumbnailHeight = 320
-        thumb.snapshotPosition = 0.25
-        thumbnailers[movie.id] = thumb
-        thumb.fetchThumbnail()
-    }
-
-    func mediaThumbnailer(_ mediaThumbnailer: VLCMediaThumbnailer, didFinishThumbnail thumbnail: CGImage) {
-        guard let found = thumbnailers.first(where: { $0.value === mediaThumbnailer }) else { return }
-        let id = found.key
-        thumbnailers.removeValue(forKey: id)
-        let secs = Double(mediaThumbnailer.media.length.intValue) / 1000.0
-        var metadata = details[id] ?? VideoDetails()
-        if secs.isFinite && secs > 0 { metadata.seconds = secs }
-        finish(id, image: UIImage(cgImage: thumbnail), metadata: metadata)
-    }
-
-    func mediaThumbnailerDidTimeOut(_ mediaThumbnailer: VLCMediaThumbnailer) {
-        guard let found = thumbnailers.first(where: { $0.value === mediaThumbnailer }) else { return }
-        processing.remove(found.key)
-        thumbnailers.removeValue(forKey: found.key)
     }
 
     private func finish(_ id: UUID, image: UIImage, metadata: VideoDetails) {
