@@ -533,7 +533,7 @@ struct NextStorageApp: App {
                 .alert("Filza Could Not Open", isPresented: $filza.showLinkFailure) {
                     Button("OK", role: .cancel) { }
                 } message: {
-                    Text("This Filza edition may not support filza:// links. The exact location has been copied. Open Filza and paste this path:\n\n\\(filza.fallbackPath)")
+                    Text("This Filza edition may not support filza:// links. The exact location has been copied. Open Filza and paste this path:\n\n\(filza.fallbackPath)")
                 }
         }
     }
