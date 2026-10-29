@@ -12,6 +12,8 @@ final class VLCPlayback: ObservableObject {
     @Published var duration: Double = 0
     @Published var playing = false
     private var loadedURL: URL?
+    private var queuedResumeSeconds: Double?
+    private var resumeAttempts = 0
 
     func attach(_ view: UIView) {
         engine.drawable = view
@@ -23,9 +25,15 @@ final class VLCPlayback: ObservableObject {
         engine.media = VLCMedia(url: url)
         currentTime = 0
         duration = 0
+        queuedResumeSeconds = nil
+        resumeAttempts = 0
+    }
+    func resumeWhenReady(at seconds: Double) {
+        queuedResumeSeconds = seconds.isFinite ? max(0, seconds) : 0
+        resumeAttempts = 0
     }
     func play() {
-        _ = engine.play()
+        engine.play()
         playing = true
     }
     func pause() {
@@ -44,6 +52,24 @@ final class VLCPlayback: ObservableObject {
         let total = Double(engine.media?.length.intValue ?? 0) / 1000.0
         if elapsed.isFinite { currentTime = max(0, elapsed) }
         if total.isFinite { duration = max(0, total) }
+        if let desired = queuedResumeSeconds, duration > 0 {
+            // Seek only after libVLC knows the duration. Some containers do not
+            // expose seekability immediately; retry a few times if needed.
+            if desired < 1 {
+                queuedResumeSeconds = nil
+                engine.position = 0
+            } else if resumeAttempts < 12 {
+                resumeAttempts += 1
+                let fraction = Float(max(0, min(0.995, desired / duration)))
+                engine.position = fraction
+                let actual = Double(engine.time.intValue) / 1000
+                if actual.isFinite && abs(actual - desired) < 4 {
+                    queuedResumeSeconds = nil
+                }
+            } else {
+                queuedResumeSeconds = nil
+            }
+        }
         playing = engine.isPlaying
     }
     func seek(to time: Double) {
