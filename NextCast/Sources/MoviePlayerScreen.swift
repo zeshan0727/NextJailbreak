@@ -39,7 +39,6 @@ struct MoviePlayerScreen: View {
     @State private var sliderValue: Double = 0
     @State private var remoteVolume = 0.6
     @State private var fullScreen = false
-    @State private var inlineSurfaceID = UUID()
     @State private var showResumeAlert = false
     @State private var savedResumeTime = 0.0
     @State private var lastProgressSaved = Date.distantPast
@@ -67,13 +66,14 @@ struct MoviePlayerScreen: View {
                         .frame(height: 230).frame(maxWidth: .infinity)
                     } else {
                         ZStack(alignment: .bottomTrailing) {
-                            VLCVideoSurface(player: player)
-                                .id(inlineSurfaceID)
+                            VLCVideoSurface(player: player, role: .inline)
                                 .frame(height: 245)
                                 .background(.black)
                                 .clipShape(RoundedRectangle(cornerRadius: 14))
                             Button {
-                                fullScreen = true
+                                player.activate(.fullscreen)
+                                player.activate(.fullscreen)
+                            fullScreen = true
                             } label: {
                                 Label("Full screen", systemImage: "arrow.up.left.and.arrow.down.right")
                                     .labelStyle(.iconOnly)
@@ -135,6 +135,7 @@ struct MoviePlayerScreen: View {
 
                     if !broadcast {
                         Button {
+                            player.activate(.fullscreen)
                             fullScreen = true
                         } label: {
                             Label("Watch Full Screen", systemImage: "arrow.up.left.and.arrow.down.right")
@@ -225,9 +226,8 @@ struct MoviePlayerScreen: View {
             Text("You previously stopped \(movie.name) at \(timeLabel(savedResumeTime)).")
         }
         .fullScreenCover(isPresented: $fullScreen, onDismiss: {
-            // Force inline surface recreation; VLC moves the drawable
-            // to the full-screen view while that view is presented.
-            inlineSurfaceID = UUID()
+            // Reparent the SAME VLC drawable, not a second video surface.
+            player.activate(.inline)
             persistPlayback()
         }) {
             FullScreenVLCPlayer(player: player, movieName: movie.name) {
@@ -306,7 +306,7 @@ struct FullScreenVLCPlayer: View {
         GeometryReader { geometry in
             ZStack {
                 Color.black.ignoresSafeArea()
-                VLCVideoSurface(player: player)
+                VLCVideoSurface(player: player, role: .fullscreen)
                     .frame(width: geometry.size.width, height: geometry.size.height)
                     .background(Color.black)
                     .contentShape(Rectangle())
@@ -379,11 +379,13 @@ struct FullScreenVLCPlayer: View {
             }
         }
         .statusBarHidden()
+        .onAppear { player.activate(.fullscreen) }
         .onReceive(ticker) { _ in
             player.refresh()
             if !seeking { seekValue = player.currentTime }
         }
         .onDisappear {
+            // The dismiss callback reattaches the persistent drawable inline.
             restorePortrait()
         }
     }
