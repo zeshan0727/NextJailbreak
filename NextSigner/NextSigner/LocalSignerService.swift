@@ -241,7 +241,7 @@ struct LocalSignerService {
         try fm.createDirectory(at: signedDirectory, withIntermediateDirectories: true)
 
         let outputURL = signedDirectory.appendingPathComponent(
-            "\(safeFilename(finalName))-\(safeFilename(version))-signed-\(Int(Date().timeIntervalSince1970)).ipa"
+            "\(safeFilename(finalName))-\(safeFilename(version))-signed-\(UUID().uuidString.prefix(8)).ipa"
         )
         if fm.fileExists(atPath: outputURL.path) { try fm.removeItem(at: outputURL) }
 
