@@ -6,7 +6,7 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 from automation.publisher import _render_feed, _update_sitemap
-from automation.sync_editorial_indexes import render_article_archive, href
+from automation.sync_editorial_indexes import render_article_archive, href, dedupe_blogposting_jsonld, MAX_HOMEPAGE_STRUCTURED_POSTS
 
 
 BASE = "https://nextjailbreak.com"
@@ -53,6 +53,29 @@ class SeoPublishingDateTests(unittest.TestCase):
             self.assertIn('href="' + link + '"', html_doc, link)
         self.assertEqual(html_doc.count('data-archive-entry>'), len(canonical_paths))
         self.assertIn('rel="canonical" href="https://nextjailbreak.com/articles/"', html_doc)
+
+    def test_homepage_blog_jsonld_is_short_and_recent(self):
+        entries = [
+            {
+                "@type": "BlogPosting",
+                "url": f"https://nextjailbreak.com/guide-{i}/",
+                "headline": f"Guide {i}",
+                "datePublished": f"2026-10-{i + 1:02d}T00:00:00Z",
+            }
+            for i in range(25)
+        ]
+        entries.append(dict(entries[10]))
+        page = '<script type="application/ld+json">' + json.dumps({
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "blogPost": entries,
+        }) + '</script>'
+        output = dedupe_blogposting_jsonld(page)
+        self.assertLess(len(output), len(page))
+        payload = json.loads(output.split(">", 1)[1].split("</script>", 1)[0])
+        self.assertEqual(len(payload["blogPost"]), MAX_HOMEPAGE_STRUCTURED_POSTS)
+        self.assertEqual(payload["blogPost"][0]["headline"], "Guide 24")
+        self.assertEqual(len({post["url"] for post in payload["blogPost"]}), MAX_HOMEPAGE_STRUCTURED_POSTS)
 
     def test_every_audited_article_is_present_in_sitemap(self):
         root = Path(__file__).resolve().parents[2]
