@@ -13,6 +13,7 @@ targets:
     deploymentTarget: '16.0'
     sources:
       - path: NextStorageApp.swift
+      - path: ReferenceDesign.swift
       - path: AppCatalog.swift
       - path: FilzaLauncher.swift
       - path: PhotosStorage.swift
@@ -29,8 +30,8 @@ targets:
         INFOPLIST_KEY_UIRequiresFullScreen: 'NO'
         TARGETED_DEVICE_FAMILY: '1,2'
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        MARKETING_VERSION: '1.0.6'
-        CURRENT_PROJECT_VERSION: '7'
+        MARKETING_VERSION: '1.0.7'
+        CURRENT_PROJECT_VERSION: '8'
         CODE_SIGN_ENTITLEMENTS: NextStorage.entitlements
         SWIFT_STRICT_CONCURRENCY: minimal
         SWIFT_OBJC_BRIDGING_HEADER: MediaSizeBridge.h
