@@ -136,8 +136,16 @@ def replace(text, start, end, body):
     return before + start + "\n" + body.rstrip() + "\n          " + end + after
 
 
+MAX_HOMEPAGE_STRUCTURED_POSTS = 12
+
+
 def dedupe_blogposting_jsonld(text):
-    """Remove duplicate BlogPosting URLs from homepage Blog JSON-LD."""
+    """Keep only the most recent unique posts in homepage Blog JSON-LD.
+
+    Individual article URLs retain their own full structured data and remain
+    available via the sitemap/archive. Large homepage-only lists are not
+    needed for discovery and inflate initial HTML transfer.
+    """
     pattern = re.compile(r'(<script\s+type="application/ld\+json">\s*)(\{.*?\})(\s*</script>)', re.S)
 
     def rewrite(match):
@@ -157,7 +165,11 @@ def dedupe_blogposting_jsonld(text):
                 continue
             seen.add(key)
             posts.append(post)
-        payload["blogPost"] = posts
+        posts.sort(
+            key=lambda p: str(p.get("dateModified") or p.get("datePublished") or ""),
+            reverse=True,
+        )
+        payload["blogPost"] = posts[:MAX_HOMEPAGE_STRUCTURED_POSTS]
         rendered = json.dumps(payload, ensure_ascii=False, indent=2)
         rendered = "\n".join("  " + line for line in rendered.splitlines())
         return match.group(1) + rendered.lstrip() + match.group(3)
