@@ -344,59 +344,152 @@ struct NextSignerLocalSignView: View {
 struct NextSignerSignedAppsView: View {
     @ObservedObject var store: SignerStore
     @ObservedObject var local: LocalSigningController
+
     @State private var shareURL: URL?
     @State private var deleteCandidate: LocalSignedApp?
+    @State private var searchText = ""
+    @State private var isSelecting = false
+    @State private var selectedIDs = Set<UUID>()
+    @State private var sortOrder = SortOrder.recent
+    @State private var batchScope: BatchScope?
+    @State private var showAllFailures = false
+
+    private enum SortOrder: String, CaseIterable {
+        case recent = "Newest"
+        case name = "Name"
+        case size = "Size"
+    }
+    private enum BatchScope: Equatable {
+        case all
+        case selected
+        case single(UUID)
+    }
+
+    private var filteredApps: [LocalSignedApp] {
+        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        var apps = local.signedApps.filter {
+            q.isEmpty || $0.appName.localizedCaseInsensitiveContains(q) ||
+                $0.bundleID.localizedCaseInsensitiveContains(q) ||
+                $0.filename.localizedCaseInsensitiveContains(q)
+        }
+        switch sortOrder {
+        case .recent: apps.sort { $0.signedAt > $1.signedAt }
+        case .name: apps.sort { $0.appName.localizedStandardCompare($1.appName) == .orderedAscending }
+        case .size: apps.sort { $0.sizeBytes > $1.sizeBytes }
+        }
+        return apps
+    }
+
+    private var selectedApps: [LocalSignedApp] {
+        local.signedApps.filter { selectedIDs.contains($0.id) }
+    }
+
+    private var requestedTargets: [LocalSignedApp] {
+        switch batchScope {
+        case .all: return local.signedApps
+        case .selected: return selectedApps
+        case let .single(id): return local.signedApps.filter { $0.id == id }
+        case nil: return []
+        }
+    }
+
+    private var isBusy: Bool {
+        local.isBatchResigning || local.isSigning ||
+            local.installingID != nil || local.publishingID != nil
+    }
 
     var body: some View {
         NavigationStack {
-            Group {
-                if local.signedApps.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "checkmark.seal")
-                            .font(.system(size: 42))
-                            .foregroundStyle(.secondary)
-                        Text("No signed apps yet")
-                            .font(.headline)
-                        Text("Sign an IPA locally from the Sign tab. It will appear here automatically.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 30)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    heading
+                    bulkActions
+                    if local.isBatchResigning || local.batchResignMessage != nil ||
+                       !local.batchResignFailures.isEmpty {
+                        batchStatus
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List {
-                        if let message = local.publishMessage {
-                            Section {
-                                Label(message, systemImage: "checkmark.circle.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.green)
+                    if let message = local.publishMessage {
+                        Label(message, systemImage: "checkmark.circle.fill")
+                            .font(.footnote)
+                            .foregroundStyle(.green)
+                            .padding(12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(SignerDesign.card, in: RoundedRectangle(cornerRadius: 14))
+                    }
+                    if let error = local.publishError {
+                        Label(error, systemImage: "exclamationmark.triangle.fill")
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                            .textSelection(.enabled)
+                            .padding(12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(SignerDesign.card, in: RoundedRectangle(cornerRadius: 14))
+                    }
+                    HStack {
+                        SignerSectionHeader(
+                            title: "Saved IPAs",
+                            subtitle: "\(filteredApps.count) apps · originals kept during re-signing"
+                        )
+                        if !local.signedApps.isEmpty {
+                            Button(isSelecting ? "Done" : "Select") {
+                                isSelecting.toggle()
+                                if !isSelecting { selectedIDs.removeAll() }
                             }
+                            .font(.subheadline.weight(.semibold))
+                            .disabled(local.isBatchResigning)
                         }
-                        if let error = local.publishError {
-                            Section {
-                                Label(error, systemImage: "exclamationmark.triangle.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.red)
-                                    .textSelection(.enabled)
-                            }
-                        }
+                    }
 
-                        ForEach(local.signedApps) { app in
-                            Section {
-                                signedAppRow(app)
+                    if !filteredApps.isEmpty {
+                        HStack {
+                            if isSelecting {
+                                Button(allVisibleAreSelected ? "Deselect visible" : "Select all visible") {
+                                    let ids = Set(filteredApps.map(\.id))
+                                    if allVisibleAreSelected {
+                                        selectedIDs.subtract(ids)
+                                    } else {
+                                        selectedIDs.formUnion(ids)
+                                    }
+                                }
+                                .font(.subheadline.weight(.medium))
+                                Spacer()
+                                Text("\(selectedApps.count) selected")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                Spacer()
+                                Picker("Sort", selection: $sortOrder) {
+                                    ForEach(SortOrder.allCases, id: \.self) { item in
+                                        Text(item.rawValue).tag(item)
+                                    }
+                                }
+                                .pickerStyle(.menu)
                             }
                         }
                     }
-                    .refreshable { local.refreshSignedApps() }
+
+                    if filteredApps.isEmpty {
+                        emptyState
+                    } else {
+                        LazyVStack(spacing: 12) {
+                            ForEach(filteredApps) { app in
+                                appCard(app)
+                            }
+                        }
+                    }
                 }
+                .padding(18)
             }
+            .background(SignerDesign.canvas.ignoresSafeArea())
             .navigationTitle("Signed Apps")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search name, bundle ID or file")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button { local.refreshSignedApps() } label: {
                         Image(systemName: "arrow.clockwise")
                     }
+                    .disabled(isBusy)
                 }
             }
             .onAppear { local.refreshSignedApps() }
@@ -415,98 +508,290 @@ struct NextSignerSignedAppsView: View {
                 titleVisibility: .visible
             ) {
                 Button("Delete", role: .destructive) {
-                    if let app = deleteCandidate { local.deleteSignedApp(app) }
+                    if let app = deleteCandidate {
+                        local.deleteSignedApp(app)
+                        selectedIDs.remove(app.id)
+                    }
                     deleteCandidate = nil
                 }
                 Button("Cancel", role: .cancel) { deleteCandidate = nil }
+            } message: {
+                Text("Only this saved IPA is removed. Other signed copies are unaffected.")
+            }
+            .confirmationDialog(
+                "Re-sign \(requestedTargets.count) saved app(s)?",
+                isPresented: Binding(
+                    get: { batchScope != nil },
+                    set: { if !$0 { batchScope = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Re-sign \(requestedTargets.count) app(s)") {
+                    let apps = requestedTargets
+                    batchScope = nil
+                    selectedIDs.removeAll()
+                    isSelecting = false
+                    local.resignBatch(apps)
+                }
+                Button("Cancel", role: .cancel) { batchScope = nil }
+            } message: {
+                Text("Uses your current local P12 and default provisioning profile. Original IPAs are kept. Special iCloud, App Groups and custom entitlements may need a matching profile and individual signing. Nothing is published automatically.")
             }
         }
     }
 
-    private func signedAppRow(_ app: LocalSignedApp) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "app.badge.checkmark.fill")
+    private var allVisibleAreSelected: Bool {
+        !filteredApps.isEmpty && filteredApps.allSatisfy { selectedIDs.contains($0.id) }
+    }
+
+    private var heading: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "checkmark.seal.fill")
                     .font(.title2)
-                    .frame(width: 52, height: 52)
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 13))
+                    .foregroundStyle(SignerDesign.blue)
+                    .frame(width: 48, height: 48)
+                    .background(SignerDesign.blue.opacity(0.1),
+                                in: RoundedRectangle(cornerRadius: 14))
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(app.appName).font(.headline)
+                    Text("Your signed library").font(.title2.bold())
+                    Text("Install, publish, share or re-sign")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Text("\(local.signedApps.count)")
+                    .font(.title2.bold().monospacedDigit())
+            }
+            .padding(17)
+            .background(SignerDesign.card, in: RoundedRectangle(cornerRadius: 20))
+        }
+    }
+
+    private var bulkActions: some View {
+        VStack(alignment: .leading, spacing: 13) {
+            HStack {
+                Label("Bulk re-sign", systemImage: "arrow.triangle.2.circlepath")
+                    .font(.headline)
+                Spacer()
+                SignerStatusDot(ready: local.credentialsReady,
+                                label: local.credentialsReady ? "Ready" : "Needs profile")
+            }
+            Text("Refresh app signatures using the current saved certificate and default provisioning profile. No upload or publish.")
+                .font(.caption).foregroundStyle(.secondary)
+            HStack(spacing: 10) {
+                Button {
+                    batchScope = .all
+                } label: {
+                    Label("Re-sign All", systemImage: "arrow.clockwise.circle.fill")
+                        .font(.subheadline.bold())
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(isBusy || !local.credentialsReady || local.signedApps.isEmpty)
+
+                Button {
+                    if !isSelecting {
+                        isSelecting = true
+                    } else {
+                        batchScope = .selected
+                    }
+                } label: {
+                    Label(
+                        isSelecting ? "Re-sign (\(selectedApps.count))" : "Choose Apps",
+                        systemImage: "checkmark.circle"
+                    )
+                    .font(.subheadline.bold())
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
+                }
+                .buttonStyle(.bordered)
+                .disabled(isBusy || !local.credentialsReady ||
+                          local.signedApps.isEmpty || (isSelecting && selectedApps.isEmpty))
+            }
+            if !local.credentialsReady {
+                Label("Configure the P12, password and provisioning profile in Home → Manage signing profiles.",
+                      systemImage: "info.circle")
+                    .font(.caption).foregroundStyle(.orange)
+            }
+        }
+        .padding(17)
+        .background(SignerDesign.card, in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    private var batchStatus: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label(local.isBatchResigning ? "Re-signing in progress" : "Batch result",
+                      systemImage: local.isBatchResigning ? "hourglass" : "checkmark.circle")
+                    .font(.subheadline.bold())
+                Spacer()
+                Text("\(local.batchResignCompleted)/\(local.batchResignTotal)")
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
+            ProgressView(value: local.batchResignFraction)
+                .tint(SignerDesign.blue)
+
+            if local.isBatchResigning {
+                Text("Current: \(local.batchResignCurrent)")
+                    .font(.caption).foregroundStyle(.secondary)
+                Button("Stop after current app", role: .cancel) {
+                    local.cancelBatchResign()
+                }
+                .font(.caption.weight(.semibold))
+            }
+            if let message = local.batchResignMessage {
+                Text(message).font(.caption).foregroundStyle(.secondary)
+            }
+            if !local.batchResignFailures.isEmpty {
+                DisclosureGroup(
+                    "\(local.batchResignFailures.count) failed · View reasons",
+                    isExpanded: $showAllFailures
+                ) {
+                    VStack(alignment: .leading, spacing: 7) {
+                        ForEach(local.batchResignFailures, id: \.self) { failure in
+                            Text(failure)
+                                .font(.caption2).foregroundStyle(.red)
+                                .textSelection(.enabled)
+                        }
+                    }
+                    .padding(.top, 7)
+                }
+                .font(.caption.weight(.semibold))
+            }
+        }
+        .padding(17)
+        .background(SignerDesign.card, in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: searchText.isEmpty ? "square.stack.3d.up.slash" : "magnifyingglass")
+                .font(.system(size: 38))
+                .foregroundStyle(.secondary)
+            Text(searchText.isEmpty ? "No signed apps yet" : "No matches")
+                .font(.headline)
+            Text(searchText.isEmpty
+                 ? "Sign your first IPA locally from the Sign tab."
+                 : "Try searching for a different app name or bundle ID.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            .padding(.horizontal, 12)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 44)
+        .background(SignerDesign.card, in: RoundedRectangle(cornerRadius: 20))
+    }
+
+    private func appCard(_ app: LocalSignedApp) -> some View {
+        VStack(alignment: .leading, spacing: 13) {
+            HStack(spacing: 12) {
+                if isSelecting {
+                    Button {
+                        if selectedIDs.contains(app.id) {
+                            selectedIDs.remove(app.id)
+                        } else {
+                            selectedIDs.insert(app.id)
+                        }
+                    } label: {
+                        Image(systemName: selectedIDs.contains(app.id)
+                              ? "checkmark.circle.fill" : "circle")
+                            .font(.title2)
+                            .foregroundStyle(selectedIDs.contains(app.id)
+                                             ? SignerDesign.blue : .secondary)
+                    }
+                    .accessibilityLabel("Select \(app.appName)")
+                }
+
+                Image(systemName: "app.badge.checkmark")
+                    .font(.title2)
+                    .foregroundStyle(SignerDesign.blue)
+                    .frame(width: 49, height: 49)
+                    .background(SignerDesign.blue.opacity(0.1),
+                                in: RoundedRectangle(cornerRadius: 13))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(app.appName)
+                        .font(.headline)
+                        .lineLimit(1)
                     Text(app.bundleID)
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
-                    HStack(spacing: 6) {
-                        if !app.version.isEmpty { Text("v\(app.version)") }
-                        if !app.build.isEmpty { Text("build \(app.build)") }
-                        if app.sizeBytes > 0 { Text(ByteCountFormatter.string(fromByteCount: app.sizeBytes, countStyle: .file)) }
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
                 }
-                Spacer()
+                Spacer(minLength: 4)
+                Menu {
+                    Button {
+                        shareURL = app.ipaURL
+                    } label: { Label("Share IPA", systemImage: "square.and.arrow.up") }
+                    Button(role: .destructive) {
+                        deleteCandidate = app
+                    } label: { Label("Delete IPA", systemImage: "trash") }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.headline)
+                        .frame(width: 32, height: 32)
+                }
+                .disabled(isBusy)
             }
 
-            Text(app.filename)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+            HStack(spacing: 9) {
+                if !app.version.isEmpty {
+                    Text("v\(app.version)")
+                }
+                if app.sizeBytes > 0 {
+                    Text(ByteCountFormatter.string(fromByteCount: app.sizeBytes, countStyle: .file))
+                }
+                Text(app.signedAt, style: .date)
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
 
             if local.installingID == app.id {
                 ProgressView()
-                Text(local.installMessage ?? "Preparing Apple OTA installation…")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(local.installMessage ?? "Preparing installation…")
+                    .font(.caption).foregroundStyle(.secondary)
             }
-
             if local.publishingID == app.id {
                 ProgressView(value: local.publishProgress)
-                Text("Publishing signed IPA to site…")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text("Publishing…").font(.caption).foregroundStyle(.secondary)
             }
 
-            HStack(spacing: 8) {
+            Divider().opacity(0.6)
+
+            HStack(spacing: 9) {
                 Button {
                     local.install(app, using: store)
-                } label: {
-                    Label("Install", systemImage: "arrow.down.app.fill")
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.green)
-                .disabled(local.installingID != nil || local.publishingID != nil)
+                } label: { Label("Install", systemImage: "arrow.down.app") }
+                    .buttonStyle(.borderedProminent)
+                    .tint(SignerDesign.blue)
+                    .disabled(isBusy || isSelecting)
 
                 Button {
                     local.publish(app, using: store)
-                } label: {
-                    Label("Publish", systemImage: "paperplane.fill")
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(local.publishingID != nil || local.installingID != nil)
-            }
+                } label: { Label("Publish", systemImage: "paperplane") }
+                    .buttonStyle(.bordered)
+                    .disabled(isBusy || isSelecting)
 
-            HStack(spacing: 8) {
+                Spacer(minLength: 0)
                 Button {
-                    shareURL = app.ipaURL
-                } label: {
-                    Label("Share IPA", systemImage: "square.and.arrow.up")
-                }
-                .buttonStyle(.bordered)
-
-                Button(role: .destructive) {
-                    deleteCandidate = app
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-                .buttonStyle(.bordered)
-                .disabled(local.publishingID == app.id || local.installingID == app.id)
+                    batchScope = .single(app.id)
+                } label: { Label("Re-sign", systemImage: "arrow.clockwise") }
+                    .buttonStyle(.bordered)
+                    .disabled(isBusy || isSelecting || !local.credentialsReady)
             }
-
-            Text("Install uses Apple OTA Ad Hoc installation. The already-signed IPA is staged temporarily over HTTPS and is not added to your site. Publish remains a separate manual action.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            .font(.caption.weight(.semibold))
         }
-        .padding(.vertical, 4)
+        .padding(15)
+        .background(SignerDesign.card, in: RoundedRectangle(cornerRadius: 20))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20)
+                .strokeBorder(selectedIDs.contains(app.id)
+                              ? SignerDesign.blue.opacity(0.6)
+                              : SignerDesign.hairline, lineWidth: 1)
+        }
     }
 }
 
