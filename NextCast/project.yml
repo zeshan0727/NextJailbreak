@@ -12,6 +12,9 @@ packages:
   FFmpegKit:
     url: https://github.com/jaywcjlove/ffmpeg-kit
     branch: main
+  AndroidTVRemoteControl:
+    url: https://github.com/odyshewroman/AndroidTVRemoteControl
+    branch: main
 targets:
   NextCast:
     type: application
@@ -24,6 +27,8 @@ targets:
         product: GoogleCastDynamic
       - package: FFmpegKit
         product: ffmpegkit
+      - package: AndroidTVRemoteControl
+        product: AndroidTVRemoteControl
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: uk.zeshanbarvi.nextcast
@@ -40,8 +45,8 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: Next Cast
-        CFBundleShortVersionString: "1.4.1"
-        CFBundleVersion: "15"
+        CFBundleShortVersionString: "1.4.2"
+        CFBundleVersion: "16"
         UILaunchScreen: {}
         CFBundleDocumentTypes:
           - CFBundleTypeName: Next Cast Video
@@ -64,7 +69,7 @@ targets:
                 - video/x-matroska
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
-        NSLocalNetworkUsageDescription: "Next Cast discovers Chromecast devices and connects to Samsung, Roku and LG televisions on your local Wi-Fi network."
+        NSLocalNetworkUsageDescription: "Next Cast discovers Chromecast devices and securely pairs with Android TV plus Samsung, Roku and LG televisions on your Wi-Fi."
         NSBonjourServices:
           - "_googlecast._tcp"
           - "_CC1AD845._googlecast._tcp"
