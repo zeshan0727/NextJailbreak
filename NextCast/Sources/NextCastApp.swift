@@ -188,6 +188,8 @@ final class MovieLibrary: ObservableObject {
 final class CastController: NSObject, ObservableObject, GCKSessionManagerListener, GCKRemoteMediaClientListener {
     @Published private(set) var isConnected = false
     @Published private(set) var tvName = "No TV connected"
+    @Published private(set) var tvModelName = ""
+    @Published private(set) var tvIPAddress = ""
     @Published private(set) var position: TimeInterval = 0
     @Published private(set) var duration: TimeInterval = 0
     @Published private(set) var isPlaying = false
@@ -278,6 +280,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         guard manager.hasConnectedCastSession() else { return }
         isConnected = true
         tvName = manager.currentCastSession?.device.friendlyName ?? "Chromecast TV"
+        tvModelName = manager.currentCastSession?.device.modelName ?? ""
+        tvIPAddress = manager.currentCastSession?.device.ipAddress ?? ""
         if activeClient !== client {
             if let activeClient { activeClient.remove(self) }
             activeClient = client
