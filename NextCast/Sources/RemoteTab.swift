@@ -304,7 +304,7 @@ struct RemoteTab: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .padding(22)
+        .padding(13)
         .background(.secondary.opacity(0.035), in: RoundedRectangle(cornerRadius: 28))
         .overlay {
             RoundedRectangle(cornerRadius: 28).strokeBorder(.secondary.opacity(0.10))
