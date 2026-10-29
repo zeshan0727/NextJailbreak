@@ -37,6 +37,9 @@ struct RemoteTab: View {
     @ObservedObject var remote: RemoteControlModel
     @ObservedObject var cast: CastController
     @State private var showSetup = true
+    @State private var showKeyboard = false
+    @State private var keyboardText = ""
+    @FocusState private var keyboardFocused: Bool
     @Environment(\.dismiss) private var dismiss
 
     private var ready: Bool {
@@ -97,6 +100,9 @@ struct RemoteTab: View {
                 Button("OK") { remote.alertText = nil }
             } message: {
                 Text(remote.alertText ?? "")
+            }
+            .sheet(isPresented: $showKeyboard) {
+                keyboardSheet
             }
         }
     }
@@ -243,6 +249,20 @@ struct RemoteTab: View {
             .padding(16)
             .background(Color.secondary.opacity(0.075), in: RoundedRectangle(cornerRadius: 38))
 
+            Button {
+                keyboardText = ""
+                showKeyboard = true
+            } label: {
+                Label("Keyboard · Type on TV", systemImage: "keyboard")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, minHeight: 58)
+            }
+            .buttonStyle(SolidRemoteKeyStyle())
+            .disabled(!ready || remote.brand == .cast)
+            .opacity(ready && remote.brand != .cast ? 1 : 0.35)
+            .accessibilityHint("Opens the iPhone keyboard only when needed")
+
             HStack(spacing: 18) {
                 keyButton(.rewind, symbol: "backward.end.fill", title: "Back 10s")
                 keyButton(.playPause, symbol: cast.isPlaying && remote.brand == .cast ? "pause.fill" : "playpause.fill", title: "Play / Pause")
@@ -316,6 +336,74 @@ struct RemoteTab: View {
 
     private func send(_ command: RemoteCommand) {
         remote.press(command, cast: cast)
+    }
+
+    private var keyboardSheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 15) {
+                Label("Type on \(remote.brand.rawValue)", systemImage: "keyboard")
+                    .font(.headline)
+                Text("First select a search box or text field on your TV. The iPhone keyboard appears only while this panel is open.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                TextField("Enter text for your TV", text: $keyboardText, axis: .vertical)
+                    .lineLimit(2...4)
+                    .textInputAutocapitalization(.sentences)
+                    .autocorrectionDisabled()
+                    .focused($keyboardFocused)
+                    .padding(12)
+                    .background(Color.secondary.opacity(0.10),
+                                in: RoundedRectangle(cornerRadius: 12))
+                    .submitLabel(.done)
+                    .onSubmit { keyboardFocused = false }
+
+                Button {
+                    remote.typeOnTV(keyboardText)
+                    keyboardFocused = false
+                } label: {
+                    Label("Send Text to TV", systemImage: "paperplane.fill")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.cyan)
+                .disabled(keyboardText.isEmpty || keyboardText.count > 512)
+
+                Button {
+                    remote.finishTextEntry()
+                    keyboardFocused = false
+                    showKeyboard = false
+                } label: {
+                    Label("Enter / Finish on TV", systemImage: "return")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 45)
+                }
+                .buttonStyle(.bordered)
+
+                Text("TV text input varies by app and model. Samsung and LG need an active TV text field; Roku accepts text when its on-screen keyboard is visible. Chromecast media receivers do not support general typing.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+            }
+            .padding(20)
+            .navigationTitle("Remote Keyboard")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Close") {
+                        keyboardFocused = false
+                        showKeyboard = false
+                    }
+                }
+            }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    keyboardFocused = true
+                }
+            }
+        }
+        .presentationDetents([.large])
     }
 
     private var protocolFootnote: String {
