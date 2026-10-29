@@ -4,323 +4,353 @@ import AVKit
 import CryptoKit
 import UIKit
 
-// Native Photos owns library deletion. Directly unlinking DCIM files would corrupt
-// the Photos database; the app never performs filesystem deletion of photo assets.
+// Only small value types are retained. Never retain all PHAsset or
+// PHAssetResource instances and never read full media bytes during scanning.
 struct LibraryMedia: Identifiable {
-    let asset: PHAsset
+    let id: String
     let filename: String
-    let resource: PHAssetResource?
     let created: Date?
     let video: Bool
+    let duration: Double
     var byteCount: Int64?
-    var checked = false
-    var physicalPath: String? = nil
-    var id: String { asset.localIdentifier }
-    var duration: Double { asset.duration }
+    var isEstimated: Bool = false
+    var verifiedPath: String?
 }
 
-private struct PhysicalCandidate {
-    let url: URL
+private struct LocalFile {
+    let path: String
     let bytes: Int64
+    var isAmbiguous: Bool = false
 }
 
-private final class MediaScanControl {
+private final class ScanFlag {
     private let lock = NSLock()
     private var stopped = false
-    func cancel() { lock.lock(); stopped = true; lock.unlock() }
+    func stop() { lock.lock(); stopped = true; lock.unlock() }
     var cancelled: Bool { lock.lock(); defer { lock.unlock() }; return stopped }
 }
 
-private enum PhotosMeasure {
-    static func selectedResource(_ asset: PHAsset) -> PHAssetResource? {
-        let all = PHAssetResource.assetResources(for: asset)
-        let order: [PHAssetResourceType] = asset.mediaType == .video
-          ? [.fullSizeVideo, .video]
-          : [.fullSizePhoto, .photo]
-        for type in order {
-            if let result = all.first(where: { $0.type == type }) { return result }
-        }
-        return nil
-    }
+private enum PhotosDiskIndex {
+    static let localRoot = URL(fileURLWithPath: "/private/var/mobile/Media/DCIM", isDirectory: true)
 
-    // The only public, accurate way to size an individual PHAssetResource
-    // without reading undocumented metadata is PHAssetResourceManager.requestData.
-    // Network is disabled: iCloud-only originals are marked unavailable.
-    static func lengthAndHash(_ resource: PHAssetResource, hash: Bool, control: MediaScanControl)
-      -> (Int64, String)? {
-        let options = PHAssetResourceRequestOptions()
-        options.isNetworkAccessAllowed = false
-        let gate = DispatchSemaphore(value: 0)
-        let guardLock = NSLock()
-        var length: Int64 = 0
-        var digest = SHA256()
-        var success = false
-        let request = PHAssetResourceManager.default().requestData(
-            for: resource,
-            options: options,
-            dataReceivedHandler: { data in
-                guardLock.lock()
-                length += Int64(data.count)
-                if hash { digest.update(data: data) }
-                guardLock.unlock()
-            }, completionHandler: { error in
-                guardLock.lock()
-                success = (error == nil)
-                guardLock.unlock()
-                gate.signal()
-            }
-        )
-        let completed = gate.wait(timeout: .now() + 70) == .success
-        if !completed || control.cancelled {
-            PHAssetResourceManager.default().cancelDataRequest(request)
-            return nil
-        }
-        guardLock.lock()
-        defer { guardLock.unlock() }
-        return success ? (length, hash ? digest.finalize().map { String(format: "%02x", $0) }.joined() : "") : nil
-    }
-
-    private static func shaFile(_ url: URL, control: MediaScanControl) -> String? {
-        guard let file = try? FileHandle(forReadingFrom: url) else { return nil }
-        defer { try? file.close() }
-        var digest = SHA256()
-        while !control.cancelled {
-            guard let chunk = try? file.read(upToCount: 1_048_576) else { return nil }
-            if chunk.isEmpty {
-                return digest.finalize().map { String(format: "%02x", $0) }.joined()
-            }
-            digest.update(data: chunk)
-        }
-        return nil
-    }
-
-    static func findDCIMFiles(control: MediaScanControl) -> [String: [PhysicalCandidate]] {
+    // Metadata only: no file bytes, thumbnail creation or cryptographic hashing.
+    // Store at most one candidate plus an ambiguity flag for each name.
+    static func build(flag: ScanFlag) -> [String: LocalFile] {
         let fm = FileManager.default
-        let root = URL(fileURLWithPath: "/private/var/mobile/Media/DCIM", isDirectory: true)
-        guard let enumerator = fm.enumerator(at: root,
-              includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
-              options: [.skipsHiddenFiles, .skipsPackageDescendants]) else { return [:] }
-        var found = [String: [PhysicalCandidate]]()
-        while let url = enumerator.nextObject() as? URL {
-            if control.cancelled { break }
-            guard let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
-                  values.isRegularFile == true, let size = values.fileSize else { continue }
-            let key = url.lastPathComponent.lowercased()
-            found[key, default: []].append(PhysicalCandidate(url: url, bytes: Int64(size)))
+        guard let files = fm.enumerator(at: localRoot,
+                  includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+                  options: [.skipsHiddenFiles, .skipsPackageDescendants]) else { return [:] }
+        var found = [String: LocalFile]()
+        var inspected = 0
+        while let url = files.nextObject() as? URL {
+            if flag.cancelled { break }
+            inspected += 1
+            if inspected > 200_000 { break } // bounded scan, reported as partial below
+            guard let attributes = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+                  attributes.isRegularFile == true,
+                  let bytes = attributes.fileSize else { continue }
+            let name = url.lastPathComponent.lowercased()
+            if var existing = found[name] {
+                existing.isAmbiguous = true
+                found[name] = existing
+            } else {
+                found[name] = LocalFile(path: url.path, bytes: Int64(bytes))
+            }
         }
         return found
     }
 
-    // A path is considered exact only if its original filename, logical byte
-    // count AND cryptographic content digest all agree with a unique DCIM file.
-    static func verifiedPath(resource: PHAssetResource,
-                             bytes: Int64,
-                             resourceDigest: String,
-                             files: [String: [PhysicalCandidate]],
-                             control: MediaScanControl) -> String? {
-        let candidates = (files[resource.originalFilename.lowercased()] ?? [])
-            .filter { $0.bytes == bytes }
-        guard !candidates.isEmpty else { return nil }
-        var matches = [String]()
-        for candidate in candidates {
-            if control.cancelled { return nil }
-            if shaFile(candidate.url, control: control) == resourceDigest {
-                matches.append(candidate.url.path)
-            }
+    static func preferred(_ asset: PHAsset) -> PHAssetResource? {
+        let resources = PHAssetResource.assetResources(for: asset)
+        if asset.mediaType == .video {
+            return resources.first(where: { $0.type == .fullSizeVideo })
+                ?? resources.first(where: { $0.type == .video })
         }
-        return matches.count == 1 ? matches[0] : nil
+        return resources.first(where: { $0.type == .fullSizePhoto })
+            ?? resources.first(where: { $0.type == .photo })
+    }
+
+    // Explicit, on-demand verification of one selected item only.
+    // SHA256 is incremental and never buffers entire videos into memory.
+    static func photoBytesAndDigest(_ resource: PHAssetResource) -> (Int64, String)? {
+        let options = PHAssetResourceRequestOptions()
+        options.isNetworkAccessAllowed = false
+        let semaphore = DispatchSemaphore(value: 0)
+        let lock = NSLock()
+        var bytes: Int64 = 0
+        var sha = SHA256()
+        var succeeded = false
+        let request = PHAssetResourceManager.default().requestData(
+            for: resource, options: options, dataReceivedHandler: { chunk in
+                lock.lock()
+                bytes += Int64(chunk.count)
+                sha.update(data: chunk)
+                lock.unlock()
+            }, completionHandler: { error in
+                lock.lock()
+                succeeded = error == nil
+                lock.unlock()
+                semaphore.signal()
+            })
+        guard semaphore.wait(timeout: .now() + 75) == .success else {
+            PHAssetResourceManager.default().cancelDataRequest(request)
+            return nil
+        }
+        lock.lock()
+        defer { lock.unlock() }
+        guard succeeded else { return nil }
+        return (bytes, sha.finalize().map { String(format: "%02x", $0) }.joined())
+    }
+
+    static func digestFile(at path: String) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: URL(fileURLWithPath: path)) else { return nil }
+        defer { try? handle.close() }
+        var sha = SHA256()
+        while true {
+            guard let chunk = try? handle.read(upToCount: 512 * 1024) else { return nil }
+            if chunk.isEmpty { break }
+            sha.update(data: chunk)
+        }
+        return sha.finalize().map { String(format: "%02x", $0) }.joined()
+    }
+
+    static func verifySelected(_ id: String) -> (Int64?, String?) {
+        guard let asset = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil).firstObject,
+              let resource = preferred(asset) else { return (nil, nil) }
+        guard let (bytes, hash) = photoBytesAndDigest(resource) else { return (nil, nil) }
+
+        let base = localRoot
+        // Enumerate only the few same-name local candidates for this item;
+        // this verification is never performed on the entire library.
+        guard let enumerator = FileManager.default.enumerator(
+                at: base, includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+                options: [.skipsHiddenFiles, .skipsPackageDescendants]) else { return (bytes, nil) }
+        var match: String?
+        while let url = enumerator.nextObject() as? URL {
+            guard url.lastPathComponent.caseInsensitiveCompare(resource.originalFilename) == .orderedSame,
+                  let props = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+                  props.isRegularFile == true,
+                  props.fileSize.map(Int64.init) == bytes else { continue }
+            guard digestFile(at: url.path) == hash else { continue }
+            if match != nil { return (bytes, nil) } // ambiguous; don't guess
+            match = url.path
+        }
+        return (bytes, match)
     }
 }
 
 @MainActor
 final class LibraryMediaStore: ObservableObject {
     @Published private(set) var media = [LibraryMedia]()
-    @Published private(set) var permission: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+    @Published private(set) var permission = PHPhotoLibrary.authorizationStatus(for: .readWrite)
     @Published private(set) var running = false
     @Published private(set) var finished = false
     @Published private(set) var done = 0
-    @Published private(set) var unknown = 0
+    @Published private(set) var total = 0
     @Published private(set) var status = ""
+    @Published private(set) var inspectingID: String?
     @Published var alertError: String?
-    private var control: MediaScanControl?
-    private var runID = UUID()
+    private var flag: ScanFlag?
+    private var generation = UUID()
 
-    var measuredSize: Int64 { media.compactMap(\.byteCount).reduce(0, +) }
+    var measuredSize: Int64 { media.reduce(Int64(0)) { $0 + ($1.byteCount ?? 0) } }
+    var unknown: Int { media.reduce(0) { $0 + ($1.byteCount == nil ? 1 : 0) } }
     var isAllowed: Bool { permission == .authorized || permission == .limited }
 
     func requestAndScan() {
         permission = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         if isAllowed { scan(); return }
-        PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] value in
-            Task { @MainActor [weak self] in
-                self?.permission = value
+        PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] status in
+            DispatchQueue.main.async { [weak self] in
+                self?.permission = status
                 if self?.isAllowed == true { self?.scan() }
             }
         }
     }
 
     func cancel() {
-        control?.cancel()
-        runID = UUID()
+        flag?.stop()
+        generation = UUID()
         running = false
-        status = "Scan interrupted; sizes may be incomplete"
+        finished = false
+        status = "Stopped. No partial or incorrectly sized results were published."
     }
 
     func scan() {
         guard isAllowed, !running else { return }
         running = true
         finished = false
-        done = 0
-        unknown = 0
         media = []
-        status = "Listing Photos library…"
-        let token = MediaScanControl()
-        let current = UUID()
-        control = token
-        runID = current
+        done = 0
+        total = 0
+        status = "Indexing local file metadata…"
+        let activeFlag = ScanFlag()
+        flag = activeFlag
+        let gen = UUID()
+        generation = gen
 
         DispatchQueue.global(qos: .utility).async { [weak self] in
-            let fetch = PHAsset.fetchAssets(with: nil)
-            var items = [LibraryMedia]()
-            items.reserveCapacity(fetch.count)
-            fetch.enumerateObjects { asset, _, _ in
-                guard asset.mediaType == .image || asset.mediaType == .video else { return }
-                let resource = PhotosMeasure.selectedResource(asset)
-                let name = resource?.originalFilename ?? (asset.mediaType == .video ? "Video" : "Photo")
-                items.append(LibraryMedia(asset: asset, filename: name, resource: resource,
-                                          created: asset.creationDate, video: asset.mediaType == .video))
-            }
-            if token.cancelled { return }
+            let indexed = PhotosDiskIndex.build(flag: activeFlag)
+            if activeFlag.cancelled { return }
             DispatchQueue.main.async { [weak self] in
-                guard let self, self.runID == current else { return }
-                self.media = items
-                self.status = "Matching on-device media files…"
+                guard let self, self.generation == gen else { return }
+                self.status = "Reading Photos library metadata (no media decoding)…"
             }
-            let dcim = PhotosMeasure.findDCIMFiles(control: token)
-            if token.cancelled { return }
-            let count = items.count
-            var pending = [(Int, LibraryMedia)]()
-            for index in items.indices {
-                if token.cancelled { return }
-                var item = items[index]
-                if let resource = item.resource {
-                    let hasCandidate = dcim[resource.originalFilename.lowercased()] != nil
-                    if let size = PhotosMeasure.lengthAndHash(resource, hash: hasCandidate, control: token) {
-                        item.byteCount = size.0
-                        if hasCandidate {
-                            item.physicalPath = PhotosMeasure.verifiedPath(
-                                resource: resource, bytes: size.0, resourceDigest: size.1,
-                                files: dcim, control: token)
-                        }
-                    }
+            let all = PHAsset.fetchAssets(with: nil)
+            let maxIndexed = 150_000
+            let bound = min(all.count, maxIndexed)
+            var entries = [LibraryMedia]()
+            entries.reserveCapacity(min(bound, 20_000))
+            var localCount = 0
+            var progress = 0
+            for idx in 0..<bound {
+                if activeFlag.cancelled { return }
+                autoreleasepool {
+                    let asset = all.object(at: idx)
+                    guard asset.mediaType == .image || asset.mediaType == .video else { return }
+                    let resource = PhotosDiskIndex.preferred(asset)
+                    let name = resource?.originalFilename ?? (asset.mediaType == .video ? "Video" : "Photo")
+                    let candidate = indexed[name.lowercased()]
+                    let likelySize = candidate?.isAmbiguous == false ? candidate?.bytes : nil
+                    if likelySize != nil { localCount += 1 }
+                    entries.append(LibraryMedia(id: asset.localIdentifier, filename: name,
+                                                created: asset.creationDate,
+                                                video: asset.mediaType == .video,
+                                                duration: asset.duration,
+                                                byteCount: likelySize,
+                                                isEstimated: likelySize != nil,
+                                                verifiedPath: nil))
                 }
-                item.checked = true
-                items[index] = item
-                pending.append((index, item))
-                if pending.count >= 12 || index == count - 1 {
-                    let updates = pending
-                    pending.removeAll(keepingCapacity: true)
+                progress += 1
+                if progress % 1000 == 0 {
+                    let count = progress
                     DispatchQueue.main.async { [weak self] in
-                        guard let self, self.runID == current else { return }
-                        for (pos, value) in updates where pos < self.media.count {
-                            self.media[pos] = value
-                        }
-                        self.done = index + 1
-                        self.unknown = self.media.filter { $0.checked && $0.byteCount == nil }.count
-                        self.status = "Analyzed \(self.done) / \(count) media files"
+                        guard let self, self.generation == gen else { return }
+                        self.done = count
+                        self.total = bound
                     }
                 }
             }
+            if activeFlag.cancelled { return }
             DispatchQueue.main.async { [weak self] in
-                guard let self, self.runID == current else { return }
-                self.running = false
+                guard let self, self.generation == gen else { return }
+                self.media = entries  // exactly ONE full-array UI publication
+                self.done = bound
+                self.total = all.count
                 self.finished = true
-                self.status = "Completed. Cloud-only or restricted originals may show unavailable sizes."
-                self.control = nil
+                self.running = false
+                self.flag = nil
+                self.status = all.count > maxIndexed
+                    ? "Index safety limit reached; showing first \(bound) assets."
+                    : "Fast scan complete. \(localCount) approximate local sizes. Select an item to verify its exact size and Filza path."
             }
         }
     }
 
-    func delete(_ item: LibraryMedia) {
-        guard isAllowed else { alertError = "Photos access is not granted."; return }
-        // iOS displays its own second confirmation and moves to Recently Deleted.
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.deleteAssets([item.asset] as NSArray)
-        }, completionHandler: { [weak self] ok, error in
-            DispatchQueue.main.async {
+    func inspect(_ id: String) {
+        guard inspectingID == nil, !running, media.contains(where: { $0.id == id }) else { return }
+        inspectingID = id
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            let result = PhotosDiskIndex.verifySelected(id)
+            DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
-                if ok {
-                    self.media.removeAll { $0.id == item.id }
+                self.inspectingID = nil
+                guard let index = self.media.firstIndex(where: { $0.id == id }) else { return }
+                if let size = result.0 {
+                    self.media[index].byteCount = size
+                    self.media[index].isEstimated = false
+                    self.media[index].verifiedPath = result.1
+                    if result.1 == nil {
+                        self.alertError = "Exact file size verified. No unique matching local DCIM file was found for Filza; the location will not be guessed."
+                    }
                 } else {
-                    self.alertError = error?.localizedDescription ?? "Photos could not delete the item."
+                    self.alertError = "Could not measure this asset locally. It may be stored in iCloud, protected, or temporarily unavailable."
+                }
+            }
+        }
+    }
+
+    func delete(_ id: String) {
+        guard !running, isAllowed else { alertError = "Complete the scan and grant Photos access first."; return }
+        let target = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
+        guard let asset = target.firstObject else { alertError = "This file no longer exists."; return }
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.deleteAssets([asset] as NSArray)
+        }, completionHandler: { [weak self] success, error in
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                if success {
+                    self.media.removeAll { $0.id == id }
+                } else {
+                    self.alertError = error?.localizedDescription ?? "Photos could not delete this item."
                 }
             }
         })
     }
 }
 
-private enum MediaViewFilter: String, CaseIterable {
+private enum MediaKind: String, CaseIterable {
     case all = "All", photos = "Photos", videos = "Videos"
 }
-private enum MediaOrder: String, CaseIterable {
+private enum MediaSort: String, CaseIterable {
     case largest = "Largest", smallest = "Smallest", newest = "Newest", oldest = "Oldest", name = "Filename"
 }
 
 struct PhotosStoragePage: View {
     @StateObject private var store = LibraryMediaStore()
-    @State private var filter = MediaViewFilter.all
-    @State private var order = MediaOrder.largest
-    @State private var query = ""
-    @State private var selected: LibraryMedia?
-    @State private var deleting: LibraryMedia?
-    @State private var showingError = false
+    @State private var kind = MediaKind.all
+    @State private var sort = MediaSort.largest
+    @State private var search = ""
+    @State private var selection: LibraryMedia?
+    @State private var deleteID: String?
 
-    private var displayed: [LibraryMedia] {
-        let source = store.media.filter { item in
-            let kind = filter == .all || (filter == .videos && item.video) || (filter == .photos && !item.video)
-            return kind && (query.isEmpty || item.filename.localizedCaseInsensitiveContains(query))
+    private var matches: [LibraryMedia] {
+        let all = store.media.filter { media in
+            (kind == .all || (kind == .videos && media.video) || (kind == .photos && !media.video))
+            && (search.isEmpty || media.filename.localizedCaseInsensitiveContains(search))
         }
-        switch order {
-        case .largest: return source.sorted { ($0.byteCount ?? -1) > ($1.byteCount ?? -1) }
-        case .smallest: return source.sorted { ($0.byteCount ?? Int64.max) < ($1.byteCount ?? Int64.max) }
-        case .newest: return source.sorted { ($0.created ?? .distantPast) > ($1.created ?? .distantPast) }
-        case .oldest: return source.sorted { ($0.created ?? .distantFuture) < ($1.created ?? .distantFuture) }
-        case .name: return source.sorted { $0.filename.localizedStandardCompare($1.filename) == .orderedAscending }
+        switch sort {
+        case .largest: return all.sorted { ($0.byteCount ?? -1) > ($1.byteCount ?? -1) }
+        case .smallest: return all.sorted { ($0.byteCount ?? Int64.max) < ($1.byteCount ?? Int64.max) }
+        case .newest: return all.sorted { ($0.created ?? .distantPast) > ($1.created ?? .distantPast) }
+        case .oldest: return all.sorted { ($0.created ?? .distantFuture) < ($1.created ?? .distantFuture) }
+        case .name: return all.sorted { $0.filename.localizedStandardCompare($1.filename) == .orderedAscending }
         }
     }
 
     var body: some View {
+        let shown = matches
         List {
             Section {
                 HStack {
-                    VStack(alignment: .leading, spacing: 5) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("Photos & Videos").font(.title2.bold())
-                        Text("\(store.media.count) items in accessible Photos library")
+                        Text("\(store.media.count) indexed assets")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Image(systemName: "photo.on.rectangle.angled").font(.title2).foregroundStyle(.mint)
+                    Image(systemName: "photo.on.rectangle.angled").foregroundStyle(.mint)
                 }
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Measured media").font(.caption).foregroundStyle(.secondary)
-                        Text(readable(store.measuredSize)).font(.title3.bold())
+                        Text("Local size estimate").font(.caption).foregroundStyle(.secondary)
+                        Text(readable(store.measuredSize)).font(.headline)
                     }
                     Spacer()
                     VStack(alignment: .trailing) {
-                        Text("Scanned").font(.caption).foregroundStyle(.secondary)
-                        Text("\(store.done)/\(store.media.count)").font(.title3.bold())
+                        Text("Without local size").font(.caption).foregroundStyle(.secondary)
+                        Text("\(store.unknown)").font(.headline)
                     }
                 }
-                if store.permission == .limited {
-                    Label("Limited Photos permission: only selected items are visible.", systemImage: "exclamationmark.circle")
-                        .font(.footnote).foregroundStyle(.orange)
-                }
-                Text("Counts primary photo/video resources, not all edits, Live Photo companions or APFS snapshots. Cloud-only originals are excluded unless locally available.")
+                Text("Fast scan uses filesystem and Photos metadata only. It does not load full photos or videos. Values marked ≈ are estimates and may not include Live Photo components, edits, shared APFS blocks, or cloud media.")
                     .font(.caption).foregroundStyle(.secondary)
+                if store.permission == .limited {
+                    Text("Limited Photos access: only selected items are indexed.")
+                        .font(.caption).foregroundStyle(.orange)
+                }
                 if store.running {
-                    ProgressView(value: Double(store.done), total: Double(max(1, store.media.count))).tint(.mint)
-                    Button("Stop Media Scan", role: .cancel) { store.cancel() }
+                    ProgressView(value: Double(store.done), total: Double(max(1, store.total)))
+                    Button("Stop Scan", role: .cancel) { store.cancel() }
                 } else {
                     Button { store.requestAndScan() } label: {
                         Label(store.media.isEmpty ? "Scan Photos & Videos" : "Rescan Photos & Videos",
@@ -330,50 +360,36 @@ struct PhotosStoragePage: View {
                 if !store.status.isEmpty {
                     Text(store.status).font(.caption).foregroundStyle(.secondary)
                 }
-                if store.unknown > 0 {
-                    Text("\(store.unknown) files have unavailable sizes (possibly iCloud or restricted).")
-                        .font(.caption).foregroundStyle(.orange)
-                }
             }
-            if store.isAllowed {
+            if store.isAllowed && !store.running {
                 Section {
-                    Picker("Type", selection: $filter) {
-                        ForEach(MediaViewFilter.allCases, id: \.self) { type in
-                            Text(type.rawValue).tag(type)
-                        }
+                    Picker("Media", selection: $kind) {
+                        ForEach(MediaKind.allCases, id: \.self) { entry in Text(entry.rawValue).tag(entry) }
                     }.pickerStyle(.segmented)
-                    Picker("Sort", selection: $order) {
-                        ForEach(MediaOrder.allCases, id: \.self) { mode in Text(mode.rawValue).tag(mode) }
+                    Picker("Sort", selection: $sort) {
+                        ForEach(MediaSort.allCases, id: \.self) { entry in Text(entry.rawValue).tag(entry) }
                     }
-                    HStack {
-                        Text("\(displayed.count) shown").foregroundStyle(.secondary).font(.caption)
-                        Spacer()
-                        Text("\(store.media.filter { $0.physicalPath != nil }.count) Filza verified")
-                            .foregroundStyle(.secondary).font(.caption)
+                    Text("\(shown.count) results · showing the first \(min(250, shown.count)). Refine the search for more.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Section("Files") {
+                    ForEach(Array(shown.prefix(250))) { item in
+                        Button { selection = item } label: { MediaListRow(item: item) }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                if let path = item.verifiedPath {
+                                    FilzaAction(path: path, label: "Open Exact File in Filza")
+                                }
+                                Button(role: .destructive) {
+                                    deleteID = item.id
+                                } label: { Label("Delete from Photos…", systemImage: "trash") }
+                            }
                     }
                 }
-                Section("Largest media files") {
-                    ForEach(displayed) { item in
-                        Button { selected = item } label: {
-                            MediaListRow(item: item)
-                        }.buttonStyle(.plain)
-                        .contextMenu {
-                            if let exact = item.physicalPath {
-                                FilzaAction(path: exact, label: "Go to Exact File in Filza")
-                            }
-                            Button {
-                                UIPasteboard.general.string = item.physicalPath ?? item.filename
-                            } label: { Label("Copy File Name / Path", systemImage: "doc.on.doc") }
-                            Button(role: .destructive) { deleting = item } label: {
-                                Label("Delete from Photos…", systemImage: "trash")
-                            }
-                        }
-                    }
-                }
-            } else {
+            } else if !store.isAllowed {
                 Section {
-                    Text("Grant Photos access to inspect your library. No upload is performed.")
-                    if store.permission == .denied || store.permission == .restricted {
+                    Text("Allow Photos access to inspect your local library.")
+                    if store.permission == .restricted || store.permission == .denied {
                         Button("Open iOS Settings") {
                             if let url = URL(string: UIApplication.openSettingsURLString) {
                                 UIApplication.shared.open(url)
@@ -384,146 +400,168 @@ struct PhotosStoragePage: View {
             }
         }
         .navigationTitle("Media")
-        .searchable(text: $query, prompt: "Search media filename")
-        .sheet(item: $selected) { item in
+        .searchable(text: $search, prompt: "Search photo or video filename")
+        .sheet(item: $selection) { item in
             NavigationStack {
-                MediaDetailsPage(item: item) { deleting = item; selected = nil }
+                MediaDetailsPage(itemID: item.id, fallback: item, store: store) {
+                    selection = nil
+                    deleteID = item.id
+                }
             }
         }
-        .confirmationDialog("Move this item to Recently Deleted?", isPresented: Binding(
-            get: { deleting != nil }, set: { if !$0 { deleting = nil } }
+        .confirmationDialog("Move to Recently Deleted?", isPresented: Binding(
+            get: { deleteID != nil },
+            set: { if !$0 { deleteID = nil } }
         ), titleVisibility: .visible) {
             Button("Delete from Photos", role: .destructive) {
-                if let item = deleting { store.delete(item) }
-                deleting = nil
+                if let id = deleteID { store.delete(id) }
+                deleteID = nil
             }
-            Button("Cancel", role: .cancel) { deleting = nil }
+            Button("Cancel", role: .cancel) { deleteID = nil }
         } message: {
-            Text("iOS will ask for confirmation. This uses the Photos library deletion API; it never directly removes DCIM files.")
+            Text("iOS also asks permission to delete. Files are not directly unlinked from DCIM.")
         }
-        .alert("Media Operation", isPresented: Binding(
+        .alert("Media", isPresented: Binding(
             get: { store.alertError != nil },
             set: { if !$0 { store.alertError = nil } }
         )) {
             Button("OK", role: .cancel) { store.alertError = nil }
-        } message: { Text(store.alertError ?? "") }
+        } message: {
+            Text(store.alertError ?? "")
+        }
     }
 }
 
 private struct MediaListRow: View {
     let item: LibraryMedia
     var body: some View {
-        HStack(spacing: 12) {
-            MediaThumbnail(asset: item.asset)
-                .frame(width: 70, height: 68)
+        HStack(spacing: 10) {
+            MediaThumbnail(identifier: item.id, video: item.video)
+                .frame(width: 64, height: 64)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
-            VStack(alignment: .leading, spacing: 5) {
-                Text(item.filename).font(.subheadline.weight(.semibold))
-                    .lineLimit(2).foregroundStyle(.primary)
-                HStack(spacing: 5) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.filename).font(.subheadline.weight(.semibold)).lineLimit(2)
+                HStack(spacing: 4) {
                     Image(systemName: item.video ? "video.fill" : "photo.fill")
                     Text(dateString(item.created))
-                    if item.physicalPath != nil { Image(systemName: "folder.badge.checkmark") }
                 }.font(.caption2).foregroundStyle(.secondary)
             }
-            Spacer(minLength: 5)
+            Spacer(minLength: 2)
             VStack(alignment: .trailing, spacing: 4) {
-                Text(item.byteCount.map(readable) ?? (item.checked ? "Unavailable" : "Pending"))
-                    .font(.caption).monospacedDigit().foregroundStyle(.primary)
-                Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.secondary)
+                Text(item.byteCount.map(readable) ?? "Unknown")
+                    .font(.caption).foregroundStyle(.primary).monospacedDigit()
+                if item.isEstimated {
+                    Text("≈ local").font(.caption2).foregroundStyle(.orange)
+                } else if item.verifiedPath != nil {
+                    Image(systemName: "checkmark.shield.fill").foregroundStyle(.mint)
+                }
             }
-        }.padding(.vertical, 3)
+        }.padding(.vertical, 2)
     }
 }
 
 private struct MediaThumbnail: View {
-    let asset: PHAsset
+    let identifier: String
+    let video: Bool
     @State private var image: UIImage?
-    @State private var request: PHImageRequestID = PHInvalidImageRequestID
+    @State private var request = PHInvalidImageRequestID
 
     var body: some View {
         ZStack {
-            Color.gray.opacity(0.18)
+            Color.gray.opacity(0.15)
             if let image {
                 Image(uiImage: image).resizable().scaledToFill()
             } else {
-                Image(systemName: asset.mediaType == .video ? "film" : "photo")
-                    .foregroundStyle(.secondary)
+                Image(systemName: video ? "film" : "photo")
+                    .font(.title2).foregroundStyle(.secondary)
             }
         }
         .clipped()
         .onAppear {
+            guard let asset = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil).firstObject else { return }
             let options = PHImageRequestOptions()
             options.deliveryMode = .fastFormat
             options.resizeMode = .fast
             options.isNetworkAccessAllowed = false
-            request = PHImageManager.default().requestImage(
-                for: asset, targetSize: CGSize(width: 180, height: 180),
-                contentMode: .aspectFill, options: options
-            ) { result, _ in
-                DispatchQueue.main.async { image = result }
-            }
+            request = PHImageManager.default().requestImage(for: asset,
+                targetSize: CGSize(width: 150, height: 150),
+                contentMode: .aspectFill, options: options) { result, _ in
+                    DispatchQueue.main.async { image = result }
+                }
         }
         .onDisappear {
-            if request != PHInvalidImageRequestID { PHImageManager.default().cancelImageRequest(request) }
+            if request != PHInvalidImageRequestID {
+                PHImageManager.default().cancelImageRequest(request)
+                request = PHInvalidImageRequestID
+            }
+            image = nil
         }
     }
 }
 
 struct MediaDetailsPage: View {
-    let item: LibraryMedia
+    let itemID: String
+    let fallback: LibraryMedia
+    @ObservedObject var store: LibraryMediaStore
     let requestDelete: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var image: UIImage?
-    @State private var videoPlayer: AVPlayer?
-    @State private var playbackError = false
+    @State private var player: AVPlayer?
+    private var item: LibraryMedia {
+        store.media.first(where: { $0.id == itemID }) ?? fallback
+    }
 
     var body: some View {
         List {
             Section("Preview") {
                 if item.video {
-                    if let videoPlayer {
-                        VideoPlayer(player: videoPlayer).frame(height: 280)
+                    if let player {
+                        VideoPlayer(player: player).frame(height: 245)
                     } else {
-                        MediaThumbnail(asset: item.asset).frame(height: 230)
-                        if playbackError {
-                            Text("This video is not locally available for preview.")
-                                .foregroundStyle(.secondary).font(.caption)
-                        }
+                        MediaThumbnail(identifier: item.id, video: true).frame(height: 220)
                     }
                 } else if let image {
-                    Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 350)
+                    Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 320)
                 } else {
-                    MediaThumbnail(asset: item.asset).frame(height: 250)
+                    MediaThumbnail(identifier: item.id, video: false).frame(height: 220)
                 }
             }
-            Section("File information") {
+            Section("Information") {
                 LabeledContent("Name", value: item.filename)
                 LabeledContent("Type", value: item.video ? "Video" : "Photo")
-                LabeledContent("Main resource size", value: item.byteCount.map(readable) ?? "Unavailable")
-                LabeledContent("Created", value: dateString(item.created))
+                LabeledContent(item.isEstimated ? "Approx. local size" : "Measured size",
+                               value: item.byteCount.map(readable) ?? "Unknown")
+                LabeledContent("Date", value: dateString(item.created))
                 if item.video {
-                    LabeledContent("Duration", value: String(format: "%.1f seconds", item.duration))
+                    LabeledContent("Duration", value: String(format: "%.1f sec", item.duration))
                 }
-                if let path = item.physicalPath {
-                    Text(path).font(.caption2).textSelection(.enabled)
+                if let path = item.verifiedPath {
+                    Text(path).font(.footnote).textSelection(.enabled)
                 } else {
-                    Text("No verified local filesystem path. Photos hides its asset-to-file mapping; no Filza path is guessed.")
+                    Text("Filza path is only offered after verifying the exact local file.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
             Section("Actions") {
-                if let path = item.physicalPath {
+                if let path = item.verifiedPath {
                     FilzaAction(path: path, label: "Go to Exact File in Filza")
                 } else {
-                    Label("Filza location unavailable", systemImage: "lock")
-                        .foregroundStyle(.secondary)
+                    Button {
+                        store.inspect(item.id)
+                    } label: {
+                        Label(store.inspectingID == item.id ? "Verifying…" : "Verify Exact Size & Filza Path",
+                              systemImage: "checkmark.shield")
+                    }
+                    .disabled(store.inspectingID != nil)
+                    if store.inspectingID == item.id {
+                        ProgressView()
+                        Text("Reading this selected original only; may take time for large videos.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
                 }
                 Button {
-                    UIPasteboard.general.string = item.physicalPath ?? item.filename
-                } label: {
-                    Label("Copy File Name / Path", systemImage: "doc.on.doc")
-                }
+                    UIPasteboard.general.string = item.verifiedPath ?? item.filename
+                } label: { Label("Copy File Name or Verified Path", systemImage: "doc.on.doc") }
                 Button(role: .destructive, action: requestDelete) {
                     Label("Delete from Photos…", systemImage: "trash")
                 }
@@ -535,33 +573,34 @@ struct MediaDetailsPage: View {
                 Button("Done") { dismiss() }
             }
         }
-        .onAppear { loadPreview() }
+        .onAppear { preview() }
         .onDisappear {
-            videoPlayer?.pause()
-            videoPlayer = nil
+            player?.pause()
+            player = nil
+            image = nil
         }
     }
 
-    private func loadPreview() {
+    private func preview() {
+        guard let asset = PHAsset.fetchAssets(withLocalIdentifiers: [itemID], options: nil).firstObject else { return }
         if item.video {
             let options = PHVideoRequestOptions()
             options.isNetworkAccessAllowed = false
-            PHImageManager.default().requestPlayerItem(forVideo: item.asset, options: options) { result, _ in
+            PHImageManager.default().requestPlayerItem(forVideo: asset, options: options) { video, _ in
                 DispatchQueue.main.async {
-                    if let result { videoPlayer = AVPlayer(playerItem: result) }
-                    else { playbackError = true }
+                    if let video { self.player = AVPlayer(playerItem: video) }
                 }
             }
         } else {
             let options = PHImageRequestOptions()
             options.isNetworkAccessAllowed = false
-            options.deliveryMode = .highQualityFormat
             options.resizeMode = .fast
-            PHImageManager.default().requestImage(for: item.asset,
-                  targetSize: CGSize(width: 1400, height: 1400),
-                  contentMode: .aspectFit, options: options) { result, _ in
+            options.deliveryMode = .highQualityFormat
+            PHImageManager.default().requestImage(for: asset,
+                    targetSize: CGSize(width: 960, height: 960),
+                    contentMode: .aspectFit, options: options) { result, _ in
                 DispatchQueue.main.async {
-                    if let result { image = result }
+                    if let result { self.image = result }
                 }
             }
         }
