@@ -58,8 +58,8 @@ jobs:
           PY
           )"
           if [ "$LATEST_COMMIT" != "$BUILD_COMMIT" ]; then
-            echo "Skipping older build: $BUILD_COMMIT is no longer the head of $BRANCH ($LATEST_COMMIT)."
-            exit 0
+            echo "Refusing stale build: $BUILD_COMMIT is no longer the head of $BRANCH ($LATEST_COMMIT)."
+            exit 1
           fi
           gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${NEXTCAST_RUN_ID}/artifacts?per_page=100" > "$RUNNER_TEMP/artifacts.json"
           ARTIFACT_ID="$(python3 - "$RUNNER_TEMP/artifacts.json" <<'PY'
