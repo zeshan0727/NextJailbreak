@@ -1225,6 +1225,34 @@
           "sha256": "46c69de8ce5214ad6547b2385be0578bbc5488b3254a43697c41a94d002e835f"
         }
       ]
+    },
+    "com.aadios.camhop": {
+      "credit_label": "AADiOS/Havoc — official CamHop release banner, icon and pairing interface",
+      "source_page_url": "https://havoc.app/package/camhop",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6adb6861f6161d6c38c3b8b0",
+        "alt": "Official CamHop banner with its webcam mascot and product name",
+        "local_path": "assets/articles/source-media/camhop-1-0-0-official-banner.png",
+        "sha256": "b0e9c5294f7bbac21843acae73a5c379b42bd9798c290b31c71a123fd50d915a",
+        "git_blob_sha": "fe9fbf3aa2c72ee0e66a5d110f4da339bf7f291b"
+      },
+      "icon": {
+        "url": "https://media.havoc.app/6adb681df6161d6c38c3b5a3",
+        "alt": "Official CamHop webcam mascot app icon",
+        "local_path": "assets/articles/source-media/camhop-1-0-0-official-icon.png",
+        "git_blob_sha": "17df66ee2ff63c2da78f7adfca5745bf6b9d6905",
+        "sha256": "40aeb6f6f7d87d13238e8a006158e1395d0e9ea159fb27357c3e5d8d60ec9e66"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6adb6bfdf6161d6c38c3d37f",
+          "alt": "Official CamHop Connection screen showing a six-digit PIN, link, QR code and share controls",
+          "local_path": "assets/articles/source-media/camhop-1-0-0-official-pairing.png",
+          "sha256": "7ea435fe61d85fb23e514b72a4ba5e513406cdb8890095f0d51057f54c30fb97",
+          "git_blob_sha": "6be9c8b2308b38ff5bfe7aab78682a3f0262ebfb"
+        }
+      ]
     }
   }
 }

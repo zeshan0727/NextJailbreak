@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>CamHop 1.0.0 Turns a Computer Webcam into an iPhone Camera</title>
+      <link>https://nextjailbreak.com/camhop-1-0-computer-webcam-iphone-camera/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/camhop-1-0-computer-webcam-iphone-camera/</guid>
+      <pubDate>Thu, 29 Oct 2026 15:00:00 GMT</pubDate>
+      <description>CamHop 1.0.0 streams a Mac or PC webcam and microphone to rootless iPhones and iPads on iOS 15–26.0.1. See setup, limits, privacy and fixes.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
       <title>Lasso vs Snapper 3 vs Unseen: Which Screenshot Tweak Should You Use?</title>
       <link>https://nextjailbreak.com/snapper-3-vs-screenshotactions-vs-unseen-comparison/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/snapper-3-vs-screenshotactions-vs-unseen-comparison/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Sat, 24 Oct 2026 08:57:35 GMT</pubDate>
       <description>Compare TrollStore JIT, StikDebug 3.1.15 and SideJITServer 1.4.2 by iOS support, pairing, computer use, networking and repeat-launch workflow.</description>
       <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Enable Developer Mode for TrollStore Apps on iOS 16</title>
-      <link>https://nextjailbreak.com/enable-developer-mode-trollstore-apps-ios-16-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/enable-developer-mode-trollstore-apps-ios-16-guide/</guid>
-      <pubDate>Sat, 24 Oct 2026 04:55:29 GMT</pubDate>
-      <description>Enable iOS 16 Developer Mode from TrollStore 2.1.1 or Apple Settings, complete the required reboot, and understand errors 182 and 183 without reinstalling apps unnecessarily.</description>
-      <category>Evergreen Jailbreak Guide</category>
     </item>
   </channel>
 </rss>
