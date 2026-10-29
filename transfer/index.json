@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T08:10:29Z",
+  "updatedAt": "2026-10-29T08:17:43Z",
   "files": [
+    {
+      "id": "nextstorage-1.0.0-ios16-roothide",
+      "name": "Next Storage 1.0.0 — Deep Storage Analyzer",
+      "fileName": "NextStorage-1.0.0.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.0",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.0/NextStorage-1.0.0.tipa",
+      "sha256": "c4375029fe946810ae3f20aa20541c25c3a126063507fcda14d86bcbc336c1c2",
+      "sizeBytes": 138724,
+      "notes": "Read-only native filesystem analyzer with allocated block sizes, app bundle and app data attribution, root browsing, indexed filename search, date and size sorting; requires RootHide privilege for protected areas."
+    },
     {
       "id": "nextcast-1.3.1",
       "name": "Next Cast 1.3.1 — iOS Video Player, Chromecast and Downloads",
@@ -13,18 +25,6 @@
       "sha256": "1fd12dcafc5028e6444605a5e14d63dfc4c57eb280347d9a6b49293917acad22",
       "sizeBytes": 19567276,
       "notes": "Native VLC player, local video library, Chromecast and download manager. Build verified; on-device validation required."
-    },
-    {
-      "id": "nextstorage-1.0.0-ios16-roothide",
-      "name": "Next Storage 1.0.0 — Deep Storage Analyzer",
-      "fileName": "NextStorage-1.0.0.tipa",
-      "type": "tipa",
-      "platform": "TrollStore / RootHide / iOS 16+",
-      "version": "1.0.0",
-      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.0/NextStorage-1.0.0.tipa",
-      "sha256": "757119286cb7d99bdfb84a712398993fa68ab9254a07209dce4786e8c4e78c3f",
-      "sizeBytes": 138724,
-      "notes": "Read-only native filesystem analyzer with allocated block sizes, app bundle and app data attribution, root browsing, indexed filename search, date and size sorting; requires RootHide privilege for protected areas."
     },
     {
       "id": "accountants-mobile-0.4.1-scanner-company-fix",
