@@ -180,7 +180,7 @@ struct MoviePlayerScreen: View {
                         }
                         Button(broadcast ? "Playing on TV" :
                                castPreparer.preparing ? "Preparing TV MP4…" :
-                               movie.format == "MKV" ? "Prepare MKV & Cast" : "Play on TV") {
+                               movie.format == "MKV" ? "MKV requires MP4" : "Play on TV") {
                             requestedCast = true
                             if cast.isConnected { playOnTV() }
                         }
@@ -191,7 +191,7 @@ struct MoviePlayerScreen: View {
                                 ProgressView()
                                 Text(castPreparer.status)
                                     .font(.caption).foregroundStyle(.secondary)
-                                Text("Local conversion · copying video and encoding TV-compatible AAC audio. Keep Next Cast open.")
+                                Text("Apple native conversion · copying H.264 video and encoding stereo AAC. Keep Next Cast open.")
                                     .font(.caption2).foregroundStyle(.secondary)
                                 Button("Cancel preparation", role: .destructive) {
                                     castPreparer.cancel()
@@ -207,10 +207,10 @@ struct MoviePlayerScreen: View {
                             }
                         }
                         if movie.format == "MKV" {
-                            Text("Next Cast prepares a compatible MP4 locally, copies the video, and encodes stereo AAC audio for TV. Your MKV remains unchanged.")
+                            Text("MKV playback in VLC is supported. MKV-to-MP4 conversion is temporarily disabled because the old FFmpeg engine crashed on iOS 16. Use a compatible MP4 for TV.")
                                 .font(.caption).foregroundStyle(.orange)
                         } else if !movie.castCompatible {
-                            Text("Next Cast will attempt fast MP4 preparation. Some codecs need full video re-encoding, which Fast Copy mode cannot provide.")
+                            Text("Native MP4 preparation supports MP4, M4V and MOV containing H.264 video. Other containers can still play locally through VLC.")
                                 .font(.caption).foregroundStyle(.orange)
                         }
                     }

@@ -80,15 +80,14 @@ jobs:
           # artwork path never invokes it.
           python3 NextCast/tools/weak_link_coremedia.py "$APP"
 
-          # A real iOS 16.0 crash on 1.4.3 (Build 17) was a SIGBUS when
-          # the legacy FFmpeg av_format_init_next wrote an app __DATA_CONST
-          # registry pointer. Reject release packages until it is absent.
-          echo "Auditing writable FFmpeg registry section"
-          if otool -l "$APP/NextCast" | grep -E 'segname __DATA_CONST' ; then
-            echo "::error::Main executable still has __DATA_CONST: iOS 16 FFmpeg SIGBUS regression"
+          # The v1.4.3/1.4.4 crash was inside FFmpeg's legacy demuxer
+          # registry. Avoid that engine entirely; this converter uses the
+          # system AVFoundation reader/writer for MP4/MOV.
+          if grep -R -E "import FFmpegSupport|ffmpeg\(" NextCast/Sources; then
+            echo "::error::Unsafe FFmpeg CLI invocation is still in app sources"
             exit 1
           fi
-          echo "Main executable has no read-only __DATA_CONST segment"
+          echo "No embedded FFmpeg CLI calls in Next Cast"
           echo "Auditing app Mach-O binary and embedded dynamic frameworks"
           FOUND_MISSING=0
           while IFS= read -r -d '' BINARY; do
@@ -120,14 +119,14 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.4.4.tipa" Payload)
+          (cd dist && zip -qry "../NextCast-1.4.5.tipa" Payload)
           cp NextCast-1.4.4.tipa NextCast-1.4.4.ipa
           ls -lh NextCast-1.4.4.tipa NextCast-1.4.4.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-4-4-IPA-TIPA
+          name: NextCast-iOS16-V1-4-5-IPA-TIPA
           path: |
             NextCast-1.4.4.tipa
             NextCast-1.4.4.ipa

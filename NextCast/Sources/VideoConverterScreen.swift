@@ -17,7 +17,7 @@ struct VideoConverterScreen: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Fast TV Converter", systemImage: "arrow.triangle.2.circlepath.video")
                             .font(.title2.bold()).foregroundStyle(.cyan)
-                        Text("Create an MP4 with stereo AAC audio directly on your iPhone.")
+                        Text("Prepare MP4, M4V or MOV files with stereo AAC audio using the iPhone native converter.")
                             .font(.subheadline)
                         Text("Fast mode copies video without re-encoding, so it avoids unnecessary quality loss. Conversion time depends on the original file and storage speed.")
                             .font(.caption).foregroundStyle(.secondary)
@@ -113,7 +113,7 @@ struct VideoConverterScreen: View {
                         }.nextSurface()
                     }
 
-                    Text("Audio fix: AC3, E-AC3, DTS and multichannel audio are re-encoded to AAC stereo when supported by the bundled FFmpeg decoder. Fast mode does not re-encode incompatible video codecs.")
+                    Text("This crash-safe converter uses Apple AVFoundation only. It copies compatible H.264 video and converts supported soundtracks to stereo AAC. MKV/AVI conversion is disabled until a stable engine is available; local VLC playback still works.")
                         .font(.caption).foregroundStyle(.secondary)
                 }.padding(18)
             }

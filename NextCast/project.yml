@@ -9,9 +9,6 @@ packages:
   GoogleCast:
     url: https://github.com/googlecast/google-cast-ios-sdk
     from: 4.8.6
-  FFmpegIOS:
-    url: https://github.com/kewlbear/FFmpeg-iOS
-    branch: main
   AndroidTVRemoteControl:
     url: https://github.com/odyshewroman/AndroidTVRemoteControl
     branch: main
@@ -25,8 +22,6 @@ targets:
     dependencies:
       - package: GoogleCast
         product: GoogleCastDynamic
-      - package: FFmpegIOS
-        product: FFmpeg-iOS
       - package: AndroidTVRemoteControl
         product: AndroidTVRemoteControl
     settings:
@@ -45,18 +40,13 @@ targets:
         OTHER_LDFLAGS:
           - "$(inherited)"
           - "-weak-lswiftCoreMedia"
-          # The bundled FFmpeg CLI mutates a legacy codec registry during
-          # av_format_init_next(). With the default __DATA_CONST linker layout
-          # that registry is read-only on iOS 16 and causes SIGBUS.
-          # Keep the app's legacy codec registry in writable __DATA.
-          - "-Wl,-no_data_const"
         GENERATE_INFOPLIST_FILE: NO
     info:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: Next Cast
-        CFBundleShortVersionString: "1.4.4"
-        CFBundleVersion: "18"
+        CFBundleShortVersionString: "1.4.5"
+        CFBundleVersion: "19"
         UILaunchScreen: {}
         CFBundleDocumentTypes:
           - CFBundleTypeName: Next Cast Video
