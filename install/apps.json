@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-nextcast",
+      "name": "Next Cast",
+      "version": "1.3.9",
+      "build": "13",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.nextcast",
+      "icon": "/install/icons/com-nextsolution-nextcast-8ea7b8644e75.png",
+      "manifest": "/install/com-nextsolution-nextcast.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-nextcast/1.3.9/com-nextsolution-nextcast-1.3.9-13.ipa",
+      "sha256": "8ea7b8644e75a19a7f6477c05d353d90a1d1c86281fc160757363a89adf510cc",
+      "sizeBytes": 20464713,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-storage",
       "name": "Next Storage",
       "version": "1.0.8",
