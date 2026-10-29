@@ -9,8 +9,8 @@ packages:
   GoogleCast:
     url: https://github.com/googlecast/google-cast-ios-sdk
     from: 4.8.6
-  FFmpegKit:
-    url: https://github.com/jaywcjlove/ffmpeg-kit
+  FFmpegIOS:
+    url: https://github.com/kewlbear/FFmpeg-iOS
     branch: main
   AndroidTVRemoteControl:
     url: https://github.com/odyshewroman/AndroidTVRemoteControl
@@ -25,8 +25,8 @@ targets:
     dependencies:
       - package: GoogleCast
         product: GoogleCastDynamic
-      - package: FFmpegKit
-        product: ffmpegkit
+      - package: FFmpegIOS
+        product: FFmpeg-iOS
       - package: AndroidTVRemoteControl
         product: AndroidTVRemoteControl
     settings:
