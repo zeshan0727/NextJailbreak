@@ -1,0 +1,79 @@
+name: Next Signer 1.4.4 Redesign Test
+
+on:
+  push:
+    branches:
+      - feature/nextsigner-1.4.4-redesign-bulk-resign
+    paths:
+      - 'NextSigner/**'
+      - '.github/workflows/build-nextsigner-1.4.4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nextsigner-144-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate source and features
+        run: |
+          set -euo pipefail
+          grep -q 'MARKETING_VERSION: "1.4.4"' NextSigner/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "32"' NextSigner/project.yml
+          grep -q 'func resignBatch' NextSigner/NextSigner/LocalSigningController.swift
+          grep -q 'Re-sign All' NextSigner/NextSigner/NextSignerLocalViews.swift
+          grep -q 'nextsigner.appearance' NextSigner/NextSigner/NextSignerRootView.swift
+      - name: Prepare Zsign
+        run: |
+          set -euo pipefail
+          rm -rf NextSigner/Vendor/Zsign-Package
+          git clone --depth 1 --branch package https://github.com/claration/Zsign-Package.git NextSigner/Vendor/Zsign-Package
+          python3 NextSigner/patch_zsign_local.py
+      - name: Generate App Icon
+        run: python3 NextSigner/generate_app_icon.py
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate iOS project
+        working-directory: NextSigner
+        run: xcodegen generate
+      - name: Compile iOS 16 app
+        working-directory: NextSigner
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project NextSigner.xcodeproj \
+            -scheme NextSigner \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath "$RUNNER_TEMP/NextSignerDerived" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+      - name: Package IPA and TIPA
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find "$RUNNER_TEMP/NextSignerDerived/Build/Products/Release-iphoneos" -maxdepth 1 -type d -name '*.app' | head -n1)"
+          test -n "$APP_PATH" || { echo "Build app not found"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/package/Payload" "$RUNNER_TEMP/out"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/package/Payload/NextSigner.app"
+          cd "$RUNNER_TEMP/package"
+          /usr/bin/zip -qry "$RUNNER_TEMP/out/NextSigner-1.4.4-32.ipa" Payload
+          cp "$RUNNER_TEMP/out/NextSigner-1.4.4-32.ipa" "$RUNNER_TEMP/out/NextSigner-1.4.4-32.tipa"
+          unzip -t "$RUNNER_TEMP/out/NextSigner-1.4.4-32.ipa" >/dev/null
+          shasum -a 256 "$RUNNER_TEMP/out/NextSigner-1.4.4-32.ipa" "$RUNNER_TEMP/out/NextSigner-1.4.4-32.tipa"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextSigner-1.4.4-32-Test
+          path: |
+            ${{ runner.temp }}/out/NextSigner-1.4.4-32.ipa
+            ${{ runner.temp }}/out/NextSigner-1.4.4-32.tipa
+          if-no-files-found: error
+          retention-days: 30
