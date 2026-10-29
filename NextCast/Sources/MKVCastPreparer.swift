@@ -11,7 +11,7 @@ private enum CastAudioCompatibility {
         guard ["mp4", "m4v"].contains(url.pathExtension.lowercased()) else { return false }
         let asset = AVURLAsset(url: url)
         guard let audio = asset.tracks(withMediaType: .audio).first,
-              let description = audio.formatDescriptions.first as? CMFormatDescription else {
+              let description = audio.formatDescriptions.first else {
             return false
         }
         let codec = CMFormatDescriptionGetMediaSubType(description)
@@ -52,10 +52,12 @@ final class MKVCastPreparer: ObservableObject {
         let started = Date()
         monitor?.invalidate()
         monitor = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            self.elapsedSeconds = Int(Date().timeIntervalSince(started))
-            self.bytesWritten = ((try? FileManager.default.attributesOfItem(atPath: temporaryURL.path)[.size])
-                as? NSNumber)?.int64Value ?? 0
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.elapsedSeconds = Int(Date().timeIntervalSince(started))
+                self.bytesWritten = ((try? FileManager.default.attributesOfItem(atPath: temporaryURL.path)[.size])
+                    as? NSNumber)?.int64Value ?? 0
+            }
         }
         Self.conversionQueue.async { [weak self] in
             func preparedMovie(_ file: URL) -> Movie {
