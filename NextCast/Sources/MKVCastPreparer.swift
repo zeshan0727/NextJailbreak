@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-import ffmpegkit
+import FFmpegSupport
 
 /// Local MKV -> Cast-compatible MP4 preparation. Video packets are remuxed
 /// without quality loss; audio is converted to AAC when necessary. No file
@@ -11,7 +11,7 @@ final class MKVCastPreparer: ObservableObject {
     @Published private(set) var preparing = false
     @Published private(set) var status = ""
     @Published var errorMessage: String?
-    private var session: FFmpegSession?
+    private var cancelRequested = false
 
     func prepare(_ movie: Movie, completion: @escaping (Movie) -> Void) {
         guard !preparing else { return }
@@ -53,8 +53,10 @@ final class MKVCastPreparer: ObservableObject {
             return
         }
         preparing = true
+        cancelRequested = false
         status = "Preparing MKV for Chromecast · copying video and converting audio to AAC"
         let arguments = [
+            "ffmpeg",
             "-hide_banner", "-nostdin", "-loglevel", "error", "-y",
             "-i", movie.localURL.path,
             "-map", "0:v:0", "-map", "0:a:0?",
@@ -62,18 +64,25 @@ final class MKVCastPreparer: ObservableObject {
             "-sn", "-dn", "-movflags", "+faststart",
             temp.path
         ]
-        session = FFmpegKit.executeWithArgumentsAsync(arguments, withCompleteCallback: {
-            [weak self] result in
-            Task { @MainActor in
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            // The alternative FFmpeg iOS build targets iOS 13+, avoiding the
+            // unavailable libswiftCoreMedia Swift runtime in the old fork.
+            // Do not block SwiftUI or the main actor during MKV preparation.
+            let exitCode = ffmpeg(arguments)
+            DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
-                self.session = nil
                 self.preparing = false
-                if ReturnCode.isSuccess(result.getReturnCode()) {
+                if self.cancelRequested {
+                    self.status = "Preparation cancelled"
+                    try? FileManager.default.removeItem(at: temp)
+                    return
+                }
+                if exitCode == 0 {
                     do {
                         guard let attrs = try? FileManager.default.attributesOfItem(atPath: temp.path),
                               ((attrs[.size] as? NSNumber)?.int64Value ?? 0) > 1024 * 1024 else {
                             throw NSError(domain: "NextCast.MKVCast", code: 1,
-                                          userInfo: [NSLocalizedDescriptionKey: "Prepared file was empty."])
+                                userInfo: [NSLocalizedDescriptionKey: "Prepared file is empty."])
                         }
                         if FileManager.default.fileExists(atPath: final.path) {
                             try FileManager.default.removeItem(at: final)
@@ -82,23 +91,22 @@ final class MKVCastPreparer: ObservableObject {
                         self.status = "MKV prepared successfully"
                         completion(preparedMovie(final))
                     } catch {
-                        self.errorMessage = "Cannot save prepared MP4: \(error.localizedDescription)"
+                        self.errorMessage = "Cannot save the prepared MP4: \(error.localizedDescription)"
                     }
-                } else if ReturnCode.isCancel(result.getReturnCode()) {
-                    self.status = "Preparation cancelled"
-                    try? FileManager.default.removeItem(at: temp)
                 } else {
-                    let message = result.getOutput() ?? ""
-                    self.errorMessage = "This MKV could not be prepared for Chromecast. Its video/audio codecs may be unsupported by MP4, or the file may be damaged. \(String(message.suffix(220)))"
+                    self.errorMessage = "MKV conversion failed (FFmpeg exit code \(exitCode)). The source codec or file may be unsupported. The original MKV remains unchanged."
                     try? FileManager.default.removeItem(at: temp)
                 }
             }
-        })
+        }
     }
 
     func cancel() {
-        session?.cancel()
-        preparing = false
-        status = "Preparation cancelled"
+        guard preparing else { return }
+        // This native FFmpeg build has no task-level cancellation API.
+        // The request is honored after the current conversion returns;
+        // the temporary output is then discarded without casting.
+        cancelRequested = true
+        status = "Cancel requested — discarding output after conversion"
     }
 }
