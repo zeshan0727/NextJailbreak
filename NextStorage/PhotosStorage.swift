@@ -576,17 +576,18 @@ struct MediaDetailsPage: View {
             Section("Preview") {
                 if item.video {
                     if let player {
-                        VideoPlayer(player: player).frame(height: 245)
+                        VideoPlayer(player: player).frame(height: 285).clipShape(RoundedRectangle(cornerRadius: 14))
                     } else {
-                        MediaThumbnail(identifier: item.id, video: true).frame(height: 220)
+                        MediaThumbnail(identifier: item.id, video: true).frame(height: 260).clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                 } else if let image {
-                    Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 320)
+                    Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 345).clipShape(RoundedRectangle(cornerRadius: 14))
                 } else {
-                    MediaThumbnail(identifier: item.id, video: false).frame(height: 220)
+                    MediaThumbnail(identifier: item.id, video: false).frame(height: 260).clipShape(RoundedRectangle(cornerRadius: 14))
                 }
             }
             Section("Information") {
+                Text(item.filename).font(.headline).foregroundStyle(.white)
                 LabeledContent("Name", value: item.filename)
                 LabeledContent("Type", value: item.video ? "Video" : "Photo")
                 LabeledContent(item.isEstimated ? "Photos resource size" : "Verified primary size",
@@ -606,22 +607,29 @@ struct MediaDetailsPage: View {
                 Button {
                     tryOpenSelectedInPhotos()
                 } label: {
-                    Label("Try Open This Item in Photos", systemImage: "photo.on.rectangle")
+                    Label("Open in Photos", systemImage: "eye.fill")
+                        .frame(maxWidth: .infinity).padding(.vertical, 5)
                 }
+                .buttonStyle(.borderedProminent).tint(StorageDesign.blue)
                 Text("Experimental: iOS 16 does not publicly guarantee deep linking to one Photos asset. The Photos app may open at the library instead.")
                     .font(.caption).foregroundStyle(.secondary)
                 Button {
                     if let url = URL(string: "photos-redirect://") { UIApplication.shared.open(url) }
                 } label: { Label("Open Photos App", systemImage: "square.on.square") }
                 if let path = item.verifiedPath {
-                    FilzaAction(path: path, label: "Go to Exact File in Filza")
+                    FilzaAction(path: path, label: "Open in Filza")
+                        .frame(maxWidth: .infinity)
+                        .buttonStyle(.borderedProminent)
+                        .tint(StorageDesign.purple)
                 } else {
                     Button {
                         store.inspect(item.id)
                     } label: {
-                        Label(store.inspectingID == item.id ? "Verifying…" : "Verify Exact Size & Filza Path",
-                              systemImage: "checkmark.shield")
+                        Label(store.inspectingID == item.id ? "Verifying…" : "Verify File for Filza",
+                              systemImage: "folder.fill")
+                            .frame(maxWidth: .infinity).padding(.vertical, 5)
                     }
+                    .buttonStyle(.borderedProminent).tint(StorageDesign.purple)
                     .disabled(store.inspectingID != nil)
                     if store.inspectingID == item.id {
                         ProgressView()
@@ -635,15 +643,20 @@ struct MediaDetailsPage: View {
                 Button(role: .destructive) {
                     confirmingDelete = true
                 } label: {
-                    Label("Delete This Item from Photos…", systemImage: "trash")
+                    Label("Delete from Photos", systemImage: "trash")
+                        .frame(maxWidth: .infinity).padding(.vertical, 5)
                 }
+                .buttonStyle(.borderedProminent).tint(.red)
                 .disabled(store.deletingID != nil)
                 if store.deletingID == item.id {
                     ProgressView("Deleting selected item…")
                 }
             }
         }
-        .navigationTitle(item.video ? "Video Details" : "Photo Details")
+        .scrollContentBackground(.hidden)
+        .background(StorageDesign.background)
+        .tint(StorageDesign.blue)
+        .navigationTitle("Media Details")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Done") { dismiss() }
