@@ -207,7 +207,7 @@ struct ReferenceOverviewPage: View {
                     }
                 } else {
                     StorageCard {
-                        ForEach(Array(model.largestAppFolders.prefix(10).enumerated()), id: \.element.id) { idx,item in
+                        ForEach(Array(model.largestAppFolders.prefix(10))) { item in
                             NavigationLink {
                                 FolderPage(path: item.path)
                             } label: {
@@ -227,9 +227,7 @@ struct ReferenceOverviewPage: View {
                                 }.padding(.vertical, 10)
                             }
                             .buttonStyle(.plain)
-                            if idx < min(9,model.largestAppFolders.count - 1) {
-                                Divider().overlay(StorageDesign.border)
-                            }
+                            Divider().overlay(StorageDesign.border)
                         }
                     }
                 }
