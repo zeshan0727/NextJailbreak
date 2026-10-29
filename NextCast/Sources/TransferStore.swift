@@ -63,22 +63,18 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
             items = records
             for item in records where item.isActive { taskBytes[item.id] = [:] }
         }
-        _ = session
-        // Reassociate tasks after normal relaunch or iOS background relaunch.
-        session.getAllTasks { [weak self] tasks in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                let live = Set(tasks.compactMap { $0.taskDescription?.split(separator: "#").first }.compactMap { UUID(uuidString: String($0)) })
-                for i in self.items.indices where self.items[i].isActive && !live.contains(self.items[i].id) {
-                    self.items[i].status = "Interrupted — retry download"
-                    self.items[i].speed = 0
-                }
-                self.persist()
-            }
-        }
+        // Do NOT instantiate a background URLSession during application
+        // startup. The former eager connection could terminate the app before
+        // any screen appeared on affected devices. The session starts lazily
+        // when transfers are requested or iOS delivers background events.
     }
 
     func attach(_ library: MovieLibrary) { self.library = library }
+
+    func reconnectBackgroundEvents(_ completion: @escaping () -> Void) {
+        backgroundEventsCompletion = completion
+        _ = session
+    }
 
     private func persist() {
         if let data = try? JSONEncoder().encode(items) {
@@ -419,7 +415,7 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
 /// after iOS has relaunched the process to deliver completed files.
 final class NextCastBackgroundDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        Task { @MainActor in _ = TransferStore.shared }
+        // Background session is constructed only on demand, not at startup.
         return true
     }
     func application(_ application: UIApplication,
@@ -430,7 +426,7 @@ final class NextCastBackgroundDelegate: NSObject, UIApplicationDelegate {
             return
         }
         Task { @MainActor in
-            TransferStore.shared.backgroundEventsCompletion = completionHandler
+            TransferStore.shared.reconnectBackgroundEvents(completionHandler)
         }
     }
 }
