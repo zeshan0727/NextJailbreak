@@ -92,6 +92,27 @@ jobs:
           echo "TIPA=$FILE" >> "$GITHUB_ENV"
           echo "TIPA_SHA=$(sha256sum "$FILE" | awk '{print $1}')" >> "$GITHUB_ENV"
           echo "TIPA_SIZE=$(stat -c %s "$FILE")" >> "$GITHUB_ENV"
+          # Some builds contain an IPA in addition to the TrollStore TIPA.
+          IPA_FILE="$(find "$RUNNER_TEMP/cast-artifact" -type f -name "NextCast-$VERSION.ipa" -print -quit)"
+          if [ -n "$IPA_FILE" ]; then
+            python3 - "$IPA_FILE" "$VERSION" <<'PY'
+          import sys,zipfile,plistlib
+          path,version=sys.argv[1:]
+          with zipfile.ZipFile(path) as z:
+            assert z.testzip() is None, "Corrupted IPA archive"
+            info=plistlib.loads(z.read("Payload/NextCast.app/Info.plist"))
+            assert info["CFBundleIdentifier"]=="uk.zeshanbarvi.nextcast"
+            assert info["CFBundleShortVersionString"]==version
+            assert "Payload/NextCast.app/NextCast" in z.namelist()
+          print("Verified IPA package",version)
+          PY
+            echo "IPA_PRESENT=1" >> "$GITHUB_ENV"
+            echo "IPA_FILE=$IPA_FILE" >> "$GITHUB_ENV"
+            echo "IPA_SHA=$(sha256sum "$IPA_FILE" | awk '{print $1}')" >> "$GITHUB_ENV"
+            echo "IPA_SIZE=$(stat -c %s "$IPA_FILE")" >> "$GITHUB_ENV"
+          else
+            echo "IPA_PRESENT=0" >> "$GITHUB_ENV"
+          fi
 
       - name: Copy verified TIPA into NS Transfer and register it
         shell: bash
@@ -102,6 +123,10 @@ jobs:
           mkdir -p "$DEST"
           cp "$TIPA" "$DEST/NextCast-$VERSION.tipa"
           test "$(sha256sum "$DEST/NextCast-$VERSION.tipa" | awk '{print $1}')" = "$TIPA_SHA"
+          if [ "$IPA_PRESENT" = "1" ]; then
+            cp "$IPA_FILE" "$DEST/NextCast-$VERSION.ipa"
+            test "$(sha256sum "$DEST/NextCast-$VERSION.ipa" | awk '{print $1}')" = "$IPA_SHA"
+          fi
           python3 - <<'PY'
           import json,os
           from pathlib import Path
@@ -121,7 +146,22 @@ jobs:
             'sizeBytes':int(os.environ['TIPA_SIZE']),
             'notes':'Native VLC player, local video library, Chromecast and download manager. Build verified; on-device validation required.'
           }
-          j['files']=[entry]+[x for x in j.get('files',[]) if x.get('id')!=entry['id']]
+          entries=[entry]
+          if os.environ.get("IPA_PRESENT")=="1":
+            entries.append({
+              'id':f'nextcast-{v}-ipa',
+              'name':f'Next Cast {v} — IPA (TrollStore)',
+              'fileName':f'NextCast-{v}.ipa',
+              'type':'ipa',
+              'platform':'TrollStore / iOS 16+',
+              'version':v,
+              'url':f'https://nextjailbreak.com/transfer/files/NextCast/{v}/NextCast-{v}.ipa',
+              'sha256':os.environ['IPA_SHA'],
+              'sizeBytes':int(os.environ['IPA_SIZE']),
+              'notes':'Ad-hoc signed IPA for TrollStore. Not signed for standard iOS installation.'
+            })
+          ids={x['id'] for x in entries}
+          j['files']=entries+[x for x in j.get('files',[]) if x.get('id') not in ids]
           j['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
           p.write_text(json.dumps(j,indent=2,ensure_ascii=False)+'\n')
           PY
@@ -134,6 +174,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "transfer/files/NextCast/$VERSION/NextCast-$VERSION.tipa" transfer/index.json
+          if [ "$IPA_PRESENT" = "1" ]; then
+            git add "transfer/files/NextCast/$VERSION/NextCast-$VERSION.ipa"
+          fi
           if git diff --cached --quiet; then
             echo "Already published"
           else
