@@ -352,6 +352,15 @@ struct OverviewPage: View {
                 }
             }.padding()
         }.navigationTitle("Overview")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        SettingsPage()
+                    } label: {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                }
+            }
     }
 }
 struct AppsPage: View {
@@ -509,7 +518,7 @@ struct SettingsPage: View {
             }
             Section("Credits") {
                 Text("Next Jailbreak · Zeshan0727")
-                Text("Next Storage 1.0.2")
+                Text("Next Storage 1.0.3")
             }
         }.navigationTitle("Settings")
     }
@@ -525,7 +534,7 @@ struct NextStorageApp: App {
                 NavigationStack { AppsPage() }.tabItem { Label("Apps", systemImage: "square.grid.2x2.fill") }
                 NavigationStack { FolderPage(path: "/") }.tabItem { Label("Explorer", systemImage: "folder.fill") }
                 NavigationStack { SearchPage() }.tabItem { Label("Search", systemImage: "magnifyingglass") }
-                NavigationStack { SettingsPage() }.tabItem { Label("Settings", systemImage: "gearshape.fill") }
+                NavigationStack { PhotosStoragePage() }.tabItem { Label("Media", systemImage: "photo.on.rectangle.angled") }
             }.environmentObject(model)
                 .environmentObject(filza)
                 .tint(Theme.accent)
