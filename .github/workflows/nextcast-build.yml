@@ -20,7 +20,7 @@ concurrency:
 jobs:
   ios:
     name: Build and package TrollStore TIPA
-    runs-on: macos-15
+    runs-on: macos-15-intel
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
