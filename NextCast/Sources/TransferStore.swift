@@ -44,6 +44,11 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
     private var samples: [UUID: (Date, Int64)] = [:]
     private var segmentFallbackIDs = Set<UUID>()
     private var finishedParts: [UUID: Set<Int>] = [:]
+    private var safeStreams: [UUID: SafeStreamDownload] = [:]
+    private var safeHosts: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: "nextcast.safeDownloadHosts.v1") ?? []) }
+        set { UserDefaults.standard.set(Array(newValue).sorted(), forKey: "nextcast.safeDownloadHosts.v1") }
+    }
     private lazy var session: URLSession = {
         let config = URLSessionConfiguration.background(withIdentifier: Self.sessionID)
         config.sessionSendsLaunchEvents = true
@@ -147,7 +152,11 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
         items.insert(record, at: 0)
         requestByID[id] = request
         persist()
-        beginTransfer(id, allowParallel: allowParallel)
+        if let host = url.host?.lowercased(), safeHosts.contains(host) {
+            startSafeStream(id)
+        } else {
+            beginTransfer(id, allowParallel: allowParallel)
+        }
     }
 
     private func beginTransfer(_ id: UUID, allowParallel: Bool = true) {
@@ -184,6 +193,72 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
             }
         }
         check.resume()
+    }
+
+    // Compatibility fallback: avoids the daemon-owned CFNetworkDownload_*.tmp
+    // URL entirely. The downloaded bytes are written directly to an app-owned
+    // file. iOS can suspend this foreground-only task when the app is inactive.
+    func startSafeStream(_ id: UUID) {
+        guard let i = items.firstIndex(where: { $0.id == id }),
+              items[i].canRetry,
+              let url = URL(string: items[i].url) else { return }
+        safeStreams[id]?.cancel()
+        safeStreams.removeValue(forKey: id)
+        items[i].runToken = UUID().uuidString
+        let token = items[i].runToken
+        items[i].status = "Downloading"
+        items[i].mode = "Safe download · keep app open"
+        items[i].received = 0
+        items[i].expected = 0
+        items[i].speed = 0
+        items[i].segmentCount = 1
+        taskBytes[id] = [:]
+        samples.removeValue(forKey: id)
+        finishedParts.removeValue(forKey: id)
+        segmentFallbackIDs.remove(id)
+        persist()
+        // Cancel prior native background tasks only AFTER invalidating token.
+        session.getAllTasks { tasks in
+            for task in tasks where task.taskDescription?.hasPrefix(id.uuidString + "#") == true {
+                task.cancel()
+            }
+        }
+        let destination = Self.stagingFolder.appendingPathComponent(id.uuidString + "-safe.stream")
+        let request = requestByID[id] ?? URLRequest(url: url)
+        let transfer = SafeStreamDownload(
+            id: id, request: request, destination: destination,
+            progress: { [weak self] bytes, expected in
+                guard let self, let row = self.items.firstIndex(where: { $0.id == id }),
+                      self.items[row].runToken == token else { return }
+                self.taskBytes[id, default: [:]][0] = bytes
+                if expected > 0 { self.items[row].expected = expected }
+                self.updateSpeedForActiveItems()
+            },
+            completed: { [weak self] outcome in
+                guard let self, let row = self.items.firstIndex(where: { $0.id == id }),
+                      self.items[row].runToken == token else { return }
+                self.safeStreams.removeValue(forKey: id)
+                switch outcome {
+                case .success(let file):
+                    self.items[row].status = "Finalizing"
+                    self.items[row].speed = 0
+                    self.persist()
+                    self.finishMerged(id, result: file)
+                case .failure(let failure):
+                    if self.items[row].status != "Cancelled" {
+                        self.markFailed(id, "Safe download: \(failure.localizedDescription)")
+                    }
+                }
+            }
+        )
+        safeStreams[id] = transfer
+        do {
+            try Self.prepareWorkingDirectory()
+            try transfer.start()
+        } catch {
+            safeStreams.removeValue(forKey: id)
+            markFailed(id, "Safe download cannot write file: \(error.localizedDescription)")
+        }
     }
 
     private func startSingle(_ id: UUID) {
@@ -257,6 +332,13 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
     func pause(_ id: UUID) {
         guard let i = items.firstIndex(where: { $0.id == id }),
               items[i].status == "Downloading" || items[i].status == "Checking server" else { return }
+        if let stream = safeStreams[id] {
+            stream.suspend()
+            items[i].status = "Paused"
+            items[i].speed = 0
+            persist()
+            return
+        }
         items[i].status = "Paused"
         items[i].speed = 0
         persist()
@@ -272,6 +354,14 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
 
     func resume(_ id: UUID) {
         guard let i = items.firstIndex(where: { $0.id == id }), items[i].isPaused else { return }
+        if let stream = safeStreams[id] {
+            items[i].status = "Downloading"
+            items[i].speed = 0
+            samples.removeValue(forKey: id)
+            persist()
+            stream.resume()
+            return
+        }
         session.getAllTasks { [weak self] tasks in
             DispatchQueue.main.async {
                 guard let self, let i = self.items.firstIndex(where: { $0.id == id }),
@@ -311,6 +401,8 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
 
         // Invalidate generation FIRST so cancelled callbacks cannot affect
         // the next transfer, then terminate any previous tasks.
+        safeStreams[id]?.cancel()
+        safeStreams.removeValue(forKey: id)
         items[i].runToken = UUID().uuidString
         items[i].url = newText
         items[i].status = "Checking server"
@@ -335,12 +427,18 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
                 for part in 0..<3 { try? FileManager.default.removeItem(at: self.partFile(id, part: part)) }
                 try? FileManager.default.removeItem(at:
                     Self.stagingFolder.appendingPathComponent(id.uuidString + ".complete"))
-                self.beginTransfer(id)
+                if let host = url.host?.lowercased(), self.safeHosts.contains(host) {
+                    self.startSafeStream(id)
+                } else {
+                    self.beginTransfer(id)
+                }
             }
         }
     }
 
     func cancel(_ id: UUID) {
+        safeStreams[id]?.cancel()
+        safeStreams.removeValue(forKey: id)
         if let i = items.firstIndex(where: { $0.id == id }) {
             items[i].status = "Cancelled"
             items[i].speed = 0
@@ -474,7 +572,19 @@ final class TransferStore: NSObject, ObservableObject, @preconcurrency URLSessio
                 persist()
                 finalize(id, pieces: pieces)
             }
-        } catch { markFailed(id, error.localizedDescription) }
+        } catch {
+            // The CFNetworkDownload_*.tmp URL supplied by a background
+            // session can be inaccessible in some TrollStore installations.
+            // Do not keep retrying the same inaccessible temporary location.
+            // Stream the URL to our own app-owned file instead.
+            if let host = URL(string: items[i].url)?.host?.lowercased() {
+                var remembered = safeHosts
+                remembered.insert(host)
+                safeHosts = remembered
+            }
+            self.error = "iOS denied access to its temporary download. Switched to Safe Download; keep Next Cast open."
+            startSafeStream(id)
+        }
     }
 
     private func fallbackToSingle(_ id: UUID) {
