@@ -160,12 +160,41 @@ final class BrowserStore: ObservableObject {
             return
         }
         pendingDownload = nil
-        // WebKit's native download API retains the browser session, redirect
-        // handling, cookies and response-suggested filename.
-        tab.webView.startDownload(using: prompt.request) { [weak self, weak tab] download in
-            guard let tab, let self else { return }
-            download.delegate = tab.delegate
-            self.showMessage = "Download started. Open the Downloads tab to follow progress."
+        guard let url = prompt.request.url else { return }
+        if ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
+            // Browser clicks often require website cookies and a Referer header.
+            // Copy the relevant cookies into an OS-managed background session
+            // instead of letting WebKit's foreground-only WKDownload own the file.
+            tab.webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [weak self] cookies in
+                Task { @MainActor in
+                    guard let self else { return }
+                    var request = prompt.request
+                    let host = url.host?.lowercased() ?? ""
+                    let permitted = cookies.filter { cookie in
+                        let domain = cookie.domain.lowercased().trimmingCharacters(in: CharacterSet(charactersIn: "."))
+                        return host == domain || host.hasSuffix("." + domain)
+                    }
+                    if !permitted.isEmpty {
+                        let fields = HTTPCookie.requestHeaderFields(with: permitted)
+                        if let cookieValue = fields["Cookie"] {
+                            request.setValue(cookieValue, forHTTPHeaderField: "Cookie")
+                        }
+                    }
+                    if let referer = tab.webView.url?.absoluteString {
+                        request.setValue(referer, forHTTPHeaderField: "Referer")
+                    }
+                    TransferStore.shared.start(request, origin: "Browser")
+                    self.showMessage = "Download queued in background manager."
+                }
+            }
+        } else {
+            // blob: URLs and in-page generated files cannot be downloaded by
+            // the operating-system background HTTP session; try WebKit itself.
+            tab.webView.startDownload(using: prompt.request) { [weak self, weak tab] download in
+                guard let tab, let self else { return }
+                download.delegate = tab.delegate
+                self.showMessage = "Website-native download started."
+            }
         }
     }
     func offerPopup(_ url: URL, from webView: WKWebView) {
