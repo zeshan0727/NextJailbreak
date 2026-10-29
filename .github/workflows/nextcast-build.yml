@@ -8,7 +8,7 @@ on:
       - ".github/workflows/nextcast-build.yml"
   push:
     branches:
-      - agent/next-cast-1.4.1-mkv-google-tv-remote
+      - agent/next-cast-1.4.2-ios16-dyld-androidtv
     paths:
       - "NextCast/**"
       - ".github/workflows/nextcast-build.yml"
@@ -56,24 +56,46 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build 2>&1 | tee nextcast-build.log
 
+      - name: Bundle iOS 16-compatible Swift CoreMedia runtime and validate FFmpeg dependencies
+        run: |
+          set -euo pipefail
+          APP="NextCast/build/Build/Products/Release-iphoneos/NextCast.app"
+          test -d "$APP/Frameworks/libavdevice.framework"
+          SWIFT_LIB_ROOT="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos"
+          SWIFT_MEDIA="$SWIFT_LIB_ROOT/libswiftCoreMedia.dylib"
+          if [ ! -f "$SWIFT_MEDIA" ]; then
+            SWIFT_MEDIA="$(find "$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift" -name libswiftCoreMedia.dylib -print -quit)"
+          fi
+          if [ -z "$SWIFT_MEDIA" ] || [ ! -f "$SWIFT_MEDIA" ]; then
+            echo "::error::Required Swift CoreMedia runtime is unavailable in Xcode."
+            exit 1
+          fi
+          cp "$SWIFT_MEDIA" "$APP/Frameworks/libswiftCoreMedia.dylib"
+          chmod 755 "$APP/Frameworks/libswiftCoreMedia.dylib"
+          echo "Included $(ls -lh "$APP/Frameworks/libswiftCoreMedia.dylib")"
+          # This specific dynamic dependency caused a DYLD abort on iOS 16.0.
+          otool -L "$APP/Frameworks/libavdevice.framework/libavdevice" | grep libswiftCoreMedia
+          test -s "$APP/Frameworks/libswiftCoreMedia.dylib"
+
       - name: Produce ad-hoc signed TrollStore package
         run: |
           APP="NextCast/build/Build/Products/Release-iphoneos/NextCast.app"
           test -d "$APP"
+          test -s "$APP/Frameworks/libswiftCoreMedia.dylib"
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.4.1.tipa" Payload)
-          cp NextCast-1.4.1.tipa NextCast-1.4.1.ipa
-          ls -lh NextCast-1.4.1.tipa NextCast-1.4.1.ipa
+          (cd dist && zip -qry "../NextCast-1.4.2.tipa" Payload)
+          cp NextCast-1.4.2.tipa NextCast-1.4.2.ipa
+          ls -lh NextCast-1.4.2.tipa NextCast-1.4.2.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-4-1-IPA-TIPA
+          name: NextCast-iOS16-V1-4-2-IPA-TIPA
           path: |
-            NextCast-1.4.1.tipa
-            NextCast-1.4.1.ipa
+            NextCast-1.4.2.tipa
+            NextCast-1.4.2.ipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
