@@ -23,6 +23,21 @@ final class LocalSigningController: ObservableObject {
     @Published var publishMessage: String?
     @Published var publishError: String?
 
+    // Batch re-signing is local-only. Originals remain available until a new IPA is verified.
+    @Published private(set) var isBatchResigning = false
+    @Published private(set) var batchResignTotal = 0
+    @Published private(set) var batchResignCompleted = 0
+    @Published private(set) var batchResignSucceeded = 0
+    @Published private(set) var batchResignCurrent = ""
+    @Published private(set) var batchResignMessage: String?
+    @Published private(set) var batchResignFailures: [String] = []
+    private var batchResignTask: Task<Void, Never>?
+
+    var batchResignFraction: Double {
+        guard batchResignTotal > 0 else { return 0 }
+        return Double(batchResignCompleted) / Double(batchResignTotal)
+    }
+
     private let p12PasswordAccount = "p12-password"
 
     init() {
@@ -98,7 +113,7 @@ final class LocalSigningController: ObservableObject {
     }
 
     func sign(request: SignRequest) {
-        guard !isSigning else { return }
+        guard !isSigning, !isBatchResigning else { return }
         guard let ipaURL = request.ipaURL else {
             signingError = "Choose an IPA or TIPA first."
             return
@@ -168,6 +183,89 @@ final class LocalSigningController: ObservableObject {
                 signingMessage = "Signing failed"
             }
             isSigning = false
+        }
+    }
+
+    /// Re-sign previously saved IPAs with the CURRENT locally stored P12 and
+    /// default provisioning profile. This is deliberately not a publish action.
+    /// Custom entitlements and per-app provisioning profiles require manual signing.
+    func resignBatch(_ apps: [LocalSignedApp]) {
+        guard !isSigning, !isBatchResigning, installingID == nil, publishingID == nil else { return }
+        refreshCredentials()
+        guard credentialsReady else {
+            batchResignMessage = "Set up your P12, password and default provisioning profile in Profiles first."
+            return
+        }
+
+        var seen = Set<UUID>()
+        let targets = apps.filter { seen.insert($0.id).inserted }
+        guard !targets.isEmpty else {
+            batchResignMessage = "Choose at least one saved IPA to re-sign."
+            return
+        }
+        let password = KeychainStore.load(account: p12PasswordAccount) ?? p12Password
+        guard !password.isEmpty else {
+            batchResignMessage = "Save your P12 password in Profiles first."
+            return
+        }
+
+        isBatchResigning = true
+        batchResignTotal = targets.count
+        batchResignCompleted = 0
+        batchResignSucceeded = 0
+        batchResignCurrent = ""
+        batchResignMessage = nil
+        batchResignFailures = []
+        signingError = nil
+
+        let p12URL = CredentialStore.url(for: .p12)
+        let provisioningURL = CredentialStore.url(for: .provisioning)
+        batchResignTask = Task { [weak self] in
+            guard let self else { return }
+            for app in targets {
+                if Task.isCancelled { break }
+                batchResignCurrent = app.appName
+                do {
+                    guard FileManager.default.fileExists(atPath: app.ipaURL.path) else {
+                        throw CocoaError(.fileNoSuchFile)
+                    }
+                    let signed = try await LocalSignerService().sign(
+                        ipaURL: app.ipaURL,
+                        requestedName: app.appName,
+                        requestedBundleID: app.bundleID,
+                        p12URL: p12URL,
+                        provisioningURL: provisioningURL,
+                        p12Password: password,
+                        customEntitlementsURL: nil,
+                        iCloudDocuments: false,
+                        iCloudContainer: ""
+                    )
+                    // No deletion or replacement of the input IPA.
+                    _ = try LocalSignedAppsRepository.register(signed)
+                    batchResignSucceeded += 1
+                } catch {
+                    batchResignFailures.append("\(app.appName): \(error.localizedDescription)")
+                }
+                batchResignCompleted += 1
+                refreshSignedApps()
+            }
+
+            let cancelled = Task.isCancelled
+            let failures = batchResignFailures.count
+            batchResignCurrent = ""
+            isBatchResigning = false
+            batchResignMessage = cancelled
+                ? "Stopped. \(batchResignSucceeded) of \(batchResignCompleted) processed apps were re-signed."
+                : "Finished: \(batchResignSucceeded) re-signed, \(failures) failed. Originals were kept."
+            batchResignTask = nil
+        }
+    }
+
+    /// Stops before starting the next app; an in-flight IPA finishes first.
+    func cancelBatchResign() {
+        batchResignTask?.cancel()
+        if isBatchResigning {
+            batchResignMessage = "Stopping after the current app finishes…"
         }
     }
 
