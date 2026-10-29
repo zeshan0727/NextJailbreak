@@ -49,7 +49,7 @@ targets:
           # av_format_init_next(). With the default __DATA_CONST linker layout
           # that registry is read-only on iOS 16 and causes SIGBUS.
           # Keep the app's legacy codec registry in writable __DATA.
-          - "-no_data_const"
+          - "-Wl,-no_data_const"
         GENERATE_INFOPLIST_FILE: NO
     info:
       path: Sources/Info.plist
