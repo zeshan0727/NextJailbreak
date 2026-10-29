@@ -190,11 +190,11 @@ final class LibraryMediaStore: ObservableObject {
         generation = gen
 
         DispatchQueue.global(qos: .utility).async { [weak self] in
-            let indexed = PhotosDiskIndex.build(flag: activeFlag)
-            if activeFlag.cancelled { return }
+            // Use PhotoKit's asset resource catalog, not a partial DCIM index.
+            // Access only metadata; no hashes, downloads, or decoded images.
             DispatchQueue.main.async { [weak self] in
                 guard let self, self.generation == gen else { return }
-                self.status = "Reading Photos library metadata (no media decoding)…"
+                self.status = "Sizing every Photos resource from metadata…"
             }
             let all = PHAsset.fetchAssets(with: nil)
             let maxIndexed = 150_000
@@ -210,15 +210,26 @@ final class LibraryMediaStore: ObservableObject {
                     guard asset.mediaType == .image || asset.mediaType == .video else { return }
                     let resource = PhotosDiskIndex.preferred(asset)
                     let name = resource?.originalFilename ?? (asset.mediaType == .video ? "Video" : "Photo")
-                    let candidate = indexed[name.lowercased()]
-                    let likelySize = candidate?.isAmbiguous == false ? candidate?.bytes : nil
-                    if likelySize != nil { localCount += 1 }
+                    // Count all distinct photo/video resources in the asset
+                    // (Live Photo companion movies, edited originals, RAW).
+                    // KVC is exception-guarded in the Objective-C bridge.
+                    var totalBytes: Int64 = 0
+                    var known = 0
+                    for entry in PHAssetResource.assetResources(for: asset) {
+                        if let bytes = NextPhotoResourceBytes(entry)?.int64Value,
+                            bytes > 0, totalBytes <= Int64.max - bytes {
+                            totalBytes += bytes
+                            known += 1
+                        }
+                    }
+                    let size: Int64? = known == 0 ? nil : totalBytes
+                    if size != nil { localCount += 1 }
                     entries.append(LibraryMedia(id: asset.localIdentifier, filename: name,
                                                 created: asset.creationDate,
                                                 video: asset.mediaType == .video,
                                                 duration: asset.duration,
-                                                byteCount: likelySize,
-                                                isEstimated: likelySize != nil,
+                                                byteCount: size,
+                                                isEstimated: size != nil,
                                                 verifiedPath: nil))
                 }
                 progress += 1
@@ -241,8 +252,8 @@ final class LibraryMediaStore: ObservableObject {
                 self.running = false
                 self.flag = nil
                 self.status = all.count > maxIndexed
-                    ? "Index safety limit reached; showing first \(bound) assets."
-                    : "Fast scan complete. \(localCount) approximate local sizes. Select an item to verify its exact size and Filza path."
+                    ? "Index safety limit: scanned \(bound) of \(all.count) assets."
+                    : "Sized \(localCount) of \(entries.count) assets from Photos resource metadata. Verify an individual original for an exact Filza path."
             }
         }
     }
@@ -333,16 +344,16 @@ struct PhotosStoragePage: View {
                 }
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Local size estimate").font(.caption).foregroundStyle(.secondary)
+                        Text("Photos library resources").font(.caption).foregroundStyle(.secondary)
                         Text(readable(store.measuredSize)).font(.headline)
                     }
                     Spacer()
                     VStack(alignment: .trailing) {
-                        Text("Without local size").font(.caption).foregroundStyle(.secondary)
+                        Text("Unknown size").font(.caption).foregroundStyle(.secondary)
                         Text("\(store.unknown)").font(.headline)
                     }
                 }
-                Text("Fast scan uses filesystem and Photos metadata only. It does not load full photos or videos. Values marked ≈ are estimates and may not include Live Photo components, edits, shared APFS blocks, or cloud media.")
+                Text("Counts reported Photos resources including videos, Live Photo companions and edited copies, even outside accessible DCIM. No full files are read in this scan. Library resource totals can differ from on-device Photos storage due to APFS, caching and iCloud.")
                     .font(.caption).foregroundStyle(.secondary)
                 if store.permission == .limited {
                     Text("Limited Photos access: only selected items are indexed.")
@@ -451,7 +462,7 @@ private struct MediaListRow: View {
                 Text(item.byteCount.map(readable) ?? "Unknown")
                     .font(.caption).foregroundStyle(.primary).monospacedDigit()
                 if item.isEstimated {
-                    Text("≈ local").font(.caption2).foregroundStyle(.orange)
+                    Text("PhotoKit").font(.caption2).foregroundStyle(.orange)
                 } else if item.verifiedPath != nil {
                     Image(systemName: "checkmark.shield.fill").foregroundStyle(.mint)
                 }
@@ -529,7 +540,7 @@ struct MediaDetailsPage: View {
             Section("Information") {
                 LabeledContent("Name", value: item.filename)
                 LabeledContent("Type", value: item.video ? "Video" : "Photo")
-                LabeledContent(item.isEstimated ? "Approx. local size" : "Measured size",
+                LabeledContent(item.isEstimated ? "Photos resource size" : "Verified primary size",
                                value: item.byteCount.map(readable) ?? "Unknown")
                 LabeledContent("Date", value: dateString(item.created))
                 if item.video {
@@ -538,11 +549,21 @@ struct MediaDetailsPage: View {
                 if let path = item.verifiedPath {
                     Text(path).font(.footnote).textSelection(.enabled)
                 } else {
-                    Text("Filza path is only offered after verifying the exact local file.")
+                    Text("Filza path requires exact local-file verification. A matching photo or video preview is shown here regardless of file-path availability.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
             Section("Actions") {
+                Button {
+                    tryOpenSelectedInPhotos()
+                } label: {
+                    Label("Try Open This Item in Photos", systemImage: "photo.on.rectangle")
+                }
+                Text("Experimental: iOS 16 does not publicly guarantee deep linking to one Photos asset. The Photos app may open at the library instead.")
+                    .font(.caption).foregroundStyle(.secondary)
+                Button {
+                    if let url = URL(string: "photos-redirect://") { UIApplication.shared.open(url) }
+                } label: { Label("Open Photos App", systemImage: "square.on.square") }
                 if let path = item.verifiedPath {
                     FilzaAction(path: path, label: "Go to Exact File in Filza")
                 } else {
@@ -578,6 +599,23 @@ struct MediaDetailsPage: View {
             player?.pause()
             player = nil
             image = nil
+        }
+    }
+
+    private func tryOpenSelectedInPhotos() {
+        // Private iOS 16 routing is best-effort. Exact-item selection may fail.
+        let token = String(itemID.split(separator: "/").first ?? "")
+        guard let uuid = UUID(uuidString: token),
+              let route = URL(string: "photos-navigation://asset?uuid=" + uuid.uuidString) else {
+            if let library = URL(string: "photos-redirect://") {
+                UIApplication.shared.open(library)
+            }
+            return
+        }
+        UIApplication.shared.open(route, options: [:]) { opened in
+            if !opened, let library = URL(string: "photos-redirect://") {
+                UIApplication.shared.open(library)
+            }
         }
     }
 
