@@ -22,6 +22,10 @@ struct NextCastTabs: View {
                 .tabItem { Label("Settings", systemImage: "gearshape") }.tag(3)
         }
         .tint(.cyan)
+        .onOpenURL { url in
+            tab = 0
+            library.importVideos([url])
+        }
     }
 }
 
