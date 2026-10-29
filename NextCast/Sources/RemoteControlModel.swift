@@ -379,6 +379,96 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
         completionHandler(.useCredential, URLCredential(trust: trust))
     }
 
+    /// Sends a one-time text entry command to an already focused text field
+    /// on the television. Called only from the on-demand Keyboard sheet.
+    /// Does not expose text to logs, preferences, or external services.
+    func typeOnTV(_ text: String) {
+        guard connected, activeBrand == brand, !activeHost.isEmpty else {
+            alertText = "Connect to a compatible TV first."
+            return
+        }
+        guard !text.isEmpty else { return }
+        guard text.count <= 512 else {
+            alertText = "Send at most 512 characters at a time."
+            return
+        }
+
+        switch brand {
+        case .cast:
+            alertText = "Chromecast's default media receiver cannot accept general text input."
+        case .roku:
+            // Roku ECP accepts Lit_ followed by one percent-encoded UTF-8
+            // Unicode scalar. Keep requests in order, never launch them all
+            // concurrently or the on-screen search text may be scrambled.
+            let host = activeHost
+            let generation = serial
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                for char in text {
+                    guard self.serial == generation, self.connected else { return }
+                    let encoded = String(char).addingPercentEncoding(
+                        withAllowedCharacters: .alphanumerics
+                    ) ?? ""
+                    guard !encoded.isEmpty,
+                          let url = URL(string: "http://\(host):8060/keypress/Lit_\(encoded)") else {
+                        continue
+                    }
+                    var request = URLRequest(url: url)
+                    request.httpMethod = "POST"
+                    request.timeoutInterval = 8
+                    do {
+                        let (_, response) = try await URLSession.shared.data(for: request)
+                        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+                            self.alertText = "Roku rejected keyboard entry. Open a TV text field and enable Control by mobile apps."
+                            return
+                        }
+                    } catch {
+                        self.alertText = "Roku text entry failed: \(error.localizedDescription)"
+                        return
+                    }
+                }
+                self.status = "Text sent to Roku · \(text.count) characters"
+            }
+        case .samsung:
+            // Tizen sends base64 UTF-8 to the active on-screen IME.
+            // Not every TV app implements SendInputString.
+            let encoded = Data(text.utf8).base64EncodedString()
+            sendJSON(["method": "ms.remote.control",
+                      "params": ["Cmd": encoded,
+                                 "DataOfCmd": "base64",
+                                 "TypeOfRemote": "SendInputString"]],
+                     socket: controlSocket)
+            status = "Text sent to Samsung · requires a focused TV text field"
+        case .lg:
+            // SSAP's IME is supported only while a TV text input is focused.
+            requestLG("ssap://com.webos.service.ime/insertText",
+                      payload: ["text": text, "replace": false])
+            status = "Text sent to LG · requires a focused TV text field"
+        }
+    }
+
+    func finishTextEntry() {
+        guard connected, activeBrand == brand else { return }
+        switch brand {
+        case .roku:
+            pressRokuEnter()
+        case .samsung:
+            sendJSON(["method": "ms.remote.control",
+                      "params": ["TypeOfRemote": "SendInputEnd"]], socket: controlSocket)
+        case .lg:
+            requestLG("ssap://com.webos.service.ime/sendEnterKey")
+        case .cast:
+            break
+        }
+    }
+
+    private func pressRokuEnter() {
+        guard let url = URL(string: "http://\(activeHost):8060/keypress/Enter") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        URLSession.shared.dataTask(with: request).resume()
+    }
+
     func press(_ command: RemoteCommand, cast: CastController) {
         if brand == .cast {
             guard cast.isConnected else {
