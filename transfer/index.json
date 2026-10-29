@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T09:07:06Z",
+  "updatedAt": "2026-10-29T09:27:41Z",
   "files": [
+    {
+      "id": "nextstorage-1.0.3-ios16-roothide",
+      "name": "Next Storage 1.0.3 — Photos & Videos Storage Analyzer",
+      "fileName": "NextStorage-1.0.3.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.3",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.3/NextStorage-1.0.3.tipa",
+      "sha256": "ce295dc2bef0faca410a6ce9c11545643e1b6c15a289d0ea3e1602e59b20c2b6",
+      "sizeBytes": 308974,
+      "notes": "PhotoKit-based photo and video storage analysis, previews, size/date sorting, confirm-before-delete through Photos and cryptographically verified exact Filza paths for accessible DCIM originals. iOS 16 RootHide/TrollStore."
+    },
     {
       "id": "nextcast-1.3.4",
       "name": "Next Cast 1.3.4 — iOS Video Player, Chromecast and Downloads",
