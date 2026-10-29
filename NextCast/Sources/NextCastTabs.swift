@@ -47,6 +47,7 @@ struct MoviesTab: View {
     @ObservedObject var cast: CastController
     @State private var showPicker = false
     @State private var showMultiPicker = false
+    @State private var showSwiftUIFallback = false
     @State private var search = ""
     @State private var selected: Movie?
 
@@ -143,10 +144,16 @@ struct MoviesTab: View {
                         }
                     }
 
-                    Button { showMultiPicker = true } label: {
-                        Label("Import Multiple Videos", systemImage: "square.stack.3d.up")
+                    HStack(spacing: 14) {
+                        Button { showMultiPicker = true } label: {
+                            Label("Import Multiple", systemImage: "square.stack.3d.up")
+                        }
+                        Button { showSwiftUIFallback = true } label: {
+                            Label("Alternate Picker", systemImage: "folder.badge.plus")
+                        }
                     }
                     .buttonStyle(.bordered)
+                    .font(.subheadline)
                     .disabled(library.isImporting)
 
                     if !library.importStatus.isEmpty && !library.isImporting {
@@ -182,6 +189,16 @@ struct MoviesTab: View {
                 } didCancel: {
                     showMultiPicker = false
                     library.importStatus = "Selection cancelled"
+                }
+            }
+            .fileImporter(isPresented: $showSwiftUIFallback,
+                          allowedContentTypes: [.data, .movie],
+                          allowsMultipleSelection: false) { result in
+                switch result {
+                case .success(let urls):
+                    library.importVideos(urls)
+                case .failure(let error):
+                    library.errorMessage = "Alternate picker: \(error.localizedDescription)"
                 }
             }
             .sheet(item: $selected) { movie in
