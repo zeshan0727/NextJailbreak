@@ -115,7 +115,9 @@ struct RemoteTab: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(ready ? displayName : "Select a TV")
                         .font(.headline)
-                    Text(ready ? "Connected" : remote.status)
+                    Text(remote.brand == .cast
+                        ? (cast.isConnected ? "Media connected · TV keys not paired" : "Media not connected")
+                        : (remote.connected ? "TV remote paired" : remote.status))
                         .font(.caption)
                         .foregroundStyle(ready ? .green : .secondary)
                         .lineLimit(3)
@@ -148,7 +150,24 @@ struct RemoteTab: View {
                 }
             }
             if remote.brand == .cast {
-                HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 11) {
+                    Label(cast.isConnected ? "Cast media session connected" : "Select a Cast receiver",
+                          systemImage: "play.tv")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(cast.isConnected ? Color.green : Color.secondary)
+                    Text("Chromecast controls media only. For Home, Back, arrows and OK, you must pair a separate TV remote connection for your television's brand.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Menu {
+                        Button("Samsung Smart TV") { remote.select(.samsung); showSetup = true }
+                        Button("LG webOS TV") { remote.select(.lg); showSetup = true }
+                        Button("Roku TV") { remote.select(.roku); showSetup = true }
+                    } label: {
+                        Label("Set Up TV Navigation Remote", systemImage: "appletvremote.gen4")
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.cyan)
+                    HStack(spacing: 12) {
                     CastButton().frame(width: 44, height: 44)
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Discover Chromecast devices")
@@ -156,6 +175,7 @@ struct RemoteTab: View {
                         Text("Tap the Cast icon, then select your TV.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
+                }
                 }
             } else if showSetup || !remote.connected {
                 VStack(alignment: .leading, spacing: 9) {
@@ -196,11 +216,13 @@ struct RemoteTab: View {
     }
 
     private var displayName: String {
-        remote.brand == .cast ? cast.tvName : (remote.deviceName.isEmpty ? remote.brand.rawValue : remote.deviceName)
+        remote.brand == .cast
+            ? (cast.isConnected ? cast.tvName + " · Cast media" : "No Cast receiver")
+            : (remote.deviceName.isEmpty ? remote.brand.rawValue : remote.deviceName)
     }
 
     private var castNote: some View {
-        Label("Chromecast supports media playback and volume. TV D-pad, Home, channel, and power keys require a separate TV-specific protocol.", systemImage: "info.circle")
+        Label("Cast device connected does not mean TV remote paired. Chromecast media playback and volume are available; navigation keys need a Samsung, LG or Roku remote connection. Google TV / Android TV additionally requires its own secure remote pairing protocol.", systemImage: "info.circle")
             .font(.caption)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
