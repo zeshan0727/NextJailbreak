@@ -147,7 +147,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
 
     func select(_ movie: Movie) {
         selectedMovie = movie
-        if isConnected { load(movie) }
+        if isConnected && lastLoadedMovieID != movie.id { load(movie) }
     }
 
     func load(_ movie: Movie) {
