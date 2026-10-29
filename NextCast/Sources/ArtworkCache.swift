@@ -73,6 +73,19 @@ final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegat
         beginNext()
     }
 
+    func regenerate(_ movie: Movie) {
+        // Give the user a recovery route if the source was temporarily
+        // unavailable or a previous thumbnail was a black frame.
+        guard activeMovie?.id != movie.id else { return }
+        images.removeValue(forKey: movie.id)
+        details.removeValue(forKey: movie.id)
+        try? FileManager.default.removeItem(at: artURL(movie.id))
+        try? FileManager.default.removeItem(at: detailURL(movie.id))
+        queued.removeAll { $0.id == movie.id }
+        queuedIDs.remove(movie.id)
+        load(movie)
+    }
+
     private func beginNext() {
         guard activeMovie == nil, !queued.isEmpty else { return }
         let movie = queued.removeFirst()
@@ -145,6 +158,14 @@ final class ArtworkCache: NSObject, ObservableObject, VLCMediaThumbnailerDelegat
         decoder.snapshotPosition = 0.25
         thumbnailer = decoder
         decoder.fetchThumbnail()
+        // A misbehaving file may never send its delegate callback.
+        // Bound the time spent on a single file so subsequent covers progress.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 25) { [weak self, weak decoder] in
+            guard let self, let decoder, self.thumbnailer === decoder,
+                  let pending = self.activeMovie, pending.id == movie.id else { return }
+            self.thumbnailer = nil
+            self.finish(pending, image: self.createTitleCover(pending), metadata: self.lastMetadata)
+        }
     }
 
     func mediaThumbnailer(_ mediaThumbnailer: VLCMediaThumbnailer,
