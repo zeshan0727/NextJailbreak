@@ -122,6 +122,12 @@ final class MovieLibrary: ObservableObject {
                     let movie = Movie(id: id, name: url.deletingPathExtension().lastPathComponent,
                                       fileName: filename, importedAt: Date(), fileSize: size)
                     imported.append(movie)
+                    // The explicit Imports inbox is a handoff folder, not a
+                    // permanent second copy. Remove only after successful copy.
+                    if url.deletingLastPathComponent().standardizedFileURL ==
+                        MovieLibrary.imports.standardizedFileURL {
+                        try? FileManager.default.removeItem(at: url)
+                    }
                     DispatchQueue.main.async { self?.importStatus = "Imported \(imported.count) of \(urls.count)…" }
                 } catch {
                     errors.append("\(url.lastPathComponent): \(error.localizedDescription)")
@@ -159,16 +165,7 @@ final class MovieLibrary: ObservableObject {
         guard let urls = try? FileManager.default.contentsOfDirectory(at: Self.imports,
                                               includingPropertiesForKeys: nil),
               !urls.isEmpty else { return }
-        // Scanned files are already inside app Documents, so access is unrestricted.
         importVideos(urls.filter { VideoFormats.supported($0) })
-        // Avoid scanning same files repeatedly after a successful copy:
-        fileQueue.async {
-            for url in urls where VideoFormats.supported(url) {
-                // Original remains available in Imports for manual recovery.
-                // Users may delete it via Files after confirming import.
-                _ = url
-            }
-        }
     }
 
     func delete(_ movie: Movie) {
@@ -275,11 +272,10 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
 
     func sessionManager(_ sessionManager: GCKSessionManager, didStart session: GCKSession) {
         attachIfConnected()
-        if let movie = selectedMovie { load(movie) }
+        // Connection is not consent to play: the user explicitly presses Play on TV.
     }
     func sessionManager(_ sessionManager: GCKSessionManager, didResume session: GCKSession) {
         attachIfConnected()
-        if let movie = selectedMovie, lastLoadedMovieID != movie.id { load(movie) }
     }
     func sessionManager(_ sessionManager: GCKSessionManager, didEnd session: GCKSession, withError error: Error?) {
         activeClient?.remove(self)
