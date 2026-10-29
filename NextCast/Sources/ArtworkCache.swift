@@ -96,7 +96,8 @@ final class ArtworkCache: NSObject, ObservableObject {
         // This avoids concurrent multimedia initialization during app startup.
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { [weak self] in
             guard let self, self.activeMovie?.id == movie.id else { return }
-            if ["mp4", "m4v", "mov", "3gp"].contains(movie.localURL.pathExtension.lowercased()) {
+            if #available(iOS 17, *),
+               ["mp4", "m4v", "mov", "3gp"].contains(movie.localURL.pathExtension.lowercased()) {
                 self.generateAppleFrame(for: movie)
             } else {
                 // VLC thumbnailer can segfault before its delegate or Swift
