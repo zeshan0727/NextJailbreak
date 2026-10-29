@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T13:24:45Z",
+  "updatedAt": "2026-10-29T13:30:29Z",
   "files": [
+    {
+      "id": "nextstorage-1.0.8-ipa",
+      "name": "Next Storage 1.0.8 — Adaptive Layout IPA",
+      "fileName": "NextStorage-1.0.8.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.8",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.8/NextStorage-1.0.8.ipa",
+      "sha256": "08c7ad021697e9ca624086fa2ee08524ce69ed1ea949c2125d946c472f57d870",
+      "sizeBytes": 703156,
+      "notes": "iOS 16+ TrollStore IPA with the approved blue-and-black interface and responsive screen sizing. Existing working Photos deletion and functionality preserved."
+    },
+    {
+      "id": "nextstorage-1.0.8-ios16-roothide",
+      "name": "Next Storage 1.0.8 — iOS 26 Responsive Layout",
+      "fileName": "NextStorage-1.0.8.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.8",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.8/NextStorage-1.0.8.tipa",
+      "sha256": "08c7ad021697e9ca624086fa2ee08524ce69ed1ea949c2125d946c472f57d870",
+      "sizeBytes": 703156,
+      "notes": "Same approved blue-and-black design with adaptive storage ring, responsive summary grids, non-clipping app and media rows for iPhone 14 Pro Max/iOS 26. Preserves all scan/deletion behavior and credits Next Jailbreak · Zeshan0727."
+    },
     {
       "id": "nextcast-1.3.8",
       "name": "Next Cast 1.3.8 — iOS Video Player, Chromecast and Downloads",
