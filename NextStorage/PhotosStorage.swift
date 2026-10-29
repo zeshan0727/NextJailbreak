@@ -428,6 +428,14 @@ struct PhotosStoragePage: View {
                                     deleteID = item.id
                                 } label: { Label("Delete from Photos…", systemImage: "trash") }
                             }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    deleteID = item.id
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                .disabled(store.deletingID != nil)
+                            }
                     }
                 }
             } else if !store.isAllowed {
