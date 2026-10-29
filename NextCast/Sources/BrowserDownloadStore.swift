@@ -108,9 +108,15 @@ final class BrowserDownloadStore: ObservableObject {
         guard let filename = item.relativePath else { return }
         let destination = Self.folder.appendingPathComponent(filename)
         do {
-            if item.isVideo {
-                try library.addDownloadedFile(destination, suggestedName:
-                    URL(fileURLWithPath: item.name).deletingPathExtension().lastPathComponent)
+            if let video = try VideoFileInspector.preparedVideoURL(
+                destination, name: item.name
+            ) {
+                // Save the renamed location before moving to Movies so a
+                // failed import can be retried without losing the file.
+                items[index].relativePath = video.lastPathComponent
+                try library.addDownloadedFile(
+                    video, suggestedName: VideoFileInspector.cleanTitle(item.name)
+                )
                 items[index].status = "Added to Movies"
                 items[index].relativePath = nil
             } else {
@@ -124,6 +130,31 @@ final class BrowserDownloadStore: ObservableObject {
         }
         downloads.removeValue(forKey: id)
         save()
+    }
+
+    func moveToMovies(_ item: BrowserDownloadItem, library: MovieLibrary) {
+        guard let index = items.firstIndex(where: { $0.id == item.id }),
+              let file = fileURL(items[index]) else {
+            notice = "Downloaded file is no longer available."
+            return
+        }
+        do {
+            guard let video = try VideoFileInspector.preparedVideoURL(file, name: item.name) else {
+                notice = "This file is not recognized as a movie."
+                return
+            }
+            items[index].relativePath = video.lastPathComponent
+            try library.addDownloadedFile(
+                video, suggestedName: VideoFileInspector.cleanTitle(item.name)
+            )
+            items[index].relativePath = nil
+            items[index].status = "Added to Movies"
+            notice = "Added \(item.name) to Movies."
+            save()
+        } catch {
+            notice = "Cannot import movie: \(error.localizedDescription)"
+            save()
+        }
     }
 
     func failed(_ download: WKDownload, error: Error) {
