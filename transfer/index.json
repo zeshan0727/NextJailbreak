@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T08:17:43Z",
+  "updatedAt": "2026-10-29T08:21:22Z",
   "files": [
     {
       "id": "nextstorage-1.0.0-ios16-roothide",
@@ -10,8 +10,8 @@
       "platform": "TrollStore / RootHide / iOS 16+",
       "version": "1.0.0",
       "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.0/NextStorage-1.0.0.tipa",
-      "sha256": "c4375029fe946810ae3f20aa20541c25c3a126063507fcda14d86bcbc336c1c2",
-      "sizeBytes": 138724,
+      "sha256": "ee13d4013973d66387a53b53e83c1fdf62a7777efebaba5956fb7ff695b7bbcb",
+      "sizeBytes": 159936,
       "notes": "Read-only native filesystem analyzer with allocated block sizes, app bundle and app data attribution, root browsing, indexed filename search, date and size sorting; requires RootHide privilege for protected areas."
     },
     {
