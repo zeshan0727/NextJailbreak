@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T12:53:34Z",
+  "updatedAt": "2026-10-29T12:55:19Z",
   "files": [
+    {
+      "id": "nextstorage-1.0.6-ipa",
+      "name": "Next Storage 1.0.6 — IPA / Photos Delete Fix",
+      "fileName": "NextStorage-1.0.6.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.6",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.6/NextStorage-1.0.6.ipa",
+      "sha256": "3372dd922e2e059a7540cbc3c572ecdc623b8c3cffb48192839205586059c8bf",
+      "sizeBytes": 617020,
+      "notes": "iOS 16 TrollStore-compatible IPA, generated native storage icon, direct Photos deletion with confirmation and errors."
+    },
+    {
+      "id": "nextstorage-1.0.6-ios16-roothide",
+      "name": "Next Storage 1.0.6 — App Icon + Photos Deletion Repair",
+      "fileName": "NextStorage-1.0.6.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.6",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.6/NextStorage-1.0.6.tipa",
+      "sha256": "3372dd922e2e059a7540cbc3c572ecdc623b8c3cffb48192839205586059c8bf",
+      "sizeBytes": 617020,
+      "notes": "Native home-screen app icon, on-sheet photo/video deletion confirmation, clear iOS PhotoKit permission/error feedback, swipe-to-delete, and existing full Photos media scanning. iOS 16 RootHide/TrollStore."
+    },
     {
       "id": "nextcast-1.3.6",
       "name": "Next Cast 1.3.6 — iOS Video Player, Chromecast and Downloads",
