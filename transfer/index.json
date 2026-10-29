@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-29T09:38:05Z",
+  "updatedAt": "2026-10-29T09:47:44Z",
   "files": [
+    {
+      "id": "nextstorage-1.0.5-ios16-roothide",
+      "name": "Next Storage 1.0.5 — Full Photos Library Size + Photos Link",
+      "fileName": "NextStorage-1.0.5.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / RootHide / iOS 16+",
+      "version": "1.0.5",
+      "url": "https://nextjailbreak.com/transfer/files/NextStorage/1.0.5/NextStorage-1.0.5.tipa",
+      "sha256": "b7713d2e0291890743ccf506b44cb278d3408a491dcc0ccfa0ba78f15cc640d7",
+      "sizeBytes": 308321,
+      "notes": "Full-library PhotoKit resource metadata sizes including Live Photos and videos without streaming contents. On-demand Filza verification, Photos app launch with experimental selected-item route, and safe Photos deletion. iOS 16 RootHide/TrollStore."
+    },
     {
       "id": "nextstorage-1.0.4-ios16-roothide",
       "name": "Next Storage 1.0.4 — Low-Memory Media Scan Fix",
