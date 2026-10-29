@@ -133,7 +133,7 @@ struct DownloadsTab: View {
                             }
                         }
                     }
-                    Text("Speed and ETA are estimates and depend on the server, the network, battery rules, and whether the file size is known. Protected or webpage-only streams may not download.")
+                    Text("If iOS blocks a CFNetwork temporary file, the app automatically switches to Safe Download and writes directly to private storage. Safe Download requires keeping Next Cast open. Speed and ETA are estimates; protected streams may not download.")
                         .font(.footnote).foregroundStyle(.secondary).padding(.bottom, 10)
                 }.padding(18)
             }
@@ -250,6 +250,11 @@ struct DownloadsTab: View {
                         Label("Retry", systemImage: "arrow.clockwise")
                     }
                     Button {
+                        transfers.startSafeStream(item.id)
+                    } label: {
+                        Label("Safe Download", systemImage: "shield.lefthalf.filled")
+                    }
+                    Button {
                         newLinkText = item.url
                         refreshItem = item
                     } label: {
@@ -282,6 +287,11 @@ struct DownloadsTab: View {
                             transfers.retry(item.id)
                         } label: {
                             Label("Retry", systemImage: "arrow.clockwise")
+                        }
+                        Button {
+                            transfers.startSafeStream(item.id)
+                        } label: {
+                            Label("Safe Download", systemImage: "shield.lefthalf.filled")
                         }
                         Button {
                             newLinkText = item.url
