@@ -42,7 +42,7 @@ struct MoviesTab: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var cast: CastController
     @State private var showPicker = false
-    @State private var showAlternatePicker = false
+    @State private var showMultiPicker = false
     @State private var search = ""
     @State private var selected: Movie?
 
@@ -139,12 +139,18 @@ struct MoviesTab: View {
                         }
                     }
 
-                    Button { showAlternatePicker = true } label: {
-                        Label("Alternate Files Picker", systemImage: "folder")
+                    Button { showMultiPicker = true } label: {
+                        Label("Import Multiple Videos", systemImage: "square.stack.3d.up")
                     }
-                    .buttonStyle(.plain).font(.footnote).foregroundStyle(.secondary)
+                    .buttonStyle(.bordered)
+                    .disabled(library.isImporting)
 
-                    Text("If a cloud provider fails, use Files → On My iPhone → Next Cast → Imports, then Settings → Scan Imports. The original file remains untouched.")
+                    if !library.importStatus.isEmpty && !library.isImporting {
+                        Label(library.importStatus, systemImage: "info.circle")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+
+                    Text("If a cloud provider fails, use Files → On My iPhone → Next Cast → Imports, then Settings → Scan Imports. A copy is imported and the Imports inbox is cleared after success.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 .padding(18)
@@ -156,17 +162,22 @@ struct MoviesTab: View {
                 }
             }
             .searchable(text: $search, prompt: "Find a movie")
-            .fileImporter(isPresented: $showPicker, allowedContentTypes: [.item],
-                          allowsMultipleSelection: true) { result in
-                switch result {
-                case .success(let urls): library.importVideos(urls)
-                case .failure(let error): library.errorMessage = error.localizedDescription
+            .sheet(isPresented: $showPicker) {
+                ReliableVideoPicker(multiple: false) { urls in
+                    showPicker = false
+                    library.importVideos(urls)
+                } didCancel: {
+                    showPicker = false
+                    library.importStatus = "Selection cancelled"
                 }
             }
-            .sheet(isPresented: $showAlternatePicker) {
-                AlternateFilesPicker { urls in
+            .sheet(isPresented: $showMultiPicker) {
+                ReliableVideoPicker(multiple: true) { urls in
+                    showMultiPicker = false
                     library.importVideos(urls)
-                    showAlternatePicker = false
+                } didCancel: {
+                    showMultiPicker = false
+                    library.importStatus = "Selection cancelled"
                 }
             }
             .sheet(item: $selected) { movie in
@@ -181,190 +192,6 @@ struct MoviesTab: View {
                 Text(library.errorMessage ?? cast.errorMessage ?? "")
             }
         }
-    }
-}
-
-// Secondary import route for file providers that misbehave with .fileImporter.
-// Mode .import copies to an app-readable location rather than opening in place.
-struct AlternateFilesPicker: UIViewControllerRepresentable {
-    let onSelection: ([URL]) -> Void
-    func makeCoordinator() -> Coordinator { Coordinator(onSelection: onSelection) }
-    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.item], asCopy: true)
-        picker.allowsMultipleSelection = true
-        picker.delegate = context.coordinator
-        return picker
-    }
-    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
-
-    class Coordinator: NSObject, UIDocumentPickerDelegate {
-        let onSelection: ([URL]) -> Void
-        init(onSelection: @escaping ([URL]) -> Void) { self.onSelection = onSelection }
-        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            onSelection(urls)
-        }
-    }
-}
-
-struct MoviePlayerScreen: View {
-    let movie: Movie
-    @ObservedObject var cast: CastController
-    @StateObject private var player = VLCPlayback()
-    @State private var broadcast = false
-    @State private var requestedCast = false
-    @State private var dragging = false
-    @State private var sliderValue = 0.0
-    @State private var remoteVolume = 0.6
-    @Environment(\.dismiss) private var dismiss
-    private let ticker = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
-
-    private var duration: Double { broadcast ? cast.duration : player.duration }
-    private var elapsed: Double { broadcast ? cast.position : player.currentTime }
-    private var playing: Bool { broadcast ? cast.isPlaying : player.playing }
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
-                    if broadcast {
-                        VStack(spacing: 14) {
-                            Image(systemName: "tv.fill").font(.system(size: 65)).foregroundStyle(.cyan)
-                            Text("Playing on \(cast.tvName)").font(.headline)
-                            Text("Keep your iPhone open while sending a local movie.")
-                                .font(.caption).foregroundStyle(.secondary)
-                        }.frame(height: 225).frame(maxWidth: .infinity)
-                    } else {
-                        VLCVideoSurface(player: player)
-                            .frame(height: 240)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(movie.name).font(.title3.bold())
-                        Text("\(movie.format) · \(movie.fileSizeLabel)")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }.frame(maxWidth: .infinity, alignment: .leading)
-
-                    VStack(spacing: 8) {
-                        Slider(value: $sliderValue, in: 0...max(1, duration), onEditingChanged: { editing in
-                            dragging = editing
-                            if !editing {
-                                if broadcast { cast.seek(to: sliderValue) }
-                                else { player.seek(to: sliderValue) }
-                            }
-                        }).tint(.cyan)
-                        HStack {
-                            Text(timeLabel(dragging ? sliderValue : elapsed))
-                            Spacer()
-                            Text(timeLabel(duration))
-                        }.font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-                    }
-                    HStack(spacing: 30) {
-                        Button { skip(-15) } label: {
-                            Image(systemName: "gobackward.15").font(.system(size: 32))
-                        }
-                        Button {
-                            if broadcast { cast.togglePlay() } else { player.togglePlay() }
-                        } label: {
-                            Image(systemName: playing ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 66))
-                        }
-                        Button { skip(15) } label: {
-                            Image(systemName: "goforward.15").font(.system(size: 32))
-                        }
-                    }.buttonStyle(.plain).foregroundStyle(.cyan)
-                        .frame(maxWidth: .infinity)
-                        .padding(12)
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Image(systemName: "iphone").foregroundStyle(.cyan)
-                            VStack(alignment: .leading) {
-                                Text("Play on this iPhone").font(.headline)
-                                Text("Supports MKV and more with VLC").font(.caption).foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            if !broadcast { Image(systemName: "checkmark.circle.fill").foregroundStyle(.green) }
-                        }
-                        Button("Switch to iPhone") {
-                            broadcast = false
-                            player.play()
-                        }
-                        .buttonStyle(.bordered)
-                        .disabled(!broadcast)
-                        Divider()
-                        HStack {
-                            Image(systemName: "tv").foregroundStyle(.cyan)
-                            VStack(alignment: .leading) {
-                                Text("Cast to TV").font(.headline)
-                                Text(cast.isConnected ? cast.tvName : "Select a Chromecast device")
-                                    .font(.caption).foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            CastButton().frame(width: 45, height: 44)
-                        }
-                        Button(broadcast ? "Casting to TV" : "Play on TV") {
-                            requestedCast = true
-                            if cast.isConnected { playOnTV() }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(!movie.castCompatible || broadcast)
-                        if broadcast {
-                            HStack {
-                                Image(systemName: "speaker.wave.2")
-                                Slider(value: $remoteVolume, in: 0...1) { _ in
-                                    cast.changeVolume(remoteVolume)
-                                }
-                            }
-                        }
-                        if !movie.castCompatible {
-                            Text("This container plays locally. Chromecast does not support MKV / AVI directly; MP4 with H.264/AAC is recommended.")
-                                .font(.caption).foregroundStyle(.orange)
-                        }
-                    }.nextSurface()
-                }.padding(18)
-            }
-            .navigationTitle("Now Playing")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
-        }
-        .onAppear {
-            player.open(movie.localURL)
-            player.play()
-        }
-        .onChange(of: cast.isConnected) { connected in
-            if connected && requestedCast && !broadcast { playOnTV() }
-            if !connected && broadcast {
-                broadcast = false
-                player.play()
-            }
-        }
-        .onReceive(ticker) { _ in
-            if broadcast { cast.refreshProgress() }
-            else { player.refresh() }
-            if !dragging { sliderValue = elapsed.isFinite ? max(0, elapsed) : 0 }
-        }
-        .onDisappear {
-            player.stop()
-            requestedCast = false
-        }
-    }
-    private func playOnTV() {
-        guard movie.castCompatible, cast.isConnected else { return }
-        player.pause()
-        cast.load(movie)
-        broadcast = true
-    }
-    private func skip(_ seconds: Double) {
-        if broadcast { cast.skip(seconds) }
-        else { player.skip(seconds) }
-    }
-    private func timeLabel(_ seconds: Double) -> String {
-        let n = Int(max(0, seconds.isFinite ? seconds : 0))
-        return String(format: "%02d:%02d:%02d", n / 3600, (n % 3600) / 60, n % 60)
     }
 }
 
