@@ -16,6 +16,11 @@ on:
 permissions:
   contents: read
 
+# Never waste multiple macOS runners compiling superseded edits.
+concurrency:
+  group: nextcast-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   ios:
     name: Build and package TrollStore TIPA
