@@ -32,7 +32,16 @@ jobs:
 
       - name: Install XcodeGen and icon generation dependency
         run: |
-          brew install xcodegen cocoapods
+          # Reuse runner-provided CocoaPods. Installing a second Homebrew
+          # copy conflicts with /usr/local/bin/pod on macOS 15 Intel.
+          if ! command -v xcodegen >/dev/null 2>&1; then
+            brew install xcodegen
+          fi
+          if ! command -v pod >/dev/null 2>&1 || ! pod --version >/dev/null 2>&1; then
+            brew install cocoapods || brew link --overwrite cocoapods
+          fi
+          xcodegen --version
+          pod --version
           python3 -m venv .iconvenv
           .iconvenv/bin/pip install --disable-pip-version-check pillow
 
