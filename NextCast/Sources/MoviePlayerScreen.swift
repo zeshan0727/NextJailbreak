@@ -245,7 +245,7 @@ struct MoviePlayerScreen: View {
                         if cast.isConnected && (requestedCast || broadcast) {
                             Text(cast.castStatus)
                                 .font(.caption)
-                                .foregroundStyle(cast.isPlaying ? .green : .secondary)
+                                .foregroundStyle(cast.isPlaying ? Color.green : Color.secondary)
                         }
                         if broadcast {
                             Button {
@@ -316,7 +316,7 @@ struct MoviePlayerScreen: View {
             }
         }
         .onAppear {
-            if cast.nowCastingMovie != nil {
+            if cast.nowCastingMovie?.id == movie.id {
                 broadcast = true
                 requestedCast = false
                 player.stop()

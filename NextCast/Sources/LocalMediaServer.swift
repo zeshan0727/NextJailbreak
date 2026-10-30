@@ -58,6 +58,14 @@ final class LocalMediaServer {
                                 self.deliver(waiting.id, port: port, completion: waiting.callback)
                             }
                         }
+                    case .waiting(let error):
+                        // An old listener port is no longer a valid Cast URL.
+                        // Keep the listener for automatic NWPath recovery.
+                        self.currentPort = nil
+                        self.failWaiting(error)
+                    case .cancelled:
+                        self.currentPort = nil
+                        self.listener = nil
                     case .failed(let error):
                         self.failWaiting(error)
                         listener.cancel()

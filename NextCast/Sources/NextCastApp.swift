@@ -239,7 +239,7 @@ final class MovieLibrary: ObservableObject {
 
 // MARK: - Google Cast
 @MainActor
-final class CastController: NSObject, ObservableObject, GCKSessionManagerListener, GCKRemoteMediaClientListener {
+final class CastController: NSObject, ObservableObject, GCKSessionManagerListener, GCKRemoteMediaClientListener, GCKRequestDelegate {
     @Published private(set) var isConnected = false
     @Published private(set) var tvName = "No TV connected"
     @Published private(set) var tvModelName = ""
@@ -256,6 +256,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     @Published private(set) var didReceiveMediaGET = false
     var selectedMovie: Movie?
     private var streamAttempt = 0
+    private var activeLoadRequest: GCKRequest?
+    private var expectedMediaURL: URL?
 
     private let server = LocalMediaServer()
     private let lockStreamKeeper = TVLockStreamKeeper()
@@ -311,6 +313,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         didReceiveMediaGET = false
         pendingCastMovie = movie
         nowCastingMovie = nil
+        activeLoadRequest = nil
+        expectedMediaURL = nil
         castStatus = "Preparing local video stream…"
         server.makeURL(for: movie) { [weak self] result in
             guard let self, self.streamAttempt == attempt else { return }
@@ -335,7 +339,10 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 self.hasStartedTVPlayback = false
                 self.lockStreamKeeper.setCasting(true)
                 self.castStatus = "Sending video URL to \(self.tvName)…"
-                _ = client.loadMedia(info)
+                self.expectedMediaURL = mediaURL
+                let request = client.loadMedia(info)
+                self.activeLoadRequest = request
+                request.delegate = self
                 UIApplication.shared.isIdleTimerDisabled = true
                 // A connected Cast device is not proof of media playback.
                 // Surface a failed delivery rather than silently switching UI.
@@ -351,6 +358,20 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 }
             }
         }
+    }
+
+    func requestDidComplete(_ request: GCKRequest) {
+        guard activeLoadRequest === request, pendingCastMovie != nil else { return }
+        castStatus = "TV acknowledged media request · checking playback…"
+    }
+
+    func request(_ request: GCKRequest, didFailWithError error: GCKError) {
+        guard activeLoadRequest === request else { return }
+        castStatus = "Chromecast rejected the video: " + error.localizedDescription
+        errorMessage = castStatus
+        pendingCastMovie = nil
+        activeLoadRequest = nil
+        expectedMediaURL = nil
     }
 
     func togglePlay() {
@@ -386,6 +407,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         streamAttempt += 1
         pendingCastMovie = nil
         nowCastingMovie = nil
+        activeLoadRequest = nil
+        expectedMediaURL = nil
         didReceiveMediaGET = false
         castStatus = "TV playback stopped"
         lockStreamKeeper.stop()
@@ -441,12 +464,20 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         let receivedDuration = mediaStatus?.mediaInformation?.streamDuration ?? 0
         duration = receivedDuration.isFinite ? max(0, receivedDuration) : 0
         position = max(0, client.approximateStreamPosition())
+        if pendingCastMovie != nil, let expectedMediaURL,
+           let receiverURL = mediaStatus?.mediaInformation?.contentURL,
+           receiverURL != expectedMediaURL {
+            // Stale status from a previous Cast item must not mark the new
+            // movie as playing before the receiver loads its unique URL.
+            return
+        }
         isPlaying = mediaStatus?.playerState == .playing
         switch mediaStatus?.playerState {
         case .playing, .paused:
             if let movie = pendingCastMovie {
                 nowCastingMovie = movie
                 pendingCastMovie = nil
+                activeLoadRequest = nil
             }
             if nowCastingMovie != nil {
                 hasStartedTVPlayback = true
