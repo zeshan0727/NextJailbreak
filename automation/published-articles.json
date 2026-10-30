@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "additional_media": [
+        "assets/articles/source-media/rocket-4-24-0-official-reels-menu.webp"
+      ],
+      "category": {
+        "id": "tweak-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Regram 6.5 official builds target Instagram 452.x, with separate jailbreak, TrollStore and sideload variants whose requirements must not be interchanged. Rocket 4.25.0 requires iOS 15.0 or later and App Store Instagram, adds Instagram 452.0.1 and iPhone Duo support, and its official APT serves rootful, rootless and RootHide builds. Package compatibility does not establish jailbreak availability for every device or firmware.",
+      "description": "Regram 6.5 vs Rocket 4.25.0 compared: Instagram 452 support, iPhone Duo, privacy, downloads, RootHide, TrollStore and sideloading.",
+      "developer": "Fouad Raheb; Rocket",
+      "entry_type": "comparison",
+      "href": "regram-vs-rocket-instagram-tweak-comparison/",
+      "image": "assets/articles/source-media/rocket-4-24-0-official-banner.jpg",
+      "media_credit": "Rocket — official developer banner and Reels action-menu interface screenshot",
+      "media_source_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
+      "modified_at": "2026-10-30T09:00:00Z",
+      "name": "Regram 6.5 vs Rocket 4.25.0",
+      "package": "com.fouadraheb.regram; me.alfhaily.rocket",
+      "published_at": "2026-10-18T08:58:53Z",
+      "quality_target": 9,
+      "release": "Regram 6.5 released October 20, 2026; Rocket 4.25.0 published October 25, 2026",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "regram-vs-rocket-instagram-tweak-comparison",
+      "source_name": "Official Regram and Rocket package, changelog, installation and project pages",
+      "source_page_url": "https://fouadraheb.com/apt/package/com.fouadraheb.regram/changelogs",
+      "source_url": "https://apt.getrocketapp.io/changelogs/4EYOXC",
+      "source_visual_origin": "official-developer-banner-and-interface-screenshot",
+      "source_visual_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
+      "title": "Regram 6.5 vs Rocket 4.25.0: Which Instagram Tweak Should You Use?",
+      "version": "Regram 6.5; Rocket 4.25.0"
+    },
+    {
       "category": {
         "id": "evergreen-guide",
         "label": "Evergreen Jailbreak Guide"
@@ -2034,38 +2066,6 @@
       "source_visual_url": "https://media.havoc.app/6acb431c78427fe0502bf073",
       "title": "PowerTrace 1.0.2b Fixes Rootless Saving and Adds Lock Screen Controls",
       "version": "1.0.2b"
-    },
-    {
-      "additional_media": [
-        "assets/articles/source-media/rocket-4-24-0-official-reels-menu.webp"
-      ],
-      "category": {
-        "id": "tweak-comparison",
-        "label": "Tweak Comparison"
-      },
-      "compat": "Regram 6.4 official package metadata and depiction list different minimum-iOS requirements and its current sideload variants target Instagram 450.1. Rocket 4.24.0 requires iOS 15.0 or later and App Store Instagram; its official repository supplies rootful, rootless and RootHide builds. Package compatibility does not establish jailbreak availability for every device and firmware.",
-      "description": "Regram 6.4 vs Rocket 4.24.0 compared: Reels, Stories, downloads, privacy, customization, jailbreak support and sideloading options.",
-      "developer": "Fouad Raheb; Rocket",
-      "entry_type": "comparison",
-      "href": "regram-vs-rocket-instagram-tweak-comparison/",
-      "image": "assets/articles/source-media/rocket-4-24-0-official-banner.jpg",
-      "media_credit": "Rocket — official developer banner and Reels action-menu interface screenshot",
-      "media_source_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
-      "modified_at": "2026-10-18T08:58:53Z",
-      "name": "Regram 6.4 vs Rocket 4.24.0",
-      "package": "com.fouadraheb.regram; me.alfhaily.rocket",
-      "published_at": "2026-10-18T08:58:53Z",
-      "quality_target": 9,
-      "release": "Regram 6.4 released October 10, 2026; Rocket 4.24.0 is the current version on the live official package page",
-      "selection_pool": "scheduled-tweak-roundup-comparison",
-      "slug": "regram-vs-rocket-instagram-tweak-comparison",
-      "source_name": "Official Regram and Rocket project, package and changelog pages",
-      "source_page_url": "https://fouadraheb.com/apt/package/com.fouadraheb.regram/changelogs",
-      "source_url": "https://apt.getrocketapp.io/changelogs/4EYOXC",
-      "source_visual_origin": "official-developer-banner-and-interface-screenshot",
-      "source_visual_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
-      "title": "Regram vs Rocket for Instagram: Which Tweak Should You Use?",
-      "version": "Regram 6.4; Rocket 4.24.0"
     },
     {
       "category": {
@@ -9978,5 +9978,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-29T09:00:00Z"
+  "updated_at": "2026-10-30T09:00:00Z"
 }

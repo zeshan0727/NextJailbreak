@@ -1267,6 +1267,30 @@
         "sha256": "bdfc92b4d89e37681003a7cc34bd7a0b3fc2aab780fe523f05b355bf25abb335"
       },
       "screenshots": []
+    },
+    "comparison.regram-rocket": {
+      "credit_label": "Rocket — official developer banner and Reels action-menu interface screenshot",
+      "source_page_url": "https://apt.getrocketapp.io/",
+      "secondary_source_page_urls": [
+        "https://fouadraheb.com/apt/package/com.fouadraheb.regram"
+      ],
+      "official_source": true,
+      "hero": {
+        "url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
+        "alt": "Official Rocket for Instagram social banner",
+        "local_path": "assets/articles/source-media/rocket-4-24-0-official-banner.jpg",
+        "git_blob_sha": "38e94fe9ccb3583c56b303379c66e568b057523e",
+        "sha256": "3debfb5ae7d3a6b01906512ff54cf99c120b9adb276353be56cf9b51bd7f7a49"
+      },
+      "screenshots": [
+        {
+          "url": "https://cdn.getrocketapp.io/metadata/screenshots/02-reels-action-menu.webp",
+          "alt": "Official Rocket Reels action menu with Auto-scroll, Save, Copy media URL, Repost, Copy caption and Settings",
+          "local_path": "assets/articles/source-media/rocket-4-24-0-official-reels-menu.webp",
+          "git_blob_sha": "7a8c1f3fbd205ea049296d88b1544807c3697662",
+          "sha256": "daeea2c05a9d75930534ad58dd8ea6f22658a84e89d7025e61d2afe14095f341"
+        }
+      ]
     }
   }
 }
