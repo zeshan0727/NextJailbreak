@@ -201,6 +201,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     private let server = LocalMediaServer()
     private let lockStreamKeeper = TVLockStreamKeeper()
     private var localStreamLoaded = false
+    private var hasStartedTVPlayback = false
 
     func sceneDidChange(_ phase: ScenePhase) {
         if phase == .active { lockStreamKeeper.becameActive() }
@@ -248,6 +249,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 let info = builder.build()
                 self.lastLoadedMovieID = movie.id
                 self.localStreamLoaded = true
+                self.hasStartedTVPlayback = false
                 self.lockStreamKeeper.setCasting(true)
                 _ = client.loadMedia(info)
                 UIApplication.shared.isIdleTimerDisabled = true
@@ -284,6 +286,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     func stopRemotePlayback() {
         _ = client?.stop()
         localStreamLoaded = false
+        hasStartedTVPlayback = false
         lockStreamKeeper.stop()
         server.stop()
         lastLoadedMovieID = nil
@@ -333,7 +336,10 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         duration = receivedDuration.isFinite ? max(0, receivedDuration) : 0
         position = max(0, client.approximateStreamPosition())
         isPlaying = mediaStatus?.playerState == .playing
-        if mediaStatus?.playerState == .idle && localStreamLoaded {
+        if isPlaying { hasStartedTVPlayback = true }
+        // Ignore initial receiver idle state during loadMedia(). A premature
+        // stop here removes the HTTP URL before the receiver can play.
+        if mediaStatus?.playerState == .idle && localStreamLoaded && hasStartedTVPlayback {
             localStreamLoaded = false
             lockStreamKeeper.stop()
             server.stop()
