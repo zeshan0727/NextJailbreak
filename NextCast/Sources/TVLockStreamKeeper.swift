@@ -88,6 +88,9 @@ final class TVLockStreamKeeper {
     }
 
     private func stopSession() {
+        // Do not deactivate VLC's audio session unless this helper actually
+        // activated its own background playback.
+        guard player != nil || graceTask != .invalid else { return }
         player?.stop()
         player = nil
         endGraceTask()
