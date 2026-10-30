@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T16:11:16Z",
+  "updatedAt": "2026-10-30T16:52:51Z",
   "files": [
+    {
+      "id": "nextcast-1.4.8",
+      "name": "Next Cast 1.4.8 — iOS Video Player, Chromecast and Downloads",
+      "fileName": "NextCast-1.4.8.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.4.8",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.4.8/NextCast-1.4.8.tipa",
+      "sha256": "1731ae2fb2bec7890d7843230d2c9ca12a4f0b5b231d31fa76727d2aa9a168d2",
+      "sizeBytes": 20066019,
+      "notes": "Native VLC player, local video library, Chromecast and download manager. Build verified; on-device validation required."
+    },
+    {
+      "id": "nextcast-1.4.8-ipa",
+      "name": "Next Cast 1.4.8 — IPA (TrollStore)",
+      "fileName": "NextCast-1.4.8.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.4.8",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.4.8/NextCast-1.4.8.ipa",
+      "sha256": "1731ae2fb2bec7890d7843230d2c9ca12a4f0b5b231d31fa76727d2aa9a168d2",
+      "sizeBytes": 20066019,
+      "notes": "Ad-hoc signed IPA for TrollStore. Not signed for standard iOS installation."
+    },
     {
       "id": "nextcast-1.4.7",
       "name": "Next Cast 1.4.7 — iOS Video Player, Chromecast and Downloads",
