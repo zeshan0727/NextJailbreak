@@ -235,7 +235,6 @@ struct MoviePlayerScreen: View {
                                 requestedCast = false
                                 if castPreparer.preparing { castPreparer.cancel() }
                                 persistPlayback()
-                                player.pause()
                                 cast.load(movie)
                                 requestedCast = true
                             }
@@ -317,6 +316,12 @@ struct MoviePlayerScreen: View {
             }
         }
         .onAppear {
+            if cast.nowCastingMovie != nil {
+                broadcast = true
+                requestedCast = false
+                player.stop()
+                return
+            }
             player.open(movie.localURL)
             savedResumeTime = PlaybackHistory.position(for: movie.id)
             if savedResumeTime >= 15 {
@@ -343,6 +348,11 @@ struct MoviePlayerScreen: View {
             if phase != .active { persistPlayback() }
         }
         .onReceive(ticker) { _ in
+            if requestedCast && cast.nowCastingMovie != nil {
+                requestedCast = false
+                broadcast = true
+                player.stop()
+            }
             if broadcast { cast.refreshProgress() }
             else {
                 player.refresh()
@@ -375,7 +385,6 @@ struct MoviePlayerScreen: View {
         castPreparer.prepare(movie, library: library) { readyMovie in
             guard cast.isConnected, requestedCast else { return }
             persistPlayback()
-            player.pause()
             cast.load(readyMovie)
         }
     }

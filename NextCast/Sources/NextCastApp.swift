@@ -250,7 +250,12 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     @Published private(set) var remoteVolume: Double = 0.5
     @Published private(set) var remoteMuted = false
     @Published var errorMessage: String?
+    @Published private(set) var castStatus = "No TV media playing"
+    @Published private(set) var nowCastingMovie: Movie?
+    @Published private(set) var pendingCastMovie: Movie?
+    @Published private(set) var didReceiveMediaGET = false
     var selectedMovie: Movie?
+    private var streamAttempt = 0
 
     private let server = LocalMediaServer()
     private let lockStreamKeeper = TVLockStreamKeeper()
@@ -270,6 +275,13 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     override init() {
         super.init()
         manager.add(self)
+        server.onMediaRequest = { [weak self] in
+            Task { @MainActor [weak self] in
+                guard let self, self.pendingCastMovie != nil else { return }
+                self.didReceiveMediaGET = true
+                self.castStatus = "TV requested movie bytes · starting playback…"
+            }
+        }
         attachIfConnected()
     }
 
@@ -285,18 +297,35 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
 
     func load(_ movie: Movie) {
         selectedMovie = movie
-        guard isConnected else { return }
+        guard isConnected else {
+            castStatus = "Connect a Chromecast receiver first."
+            errorMessage = castStatus
+            return
+        }
         guard movie.castCompatible else {
             errorMessage = "The TV cannot directly decode this container. Play it on iPhone, or use MP4 (H.264/AAC) for Chromecast. MKV playback on iPhone is supported."
             return
         }
+        streamAttempt += 1
+        let attempt = streamAttempt
+        didReceiveMediaGET = false
+        pendingCastMovie = movie
+        nowCastingMovie = nil
+        castStatus = "Preparing local video stream…"
         server.makeURL(for: movie) { [weak self] result in
-            guard let self else { return }
+            guard let self, self.streamAttempt == attempt else { return }
             switch result {
             case .failure(let error):
-                self.errorMessage = "Local Wi-Fi server: \(error.localizedDescription)"
+                self.castStatus = "Cannot serve movie: \(error.localizedDescription)"
+                self.errorMessage = self.castStatus
+                self.pendingCastMovie = nil
             case .success(let mediaURL):
-                guard let client = self.client, self.isConnected, self.selectedMovie?.id == movie.id else { return }
+                guard let client = self.client, self.isConnected,
+                      self.selectedMovie?.id == movie.id else {
+                    self.pendingCastMovie = nil
+                    self.castStatus = "Cast connection changed. Reconnect and try again."
+                    return
+                }
                 let builder = GCKMediaInformationBuilder(contentURL: mediaURL)
                 builder.streamType = .buffered
                 builder.contentType = movie.mimeType
@@ -305,8 +334,21 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 self.localStreamLoaded = true
                 self.hasStartedTVPlayback = false
                 self.lockStreamKeeper.setCasting(true)
+                self.castStatus = "Sending video URL to \(self.tvName)…"
                 _ = client.loadMedia(info)
                 UIApplication.shared.isIdleTimerDisabled = true
+                // A connected Cast device is not proof of media playback.
+                // Surface a failed delivery rather than silently switching UI.
+                Task { @MainActor [weak self] in
+                    try? await Task.sleep(nanoseconds: 30_000_000_000)
+                    guard let self, self.streamAttempt == attempt,
+                          self.pendingCastMovie != nil else { return }
+                    self.castStatus = self.didReceiveMediaGET
+                        ? "TV received video but did not start playback. Check TV media session."
+                        : "TV did not request the video from the iPhone. Check Wi-Fi/client isolation."
+                    self.errorMessage = self.castStatus
+                    self.pendingCastMovie = nil
+                }
             }
         }
     }
@@ -341,6 +383,11 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         _ = client?.stop()
         localStreamLoaded = false
         hasStartedTVPlayback = false
+        streamAttempt += 1
+        pendingCastMovie = nil
+        nowCastingMovie = nil
+        didReceiveMediaGET = false
+        castStatus = "TV playback stopped"
         lockStreamKeeper.stop()
         server.stop()
         lastLoadedMovieID = nil
@@ -379,6 +426,11 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         server.stop()
         lastLoadedMovieID = nil
         localStreamLoaded = false
+        streamAttempt += 1
+        pendingCastMovie = nil
+        nowCastingMovie = nil
+        didReceiveMediaGET = false
+        castStatus = "Chromecast disconnected"
         lockStreamKeeper.stop()
         if let error { errorMessage = error.localizedDescription }
     }
@@ -390,15 +442,25 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         duration = receivedDuration.isFinite ? max(0, receivedDuration) : 0
         position = max(0, client.approximateStreamPosition())
         isPlaying = mediaStatus?.playerState == .playing
-        if isPlaying { hasStartedTVPlayback = true }
-        // Ignore initial receiver idle state during loadMedia(). A premature
-        // stop here removes the HTTP URL before the receiver can play.
-        if mediaStatus?.playerState == .idle && localStreamLoaded && hasStartedTVPlayback {
-            localStreamLoaded = false
-            lockStreamKeeper.stop()
-            server.stop()
-            lastLoadedMovieID = nil
-            UIApplication.shared.isIdleTimerDisabled = false
+        switch mediaStatus?.playerState {
+        case .playing, .paused:
+            if let movie = pendingCastMovie {
+                nowCastingMovie = movie
+                pendingCastMovie = nil
+            }
+            if nowCastingMovie != nil {
+                hasStartedTVPlayback = true
+                castStatus = isPlaying ? "Playing on \(tvName)" : "Paused on \(tvName)"
+            }
+        case .buffering:
+            if pendingCastMovie != nil { castStatus = "TV buffering video…" }
+            else if nowCastingMovie != nil { castStatus = "TV buffering…" }
+        case .idle:
+            // The default Cast receiver can send a transient idle status during
+            // a new LOAD. Never tear down the HTTP listener on that update.
+            if nowCastingMovie != nil { castStatus = "Receiver idle · resume or stop" }
+        default:
+            break
         }
     }
 

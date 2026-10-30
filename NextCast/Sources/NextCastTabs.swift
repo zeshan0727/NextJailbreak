@@ -10,6 +10,8 @@ struct NextCastTabs: View {
     @StateObject private var browserDownloads = BrowserDownloadStore()
     @StateObject private var transfers = TransferStore.shared
     @State private var tab = 0
+    @State private var showTVControls = false
+    @State private var showMiniCastBar = true
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -30,6 +32,51 @@ struct NextCastTabs: View {
                 .tabItem { Label("Settings", systemImage: "gearshape") }.tag(4)
         }
         .tint(.cyan)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if let movie = cast.nowCastingMovie {
+                HStack(spacing: 10) {
+                    if showMiniCastBar {
+                        Button {
+                            showTVControls = true
+                        } label: {
+                            HStack(spacing: 9) {
+                                Image(systemName: "tv.fill").foregroundStyle(.cyan)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(movie.name).lineLimit(1).font(.caption.bold())
+                                    Text(cast.castStatus).lineLimit(1).font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.up")
+                            }
+                        }.buttonStyle(.plain)
+                        Button { cast.togglePlay() } label: {
+                            Image(systemName: cast.isPlaying ? "pause.fill" : "play.fill")
+                        }.accessibilityLabel(cast.isPlaying ? "Pause TV" : "Play TV")
+                        Button { showMiniCastBar = false } label: {
+                            Image(systemName: "eye.slash")
+                        }.accessibilityLabel("Hide mini player")
+                    } else {
+                        Spacer()
+                        Button {
+                            showMiniCastBar = true
+                            showTVControls = true
+                        } label: {
+                            Label("Show TV Player", systemImage: "tv.fill")
+                                .font(.caption.bold())
+                        }
+                        Spacer()
+                    }
+                }
+                .padding(.horizontal, 15).padding(.vertical, 11)
+                .background(.regularMaterial)
+            }
+        }
+        .sheet(isPresented: $showTVControls) {
+            if let movie = cast.nowCastingMovie {
+                MoviePlayerScreen(movie: movie, cast: cast, library: library)
+            }
+        }
         .onAppear { transfers.attach(library) }
         .onChange(of: scenePhase) { phase in
             cast.sceneDidChange(phase)
@@ -132,9 +179,31 @@ struct MoviesTab: View {
                         Text("\(library.movies.count) saved").font(.caption).foregroundStyle(.secondary)
                     }
                     if !converted.isEmpty {
-                        Label("Converted movies saved: \(converted.count) · Movies / Converted",
+                        Label("Converted Movies · \(converted.count)",
                               systemImage: "folder.fill")
-                            .font(.caption).foregroundStyle(.green)
+                            .font(.headline).foregroundStyle(.cyan)
+                        LazyVStack(spacing: 9) {
+                            ForEach(converted) { movie in
+                                Button { selected = movie } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "tv.fill").foregroundStyle(.cyan)
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(movie.name).font(.subheadline.bold())
+                                                .lineLimit(2)
+                                            Text("TV Ready · \(movie.fileSizeLabel)")
+                                                .font(.caption).foregroundStyle(.secondary)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "play.circle.fill")
+                                    }.nextSurface()
+                                }.buttonStyle(.plain)
+                                .contextMenu {
+                                    Button(role: .destructive) { library.delete(movie) } label: {
+                                        Label("Delete converted movie", systemImage: "trash")
+                                    }
+                                }
+                            }
+                        }
                     }
                     if library.movies.isEmpty {
                         VStack(spacing: 12) {
@@ -149,7 +218,7 @@ struct MoviesTab: View {
                         Text("No matching videos").foregroundStyle(.secondary).padding()
                     } else {
                         LazyVStack(spacing: 10) {
-                            ForEach(originals + converted) { movie in
+                            ForEach(originals) { movie in
                                 Button { selected = movie } label: {
                                     HStack(spacing: 14) {
                                         ZStack {
