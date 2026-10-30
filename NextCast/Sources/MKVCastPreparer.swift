@@ -37,8 +37,82 @@ private enum NativeCastCompatibility {
 private final class ConversionStopToken {
     private let lock = NSLock()
     private var stopped = false
-    func cancel() { lock.lock(); stopped = true; lock.unlock() }
+    private weak var reader: AVAssetReader?
+    func register(_ assetReader: AVAssetReader) {
+        lock.lock()
+        reader = assetReader
+        let alreadyStopped = stopped
+        lock.unlock()
+        if alreadyStopped { assetReader.cancelReading() }
+    }
+    func cancel() {
+        lock.lock()
+        stopped = true
+        let activeReader = reader
+        lock.unlock()
+        // Interrupt blocking system decoder reads instead of waiting forever.
+        activeReader?.cancelReading()
+    }
     var isCancelled: Bool { lock.lock(); defer { lock.unlock() }; return stopped }
+}
+
+
+private final class NativeConversionActivity {
+    struct Snapshot {
+        let fraction: Double?
+        let processedSeconds: Double
+        let bytesRead: Int64
+        let idleSeconds: TimeInterval
+        let finalizing: Bool
+    }
+    private let lock = NSLock()
+    private var duration: Double = 0
+    private var videoSeconds: Double = 0
+    private var audioSeconds: Double = 0
+    private var videoDone = false
+    private var audioDone = false
+    private var readBytes: Int64 = 0
+    private var lastPacket = Date()
+    private var isFinalizing = false
+
+    func setDuration(_ seconds: Double) {
+        lock.lock()
+        duration = seconds.isFinite && seconds > 0 ? seconds : 0
+        lock.unlock()
+    }
+    func record(_ sample: CMSampleBuffer, video: Bool) {
+        let stamp = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sample))
+        lock.lock()
+        if stamp.isFinite && stamp >= 0 {
+            if video { videoSeconds = max(videoSeconds, stamp) }
+            else { audioSeconds = max(audioSeconds, stamp) }
+        }
+        readBytes += Int64(CMSampleBufferGetTotalSampleSize(sample))
+        lastPacket = Date()
+        lock.unlock()
+    }
+    func finishTrack(video: Bool) {
+        lock.lock()
+        if video { videoDone = true } else { audioDone = true }
+        lastPacket = Date()
+        lock.unlock()
+    }
+    func beginFinalizing() {
+        lock.lock()
+        isFinalizing = true
+        lastPacket = Date()
+        lock.unlock()
+    }
+    func snapshot() -> Snapshot {
+        lock.lock()
+        defer { lock.unlock() }
+        let v = videoDone ? duration : videoSeconds
+        let a = audioDone ? duration : audioSeconds
+        let processed = max(0, min(v,a))
+        let amount: Double? = duration > 0 ? min(0.99, processed / duration) : nil
+        return Snapshot(fraction: amount, processedSeconds: processed, bytesRead: readBytes,
+                        idleSeconds: Date().timeIntervalSince(lastPacket), finalizing: isFinalizing)
+    }
 }
 
 private enum NativeAudioMuxer {
@@ -47,11 +121,13 @@ private enum NativeAudioMuxer {
                 userInfo: [NSLocalizedDescriptionKey: message])
     }
 
-    static func convert(source: URL, output: URL, token: ConversionStopToken) throws {
+    static func convert(source: URL, output: URL, token: ConversionStopToken,
+                        activity: NativeConversionActivity) throws {
         guard NativeCastCompatibility.containers.contains(source.pathExtension.lowercased()) else {
             throw error("Native TV conversion supports MP4, M4V and MOV. MKV remains playable in VLC on your iPhone, but its unstable FFmpeg converter has been disabled to prevent the iOS 16 crash.")
         }
         let asset = AVURLAsset(url: source)
+        activity.setDuration(CMTimeGetSeconds(asset.duration))
         guard let videoTrack = NativeCastCompatibility.h264Track(asset) else {
             throw error("Fast TV conversion requires an H.264 video track readable by iOS. This video needs a separate full video transcode.")
         }
@@ -65,6 +141,7 @@ private enum NativeAudioMuxer {
 
         // Compressed H.264 is copied, not decoded or re-encoded.
         let reader = try AVAssetReader(asset: asset)
+        token.register(reader)
         let videoOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: nil)
         videoOutput.alwaysCopiesSampleData = false
         guard reader.canAdd(videoOutput) else { throw error("Cannot read the H.264 video stream.") }
@@ -124,6 +201,11 @@ private enum NativeAudioMuxer {
         // Pump both tracks on one worker. Keep packets small and memory bounded.
         // Never block the main thread or invoke the crashing FFmpeg registry.
         while !videoFinished || !audioFinished {
+            if !activity.snapshot().finalizing && activity.snapshot().idleSeconds > 90 {
+                reader.cancelReading()
+                writer.cancelWriting()
+                throw error("Video/audio decoder stopped responding for 90 seconds. Original file is unchanged.")
+            }
             if token.isCancelled {
                 reader.cancelReading()
                 writer.cancelWriting()
@@ -142,9 +224,11 @@ private enum NativeAudioMuxer {
                         writer.cancelWriting()
                         throw writer.error ?? error("Unable to write H.264 video.")
                     }
+                    activity.record(sample, video: true)
                 } else {
                     videoInput.markAsFinished()
                     videoFinished = true
+                    activity.finishTrack(video: true)
                 }
                 madeProgress = true
             }
@@ -155,9 +239,11 @@ private enum NativeAudioMuxer {
                         writer.cancelWriting()
                         throw writer.error ?? error("Unable to write AAC audio.")
                     }
+                    activity.record(sample, video: false)
                 } else {
                     audioInput.markAsFinished()
                     audioFinished = true
+                    activity.finishTrack(video: false)
                 }
                 madeProgress = true
             }
@@ -167,9 +253,13 @@ private enum NativeAudioMuxer {
             writer.cancelWriting()
             throw reader.error ?? error("The audio decoder failed.")
         }
+        activity.beginFinalizing()
         let finished = DispatchSemaphore(value: 0)
         writer.finishWriting { finished.signal() }
-        finished.wait()
+        guard finished.wait(timeout: .now() + 120) == .success else {
+            writer.cancelWriting()
+            throw error("Finalizing the MP4 exceeded 2 minutes. Free storage and try again.")
+        }
         if token.isCancelled { throw error("Cancelled.") }
         guard writer.status == .completed else {
             throw writer.error ?? error("MP4 writer did not finish successfully.")
@@ -183,6 +273,12 @@ final class MKVCastPreparer: ObservableObject {
     @Published private(set) var status = ""
     @Published private(set) var bytesWritten: Int64 = 0
     @Published private(set) var elapsedSeconds = 0
+    @Published private(set) var progressFraction: Double = 0
+    @Published private(set) var hasTimeline = false
+    @Published private(set) var processedSeconds: Double = 0
+    @Published private(set) var bytesProcessed: Int64 = 0
+    @Published private(set) var estimatedRemainingSeconds: Int? = nil
+    @Published private(set) var isFinalizing = false
     @Published var errorMessage: String?
 
     private static let conversionQueue = DispatchQueue(
@@ -198,6 +294,13 @@ final class MKVCastPreparer: ObservableObject {
         preparing = true
         bytesWritten = 0
         elapsedSeconds = 0
+        progressFraction = 0
+        hasTimeline = false
+        processedSeconds = 0
+        bytesProcessed = 0
+        estimatedRemainingSeconds = nil
+        isFinalizing = false
+        let activity = NativeConversionActivity()
         let source = movie.localURL
         let folder = MovieLibrary.folder
         // Different cache key from 1.4.3/1.4.4's potentially bad FFmpeg output.
@@ -211,8 +314,32 @@ final class MKVCastPreparer: ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 self.elapsedSeconds = Int(Date().timeIntervalSince(started))
+                let snapshot = activity.snapshot()
+                self.hasTimeline = snapshot.fraction != nil
+                self.progressFraction = snapshot.fraction ?? 0
+                self.processedSeconds = snapshot.processedSeconds
+                self.bytesProcessed = snapshot.bytesRead
+                self.isFinalizing = snapshot.finalizing
                 self.bytesWritten = ((try? FileManager.default.attributesOfItem(
                     atPath: temporaryURL.path)[.size]) as? NSNumber)?.int64Value ?? 0
+                if snapshot.finalizing {
+                    self.status = "Finalizing MP4 for TV playback…"
+                    self.estimatedRemainingSeconds = nil
+                } else if snapshot.idleSeconds >= 15 {
+                    self.status = "Media decoder is not advancing (" +
+                        String(Int(snapshot.idleSeconds)) + "s). Cancel is available."
+                    self.estimatedRemainingSeconds = nil
+                } else if let fraction = snapshot.fraction, fraction > 0.005,
+                          self.elapsedSeconds >= 5 {
+                    self.estimatedRemainingSeconds = min(86400, Int(Double(self.elapsedSeconds)
+                        * (1 - fraction) / fraction))
+                } else {
+                    self.estimatedRemainingSeconds = nil
+                }
+                if snapshot.idleSeconds >= 90 && !snapshot.finalizing {
+                    token.cancel()
+                    self.status = "Decoder stalled; stopping safely…"
+                }
             }
         }
         Self.conversionQueue.async { [weak self] in
@@ -276,7 +403,8 @@ final class MKVCastPreparer: ObservableObject {
                 DispatchQueue.main.async { [weak self] in
                     self?.status = "Native fast copy · H.264 untouched · AAC stereo audio"
                 }
-                try NativeAudioMuxer.convert(source: source, output: temporaryURL, token: token)
+                try NativeAudioMuxer.convert(source: source, output: temporaryURL,
+                                            token: token, activity: activity)
                 if token.isCancelled {
                     try? FileManager.default.removeItem(at: temporaryURL)
                     finish(nil, "Cancelled.", "")

@@ -73,13 +73,32 @@ struct VideoConverterScreen: View {
 
                     if preparer.preparing {
                         VStack(alignment: .leading, spacing: 10) {
-                            ProgressView().tint(.cyan)
+                            HStack {
+                                Text("Conversion progress").font(.headline)
+                                Spacer()
+                                if preparer.hasTimeline {
+                                    Text(String(format: "%.1f%%", preparer.progressFraction * 100))
+                                        .font(.subheadline.monospacedDigit())
+                                }
+                            }
+                            if preparer.hasTimeline {
+                                ProgressView(value: preparer.progressFraction, total: 1).tint(.cyan)
+                            } else {
+                                ProgressView().tint(.cyan)
+                            }
                             Text(preparer.status).font(.subheadline)
                             HStack {
                                 Text("Elapsed: \(preparer.elapsedSeconds)s")
                                 Spacer()
-                                Text("Written: \(ByteCountFormatter.string(fromByteCount: preparer.bytesWritten, countStyle: .file))")
+                                if let eta = preparer.estimatedRemainingSeconds {
+                                    Text("Est. left: \(eta / 60)m \(eta % 60)s")
+                                } else {
+                                    Text(preparer.isFinalizing ? "Finalizing" : "Calculating ETA")
+                                }
                             }.font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                            Text("Processed: " + ByteCountFormatter.string(
+                                fromByteCount: preparer.bytesProcessed, countStyle: .file))
+                                .font(.caption).foregroundStyle(.secondary)
                             Text("Keep Next Cast open. Conversion runs locally and requires free space for an additional MP4.")
                                 .font(.caption).foregroundStyle(.secondary)
                             Button("Cancel preparation", role: .destructive) { preparer.cancel() }

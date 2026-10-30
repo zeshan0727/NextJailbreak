@@ -187,16 +187,60 @@ struct MoviePlayerScreen: View {
                         .buttonStyle(.borderedProminent)
                         .disabled(broadcast || castPreparer.preparing)
                         if castPreparer.preparing {
-                            VStack(alignment: .leading, spacing: 7) {
-                                ProgressView()
+                            VStack(alignment: .leading, spacing: 9) {
+                                HStack {
+                                    Text("Preparing TV audio")
+                                        .font(.subheadline.bold())
+                                    Spacer()
+                                    if castPreparer.hasTimeline {
+                                        Text(String(format: "%.1f%%",
+                                            castPreparer.progressFraction * 100))
+                                            .font(.subheadline.monospacedDigit())
+                                    }
+                                }
+                                if castPreparer.hasTimeline {
+                                    ProgressView(value: castPreparer.progressFraction, total: 1)
+                                        .tint(.cyan)
+                                } else {
+                                    ProgressView().tint(.cyan)
+                                }
                                 Text(castPreparer.status)
                                     .font(.caption).foregroundStyle(.secondary)
-                                Text("Apple native conversion · copying H.264 video and encoding stereo AAC. Keep Next Cast open.")
+                                HStack {
+                                    Text("Elapsed: " + timeLabel(Double(castPreparer.elapsedSeconds)))
+                                    Spacer()
+                                    if let eta = castPreparer.estimatedRemainingSeconds {
+                                        Text("Est. left: " + timeLabel(Double(eta)))
+                                    } else if castPreparer.isFinalizing {
+                                        Text("Finishing")
+                                    } else {
+                                        Text("Calculating ETA")
+                                    }
+                                }.font(.caption.monospacedDigit())
+                                Text("Processed: " + ByteCountFormatter.string(
+                                    fromByteCount: castPreparer.bytesProcessed, countStyle: .file)
+                                    + " · H.264 copied, audio encoded to AAC")
+                                    .font(.caption2).foregroundStyle(.secondary)
+                                Text("Large files require a full pass. The original remains unchanged.")
                                     .font(.caption2).foregroundStyle(.secondary)
                                 Button("Cancel preparation", role: .destructive) {
+                                    requestedCast = false
                                     castPreparer.cancel()
                                 }.font(.caption)
                             }
+                        }
+                        if cast.isConnected && !broadcast {
+                            Button("Cast original immediately (no conversion)") {
+                                requestedCast = false
+                                if castPreparer.preparing { castPreparer.cancel() }
+                                persistPlayback()
+                                player.pause()
+                                cast.load(movie)
+                                broadcast = true
+                            }
+                            .buttonStyle(.bordered)
+                            Text("Instant streaming. Some TV receivers cannot play the original audio codec, so sound may be missing.")
+                                .font(.caption2).foregroundStyle(.secondary)
                         }
                         if broadcast {
                             HStack {
