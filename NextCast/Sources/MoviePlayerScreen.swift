@@ -37,6 +37,8 @@ struct MoviePlayerScreen: View {
     @StateObject private var castPreparer = MKVCastPreparer()
     @State private var broadcast = false
     @State private var requestedCast = false
+    // Confirm only the video from THIS button press, never a previous session.
+    @State private var expectedCastMovieID: UUID?
     @State private var dragging = false
     @State private var sliderValue: Double = 0
     @State private var remoteVolume = 0.6
@@ -183,6 +185,7 @@ struct MoviePlayerScreen: View {
                                castPreparer.preparing ? "Preparing TV MP4…" :
                                movie.format == "MKV" ? "MKV requires MP4" : "Play on TV") {
                             requestedCast = true
+                            expectedCastMovieID = nil
                             if cast.isConnected { playOnTV() }
                         }
                         .buttonStyle(.borderedProminent)
@@ -226,6 +229,7 @@ struct MoviePlayerScreen: View {
                                     .font(.caption2).foregroundStyle(.secondary)
                                 Button("Cancel preparation", role: .destructive) {
                                     requestedCast = false
+                                    expectedCastMovieID = nil
                                     castPreparer.cancel()
                                 }.font(.caption)
                             }
@@ -233,9 +237,14 @@ struct MoviePlayerScreen: View {
                         if cast.isConnected && !broadcast {
                             Button("Cast original immediately (no conversion)") {
                                 requestedCast = false
+                                expectedCastMovieID = nil
                                 if castPreparer.preparing { castPreparer.cancel() }
                                 persistPlayback()
+                                player.pause()
                                 cast.load(movie)
+                                // The direct-cast button also waits for this load,
+                                // not stale receiver status from a prior movie.
+                                expectedCastMovieID = movie.id
                                 requestedCast = true
                             }
                             .buttonStyle(.bordered)
@@ -316,7 +325,8 @@ struct MoviePlayerScreen: View {
             }
         }
         .onAppear {
-            if cast.nowCastingMovie?.id == movie.id {
+            if cast.nowCastingMovie?.id == movie.id &&
+                (cast.isPlaying || cast.castStatus.hasPrefix("Paused")) {
                 broadcast = true
                 requestedCast = false
                 player.stop()
@@ -331,14 +341,19 @@ struct MoviePlayerScreen: View {
             }
         }
         .onChange(of: cast.nowCastingMovie?.id) { id in
-            if requestedCast && id != nil {
-                requestedCast = false
-                broadcast = true
-                player.stop()
-            }
+            confirmCurrentCast(id)
+        }
+        .onChange(of: cast.errorMessage) { message in
+            guard requestedCast, message != nil else { return }
+            requestedCast = false
+            expectedCastMovieID = nil
+            if !broadcast { player.play() }
         }
         .onChange(of: cast.isConnected) { connected in
-            if connected && requestedCast && !broadcast { playOnTV() }
+            if connected && requestedCast && !broadcast &&
+                expectedCastMovieID == nil && !castPreparer.preparing {
+                playOnTV()
+            }
             if !connected && broadcast {
                 broadcast = false
                 player.play()
@@ -348,10 +363,8 @@ struct MoviePlayerScreen: View {
             if phase != .active { persistPlayback() }
         }
         .onReceive(ticker) { _ in
-            if requestedCast && cast.nowCastingMovie != nil {
-                requestedCast = false
-                broadcast = true
-                player.stop()
+            if requestedCast, let id = cast.nowCastingMovie?.id {
+                confirmCurrentCast(id)
             }
             if broadcast { cast.refreshProgress() }
             else {
@@ -371,8 +384,21 @@ struct MoviePlayerScreen: View {
                 player.stop()
                 castPreparer.cancel()
                 requestedCast = false
+                expectedCastMovieID = nil
             }
         }
+    }
+
+    private func confirmCurrentCast(_ receiverID: UUID?) {
+        // A previous item may remain in the receiver's status while preparing
+        // the next one. Do not clear requestedCast until the new loadMedia()
+        // has been issued and THAT exact movie has entered playback.
+        guard requestedCast, let expectedCastMovieID,
+              receiverID == expectedCastMovieID else { return }
+        requestedCast = false
+        self.expectedCastMovieID = nil
+        broadcast = true
+        player.stop()
     }
 
     private func persistPlayback() {
@@ -382,9 +408,22 @@ struct MoviePlayerScreen: View {
     }
     private func playOnTV() {
         guard cast.isConnected, !broadcast else { return }
+        if movie.isConverted {
+            // The completed MP4 was already validated when it was written.
+            // Absolutely no AVAssetReader or second conversion for a saved
+            // Converted movie. This is the same direct call used by the
+            // successful Cast prepared MP4 button in Video Converter.
+            persistPlayback()
+            player.pause()
+            expectedCastMovieID = movie.id
+            cast.load(movie)
+            return
+        }
         castPreparer.prepare(movie, library: library) { readyMovie in
             guard cast.isConnected, requestedCast else { return }
             persistPlayback()
+            player.pause()
+            expectedCastMovieID = readyMovie.id
             cast.load(readyMovie)
         }
     }
