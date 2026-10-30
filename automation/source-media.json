@@ -1254,6 +1254,19 @@
           "git_blob_sha": "6be9c8b2308b38ff5bfe7aab78682a3f0262ebfb"
         }
       ]
+    },
+    "org.debian.dpkg-audit-guide": {
+      "credit_label": "Debian Project — official Open Use logo used for dpkg documentation coverage",
+      "source_page_url": "https://www.debian.org/logos/",
+      "official_source": true,
+      "hero": {
+        "url": "https://www.debian.org/logos/openlogo-100.png",
+        "alt": "Official Debian Open Use logo with the red Debian swirl and Debian wordmark",
+        "local_path": "assets/articles/source-media/debian-open-use-logo.png",
+        "git_blob_sha": "ad91af7f1a4c23fa23f96b422bf20f6ac90f744a",
+        "sha256": "bdfc92b4d89e37681003a7cc34bd7a0b3fc2aab780fe523f05b355bf25abb335"
+      },
+      "screenshots": []
     }
   }
 }

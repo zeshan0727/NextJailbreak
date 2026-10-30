@@ -2,6 +2,46 @@
   "entries": [
     {
       "category": {
+        "id": "evergreen-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "APT/dpkg-based jailbreak environments including rootful, conventional rootless and RootHide when their bootstrap is active. Paths differ by environment; the installed dpkg version and package architecture must be checked on-device.",
+      "description": "Use dpkg --audit and --verify to diagnose broken jailbreak packages, then repair interrupted installs, dependencies or changed files safely through Sileo and APT.",
+      "developer": "Sileo Team; Dpkg Developers; APT maintainers; Procursus Team",
+      "entry_type": "guide",
+      "href": "fix-sileo-dpkg-interrupted-package-manager-lock-guide/",
+      "image": "assets/articles/source-media/sileo-2-5-1-official-icon.png",
+      "media_credit": "Sileo Team — official 2.5.1 source icon; Debian Project — official Open Use logo",
+      "media_source_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "modified_at": "2026-10-30T03:00:00Z",
+      "name": "dpkg and Sileo package audit and repair",
+      "package": "guide.sileo.dpkg-repair",
+      "published_at": "2026-10-09T04:57:11Z",
+      "release": "Guide revision 2026-10-30 / dpkg 1.23.11 documentation / Sileo 2.5.1",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "fix-sileo-dpkg-interrupted-package-manager-lock-guide",
+      "source_name": "Official dpkg 1.23.11 and APT manuals, Sileo 2.5.1 source, Procursus documentation",
+      "source_page_url": "https://manpages.debian.org/unstable/dpkg/dpkg.1.en.html",
+      "source_url": "https://github.com/Sileo/Sileo/releases/tag/2.5.1",
+      "source_visual_origin": "Official Sileo source icon and Debian Open Use logo",
+      "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
+      "title": "How to Audit and Repair Broken Jailbreak Packages with dpkg and Sileo",
+      "version": "Guide revision 2026-10-30 / dpkg 1.23.11 documentation / Sileo 2.5.1",
+      "media_alt": "Official Sileo 2.5.1 app icon",
+      "modified": "2026-10-30T03:00:00Z",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/debian-open-use-logo.png",
+          "media_alt": "Official Debian Open Use logo with the red Debian swirl and Debian wordmark",
+          "media_credit": "Debian Project — official Open Use logo",
+          "media_source_url": "https://www.debian.org/logos/openlogo-100.png",
+          "media_git_blob_sha": "ad91af7f1a4c23fa23f96b422bf20f6ac90f744a",
+          "media_sha256": "bdfc92b4d89e37681003a7cc34bd7a0b3fc2aab780fe523f05b355bf25abb335"
+        }
+      ]
+    },
+    {
+      "category": {
         "id": "jailbreak-development",
         "label": "Current Jailbreak Development"
       },
@@ -3464,34 +3504,6 @@
       "source_visual_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
       "title": "Shadow vs vnodebypass vs Choicy: Which Jailbreak Detection Tool Should You Try?",
       "version": "Shadow 3.7.6 tagged / Choicy 1.5.4 source / vnodebypass 0.2.9"
-    },
-    {
-      "category": {
-        "id": "evergreen-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Sileo 2.5.1 and APT/dpkg-based compatible jailbreak environments; commands must run inside the active rootful, conventional rootless or RootHide environment",
-      "description": "Fix Sileo dpkg interrupted, broken dependency and package-manager lock errors safely on rootless and RootHide jailbreaks without deleting lock files.",
-      "developer": "Sileo Team; Debian dpkg and APT maintainers",
-      "entry_type": "guide",
-      "href": "fix-sileo-dpkg-interrupted-package-manager-lock-guide/",
-      "image": "assets/articles/source-media/sileo-2-5-1-official-icon.png",
-      "media_credit": "Official Sileo app icon from the 2.5.1 source tag",
-      "media_source_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
-      "modified_at": "2026-10-09T04:57:11Z",
-      "name": "Sileo dpkg error repair",
-      "package": "guide.sileo.dpkg-repair",
-      "published_at": "2026-10-09T04:57:11Z",
-      "release": "2026-10-09",
-      "selection_pool": "evergreen-search-intent",
-      "slug": "fix-sileo-dpkg-interrupted-package-manager-lock-guide",
-      "source_name": "Official Sileo source and Debian dpkg/APT manuals",
-      "source_page_url": "https://github.com/Sileo/Sileo/blob/2.5.1/Sileo/UI/DownloadsViewController/DownloadsTableViewController.swift",
-      "source_url": "https://manpages.debian.org/bookworm/dpkg/dpkg.1.en.html",
-      "source_visual_origin": "official-project-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
-      "title": "How to Fix “dpkg Was Interrupted” and Sileo Lock Errors",
-      "version": "Sileo 2.5.1"
     },
     {
       "article_sha256": "d1c0161400ca2107fb20856ceeed9d626b99267fb75f2c1167d284f3939893b6",
