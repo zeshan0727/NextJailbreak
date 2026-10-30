@@ -1,0 +1,155 @@
+name: Build Next Cast iOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/next-cast-1.4.2-ios16-dyld-androidtv
+    paths:
+      - "NextCast/**"
+      - ".github/workflows/nextcast-build.yml"
+
+permissions:
+  contents: read
+
+# Never waste multiple macOS runners compiling superseded edits.
+concurrency:
+  group: nextcast-v149-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    name: Build and package TrollStore TIPA
+    runs-on: macos-15-intel
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Install XcodeGen and icon generation dependency
+        run: |
+          # Reuse runner-provided CocoaPods. Installing a second Homebrew
+          # copy conflicts with /usr/local/bin/pod on macOS 15 Intel.
+          if ! command -v xcodegen >/dev/null 2>&1; then
+            brew install xcodegen
+          fi
+          if ! command -v pod >/dev/null 2>&1 || ! pod --version >/dev/null 2>&1; then
+            brew install cocoapods || brew link --overwrite cocoapods
+          fi
+          xcodegen --version
+          pod --version
+          python3 -m venv .iconvenv
+          .iconvenv/bin/pip install --disable-pip-version-check pillow
+
+      - name: Generate 1024 px Next Cast app icon
+        run: .iconvenv/bin/python NextCast/tools/create_icon.py
+
+      - name: Cache iOS dependency downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+            NextCast/Pods
+            ~/Library/Developer/Xcode/DerivedData/SourcePackages
+          key: nextcast-macos15-intel-${{ hashFiles('NextCast/Podfile', 'NextCast/project.yml') }}
+          restore-keys: |
+            nextcast-macos15-intel-
+
+      - name: Generate project and resolve official Google Cast SDK
+        working-directory: NextCast
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("Sources/MoviePlayerScreen.swift").read_text()
+          assert "if movie.isConverted {" in p and "cast.load(movie)" in p
+          assert "receiverID == expectedCastMovieID" in p
+          assert "requestedCast && cast.nowCastingMovie != nil" not in p
+          print("Verified converted movie direct Cast and request correlation")
+          PY
+          xcodegen generate
+          pod install --no-repo-update
+          xcodebuild -resolvePackageDependencies -workspace NextCast.xcworkspace -scheme NextCast
+
+      - name: Build iOS 16 device application
+        working-directory: NextCast
+        run: |
+          set -o pipefail
+          xcodebuild -workspace NextCast.xcworkspace -scheme NextCast \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tee nextcast-build.log
+
+      # Fail the workflow before packaging if any framework still depends on
+      # the unavailable Swift CoreMedia overlay on the user's iOS 16 device.
+      - name: Verify iOS 16 dynamic library compatibility
+        run: |
+          set -euo pipefail
+          APP="NextCast/build/Build/Products/Release-iphoneos/NextCast.app"
+          test -d "$APP"
+          test -s "$APP/NextCast"
+          # Some toolchains emit a mandatory import for an optional Swift
+          # overlay absent from iOS 16. Before signing, mark this precise
+          # import WEAK so dyld can launch without the overlay. The iOS 16
+          # artwork path never invokes it.
+          python3 NextCast/tools/weak_link_coremedia.py "$APP"
+
+          # The v1.4.3/1.4.4 crash was inside FFmpeg's legacy demuxer
+          # registry. Avoid that engine entirely; this converter uses the
+          # system AVFoundation reader/writer for MP4/MOV.
+          if grep -R -E "import FFmpegSupport|ffmpeg\(" NextCast/Sources; then
+            echo "::error::Unsafe FFmpeg CLI invocation is still in app sources"
+            exit 1
+          fi
+          echo "No embedded FFmpeg CLI calls in Next Cast"
+          echo "Auditing app Mach-O binary and embedded dynamic frameworks"
+          FOUND_MISSING=0
+          while IFS= read -r -d '' BINARY; do
+            case "$(file -b "$BINARY")" in
+              *Mach-O*)
+                # Reject a mandatory LC_LOAD_DYLIB reference. Weakly loaded
+                # libraries are optional and may be absent from iOS 16.
+                if otool -l "$BINARY" | awk '
+                  /cmd LC_LOAD_DYLIB/ {required=1;next}
+                  /cmd LC_/ {required=0}
+                  required && /libswiftCoreMedia.dylib/ {found=1}
+                  END {exit found ? 0 : 1}
+                '; then
+                  echo "::error::Still requires libswiftCoreMedia at launch: $BINARY"
+                  FOUND_MISSING=1
+                fi
+                ;;
+            esac
+          done < <(find "$APP" -type f -print0)
+          if [ "$FOUND_MISSING" -ne 0 ]; then exit 1; fi
+          echo "No mandatory Swift CoreMedia dependency remains"
+          du -sh "$APP"
+
+      - name: Produce ad-hoc signed TrollStore package
+        run: |
+          APP="NextCast/build/Build/Products/Release-iphoneos/NextCast.app"
+          test -d "$APP"
+          test -s "$APP/NextCast"
+          mkdir -p dist/Payload
+          ditto "$APP" dist/Payload/NextCast.app
+          codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
+          (cd dist && zip -qry "../NextCast-1.4.9.tipa" Payload)
+          cp NextCast-1.4.9.tipa NextCast-1.4.9.ipa
+          ls -lh NextCast-1.4.9.tipa NextCast-1.4.9.ipa
+
+      - name: Upload TIPA and build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextCast-iOS16-V1-4-9-IPA-TIPA
+          path: |
+            NextCast-1.4.9.tipa
+            NextCast-1.4.9.ipa
+            NextCast/nextcast-build.log
+          if-no-files-found: error
+          retention-days: 30
