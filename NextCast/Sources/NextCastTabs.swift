@@ -10,6 +10,7 @@ struct NextCastTabs: View {
     @StateObject private var browserDownloads = BrowserDownloadStore()
     @StateObject private var transfers = TransferStore.shared
     @State private var tab = 0
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         TabView(selection: $tab) {
@@ -30,6 +31,9 @@ struct NextCastTabs: View {
         }
         .tint(.cyan)
         .onAppear { transfers.attach(library) }
+        .onChange(of: scenePhase) { phase in
+            cast.sceneDidChange(phase)
+        }
         .onOpenURL { url in
             tab = 0
             library.importVideos([url])
@@ -289,6 +293,7 @@ struct SettingsTab: View {
     @ObservedObject var library: MovieLibrary
     @AppStorage("appearance") private var appearance = "system"
     @AppStorage("browserBlockAds") private var browserBlockAds = true
+    @AppStorage("nextcast.keepLocalCastWhileLocked") private var keepLocalCastWhileLocked = true
     var body: some View {
         NavigationStack {
             Form {
@@ -304,6 +309,14 @@ struct SettingsTab: View {
                     Text("Pop-ups require explicit approval. Ad filtering is best-effort and cannot remove all advertising.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
+                Section("TV playback while locked") {
+                    Toggle("Keep local movie streaming when locked",
+                           isOn: $keepLocalCastWhileLocked)
+                    Text("Experimental: while you cast a local video, Next Cast uses a very quiet audio session to help the iPhone keep serving the file after locking. It consumes more battery and iOS can still suspend the app. Movie audio remains on your TV.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                    Text("For guaranteed playback after locking, stream from an always-on computer, NAS, or independent media URL.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
                 Section("File Imports") {
                     Button {
                         library.scanImports()
@@ -314,7 +327,7 @@ struct SettingsTab: View {
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("About") {
-                    LabeledContent("App", value: "Next Cast 1.4.6")
+                    LabeledContent("App", value: "Next Cast 1.4.7")
                     LabeledContent("Credits", value: "Next Jailbreak – Zeshan0727")
                     LabeledContent("Playback", value: "MobileVLCKit")
                     LabeledContent("Casting", value: "Google Cast")

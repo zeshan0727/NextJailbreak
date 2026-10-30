@@ -199,6 +199,13 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     var selectedMovie: Movie?
 
     private let server = LocalMediaServer()
+    private let lockStreamKeeper = TVLockStreamKeeper()
+    private var localStreamLoaded = false
+
+    func sceneDidChange(_ phase: ScenePhase) {
+        if phase == .active { lockStreamKeeper.becameActive() }
+        else if localStreamLoaded { lockStreamKeeper.willLeaveForeground() }
+    }
     private var activeClient: GCKRemoteMediaClient?
     private var lastLoadedMovieID: UUID?
 
@@ -240,6 +247,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 builder.contentType = movie.mimeType
                 let info = builder.build()
                 self.lastLoadedMovieID = movie.id
+                self.localStreamLoaded = true
+                self.lockStreamKeeper.setCasting(true)
                 _ = client.loadMedia(info)
                 UIApplication.shared.isIdleTimerDisabled = true
             }
@@ -274,6 +283,11 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
 
     func stopRemotePlayback() {
         _ = client?.stop()
+        localStreamLoaded = false
+        lockStreamKeeper.stop()
+        server.stop()
+        lastLoadedMovieID = nil
+        UIApplication.shared.isIdleTimerDisabled = false
     }
 
     private func attachIfConnected() {
@@ -307,6 +321,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         UIApplication.shared.isIdleTimerDisabled = false
         server.stop()
         lastLoadedMovieID = nil
+        localStreamLoaded = false
+        lockStreamKeeper.stop()
         if let error { errorMessage = error.localizedDescription }
     }
     func sessionManager(_ sessionManager: GCKSessionManager, didFailToStart session: GCKSession, withError error: Error) {
@@ -317,6 +333,13 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         duration = receivedDuration.isFinite ? max(0, receivedDuration) : 0
         position = max(0, client.approximateStreamPosition())
         isPlaying = mediaStatus?.playerState == .playing
+        if mediaStatus?.playerState == .idle && localStreamLoaded {
+            localStreamLoaded = false
+            lockStreamKeeper.stop()
+            server.stop()
+            lastLoadedMovieID = nil
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
     }
 
     func refreshProgress() {

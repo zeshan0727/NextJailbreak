@@ -45,8 +45,8 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: Next Cast
-        CFBundleShortVersionString: "1.4.6"
-        CFBundleVersion: "20"
+        CFBundleShortVersionString: "1.4.7"
+        CFBundleVersion: "21"
         UILaunchScreen: {}
         CFBundleDocumentTypes:
           - CFBundleTypeName: Next Cast Video
@@ -67,6 +67,8 @@ targets:
                 - mkv
               public.mime-type:
                 - video/x-matroska
+        UIBackgroundModes:
+          - audio
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
         NSLocalNetworkUsageDescription: "Next Cast discovers Chromecast devices and securely pairs with Android TV plus Samsung, Roku and LG televisions on your Wi-Fi."
