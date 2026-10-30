@@ -20,15 +20,28 @@ final class LocalMediaServer {
     private var waiting: [Waiting] = []
     private var listener: NWListener?
     private var currentPort: UInt16?
+    var onMediaRequest: (() -> Void)?
 
     func makeURL(for movie: Movie, completion: @escaping Completion) {
         queue.async {
-            self.entries[movie.id] = Entry(url: movie.localURL, mimeType: movie.mimeType)
-            if let port = self.currentPort {
-                self.deliver(movie.id, port: port, completion: completion)
+            guard FileManager.default.fileExists(atPath: movie.localURL.path),
+                  let attributes = try? FileManager.default.attributesOfItem(atPath: movie.localURL.path),
+                  ((attributes[.size] as? NSNumber)?.int64Value ?? 0) > 4096 else {
+                DispatchQueue.main.async {
+                    completion(.failure(NSError(domain: "NextCast.HTTP", code: 404,
+                        userInfo: [NSLocalizedDescriptionKey: "The video file is missing or empty. Please import or reconvert it."])))
+                }
                 return
             }
-            self.waiting.append(Waiting(id: movie.id, callback: completion))
+            // A fresh stream identifier avoids reusing a receiver-cached
+            // local URL when the underlying MP4 was replaced.
+            let requestID = UUID()
+            self.entries[requestID] = Entry(url: movie.localURL, mimeType: movie.mimeType)
+            if let port = self.currentPort {
+                self.deliver(requestID, port: port, completion: completion)
+                return
+            }
+            self.waiting.append(Waiting(id: requestID, callback: completion))
             guard self.listener == nil else { return }
             do {
                 let listener = try NWListener(using: .tcp, on: .any)
@@ -167,6 +180,7 @@ final class LocalMediaServer {
             sendSimple(connection, code: 404, reason: "Not Found")
             return
         }
+        if method == "GET" { onMediaRequest?() }
         do {
             let attrs = try FileManager.default.attributesOfItem(atPath: entry.url.path)
             let length = (attrs[.size] as? NSNumber)?.int64Value ?? 0
@@ -216,6 +230,7 @@ final class LocalMediaServer {
             let status = partial ? "206 Partial Content" : "200 OK"
             var headers = "HTTP/1.1 \(status)\r\n"
             headers += "Content-Type: \(entry.mimeType)\r\n"
+            headers += "Cache-Control: no-store, no-cache, must-revalidate\r\n"
             headers += "Content-Length: \(size)\r\n"
             headers += "Accept-Ranges: bytes\r\n"
             headers += "Access-Control-Allow-Origin: *\r\n"

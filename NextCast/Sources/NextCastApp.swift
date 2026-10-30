@@ -36,6 +36,7 @@ struct Movie: Codable, Identifiable, Equatable {
             .appendingPathComponent("Movies", isDirectory: true)
             .appendingPathComponent(fileName)
     }
+    var isConverted: Bool { fileName.hasPrefix("Converted/") }
     var format: String { localURL.pathExtension.uppercased() }
     var fileSizeLabel: String { ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file) }
     var castCompatible: Bool {
@@ -75,6 +76,9 @@ final class MovieLibrary: ObservableObject {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("Movies", isDirectory: true)
     }
+    static var convertedFolder: URL {
+        folder.appendingPathComponent("Converted", isDirectory: true)
+    }
     static var imports: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("Imports", isDirectory: true)
@@ -85,15 +89,65 @@ final class MovieLibrary: ObservableObject {
         do {
             try FileManager.default.createDirectory(at: Self.folder, withIntermediateDirectories: true)
             try FileManager.default.createDirectory(at: Self.imports, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: Self.convertedFolder, withIntermediateDirectories: true)
             if FileManager.default.fileExists(atPath: manifest.path) {
                 movies = try JSONDecoder().decode([Movie].self, from: Data(contentsOf: manifest))
             }
+            recoverPreparedFiles()
             movies.removeAll { !FileManager.default.fileExists(atPath: $0.localURL.path) }
             movies.sort { $0.importedAt > $1.importedAt }
+            try? JSONEncoder().encode(movies).write(to: manifest, options: .atomic)
         } catch {
             errorMessage = "Library load failed: \(error.localizedDescription)"
         }
         scanImports()
+    }
+
+    /// Recover prepared files from older installations, including files made
+    /// by the one-time converter in v1.4.5–1.4.7. No video data is copied.
+    private func recoverPreparedFiles() {
+        let fm = FileManager.default
+        let legacy = (try? fm.contentsOfDirectory(at: Self.folder, includingPropertiesForKeys: nil)) ?? []
+        for url in legacy where url.lastPathComponent.hasSuffix(".native.cast.mp4") {
+            let destination = Self.convertedFolder.appendingPathComponent(url.lastPathComponent)
+            if !fm.fileExists(atPath: destination.path) {
+                try? fm.moveItem(at: url, to: destination)
+            }
+        }
+        let files = (try? fm.contentsOfDirectory(at: Self.convertedFolder,
+                                                  includingPropertiesForKeys: nil)) ?? []
+        for url in files where url.pathExtension.lowercased() == "mp4" {
+            let relative = "Converted/" + url.lastPathComponent
+            guard !movies.contains(where: { $0.fileName == relative }),
+                  let size = ((try? fm.attributesOfItem(atPath: url.path)[.size]) as? NSNumber)?.int64Value,
+                  size > 4096 else { continue }
+            let sourceID = url.lastPathComponent.components(separatedBy: ".").first ?? ""
+            let name = movies.first(where: { $0.id.uuidString.caseInsensitiveCompare(sourceID) == .orderedSame })?.name
+                ?? "Recovered TV video"
+            movies.append(Movie(id: UUID(), name: name + " · TV Ready",
+                                fileName: relative, importedAt: Date(), fileSize: size))
+        }
+    }
+
+    /// Add or update a prepared MP4 as its own movie, never reusing the
+    /// original's UUID. The HTTP server keys each stream independently.
+    func registerPreparedFile(_ url: URL, source: Movie) -> Movie {
+        let relative = "Converted/" + url.lastPathComponent
+        let size = ((try? FileManager.default.attributesOfItem(atPath: url.path)[.size])
+                    as? NSNumber)?.int64Value ?? 0
+        if let i = movies.firstIndex(where: { $0.fileName == relative }) {
+            let current = movies[i]
+            let updated = Movie(id: current.id, name: current.name, fileName: relative,
+                                importedAt: current.importedAt, fileSize: size)
+            movies[i] = updated
+            persist()
+            return updated
+        }
+        let item = Movie(id: UUID(), name: source.name + " · TV Ready",
+                         fileName: relative, importedAt: Date(), fileSize: size)
+        movies.insert(item, at: 0)
+        persist()
+        return item
     }
 
     // Never copy a multi-GB file on the main thread. Avoid NSFileCoordinator,

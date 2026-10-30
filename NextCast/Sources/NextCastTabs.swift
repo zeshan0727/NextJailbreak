@@ -70,6 +70,8 @@ struct MoviesTab: View {
     private var visible: [Movie] {
         library.movies.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) }
     }
+    private var originals: [Movie] { visible.filter { !$0.isConverted } }
+    private var converted: [Movie] { visible.filter(\.isConverted) }
 
     var body: some View {
         NavigationStack {
@@ -129,6 +131,11 @@ struct MoviesTab: View {
                         Spacer()
                         Text("\(library.movies.count) saved").font(.caption).foregroundStyle(.secondary)
                     }
+                    if !converted.isEmpty {
+                        Label("Converted movies saved: \(converted.count) · Movies / Converted",
+                              systemImage: "folder.fill")
+                            .font(.caption).foregroundStyle(.green)
+                    }
                     if library.movies.isEmpty {
                         VStack(spacing: 12) {
                             Image(systemName: "play.rectangle.on.rectangle")
@@ -142,7 +149,7 @@ struct MoviesTab: View {
                         Text("No matching videos").foregroundStyle(.secondary).padding()
                     } else {
                         LazyVStack(spacing: 10) {
-                            ForEach(visible) { movie in
+                            ForEach(originals + converted) { movie in
                                 Button { selected = movie } label: {
                                     HStack(spacing: 14) {
                                         ZStack {
@@ -176,6 +183,10 @@ struct MoviesTab: View {
                                                     .foregroundStyle(.secondary)
                                             }
                                             Text("\(movie.format) · \(movie.fileSizeLabel)")
+                                            if movie.isConverted {
+                                                Label("Converted · TV Ready", systemImage: "tv")
+                                                    .font(.caption2.bold()).foregroundStyle(.green)
+                                            }
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
                                         }
@@ -275,7 +286,7 @@ struct MoviesTab: View {
                 VideoConverterScreen(library: library, cast: cast)
             }
             .sheet(item: $selected) { movie in
-                MoviePlayerScreen(movie: movie, cast: cast)
+                MoviePlayerScreen(movie: movie, cast: cast, library: library)
             }
             .alert("Next Cast", isPresented: Binding(
                 get: { library.errorMessage != nil || cast.errorMessage != nil },
@@ -327,7 +338,7 @@ struct SettingsTab: View {
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("About") {
-                    LabeledContent("App", value: "Next Cast 1.4.7")
+                    LabeledContent("App", value: "Next Cast 1.4.8")
                     LabeledContent("Credits", value: "Next Jailbreak – Zeshan0727")
                     LabeledContent("Playback", value: "MobileVLCKit")
                     LabeledContent("Casting", value: "Google Cast")

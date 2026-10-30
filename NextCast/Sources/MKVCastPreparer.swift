@@ -286,7 +286,7 @@ final class MKVCastPreparer: ObservableObject {
     private var stopToken: ConversionStopToken?
     private var monitor: Timer?
 
-    func prepare(_ movie: Movie, forceConversion: Bool = false,
+    func prepare(_ movie: Movie, library: MovieLibrary, forceConversion: Bool = false,
                  completion: @escaping (Movie) -> Void) {
         guard !preparing else { return }
         errorMessage = nil
@@ -301,9 +301,9 @@ final class MKVCastPreparer: ObservableObject {
         estimatedRemainingSeconds = nil
         isFinalizing = false
         let activity = NativeConversionActivity()
+        let sourceMovie = movie
         let source = movie.localURL
-        let folder = MovieLibrary.folder
-        // Different cache key from 1.4.3/1.4.4's potentially bad FFmpeg output.
+        let folder = MovieLibrary.convertedFolder
         let finalURL = folder.appendingPathComponent(movie.id.uuidString + ".native.cast.mp4")
         let temporaryURL = folder.appendingPathComponent(movie.id.uuidString + ".nativebuilding.mp4")
         let token = ConversionStopToken()
@@ -346,7 +346,7 @@ final class MKVCastPreparer: ObservableObject {
             func prepared(_ url: URL) -> Movie {
                 let bytes = ((try? FileManager.default.attributesOfItem(
                     atPath: url.path)[.size]) as? NSNumber)?.int64Value ?? 0
-                return Movie(id: movie.id, name: movie.name, fileName: url.lastPathComponent,
+                return Movie(id: movie.id, name: movie.name, fileName: "Converted/" + url.lastPathComponent,
                              importedAt: movie.importedAt, fileSize: bytes)
             }
             func finish(_ movie: Movie?, _ issue: String?, _ success: String) {
@@ -364,7 +364,12 @@ final class MKVCastPreparer: ObservableObject {
                         self.errorMessage = issue
                     } else if let movie {
                         self.status = success
-                        completion(movie)
+                        if movie.isConverted {
+                            let permanent = library.registerPreparedFile(movie.localURL, source: sourceMovie)
+                            completion(permanent)
+                        } else {
+                            completion(movie)
+                        }
                     }
                 }
             }
@@ -376,7 +381,7 @@ final class MKVCastPreparer: ObservableObject {
                 finish(nil, "For safety, the crashing FFmpeg converter has been disabled. Convert MKV/AVI to MP4 H.264 in another app, then import it here. Native conversion currently supports MP4, M4V and MOV.", "")
                 return
             }
-            if !forceConversion && NativeCastCompatibility.directPlayable(source) {
+            if (!forceConversion || movie.isConverted) && NativeCastCompatibility.directPlayable(source) {
                 finish(movie, nil, "Already compatible H.264 video + stereo AAC sound")
                 return
             }

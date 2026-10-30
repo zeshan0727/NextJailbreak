@@ -56,7 +56,7 @@ struct VideoConverterScreen: View {
                         Button {
                             guard let movie = selected else { return }
                             ready = nil
-                            preparer.prepare(movie, forceConversion: true) { output in
+                            preparer.prepare(movie, library: library, forceConversion: true) { output in
                                 ready = output
                             }
                         } label: {
@@ -68,7 +68,7 @@ struct VideoConverterScreen: View {
                         }
                         .buttonStyle(.borderedProminent).tint(.cyan)
                         .foregroundStyle(.black)
-                        .disabled(preparer.preparing || selected == nil)
+                        .disabled(preparer.preparing || selected == nil || selected?.isConverted == true)
                     }.nextSurface()
 
                     if preparer.preparing {
@@ -111,7 +111,7 @@ struct VideoConverterScreen: View {
                             Label("TV MP4 ready", systemImage: "checkmark.circle.fill")
                                 .font(.headline).foregroundStyle(.green)
                             Text(ready.fileSizeLabel).font(.caption).foregroundStyle(.secondary)
-                            Text("Original video preserved. The prepared MP4 is cached for subsequent casts.")
+                            Text("Saved permanently under Movies → Converted. Reuse it any time without converting again.")
                                 .font(.caption).foregroundStyle(.secondary)
                             Button {
                                 cast.load(ready)

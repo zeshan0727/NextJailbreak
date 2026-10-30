@@ -32,6 +32,7 @@ enum PlaybackHistory {
 struct MoviePlayerScreen: View {
     let movie: Movie
     @ObservedObject var cast: CastController
+    @ObservedObject var library: MovieLibrary
     @StateObject private var player = VLCPlayback()
     @StateObject private var castPreparer = MKVCastPreparer()
     @State private var broadcast = false
@@ -236,13 +237,25 @@ struct MoviePlayerScreen: View {
                                 persistPlayback()
                                 player.pause()
                                 cast.load(movie)
-                                broadcast = true
+                                requestedCast = true
                             }
                             .buttonStyle(.bordered)
                             Text("Instant streaming. Some TV receivers cannot play the original audio codec, so sound may be missing.")
                                 .font(.caption2).foregroundStyle(.secondary)
                         }
+                        if cast.isConnected && (requestedCast || broadcast) {
+                            Text(cast.castStatus)
+                                .font(.caption)
+                                .foregroundStyle(cast.isPlaying ? .green : .secondary)
+                        }
                         if broadcast {
+                            Button {
+                                player.stop()
+                                dismiss()
+                            } label: {
+                                Label("Minimize TV Player · Browse App", systemImage: "rectangle.compress.vertical")
+                            }
+                            .buttonStyle(.bordered)
                             HStack {
                                 Image(systemName: "speaker.wave.2")
                                 Slider(value: $remoteVolume, in: 0...1) { _ in
@@ -312,6 +325,13 @@ struct MoviePlayerScreen: View {
                 player.play()
             }
         }
+        .onChange(of: cast.nowCastingMovie?.id) { id in
+            if requestedCast && id != nil {
+                requestedCast = false
+                broadcast = true
+                player.stop()
+            }
+        }
         .onChange(of: cast.isConnected) { connected in
             if connected && requestedCast && !broadcast { playOnTV() }
             if !connected && broadcast {
@@ -352,12 +372,11 @@ struct MoviePlayerScreen: View {
     }
     private func playOnTV() {
         guard cast.isConnected, !broadcast else { return }
-        castPreparer.prepare(movie) { readyMovie in
+        castPreparer.prepare(movie, library: library) { readyMovie in
             guard cast.isConnected, requestedCast else { return }
             persistPlayback()
             player.pause()
             cast.load(readyMovie)
-            broadcast = true
         }
     }
     private func skip(_ seconds: Double) {
