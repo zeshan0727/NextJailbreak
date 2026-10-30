@@ -48,6 +48,18 @@ jobs:
       - name: Generate 1024 px Next Cast app icon
         run: .iconvenv/bin/python NextCast/tools/create_icon.py
 
+      - name: Cache iOS dependency downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+            NextCast/Pods
+            ~/Library/Developer/Xcode/DerivedData/SourcePackages
+          key: nextcast-macos15-intel-${{ hashFiles('NextCast/Podfile', 'NextCast/project.yml') }}
+          restore-keys: |
+            nextcast-macos15-intel-
+
       - name: Generate project and resolve official Google Cast SDK
         working-directory: NextCast
         run: |
@@ -60,7 +72,7 @@ jobs:
           print("Verified converted movie direct Cast and request correlation")
           PY
           xcodegen generate
-          pod install --repo-update
+          pod install --no-repo-update
           xcodebuild -resolvePackageDependencies -workspace NextCast.xcworkspace -scheme NextCast
 
       - name: Build iOS 16 device application
