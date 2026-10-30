@@ -53,7 +53,7 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path("NextCast/Sources/MoviePlayerScreen.swift").read_text()
+          p = Path("Sources/MoviePlayerScreen.swift").read_text()
           assert "if movie.isConverted {" in p and "cast.load(movie)" in p
           assert "receiverID == expectedCastMovieID" in p
           assert "requestedCast && cast.nowCastingMovie != nil" not in p
