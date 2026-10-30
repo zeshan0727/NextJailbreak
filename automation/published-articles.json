@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Current package control requires firmware 13.0 or later, MobileSubstrate-compatible injection 0.9.5000+ and Alderis 1.1+. The source targets arm64 and supports conventional rootful/rootless packaging. Developer documentation says YouTube 21.x.x is tested and at least 17.30.1 is supported. RootHide is not explicitly claimed, and package compatibility does not establish jailbreak availability for every device or firmware.",
+      "description": "iSponsorBlock 1.3.3 fixes sponsor-marker crashes on newer YouTube player bars. See supported YouTube/iOS versions, rootless requirements, setup and troubleshooting.",
+      "developer": "Galactic Dev",
+      "entry_type": "individual-update",
+      "href": "isponsorblock-1-3-3-youtube-player-crash-fix/",
+      "image": "assets/articles/source-media/isponsorblock-1-3-3-official-icon.png",
+      "media_alt": "Official SponsorBlock icon used by iSponsorBlock, showing a white play symbol and crossed-out coin inside a red shield",
+      "media_credit": "SponsorBlock project — exact official icon referenced by iSponsorBlock package metadata",
+      "media_retrieval_status": "Exact official 64×64 SponsorBlock icon fetched from the upstream repository path referenced by iSponsorBlock's current package metadata, inspected, stored locally, embedded in the article and used in summary social metadata. The developer-linked Imgur settings screenshot could not be retrieved through ordinary read-only access, so it was not embedded.",
+      "media_sha256": "e9a6a8465b27d2078ff9ddb89694748810c9efb0e877277ba28db5200017e3fc",
+      "media_source_url": "https://raw.githubusercontent.com/ajayyy/SponsorBlock/master/public/icons/LogoSponsorBlocker64px.png",
+      "modified_at": "2026-10-30T15:00:00Z",
+      "name": "iSponsorBlock",
+      "package": "com.galacticdev.isponsorblock",
+      "published_at": "2026-10-30T15:00:00Z",
+      "quality_target": 9,
+      "release": "iSponsorBlock 1.3.3 — October 25, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "isponsorblock-1-3-3-youtube-player-crash-fix",
+      "source_name": "Official Galactic Dev iSponsorBlock source, package metadata, README and crash-fix commit",
+      "source_page_url": "https://github.com/Galactic-Dev/iSponsorBlock",
+      "source_url": "https://github.com/Galactic-Dev/iSponsorBlock/commit/bf1851a5c64d5446de04e13656ba6b795a0169d4",
+      "source_visual_origin": "official-upstream-icon-referenced-by-package-control",
+      "source_visual_url": "https://raw.githubusercontent.com/ajayyy/SponsorBlock/master/public/icons/LogoSponsorBlocker64px.png",
+      "title": "iSponsorBlock 1.3.3 Fixes Crashes on Newer YouTube Player Bars",
+      "version": "1.3.3"
+    },
+    {
       "additional_media": [
         "assets/articles/source-media/rocket-4-24-0-official-reels-menu.webp"
       ],
@@ -9978,5 +10010,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-30T09:00:00Z"
+  "updated_at": "2026-10-30T15:00:00Z"
 }

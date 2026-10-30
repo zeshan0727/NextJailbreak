@@ -1291,6 +1291,23 @@
           "sha256": "daeea2c05a9d75930534ad58dd8ea6f22658a84e89d7025e61d2afe14095f341"
         }
       ]
+    },
+    "com.galacticdev.isponsorblock": {
+      "credit_label": "SponsorBlock project — exact official icon referenced by iSponsorBlock package metadata",
+      "source_page_url": "https://github.com/Galactic-Dev/iSponsorBlock/blob/master/control",
+      "secondary_source_page_urls": [
+        "https://github.com/ajayyy/SponsorBlock"
+      ],
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/ajayyy/SponsorBlock/master/public/icons/LogoSponsorBlocker64px.png",
+        "alt": "Official SponsorBlock icon used by iSponsorBlock, showing a white play symbol and crossed-out coin inside a red shield",
+        "local_path": "assets/articles/source-media/isponsorblock-1-3-3-official-icon.png",
+        "git_blob_sha": "31094742618094b39d2c71b50db66e54085d47cc",
+        "sha256": "e9a6a8465b27d2078ff9ddb89694748810c9efb0e877277ba28db5200017e3fc"
+      },
+      "screenshots": [],
+      "retrieval_note": "The current developer README links an Imgur settings screenshot, but ordinary read-only retrieval did not expose the underlying image asset; no screenshot was claimed or embedded."
     }
   }
 }

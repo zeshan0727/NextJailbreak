@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>iSponsorBlock 1.3.3 Fixes Crashes on Newer YouTube Player Bars</title>
+      <link>https://nextjailbreak.com/isponsorblock-1-3-3-youtube-player-crash-fix/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/isponsorblock-1-3-3-youtube-player-crash-fix/</guid>
+      <pubDate>Fri, 30 Oct 2026 15:00:00 GMT</pubDate>
+      <description>iSponsorBlock 1.3.3 fixes sponsor-marker crashes on newer YouTube player bars. See supported YouTube/iOS versions, rootless requirements, setup and troubleshooting.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
       <title>Regram 6.5 vs Rocket 4.25.0: Which Instagram Tweak Should You Use?</title>
       <link>https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Sun, 25 Oct 2026 00:58:24 GMT</pubDate>
       <description>palera1n 3.0.0 beta 3 adds a recovery-mode CLI DFU helper, experimental Linux AppImages with GUI, a macOS Liquid Glass icon and corrected CLI credits.</description>
       <category>Jailbreak</category>
-    </item>
-    <item>
-      <title>iPhone Duo Jailbroken on iOS 27.1, but No Public Tool Is Planned</title>
-      <link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid>
-      <pubDate>Sat, 24 Oct 2026 16:58:54 GMT</pubDate>
-      <description>Calif demonstrated an iPhone Duo jailbreak on iOS 27.1 on launch day, but published no tool, exploit chain, compatibility list or release date.</description>
-      <category>Current Jailbreak Development</category>
     </item>
   </channel>
 </rss>
