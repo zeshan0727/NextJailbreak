@@ -1,6 +1,40 @@
 {
   "entries": [
     {
+      "candidate_fingerprint": "palera1n-roothide-1.0-2026-10-25-ipados-17-18-passcode",
+      "category": {
+        "id": "jailbreak",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Palera1n RootHide 1.0 is a checkm8/palera1n-based arm64 workflow. The release specifically claims passcode-set compatibility across iPadOS 17 and 18 on supported iPads; it does not add arm64e/A12-or-newer hardware or establish iPhone support on those firmware families.",
+      "description": "Palera1n RootHide 1.0 supports passcode-set compatible arm64 iPads on iPadOS 17 and 18. Check devices, official host files, SHA-256 hashes and setup limits.",
+      "developer": "RootHide",
+      "entry_type": "development",
+      "href": "palera1n-roothide-1-0-ipados-17-18-passcode/",
+      "image": "assets/articles/source-media/palera1n-roothide-1-0-official-install-prompt.jpeg",
+      "media_alt": "Official Palera1n RootHide boot-success prompt offering to install TrollStore",
+      "media_credit": "RootHide — official Palera1n RootHide interface screenshot from the 1.0 tagged repository",
+      "media_git_blob_sha": "1c7c5e1a69289099f07b56ae71f01272cd9431b5",
+      "media_retrieval_status": "Retrieved byte-for-byte from the official 1.0 tag, inspected at 846×1832, stored locally, embedded in the article and used in social metadata.",
+      "media_sha256": "8db9cf39ebb4ba8bc12d0ff54ffde6ab4c9033dc12170c60cdd0374cd2c79126",
+      "media_source_url": "https://github.com/roothide/Palera1n-roothide/blob/1.0/image.jpeg",
+      "modified_at": "2026-10-30T21:00:00Z",
+      "name": "Palera1n RootHide",
+      "package": "project.palera1n-roothide",
+      "published_at": "2026-10-30T21:00:00Z",
+      "quality_target": 9,
+      "release": "Palera1n RootHide 1.0 — October 25, 2026",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "palera1n-roothide-1-0-ipados-17-18-passcode",
+      "source_name": "Official RootHide release 1.0, tagged README and upstream palera1n device documentation",
+      "source_page_url": "https://github.com/roothide/Palera1n-roothide/releases/tag/1.0",
+      "source_url": "https://github.com/roothide/Palera1n-roothide/blob/1.0/README.md",
+      "source_visual_origin": "official-tagged-repository-interface-screenshot",
+      "source_visual_url": "https://github.com/roothide/Palera1n-roothide/blob/1.0/image.jpeg",
+      "title": "Palera1n RootHide 1.0 Supports Passcode-Set iPads on iPadOS 17 and 18",
+      "version": "1.0"
+    },
+    {
       "category": {
         "id": "individual-tweak-update",
         "label": "Individual Tweak Update"
@@ -6920,6 +6954,16 @@
   "events": [
     {
       "action": "create",
+      "candidate_fingerprint": "palera1n-roothide-1.0-2026-10-25-ipados-17-18-passcode",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "palera1n-roothide-1-0-ipados-17-18-passcode/",
+      "package": "project.palera1n-roothide",
+      "published_at": "2026-10-30T21:00:00Z",
+      "run_id": "scheduled-2026-10-30T21:00:00Z",
+      "version": "1.0"
+    },
+    {
+      "action": "create",
       "channel": "scheduled-evergreen-jailbreak-guide",
       "href": "dopamine-hide-jailbreak-use-restore-guide/",
       "package": "guide.dopamine.hide-jailbreak",
@@ -10010,5 +10054,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-30T15:00:00Z"
+  "updated_at": "2026-10-30T21:00:00Z"
 }

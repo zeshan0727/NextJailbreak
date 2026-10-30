@@ -1,6 +1,19 @@
 {
   "schema_version": 1,
   "packages": {
+    "project.palera1n-roothide": {
+      "credit_label": "RootHide — official Palera1n RootHide 1.0 tagged repository",
+      "source_page_url": "https://github.com/roothide/Palera1n-roothide/blob/1.0/image.jpeg",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/roothide/Palera1n-roothide/1.0/image.jpeg",
+        "alt": "Official Palera1n RootHide boot-success prompt offering to install TrollStore",
+        "local_path": "assets/articles/source-media/palera1n-roothide-1-0-official-install-prompt.jpeg",
+        "git_blob_sha": "1c7c5e1a69289099f07b56ae71f01272cd9431b5",
+        "sha256": "8db9cf39ebb4ba8bc12d0ff54ffde6ab4c9033dc12170c60cdd0374cd2c79126"
+      },
+      "screenshots": []
+    },
     "editorial.ios27-jailbreak-status": {
       "credit_label": "Calif — official iPhone Duo demonstration; still hosted by MacRumors",
       "source_page_url": "https://x.com/calif_io/status/2113570095549337977",
