@@ -120,6 +120,114 @@ struct MoviesTab: View {
     private var originals: [Movie] { visible.filter { !$0.isConverted } }
     private var converted: [Movie] { visible.filter(\.isConverted) }
 
+    @ViewBuilder
+    private var movieLibrarySection: some View {
+        HStack {
+            Text("Movies").font(.title3.bold())
+            Spacer()
+            Text("\(library.movies.count) saved")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        if library.movies.isEmpty {
+            VStack(spacing: 12) {
+                Image(systemName: "play.rectangle.on.rectangle")
+                    .font(.system(size: 55)).foregroundStyle(.cyan)
+                Text("No movies yet").font(.headline)
+                Text("Import videos with Files, or download a direct video link in Downloads.")
+                    .font(.subheadline).foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity).padding(26).nextSurface()
+        } else if visible.isEmpty {
+            Text("No matching videos").foregroundStyle(.secondary).padding()
+        } else {
+            if !converted.isEmpty { convertedSection }
+            if !originals.isEmpty { originalsSection }
+        }
+    }
+
+    private var convertedSection: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Label("Converted Movies · \(converted.count)", systemImage: "folder.fill")
+                .font(.headline).foregroundStyle(.cyan)
+            ForEach(converted) { movie in
+                Button { selected = movie } label: {
+                    convertedRow(movie)
+                }
+                .buttonStyle(.plain)
+                .contextMenu {
+                    Button(role: .destructive) { library.delete(movie) } label: {
+                        Label("Delete converted movie", systemImage: "trash")
+                    }
+                }
+            }
+        }
+    }
+
+    private func convertedRow(_ movie: Movie) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "tv.fill").foregroundStyle(.cyan)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(movie.name).font(.subheadline.bold()).lineLimit(2)
+                Text("TV Ready · \(movie.fileSizeLabel)")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer()
+            Image(systemName: "play.circle.fill")
+        }
+        .nextSurface()
+    }
+
+    private var originalsSection: some View {
+        LazyVStack(spacing: 10) {
+            ForEach(originals) { movie in
+                Button { selected = movie } label: { originalRow(movie) }
+                    .buttonStyle(.plain)
+                    .onAppear { covers.load(movie) }
+                    .contextMenu {
+                        Button { covers.regenerate(movie) } label: {
+                            Label("Regenerate Cover", systemImage: "photo.on.rectangle.angled")
+                        }
+                        Button(role: .destructive) { library.delete(movie) } label: {
+                            Label("Remove from iPhone", systemImage: "trash")
+                        }
+                    }
+            }
+        }
+    }
+
+    private func originalRow(_ movie: Movie) -> some View {
+        HStack(spacing: 14) {
+            ZStack {
+                if let image = covers.images[movie.id] {
+                    Image(uiImage: image).resizable().scaledToFill()
+                        .frame(width: 93, height: 91).clipped()
+                } else {
+                    ZStack {
+                        Color.cyan.opacity(0.1)
+                        Image(systemName: "film").font(.title2).foregroundStyle(.cyan)
+                    }.frame(width: 93, height: 91)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            VStack(alignment: .leading, spacing: 5) {
+                Text(movie.name).font(.subheadline.bold())
+                    .lineLimit(2).foregroundStyle(.primary)
+                if let info = covers.details[movie.id] {
+                    Text(info.durationLabel).font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                    Text(info.resolutionLabel).font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Text("\(movie.format) · \(movie.fileSizeLabel)")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "play.circle.fill").font(.title2).foregroundStyle(.cyan)
+        }
+        .nextSurface()
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -173,109 +281,7 @@ struct MoviesTab: View {
                     .buttonStyle(.bordered)
                     .disabled(library.movies.isEmpty)
 
-                    HStack {
-                        Text("Movies").font(.title3.bold())
-                        Spacer()
-                        Text("\(library.movies.count) saved").font(.caption).foregroundStyle(.secondary)
-                    }
-                    if !converted.isEmpty {
-                        Label("Converted Movies · \(converted.count)",
-                              systemImage: "folder.fill")
-                            .font(.headline).foregroundStyle(.cyan)
-                        LazyVStack(spacing: 9) {
-                            ForEach(converted) { movie in
-                                Button { selected = movie } label: {
-                                    HStack(spacing: 12) {
-                                        Image(systemName: "tv.fill").foregroundStyle(.cyan)
-                                        VStack(alignment: .leading, spacing: 3) {
-                                            Text(movie.name).font(.subheadline.bold())
-                                                .lineLimit(2)
-                                            Text("TV Ready · \(movie.fileSizeLabel)")
-                                                .font(.caption).foregroundStyle(.secondary)
-                                        }
-                                        Spacer()
-                                        Image(systemName: "play.circle.fill")
-                                    }.nextSurface()
-                                }.buttonStyle(.plain)
-                                .contextMenu {
-                                    Button(role: .destructive) { library.delete(movie) } label: {
-                                        Label("Delete converted movie", systemImage: "trash")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if library.movies.isEmpty {
-                        VStack(spacing: 12) {
-                            Image(systemName: "play.rectangle.on.rectangle")
-                                .font(.system(size: 55)).foregroundStyle(.cyan)
-                            Text("No movies yet").font(.headline)
-                            Text("Import videos with Files, or download a direct video link in Downloads.")
-                                .font(.subheadline).foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                        }.frame(maxWidth: .infinity).padding(26).nextSurface()
-                    } else if visible.isEmpty {
-                        Text("No matching videos").foregroundStyle(.secondary).padding()
-                    } else {
-                        LazyVStack(spacing: 10) {
-                            ForEach(originals) { movie in
-                                Button { selected = movie } label: {
-                                    HStack(spacing: 14) {
-                                        ZStack {
-                                            if let image = covers.images[movie.id] {
-                                                Image(uiImage: image)
-                                                    .resizable()
-                                                    .scaledToFill()
-                                                    .frame(width: 93, height: 91)
-                                                    .clipped()
-                                            } else {
-                                                ZStack {
-                                                    Color.cyan.opacity(0.1)
-                                                    Image(systemName: "film")
-                                                        .font(.title2)
-                                                        .foregroundStyle(.cyan)
-                                                }.frame(width: 93, height: 91)
-                                            }
-                                        }
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            Text(movie.name)
-                                                .font(.subheadline.bold())
-                                                .lineLimit(2)
-                                                .foregroundStyle(.primary)
-                                            if let info = covers.details[movie.id] {
-                                                Text(info.durationLabel)
-                                                    .font(.caption.bold())
-                                                    .foregroundStyle(.secondary)
-                                                Text(info.resolutionLabel)
-                                                    .font(.caption2)
-                                                    .foregroundStyle(.secondary)
-                                            }
-                                            Text("\(movie.format) · \(movie.fileSizeLabel)")
-                                            if movie.isConverted {
-                                                Label("Converted · TV Ready", systemImage: "tv")
-                                                    .font(.caption2.bold()).foregroundStyle(.green)
-                                            }
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                        Spacer(minLength: 0)
-                                        Image(systemName: "play.circle.fill")
-                                            .font(.title2).foregroundStyle(.cyan)
-                                    }.nextSurface()
-                                }.buttonStyle(.plain)
-                                .onAppear { covers.load(movie) }
-                                .contextMenu {
-                                    Button { covers.regenerate(movie) } label: {
-                                        Label("Regenerate Cover", systemImage: "photo.on.rectangle.angled")
-                                    }
-                                    Button(role: .destructive) { library.delete(movie) } label: {
-                                        Label("Remove from iPhone", systemImage: "trash")
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    movieLibrarySection
 
                     HStack(spacing: 14) {
                         Button { showMultiPicker = true } label: {
