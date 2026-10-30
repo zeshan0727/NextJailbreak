@@ -258,6 +258,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     private var streamAttempt = 0
     private var activeLoadRequest: GCKRequest?
     private var expectedMediaURL: URL?
+    private var expectedStreamID: UUID?
 
     private let server = LocalMediaServer()
     private let lockStreamKeeper = TVLockStreamKeeper()
@@ -277,9 +278,10 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     override init() {
         super.init()
         manager.add(self)
-        server.onMediaRequest = { [weak self] in
+        server.onMediaRequest = { [weak self] streamID in
             Task { @MainActor [weak self] in
-                guard let self, self.pendingCastMovie != nil else { return }
+                guard let self, self.pendingCastMovie != nil,
+                      self.expectedStreamID == streamID else { return }
                 self.didReceiveMediaGET = true
                 self.castStatus = "TV requested movie bytes · starting playback…"
             }
@@ -315,6 +317,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         nowCastingMovie = nil
         activeLoadRequest = nil
         expectedMediaURL = nil
+        expectedStreamID = nil
         castStatus = "Preparing local video stream…"
         server.makeURL(for: movie) { [weak self] result in
             guard let self, self.streamAttempt == attempt else { return }
@@ -340,6 +343,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 self.lockStreamKeeper.setCasting(true)
                 self.castStatus = "Sending video URL to \(self.tvName)…"
                 self.expectedMediaURL = mediaURL
+                self.expectedStreamID = UUID(uuidString: mediaURL.lastPathComponent)
                 let request = client.loadMedia(info)
                 self.activeLoadRequest = request
                 request.delegate = self
@@ -409,6 +413,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         nowCastingMovie = nil
         activeLoadRequest = nil
         expectedMediaURL = nil
+        expectedStreamID = nil
         didReceiveMediaGET = false
         castStatus = "TV playback stopped"
         lockStreamKeeper.stop()

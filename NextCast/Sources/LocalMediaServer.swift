@@ -20,7 +20,7 @@ final class LocalMediaServer {
     private var waiting: [Waiting] = []
     private var listener: NWListener?
     private var currentPort: UInt16?
-    var onMediaRequest: (() -> Void)?
+    var onMediaRequest: ((UUID) -> Void)?
 
     func makeURL(for movie: Movie, completion: @escaping Completion) {
         queue.async {
@@ -59,14 +59,16 @@ final class LocalMediaServer {
                             }
                         }
                     case .waiting(let error):
-                        // An old listener port is no longer a valid Cast URL.
-                        // Keep the listener for automatic NWPath recovery.
+                        // Ignore events from a previously cancelled listener.
+                        guard self.listener === listener else { return }
                         self.currentPort = nil
                         self.failWaiting(error)
                     case .cancelled:
+                        guard self.listener === listener else { return }
                         self.currentPort = nil
                         self.listener = nil
                     case .failed(let error):
+                        guard self.listener === listener else { return }
                         self.failWaiting(error)
                         listener.cancel()
                         self.listener = nil
@@ -188,7 +190,7 @@ final class LocalMediaServer {
             sendSimple(connection, code: 404, reason: "Not Found")
             return
         }
-        if method == "GET" { onMediaRequest?() }
+        if method == "GET" { onMediaRequest?(id) }
         do {
             let attrs = try FileManager.default.attributesOfItem(atPath: entry.url.path)
             let length = (attrs[.size] as? NSNumber)?.int64Value ?? 0
