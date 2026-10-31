@@ -1,6 +1,58 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/flickkey-1-0-2-official-letter-flick-keys.png",
+          "media_alt": "Official FlickKey screenshot showing small secondary numbers and symbols above letters on the Apple iPhone keyboard",
+          "media_credit": "emp0ry/Havoc — official FlickKey letter-key interface screenshot",
+          "media_git_blob_sha": "de402b6fc6639674d1f6bc6527c28be3ec39687e",
+          "media_sha256": "325a2c481536b9650af707b2de43ff4076e916ea3f81f98e516651f8a7b7c58d",
+          "media_source_url": "https://media.havoc.app/6ac499062ff28d01ba3b2fba"
+        },
+        {
+          "image": "assets/articles/source-media/flickkey-1-0-2-official-symbol-flick-keys.png",
+          "media_alt": "Official FlickKey screenshot showing the number-and-symbol-only layout on the Apple iPhone keyboard",
+          "media_credit": "emp0ry/Havoc — official FlickKey number-and-symbol interface screenshot",
+          "media_git_blob_sha": "9153ec70042304db9db2f036027741cda5ea34bf",
+          "media_sha256": "9cb5679adbe664f2009314452c1470e7fd6ac89332311b2069ab36c9f31aa194",
+          "media_source_url": "https://media.havoc.app/6ac4990e2ff28d01ba3b3004"
+        }
+      ],
+      "candidate_fingerprint": "flickkey-1.0.2-ios17-springboard-startup-deadlock-fix-2026-10-31",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "FlickKey 1.0.2 targets rootless iOS 17.0–17.7.11 iPhones and the built-in Apple software keyboard. It does not modify third-party, hardware, emoji, number/phone, URL or email keyboards. RootHide is not explicitly claimed, and the package range does not establish jailbreak availability.",
+      "description": "FlickKey 1.0.2 fixes a startup deadlock on rootless iOS 17 iPhones. Check supported keyboards, license privacy, conflicts and recovery steps.",
+      "developer": "emp0ry",
+      "entry_type": "individual-update",
+      "href": "flickkey-1-0-2-ios-17-keyboard-deadlock-fix/",
+      "image": "assets/articles/source-media/flickkey-1-0-2-official-banner.png",
+      "media_alt": "Official FlickKey banner with its A and downward-arrow app icon",
+      "media_credit": "emp0ry/Havoc — official FlickKey banner and interface screenshots",
+      "media_git_blob_sha": "c4490ec8939ef00a3b413da95c72f23807aecc83",
+      "media_retrieval_status": "Exact official banner and keyboard screenshots retrieved from Havoc pageProps, visually inspected, stored locally and embedded in the article.",
+      "media_sha256": "70368a849632e1e8345fbab263ee2e3be84dd0c3712825067ce013cada9c80a6",
+      "media_source_url": "https://media.havoc.app/6ac499272ff28d01ba3b30ea",
+      "modified_at": "2026-10-31T15:00:00Z",
+      "name": "FlickKey",
+      "package": "com.emp0ry.flickkey",
+      "published_at": "2026-10-31T15:00:00Z",
+      "quality_target": 9,
+      "release": "FlickKey 1.0.2 — October 28, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "flickkey-1-0-2-ios-17-keyboard-deadlock-fix",
+      "source_name": "Official FlickKey Havoc listing, embedded page data, version history and developer media",
+      "source_page_url": "https://havoc.app/package/flickkey",
+      "source_url": "https://havoc.app/package/flickkey/changes",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshots",
+      "source_visual_url": "https://media.havoc.app/6ac499272ff28d01ba3b30ea",
+      "title": "FlickKey 1.0.2 Fixes an iOS 17 SpringBoard Startup Deadlock",
+      "version": "1.0.2"
+    },
+    {
       "candidate_fingerprint": "palera1n-roothide-1.0-2026-10-25-ipados-17-18-passcode",
       "category": {
         "id": "jailbreak",
@@ -10080,8 +10132,18 @@
       "published_at": "2026-10-31T09:00:00Z",
       "run_id": "scheduled-2026-10-31T09:00:00Z",
       "version": "PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "flickkey-1.0.2-ios17-springboard-startup-deadlock-fix-2026-10-31",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "flickkey-1-0-2-ios-17-keyboard-deadlock-fix/",
+      "package": "com.emp0ry.flickkey",
+      "published_at": "2026-10-31T15:00:00Z",
+      "run_id": "scheduled-2026-10-31T15:00:00Z",
+      "version": "1.0.2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-31T09:00:00Z"
+  "updated_at": "2026-10-31T15:00:00Z"
 }

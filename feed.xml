@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>FlickKey 1.0.2 Fixes an iOS 17 SpringBoard Startup Deadlock</title>
+      <link>https://nextjailbreak.com/flickkey-1-0-2-ios-17-keyboard-deadlock-fix/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/flickkey-1-0-2-ios-17-keyboard-deadlock-fix/</guid>
+      <pubDate>Sat, 31 Oct 2026 15:00:00 GMT</pubDate>
+      <description>FlickKey 1.0.2 fixes a startup deadlock on rootless iOS 17 iPhones. Check supported keyboards, license privacy, conflicts and recovery steps.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
       <title>PrimalFolderPro vs LegacyFolder26: Which Folder Tweak Should You Use?</title>
       <link>https://nextjailbreak.com/legacyfolder26-1-0-1-ios-26-folder-tweak/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/legacyfolder26-1-0-1-ios-26-folder-tweak/</guid>
@@ -235,14 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/podaction-1-0-1-airpods-gestures-shortcuts-actions/</guid>
       <pubDate>Sun, 25 Oct 2026 17:01:10 GMT</pubDate>
       <description>PodAction 1.0.1 fixes single-press actions on newer AirPods and improves connection detection while mapping AirPods gestures to Shortcuts and iOS controls.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>Adytum 3.0 Restores Control Center Access and Fixes Rotation</title>
-      <link>https://nextjailbreak.com/adytum-1-0-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/adytum-1-0-update/</guid>
-      <pubDate>Sun, 25 Oct 2026 12:57:03 GMT</pubDate>
-      <description>Adytum 3.0 restores a Control Center menu for frontmost apps and fixes upside-down orientation after version 2.2.1 added full iOS 26 support.</description>
       <category>Individual Tweak Update</category>
     </item>
   </channel>

@@ -1,6 +1,34 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.emp0ry.flickkey": {
+      "credit_label": "emp0ry — official FlickKey Havoc listing",
+      "source_page_url": "https://havoc.app/package/flickkey",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ac499272ff28d01ba3b30ea",
+        "alt": "Official FlickKey banner with its A and downward-arrow app icon",
+        "local_path": "assets/articles/source-media/flickkey-1-0-2-official-banner.png",
+        "git_blob_sha": "c4490ec8939ef00a3b413da95c72f23807aecc83",
+        "sha256": "70368a849632e1e8345fbab263ee2e3be84dd0c3712825067ce013cada9c80a6"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ac499062ff28d01ba3b2fba",
+          "alt": "Official FlickKey screenshot showing small secondary numbers and symbols above letters on the Apple iPhone keyboard",
+          "local_path": "assets/articles/source-media/flickkey-1-0-2-official-letter-flick-keys.png",
+          "git_blob_sha": "de402b6fc6639674d1f6bc6527c28be3ec39687e",
+          "sha256": "325a2c481536b9650af707b2de43ff4076e916ea3f81f98e516651f8a7b7c58d"
+        },
+        {
+          "url": "https://media.havoc.app/6ac4990e2ff28d01ba3b3004",
+          "alt": "Official FlickKey screenshot showing the number-and-symbol-only layout on the Apple iPhone keyboard",
+          "local_path": "assets/articles/source-media/flickkey-1-0-2-official-symbol-flick-keys.png",
+          "git_blob_sha": "9153ec70042304db9db2f036027741cda5ea34bf",
+          "sha256": "9cb5679adbe664f2009314452c1470e7fd6ac89332311b2069ab36c9f31aa194"
+        }
+      ]
+    },
     "project.palera1n-roothide": {
       "credit_label": "RootHide — official Palera1n RootHide 1.0 tagged repository",
       "source_page_url": "https://github.com/roothide/Palera1n-roothide/blob/1.0/image.jpeg",
