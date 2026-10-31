@@ -1,6 +1,19 @@
 {
   "schema_version": 1,
   "packages": {
+    "cyanide": {
+      "credit_label": "Kolbicz/Cyanide — official app icon from the version 1.16.0 source tree",
+      "source_page_url": "https://github.com/kolbicz/Cyanide/blob/13ad360b3e7d2ec4bfe0c4a703cc85a6cea46e71/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/kolbicz/Cyanide/13ad360b3e7d2ec4bfe0c4a703cc85a6cea46e71/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
+        "alt": "Official Cyanide app icon showing a glowing cyan bottle with a command prompt mark",
+        "local_path": "assets/articles/source-media/cyanide-1-16-official-app-icon.png",
+        "git_blob_sha": "e0e72c12817dd7328b64246bbc6394ff990ea668",
+        "sha256": "9adc9ceb38912b196128bad4d43edc43f5ac5aabe42b97740b0ff032e59e301e"
+      },
+      "screenshots": []
+    },
     "com.emp0ry.flickkey": {
       "credit_label": "emp0ry — official FlickKey Havoc listing",
       "source_page_url": "https://havoc.app/package/flickkey",

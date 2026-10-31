@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Cyanide 1.16.0 Adds Reversible Supervision and Restores Background Live Tweaks</title>
+      <link>https://nextjailbreak.com/cyanide-1-6-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/cyanide-1-6-0-update/</guid>
+      <pubDate>Sat, 31 Oct 2026 21:00:00 GMT</pubDate>
+      <description>Cyanide 1.16.0 adds reversible supervision, restores background live tweaks and moves Gravity Lite controls. Check exact iOS support, A18/M4 risks and fixes.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
       <title>FlickKey 1.0.2 Fixes an iOS 17 SpringBoard Startup Deadlock</title>
       <link>https://nextjailbreak.com/flickkey-1-0-2-ios-17-keyboard-deadlock-fix/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/flickkey-1-0-2-ios-17-keyboard-deadlock-fix/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Mon, 26 Oct 2026 01:02:28 GMT</pubDate>
       <description>Install the correct official Filza build through Sileo on a rootless jailbreak or as a TrollStore IPA, then back up settings and avoid unsafe file edits.</description>
       <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>PodAction 1.0.1 Maps AirPods Gestures to Shortcuts and System Actions</title>
-      <link>https://nextjailbreak.com/podaction-1-0-1-airpods-gestures-shortcuts-actions/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/podaction-1-0-1-airpods-gestures-shortcuts-actions/</guid>
-      <pubDate>Sun, 25 Oct 2026 17:01:10 GMT</pubDate>
-      <description>PodAction 1.0.1 fixes single-press actions on newer AirPods and improves connection detection while mapping AirPods gestures to Shortcuts and iOS controls.</description>
-      <category>Individual Tweak Update</category>
     </item>
   </channel>
 </rss>
