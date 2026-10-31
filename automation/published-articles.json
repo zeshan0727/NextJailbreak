@@ -3041,39 +3041,41 @@
           "media_source_url": "https://media.havoc.app/6ac7ee2b52e2be116d314291"
         },
         {
-          "image": "assets/articles/source-media/legacyfolder26-1-0-1-official-dark-folder.png",
-          "media_credit": "Official LegacyFolder26 dark folder-panel screenshot from bakera1n’s Havoc listing",
-          "media_sha256": "3e2510064ec86ebe4e6f9ee654065529e4b2b074b61bc7ca735aee236052e4d2",
-          "media_source_url": "https://media.havoc.app/6ac7ee4a52e2be116d31436c"
+          "image": "assets/articles/source-media/primalfolderpro-1-0-1-official-exsto-menu.png",
+          "media_credit": "Official PrimalFolderPro screenshot showing the Exsto circular quick-launch menu",
+          "media_git_blob_sha": "c5bca9000c27d5af67a9575f3b00ef01686ec4c7",
+          "media_sha256": "66b5e51990642c77e1affa4f6f3128e08268ffc289be316ea8c986c2cb40c67c",
+          "media_source_url": "https://media.havoc.app/6ae11d30d81ae3dd289f36f0"
         }
       ],
       "category": {
-        "id": "tweak-update",
-        "label": "Individual Tweak Update"
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
       },
-      "compat": "iOS 26.0–26.0.1 package range; jailbreak required; rootless supported; actual availability depends on device, firmware and jailbreak",
-      "description": "LegacyFolder26 1.0.1 fixes a folder icon overlap bug and clarifies license errors while adding iOS 6-style folder panels to jailbroken iOS 26.",
-      "developer": "bakera1n",
-      "entry_type": "individual-update",
+      "compat": "PrimalFolderPro: iOS/iPadOS 14.0–26.0.1, rootful/rootless/RootHide listed; LegacyFolder26: iOS/iPadOS 15.0–26.0.1, rootless listed; jailbreak availability remains device- and firmware-specific",
+      "description": "Compare PrimalFolderPro 1.0.1 and LegacyFolder26 1.1.0 by layout, quick launch, folder styles, iOS support, price, licensing and jailbreak-environment requirements.",
+      "developer": "ichitaso / bakera1n",
+      "entry_type": "roundup-comparison",
       "href": "legacyfolder26-1-0-1-ios-26-folder-tweak/",
-      "image": "assets/articles/source-media/legacyfolder26-1-0-1-official-banner.png",
-      "media_credit": "Official LegacyFolder26 banner from bakera1n’s Havoc listing",
-      "media_sha256": "e07d2807c2c23c5f5bf01bb219da6f95ec8cf3336dfa137ea235c0a6d47d25d0",
-      "media_source_url": "https://media.havoc.app/6ac7ee1652e2be116d314202",
-      "modified_at": "2026-10-12T17:04:42Z",
-      "name": "LegacyFolder26",
-      "package": "meow.bakera1n.legacyfolder26",
+      "image": "assets/articles/source-media/primalfolderpro-1-0-1-official-banner.jpg",
+      "media_credit": "Official PrimalFolderPro banner from ichitaso’s Havoc listing",
+      "media_git_blob_sha": "25cf77a3f43c909de5e0e3651e7ed54f6aa012d2",
+      "media_sha256": "9114509079d07659da4eeeaa5d82e80193122e12901056c4c0260ef0a651acfe",
+      "media_source_url": "https://media.havoc.app/6ae0fcbcd81ae3dd289e9ff6",
+      "modified_at": "2026-10-31T09:00:00Z",
+      "name": "PrimalFolderPro vs LegacyFolder26",
+      "package": "comparison.primalfolderpro-legacyfolder26",
       "published_at": "2026-10-12T17:04:42Z",
-      "release": "2026-10-10",
-      "selection_pool": "scheduled-individual-tweak-update",
+      "release": "2026-10-29",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
       "slug": "legacyfolder26-1-0-1-ios-26-folder-tweak",
-      "source_name": "Official LegacyFolder26 Havoc listing, version history and repository metadata",
-      "source_page_url": "https://havoc.app/package/legacyfolder26",
-      "source_url": "https://havoc.app/package/legacyfolder26",
+      "source_name": "Official PrimalFolderPro and LegacyFolder26 Havoc listings, version histories and embedded page data",
+      "source_page_url": "https://havoc.app/package/primalfolderpro",
+      "source_url": "https://havoc.app/package/primalfolderpro",
       "source_visual_origin": "official-havoc-banner-and-screenshots",
-      "source_visual_url": "https://media.havoc.app/6ac7ee1652e2be116d314202",
-      "title": "LegacyFolder26 1.0.1 Fixes Folder Icon Overlap on Jailbroken iOS 26",
-      "version": "1.0.1"
+      "source_visual_url": "https://media.havoc.app/6ae0fcbcd81ae3dd289e9ff6",
+      "title": "PrimalFolderPro vs LegacyFolder26: Which Folder Tweak Should You Use?",
+      "version": "PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
     },
     {
       "additional_media": [
@@ -10067,8 +10069,19 @@
       "published_at": "2026-10-29T09:00:00Z",
       "run_id": "scheduled-2026-10-29T09:00:00Z",
       "version": "1.0.0 / 1.2.1 / 0.0.5"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "primalfolderpro-1.0.1-vs-legacyfolder26-1.1.0-2026-10-31",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "legacyfolder26-1-0-1-ios-26-folder-tweak/",
+      "package": "comparison.primalfolderpro-legacyfolder26",
+      "previous_version": "1.0.1",
+      "published_at": "2026-10-31T09:00:00Z",
+      "run_id": "scheduled-2026-10-31T09:00:00Z",
+      "version": "PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-31T03:00:00Z"
+  "updated_at": "2026-10-31T09:00:00Z"
 }

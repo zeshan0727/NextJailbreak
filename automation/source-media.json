@@ -178,6 +178,33 @@
       },
       "screenshots": []
     },
+    "comparison.primalfolderpro-legacyfolder26": {
+      "credit_label": "ichitaso and bakera1n — official PrimalFolderPro and LegacyFolder26 Havoc listings",
+      "source_page_url": "https://havoc.app/package/primalfolderpro",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ae0fcbcd81ae3dd289e9ff6",
+        "alt": "Official PrimalFolderPro artwork showing a folder icon over a blue botanical background",
+        "local_path": "assets/articles/source-media/primalfolderpro-1-0-1-official-banner.jpg",
+        "git_blob_sha": "25cf77a3f43c909de5e0e3651e7ed54f6aa012d2",
+        "sha256": "9114509079d07659da4eeeaa5d82e80193122e12901056c4c0260ef0a651acfe"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ae11d30d81ae3dd289f36f0",
+          "alt": "Official PrimalFolderPro screenshot showing the Exsto circular quick-launch menu around a Home Screen folder",
+          "local_path": "assets/articles/source-media/primalfolderpro-1-0-1-official-exsto-menu.png",
+          "git_blob_sha": "c5bca9000c27d5af67a9575f3b00ef01686ec4c7",
+          "sha256": "66b5e51990642c77e1affa4f6f3128e08268ffc289be316ea8c986c2cb40c67c"
+        },
+        {
+          "url": "https://media.havoc.app/6ac7ee1652e2be116d314202",
+          "alt": "Official LegacyFolder26 artwork showing modern iOS 6-style folder panels",
+          "local_path": "assets/articles/source-media/legacyfolder26-1-0-1-official-banner.png",
+          "sha256": "e07d2807c2c23c5f5bf01bb219da6f95ec8cf3336dfa137ea235c0a6d47d25d0"
+        }
+      ]
+    },
     "meow.bakera1n.legacyfolder26": {
       "credit_label": "bakera1n — official LegacyFolder26 Havoc listing",
       "source_page_url": "https://havoc.app/package/legacyfolder26",
