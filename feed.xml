@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop</title>
+      <link>https://nextjailbreak.com/dopamine-bad-tweak-crash-loop-recovery-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-bad-tweak-crash-loop-recovery-guide/</guid>
+      <pubDate>Sat, 31 Oct 2026 03:00:00 GMT</pubDate>
+      <description>Recover Dopamine 3.0.12 after Safe Mode, a bad tweak, SpringBoard crash loop or Watchdog Timeout by disabling injection and removing the suspect package safely.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
       <title>Palera1n RootHide 1.0 Supports Passcode-Set iPads on iPadOS 17 and 18</title>
       <link>https://nextjailbreak.com/palera1n-roothide-1-0-ipados-17-18-passcode/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/palera1n-roothide-1-0-ipados-17-18-passcode/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Sun, 25 Oct 2026 08:55:35 GMT</pubDate>
       <description>Compare ElleKit, libhooker and Substitute by API compatibility, jailbreak integration and architecture—and learn why you usually should not switch injectors.</description>
       <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Jailbreak iOS 16 with palera1n on Mac, Linux or Windows</title>
-      <link>https://nextjailbreak.com/how-to-jailbreak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/how-to-jailbreak/</guid>
-      <pubDate>Sun, 25 Oct 2026 04:57:24 GMT</pubDate>
-      <description>Install palera1n on a supported iOS 16 iPhone using Mac, Linux or Windows with palen1x. Check A11 passcode limits, USB setup, DFU mode and Sileo.</description>
-      <category>Evergreen Jailbreak Guide</category>
     </item>
   </channel>
 </rss>

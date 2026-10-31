@@ -4075,28 +4075,33 @@
         "id": "jailbreak-guide",
         "label": "Jailbreak Guide"
       },
-      "compat": "Existing Dopamine jailbreak environment; recovery steps do not expand device or firmware support",
-      "description": "Recover a Dopamine jailbreak after a bad tweak, Safe Mode or SpringBoard crash loop by disabling tweak injection, removing the package and restoring cautiously.",
+      "candidate_fingerprint": "dopamine-3.0.12-bad-tweak-watchdog-safe-mode-recovery-2026-10-31",
+      "compat": "Dopamine 3.0.12 documents arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. This recovery flow assumes a previously working standard rootless Dopamine environment; it does not apply to RootHide or expand device and firmware support.",
+      "description": "Recover Dopamine 3.0.12 after Safe Mode, a bad tweak, SpringBoard crash loop or Watchdog Timeout by disabling injection and removing the suspect package safely.",
       "developer": "opa334",
       "entry_type": "evergreen-guide",
       "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-10-06T00:55:26Z",
+      "image": "assets/articles/source-media/dopamine-3-0-12-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.12 app icon",
+      "media_credit": "opa334 — exact official Dopamine app icon from the 3.0.12 source tag",
+      "media_git_blob_sha": "9ea200d790af0c89b8781469b32b9720745e80c3",
+      "media_retrieval_status": "Retrieved byte-for-byte from the official 3.0.12 source tag, inspected at 167×167, stored locally and embedded in article and social metadata.",
+      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
+      "media_source_url": "https://github.com/opa334/Dopamine/blob/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified_at": "2026-10-31T03:00:00Z",
       "name": "Dopamine bad-tweak recovery",
       "package": "guide.dopamine.crash-loop-recovery",
       "published_at": "2026-10-06T00:55:26Z",
-      "release": "2026-10-06",
-      "selection_pool": "official-source-evergreen-guide",
+      "release": "Dopamine 3.0.12 — October 20, 2026; guide revised October 31, 2026",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
       "slug": "dopamine-bad-tweak-crash-loop-recovery-guide",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
+      "source_name": "Official Dopamine 3.0.12 release, settings, environment manager, system hook and watchdog source",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.12",
+      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.12/Application/Dopamine/UI/Settings/DOSettingsController.m",
       "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
       "title": "How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop",
-      "version": "Dopamine 3.0.10"
+      "version": "Dopamine 3.0.12"
     },
     {
       "additional_media": [
@@ -9491,6 +9496,17 @@
     },
     {
       "action": "update",
+      "candidate_fingerprint": "dopamine-3.0.12-bad-tweak-watchdog-safe-mode-recovery-2026-10-31",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
+      "package": "guide.dopamine.crash-loop-recovery",
+      "previous_version": "Dopamine 3.0.10",
+      "published_at": "2026-10-31T03:00:00Z",
+      "run_id": "scheduled-2026-10-31T03:00:00Z",
+      "version": "Dopamine 3.0.12"
+    },
+    {
+      "action": "update",
       "channel": "scheduled-current-development",
       "href": "begonecia-rootless-ios-17-a12-support/",
       "package": "com.johndie.begonecia",
@@ -10054,5 +10070,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-30T21:00:00Z"
+  "updated_at": "2026-10-31T03:00:00Z"
 }

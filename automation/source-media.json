@@ -670,12 +670,15 @@
       "screenshots": []
     },
     "guide.dopamine.crash-loop-recovery": {
-      "credit_label": "opa334 — official Dopamine 3.0.10 app icon",
-      "source_page_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "credit_label": "opa334 — official Dopamine 3.0.12 source tag",
+      "source_page_url": "https://github.com/opa334/Dopamine/tree/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
       "official_source": true,
       "hero": {
-        "url": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-        "alt": "Official green Dopamine 3.0.10 app icon"
+        "url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+        "alt": "Official green Dopamine 3.0.12 app icon",
+        "local_path": "assets/articles/source-media/dopamine-3-0-12-official-app-icon.png",
+        "git_blob_sha": "9ea200d790af0c89b8781469b32b9720745e80c3",
+        "sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d"
       },
       "screenshots": []
     },
