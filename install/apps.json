@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-mobilehousearrest",
+      "name": "3105",
+      "version": "2.1",
+      "build": "12",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.MobileHouseArrest",
+      "icon": "/install/icons/com-nextsolution-mobilehousearrest-d1ddc322e836.png",
+      "manifest": "/install/com-nextsolution-mobilehousearrest.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-mobilehousearrest/2.1/com-nextsolution-mobilehousearrest-2.1-12.ipa",
+      "sha256": "d1ddc322e8361fa3bb3a454e354685e080ad791e418cad4b8f4f954fbd1b79f1",
+      "sizeBytes": 6934094,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-nextcast",
       "name": "Next Cast",
       "version": "1.4.0",
@@ -431,5 +452,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-10-29"
+  "updated": "2026-10-31"
 }
