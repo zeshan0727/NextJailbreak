@@ -5,6 +5,7 @@ struct BudgetPerformanceReportView: View {
     @EnvironmentObject private var store: LedgerStore
     @State private var cycleStart = BudgetCycle.start(containing: Date())
     @State private var showAllTransactions = false
+    @State private var showAssignedTransactions = false
 
     private var activeExpenses: [FixedPlanItem] {
         store.fixedBudget.activeItems(.expense, in: cycleStart)
@@ -16,9 +17,23 @@ struct BudgetPerformanceReportView: View {
         })
         let defaultCurrency = currencies[store.defaultAccountID ?? LedgerAccount.legacyMainID]
             ?? store.currencyCode
+        let accountLookup = Dictionary(uniqueKeysWithValues: store.accounts.map {
+            ($0.id, $0)
+        })
         let transactions = store.transactions
-            .filter { $0.type == .expense }
-            .map { transaction in
+            .compactMap { transaction -> BudgetSpendRecord? in
+                let source = transaction.accountID.flatMap { accountLookup[$0] }
+                let destination = transaction.destinationAccountID.flatMap { accountLookup[$0] }
+                let sourceIsBank = source?.nature == .bank ||
+                    (source?.nature == nil && (source?.group == .qatar || source?.group == .pakistan))
+                guard BudgetPerformanceEngine.includesInSpending(
+                    isExpense: transaction.type == .expense,
+                    isTransfer: transaction.type == .transfer,
+                    sourceIsBank: sourceIsBank,
+                    sourceIsPayments: source?.group == .payments,
+                    destinationIsPayments: destination?.group == .payments
+                ) else { return nil }
+                // Report using the source account currency, without guessed FX.
                 BudgetSpendRecord(
                     id: transaction.id,
                     amount: transaction.amount,
@@ -42,6 +57,7 @@ struct BudgetPerformanceReportView: View {
                     Button {
                         cycleStart = BudgetCycle.shifted(cycleStart, by: -1)
                         showAllTransactions = false
+                        showAssignedTransactions = false
                     } label: { Image(systemName: "chevron.left").frame(minWidth: 38, minHeight: 42) }
                     .accessibilityLabel("Previous budget cycle")
                     Spacer()
@@ -56,6 +72,7 @@ struct BudgetPerformanceReportView: View {
                     Button {
                         cycleStart = BudgetCycle.shifted(cycleStart, by: 1)
                         showAllTransactions = false
+                        showAssignedTransactions = false
                     } label: { Image(systemName: "chevron.right").frame(minWidth: 38, minHeight: 42) }
                     .accessibilityLabel("Next budget cycle")
                 }
@@ -128,15 +145,20 @@ struct BudgetPerformanceReportView: View {
 
             Section {
                 if summary.outsideExpenses.isEmpty {
-                    Label("No unmatched expenses in this cycle.", systemImage: "checkmark.circle")
+                    Label("No outside-budget expenses in this cycle.", systemImage: "checkmark.circle")
                         .foregroundStyle(.secondary)
                 } else {
-                    metricRow("Unplanned / unmatched", amount(summary.outsideSpent))
-                    ForEach(summary.outsideExpenses.prefix(40)) { expense in
+                    metricRow("Unplanned / outside", amount(summary.outsideSpent))
+                    let pendingOutside = summary.outsideExpenses.filter { !$0.matchedManually }
+                    ForEach(pendingOutside.prefix(40)) { expense in
                         expenseRow(expense)
                     }
-                    if summary.outsideExpenses.count > 40 {
-                        Text("Showing 40 of \(summary.outsideExpenses.count) outside-budget transactions. Use the Recorded Expenses section below to classify the rest.")
+                    if pendingOutside.isEmpty {
+                        Text("All outside-budget expenses have been reviewed.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else if pendingOutside.count > 40 {
+                        Text("Showing 40 of \(pendingOutside.count) unassigned outside-budget transactions.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -144,27 +166,38 @@ struct BudgetPerformanceReportView: View {
             } header: {
                 Text("Outside Budget")
             } footer: {
-                Text("Unmatched categories are shown here rather than automatically hiding them under 'Other'. Use Assign to Budget to classify each payment.")
+                Text("Ordinary unmatched spending goes to Other / Unassigned when an Other budget is available. Zero-allocation expenses remain outside budget.")
             }
 
             Section {
-                let rows = showAllTransactions ? summary.expenses : Array(summary.expenses.prefix(45))
+                let pending = summary.unassignedExpenses
+                let rows = showAllTransactions ? pending : Array(pending.prefix(45))
                 if rows.isEmpty {
-                    Text("No recorded expenses yet in this cycle.")
+                    Label("All expenses reviewed for this cycle.", systemImage: "checkmark.circle")
                         .foregroundStyle(.secondary)
                 }
                 ForEach(rows) { expense in
                     expenseRow(expense)
                 }
-                if !showAllTransactions && summary.expenses.count > 45 {
-                    Button("Show all \(summary.expenses.count) recorded expenses") {
+                if !showAllTransactions && pending.count > 45 {
+                    Button("Show all \(pending.count) unassigned expenses") {
                         showAllTransactions = true
                     }
                 }
+                if !summary.assignedExpenses.isEmpty {
+                    DisclosureGroup(isExpanded: $showAssignedTransactions) {
+                        ForEach(summary.assignedExpenses) { expense in
+                            expenseRow(expense)
+                        }
+                    } label: {
+                        Label("Assigned expenses (\(summary.assignedExpenses.count))", systemImage: "checkmark.circle")
+                            .font(.subheadline)
+                    }
+                }
             } header: {
-                Text("Recorded Expenses — Assign to Budget")
+                Text("Unassigned Expenses — Assign to Budget")
             } footer: {
-                Text("Only recorded expense transactions through today are counted. Transfers and future-dated expenses are excluded. Assignments are saved in the ledger and JSON backup, without editing the original transaction.")
+                Text("Assigned expenses disappear from the unassigned list. Bank-to-bank transfers are excluded; bank-to-Payments transfers count as spending. Assignments are saved without changing the transaction.")
             }
 
             if !summary.unconvertedByCurrency.isEmpty {
@@ -241,7 +274,7 @@ struct BudgetPerformanceReportView: View {
                 Menu {
                     Button("Automatic matching") { setAssignment(expense.id, nil) }
                     ForEach(activeExpenses) { fixed in
-                        Button("Fixed: \(fixed.title)") {
+                        Button("Fixed: \(fixed.title) · \(amount(fixed.amount))") {
                             setAssignment(expense.id, BudgetSpendAssignment(kind: .fixed, fixedItemID: fixed.id))
                         }
                     }
@@ -251,7 +284,7 @@ struct BudgetPerformanceReportView: View {
                     Button("Other Allocation") { setAssignment(expense.id, BudgetSpendAssignment(kind: .other)) }
                     Button("Outside Budget") { setAssignment(expense.id, BudgetSpendAssignment(kind: .outside)) }
                 } label: {
-                    Label("Assign", systemImage: "tag")
+                    Label(expense.matchedManually ? "Change" : "Assign", systemImage: "tag")
                         .font(.caption)
                 }
             }
@@ -272,7 +305,7 @@ struct BudgetPerformanceReportView: View {
         case .grocery: return "Grocery"
         case .fuel: return "Fuel"
         case .eatOut: return "Eat Out"
-        case .other: return "Other Allocation"
+        case .other: return "Other / Unassigned"
         case .outside: return "Outside Budget"
         }
     }
