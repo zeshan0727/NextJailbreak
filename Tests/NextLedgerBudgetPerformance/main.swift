@@ -58,9 +58,9 @@ plan.spendAssignments[rentTxn] = BudgetSpendAssignment(kind: .fixed, fixedItemID
 let invalidFixed = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
     expenses: expenses, currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
 check(invalidFixed.outsideSpent == 2500, "invalid fixed plan association is not counted as paid")
-check(report.unassignedExpenses.count == 1, "automatically matched fixed and essential items are not unassigned")
-check(reclassified.unassignedExpenses.isEmpty, "manually classified expense disappears from review")
-check(reclassified.assignedExpenses.count == 4, "reviewed and automatically matched expenses remain available for correction")
+check(report.unassignedExpenses.isEmpty, "Other expenses are auto categorized and do not require review")
+check(reclassified.unassignedExpenses.isEmpty, "manually classified expense remains outside review")
+check(reclassified.assignedExpenses.count == 4, "auto and manually categorized expenses remain available for correction")
 
 plan.spendAssignments[unmatched] = BudgetSpendAssignment(kind: .outside)
 let manuallyOutside = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
@@ -106,4 +106,37 @@ let noOtherReport = BudgetPerformanceEngine.build(
     plan: noOtherPlan, cycleStart: cycle, expenses: expenses,
     currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
 check(noOtherReport.outsideSpent == 300, "zero Other allocation never invents budget")
-print("Budget Performance Build 103: classification, transfers, amount accounting, FX, date boundaries and JSON passed.")
+check(noOtherReport.unassignedExpenses.count == 1, "unbudgeted expense still requires review")
+check(noOtherReport.outsideRecordedCategories.contains {
+    $0.name == "Electronics" && $0.spent == 300
+}, "outside budget shows original transaction category")
+
+let uber = BudgetSpendRecord(id: UUID(), amount: 120, date: day(2026, 10, 28),
+    category: "Taxi", vendor: "Uber", currencyCode: "QAR")
+let otherTaxi = BudgetSpendRecord(id: UUID(), amount: 80, date: day(2026, 10, 29),
+    category: "taxi", vendor: "Other Cab", currencyCode: "QAR")
+let genericTransfer = BudgetSpendRecord(id: UUID(), amount: 400, date: day(2026, 10, 30),
+    category: "Transfer", vendor: "Bank → Payments", currencyCode: "QAR",
+    fixedMatchHint: "Rent")
+let specificTaxiWithHint = BudgetSpendRecord(id: UUID(), amount: 30, date: day(2026, 10, 30),
+    category: "Taxi", vendor: "Uber", currencyCode: "QAR", fixedMatchHint: "Rent")
+let categoryReport = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
+    expenses: [uber, otherTaxi, genericTransfer, specificTaxiWithHint],
+    currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
+check(categoryReport.otherRecordedCategories.count == 1,
+    "case variants of Taxi are grouped into one original-category subtotal")
+check(categoryReport.otherRecordedCategories.first?.spent == 230,
+    "Uber taxi and another Taxi payment together consume Other allocation")
+check(categoryReport.otherRecordedCategories.first?.transactionCount == 3,
+    "grouped Taxi subtotal retains source transaction count")
+check(categoryReport.expenses.first(where: { $0.id == uber.id })?.record.category == "Taxi",
+    "Uber retains its original Taxi category")
+check(categoryReport.expenses.first(where: { $0.id == genericTransfer.id })?.bucket == .fixed(rent.id),
+    "generic Payments transfer can match fixed expense by destination hint")
+check(categoryReport.expenses.first(where: { $0.id == specificTaxiWithHint.id })?.bucket == .other,
+    "meaningful original Taxi category takes priority over destination hint")
+check(categoryReport.unassignedExpenses.isEmpty,
+    "original-category Other spending is automatically classified, no manual work")
+check(categoryReport.budgetSpent == 630, "subtotals and fixed payments counted exactly once")
+check(categoryReport.actualSpent == 630, "no duplication from category grouping")
+print("Budget Performance Build 104: original category preservation, Uber Taxi, category totals, transfer hints, allocations, FX, JSON and boundaries passed.")
