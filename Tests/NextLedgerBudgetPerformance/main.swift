@@ -58,9 +58,9 @@ plan.spendAssignments[rentTxn] = BudgetSpendAssignment(kind: .fixed, fixedItemID
 let invalidFixed = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
     expenses: expenses, currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
 check(invalidFixed.outsideSpent == 2500, "invalid fixed plan association is not counted as paid")
-check(report.unassignedExpenses.count == 4, "all expenses initially appear available for assignment")
-check(reclassified.unassignedExpenses.count == 3, "assigned expenses disappear from default review")
-check(reclassified.assignedExpenses.count == 1, "assigned expenses can still be corrected")
+check(report.unassignedExpenses.count == 1, "automatically matched fixed and essential items are not unassigned")
+check(reclassified.unassignedExpenses.isEmpty, "manually classified expense disappears from review")
+check(reclassified.assignedExpenses.count == 4, "reviewed and automatically matched expenses remain available for correction")
 
 plan.spendAssignments[unmatched] = BudgetSpendAssignment(kind: .outside)
 let manuallyOutside = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
