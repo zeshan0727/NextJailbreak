@@ -15,6 +15,7 @@ private enum PerformanceStyle {
 }
 
 
+@MainActor
 enum BudgetPerformanceSnapshot {
     static func make(store: LedgerStore, cycleStart: Date) -> BudgetPerformanceResult {
         let currencies = Dictionary(uniqueKeysWithValues: store.accounts.map {
