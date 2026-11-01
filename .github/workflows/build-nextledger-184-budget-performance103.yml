@@ -1,8 +1,8 @@
-name: Next Ledger Build 104 Original Expense Categories
+name: Next Ledger Build 105 Budget Performance Redesign
 
 on:
   push:
-    branches: [feature/nextledger-1.3.84-build104-original-expense-categories]
+    branches: [feature/nextledger-1.3.84-build105-budget-report-redesign]
     paths:
       - ".github/workflows/build-nextledger-184-budget-performance103.yml"
       - "DailyLedger/Services/BudgetPerformanceEngine.swift"
@@ -26,7 +26,7 @@ jobs:
       - name: Checkout full verified original Next Ledger 1.3.84 source
         uses: actions/checkout@v4
         with:
-          ref: feature/nextledger-1.3.84-build104-original-expense-categories
+          ref: feature/nextledger-1.3.84-build105-budget-report-redesign
 
       - name: Validate full original features and iCloud documents declarations
         shell: bash
@@ -47,7 +47,7 @@ jobs:
           # Backup & Sync is the sole Settings JSON import location.
           test "$(grep -c 'LedgerRestoreImportControl(' DailyLedger/Views/SettingsView.swift)" -eq 1
           grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
-          grep -Fq 'CURRENT_PROJECT_VERSION: "104"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "105"' project.yml
           grep -Fq 'path: DailyLedger/DailyLedger.entitlements' project.yml
           grep -Fq 'com.apple.developer.icloud-services' DailyLedger/DailyLedger.entitlements
           grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
@@ -121,8 +121,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/nextledger-performance-104
-          /tmp/nextledger-performance-104
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/nextledger-performance-105
+          /tmp/nextledger-performance-105
           grep -Fq 'BudgetPerformanceReportView()' DailyLedger/Views/ReportsView.swift
           grep -Fq 'Budget Performance · Actual vs Plan' DailyLedger/Views/ReportsView.swift
           grep -Fq 'spendAssignments' DailyLedger/Models/MonthlyFixedBudget.swift
@@ -137,6 +137,12 @@ jobs:
           grep -Fq 'category: transaction.category' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'Other Planned Expenses — Original Categories' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'fixedMatchHint' DailyLedger/Services/BudgetPerformanceEngine.swift
+          grep -Fq 'private func hero(' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'case overview = "Overview"' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'case breakdown = "Breakdown"' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'case review = "Review"' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'store.saveFixedBudget(next)' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Other planned expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
 
       - name: Generate full Xcode project
         shell: bash
@@ -169,7 +175,7 @@ jobs:
           test -n "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.dailyledger'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
-          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '104'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '105'
           test "$(/usr/libexec/PlistBuddy -c 'Print NSUbiquitousContainers:iCloud.com.nextsolution.dailyledger:NSUbiquitousContainerIsDocumentScopePublic' "$APP/Info.plist")" = 'true'
           BIN="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
           test "$(stat -f %z "$BIN")" -gt 12000000
@@ -179,26 +185,26 @@ jobs:
           done
           mkdir -p Payload
           cp -R "$APP" Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa
-          unzip -t NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa >/dev/null
-          cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build104-iCloud.entitlements
-          shasum -a 256 NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa > NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.sha256
-          ls -lh NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa
+          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa
+          unzip -t NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa >/dev/null
+          cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build105-iCloud.entitlements
+          shasum -a 256 NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa > NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.sha256
+          ls -lh NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa
           echo "NOTE: This IPA is unsigned. It MUST be signed with an Apple certificate and valid iCloud-enabled Ad Hoc provisioning profile."
 
       - name: Upload unsigned signing-ready IPA, entitlements and checksum
         uses: actions/upload-artifact@v4
         with:
-          name: NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED
+          name: NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED
           path: |
-            NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa
-            NextLedger-1.3.84-Build104-iCloud.entitlements
-            NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.sha256
+            NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa
+            NextLedger-1.3.84-Build105-iCloud.entitlements
+            NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.sha256
           if-no-files-found: error
           retention-days: 90
 
   publish:
-    name: Publish verified Build 104 to NS Transfer
+    name: Publish verified Build 105 to NS Transfer
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -218,8 +224,8 @@ jobs:
       - name: Download verified artifact from this successful build
         uses: actions/download-artifact@v4
         with:
-          name: NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED
-          path: build104
+          name: NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED
+          path: build105
 
       - name: Validate unsigned IPA, checksum, bundle version and iCloud container
         shell: bash
@@ -228,9 +234,9 @@ jobs:
           test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo "NS Transfer R2 credentials unavailable"; exit 1; }
           python3 - <<'PY'
           import hashlib, pathlib, plistlib, zipfile
-          d=pathlib.Path('build104')
-          ipa=d/'NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa'
-          checksum=d/'NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.sha256'
+          d=pathlib.Path('build105')
+          ipa=d/'NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa'
+          checksum=d/'NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.sha256'
           assert ipa.is_file() and checksum.is_file()
           sha=hashlib.sha256(ipa.read_bytes()).hexdigest()
           assert sha==checksum.read_text().split()[0].lower()
@@ -241,11 +247,11 @@ jobs:
               info=plistlib.loads(z.read(names[0]))
               assert info['CFBundleIdentifier']=='com.nextsolution.dailyledger'
               assert info['CFBundleShortVersionString']=='1.3.84'
-              assert info['CFBundleVersion']=='104'
+              assert info['CFBundleVersion']=='105'
               assert 'iCloud.com.nextsolution.dailyledger' in info.get('NSUbiquitousContainers',{})
-          print('Verified Next Ledger Build 104 IPA',sha)
+          print('Verified Next Ledger Build 105 IPA',sha)
           PY
-          IPA="build104/NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa"
+          IPA="build105/NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa"
           echo "FILE_SHA=$(sha256sum "$IPA" | awk '{print $1}')" >> "$GITHUB_ENV"
           echo "FILE_SIZE=$(stat -c %s "$IPA")" >> "$GITHUB_ENV"
 
@@ -255,13 +261,13 @@ jobs:
           set -euo pipefail
           python3 -m pip install --user --quiet --break-system-packages awscli
           export PATH="$HOME/.local/bin:$PATH"
-          KEY="apps/ipa/NextLedger/1.3.84/build-104/run-$GITHUB_RUN_ID/NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa"
+          KEY="apps/ipa/NextLedger/1.3.84/build-105/run-$GITHUB_RUN_ID/NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa"
           URL="https://files.nextsolution.cc/$KEY"
-          aws s3 cp "build104/NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa" "s3://next-signer-apps/$KEY" --endpoint-url "https://4fe920e259870b0366118a17cc5727e5.r2.cloudflarestorage.com" --content-type application/octet-stream --cache-control "public, max-age=31536000, immutable" --only-show-errors
+          aws s3 cp "build105/NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa" "s3://next-signer-apps/$KEY" --endpoint-url "https://4fe920e259870b0366118a17cc5727e5.r2.cloudflarestorage.com" --content-type application/octet-stream --cache-control "public, max-age=31536000, immutable" --only-show-errors
           curl --fail --silent --show-error --location --head --retry 6 --retry-all-errors "$URL" >/dev/null
           echo "PUBLIC_URL=$URL" >> "$GITHUB_ENV"
 
-      - name: Register Build 104 in NS Transfer
+      - name: Register Build 105 in NS Transfer
         shell: bash
         run: |
           set -euo pipefail
@@ -272,14 +278,14 @@ jobs:
           p=Path('transfer/index.json')
           doc=json.loads(p.read_text())
           entry={
-            'id':'nextledger-1.3.84-build104-unsigned-ipa',
-            'name':'Next Ledger 1.3.84 Build 104 — Original Expense Categories (unsigned)',
-            'fileName':'NextLedger-1.3.84-Build104-OriginalCategories-UNSIGNED.ipa',
+            'id':'nextledger-1.3.84-build105-unsigned-ipa',
+            'name':'Next Ledger 1.3.84 Build 105 — Budget Report Redesign (unsigned)',
+            'fileName':'NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa',
             'type':'ipa','platform':'iOS 16+ — sign with Next Signer',
             'version':'1.3.84 (103)','url':os.environ['PUBLIC_URL'],
             'sha256':os.environ['FILE_SHA'],'sizeBytes':int(os.environ['FILE_SIZE']),
             'storage':'Cloudflare R2',
-            'notes':'Original transaction categories retained (Uber as Taxi), automatic Other planned expense allocation, per-category totals, and safe transfer classification. Unsigned; sign with iCloud-enabled profile.'
+            'notes':'Premium adaptive Budget Performance dashboard with Overview, Breakdown and Review; original categories, fixed matching and transfer rules unchanged. Unsigned; sign with iCloud-enabled profile.'
           }
           doc['files']=[entry]+[x for x in doc.get('files',[]) if x.get('id')!=entry['id']]
           doc['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -290,7 +296,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add transfer/index.json
           if ! git diff --cached --quiet; then
-            git commit -m "Register Next Ledger Build 104 in NS Transfer"
+            git commit -m "Register Next Ledger Build 105 in NS Transfer"
             git pull --rebase origin main
             git push origin HEAD:main
           fi
