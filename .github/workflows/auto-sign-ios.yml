@@ -29,3 +29,28 @@ jobs:
           path: ${{ github.workspace }}/unsigned
       - name: Verify unsigned IPA metadata
         run: python3 .github/scripts/auto-sign-ios.py inspect
+
+      - name: Submit verified IPA to existing Next Signer
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! gh release view nextsigner-inbox >/dev/null 2>&1; then
+            gh release create nextsigner-inbox --draft \
+              --title 'Next Signer Inbox' \
+              --notes 'Unsigned app staging for the encrypted-secret signing workflow'
+          fi
+          ASSET="auto-nextpost-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.ipa"
+          cp "$RUNNER_TEMP/auto-sign-input.ipa" "$RUNNER_TEMP/$ASSET"
+          gh release upload nextsigner-inbox "$RUNNER_TEMP/$ASSET"
+          gh workflow run nextsigner-sign-publish.yml --ref main \
+            -f "staging_asset=$ASSET" \
+            -f "requested_name=$APP_NAME" \
+            -f "requested_bundle_id=$REQUESTED_BUNDLE_ID"
+          {
+            echo '## Next Post automatic signing requested'
+            echo "Original bundle ID: $REQUESTED_BUNDLE_ID"
+            echo "Version: $APP_VERSION ($APP_BUILD)"
+            echo 'Signing: see Next Signer - Sign and Publish workflow.'
+          } >> "$GITHUB_STEP_SUMMARY"
