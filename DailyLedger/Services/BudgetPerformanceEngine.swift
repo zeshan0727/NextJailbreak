@@ -66,8 +66,18 @@ struct BudgetPerformanceResult {
         return NSDecimalNumber(decimal: budgetSpent / totalBudget).doubleValue * 100
     }
     var outsideExpenses: [BudgetPerformanceExpense] { expenses.filter { $0.bucket == .outside } }
-    var unassignedExpenses: [BudgetPerformanceExpense] { expenses.filter { !$0.matchedManually } }
-    var assignedExpenses: [BudgetPerformanceExpense] { expenses.filter { $0.matchedManually } }
+    // Automatic fixed and essential matches are already categorized and
+    // stay out of the review queue. Unmatched Other / Outside stays reviewable.
+    var unassignedExpenses: [BudgetPerformanceExpense] {
+        expenses.filter {
+            guard !$0.matchedManually else { return false }
+            return $0.bucket == .other || $0.bucket == .outside
+        }
+    }
+    var assignedExpenses: [BudgetPerformanceExpense] {
+        let pendingIDs = Set(unassignedExpenses.map(\.id))
+        return expenses.filter { !pendingIDs.contains($0.id) }
+    }
 }
 
 enum BudgetPerformanceEngine {
