@@ -224,10 +224,12 @@ struct BudgetPerformanceReportView: View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 7) {
-                    Label("REMAINING BUDGET", systemImage: "wallet.pass")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .tracking(0.9)
-                        .foregroundStyle(Color.white.opacity(0.78))
+                    HStack(spacing: 6) {
+                        Image(systemName: "wallet.pass")
+                        Text("REMAINING BUDGET").tracking(0.9)
+                    }
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.78))
                     Text(amount(summary.remaining))
                         .font(.system(size: 29, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
