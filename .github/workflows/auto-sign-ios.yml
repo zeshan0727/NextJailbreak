@@ -1,72 +1,14 @@
 name: Next Auto Sign - Post Build Relay
-
 on:
   workflow_run:
-    workflows:
-      - Build Next Post TIPA
-    types:
-      - completed
-
+    workflows: ["Build Next Post TIPA"]
+    types: [completed]
 permissions:
-  contents: write
-  actions: write
-
-concurrency:
-  group: next-auto-sign-postbuild
-  cancel-in-progress: false
-
+  contents: read
 jobs:
-  request-signing:
-    name: Verify and submit trusted Next Post build for signing
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') && github.event.workflow_run.head_repository.full_name == github.repository
+  validate-trigger:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      GH_TOKEN: ${{ github.token }}
-      ARTIFACT_DIRECTORY: ${{ runner.temp }}/unsigned
-      EXPECTED_BUNDLE_ID: com.nextsolution.nextpost
     steps:
-      - name: Check out trusted signing validation script
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          persist-credentials: false
-
-      - name: Download successful Next Post build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: NextPost-1.0.17-Professional-X-Posts
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          path: ${{ runner.temp }}/unsigned
-
-      - name: Validate original app identity, bundle and archive
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 .github/scripts/auto-sign-ios.py inspect
-
-      - name: Hand off to existing encrypted-secret Next Signer
-        shell: bash
-        run: |
-          set -euo pipefail
-          if ! gh release view nextsigner-inbox >/dev/null 2>&1; then
-            gh release create nextsigner-inbox --draft \
-              --title 'Next Signer Inbox' \
-              --notes 'Temporary staging for unsigned app packages'
-          fi
-          ASSET="auto-nextpost-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.ipa"
-          cp "$RUNNER_TEMP/auto-sign-input.ipa" "$RUNNER_TEMP/$ASSET"
-          gh release upload nextsigner-inbox "$RUNNER_TEMP/$ASSET"
-          gh workflow run nextsigner-sign-publish.yml \
-            --ref main \
-            -f "staging_asset=$ASSET" \
-            -f "requested_name=$APP_NAME" \
-            -f "requested_bundle_id=$REQUESTED_BUNDLE_ID"
-          {
-            echo '## Next Post automatic signing requested'
-            echo "Original bundle ID: $REQUESTED_BUNDLE_ID"
-            echo "Version: $APP_VERSION ($APP_BUILD)"
-            echo 'Signing status: open Next Signer - Sign and Publish.'
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Diagnose signing trigger
+        run: echo "Trusted successful Next Post build detected"
