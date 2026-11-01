@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T13:51:37Z",
+  "updatedAt": "2026-11-01T14:08:44Z",
   "files": [
+    {
+      "id": "aspire-maintenance-1.2.0-theme-icloud-test",
+      "name": "Aspire Maintenance 1.2.0 — Themes + iCloud Backup Test",
+      "fileName": "AspireMaintenance-1.2.0-unsigned.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ — sign with iCloud-enabled profile",
+      "version": "1.2.0 (13)",
+      "url": "https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.0/AspireMaintenance-1.2.0-unsigned.ipa",
+      "tipaUrl": "https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.0/AspireMaintenance-1.2.0.tipa",
+      "sha256": "f8c4d043bc4f1c28180e1181416f972cc97670eb29bd4eae974298294895933b",
+      "sizeBytes": 2267513,
+      "notes": "Five selectable app themes plus automatic iCloud JSON backup with rotating 10-snapshot history, manual backup preserved, and Restore Latest Automatic Backup. Sign with CloudDocuments and iCloud.com.aspiregroup.maintenance."
+    },
     {
       "id": "nextapplibrary-1.0.3-unsigned-test",
       "name": "Next App Library 1.0.3 — Existing App Update",
