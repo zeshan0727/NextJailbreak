@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T09:44:48Z",
+  "updatedAt": "2026-11-01T13:45:59Z",
   "files": [
+    {
+      "id": "nextapplibrary-1.0.3-unsigned-test",
+      "name": "Next App Library 1.0.3 — Existing App Update",
+      "fileName": "NextAppLibrary-1.0.3.ipa",
+      "type": "ipa",
+      "platform": "Unsigned IPA / TrollStore signing required",
+      "version": "1.0.3 (4)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAppLibrary/1.0.3/NextAppLibrary-1.0.3.ipa",
+      "sha256": "ee4083e3d41d47778c5ef6dfa8f3cfea1193060e37da83244a1c582003b365dd",
+      "sizeBytes": 1650197,
+      "notes": "Next App Library 1.0.3 branding update. Preserves existing app catalog, local duplicate-install options, and installed bundle ID com.nextsolution.njapps. This NS Transfer IPA is unsigned; the separate signed build is published at nextjailbreak.com/install."
+    },
     {
       "id": "nextledger-1.3.84-build106-unsigned-ipa",
       "name": "Next Ledger 1.3.84 Build 106 — Budget Actual & Forecast (unsigned)",
@@ -1077,18 +1089,6 @@
       "sha256": "e6e7f084772059bc89ccb5e7988207f0651594d5252a22c6fe8e05f6ad1d2a63",
       "sizeBytes": 62656,
       "notes": "Matching RootHide helper with verified uid-0 execution plus the physically verified 0.7.17 SpringBoard capture/OCR/HID core retargeted to the current v0719 protocol. Packaged as a RootHide tweak dependency; installer clears stale bridge/HUD status and forces a RootHide-aware SpringBoard reload. HUD remains discontinued."
-    },
-    {
-      "id": "nextapp-1.0.2-duplicate-apps",
-      "name": "Next App 1.0.2 — Duplicate Apps",
-      "fileName": "NextApp-1.0.2.ipa",
-      "type": "ipa",
-      "platform": "TrollStore / iOS 16+",
-      "version": "1.0.2 (3)",
-      "url": "https://nextjailbreak.com/transfer/files/NextApp/1.0.2/NextApp-1.0.2.ipa",
-      "sha256": "270927dbf67912aa18c43388fc810111dc88a3c34518781fe15810b81db3ab1e",
-      "sizeBytes": 1650217,
-      "notes": "Adds More → Duplicate App. Enter 1–10 copies and Next App downloads the IPA once, creates unique bundle IDs, repackages each duplicate locally, then shows individual TrollStore Install buttons with a Share fallback. Existing OTA install and fast glass performance are preserved."
     },
     {
       "id": "ns-transfers-1.1.7-glass-performance",
