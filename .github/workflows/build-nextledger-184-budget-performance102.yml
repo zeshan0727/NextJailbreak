@@ -122,6 +122,7 @@ jobs:
           grep -Fq 'BudgetPerformanceReportView()' DailyLedger/Views/ReportsView.swift
           grep -Fq 'Budget Performance · Actual vs Plan' DailyLedger/Views/ReportsView.swift
           grep -Fq 'spendAssignments' DailyLedger/Models/MonthlyFixedBudget.swift
+          grep -Fq 'Categories without a planned allocation are outside budget' DailyLedger/Services/BudgetPerformanceEngine.swift
           grep -Fq 'Outside Budget' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'Remaining percentage' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'Fixed Expenses — Paid vs Planned' DailyLedger/Views/BudgetPerformanceReportView.swift
