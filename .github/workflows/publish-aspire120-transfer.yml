@@ -1,0 +1,66 @@
+name: Publish Aspire Maintenance 1.2.0 to NS Transfer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-aspire120-transfer.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download validated Aspire build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/${GITHUB_REPOSITORY}/actions/artifacts/13086945453/zip > /tmp/aspire120.zip
+          mkdir -p /tmp/aspire120
+          unzip -q /tmp/aspire120.zip -d /tmp/aspire120
+          test -f /tmp/aspire120/AspireMaintenance-1.2.0-unsigned.ipa
+          test -f /tmp/aspire120/AspireMaintenance-1.2.0.tipa
+      - name: Publish files and NS Transfer entry
+        run: |
+          set -e
+          DEST="transfer/files/AspireMaintenance/1.2.0"
+          mkdir -p "$DEST"
+          cp /tmp/aspire120/AspireMaintenance-1.2.0-unsigned.ipa "$DEST/"
+          cp /tmp/aspire120/AspireMaintenance-1.2.0.tipa "$DEST/"
+          export SHA="$(sha256sum "$DEST/AspireMaintenance-1.2.0-unsigned.ipa" | awk '{print $1}')"
+          export SIZE="$(stat -c%s "$DEST/AspireMaintenance-1.2.0-unsigned.ipa")"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from datetime import datetime, timezone
+          path=Path('transfer/index.json')
+          data=json.loads(path.read_text())
+          entry={
+            'id':'aspire-maintenance-1.2.0-theme-icloud-test',
+            'name':'Aspire Maintenance 1.2.0 — Themes + iCloud Backup Test',
+            'fileName':'AspireMaintenance-1.2.0-unsigned.ipa',
+            'type':'ipa',
+            'platform':'iOS 16+ — sign with iCloud-enabled profile',
+            'version':'1.2.0 (13)',
+            'url':'https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.0/AspireMaintenance-1.2.0-unsigned.ipa',
+            'tipaUrl':'https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.0/AspireMaintenance-1.2.0.tipa',
+            'sha256':os.environ['SHA'],
+            'sizeBytes':int(os.environ['SIZE']),
+            'notes':'Five selectable app themes plus automatic iCloud JSON backup with rotating 10-snapshot history, manual backup preserved, and Restore Latest Automatic Backup. Sign with CloudDocuments and iCloud.com.aspiregroup.maintenance.'
+          }
+          data['files']=[x for x in data.get('files',[]) if x.get('id')!=entry['id']]
+          data['files'].insert(0,entry)
+          data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          path.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add transfer/index.json "$DEST"
+          git commit -m "Publish Aspire Maintenance 1.2.0 theme and iCloud test"
+          git push origin main
