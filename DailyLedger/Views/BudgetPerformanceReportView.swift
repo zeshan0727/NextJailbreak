@@ -33,13 +33,16 @@ struct BudgetPerformanceReportView: View {
                     sourceIsPayments: source?.group == .payments,
                     destinationIsPayments: destination?.group == .payments
                 ) else { return nil }
-                // Report using the source account currency, without guessed FX.
-                BudgetSpendRecord(
+                // For a transfer to Payments, use the destination account's
+                // name for matching and presentation, without editing the ledger.
+                let isPaymentTransfer = transaction.type == .transfer
+                let paymentName = destination?.name
+                return BudgetSpendRecord(
                     id: transaction.id,
                     amount: transaction.amount,
                     date: transaction.date,
-                    category: transaction.category,
-                    vendor: transaction.vendor,
+                    category: isPaymentTransfer ? (paymentName ?? transaction.category) : transaction.category,
+                    vendor: isPaymentTransfer ? "Bank → Payments · \(paymentName ?? "Payment")" : transaction.vendor,
                     currencyCode: transaction.accountID.flatMap { currencies[$0] } ?? defaultCurrency
                 )
             }
