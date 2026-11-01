@@ -117,7 +117,63 @@ struct BudgetPerformanceResult {
     }
 }
 
+/// A forward-looking estimate, distinct from the saved budget plan and the
+/// actual recorded transactions. This model is never used to book an expense.
+struct BudgetPerformanceProjection {
+    let forecast: Decimal
+    let elapsedDays: Int
+    let totalDays: Int
+    let isEstimated: Bool
+
+    var progress: Double {
+        guard totalDays > 0 else { return 0 }
+        return Double(elapsedDays) / Double(totalDays)
+    }
+}
+
 enum BudgetPerformanceEngine {
+    /// Unpaid fixed commitments remain expected in the forecast; already-paid
+    /// fixed bills are NOT extrapolated across the remaining days. Only variable
+    /// spending and outside-budget activity use the elapsed-day run rate.
+    /// Past cycles show actual final spending; future cycles show the plan.
+    static func projection(
+        for result: BudgetPerformanceResult,
+        asOf: Date = Date(),
+        calendar: Calendar = .current
+    ) -> BudgetPerformanceProjection {
+        let cycle = result.cycle
+        let total = max(1, calendar.dateComponents([.day], from: cycle.start, to: cycle.end).day ?? 1)
+        let elapsed: Int
+        if asOf < cycle.start {
+            elapsed = 0
+        } else if asOf >= cycle.end {
+            elapsed = total
+        } else {
+            elapsed = min(total, max(1, (calendar.dateComponents([.day],
+                from: cycle.start, to: asOf).day ?? 0) + 1))
+        }
+
+        if elapsed == 0 {
+            return BudgetPerformanceProjection(forecast: result.totalBudget,
+                elapsedDays: 0, totalDays: total, isEstimated: true)
+        }
+        if elapsed == total {
+            return BudgetPerformanceProjection(forecast: result.actualSpent,
+                elapsedDays: total, totalDays: total, isEstimated: false)
+        }
+
+        let fixedLines = result.lines.filter { $0.id.hasPrefix("fixed:") }
+        let fixedPlan = fixedLines.reduce(Decimal.zero) { $0 + $1.budget }
+        let fixedPaid = fixedLines.reduce(Decimal.zero) { $0 + $1.spent }
+        let variablePaid = result.lines.filter { !$0.id.hasPrefix("fixed:") }
+            .reduce(Decimal.zero) { $0 + $1.spent }
+        let pace = Decimal(total) / Decimal(elapsed)
+        let predicted = max(fixedPlan, fixedPaid) + (variablePaid + result.outsideSpent) * pace
+        return BudgetPerformanceProjection(forecast: predicted,
+            elapsedDays: elapsed, totalDays: total, isEstimated: true)
+    }
+
+
     static func build(
         plan: MonthlyFixedBudget,
         cycleStart: Date,
