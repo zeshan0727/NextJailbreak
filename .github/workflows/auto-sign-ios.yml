@@ -1,0 +1,68 @@
+name: Next Auto Sign - Existing Signer Relay
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: The exact build artifact name containing an unsigned IPA or TIPA
+        required: true
+        type: string
+      expected_bundle_id:
+        description: Do not change this original bundle identifier
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  request-signing:
+    # Never give pull requests access to this publisher.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ARTIFACT_DIRECTORY: ${{ runner.temp }}/unsigned
+      EXPECTED_BUNDLE_ID: ${{ inputs.expected_bundle_id }}
+    steps:
+      - name: Checkout Next Signer metadata validator
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download unsigned artifact from same workflow run
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ runner.temp }}/unsigned
+      - name: Verify input metadata and preserve the original app identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/auto-sign-ios.py inspect
+      - name: Stage verified app and request signing via existing Next Signer workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This job never reads signing secrets. The existing signed/publish
+          # workflow reads encrypted Actions secrets in its own trusted runner.
+          if ! gh release view nextsigner-inbox >/dev/null 2>&1; then
+            gh release create nextsigner-inbox --draft \
+              --title 'Next Signer Inbox' \
+              --notes 'Temporary staging for unsigned app packages'
+          fi
+          asset="auto-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${APP_SLUG}.ipa"
+          cp "$RUNNER_TEMP/auto-sign-input.ipa" "$RUNNER_TEMP/$asset"
+          gh release upload nextsigner-inbox "$RUNNER_TEMP/$asset"
+          gh workflow run nextsigner-sign-publish.yml \
+            --ref main \
+            -f "staging_asset=$asset" \
+            -f "requested_name=$APP_NAME" \
+            -f "requested_bundle_id=$REQUESTED_BUNDLE_ID"
+          {
+            echo '## Automatic signing request submitted'
+            echo "App: $APP_NAME"
+            echo "Bundle ID: $REQUESTED_BUNDLE_ID"
+            echo "Version: $APP_VERSION ($APP_BUILD)"
+            echo 'Signing status: see Next Signer - Sign and Publish workflow'
+          } >> "$GITHUB_STEP_SUMMARY"
