@@ -14,29 +14,9 @@ private enum PerformanceStyle {
     static let amber = Color(red: 0.92, green: 0.61, blue: 0.22)
 }
 
-private enum PerformancePage: String, CaseIterable, Identifiable {
-    case overview = "Overview"
-    case breakdown = "Breakdown"
-    case review = "Review"
-    var id: String { rawValue }
-}
 
-/// Purely visual redesign of Reports > Budget Performance. Financial logic,
-/// original category snapshots, assignment persistence and transfers remain
-/// delegated to the existing BudgetPerformanceEngine and LedgerStore.
-struct BudgetPerformanceReportView: View {
-    @EnvironmentObject private var store: LedgerStore
-    @State private var cycleStart = BudgetCycle.start(containing: Date())
-    @State private var selectedPage: PerformancePage = .overview
-    @State private var showAllTransactions = false
-    @State private var showAssignedTransactions = false
-    @State private var showOtherCategoryBreakdown = true
-
-    private var activeExpenses: [FixedPlanItem] {
-        store.fixedBudget.activeItems(.expense, in: cycleStart)
-    }
-
-    private var result: BudgetPerformanceResult {
+enum BudgetPerformanceSnapshot {
+    static func make(store: LedgerStore, cycleStart: Date) -> BudgetPerformanceResult {
         let currencies = Dictionary(uniqueKeysWithValues: store.accounts.map {
             ($0.id, $0.currencyCode)
         })
@@ -74,6 +54,37 @@ struct BudgetPerformanceReportView: View {
             plan: store.fixedBudget, cycleStart: cycleStart,
             expenses: transactions, currencyCode: store.currencyCode
         )
+    }
+}
+
+private enum PerformancePage: String, CaseIterable, Identifiable {
+    case overview = "Overview"
+    case breakdown = "Breakdown"
+    case review = "Review"
+    var id: String { rawValue }
+}
+
+/// Purely visual redesign of Reports > Budget Performance. Financial logic,
+/// original category snapshots, assignment persistence and transfers remain
+/// delegated to the existing BudgetPerformanceEngine and LedgerStore.
+struct BudgetPerformanceReportView: View {
+    @EnvironmentObject private var store: LedgerStore
+    @State private var cycleStart: Date
+
+    init(initialCycle: Date = BudgetCycle.start(containing: Date())) {
+        _cycleStart = State(initialValue: initialCycle)
+    }
+    @State private var selectedPage: PerformancePage = .overview
+    @State private var showAllTransactions = false
+    @State private var showAssignedTransactions = false
+    @State private var showOtherCategoryBreakdown = true
+
+    private var activeExpenses: [FixedPlanItem] {
+        store.fixedBudget.activeItems(.expense, in: cycleStart)
+    }
+
+    private var result: BudgetPerformanceResult {
+        BudgetPerformanceSnapshot.make(store: store, cycleStart: cycleStart)
     }
 
     var body: some View {
