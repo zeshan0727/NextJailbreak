@@ -102,7 +102,26 @@ enum BudgetPerformanceEngine {
                 continue
             }
             let assignment = plan.spendAssignments[expense.id]
-            let bucket = bucketFor(expense: expense, assignment: assignment, fixed: fixed)
+            let suggested = bucketFor(expense: expense, assignment: assignment, fixed: fixed)
+            // Categories without a planned allocation are outside budget,
+            // even when their names are recognizable (e.g. Grocery with no
+            // budget configured). Otherwise achievement would be fabricated.
+            let bucket: BudgetPerformanceBucket
+            switch suggested {
+            case .fixed(let id):
+                bucket = (fixed.first(where: { $0.id == id })?.amount ?? 0) > 0
+                    ? suggested : .outside
+            case .grocery:
+                bucket = percentages.grocery > 0 && available > 0 ? suggested : .outside
+            case .fuel:
+                bucket = percentages.fuel > 0 && available > 0 ? suggested : .outside
+            case .eatOut:
+                bucket = percentages.eatOut > 0 && available > 0 ? suggested : .outside
+            case .other:
+                bucket = otherPercent > 0 && available > 0 ? suggested : .outside
+            case .outside:
+                bucket = .outside
+            }
             collected[bucket, default: 0] += expense.amount
             classified.append(BudgetPerformanceExpense(
                 record: expense, bucket: bucket, matchedManually: assignment != nil
