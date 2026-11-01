@@ -18,7 +18,8 @@ on:
       - "AspireMaintenanceRelease117/**"
       - "AspireMaintenanceRelease118/**"
       - "AspireMaintenanceRelease119/**"
-      - "AspireMaintenanceRelease120/**"\n      - "AspireMaintenanceRelease120Fix/**"
+      - "AspireMaintenanceRelease120/**"
+      - "AspireMaintenanceRelease120Fix/**"
       - ".github/workflows/build-aspire-maintenance.yml"
 
 permissions:
