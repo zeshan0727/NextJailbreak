@@ -1,4 +1,5 @@
 name: Build Next Post TIPA
+# Next Auto Sign post-build pilot trigger
 
 # 1.0.17 adds verified clean four-line posts while retaining the ad-free All Articles UI.
 on:
