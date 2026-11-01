@@ -2438,7 +2438,7 @@ private struct BalanceReconciliationReportView: View {
                 }
             }
         }
-        .navigationTitle("Balance Reconciliation")
+        .navigationTitle("Books vs Messages Balance")
         .navigationBarTitleDisplayMode(.inline)
     }
     private func latestReportedBalance(_ account: LedgerAccount) -> (label: String, amount: Decimal, currency: String, date: Date)? {
