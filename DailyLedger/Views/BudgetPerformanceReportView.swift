@@ -57,6 +57,12 @@ enum BudgetPerformanceSnapshot {
     }
 }
 
+private enum PerformanceMode: String, CaseIterable, Identifiable {
+    case actual = "Actual"
+    case forecast = "Forecast"
+    var id: String { rawValue }
+}
+
 private enum PerformancePage: String, CaseIterable, Identifiable {
     case overview = "Overview"
     case breakdown = "Breakdown"
@@ -64,7 +70,7 @@ private enum PerformancePage: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-/// Purely visual redesign of Reports > Budget Performance. Financial logic,
+/// Budget-tab Budget Performance dashboard. Financial logic,
 /// original category snapshots, assignment persistence and transfers remain
 /// delegated to the existing BudgetPerformanceEngine and LedgerStore.
 struct BudgetPerformanceReportView: View {
@@ -75,6 +81,7 @@ struct BudgetPerformanceReportView: View {
         _cycleStart = State(initialValue: initialCycle)
     }
     @State private var selectedPage: PerformancePage = .overview
+    @State private var performanceMode: PerformanceMode = .actual
     @State private var showAllTransactions = false
     @State private var showAssignedTransactions = false
     @State private var showOtherCategoryBreakdown = true
@@ -102,13 +109,23 @@ struct BudgetPerformanceReportView: View {
                                     in: RoundedRectangle(cornerRadius: 13, style: .continuous))
                 }
 
-                Picker("Report section", selection: $selectedPage) {
-                    ForEach(PerformancePage.allCases) { page in
-                        Text(page.rawValue).tag(page)
+                if selectedPage == .overview {
+                    Picker("Actual or Forecast", selection: $performanceMode) {
+                        ForEach(PerformanceMode.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
                     }
+                    .pickerStyle(.segmented)
+                    .accessibilityLabel("Actual or estimated Forecast")
+                } else {
+                    Button {
+                        selectedPage = .overview
+                    } label: {
+                        Label("Back to Performance", systemImage: "chevron.left")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .buttonStyle(.plain)
                 }
-                .pickerStyle(.segmented)
-                .accessibilityLabel("Budget Performance sections")
 
                 switch selectedPage {
                 case .overview:
@@ -175,123 +192,277 @@ struct BudgetPerformanceReportView: View {
 
     // MARK: - Overview
 
+    // MARK: - Approved Actual vs Forecast dashboard
+
+    private func displayAmount(_ line: BudgetPerformanceLine,
+                               projection: BudgetPerformanceProjection) -> Decimal {
+        if performanceMode == .actual { return line.spent }
+        if projection.elapsedDays == 0 { return line.budget }
+        if !projection.isEstimated { return line.spent }
+        return line.spent * Decimal(projection.totalDays) / Decimal(projection.elapsedDays)
+    }
+
     @ViewBuilder
     private func overview(_ summary: BudgetPerformanceResult) -> some View {
-        hero(summary)
-
-        HStack(spacing: 11) {
-            statisticTile("Paid in budget", value: amount(summary.budgetSpent),
-                          symbol: "checkmark.circle.fill", color: PerformanceStyle.indigo)
-            statisticTile("Outside budget", value: amount(summary.outsideSpent),
-                          symbol: "exclamationmark.circle.fill",
-                          color: summary.outsideSpent > 0 ? PerformanceStyle.coral : PerformanceStyle.mint)
-        }
-        HStack(spacing: 11) {
-            statisticTile("Planned", value: amount(summary.totalBudget),
-                          symbol: "calendar", color: PerformanceStyle.indigo)
-            statisticTile("Total paid", value: amount(summary.actualSpent),
-                          symbol: "creditcard.fill", color: PerformanceStyle.amber)
-        }
-
-        sectionHeading("Spending at a glance", subtitle: "Your flexible monthly allocations",
-                       symbol: "chart.bar.xaxis")
+        let projection = BudgetPerformanceEngine.projection(for: summary)
+        hero(summary, projection: projection)
         reportCard {
-            let variables = summary.lines.filter { !$0.id.hasPrefix("fixed:") }
-            if variables.isEmpty {
-                emptyMessage("No flexible allocations for this cycle.")
-            } else {
-                ForEach(variables) { line in
-                    compactAllocationLine(line)
-                    if line.id != variables.last?.id {
-                        Divider().padding(.vertical, 5)
+            HStack(spacing: 12) {
+                Image(systemName: "chart.xyaxis.line")
+                    .foregroundStyle(PerformanceStyle.indigo)
+                    .font(.system(size: 23, weight: .semibold))
+                    .frame(width: 39, height: 42)
+                    .background(PerformanceStyle.indigo.opacity(0.10),
+                                in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Actual vs Forecast")
+                        .font(.subheadline.weight(.bold))
+                    Text(projection.isEstimated ?
+                         "Forecast uses unpaid fixed bills and variable-spending pace." :
+                         "Cycle completed · final recorded spending.")
+                        .font(.caption)
+                        .foregroundStyle(PerformanceStyle.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+            Divider().padding(.vertical, 8)
+            comparisonBar("Actual", amount: summary.actualSpent, plan: summary.totalBudget,
+                          tint: PerformanceStyle.mint)
+            comparisonBar(projection.isEstimated ? "Estimated forecast" : "Final spending",
+                          amount: projection.forecast, plan: summary.totalBudget,
+                          tint: PerformanceStyle.indigo)
+        }
+
+        let fixedLines = summary.lines.filter { $0.id.hasPrefix("fixed:") }
+        let fixedPlan = fixedLines.reduce(Decimal.zero) { $0 + $1.budget }
+        let fixedSpent = fixedLines.reduce(Decimal.zero) { $0 + $1.spent }
+        sectionHeading("Fixed Expenses Performance",
+                       subtitle: "Paid against recurring commitments",
+                       symbol: "checkmark.calendar")
+        reportCard {
+            HStack(alignment: .top, spacing: 10) {
+                miniKPI("PLANNED", value: amount(fixedPlan), color: PerformanceStyle.primary)
+                Spacer(minLength: 1)
+                miniKPI("ACTUAL", value: amount(fixedSpent), color: PerformanceStyle.primary)
+                Spacer(minLength: 1)
+                miniKPI("REMAINING", value: amount(max(0, fixedPlan - fixedSpent)),
+                        color: PerformanceStyle.mint)
+            }
+            .padding(.bottom, 8)
+            ProgressView(value: fixedPlan > 0 ?
+                         min(1, max(0, NSDecimalNumber(decimal: fixedSpent / fixedPlan).doubleValue)) : 0)
+                .tint(fixedSpent > fixedPlan ? PerformanceStyle.coral : PerformanceStyle.mint)
+            Button {
+                selectedPage = .breakdown
+            } label: {
+                Label("View fixed expense details", systemImage: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.top, 7)
+            }
+            .buttonStyle(.plain)
+        }
+
+        sectionHeading("Variable Categories",
+                       subtitle: performanceMode == .actual
+                            ? "Recorded spending vs your planned budget"
+                            : "Estimated cycle-end spending vs plan",
+                       symbol: "basket.fill")
+        reportCard {
+            let variable = summary.lines.filter { !$0.id.hasPrefix("fixed:") }
+            if variable.isEmpty { emptyMessage("No variable categories for this cycle.") }
+            ForEach(variable) { line in
+                let visible = displayAmount(line, projection: projection)
+                HStack(spacing: 9) {
+                    Image(systemName: categoryIcon(line.title))
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(PerformanceStyle.indigo)
+                        .frame(width: 30, height: 30)
+                        .background(PerformanceStyle.indigo.opacity(0.08), in: Circle())
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack {
+                            Text(line.title)
+                                .font(.subheadline.weight(.semibold))
+                                .lineLimit(1)
+                            Spacer(minLength: 5)
+                            Text(percent(line.budget > 0
+                                ? NSDecimalNumber(decimal: visible / line.budget).doubleValue * 100
+                                : (visible > 0 ? 100 : 0)))
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(visible > line.budget ? PerformanceStyle.coral : PerformanceStyle.indigo)
+                        }
+                        ProgressView(value: line.budget > 0 ?
+                                     min(1, max(0, NSDecimalNumber(decimal: visible / line.budget).doubleValue)) : 0)
+                            .tint(visible > line.budget ? PerformanceStyle.coral : PerformanceStyle.indigo)
+                        Text("Plan \(amount(line.budget)) · \(performanceMode.rawValue) \(amount(visible))")
+                            .font(.caption)
+                            .foregroundStyle(PerformanceStyle.secondary)
+                            .lineLimit(2)
                     }
                 }
+                .padding(.vertical, 7)
+                if line.id != variable.last?.id { Divider() }
             }
+            Button {
+                selectedPage = .breakdown
+            } label: {
+                HStack {
+                    Text("View category details")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(PerformanceStyle.indigo)
+                .padding(.top, 10)
+            }
+            .buttonStyle(.plain)
         }
+
         Button {
-            selectedPage = .breakdown
+            selectedPage = .review
         } label: {
-            HStack {
-                Label("View detailed breakdown", systemImage: "square.grid.2x2")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Image(systemName: "arrow.right")
+            HStack(spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(PerformanceStyle.coral)
+                    .frame(width: 34, height: 34)
+                    .background(PerformanceStyle.coral.opacity(0.12),
+                                in: RoundedRectangle(cornerRadius: 10))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Review / Outside Budget")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(PerformanceStyle.primary)
+                    Text("Unplanned expenses and assignment corrections")
+                        .font(.caption)
+                        .foregroundStyle(PerformanceStyle.secondary)
+                }
+                Spacer(minLength: 5)
+                Text("\(summary.unassignedExpenses.count) to review")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(PerformanceStyle.coral)
+                    .lineLimit(1)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(PerformanceStyle.secondary)
             }
-            .foregroundStyle(PerformanceStyle.indigo)
-            .padding(.horizontal, 5)
+            .padding(15)
+            .background(PerformanceStyle.surface,
+                        in: RoundedRectangle(cornerRadius: 19, style: .continuous))
         }
         .buttonStyle(.plain)
 
         if summary.totalBudget == 0 {
             reportCard {
-                Label("No budget is planned for this cycle. Paid expenses remain visible as outside-budget activity.", systemImage: "info.circle")
-                    .font(.footnote)
-                    .foregroundStyle(PerformanceStyle.secondary)
+                Label("No budget is planned for this cycle. Recorded spending remains visible outside budget.",
+                      systemImage: "info.circle")
+                    .font(.caption)
             }
         }
     }
 
-    private func hero(_ summary: BudgetPerformanceResult) -> some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 7) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "wallet.pass")
-                        Text("REMAINING BUDGET").tracking(0.9)
-                    }
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.78))
-                    Text(amount(summary.remaining))
-                        .font(.system(size: 29, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                    Text(summary.overBudget > 0 ? "Budget exceeded" : "Available within your plan")
-                        .font(.caption)
-                        .foregroundStyle(Color.white.opacity(0.74))
-                }
-                Spacer(minLength: 4)
-                ZStack {
-                    Circle()
-                        .stroke(Color.white.opacity(0.18), lineWidth: 9)
-                    Circle()
-                        .trim(from: 0, to: CGFloat(min(1, max(0, summary.achievedPercentage / 100))))
-                        .stroke(Color(red: 0.68, green: 0.94, blue: 0.83),
-                                style: StrokeStyle(lineWidth: 9, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                    VStack(spacing: 2) {
-                        Text(percent(summary.achievedPercentage))
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                        Text("used")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(Color.white.opacity(0.77))
-                    }
-                    .foregroundStyle(.white)
-                }
-                .frame(width: 92, height: 92)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Budget used \(percent(summary.achievedPercentage))")
-            }
-            Rectangle().fill(Color.white.opacity(0.16)).frame(height: 1)
-            HStack(spacing: 10) {
-                heroMetric("Remaining", percent(summary.remainingPercentage))
-                Spacer(minLength: 6)
-                heroMetric("Budget used", percent(summary.achievedPercentage))
-                Spacer(minLength: 6)
-                heroMetric("Over plan", amount(summary.overBudget))
-            }
+    private func categoryIcon(_ name: String) -> String {
+        switch name.lowercased() {
+        case "grocery": return "cart.fill"
+        case "fuel": return "fuelpump.fill"
+        case "eat out": return "fork.knife"
+        default: return "ellipsis.circle.fill"
         }
-        .padding(20)
+    }
+
+    private func miniKPI(_ title: String, value: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title)
+                .font(.system(size: 9, weight: .bold))
+                .tracking(0.5)
+                .foregroundStyle(PerformanceStyle.secondary)
+            Text(value)
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+    }
+
+    private func comparisonBar(_ title: String, amount value: Decimal, plan: Decimal,
+                               tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 8) {
+                Text(title).font(.caption.weight(.semibold))
+                Spacer(minLength: 5)
+                Text(amount(value)).font(.caption.weight(.bold))
+                    .lineLimit(1).minimumScaleFactor(0.7)
+            }
+            ProgressView(value: plan > 0
+                         ? min(1, max(0, NSDecimalNumber(decimal: value / plan).doubleValue))
+                         : 0)
+                .tint(tint)
+        }
+        .padding(.vertical, 3)
+    }
+
+    private func hero(_ summary: BudgetPerformanceResult,
+                      projection: BudgetPerformanceProjection) -> some View {
+        let focus = performanceMode == .actual ? summary.actualSpent : projection.forecast
+        return VStack(alignment: .leading, spacing: 15) {
+            HStack(spacing: 11) {
+                Image(systemName: "chart.bar.fill")
+                    .foregroundStyle(Color(red: 0.26, green: 0.94, blue: 0.66))
+                    .font(.system(size: 25, weight: .semibold))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Budget Performance")
+                        .font(.system(.title3, design: .rounded, weight: .bold))
+                        .foregroundStyle(.white)
+                    Text("Cycle progress · \(projection.elapsedDays) of \(projection.totalDays) days")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.78))
+                }
+                Spacer(minLength: 1)
+                Text(percent(projection.progress * 100))
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+            }
+            ProgressView(value: projection.progress)
+                .tint(Color(red: 0.26, green: 0.94, blue: 0.66))
+            HStack(spacing: 9) {
+                heroMetric("Planned", amount(summary.totalBudget))
+                Spacer(minLength: 2)
+                heroMetric("Actual", amount(summary.actualSpent))
+                Spacer(minLength: 2)
+                heroMetric("Forecast", amount(projection.forecast))
+            }
+            Rectangle().fill(Color.white.opacity(0.17)).frame(height: 1)
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(performanceMode == .actual ? "Actual vs plan" : "Forecast vs plan")
+                        .font(.caption)
+                        .foregroundStyle(Color.white.opacity(0.77))
+                    Text(amount(focus - summary.totalBudget))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .lineLimit(1).minimumScaleFactor(0.65)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text("Remaining to plan")
+                        .font(.caption)
+                        .foregroundStyle(Color.white.opacity(0.77))
+                    Text(amount(max(0, summary.totalBudget - focus)))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .lineLimit(1).minimumScaleFactor(0.65)
+                }
+            }
+            Text(projection.isEstimated ? "Forecast is an estimate, not a recorded transaction." :
+                 "Final actual spending for this completed cycle.")
+                .font(.system(size: 10))
+                .foregroundStyle(Color.white.opacity(0.77))
+        }
+        .padding(19)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            LinearGradient(
-                colors: [Color(red: 0.12, green: 0.18, blue: 0.43),
-                         Color(red: 0.33, green: 0.29, blue: 0.78)],
-                startPoint: .topLeading, endPoint: .bottomTrailing
-            ),
-            in: RoundedRectangle(cornerRadius: 25, style: .continuous)
-        )
-        .shadow(color: PerformanceStyle.indigo.opacity(0.14), radius: 17, y: 7)
+        .background(LinearGradient(
+            colors: [Color(red: 0.12, green: 0.20, blue: 0.51),
+                     Color(red: 0.30, green: 0.29, blue: 0.80)],
+            startPoint: .topLeading, endPoint: .bottomTrailing
+        ), in: RoundedRectangle(cornerRadius: 25, style: .continuous))
     }
 
     private func heroMetric(_ label: String, _ value: String) -> some View {
@@ -300,53 +471,12 @@ struct BudgetPerformanceReportView: View {
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(Color.white.opacity(0.68))
             Text(value)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(.system(size: 11.5, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
                 .lineLimit(1)
-                .minimumScaleFactor(0.65)
+                .minimumScaleFactor(0.6)
         }
     }
-
-    private func statisticTile(_ title: String, value: String,
-                               symbol: String, color: Color) -> some View {
-        reportCard {
-            HStack(spacing: 7) {
-                Image(systemName: symbol)
-                    .foregroundStyle(color)
-                Text(title)
-                    .foregroundStyle(PerformanceStyle.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-            .font(.system(size: 11, weight: .medium))
-            Text(value)
-                .font(.system(size: 17, weight: .bold, design: .rounded))
-                .foregroundStyle(PerformanceStyle.primary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.63)
-                .padding(.top, 4)
-        }
-    }
-
-    private func compactAllocationLine(_ line: BudgetPerformanceLine) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack {
-                Text(line.title)
-                    .font(.subheadline.weight(.medium))
-                Spacer(minLength: 8)
-                Text("\(amount(line.spent)) / \(amount(line.budget))")
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(PerformanceStyle.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-            ProgressView(value: min(1, max(0, line.spentPercentage / 100)))
-                .tint(line.overBudget > 0 ? PerformanceStyle.coral : PerformanceStyle.indigo)
-        }
-        .padding(.vertical, 5)
-    }
-
-    // MARK: - Breakdown
 
     @ViewBuilder
     private func breakdown(_ summary: BudgetPerformanceResult) -> some View {
