@@ -8,8 +8,24 @@ permissions:
   actions: write
 jobs:
   validate-trigger:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
+    env:
+      ARTIFACT_DIRECTORY: ${{ runner.temp }}/unsigned
+      EXPECTED_BUNDLE_ID: com.nextsolution.nextpost
     steps:
-      - name: Diagnose signing trigger
-        run: echo "Trusted successful Next Post build detected"
+      - name: Checkout trusted validator
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Fetch successful build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: NextPost-1.0.17-Professional-X-Posts
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: ${{ runner.temp }}/unsigned
+      - name: Verify unsigned IPA metadata
+        run: python3 .github/scripts/auto-sign-ios.py inspect
