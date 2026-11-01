@@ -1,10 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <rss version="2.0">
   <channel>
     <title>Next Jailbreak</title>
     <link>https://nextjailbreak.com</link>
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
+    <item>
+      <title>ShowMyTouches 2.0 vs Touch-Viz 4.2: Which Touch Visualizer Should You Use?</title>
+      <link>https://nextjailbreak.com/touch-viz-2-4-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/touch-viz-2-4-update/</guid>
+      <pubDate>Sun, 01 Nov 2026 09:00:00 +0000</pubDate>
+      <description>Compare ShowMyTouches 2.0 and Touch-Viz 4.2 by iOS support, RootHide compatibility, effects, recording controls, maintenance and troubleshooting.</description>
+      <category>Tweak Roundup &amp; Comparison</category>
+    </item>
     <item>
       <title>How to Update Dopamine 3.0.12 Without Losing Your Tweaks</title>
       <link>https://nextjailbreak.com/update-dopamine-jailbreak-safely-guide/</link>
@@ -220,14 +228,6 @@
       <pubDate>Mon, 26 Oct 2026 17:02:16 GMT</pubDate>
       <description>CatMCP 1.3.0 adds lock-state queries, optional-passcode unlocking, Power-key actions and clearer unknown-key errors to its jailbroken-iOS MCP server.</description>
       <category>Productivity</category>
-    </item>
-    <item>
-      <title>Touch-Viz 4.1.1 Is Now Free as Developer Ends Support</title>
-      <link>https://nextjailbreak.com/touch-viz-2-4-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/touch-viz-2-4-update/</guid>
-      <pubDate>Mon, 26 Oct 2026 13:05:50 GMT</pubDate>
-      <description>Touch-Viz 4.1.1 is now free after reaching end of life, with an iOS 26 crash fix and listed iOS 15.0–26.0.1 rootless compatibility.</description>
-      <category>Individual Tweak Update</category>
     </item>
     <item>
       <title>Geranium vs TrollBox: Which TrollStore Utility Should You Use?</title>

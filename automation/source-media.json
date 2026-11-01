@@ -1405,6 +1405,31 @@
       },
       "screenshots": [],
       "retrieval_note": "The current developer README links an Imgur settings screenshot, but ordinary read-only retrieval did not expose the underlying image asset; no screenshot was claimed or embedded."
+    },
+    "comparison.showmytouches-touch-viz": {
+      "credit_label": "dayanch96 and 82flex/launchctl — exact official Havoc interface screenshots",
+      "source_page_url": "https://havoc.app/package/showmytouches",
+      "secondary_source_page_urls": [
+        "https://havoc.app/package/touchvis",
+        "https://github.com/dayanch96/ShowMyTouches"
+      ],
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6ae0a028cc515c37e3564f8b",
+        "alt": "Official ShowMyTouches 2.0 settings screen with recording-only, gesture shortcuts, Morph and Comet controls",
+        "local_path": "assets/articles/source-media/showmytouches-2-0-official-settings.png",
+        "git_blob_sha": "d158a761f17d9990e04dc6083957890fbae9942d",
+        "sha256": "1e59279f76aed8d2e9d22f4dceafed129343317cc408516aef5f986f2b1c59f8"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/66b86511328ec2048b89ae7b",
+          "alt": "Official Touch-Viz settings screen demonstrating a curved pink touch trail and color controls",
+          "local_path": "assets/articles/source-media/touch-viz-4-1-1-official-track.png",
+          "git_blob_sha": "f3640ac83b25faa0e51e7b8ef1c1dc3e0fd241f4",
+          "sha256": "78ddd5165553f3fadddd91d8a2d7eb5413150ba2723ed9867a3a92974d2f6c99"
+        }
+      ]
     }
   }
 }
