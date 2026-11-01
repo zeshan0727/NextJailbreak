@@ -35,10 +35,10 @@ let expenses: [BudgetSpendRecord] = [
 let report = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
     expenses: expenses, currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
 check(report.totalBudget == 9000, "planned fixed plus 100% of remaining income")
-check(report.budgetSpent == 3350, "fixed and essentials actual spending")
-check(report.outsideSpent == 300, "unmatched expense belongs outside")
-check(report.remaining == 5650, "remaining based on actual in-budget spending")
-check(abs(report.remainingPercentage - (5650.0 / 9000.0 * 100)) < 0.001,
+check(report.budgetSpent == 3650, "fixed, essentials and automatically categorized Other spending")
+check(report.outsideSpent == 0, "unmatched spending automatically uses the Other allocation")
+check(report.remaining == 5350, "remaining reflects all categorized spending")
+check(abs(report.remainingPercentage - (5350.0 / 9000.0 * 100)) < 0.001,
       "accurate remaining percentage")
 check(report.actualSpent == 3650, "total paid including unplanned")
 check(report.unconvertedByCurrency["PKR"] == 950, "never guess FX conversion")
@@ -50,7 +50,7 @@ check(report.lines.first(where: { $0.title == "Rent" })?.spent == 2500,
 plan.spendAssignments[unmatched] = BudgetSpendAssignment(kind: .other)
 let reclassified = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
     expenses: expenses, currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
-check(reclassified.outsideSpent == 0, "manual assignment removes outside spend")
+check(reclassified.outsideSpent == 0, "manual Other assignment leaves no outside spending")
 check(reclassified.budgetSpent == 3650, "manual assignment moves spend without duplication")
 check(reclassified.actualSpent == report.actualSpent, "classification cannot change real expense amount")
 
@@ -58,6 +58,15 @@ plan.spendAssignments[rentTxn] = BudgetSpendAssignment(kind: .fixed, fixedItemID
 let invalidFixed = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
     expenses: expenses, currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
 check(invalidFixed.outsideSpent == 2500, "invalid fixed plan association is not counted as paid")
+check(report.unassignedExpenses.count == 4, "all expenses initially appear available for assignment")
+check(reclassified.unassignedExpenses.count == 3, "assigned expenses disappear from default review")
+check(reclassified.assignedExpenses.count == 1, "assigned expenses can still be corrected")
+
+plan.spendAssignments[unmatched] = BudgetSpendAssignment(kind: .outside)
+let manuallyOutside = BudgetPerformanceEngine.build(plan: plan, cycleStart: cycle,
+    expenses: expenses, currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
+check(manuallyOutside.outsideSpent == 2800, "explicit outside classification survives alongside invalid fixed mapping")
+plan.spendAssignments[unmatched] = BudgetSpendAssignment(kind: .other)
 check(invalidFixed.actualSpent == report.actualSpent, "invalid mapping never discards spend")
 
 let saved = try JSONEncoder().encode(plan)
@@ -78,4 +87,23 @@ check(noPlan.totalBudget == 0, "empty plan has no invented budget")
 check(noPlan.outsideSpent == 3650, "all unplanned expenses shown outside when plan is empty")
 check(noPlan.remainingPercentage == 0, "no division by zero")
 
-print("Budget performance: 16 calculation, FX, date-boundary, classification and JSON compatibility checks passed.")
+func include(_ expense: Bool, _ transfer: Bool, _ sourceBank: Bool,
+             _ sourcePayments: Bool, _ destinationPayments: Bool) -> Bool {
+    BudgetPerformanceEngine.includesInSpending(
+        isExpense: expense, isTransfer: transfer, sourceIsBank: sourceBank,
+        sourceIsPayments: sourcePayments, destinationIsPayments: destinationPayments)
+}
+check(include(true, false, true, false, false), "ordinary expenses are counted")
+check(!include(false, true, true, false, false), "bank-to-bank transfer is not spending")
+check(include(false, true, true, false, true), "bank-to-Payments transfer is spending")
+check(!include(false, true, false, true, true), "Payments-to-Payments is excluded")
+check(!include(false, true, false, false, true), "non-bank source transfer is excluded")
+check(!include(false, false, true, false, true), "income does not count as spending")
+
+let noOtherPlan = MonthlyFixedBudget(
+    items: [rent, income], groceryPercent: 45, fuelPercent: 25, eatOutPercent: 30)
+let noOtherReport = BudgetPerformanceEngine.build(
+    plan: noOtherPlan, cycleStart: cycle, expenses: expenses,
+    currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
+check(noOtherReport.outsideSpent == 300, "zero Other allocation never invents budget")
+print("Budget Performance Build 103: classification, transfers, amount accounting, FX, date boundaries and JSON passed.")
