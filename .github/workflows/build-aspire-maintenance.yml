@@ -18,7 +18,7 @@ on:
       - "AspireMaintenanceRelease117/**"
       - "AspireMaintenanceRelease118/**"
       - "AspireMaintenanceRelease119/**"
-      - "AspireMaintenanceRelease120/**"
+      - "AspireMaintenanceRelease120/**"\n      - "AspireMaintenanceRelease120Fix/**"
       - ".github/workflows/build-aspire-maintenance.yml"
 
 permissions:
@@ -164,6 +164,17 @@ jobs:
           grep -q 'MARKETING_VERSION: "1.2.0"' AspireMaintenance/project.yml
           grep -q 'CURRENT_PROJECT_VERSION: "13"' AspireMaintenance/project.yml
           grep -q 'iCloud.com.aspiregroup.maintenance' AspireMaintenance/AspireMaintenance.entitlements
+
+      - name: Apply Aspire 1.2.0 backup init fix
+        run: |
+          cat AspireMaintenanceRelease120Fix/part-* > /tmp/aspire120fix.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire120fix.b64").read_text().strip()
+          Path("/tmp/aspire120fix.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire120fix.patch
 
       - name: Validate Swift syntax
         run: |
