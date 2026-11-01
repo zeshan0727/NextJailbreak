@@ -128,14 +128,14 @@ jobs:
           grep -Fq 'spendAssignments' DailyLedger/Models/MonthlyFixedBudget.swift
           grep -Fq 'Categories without a planned allocation are outside budget' DailyLedger/Services/BudgetPerformanceEngine.swift
           grep -Fq 'Outside Budget' DailyLedger/Views/BudgetPerformanceReportView.swift
-          grep -Fq 'Remaining percentage' DailyLedger/Views/BudgetPerformanceReportView.swift
-          grep -Fq 'Fixed Expenses — Paid vs Planned' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'REMAINING BUDGET' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Fixed expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'includesInSpending' DailyLedger/Services/BudgetPerformanceEngine.swift
-          grep -Fq 'Unassigned Expenses — Assign to Budget' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Needs your review' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'amount(fixed.amount)' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'otherRecordedCategories' DailyLedger/Services/BudgetPerformanceEngine.swift
           grep -Fq 'category: transaction.category' DailyLedger/Views/BudgetPerformanceReportView.swift
-          grep -Fq 'Other Planned Expenses — Original Categories' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Other planned expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'fixedMatchHint' DailyLedger/Services/BudgetPerformanceEngine.swift
           grep -Fq 'private func hero(' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'case overview = "Overview"' DailyLedger/Views/BudgetPerformanceReportView.swift
