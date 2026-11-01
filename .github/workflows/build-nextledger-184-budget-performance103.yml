@@ -1,12 +1,14 @@
-name: Next Ledger Build 105 Budget Performance Redesign
+name: Next Ledger Build 106 Budget Performance in Budget Tab
 
 on:
   push:
-    branches: [feature/nextledger-1.3.84-build105-budget-report-redesign]
+    branches: [feature/nextledger-1.3.84-build106-budget-performance-entry]
     paths:
       - ".github/workflows/build-nextledger-184-budget-performance103.yml"
       - "DailyLedger/Services/BudgetPerformanceEngine.swift"
       - "DailyLedger/Views/BudgetPerformanceReportView.swift"
+      - "DailyLedger/Views/FixedBudgetDashboardView.swift"
+      - "DailyLedger/Views/ReportsView.swift"
       - "Tests/NextLedgerBudgetPerformance/main.swift"
       - "project.yml"
   workflow_dispatch:
@@ -26,7 +28,7 @@ jobs:
       - name: Checkout full verified original Next Ledger 1.3.84 source
         uses: actions/checkout@v4
         with:
-          ref: feature/nextledger-1.3.84-build105-budget-report-redesign
+          ref: feature/nextledger-1.3.84-build106-budget-performance-entry
 
       - name: Validate full original features and iCloud documents declarations
         shell: bash
@@ -47,7 +49,7 @@ jobs:
           # Backup & Sync is the sole Settings JSON import location.
           test "$(grep -c 'LedgerRestoreImportControl(' DailyLedger/Views/SettingsView.swift)" -eq 1
           grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
-          grep -Fq 'CURRENT_PROJECT_VERSION: "105"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "106"' project.yml
           grep -Fq 'path: DailyLedger/DailyLedger.entitlements' project.yml
           grep -Fq 'com.apple.developer.icloud-services' DailyLedger/DailyLedger.entitlements
           grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
@@ -121,27 +123,35 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/nextledger-performance-105
-          /tmp/nextledger-performance-105
-          grep -Fq 'BudgetPerformanceReportView()' DailyLedger/Views/ReportsView.swift
-          grep -Fq 'Budget Performance · Actual vs Plan' DailyLedger/Views/ReportsView.swift
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/nextledger-performance-106
+          /tmp/nextledger-performance-106
+          grep -Fq 'BudgetPerformanceReportView(initialCycle: displayedCycle)' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'performancePreview' DailyLedger/Views/FixedBudgetDashboardView.swift
+          ! grep -Fq 'Label("Budget Performance · Actual vs Plan"' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Label("Budget Consumption"' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Label("Budget Suggestions"' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'Label("Books vs Messages Balance", systemImage: "books.vertical.fill")' DailyLedger/Views/ReportsView.swift
           grep -Fq 'spendAssignments' DailyLedger/Models/MonthlyFixedBudget.swift
           grep -Fq 'Categories without a planned allocation are outside budget' DailyLedger/Services/BudgetPerformanceEngine.swift
           grep -Fq 'Outside Budget' DailyLedger/Views/BudgetPerformanceReportView.swift
-          grep -Fq 'REMAINING BUDGET' DailyLedger/Views/BudgetPerformanceReportView.swift
+
           grep -Fq 'Fixed expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'includesInSpending' DailyLedger/Services/BudgetPerformanceEngine.swift
-          grep -Fq 'Needs your review' DailyLedger/Views/BudgetPerformanceReportView.swift
+
           grep -Fq 'amount(fixed.amount)' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'otherRecordedCategories' DailyLedger/Services/BudgetPerformanceEngine.swift
           grep -Fq 'category: transaction.category' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'Other planned expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'fixedMatchHint' DailyLedger/Services/BudgetPerformanceEngine.swift
-          grep -Fq 'private func hero(' DailyLedger/Views/BudgetPerformanceReportView.swift
-          grep -Fq 'case overview = "Overview"' DailyLedger/Views/BudgetPerformanceReportView.swift
+
+
           grep -Fq 'case breakdown = "Breakdown"' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'case review = "Review"' DailyLedger/Views/BudgetPerformanceReportView.swift
           grep -Fq 'store.saveFixedBudget(next)' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'case forecast = "Forecast"' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Actual vs Forecast' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Review / Outside Budget' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'static func projection(' DailyLedger/Services/BudgetPerformanceEngine.swift
           grep -Fq 'Other planned expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
 
       - name: Generate full Xcode project
@@ -175,7 +185,7 @@ jobs:
           test -n "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.dailyledger'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
-          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '105'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '106'
           test "$(/usr/libexec/PlistBuddy -c 'Print NSUbiquitousContainers:iCloud.com.nextsolution.dailyledger:NSUbiquitousContainerIsDocumentScopePublic' "$APP/Info.plist")" = 'true'
           BIN="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
           test "$(stat -f %z "$BIN")" -gt 12000000
@@ -185,26 +195,26 @@ jobs:
           done
           mkdir -p Payload
           cp -R "$APP" Payload/
-          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa
-          unzip -t NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa >/dev/null
-          cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build105-iCloud.entitlements
-          shasum -a 256 NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa > NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.sha256
-          ls -lh NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa
+          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa
+          unzip -t NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa >/dev/null
+          cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build106-iCloud.entitlements
+          shasum -a 256 NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa > NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.sha256
+          ls -lh NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa
           echo "NOTE: This IPA is unsigned. It MUST be signed with an Apple certificate and valid iCloud-enabled Ad Hoc provisioning profile."
 
       - name: Upload unsigned signing-ready IPA, entitlements and checksum
         uses: actions/upload-artifact@v4
         with:
-          name: NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED
+          name: NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED
           path: |
-            NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa
-            NextLedger-1.3.84-Build105-iCloud.entitlements
-            NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.sha256
+            NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa
+            NextLedger-1.3.84-Build106-iCloud.entitlements
+            NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.sha256
           if-no-files-found: error
           retention-days: 90
 
   publish:
-    name: Publish verified Build 105 to NS Transfer
+    name: Publish verified Build 106 to NS Transfer
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -224,8 +234,8 @@ jobs:
       - name: Download verified artifact from this successful build
         uses: actions/download-artifact@v4
         with:
-          name: NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED
-          path: build105
+          name: NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED
+          path: build106
 
       - name: Validate unsigned IPA, checksum, bundle version and iCloud container
         shell: bash
@@ -234,9 +244,9 @@ jobs:
           test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo "NS Transfer R2 credentials unavailable"; exit 1; }
           python3 - <<'PY'
           import hashlib, pathlib, plistlib, zipfile
-          d=pathlib.Path('build105')
-          ipa=d/'NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa'
-          checksum=d/'NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.sha256'
+          d=pathlib.Path('build106')
+          ipa=d/'NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa'
+          checksum=d/'NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.sha256'
           assert ipa.is_file() and checksum.is_file()
           sha=hashlib.sha256(ipa.read_bytes()).hexdigest()
           assert sha==checksum.read_text().split()[0].lower()
@@ -247,11 +257,11 @@ jobs:
               info=plistlib.loads(z.read(names[0]))
               assert info['CFBundleIdentifier']=='com.nextsolution.dailyledger'
               assert info['CFBundleShortVersionString']=='1.3.84'
-              assert info['CFBundleVersion']=='105'
+              assert info['CFBundleVersion']=='106'
               assert 'iCloud.com.nextsolution.dailyledger' in info.get('NSUbiquitousContainers',{})
-          print('Verified Next Ledger Build 105 IPA',sha)
+          print('Verified Next Ledger Build 106 IPA',sha)
           PY
-          IPA="build105/NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa"
+          IPA="build106/NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa"
           echo "FILE_SHA=$(sha256sum "$IPA" | awk '{print $1}')" >> "$GITHUB_ENV"
           echo "FILE_SIZE=$(stat -c %s "$IPA")" >> "$GITHUB_ENV"
 
@@ -261,13 +271,13 @@ jobs:
           set -euo pipefail
           python3 -m pip install --user --quiet --break-system-packages awscli
           export PATH="$HOME/.local/bin:$PATH"
-          KEY="apps/ipa/NextLedger/1.3.84/build-105/run-$GITHUB_RUN_ID/NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa"
+          KEY="apps/ipa/NextLedger/1.3.84/build-106/run-$GITHUB_RUN_ID/NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa"
           URL="https://files.nextsolution.cc/$KEY"
-          aws s3 cp "build105/NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa" "s3://next-signer-apps/$KEY" --endpoint-url "https://4fe920e259870b0366118a17cc5727e5.r2.cloudflarestorage.com" --content-type application/octet-stream --cache-control "public, max-age=31536000, immutable" --only-show-errors
+          aws s3 cp "build106/NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa" "s3://next-signer-apps/$KEY" --endpoint-url "https://4fe920e259870b0366118a17cc5727e5.r2.cloudflarestorage.com" --content-type application/octet-stream --cache-control "public, max-age=31536000, immutable" --only-show-errors
           curl --fail --silent --show-error --location --head --retry 6 --retry-all-errors "$URL" >/dev/null
           echo "PUBLIC_URL=$URL" >> "$GITHUB_ENV"
 
-      - name: Register Build 105 in NS Transfer
+      - name: Register Build 106 in NS Transfer
         shell: bash
         run: |
           set -euo pipefail
@@ -278,14 +288,14 @@ jobs:
           p=Path('transfer/index.json')
           doc=json.loads(p.read_text())
           entry={
-            'id':'nextledger-1.3.84-build105-unsigned-ipa',
-            'name':'Next Ledger 1.3.84 Build 105 — Budget Report Redesign (unsigned)',
-            'fileName':'NextLedger-1.3.84-Build105-ReportRedesign-UNSIGNED.ipa',
+            'id':'nextledger-1.3.84-build106-unsigned-ipa',
+            'name':'Next Ledger 1.3.84 Build 106 — Budget Actual & Forecast (unsigned)',
+            'fileName':'NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa',
             'type':'ipa','platform':'iOS 16+ — sign with Next Signer',
             'version':'1.3.84 (103)','url':os.environ['PUBLIC_URL'],
             'sha256':os.environ['FILE_SHA'],'sizeBytes':int(os.environ['FILE_SIZE']),
             'storage':'Cloudflare R2',
-            'notes':'Premium adaptive Budget Performance dashboard with Overview, Breakdown and Review; original categories, fixed matching and transfer rules unchanged. Unsigned; sign with iCloud-enabled profile.'
+            'notes':'Actual & Forecast in Budget tab, Books vs Messages Balance icon; archived two budget report shortcuts; unchanged original categories and transfers. Unsigned; sign with iCloud-enabled profile.'
           }
           doc['files']=[entry]+[x for x in doc.get('files',[]) if x.get('id')!=entry['id']]
           doc['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -296,7 +306,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add transfer/index.json
           if ! git diff --cached --quiet; then
-            git commit -m "Register Next Ledger Build 105 in NS Transfer"
+            git commit -m "Register Next Ledger Build 106 in NS Transfer"
             git pull --rebase origin main
             git push origin HEAD:main
           fi
