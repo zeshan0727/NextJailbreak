@@ -18,6 +18,9 @@ struct BudgetSpendRecord: Identifiable {
     let category: String
     let vendor: String?
     let currencyCode: String
+    /// Optional destination-account name used only to match generic transfers
+    /// against fixed plans. The original recorded category is never overwritten.
+    var fixedMatchHint: String? = nil
 }
 
 struct BudgetPerformanceExpense: Identifiable {
@@ -40,6 +43,14 @@ struct BudgetPerformanceLine: Identifiable {
         guard budget > 0 else { return spent > 0 ? 100 : 0 }
         return NSDecimalNumber(decimal: spent / budget).doubleValue * 100
     }
+}
+
+struct BudgetRecordedCategory: Identifiable {
+    let name: String
+    let spent: Decimal
+    let transactionCount: Int
+
+    var id: String { name.lowercased() }
 }
 
 struct BudgetPerformanceResult {
@@ -66,12 +77,38 @@ struct BudgetPerformanceResult {
         return NSDecimalNumber(decimal: budgetSpent / totalBudget).doubleValue * 100
     }
     var outsideExpenses: [BudgetPerformanceExpense] { expenses.filter { $0.bucket == .outside } }
-    // Automatic fixed and essential matches are already categorized and
-    // stay out of the review queue. Unmatched Other / Outside stays reviewable.
+    // Fixed, essentials and Other with a planned allocation are automatically
+    // categorized, so only genuine Outside Budget records require review.
     var unassignedExpenses: [BudgetPerformanceExpense] {
-        expenses.filter {
-            guard !$0.matchedManually else { return false }
-            return $0.bucket == .other || $0.bucket == .outside
+        expenses.filter { !$0.matchedManually && $0.bucket == .outside }
+    }
+
+    /// Read-only breakdown of the OTHER allocation by the category recorded on
+    /// each transaction (e.g. Uber recorded as Taxi stays Taxi).
+    var otherRecordedCategories: [BudgetRecordedCategory] { recordedCategories(in: .other) }
+    var outsideRecordedCategories: [BudgetRecordedCategory] { recordedCategories(in: .outside) }
+
+    private func recordedCategories(in bucket: BudgetPerformanceBucket) -> [BudgetRecordedCategory] {
+        var totals: [String: Decimal] = [:]
+        var names: [String: String] = [:]
+        var counts: [String: Int] = [:]
+        for expense in expenses where expense.bucket == bucket {
+            let raw = expense.record.category.trimmingCharacters(in: .whitespacesAndNewlines)
+            let original = raw.isEmpty ? "Uncategorized" : raw
+            let key = original.lowercased()
+            if names[key] == nil { names[key] = original }
+            totals[key, default: 0] += expense.record.amount
+            counts[key, default: 0] += 1
+        }
+        return totals.keys.map { key in
+            BudgetRecordedCategory(
+                name: names[key] ?? key,
+                spent: totals[key] ?? 0,
+                transactionCount: counts[key] ?? 0
+            )
+        }.sorted {
+            if $0.spent != $1.spent { return $0.spent > $1.spent }
+            return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
         }
     }
     var assignedExpenses: [BudgetPerformanceExpense] {
@@ -209,6 +246,15 @@ enum BudgetPerformanceEngine {
         let cat = canonical(expense.category)
         let fixedMatches = fixed.filter { canonical($0.title) == cat }
         if fixedMatches.count == 1 { return .fixed(fixedMatches[0].id) }
+
+        // Only generic transfer labels may use a destination Payments account
+        // as a fixed-expense hint. A meaningful original category such as Taxi
+        // always wins, and is never silently replaced by an account/merchant.
+        if ["", "transfer", "bank transfer", "payment", "payments"].contains(cat),
+           let hint = expense.fixedMatchHint {
+            let hinted = fixed.filter { canonical($0.title) == canonical(hint) }
+            if hinted.count == 1 { return .fixed(hinted[0].id) }
+        }
 
         switch cat {
         case "grocery", "groceries", "supermarket", "food groceries":
