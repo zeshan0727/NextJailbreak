@@ -157,7 +157,7 @@ enum BudgetPerformanceEngine {
             return BudgetPerformanceProjection(forecast: result.totalBudget,
                 elapsedDays: 0, totalDays: total, isEstimated: true)
         }
-        if elapsed == total {
+        if asOf >= cycle.end {
             return BudgetPerformanceProjection(forecast: result.actualSpent,
                 elapsedDays: total, totalDays: total, isEstimated: false)
         }
