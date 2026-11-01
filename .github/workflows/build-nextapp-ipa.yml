@@ -1,4 +1,5 @@
 name: Build Next App Library IPA
+# Signing relay validation rerun for existing com.nextsolution.njapps
 
 on:
   workflow_dispatch:
