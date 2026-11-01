@@ -135,6 +135,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     permissions:
       contents: write
+      actions: write
     uses: ./.github/workflows/auto-sign-ios.yml
     with:
       artifact_name: NextPost-1.0.17-Professional-X-Posts
