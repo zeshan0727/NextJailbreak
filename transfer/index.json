@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T06:48:49Z",
+  "updatedAt": "2026-11-01T07:30:10Z",
   "files": [
+    {
+      "id": "nextledger-1.3.84-build103-unsigned-ipa",
+      "name": "Next Ledger 1.3.84 Build 103 — Budget Assignment Fixes (unsigned)",
+      "fileName": "NextLedger-1.3.84-Build103-BudgetAssignment-UNSIGNED.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ — sign with Next Signer",
+      "version": "1.3.84 (103)",
+      "url": "https://files.nextsolution.cc/apps/ipa/NextLedger/1.3.84/build-103/run-41284758073/NextLedger-1.3.84-Build103-BudgetAssignment-UNSIGNED.ipa",
+      "sha256": "43289cade6279b739a9f854c4fb369e22edcc89d7a158b970c0f3866341f911e",
+      "sizeBytes": 3121628,
+      "storage": "Cloudflare R2",
+      "notes": "Fixed-plan amounts, unassigned-only expense review, automatic Other allocation, and bank-to-Payments spending. Unsigned; sign with valid iCloud-enabled profile."
+    },
     {
       "id": "nextledger-1.3.84-build102-unsigned-ipa",
       "name": "Next Ledger 1.3.84 Build 102 — Budget Performance (unsigned)",
