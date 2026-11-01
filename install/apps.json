@@ -1,6 +1,26 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-nextpost",
+      "name": "Next Post",
+      "version": "1.0.17",
+      "build": "17",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.nextpost",
+      "icon": "/install/icons/com-nextsolution-nextpost-493c22347265.png",
+      "manifest": "/install/com-nextsolution-nextpost.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-nextpost/1.0.17/com-nextsolution-nextpost-1.0.17-17.ipa",
+      "sha256": "493c223472651371760b983d4e7e5a6032a4dd3425b45f2dc18d47ad42f3ef21",
+      "sizeBytes": 1777100,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false
+    },
+    {
       "id": "com-nextsolution-dailyledger",
       "name": "Next Ledger",
       "version": "1.3.84",
