@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T13:45:59Z",
+  "updatedAt": "2026-11-01T13:51:37Z",
   "files": [
+    {
+      "id": "nextapplibrary-1.0.3-unsigned-test",
+      "name": "Next App Library 1.0.3 — Existing App Update",
+      "fileName": "NextAppLibrary-1.0.3.ipa",
+      "type": "ipa",
+      "platform": "Unsigned IPA / TrollStore signing required",
+      "version": "1.0.3 (4)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAppLibrary/1.0.3/NextAppLibrary-1.0.3.ipa",
+      "sha256": "eef0e4c8c799de8cb453e375511b6c39e992602d2ef0e041755de253192c62fc",
+      "sizeBytes": 1650197,
+      "notes": "Next App Library 1.0.3 branding update. Preserves existing app catalog, local duplicate-install options, and installed bundle ID com.nextsolution.njapps. This NS Transfer IPA is unsigned; the separate signed build is published at nextjailbreak.com/install."
+    },
     {
       "id": "nextapplibrary-1.0.3-unsigned-test",
       "name": "Next App Library 1.0.3 — Existing App Update",
