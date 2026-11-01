@@ -48,7 +48,7 @@ final class AppCatalogStore: ObservableObject {
             request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             request.timeoutInterval = 20
             request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
-            request.setValue("NextApp/1.0.2", forHTTPHeaderField: "User-Agent")
+            request.setValue("NextAppLibrary/1.0.3", forHTTPHeaderField: "User-Agent")
 
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse,
@@ -220,7 +220,7 @@ struct AppsHomeView: View {
             .frame(width: 58, height: 58)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("Next App")
+                Text("Next App Library")
                     .font(.system(size: 29, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
 
@@ -337,7 +337,7 @@ struct AppCard: View, Equatable {
         .padding(15)
         .fastGlassPanel(cornerRadius: 23)
         .alert(
-            "Next App",
+            "Next App Library",
             isPresented: Binding(
                 get: { alertMessage != nil },
                 set: { if !$0 { alertMessage = nil } }
