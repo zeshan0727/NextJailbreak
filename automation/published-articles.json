@@ -3003,29 +3003,31 @@
         "id": "jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
-      "compat": "Dopamine 3.0.11 official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
-      "description": "Update Dopamine using its built-in updater, TrollStore or the official GitHub release, then refresh the jailbreak environment without removing installed tweaks.",
+      "compat": "Dopamine 3.0.12 official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
+      "description": "Update Dopamine 3.0.12 through its updater, TrollStore or the official IPA, verify SHA-256, refresh the jailbreak environment and keep your tweak list.",
       "developer": "opa334",
       "entry_type": "evergreen-guide",
       "href": "update-dopamine-jailbreak-safely-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
-      "media_credit": "Official Dopamine app icon from the 3.0.11 source tag",
+      "image": "assets/articles/source-media/dopamine-3-0-12-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.12 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.12 source tag",
+      "media_git_blob_sha": "9ea200d790af0c89b8781469b32b9720745e80c3",
       "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-10-13T04:58:13Z",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-01T03:00:00Z",
       "name": "Dopamine update guide",
       "package": "guide.dopamine.update-safely",
       "published_at": "2026-10-13T04:58:13Z",
-      "release": "2026-10-12",
+      "release": "2026-10-20",
       "selection_pool": "scheduled-evergreen-jailbreak-guide",
       "slug": "update-dopamine-jailbreak-safely-guide",
-      "source_name": "Official Dopamine 3.0.11 updater, release-selection and environment-update source",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.11/Application/Dopamine/UI/Update/DOUpdateViewController.m",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.11",
+      "source_name": "Official Dopamine 3.0.12 release, updater, environment-update source and README",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.12/Application/Dopamine/UI/Update/DOUpdateViewController.m",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.12",
       "source_visual_origin": "official-repository-asset-reused",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "How to Update Dopamine Safely Without Losing Your Tweaks",
-      "version": "Dopamine 3.0.11"
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "How to Update Dopamine 3.0.12 Without Losing Your Tweaks",
+      "version": "Dopamine 3.0.12"
     },
     {
       "additional_media": [],
@@ -10159,8 +10161,19 @@
       "published_at": "2026-10-31T21:00:00Z",
       "run_id": "scheduled-2026-10-31T21:00:00Z",
       "version": "1.16.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "dopamine-3.0.12-safe-update-sha256-environment-refresh-guide-2026-11-01",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "update-dopamine-jailbreak-safely-guide/",
+      "package": "guide.dopamine.update-safely",
+      "previous_version": "Dopamine 3.0.11",
+      "published_at": "2026-11-01T03:00:00Z",
+      "run_id": "scheduled-2026-11-01T03:00:00Z",
+      "version": "Dopamine 3.0.12"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-10-31T21:00:00Z"
+  "updated_at": "2026-11-01T03:00:00Z"
 }
