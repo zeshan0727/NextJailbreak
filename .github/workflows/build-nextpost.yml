@@ -128,3 +128,14 @@ jobs:
             sleep $((attempt * 3))
           done
           exit 1
+
+  auto_sign:
+    name: Automatically Apple-sign Next Post
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/auto-sign-ios.yml
+    with:
+      artifact_name: NextPost-1.0.17-Professional-X-Posts
+      expected_bundle_id: com.nextsolution.nextpost
