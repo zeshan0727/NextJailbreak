@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: nextledger-184-budget-performance103
+  group: nextledger-184-budget-performance106
   cancel-in-progress: false
 
 jobs:
