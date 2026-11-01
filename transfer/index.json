@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T09:41:28Z",
+  "updatedAt": "2026-11-01T09:44:48Z",
   "files": [
     {
       "id": "nextledger-1.3.84-build106-unsigned-ipa",
@@ -9,9 +9,9 @@
       "type": "ipa",
       "platform": "iOS 16+ — sign with Next Signer",
       "version": "1.3.84 (103)",
-      "url": "https://files.nextsolution.cc/apps/ipa/NextLedger/1.3.84/build-106/run-41293931080/NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa",
-      "sha256": "9f1349026cd871ef082ca25b5e9cd46eabccd9851af5e392a8f90ce5265fb9c4",
-      "sizeBytes": 3186401,
+      "url": "https://files.nextsolution.cc/apps/ipa/NextLedger/1.3.84/build-106/run-41293992551/NextLedger-1.3.84-Build106-BudgetActualForecast-UNSIGNED.ipa",
+      "sha256": "67a96ceccf5e7f0090626c9d65c90ba6ebe3c13d8394c4d25b1ea0ed600b5fc5",
+      "sizeBytes": 3186361,
       "storage": "Cloudflare R2",
       "notes": "Actual & Forecast in Budget tab, Books vs Messages Balance icon; archived two budget report shortcuts; unchanged original categories and transfers. Unsigned; sign with iCloud-enabled profile."
     },
