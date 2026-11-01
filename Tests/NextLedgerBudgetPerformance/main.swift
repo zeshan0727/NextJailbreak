@@ -140,3 +140,23 @@ check(categoryReport.unassignedExpenses.isEmpty,
 check(categoryReport.budgetSpent == 630, "subtotals and fixed payments counted exactly once")
 check(categoryReport.actualSpent == 630, "no duplication from category grouping")
 print("Budget Performance Build 104: original category preservation, Uber Taxi, category totals, transfer hints, allocations, FX, JSON and boundaries passed.")
+// Build 106: forecast stays separate from actuals and never multiplies already
+// paid fixed installments as though they were daily variable spending.
+let futureProjection = BudgetPerformanceEngine.projection(
+    for: report, asOf: day(2026, 10, 25), calendar: calendar)
+check(futureProjection.elapsedDays == 0, "forecast shows zero elapsed days before cycle")
+check(futureProjection.forecast == report.totalBudget, "future cycle estimate starts at plan")
+let activeProjection = BudgetPerformanceEngine.projection(
+    for: report, asOf: day(2026, 11, 1), calendar: calendar)
+check(activeProjection.elapsedDays == 7 && activeProjection.totalDays == 31,
+      "26 Oct through 1 Nov is seven days in a 31 day salary cycle")
+check(activeProjection.isEstimated, "active cycle forecast is explicitly estimated")
+check(activeProjection.forecast > report.actualSpent,
+      "active forecast covers unpaid fixed bills and ongoing variable pace")
+let finalProjection = BudgetPerformanceEngine.projection(
+    for: report, asOf: day(2026, 11, 26), calendar: calendar)
+check(!finalProjection.isEstimated && finalProjection.forecast == report.actualSpent,
+      "completed cycles show recorded actuals instead of invented forecasts")
+check(finalProjection.elapsedDays == finalProjection.totalDays,
+      "completed cycle progress is full")
+print("Budget Performance Build 106: actual, forecast, salary-cycle boundaries and category invariants passed.")
