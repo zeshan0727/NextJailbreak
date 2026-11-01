@@ -129,14 +129,52 @@ jobs:
           done
           exit 1
 
+
   auto_sign:
-    name: Automatically Apple-sign Next Post
+    name: Automatically sign Next Post after successful build
     needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       actions: write
-    uses: ./.github/workflows/auto-sign-ios.yml
-    with:
-      artifact_name: NextPost-1.0.17-Professional-X-Posts
-      expected_bundle_id: com.nextsolution.nextpost
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ARTIFACT_DIRECTORY: ${{ runner.temp }}/unsigned
+      EXPECTED_BUNDLE_ID: com.nextsolution.nextpost
+    steps:
+      - name: Check out the signing validator
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download Next Post build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: NextPost-1.0.17-Professional-X-Posts
+          path: ${{ runner.temp }}/unsigned
+      - name: Check app identity and build contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/auto-sign-ios.py inspect
+      - name: Submit for signing with saved GitHub certificates
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! gh release view nextsigner-inbox >/dev/null 2>&1; then
+            gh release create nextsigner-inbox --draft --title 'Next Signer Inbox' --notes 'Unsigned signing inbox'
+          fi
+          ASSET="auto-nextpost-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.ipa"
+          cp "$RUNNER_TEMP/auto-sign-input.ipa" "$RUNNER_TEMP/$ASSET"
+          gh release upload nextsigner-inbox "$RUNNER_TEMP/$ASSET"
+          gh workflow run nextsigner-sign-publish.yml --ref main \
+            -f "staging_asset=$ASSET" \
+            -f "requested_name=$APP_NAME" \
+            -f "requested_bundle_id=$REQUESTED_BUNDLE_ID"
+          {
+            echo '## Next Post signing requested'
+            echo "App: $APP_NAME"
+            echo "Original bundle ID: $REQUESTED_BUNDLE_ID"
+            echo "Version: $APP_VERSION ($APP_BUILD)"
+            echo 'The existing Next Signer publisher signs and publishes the IPA.'
+          } >> "$GITHUB_STEP_SUMMARY"
