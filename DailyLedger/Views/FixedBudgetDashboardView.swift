@@ -76,6 +76,11 @@ struct FixedBudgetDashboardView: View {
     @State private var editing: FixedPlanItem?
     @State private var showBudgetNotice = false
     @State private var appliedNotice = false
+    @State private var showPerformance = false
+
+    private var performanceSummary: BudgetPerformanceResult {
+        BudgetPerformanceSnapshot.make(store: store, cycleStart: displayedCycle)
+    }
 
     private var plan: MonthlyFixedBudget { store.fixedBudget }
     private var income: Decimal { plan.total(.income, in: displayedCycle) }
@@ -109,6 +114,7 @@ struct FixedBudgetDashboardView: View {
                     fixedIncomeCard
                     summaryCard
                 }
+                performancePreview
                 expenseCard
                 essentialsCard
             }
@@ -143,48 +149,140 @@ struct FixedBudgetDashboardView: View {
         } message: {
             Text("Grocery, Fuel and Eat Out allocations were saved for \(BudgetCycle.title(start: displayedCycle)).")
         }
+        .fullScreenCover(isPresented: $showPerformance) {
+            NavigationStack {
+                BudgetPerformanceReportView(initialCycle: displayedCycle)
+                    .environmentObject(store)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button {
+                                showPerformance = false
+                            } label: {
+                                Label("Budget", systemImage: "chevron.left")
+                            }
+                        }
+                    }
+            }
+        }
         .onAppear(perform: loadAllocations)
         .onChange(of: displayedCycle) { _ in loadAllocations() }
     }
 
     private var heading: some View {
-        HStack(alignment: .center, spacing: 8) {
-            VStack(alignment: .leading, spacing: 3) {
-                (
-                    Text("Next ").foregroundColor(LedgerBudgetStyle.navy) +
-                    Text("Ledger").foregroundColor(LedgerBudgetStyle.blue)
-                )
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .minimumScaleFactor(0.8)
-                Text("Plan Today. A Better Tomorrow.")
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(LedgerBudgetStyle.muted)
-            }
-            Spacer(minLength: 4)
-            Button { showBudgetNotice = true } label: {
-                ZStack(alignment: .topTrailing) {
-                    Image(systemName: "bell")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(LedgerBudgetStyle.navy)
-                        .frame(width: 39, height: 39)
-                        .background(LedgerBudgetStyle.surface, in: Circle())
-                    Circle().fill(Color.red).frame(width: 8, height: 8)
-                        .offset(x: -5, y: 3)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
+                VStack(alignment: .leading, spacing: 3) {
+                    (
+                        Text("Next ").foregroundColor(LedgerBudgetStyle.navy) +
+                        Text("Ledger").foregroundColor(LedgerBudgetStyle.blue)
+                    )
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .minimumScaleFactor(0.8)
+                    Text("Plan Today. A Better Tomorrow.")
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(LedgerBudgetStyle.muted)
                 }
+                Spacer(minLength: 4)
+                Button { showBudgetNotice = true } label: {
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "bell")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(LedgerBudgetStyle.navy)
+                            .frame(width: 39, height: 39)
+                            .background(LedgerBudgetStyle.surface, in: Circle())
+                        Circle().fill(Color.red).frame(width: 8, height: 8)
+                            .offset(x: -5, y: 3)
+                    }
+                }
+                .accessibilityLabel("Budget overview")
+                Text("Z")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 39, height: 39)
+                    .background(
+                        LinearGradient(colors: [Color(red: 0.31, green: 0.52, blue: 0.77),
+                                                Color(red: 0.23, green: 0.36, blue: 0.58)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing),
+                        in: Circle()
+                    )
             }
-            .accessibilityLabel("Budget overview")
-            Text("Z")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 39, height: 39)
-                .background(
-                    LinearGradient(colors: [Color(red: 0.31, green: 0.52, blue: 0.77),
-                                            Color(red: 0.23, green: 0.36, blue: 0.58)],
-                                   startPoint: .topLeading, endPoint: .bottomTrailing),
-                    in: Circle()
-                )
+            HStack {
+                Spacer(minLength: 0)
+                Button { showPerformance = true } label: {
+                    HStack(spacing: 9) {
+                        Image(systemName: "chart.bar.fill")
+                            .font(.system(size: 17, weight: .medium))
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Performance")
+                                .font(.system(size: 12.5, weight: .bold))
+                            Text("Actual & Forecast")
+                                .font(.system(size: 10.5))
+                        }
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .foregroundStyle(LedgerBudgetStyle.blue)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(LedgerBudgetStyle.blue.opacity(0.08),
+                                in: Capsule())
+                    .overlay(Capsule().stroke(LedgerBudgetStyle.blue.opacity(0.17), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open Budget Performance, Actual and Forecast")
+            }
         }
         .padding(.horizontal, 3)
+    }
+
+    private var performancePreview: some View {
+        let snapshot = performanceSummary
+        let projection = BudgetPerformanceEngine.projection(for: snapshot)
+        return Button {
+            showPerformance = true
+        } label: {
+            HStack(spacing: 11) {
+                Image(systemName: "chart.bar.xaxis")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(LedgerBudgetStyle.blue)
+                    .frame(width: 40, height: 40)
+                    .background(LedgerBudgetStyle.blue.opacity(0.11),
+                                in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Actual vs Forecast")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(LedgerBudgetStyle.navy)
+                    Text("Actual \(money(snapshot.actualSpent)) · \(projection.isEstimated ? "Estimated" : "Final") \(money(projection.forecast))")
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(LedgerBudgetStyle.muted)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
+                }
+                Spacer(minLength: 4)
+                VStack(alignment: .trailing, spacing: 5) {
+                    Text(money(projection.forecast - snapshot.actualSpent))
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(LedgerBudgetStyle.blue)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text("Forecast gap")
+                        .font(.system(size: 10))
+                        .foregroundStyle(LedgerBudgetStyle.muted)
+                }
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(LedgerBudgetStyle.muted)
+                    .font(.system(size: 12, weight: .bold))
+            }
+            .padding(14)
+            .background(LedgerBudgetStyle.surface,
+                        in: RoundedRectangle(cornerRadius: 21, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 21, style: .continuous)
+                    .stroke(LedgerBudgetStyle.blue.opacity(0.10), lineWidth: 1)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Actual versus forecast, open Budget Performance")
     }
 
     private var cycleHero: some View {
