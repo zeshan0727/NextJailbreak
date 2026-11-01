@@ -163,6 +163,9 @@ struct ReportsView: View {
                     NavigationLink { ReportComparisonView() } label: {
                         Label("Compare Reports", systemImage: "chart.xyaxis.line")
                     }
+                    NavigationLink { BudgetPerformanceReportView() } label: {
+                        Label("Budget Performance · Actual vs Plan", systemImage: "chart.pie")
+                    }
                     NavigationLink { BudgetConsumptionReportView() } label: {
                         Label("Budget Consumption", systemImage: "chart.bar.doc.horizontal")
                     }
