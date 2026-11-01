@@ -606,40 +606,45 @@
       "version": "Guide revision 2026-10-28 / TrollStore 2.1.1"
     },
     {
-      "additional_media": [],
-      "article_sha256": "8c054ea01f81a6e735bb4d93ca40bfc80c18f0c5ec4d44bbbc18325af19cad17",
-      "candidate_fingerprint": "8c054ea01f81a6e735bb4d93ca40bfc80c18f0c5ec4d44bbbc18325af19cad17",
+      "additional_media": [
+        "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png"
+      ],
+      "additional_media_sha256": [
+        "572f64ad1e3c2b4b0809d53e769e88769d6292596d6a808fa113044fed7c0490"
+      ],
+      "article_sha256": "ab487d7f0db7543251b15303b1e95d2db863545664d9948593efee4f1a9991dd",
+      "candidate_fingerprint": "evergreen-guide.roothide-bootstrap-2.2.2-migration-dopamine-roothide-3",
       "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
-      "compat": "RootHide Bootstrap 2.2.1 officially lists iOS 15.0–17.0 on A8–A17 Pro and M1/M2 devices, requires TrollStore 2.0 or newer, and recommends TrollStore 2.0.9+ for enabling Developer Mode on-device. TrollStore must separately support the exact device and firmware.",
-      "description": "Install RootHide Bootstrap 2.2.1 from its official TIPA with TrollStore, check iOS and device requirements, and avoid conflicts with active jailbreaks.",
+      "compat": "Standalone RootHide Bootstrap historically lists iOS 15.0–17.0 on A8–A17 Pro and M1/M2 TrollStore devices. Release 2.2.2 is a migration notice with no TIPA; Dopamine RootHide 3 support must be confirmed separately for the exact device and firmware.",
+      "description": "Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3 safely: disable injection, unbootstrap, verify release 29, install with TrollStore, and troubleshoot.",
       "developer": "RootHide",
       "entry_type": "evergreen-guide",
       "href": "install-roothide-bootstrap-trollstore-guide/",
       "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
       "media_alt": "Official RootHide Bootstrap icon depicting a pale table on a dark gradient",
-      "media_credit": "RootHide — official Bootstrap 2.2.1 source-repository app icon",
+      "media_credit": "RootHide — official Bootstrap 2.2.1 source icon and Dopamine RootHide release 29 source icon",
       "media_git_blob_sha": "8c0def0017af33dc1f3e14ed07dbf4be25630e7c",
-      "media_retrieval_status": "Existing stored 1024×1024 official source icon re-verified byte-for-byte against the Bootstrap 2.2.1 tag and embedded in article and social metadata.",
+      "media_retrieval_status": "Reused two exact official assets already registered and hash-verified: the 1024×1024 Bootstrap 2.2.1 source icon and 167×167 Dopamine RootHide release 29 source icon. Both are embedded in the updated canonical article.",
       "media_sha256": "64e76d863e8909ee7f028de58c3a079cf4099c4a449ba5b2051ff97cc7d62ab0",
       "media_source_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-      "modified_at": "2026-10-28T01:00:09Z",
-      "name": "Install RootHide Bootstrap with TrollStore",
+      "modified_at": "2026-11-01T21:00:00Z",
+      "name": "Migrate RootHide Bootstrap to Dopamine RootHide 3",
       "package": "guide.roothide.bootstrap.trollstore.install",
       "published_at": "2026-10-28T01:00:09Z",
       "quality_target": 9,
-      "release": "RootHide Bootstrap 2.2.1 / official TIPA released 2026-06-12",
+      "release": "RootHide Bootstrap 2.2.2 migration notice published 2026-10-25 / Dopamine RootHide 3.0.12-29 published 2026-10-29",
       "selection_pool": "scheduled-evergreen-jailbreak-guide",
       "slug": "install-roothide-bootstrap-trollstore-guide",
-      "source_name": "Official RootHide Bootstrap 2.2.1 release, README, application interface and installation checks",
-      "source_page_url": "https://github.com/roothide/Bootstrap/releases/tag/2.2.1",
+      "source_name": "Official RootHide Bootstrap 2.2.2 migration notice, Bootstrap 2.2.1 asset release and Dopamine RootHide 3.0.12-29 release",
+      "source_page_url": "https://github.com/roothide/Bootstrap/releases/tag/2.2.2",
       "source_url": "https://github.com/roothide/Bootstrap",
       "source_visual_origin": "official-2.2.1-source-repository-app-icon",
       "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-      "title": "How to Install RootHide Bootstrap 2.2.1 with TrollStore",
-      "version": "Guide revision 2026-10-28 / RootHide Bootstrap 2.2.1"
+      "title": "How to Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3",
+      "version": "Guide revision 2026-11-02 / Bootstrap 2.2.2 / Dopamine RootHide 3.0.12-29"
     },
     {
       "article_sha256": "1c27a2f8dd2b1f5489691e5256dbe0ae8d648c03fbbadc0ce42e7852c3b220ad",

@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3</title>
+      <link>https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</guid>
+      <pubDate>Sat, 01 Nov 2026 21:00:00 GMT</pubDate>
+      <description>Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3 safely: disable injection, unbootstrap, verify release 29, install with TrollStore, and troubleshoot.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
       <title>Horythia 1.1.2 Fixes Hide Jailbreak on iOS 17 and 18</title>
       <link>https://nextjailbreak.com/horythia-1-0-0-per-app-system-settings-automation/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/horythia-1-0-0-per-app-system-settings-automation/</guid>
@@ -171,14 +179,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/verify-ipa-tipa-sha256-trollstore-guide/</guid>
       <pubDate>Wed, 28 Oct 2026 04:57:45 GMT</pubDate>
       <description>Verify an IPA or TIPA SHA-256 on macOS, Windows or Linux before TrollStore installation, compare it with the developer's official digest and handle mismatches safely.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>How to Install RootHide Bootstrap 2.2.1 with TrollStore</title>
-      <link>https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</guid>
-      <pubDate>Wed, 28 Oct 2026 01:00:09 GMT</pubDate>
-      <description>Install RootHide Bootstrap 2.2.1 from its official TIPA with TrollStore, check iOS and device requirements, and avoid conflicts with active jailbreaks.</description>
       <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
