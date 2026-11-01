@@ -6,6 +6,7 @@ struct BudgetPerformanceReportView: View {
     @State private var cycleStart = BudgetCycle.start(containing: Date())
     @State private var showAllTransactions = false
     @State private var showAssignedTransactions = false
+    @State private var showOtherCategoryBreakdown = true
 
     private var activeExpenses: [FixedPlanItem] {
         store.fixedBudget.activeItems(.expense, in: cycleStart)
@@ -41,9 +42,10 @@ struct BudgetPerformanceReportView: View {
                     id: transaction.id,
                     amount: transaction.amount,
                     date: transaction.date,
-                    category: isPaymentTransfer ? (paymentName ?? transaction.category) : transaction.category,
+                    category: transaction.category,
                     vendor: isPaymentTransfer ? "Bank → Payments · \(paymentName ?? "Payment")" : transaction.vendor,
-                    currencyCode: transaction.accountID.flatMap { currencies[$0] } ?? defaultCurrency
+                    currencyCode: transaction.accountID.flatMap { currencies[$0] } ?? defaultCurrency,
+                    fixedMatchHint: isPaymentTransfer ? paymentName : nil
                 )
             }
         return BudgetPerformanceEngine.build(
@@ -146,6 +148,42 @@ struct BudgetPerformanceReportView: View {
                 }
             }
 
+            if !summary.otherRecordedCategories.isEmpty {
+                Section {
+                    DisclosureGroup(isExpanded: $showOtherCategoryBreakdown) {
+                        ForEach(summary.otherRecordedCategories) { category in
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(category.name)
+                                        .font(.subheadline.weight(.medium))
+                                    Text("\(category.transactionCount) recorded expense\(category.transactionCount == 1 ? "" : "s")")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer(minLength: 8)
+                                Text(amount(category.spent))
+                                    .font(.subheadline.weight(.semibold))
+                                    .monospacedDigit()
+                            }
+                            .padding(.vertical, 3)
+                        }
+                    } label: {
+                        HStack {
+                            Text("Category breakdown")
+                                .font(.subheadline.weight(.semibold))
+                            Spacer()
+                            Text(amount(summary.otherRecordedCategories.reduce(Decimal.zero) { $0 + $1.spent }))
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } header: {
+                    Text("Other Planned Expenses — Original Categories")
+                } footer: {
+                    Text("Categories are taken directly from your recorded transactions. For example, Uber recorded as Taxi is shown under Taxi, funded by the Other allocation. No transaction is renamed.")
+                }
+            }
+
             Section {
                 if summary.outsideExpenses.isEmpty {
                     Label("No outside-budget expenses in this cycle.", systemImage: "checkmark.circle")
@@ -169,14 +207,14 @@ struct BudgetPerformanceReportView: View {
             } header: {
                 Text("Outside Budget")
             } footer: {
-                Text("Ordinary unmatched spending goes to Other / Unassigned when an Other budget is available. Zero-allocation expenses remain outside budget.")
+                Text("An expense appears outside budget only if its mapped allocation is unavailable or you explicitly assign it outside. Original transaction categories remain unchanged.")
             }
 
             Section {
                 let pending = summary.unassignedExpenses
                 let rows = showAllTransactions ? pending : Array(pending.prefix(45))
                 if rows.isEmpty {
-                    Label("All expenses reviewed for this cycle.", systemImage: "checkmark.circle")
+                    Label("All spending automatically categorized or reviewed.", systemImage: "checkmark.circle")
                         .foregroundStyle(.secondary)
                 }
                 ForEach(rows) { expense in
@@ -193,14 +231,14 @@ struct BudgetPerformanceReportView: View {
                             expenseRow(expense)
                         }
                     } label: {
-                        Label("Assigned expenses (\(summary.assignedExpenses.count))", systemImage: "checkmark.circle")
+                        Label("Categorized expenses (\(summary.assignedExpenses.count))", systemImage: "checkmark.circle")
                             .font(.subheadline)
                     }
                 }
             } header: {
                 Text("Unassigned Expenses — Assign to Budget")
             } footer: {
-                Text("Assigned expenses disappear from the unassigned list. Bank-to-bank transfers are excluded; bank-to-Payments transfers count as spending. Assignments are saved without changing the transaction.")
+                Text("Expenses use their original recorded categories. Fixed, essentials and Other are categorized automatically where budget exists; only truly outside-budget expenses require review. Internal bank transfers are excluded.")
             }
 
             if !summary.unconvertedByCurrency.isEmpty {
