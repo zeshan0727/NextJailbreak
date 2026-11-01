@@ -163,15 +163,6 @@ struct ReportsView: View {
                     NavigationLink { ReportComparisonView() } label: {
                         Label("Compare Reports", systemImage: "chart.xyaxis.line")
                     }
-                    NavigationLink { BudgetPerformanceReportView() } label: {
-                        Label("Budget Performance · Actual vs Plan", systemImage: "chart.pie")
-                    }
-                    NavigationLink { BudgetConsumptionReportView() } label: {
-                        Label("Budget Consumption", systemImage: "chart.bar.doc.horizontal")
-                    }
-                    NavigationLink { BudgetPlannerView() } label: {
-                        Label("Budget Suggestions", systemImage: "wand.and.stars")
-                    }
                     NavigationLink { CustomAccountReportView() } label: {
                         Label("Custom Account Report", systemImage: "slider.horizontal.3")
                     }
@@ -185,7 +176,7 @@ struct ReportsView: View {
                         Label("Account Nature Report", systemImage: "folder.badge.gearshape")
                     }
                     NavigationLink { BalanceReconciliationReportView() } label: {
-                        Label("Books vs Message Balance", systemImage: "checkmark.arrow.trianglehead.counterclockwise")
+                        Label("Books vs Messages Balance", systemImage: "books.vertical.fill")
                     }
                 }
                 }
