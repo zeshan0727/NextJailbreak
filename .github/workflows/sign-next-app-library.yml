@@ -39,11 +39,16 @@ jobs:
           repository: ${{ github.repository }}
           path: ${{ github.workspace }}/unsigned
 
-      - name: Confirm original installed bundle ID and version 1.0.3 build 4
+      - name: Inspect original app and export identity to the next step
         shell: bash
         run: |
           set -euo pipefail
           python3 .github/scripts/auto-sign-ios.py inspect
+
+      - name: Confirm original installed bundle ID and version 1.0.3 build 4
+        shell: bash
+        run: |
+          set -euo pipefail
           test "$REQUESTED_BUNDLE_ID" = 'com.nextsolution.njapps'
           test "$APP_VERSION" = '1.0.3'
           test "$APP_BUILD" = '4'
