@@ -66,6 +66,8 @@ struct BudgetPerformanceResult {
         return NSDecimalNumber(decimal: budgetSpent / totalBudget).doubleValue * 100
     }
     var outsideExpenses: [BudgetPerformanceExpense] { expenses.filter { $0.bucket == .outside } }
+    var unassignedExpenses: [BudgetPerformanceExpense] { expenses.filter { !$0.matchedManually } }
+    var assignedExpenses: [BudgetPerformanceExpense] { expenses.filter { $0.matchedManually } }
 }
 
 enum BudgetPerformanceEngine {
@@ -162,6 +164,18 @@ enum BudgetPerformanceEngine {
         )
     }
 
+    /// Internal account transfers do not count as spending. Money transferred
+    /// from a bank into a Payments account is included in Budget Performance.
+    static func includesInSpending(
+        isExpense: Bool,
+        isTransfer: Bool,
+        sourceIsBank: Bool,
+        sourceIsPayments: Bool,
+        destinationIsPayments: Bool
+    ) -> Bool {
+        isExpense || (isTransfer && sourceIsBank && !sourceIsPayments && destinationIsPayments)
+    }
+
     static func bucketFor(
         expense: BudgetSpendRecord,
         assignment: BudgetSpendAssignment?,
@@ -194,9 +208,9 @@ enum BudgetPerformanceEngine {
         case "restaurants cafes", "restaurant", "restaurants", "dining", "dining out", "eat out", "eating out":
             return .eatOut
         default:
-            // An unspecific category is NOT automatically "Other": users
-            // must explicitly approve the classification for accurate reports.
-            return .outside
+            // Unmatched spending is automatically categorized as Other / Unassigned.
+            // build() still safeguards zero-allocation budgets.
+            return .other
         }
     }
 
