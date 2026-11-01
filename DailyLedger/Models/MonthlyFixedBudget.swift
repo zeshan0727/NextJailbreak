@@ -79,6 +79,29 @@ struct SavedCycleBudget: Codable, Equatable {
     var eatOutPercent: Int
 }
 
+/// How a recorded expense was allocated in the Budget Performance report.
+/// "automatic" is represented by the absence of a saved assignment.
+enum BudgetMatchKind: String, Codable, CaseIterable, Identifiable {
+    case fixed
+    case grocery
+    case fuel
+    case eatOut
+    case other
+    case outside
+
+    var id: String { rawValue }
+}
+
+struct BudgetSpendAssignment: Codable, Equatable {
+    var kind: BudgetMatchKind
+    var fixedItemID: UUID?
+
+    init(kind: BudgetMatchKind, fixedItemID: UUID? = nil) {
+        self.kind = kind
+        self.fixedItemID = fixedItemID
+    }
+}
+
 struct MonthlyFixedBudget: Codable, Equatable {
     var items: [FixedPlanItem] = []
     var groceryPercent: Int = 45
@@ -86,6 +109,56 @@ struct MonthlyFixedBudget: Codable, Equatable {
     var eatOutPercent: Int = 15
     var appliedCycle: Date?
     var cycleAllocations: [SavedCycleBudget] = []
+    /// Financial transaction UUID → explicit classification. Existing
+    /// historic backups omit this key; decoding them must remain supported.
+    var spendAssignments: [UUID: BudgetSpendAssignment] = [:]
+
+    init(
+        items: [FixedPlanItem] = [],
+        groceryPercent: Int = 45,
+        fuelPercent: Int = 25,
+        eatOutPercent: Int = 15,
+        appliedCycle: Date? = nil,
+        cycleAllocations: [SavedCycleBudget] = [],
+        spendAssignments: [UUID: BudgetSpendAssignment] = [:]
+    ) {
+        self.items = items
+        self.groceryPercent = groceryPercent
+        self.fuelPercent = fuelPercent
+        self.eatOutPercent = eatOutPercent
+        self.appliedCycle = appliedCycle
+        self.cycleAllocations = cycleAllocations
+        self.spendAssignments = spendAssignments
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case items, groceryPercent, fuelPercent, eatOutPercent
+        case appliedCycle, cycleAllocations, spendAssignments
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        items = try c.decodeIfPresent([FixedPlanItem].self, forKey: .items) ?? []
+        groceryPercent = try c.decodeIfPresent(Int.self, forKey: .groceryPercent) ?? 45
+        fuelPercent = try c.decodeIfPresent(Int.self, forKey: .fuelPercent) ?? 25
+        eatOutPercent = try c.decodeIfPresent(Int.self, forKey: .eatOutPercent) ?? 15
+        appliedCycle = try c.decodeIfPresent(Date.self, forKey: .appliedCycle)
+        cycleAllocations = try c.decodeIfPresent([SavedCycleBudget].self, forKey: .cycleAllocations) ?? []
+        spendAssignments = try c.decodeIfPresent([UUID: BudgetSpendAssignment].self,
+                                                   forKey: .spendAssignments) ?? [:]
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(items, forKey: .items)
+        try c.encode(groceryPercent, forKey: .groceryPercent)
+        try c.encode(fuelPercent, forKey: .fuelPercent)
+        try c.encode(eatOutPercent, forKey: .eatOutPercent)
+        try c.encodeIfPresent(appliedCycle, forKey: .appliedCycle)
+        try c.encode(cycleAllocations, forKey: .cycleAllocations)
+        try c.encode(spendAssignments, forKey: .spendAssignments)
+    }
+
 
     func savedAllocation(in cycle: Date) -> SavedCycleBudget? {
         let start = BudgetCycle.start(containing: cycle)
