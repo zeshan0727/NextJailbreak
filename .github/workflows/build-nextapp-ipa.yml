@@ -159,7 +159,7 @@ jobs:
               'nextapp-1.0.0-live-install-catalog',
               'nextapp-1.0.1-live-install-catalog',
               'nextapp-1.0.2-live-install-catalog',
-              'nextapplibrary-1.0.3-signed-ready'
+              'nextapp-1.0.2-duplicate-apps'
           }
           files=[x for x in data.get('files',[]) if x.get('id') not in remove_ids]
 
