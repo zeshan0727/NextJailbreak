@@ -1,0 +1,73 @@
+name: Next App Library - Sign and Publish
+
+on:
+  workflow_run:
+    workflows: ["Build Next App Library IPA"]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: next-app-library-sign-release
+  cancel-in-progress: false
+
+jobs:
+  submit-sign:
+    name: Verify Next App Library and sign with existing app ID
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ARTIFACT_DIRECTORY: ${{ github.workspace }}/unsigned
+      EXPECTED_BUNDLE_ID: com.nextsolution.njapps
+    steps:
+      - name: Checkout trusted Next App Library validator
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Download build from the exact successful run
+        uses: actions/download-artifact@v4
+        with:
+          name: NextAppLibrary-1.0.3-IPA
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          path: ${{ github.workspace }}/unsigned
+
+      - name: Confirm original installed bundle ID and version 1.0.3 build 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/auto-sign-ios.py inspect
+          test "$REQUESTED_BUNDLE_ID" = 'com.nextsolution.njapps'
+          test "$APP_VERSION" = '1.0.3'
+          test "$APP_BUILD" = '4'
+          test "$APP_NAME" = 'Next App Library'
+
+      - name: Stage verified build and request signed website publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release view nextsigner-inbox >/dev/null 2>&1 || \
+            gh release create nextsigner-inbox --draft --title 'Next Signer Inbox' \
+              --notes 'Temporary staging of unsigned IPA inputs'
+          ASSET="next-app-library-1.0.3-build4-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.ipa"
+          cp "$RUNNER_TEMP/auto-sign-input.ipa" "$RUNNER_TEMP/$ASSET"
+          gh release upload nextsigner-inbox "$RUNNER_TEMP/$ASSET"
+          gh workflow run nextsigner-sign-publish.yml --ref main \
+            -f "staging_asset=$ASSET" \
+            -f 'requested_name=Next App Library' \
+            -f 'requested_bundle_id=com.nextsolution.njapps'
+          {
+            echo '## Next App Library 1.0.3'
+            echo 'Existing bundle ID: com.nextsolution.njapps'
+            echo 'Build: 4'
+            echo 'Signing requested via the saved Apple certificate.'
+            echo 'Installer: https://nextjailbreak.com/install/'
+            echo 'See the separate Next Signer - Sign and Publish run for final status.'
+          } >> "$GITHUB_STEP_SUMMARY"
