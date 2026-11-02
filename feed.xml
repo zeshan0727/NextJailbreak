@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Watusi 3 for WhatsApp 1.3.29 Adds WhatsApp 26.42 Support as Simplified Chinese Pack Gets a Packaging</title>
+      <link>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-29-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-29-update/</guid>
+      <pubDate>Mon, 02 Nov 2026 14:00:11 GMT</pubDate>
+      <description>Watusi 3 for WhatsApp 1.3.29 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>Cydia vs Sileo vs Zebra in 2026: Which Package Manager Should You Use?</title>
       <link>https://nextjailbreak.com/sileo-vs-zebra-package-manager/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/sileo-vs-zebra-package-manager/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Tue, 27 Oct 2026 00:58:38 GMT</pubDate>
       <description>Add Zebra's official repository to Sileo, install the compatible rootless build, keep both package managers, and avoid unsafe architecture or source changes.</description>
       <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>iOS 27.2 Released With Security Fixes—Still No Public Jailbreak</title>
-      <link>https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</guid>
-      <pubDate>Mon, 26 Oct 2026 21:03:30 GMT</pubDate>
-      <description>Apple’s October 26 iOS 27.2 release fixes kernel-memory and sandbox issues, but its Calif credits do not identify a public jailbreak chain.</description>
-      <category>Current Jailbreak Development</category>
     </item>
   </channel>
 </rss>
