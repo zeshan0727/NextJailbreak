@@ -10,7 +10,7 @@
       <link>https://nextjailbreak.com/wificrush-1-0-2-wifi-5g-handoff-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/wificrush-1-0-2-wifi-5g-handoff-update/</guid>
       <pubDate>Mon, 02 Nov 2026 15:00:00 GMT</pubDate>
-      <description>WifiCrush 1.0.2 automates Wi-Fi and cellular handoff on rootless and RootHide jailbreaks, with verified compatibility, setup, privacy and recovery guidance.</description>
+      <description>WifiCrush 1.0.2 switches between saved Wi-Fi and mobile data on rootless or RootHide iOS 15–26. Check dependencies, privacy and troubleshooting.</description>
       <category>Individual Tweak Update</category>
     </item>
     <item>
@@ -243,14 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-hide-jailbreak-use-restore-guide/</guid>
       <pubDate>Tue, 27 Oct 2026 05:05:40 GMT</pubDate>
       <description>Use Dopamine 3’s Hide Jailbreak control safely, understand what it conceals, restore the jailbreak and app icons, and know why it is not RootHide.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>How to Install Zebra Alongside Sileo on a Rootless Jailbreak</title>
-      <link>https://nextjailbreak.com/install-zebra-alongside-sileo-rootless-jailbreak-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/install-zebra-alongside-sileo-rootless-jailbreak-guide/</guid>
-      <pubDate>Tue, 27 Oct 2026 00:58:38 GMT</pubDate>
-      <description>Add Zebra's official repository to Sileo, install the compatible rootless build, keep both package managers, and avoid unsafe architecture or source changes.</description>
       <category>Evergreen Jailbreak Guide</category>
     </item>
   </channel>
