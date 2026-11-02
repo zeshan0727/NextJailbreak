@@ -5824,25 +5824,38 @@
       "version": "1.0"
     },
     {
+      "article_sha256": "6328e3cbae7931c350ee13263e624643896d097d3f2933cec8e83527ae31fd70",
+      "candidate_fingerprint": "evergreen-guide.tweak-compatibility-rootful-rootless-roothide-2026-11",
       "category": {
-        "id": "tweaks",
-        "label": "Tweaks"
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
       },
-      "description": "Jailbreak Tweak Compatibility Checklist 2026-09-10 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original.",
-      "entry_type": "editorial-guide",
-      "href": "jailbreak-tweak-compatibility-checklist.html",
-      "image": "/assets/brand/next-jailbreak-social-card.png",
-      "modified_at": "2026-09-10T09:29:47+00:00",
-      "name": "Jailbreak Tweak Compatibility Checklist",
+      "compat": "Architecture guidance covers traditional rootful iphoneos-arm, conventional rootless iphoneos-arm64 and explicitly supported RootHide iphoneos-arm64e packages. Package metadata does not establish jailbreak availability; exact device, firmware, bootstrap, injection provider and target-app version must also match.",
+      "description": "Check jailbreak tweak package compatibility across rootful, rootless and RootHide setups, including firmware, dependencies, app versions and recovery.",
+      "developer": "Theos contributors, Dopamine and RootHide teams",
+      "entry_type": "evergreen-guide",
+      "href": "jailbreak-tweak-compatibility-checklist/",
+      "image": "assets/articles/source-media/theos-official-logo.png",
+      "media_alt": "Official purple Theos project logo",
+      "media_credit": "Theos project — exact official project logo",
+      "media_retrieval_status": "Reused the exact official 500×500 Theos project logo already registered and hash-verified in the source-media library; embedded in the canonical article. The crawler preview remains the site's established wide social card because the square source logo does not meet the site's social-preview aspect-ratio gate.",
+      "media_sha256": "35b663fd1a747f7d8108caa2ffe6cddb334021c001d1da2cf72763125484dadb",
+      "media_source_url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
+      "modified_at": "2026-11-02T03:00:00Z",
+      "name": "Jailbreak tweak compatibility checklist",
       "package": "editorial.compatibility-checklist",
-      "published_at": "2026-09-10T09:29:47+00:00",
+      "published_at": "2026-09-10T09:29:47Z",
       "quality_target": 9,
-      "selection_pool": "editorial-evergreen",
-      "source_name": "Next Jailbreak",
-      "source_page_url": "https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist.html",
-      "source_url": "https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist.html",
+      "release": "Guide revision 2026-11-02; verified against Dopamine 3.0.12 and RootHide Patcher 2.1.4",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "jailbreak-tweak-compatibility-checklist",
+      "source_name": "Official Theos packaging and rootless documentation, Dopamine 3.x README, RootHide Patcher 2.1.4 metadata and RootHide Packages index",
+      "source_page_url": "https://theos.dev/docs/packaging",
+      "source_url": "https://theos.dev/docs/rootless",
+      "source_visual_origin": "official-project-logo",
+      "source_visual_url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
       "title": "How to Check Jailbreak Tweak Compatibility Before Installing",
-      "version": "2026-09-10"
+      "version": "Guide revision 2026-11-02"
     },
     {
       "category": {

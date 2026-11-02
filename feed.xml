@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Check Jailbreak Tweak Compatibility Before Installing</title>
+      <link>https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist/</guid>
+      <pubDate>Mon, 02 Nov 2026 03:00:00 GMT</pubDate>
+      <description>Check jailbreak tweak package compatibility across rootful, rootless and RootHide setups, including firmware, dependencies, app versions and recovery.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
       <title>How to Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3</title>
       <link>https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</guid>
