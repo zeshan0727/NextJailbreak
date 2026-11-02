@@ -245,13 +245,5 @@
       <description>CatMCP 1.3.0 adds lock-state queries, optional-passcode unlocking, Power-key actions and clearer unknown-key errors to its jailbroken-iOS MCP server.</description>
       <category>Productivity</category>
     </item>
-    <item>
-      <title>Geranium vs TrollBox: Which TrollStore Utility Should You Use?</title>
-      <link>https://nextjailbreak.com/geranium-vs-trollbox-trollstore-utility-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/geranium-vs-trollbox-trollstore-utility-comparison/</guid>
-      <pubDate>Mon, 26 Oct 2026 09:04:45 GMT</pubDate>
-      <description>Compare Geranium 1.1.4 and TrollBox 0.2 by maintenance status, TrollStore requirements, location tools, cleaning, daemon controls and customization.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
-    </item>
   </channel>
 </rss>
