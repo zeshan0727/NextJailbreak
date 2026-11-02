@@ -1,6 +1,34 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.pitroytech.wificrush": {
+      "credit_label": "pitroytech/Havoc — official WifiCrush banner and interface screenshots",
+      "source_page_url": "https://havoc.app/package/wificrush",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6adde254265f6de0ce8e8f97",
+        "alt": "Official WifiCrush banner showing the app icon, product name and iPhone orbit interface",
+        "local_path": "assets/articles/source-media/wificrush-1-0-2-official-banner.png",
+        "git_blob_sha": "c214e547ee582759c8577c9214bb988ab7606f9b",
+        "sha256": "8ef3064af9befac210beca678111da2cf7d271fab727e4e023f833eadbf32b08"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6add8c72265f6de0ce8c4859",
+          "alt": "Official WifiCrush orbit interface showing an iPhone between a preferred 5 GHz network and an alternative saved network with signal strengths",
+          "local_path": "assets/articles/source-media/wificrush-1-0-2-official-orbit-ui.jpg",
+          "git_blob_sha": "90b89d885766ec7c476f037b82822d8619610c9a",
+          "sha256": "8db50e80762b72cad331c82342e7627e4954b0f648474228149a084fa08bb000"
+        },
+        {
+          "url": "https://media.havoc.app/6add8cc2265f6de0ce8c4a1f",
+          "alt": "Official WifiCrush settings screen showing the enable toggle, automatic or custom signal levels and preferred-network list",
+          "local_path": "assets/articles/source-media/wificrush-1-0-2-official-settings.png",
+          "git_blob_sha": "51e1284781a83a16c57c5ee47b9bd16533216d93",
+          "sha256": "20a0718cb306aab810f8f50800c36780eae5d2a18b398b176bc337ebf00b5cc2"
+        }
+      ]
+    },
     "comparison.cydia-sileo-zebra": {
       "credit_label": "Saurik — official Cydia application icon",
       "source_page_url": "https://cydia.saurik.com/icon@2x/cydia7.png",

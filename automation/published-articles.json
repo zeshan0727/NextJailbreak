@@ -1,6 +1,58 @@
 {
   "entries": [
     {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/wificrush-1-0-2-official-orbit-ui.jpg",
+          "media_alt": "Official WifiCrush orbit interface showing an iPhone between a preferred 5 GHz network and an alternative saved network with signal strengths",
+          "media_credit": "pitroytech/Havoc — official WifiCrush orbit interface screenshot",
+          "media_git_blob_sha": "90b89d885766ec7c476f037b82822d8619610c9a",
+          "media_sha256": "8db50e80762b72cad331c82342e7627e4954b0f648474228149a084fa08bb000",
+          "media_source_url": "https://media.havoc.app/6add8c72265f6de0ce8c4859"
+        },
+        {
+          "image": "assets/articles/source-media/wificrush-1-0-2-official-settings.png",
+          "media_alt": "Official WifiCrush settings screen showing the enable toggle, automatic or custom signal levels and preferred-network list",
+          "media_credit": "pitroytech/Havoc — official WifiCrush settings screenshot",
+          "media_git_blob_sha": "51e1284781a83a16c57c5ee47b9bd16533216d93",
+          "media_sha256": "20a0718cb306aab810f8f50800c36780eae5d2a18b398b176bc337ebf00b5cc2",
+          "media_source_url": "https://media.havoc.app/6add8cc2265f6de0ce8c4a1f"
+        }
+      ],
+      "candidate_fingerprint": "wificrush-1.0.2-wifi-5g-handoff-rootless-roothide-2026-11-02",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "WifiCrush 1.0.2 lists iOS 15.0–26.0.1 with conventional rootless and RootHide support. PreferenceLoader is required; CCSupport is optional for the Control Center module. The package range does not establish jailbreak availability for every device or firmware.",
+      "description": "WifiCrush 1.0.2 switches between saved Wi-Fi and mobile data on rootless or RootHide iOS 15–26. Check dependencies, privacy and troubleshooting.",
+      "developer": "pitroytech",
+      "entry_type": "individual-update",
+      "href": "wificrush-1-0-2-wifi-5g-handoff-update/",
+      "image": "assets/articles/source-media/wificrush-1-0-2-official-banner.png",
+      "media_alt": "Official WifiCrush banner showing the app icon, product name and iPhone orbit interface",
+      "media_credit": "pitroytech/Havoc — official WifiCrush banner and interface screenshots",
+      "media_git_blob_sha": "c214e547ee582759c8577c9214bb988ab7606f9b",
+      "media_retrieval_status": "Exact official 1920×1080 banner, 676×1215 orbit interface and 1290×2796 settings screenshot retrieved from Havoc pageProps, visually inspected, stored locally and embedded in the article.",
+      "media_sha256": "8ef3064af9befac210beca678111da2cf7d271fab727e4e023f833eadbf32b08",
+      "media_source_url": "https://media.havoc.app/6adde254265f6de0ce8e8f97",
+      "modified_at": "2026-11-02T15:00:00Z",
+      "name": "WifiCrush",
+      "package": "com.pitroytech.wificrush",
+      "published_at": "2026-11-02T15:00:00Z",
+      "quality_target": 9,
+      "release": "WifiCrush 1.0.2 — November 2, 2026",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "wificrush-1-0-2-wifi-5g-handoff-update",
+      "source_name": "Official WifiCrush Havoc listing, embedded page data, version history and developer media",
+      "source_page_url": "https://havoc.app/package/wificrush",
+      "source_url": "https://havoc.app/package/wificrush/changes",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshots",
+      "source_visual_url": "https://media.havoc.app/6adde254265f6de0ce8e8f97",
+      "title": "WifiCrush 1.0.2 Automates Wi-Fi and 5G Switching on iOS 15–26",
+      "version": "1.0.2"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -10259,8 +10311,18 @@
       "published_at": "2026-11-02T14:00:11+00:00",
       "run_id": "41457669384",
       "version": "1.3.29"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "wificrush-1.0.2-wifi-5g-handoff-rootless-roothide-2026-11-02",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "wificrush-1-0-2-wifi-5g-handoff-update/",
+      "package": "com.pitroytech.wificrush",
+      "published_at": "2026-11-02T15:00:00Z",
+      "run_id": "scheduled-2026-11-02T15:00:00Z",
+      "version": "1.0.2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-02T14:00:11+00:00"
+  "updated_at": "2026-11-02T15:00:00Z"
 }
