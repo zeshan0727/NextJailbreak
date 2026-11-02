@@ -245,13 +245,5 @@
       <description>Apple’s October 26 iOS 27.2 release fixes kernel-memory and sandbox issues, but its Calif credits do not identify a public jailbreak chain.</description>
       <category>Current Jailbreak Development</category>
     </item>
-    <item>
-      <title>CatMCP 1.3.0 Adds Lock-State Queries, Unlock and Power-Key Control</title>
-      <link>https://nextjailbreak.com/catmcp-1-2-0-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/catmcp-1-2-0-update/</guid>
-      <pubDate>Mon, 26 Oct 2026 17:02:16 GMT</pubDate>
-      <description>CatMCP 1.3.0 adds lock-state queries, optional-passcode unlocking, Power-key actions and clearer unknown-key errors to its jailbroken-iOS MCP server.</description>
-      <category>Productivity</category>
-    </item>
   </channel>
 </rss>
