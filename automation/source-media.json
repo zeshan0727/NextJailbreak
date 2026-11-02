@@ -1,6 +1,19 @@
 {
   "schema_version": 1,
   "packages": {
+    "comparison.cydia-sileo-zebra": {
+      "credit_label": "Saurik — official Cydia application icon",
+      "source_page_url": "https://cydia.saurik.com/icon@2x/cydia7.png",
+      "official_source": true,
+      "hero": {
+        "url": "https://cydia.saurik.com/icon@2x/cydia7.png",
+        "alt": "Official Cydia application icon from Saurik's website",
+        "local_path": "assets/articles/source-media/cydia-official-icon.png",
+        "git_blob_sha": "423d971e9001cf7c3c704481fb421b71d23607dc",
+        "sha256": "485df5d3321c535838175071f5177220f582a5922ee1f9665902657db6453e68"
+      },
+      "screenshots": []
+    },
     "cyanide": {
       "credit_label": "Kolbicz/Cyanide — official app icon from the version 1.16.0 source tree",
       "source_page_url": "https://github.com/kolbicz/Cyanide/blob/13ad360b3e7d2ec4bfe0c4a703cc85a6cea46e71/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
