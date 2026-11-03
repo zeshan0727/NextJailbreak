@@ -1513,4 +1513,10 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>\n    <loc>https://nextjailbreak.com/wificrush-1-0-2-wifi-5g-handoff-update/</loc>\n    <lastmod>2026-11-02</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n</urlset>
+  <url>\n    <loc>https://nextjailbreak.com/wificrush-1-0-2-wifi-5g-handoff-update/</loc>\n    <lastmod>2026-11-02</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n<url>
+    <loc>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-30-update/</loc>
+    <lastmod>2026-11-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

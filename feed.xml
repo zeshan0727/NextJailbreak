@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Watusi 3 for WhatsApp 1.3.30 adds WhatsApp 26.42 support and fixes Share Sheet failures</title>
+      <link>https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-30-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/watusi-3-for-whatsapp-1-3-30-update/</guid>
+      <pubDate>Tue, 03 Nov 2026 23:00:36 GMT</pubDate>
+      <description>Watusi 3 for WhatsApp 1.3.30 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>How to Set Up or Update vphone-cli 2.14.2 on Apple Silicon</title>
       <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Tue, 27 Oct 2026 09:08:37 GMT</pubDate>
       <description>Compare AppData 1.4.0 and Apps Manager 1.8.4 by backup, restore, cache clearing, containers, TrollStore, rootless support and safety.</description>
       <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Use Dopamine’s Hide Jailbreak—and Restore It Safely</title>
-      <link>https://nextjailbreak.com/dopamine-hide-jailbreak-use-restore-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-hide-jailbreak-use-restore-guide/</guid>
-      <pubDate>Tue, 27 Oct 2026 05:05:40 GMT</pubDate>
-      <description>Use Dopamine 3’s Hide Jailbreak control safely, understand what it conceals, restore the jailbreak and app icons, and know why it is not RootHide.</description>
-      <category>Evergreen Jailbreak Guide</category>
     </item>
   </channel>
 </rss>

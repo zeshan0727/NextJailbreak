@@ -125,11 +125,11 @@
       "version": "6.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
-      "checked_at": "2026-11-03T00:42:42.764558+00:00",
+      "checked_at": "2026-11-03T23:00:36+00:00",
       "package": "com.fouadraheb.watusi3",
-      "status": "duplicate",
-      "target_path": "watusi-3-for-whatsapp-1-3-29-update/",
-      "version": "1.3.29"
+      "status": "published",
+      "target_path": "watusi-3-for-whatsapp-1-3-30-update/",
+      "version": "1.3.30"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.82flex.touchvis/": {
       "checked_at": "2026-09-14T09:26:07.020998+00:00",
@@ -2637,6 +2637,47 @@
         "fun.asmo.analyticswechat: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0c9dd71682e0034e016aea67b26c7487d0baafd4660261a8b2",
+          "usage": {
+            "input_tokens": 28526,
+            "input_tokens_details": {
+              "cache_write_tokens": 28523,
+              "cached_tokens": 0
+            },
+            "output_tokens": 330,
+            "output_tokens_details": {
+              "reasoning_tokens": 222
+            },
+            "total_tokens": 28856
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_05d73b48b3993a10016aea679e19a487d0875554be6e2eb4e3",
+          "usage": {
+            "input_tokens": 26449,
+            "input_tokens_details": {
+              "cache_write_tokens": 26446,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2411,
+            "output_tokens_details": {
+              "reasoning_tokens": 111
+            },
+            "total_tokens": 28860
+          }
+        }
+      },
+      "at": "2026-11-03T23:00:36+00:00",
+      "package": "com.fouadraheb.watusi3",
+      "target_path": "watusi-3-for-whatsapp-1-3-30-update/",
+      "version": "1.3.30"
     }
   ],
   "schema_version": 1
