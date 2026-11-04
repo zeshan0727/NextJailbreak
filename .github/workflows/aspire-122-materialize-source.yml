@@ -1,0 +1,207 @@
+# Aspire 1.2.0 themes and automatic iCloud backup
+name: Materialize Aspire 1.2.1 Source for 1.2.2
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/aspire-maintenance-1.2.2-device-sync
+    paths:
+      - "AspireMaintenanceSourceChunks/**"
+      - "AspireMaintenancePatchScript101/**"
+      - "AspireMaintenanceRelease110/**"
+      - "AspireMaintenanceRelease112Final/**"
+      - "AspireMaintenanceRelease113/**"
+      - "AspireMaintenanceRelease114/**"
+      - "AspireMaintenanceRelease115/**"
+      - "AspireMaintenanceRelease116/**"
+      - "AspireMaintenanceRelease117/**"
+      - "AspireMaintenanceRelease118/**"
+      - "AspireMaintenanceRelease119/**"
+      - "AspireMaintenanceRelease120/**"
+      - "AspireMaintenanceRelease120Fix/**"
+      - "AspireMaintenanceRelease121/**"
+      - ".github/workflows/aspire-122-materialize-source.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Restore Aspire base source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64
+          chunks = sorted(Path("AspireMaintenanceSourceChunks").glob("part-*"))
+          encoded = "".join(chunk.read_text() for chunk in chunks)
+          Path("AspireMaintenanceSource.zip").write_bytes(base64.b64decode(encoded))
+          PY
+          ditto -x -k AspireMaintenanceSource.zip .
+
+      - name: Apply Aspire 1.0.1 fixes
+        run: |
+          cat AspireMaintenancePatchScript101/part-* > apply_aspire_1_0_1.py
+          python3 apply_aspire_1_0_1.py
+
+      - name: Apply Aspire 1.1.1 baseline
+        run: |
+          cat AspireMaintenanceRelease110/part-* > /tmp/aspire111.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire111.b64").read_text().strip()
+          Path("/tmp/aspire111.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire111.patch
+
+      - name: Apply Aspire 1.1.2 fixes
+        run: |
+          cat AspireMaintenanceRelease112Final/part-* > /tmp/aspire112.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire112.b64").read_text().strip()
+          Path("/tmp/aspire112.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire112.patch
+
+      - name: Apply Aspire 1.1.3 backup import fix
+        run: |
+          cat AspireMaintenanceRelease113/part-* > /tmp/aspire113.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire113.b64").read_text().strip()
+          Path("/tmp/aspire113.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire113.patch
+
+      - name: Apply Aspire 1.1.4 dashboard redesign
+        run: |
+          cat AspireMaintenanceRelease114/part-* > /tmp/aspire114.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire114.b64").read_text().strip()
+          Path("/tmp/aspire114.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire114.patch
+
+      - name: Apply Aspire 1.1.5 document workflow update
+        run: |
+          cat AspireMaintenanceRelease115/part-* > /tmp/aspire115.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire115.b64").read_text().strip()
+          Path("/tmp/aspire115.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire115.patch
+
+      - name: Apply Aspire 1.1.6 quotation editor stability fix
+        run: |
+          cat AspireMaintenanceRelease116/part-* > /tmp/aspire116.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire116.b64").read_text().strip()
+          Path("/tmp/aspire116.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire116.patch
+
+
+      - name: Apply Aspire 1.1.7 quotation PDF wrapping fix
+        run: |
+          cat AspireMaintenanceRelease117/part-* > /tmp/aspire117.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire117.b64").read_text().strip()
+          Path("/tmp/aspire117.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire117.patch
+
+
+      - name: Apply Aspire 1.1.8 multi-page quotation PDF
+        run: |
+          cat AspireMaintenanceRelease118/part-* > /tmp/aspire118.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire118.b64").read_text().strip()
+          Path("/tmp/aspire118.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire118.patch
+
+
+      - name: Apply Aspire 1.1.9 monthly batch billing restore
+        run: |
+          cat AspireMaintenanceRelease119/part-* > /tmp/aspire119.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire119.b64").read_text().strip()
+          Path("/tmp/aspire119.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire119.patch
+
+
+      - name: Apply Aspire 1.2.0 themes and iCloud backup
+        run: |
+          cat AspireMaintenanceRelease120/part-* > /tmp/aspire120.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire120.b64").read_text().strip()
+          Path("/tmp/aspire120.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire120.patch
+          grep -q 'MARKETING_VERSION: "1.2.0"' AspireMaintenance/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "13"' AspireMaintenance/project.yml
+          grep -q 'iCloud.com.aspiregroup.maintenance' AspireMaintenance/AspireMaintenance.entitlements
+
+      - name: Apply Aspire 1.2.0 backup init fix
+        run: |
+          cat AspireMaintenanceRelease120Fix/part-* > /tmp/aspire120fix.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire120fix.b64").read_text().strip()
+          Path("/tmp/aspire120fix.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p2 -d AspireMaintenance < /tmp/aspire120fix.patch
+
+      - name: Apply Aspire 1.2.1 iCloud backup diagnostics
+        run: |
+          cat AspireMaintenanceRelease121/part-* > /tmp/aspire121.b64
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip
+          encoded = Path("/tmp/aspire121.b64").read_text().strip()
+          Path("/tmp/aspire121.patch").write_bytes(gzip.decompress(base64.b64decode(encoded)))
+          PY
+          patch --batch -p1 -d AspireMaintenance < /tmp/aspire121.patch
+          grep -q 'MARKETING_VERSION: "1.2.1"' AspireMaintenance/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "14"' AspireMaintenance/project.yml
+          grep -q 'func checkICloudAccess' AspireMaintenance/CloudBackup.swift
+
+      - name: Snapshot validated source into editable folder
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p AspireMaintenance121Editable
+          cp -R AspireMaintenance/. AspireMaintenance121Editable/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add AspireMaintenance121Editable
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: materialize verified Aspire Maintenance 1.2.1 source for device sync"
+            git push origin "HEAD:refs/heads/agent/aspire-maintenance-1.2.2-device-sync"
+          fi
