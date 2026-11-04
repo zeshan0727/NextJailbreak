@@ -5,6 +5,92 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "Drift 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "drift-1-0-0-update/",
+      "image": "assets/articles/source-media/drift-1-0-0-update-702c52ab05.jpg",
+      "media_credit": "Source visual from chariz.com",
+      "media_source_url": "https://chariz.com/buy/drift",
+      "modified_at": "2026-11-04T23:22:04+00:00",
+      "name": "Drift",
+      "package": "com.antonym.drift",
+      "published_at": "2026-11-04T23:22:04+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "repo.chariz.com",
+      "source_page_url": "https://repo.chariz.com/Packages",
+      "source_url": "https://repo.chariz.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://img.chariz.cloud/sileo-banner/drift.jpg",
+      "title": "Drift 1.0.0 Expands the iOS Dock to Hold up to 50 Apps and Folders",
+      "version": "1.0.0"
+    },
+    {
+      "additional_media": [],
+      "article_sha256": "20a1dad7143da86bc4bef44fa0ad226569ae76fc38e30fc53e408de70c0960f5",
+      "candidate_fingerprint": "dopamine-3.0.13-zebra-ios17.6-posix-spawn-fix-2026-11-05",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Dopamine 3.0.13 official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. The 3.0.13 app does not add a jailbreak path for unsupported devices or firmware.",
+      "description": "Update Dopamine 3.0.13 safely, verify the official IPA/TIPA hash, fix Zebra on iOS 17.6+, refresh the active environment and preserve your tweak list.",
+      "developer": "opa334",
+      "entry_type": "development-update",
+      "href": "update-dopamine-jailbreak-safely-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-04T21:00:00Z",
+      "name": "Dopamine update guide",
+      "package": "guide.dopamine.update-safely",
+      "published_at": "2026-10-13T04:58:13Z",
+      "release": "2026-11-03",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "update-dopamine-jailbreak-safely-guide",
+      "source_name": "Official Dopamine 3.0.13 release, tagged updater, environment source and README",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Update/DOUpdateViewController.m",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Update Dopamine 3.0.13 and Fix Zebra on iOS 17.6+",
+      "version": "Dopamine 3.0.13"
+    },
+    {
+      "article_sha256": "e50d9cc4af959c7cb2648cb8cb4c3f821aa1318353594b050dc0f101375e5b5a",
+      "candidate_fingerprint": "icontweak2-1.1.0-app-data-backup-restore-wipe-2026-11-04",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "description": "IconTweak2 1.1.0 adds app-data backup, restore and wipe controls on iOS 15–26, with shared-container risks and recovery guidance.",
+      "entry_type": "tweak-update",
+      "href": "icontweak2-tweak/",
+      "image": "assets/articles/source-media/icontweak2-1-1-0-official-menu.png",
+      "media_credit": "Exact official IconTweak2 Havoc product screenshot",
+      "media_sha256": "6d4a01ad48cb3eed3cd649dc87731ec3a19eec47892d2d2f1f02acd1f6a2f7ca",
+      "media_source_url": "https://havoc.app/package/icontweak2",
+      "modified_at": "2026-11-04T15:00:00Z",
+      "name": "IconTweak2",
+      "package": "com.ichitaso.icontweak2",
+      "published_at": "2026-08-14T09:13:32+00:00",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official IconTweak2 Havoc listing and 1.1.0 changelog",
+      "source_page_url": "https://havoc.app/package/icontweak2",
+      "source_url": "https://havoc.app/package/icontweak2",
+      "source_visual_origin": "official-havoc-screenshot",
+      "source_visual_url": "https://media.havoc.app/691e9346174b1c77f3400337",
+      "title": "IconTweak2 1.1.0 Adds App-Data Backup, Restore and Wipe Controls",
+      "version": "1.1.0"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Deck 1.1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "deck-1-1-0-update/",
@@ -383,40 +469,6 @@
       ],
       "title": "ShowMyTouches 2.0 vs Touch-Viz 4.2: Which Touch Visualizer Should You Use?",
       "version": "ShowMyTouches 2.0; Touch-Viz 4.2"
-    },
-    {
-      "additional_media": [],
-      "article_sha256": "20a1dad7143da86bc4bef44fa0ad226569ae76fc38e30fc53e408de70c0960f5",
-      "candidate_fingerprint": "dopamine-3.0.13-zebra-ios17.6-posix-spawn-fix-2026-11-05",
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Dopamine 3.0.13 official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. The 3.0.13 app does not add a jailbreak path for unsupported devices or firmware.",
-      "description": "Update Dopamine 3.0.13 safely, verify the official IPA/TIPA hash, fix Zebra on iOS 17.6+, refresh the active environment and preserve your tweak list.",
-      "developer": "opa334",
-      "entry_type": "development-update",
-      "href": "update-dopamine-jailbreak-safely-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-11-04T21:00:00Z",
-      "name": "Dopamine update guide",
-      "package": "guide.dopamine.update-safely",
-      "published_at": "2026-10-13T04:58:13Z",
-      "release": "2026-11-03",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "update-dopamine-jailbreak-safely-guide",
-      "source_name": "Official Dopamine 3.0.13 release, tagged updater, environment source and README",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Update/DOUpdateViewController.m",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "How to Update Dopamine 3.0.13 and Fix Zebra on iOS 17.6+",
-      "version": "Dopamine 3.0.13"
     },
     {
       "category": {
@@ -6932,33 +6984,6 @@
       "version": "6.3.0-6"
     },
     {
-      "article_sha256": "e50d9cc4af959c7cb2648cb8cb4c3f821aa1318353594b050dc0f101375e5b5a",
-      "candidate_fingerprint": "icontweak2-1.1.0-app-data-backup-restore-wipe-2026-11-04",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "description": "IconTweak2 1.1.0 adds app-data backup, restore and wipe controls on iOS 15–26, with shared-container risks and recovery guidance.",
-      "href": "icontweak2-tweak/",
-      "image": "assets/articles/source-media/icontweak2-1-1-0-official-menu.png",
-      "media_credit": "Exact official IconTweak2 Havoc product screenshot",
-      "media_source_url": "https://havoc.app/package/icontweak2",
-      "modified_at": "2026-11-04T15:00:00Z",
-      "name": "IconTweak2",
-      "package": "com.ichitaso.icontweak2",
-      "published_at": "2026-08-14T09:13:32+00:00",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "source_name": "Official IconTweak2 Havoc listing and 1.1.0 changelog",
-      "source_page_url": "https://havoc.app/package/icontweak2",
-      "source_url": "https://havoc.app/package/icontweak2",
-      "title": "IconTweak2 1.1.0 Adds App-Data Backup, Restore and Wipe Controls",
-      "version": "1.1.0",
-      "entry_type": "tweak-update",
-      "media_sha256": "6d4a01ad48cb3eed3cd649dc87731ec3a19eec47892d2d2f1f02acd1f6a2f7ca",
-      "source_visual_origin": "official-havoc-screenshot",
-      "source_visual_url": "https://media.havoc.app/691e9346174b1c77f3400337"
-    },
-    {
       "article_sha256": "e55de59269c2500c6d2cd2583b26913d12664816697c23e1f6abc1aeb720b5a7",
       "candidate_fingerprint": "2b128f4cef100c4351183a80b5cd9bd6553d6b9725c653c6fe867dc7bbde2cb8",
       "category": {
@@ -10428,9 +10453,17 @@
       "published_at": "2026-11-04T21:00:00Z",
       "run_id": "scheduled-2026-11-04T21:00:00Z",
       "version": "Dopamine 3.0.13"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "drift-1-0-0-update/",
+      "package": "com.antonym.drift",
+      "published_at": "2026-11-04T23:22:04+00:00",
+      "run_id": "41932969232",
+      "version": "1.0.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-04T21:00:00Z"
+  "updated_at": "2026-11-04T23:22:04+00:00"
 }
-

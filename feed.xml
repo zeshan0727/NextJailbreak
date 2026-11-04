@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Drift 1.0.0 Expands the iOS Dock to Hold up to 50 Apps and Folders</title>
+      <link>https://nextjailbreak.com/drift-1-0-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/drift-1-0-0-update/</guid>
+      <pubDate>Wed, 04 Nov 2026 23:22:04 GMT</pubDate>
+      <description>Drift 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>How to Update Dopamine 3.0.13 and Fix Zebra on iOS 17.6+</title>
       <link>https://nextjailbreak.com/update-dopamine-jailbreak-safely-guide/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/update-dopamine-jailbreak-safely-guide/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Wed, 28 Oct 2026 04:57:45 GMT</pubDate>
       <description>Verify an IPA or TIPA SHA-256 on macOS, Windows or Linux before TrollStore installation, compare it with the developer's official digest and handle mismatches safely.</description>
       <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Prism 1.6.4 Adds iOS 26 Support and Fixes Control Center Launching</title>
-      <link>https://nextjailbreak.com/prism-1-6-1-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/prism-1-6-1-update/</guid>
-      <pubDate>Tue, 27 Oct 2026 16:57:28 GMT</pubDate>
-      <description>Prism 1.6.4 adds iOS 26 support, improves URL-scheme responsiveness and fixes activation from Control Center, with rootless-package limits explained.</description>
-      <category>Productivity</category>
     </item>
   </channel>
 </rss>
