@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-aspire",
+      "name": "Aspire Maintenance",
+      "version": "1.2.0",
+      "build": "13",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.aspire",
+      "icon": "/install/icons/com-nextsolution-aspire-c7e2d0856c0f.png",
+      "manifest": "/install/com-nextsolution-aspire.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.0/com-nextsolution-aspire-1.2.0-13.ipa",
+      "sha256": "827f054f8fe6632855c03381644a7408c1172102b132ee004f4d30d883d6fe1d",
+      "sizeBytes": 8466376,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": true
+    },
+    {
       "id": "com-nextsolution-njapps",
       "name": "Next App Library",
       "version": "1.0.3",
@@ -334,27 +355,6 @@
       "tweakCount": 0,
       "customIcon": false,
       "signedByNextSigner": false
-    },
-    {
-      "id": "com-nextsolution-aspire",
-      "name": "Aspire Maintenance",
-      "version": "1.2.0",
-      "build": "13",
-      "platform": "iPhone",
-      "minimumOS": "iOS 16.0+",
-      "bundleId": "com.nextsolution.aspire",
-      "icon": "/install/icons/com-nextsolution-aspire-c7e2d0856c0f.png",
-      "manifest": "/install/com-nextsolution-aspire.plist",
-      "available": true,
-      "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.0/com-nextsolution-aspire-1.2.0-13.ipa",
-      "sha256": "827f054f8fe6632855c03381644a7408c1172102b132ee004f4d30d883d6fe1d",
-      "sizeBytes": 8466376,
-      "storage": "Cloudflare R2",
-      "duplicateSigned": false,
-      "tweakCount": 0,
-      "customIcon": false,
-      "signedByNextSigner": true
     },
     {
       "id": "com-nextsolution-signer",
