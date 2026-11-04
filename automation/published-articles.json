@@ -386,35 +386,37 @@
     },
     {
       "additional_media": [],
+      "article_sha256": "20a1dad7143da86bc4bef44fa0ad226569ae76fc38e30fc53e408de70c0960f5",
+      "candidate_fingerprint": "dopamine-3.0.13-zebra-ios17.6-posix-spawn-fix-2026-11-05",
       "category": {
-        "id": "jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
       },
-      "compat": "Dopamine 3.0.12 official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
-      "description": "Update Dopamine 3.0.12 through its updater, TrollStore or the official IPA, verify SHA-256, refresh the jailbreak environment and keep your tweak list.",
+      "compat": "Dopamine 3.0.13 official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. The 3.0.13 app does not add a jailbreak path for unsupported devices or firmware.",
+      "description": "Update Dopamine 3.0.13 safely, verify the official IPA/TIPA hash, fix Zebra on iOS 17.6+, refresh the active environment and preserve your tweak list.",
       "developer": "opa334",
-      "entry_type": "evergreen-guide",
+      "entry_type": "development-update",
       "href": "update-dopamine-jailbreak-safely-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-12-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.12 jailbreak app icon",
-      "media_credit": "opa334 — official Dopamine app icon from the 3.0.12 source tag",
-      "media_git_blob_sha": "9ea200d790af0c89b8781469b32b9720745e80c3",
-      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-11-01T03:00:00Z",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-04T21:00:00Z",
       "name": "Dopamine update guide",
       "package": "guide.dopamine.update-safely",
       "published_at": "2026-10-13T04:58:13Z",
-      "release": "2026-10-20",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "release": "2026-11-03",
+      "selection_pool": "scheduled-current-jailbreak-development",
       "slug": "update-dopamine-jailbreak-safely-guide",
-      "source_name": "Official Dopamine 3.0.12 release, updater, environment-update source and README",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.12/Application/Dopamine/UI/Update/DOUpdateViewController.m",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.12",
-      "source_visual_origin": "official-repository-asset-reused",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "How to Update Dopamine 3.0.12 Without Losing Your Tweaks",
-      "version": "Dopamine 3.0.12"
+      "source_name": "Official Dopamine 3.0.13 release, tagged updater, environment source and README",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Update/DOUpdateViewController.m",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Update Dopamine 3.0.13 and Fix Zebra on iOS 17.6+",
+      "version": "Dopamine 3.0.13"
     },
     {
       "category": {
@@ -10415,8 +10417,20 @@
       "published_at": "2026-11-04T15:00:00Z",
       "run_id": "scheduled-2026-11-04T15:00:00Z",
       "version": "1.1.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "dopamine-3.0.13-zebra-ios17.6-posix-spawn-fix-2026-11-05",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "update-dopamine-jailbreak-safely-guide/",
+      "package": "guide.dopamine.update-safely",
+      "previous_version": "Dopamine 3.0.12",
+      "published_at": "2026-11-04T21:00:00Z",
+      "run_id": "scheduled-2026-11-04T21:00:00Z",
+      "version": "Dopamine 3.0.13"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-04T15:00:00Z"
+  "updated_at": "2026-11-04T21:00:00Z"
 }
+
