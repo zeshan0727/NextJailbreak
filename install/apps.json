@@ -8,18 +8,18 @@
       "platform": "iPhone",
       "minimumOS": "iOS 16.0+",
       "bundleId": "com.nextsolution.aspire",
-      "icon": "/install/icons/com-nextsolution-aspire-c7e2d0856c0f.png",
-      "manifest": "/install/manifests/com-nextsolution-aspire-1.2.0-build13.plist",
+      "icon": "/install/icons/com-nextsolution-aspire-ae79ba8ecfee.png",
+      "manifest": "/install/com-nextsolution-aspire.plist",
       "available": true,
       "status": "Ready to install",
       "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.0/com-nextsolution-aspire-1.2.0-13.ipa",
-      "sha256": "827f054f8fe6632855c03381644a7408c1172102b132ee004f4d30d883d6fe1d",
-      "sizeBytes": 8466376,
+      "sha256": "ae79ba8ecfee3d1f544b4d080e94c180b3849f57d5c82d81925b9a7dc629b4a7",
+      "sizeBytes": 2391861,
       "storage": "Cloudflare R2",
       "duplicateSigned": false,
       "tweakCount": 0,
       "customIcon": false,
-      "signedByNextSigner": true
+      "signedByNextSigner": false
     },
     {
       "id": "com-nextsolution-njapps",
