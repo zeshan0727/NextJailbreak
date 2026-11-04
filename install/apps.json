@@ -3,8 +3,8 @@
     {
       "id": "com-nextsolution-aspire",
       "name": "Aspire Maintenance",
-      "version": "1.2.0",
-      "build": "13",
+      "version": "1.2.1",
+      "build": "14",
       "platform": "iPhone",
       "minimumOS": "iOS 16.0+",
       "bundleId": "com.nextsolution.aspire",
@@ -12,14 +12,14 @@
       "manifest": "/install/com-nextsolution-aspire.plist",
       "available": true,
       "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.0/com-nextsolution-aspire-1.2.0-13.ipa",
-      "sha256": "ae79ba8ecfee3d1f544b4d080e94c180b3849f57d5c82d81925b9a7dc629b4a7",
-      "sizeBytes": 2391861,
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.1/com-nextsolution-aspire-1.2.1-14.ipa",
+      "sha256": "eb0323d3b0247dad752e739d8cfcbf1f33220bf3a8797184e088dd5e937995ae",
+      "sizeBytes": 8471933,
       "storage": "Cloudflare R2",
       "duplicateSigned": false,
       "tweakCount": 0,
       "customIcon": false,
-      "signedByNextSigner": false
+      "signedByNextSigner": true
     },
     {
       "id": "com-nextsolution-njapps",

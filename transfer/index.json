@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-01T14:08:44Z",
+  "updatedAt": "2026-11-04T11:59:54Z",
   "files": [
+    {
+      "id": "aspire-maintenance-1.2.1-cloud-diagnostics",
+      "name": "Aspire Maintenance 1.2.1 — iCloud Diagnostics Test",
+      "fileName": "AspireMaintenance-1.2.1-unsigned.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ — unsigned, sign using a matching explicit profile",
+      "version": "1.2.1 (14)",
+      "url": "https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.1/AspireMaintenance-1.2.1-unsigned.ipa",
+      "tipaUrl": "https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.1/AspireMaintenance-1.2.1.tipa",
+      "sha256": "040bdc806d9d76c15ea8b4a800e3e800a91fc61faab7f5913f1fc121ee04d5c5",
+      "sizeBytes": 2271105,
+      "notes": "Original binary ID com.aspiregroup.maintenance. Includes iCloud access diagnostics, distinct fallback reasons, local safety backup, and five themes. Requires explicit com.aspiregroup.maintenance profile to use iCloud or update original app. Separate signed build at My Apps uses com.nextsolution.aspire."
+    },
     {
       "id": "aspire-maintenance-1.2.0-theme-icloud-test",
       "name": "Aspire Maintenance 1.2.0 — Themes + iCloud Backup Test",
