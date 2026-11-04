@@ -815,6 +815,8 @@ struct EmployeeEditorView: View {
 
 struct EmailAndDataSettingsView: View {
     @EnvironmentObject private var store: AspireStore
+    @EnvironmentObject private var deviceSync: AspireDeviceSyncController
+    @State private var showingCloudDetails = false
     @State private var config = EmailConfiguration.aspireDefault
     @State private var apiKey = ""
     @State private var isConnecting = false
@@ -841,28 +843,60 @@ struct EmailAndDataSettingsView: View {
             Section("Alerts") {
                 Button { Task { await store.requestNotificationsAndRefresh() } } label: { Label("Enable Overdue Alerts", systemImage: "bell.badge.fill") }
             }
-            Section("iCloud Automatic Backup") {
-                Toggle("Automatic iCloud Backup", isOn: Binding(
+            Section("iCloud Backup") {
+                Toggle("Automatic Backup", isOn: Binding(
                     get: { store.automaticCloudBackupEnabled },
                     set: { store.setAutomaticCloudBackupEnabled($0) }
                 ))
-                LabeledContent("Status", value: store.cloudBackupStatus)
-                LabeledContent("Installed Bundle ID", value: Bundle.main.bundleIdentifier ?? "Unknown")
-                Text("Cloud Container: iCloud.com.aspiregroup.maintenance")
-                    .font(.caption).foregroundStyle(.secondary)
-                Button { store.checkICloudAccess() } label: {
-                    Label("Check iCloud Access", systemImage: "checkmark.icloud")
-                }
-                Text(store.iCloudAccessDiagnostic)
-                    .font(.caption).foregroundStyle(.secondary)
                 if let last = store.lastCloudBackupAt {
                     LabeledContent("Last Backup", value: DateFormatter.backupDateTime.string(from: last))
-                    LabeledContent("Location", value: store.lastCloudBackupLocation)
                 }
-                Button { store.backupNowToICloud() } label: { Label("Back Up Now", systemImage: "icloud.and.arrow.up.fill") }
-                Button { store.restoreLatestAutomaticBackup() } label: { Label("Restore Latest Automatic Backup", systemImage: "icloud.and.arrow.down.fill") }
-                Text("Aspire keeps the latest 10 automatic JSON snapshots. When iCloud Drive is unavailable, a local safety backup is created instead.")
-                    .font(.caption).foregroundStyle(.secondary)
+                Text(store.cloudBackupStatus)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button { store.backupNowToICloud() } label: {
+                    Label("Back Up Now", systemImage: "icloud.and.arrow.up.fill")
+                }
+                Button { store.restoreLatestAutomaticBackup() } label: {
+                    Label("Restore Latest Backup", systemImage: "icloud.and.arrow.down.fill")
+                }
+            }
+            Section("Device Sync") {
+                Toggle("Sync Across Devices", isOn: Binding(
+                    get: { deviceSync.enabled },
+                    set: { deviceSync.setEnabled($0) }
+                ))
+                LabeledContent("Status", value: deviceSync.status)
+                if deviceSync.enabled {
+                    if let last = deviceSync.lastSyncAt {
+                        LabeledContent("Last Checked", value: DateFormatter.backupDateTime.string(from: last))
+                    }
+                    Button { deviceSync.syncNow() } label: {
+                        Label("Sync Now", systemImage: "arrow.triangle.2.circlepath.icloud")
+                    }
+                }
+                Text("Use the same Apple Account with iCloud Drive enabled on both devices.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Section {
+                DisclosureGroup("Advanced iCloud Details", isExpanded: $showingCloudDetails) {
+                    LabeledContent("App ID", value: Bundle.main.bundleIdentifier ?? "Unknown")
+                    Text("Container: iCloud.com.aspiregroup.maintenance")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Button { store.checkICloudAccess() } label: {
+                        Label("Check iCloud Access", systemImage: "checkmark.icloud")
+                    }
+                    if store.iCloudAccessDiagnostic != "Not checked" {
+                        Text(store.iCloudAccessDiagnostic)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if store.lastCloudBackupAt != nil {
+                        LabeledContent("Backup Storage", value: store.lastCloudBackupLocation)
+                    }
+                }
             }
             Section("Manual Backup") {
                 Button { exportBackup() } label: { Label("Export Complete Backup", systemImage: "square.and.arrow.up") }
