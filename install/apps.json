@@ -9,7 +9,7 @@
       "minimumOS": "iOS 16.0+",
       "bundleId": "com.nextsolution.aspire",
       "icon": "/install/icons/com-nextsolution-aspire-c7e2d0856c0f.png",
-      "manifest": "/install/com-nextsolution-aspire.plist",
+      "manifest": "/install/manifests/com-nextsolution-aspire-1.2.0-build13.plist",
       "available": true,
       "status": "Ready to install",
       "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.0/com-nextsolution-aspire-1.2.0-13.ipa",
