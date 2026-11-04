@@ -24,8 +24,9 @@ final class AspireDeviceSyncController: ObservableObject {
     private var pendingPublish: DispatchWorkItem?
 
     init() {
-        enabled = UserDefaults.standard.bool(forKey: Defaults.enabled)
-        status = enabled ? "Not connected" : "Off"
+        let savedEnabled = UserDefaults.standard.bool(forKey: Defaults.enabled)
+        enabled = savedEnabled
+        status = savedEnabled ? "Not connected" : "Off"
         lastSyncAt = UserDefaults.standard.object(forKey: Defaults.lastAt) as? Date
 
         let directory = FileManager.default.urls(
