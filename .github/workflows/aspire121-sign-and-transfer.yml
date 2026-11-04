@@ -1,0 +1,269 @@
+name: Aspire Maintenance 1.2.1 — Signed iCloud Diagnostics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/aspire121-sign-and-transfer.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: aspire-121-icloud-diagnostics
+  cancel-in-progress: false
+
+jobs:
+  sign-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REQUESTED_NAME: Aspire Maintenance
+      REQUESTED_BUNDLE_ID: com.nextsolution.aspire
+      ICLOUD_DOCUMENTS: "true"
+      ICLOUD_CONTAINER: iCloud.com.aspiregroup.maintenance
+      P12_B64: ${{ secrets.NEXTSIGNER_P12_BASE64 }}
+      P12_PASSWORD: ${{ secrets.NEXTSIGNER_P12_PASSWORD }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: "true"
+      R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
+      R2_BUCKET: next-signer-apps
+      SIGNED_URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.1/com-nextsolution-aspire-1.2.1-14.ipa
+      OLD_URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.0/com-nextsolution-aspire-1.2.0-13.ipa
+      ZSIGN_COMMIT: e803f870dc686e6161d00d9b22c425b8acdfacee
+    steps:
+      - name: Checkout website and Next Signer helpers
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Download and verify Aspire 1.2.0 unsigned binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/13318717215/zip" > "$RUNNER_TEMP/aspire-build.zip"
+          mkdir -p "$RUNNER_TEMP/build"
+          unzip -q "$RUNNER_TEMP/aspire-build.zip" -d "$RUNNER_TEMP/build"
+          cp "$RUNNER_TEMP/build/AspireMaintenance-1.2.1-unsigned.ipa" "$RUNNER_TEMP/input.ipa"
+          (cd "$RUNNER_TEMP/build" && sha256sum --check AspireMaintenance-1.2.1-unsigned.ipa.sha256)
+          python3 - <<'PY'
+          import os,zipfile,plistlib
+          with zipfile.ZipFile(os.environ["RUNNER_TEMP"]+"/input.ipa") as z:
+              paths=[p for p in z.namelist() if p.startswith("Payload/") and p.count("/")==2 and p.endswith(".app/Info.plist")]
+              assert len(paths)==1
+              info=plistlib.loads(z.read(paths[0]))
+              assert info["CFBundleIdentifier"]=="com.aspiregroup.maintenance"
+              assert info["CFBundleShortVersionString"]=="1.2.1"
+              assert info["CFBundleVersion"]=="14"
+          print("PASS: Original Aspire 1.2.1 build 14 verified")
+          PY
+
+      - name: Decrypt uploaded profile inside private CI runner only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$P12_B64" && test -n "$P12_PASSWORD" || { echo "Missing Next Signer certificate secrets"; exit 1; }
+          printf '%s' "$P12_B64" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          chmod 600 "$RUNNER_TEMP/certificate.p12"
+          python3 -m venv "$RUNNER_TEMP/pyenv"
+          "$RUNNER_TEMP/pyenv/bin/pip" -q install cryptography
+          "$RUNNER_TEMP/pyenv/bin/python" - <<'PY'
+          import base64,gzip,hashlib,json,os,pathlib
+          from cryptography.hazmat.primitives.serialization.pkcs12 import load_key_and_certificates
+          from cryptography.hazmat.primitives.asymmetric import padding,rsa
+          from cryptography.hazmat.primitives import hashes
+          from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+          tmp=pathlib.Path(os.environ["RUNNER_TEMP"])
+          envelope=json.loads(pathlib.Path(".github/aspire-maintenance-1.2.0-profile.enc.json").read_text())
+          assert envelope["format"]=="aspire-profile-encrypted-v1"
+          key,cert,_=load_key_and_certificates((tmp/"certificate.p12").read_bytes(),os.environ["P12_PASSWORD"].encode())
+          assert isinstance(key,rsa.RSAPrivateKey), "Configured signing certificate is not RSA"
+          assert cert is not None and cert.fingerprint(hashes.SHA256()).hex()==envelope["certificate_sha256"], "Current signing certificate differs from Aspire's profile; cannot sign"
+          unwrap=key.decrypt(base64.b64decode(envelope["encrypted_aes_key_b64"]),
+                             padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+          packed=AESGCM(unwrap).decrypt(base64.b64decode(envelope["nonce_b64"]),
+                                      base64.b64decode(envelope["encrypted_profile_b64"]),
+                                      base64.b64decode(envelope["aad_b64"]))
+          profile=gzip.decompress(packed)
+          assert hashlib.sha256(profile).hexdigest()==envelope["profile_sha256"],"Uploaded profile authentication failed"
+          p=tmp/"profile.mobileprovision"
+          p.write_bytes(profile)
+          p.chmod(0o600)
+          print("PASS: Certificate-bound encrypted profile decrypted and authenticated")
+          PY
+
+      - name: Verify existing installation identity and iCloud permissions
+        shell: bash
+        env:
+          PROFILE_PATH: ${{ runner.temp }}/profile.mobileprovision
+          SIGNED_ENTITLEMENTS_PATH: ${{ runner.temp }}/effective-entitlements.plist
+          CUSTOM_ENTITLEMENTS_PATH: ""
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 3 --retry-delay 2 "$OLD_URL" -o "$RUNNER_TEMP/existing.ipa"
+          test -s "$RUNNER_TEMP/existing.ipa"
+          python3 - <<'PY'
+          import os,plistlib,zipfile,subprocess,pathlib
+          tmp=pathlib.Path(os.environ["RUNNER_TEMP"])
+          with zipfile.ZipFile(tmp/"existing.ipa") as z:
+              paths=[p for p in z.namelist() if p.startswith("Payload/") and p.count("/")==2 and p.endswith(".app/Info.plist")]
+              assert len(paths)==1
+              info=plistlib.loads(z.read(paths[0]))
+              assert info["CFBundleIdentifier"]=="com.nextsolution.aspire", "Existing App ID differs"
+              p=paths[0].rsplit("/",1)[0]+"/embedded.mobileprovision"
+              (tmp/"existing.mobileprovision").write_bytes(z.read(p))
+          def decoded(path):
+              blob=subprocess.check_output(["openssl","cms","-verify","-inform","DER","-noverify","-in",str(path)],stderr=subprocess.DEVNULL)
+              return plistlib.loads(blob)
+          old=decoded(tmp/"existing.mobileprovision")
+          new=decoded(tmp/"profile.mobileprovision")
+          assert old["TeamIdentifier"][0]==new["TeamIdentifier"][0]=="T52CDY8W32", "Existing signing team mismatch"
+          assert new["Entitlements"]["application-identifier"]=="T52CDY8W32.com.nextsolution.aspire"
+          print("PASS: Existing bundle ID and Apple Team match the new explicit profile")
+          PY
+          python3 .github/scripts/nextsigner-icloud-entitlements.py prepare
+
+      - name: Build pinned Next Signer signing engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq g++ pkg-config libssl-dev
+          git clone -q --filter=blob:none https://github.com/zhlynn/zsign.git "$RUNNER_TEMP/zsign"
+          git -C "$RUNNER_TEMP/zsign" -c advice.detachedHead=false checkout -q "$ZSIGN_COMMIT"
+          make -s -C "$RUNNER_TEMP/zsign/build/linux" -j"$(nproc)"
+          test -x "$RUNNER_TEMP/zsign/bin/zsign"
+
+      - name: Sign Aspire 1.2.0 using exact existing app identifier
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/zsign/bin/zsign" -f \
+            -k "$RUNNER_TEMP/certificate.p12" -p "$P12_PASSWORD" \
+            -m "$RUNNER_TEMP/profile.mobileprovision" \
+            -e "$RUNNER_TEMP/effective-entitlements.plist" \
+            -b "$REQUESTED_BUNDLE_ID" -n "$REQUESTED_NAME" \
+            -o "$RUNNER_TEMP/signed.ipa" "$RUNNER_TEMP/input.ipa"
+          test -s "$RUNNER_TEMP/signed.ipa"
+          unzip -tqq "$RUNNER_TEMP/signed.ipa"
+
+      - name: Verify actual signed code and iCloud entitlements
+        shell: bash
+        env:
+          PROFILE_PATH: ${{ runner.temp }}/profile.mobileprovision
+          SIGNED_IPA_PATH: ${{ runner.temp }}/signed.ipa
+          SIGNED_ENTITLEMENTS_PATH: ${{ runner.temp }}/effective-entitlements.plist
+        run: |
+          set -euo pipefail
+          python3 .github/scripts/nextsigner-icloud-entitlements.py verify
+          python3 - <<'PY'
+          import os,plistlib,zipfile
+          with zipfile.ZipFile(os.environ["RUNNER_TEMP"]+"/signed.ipa") as z:
+              paths=[p for p in z.namelist() if p.startswith("Payload/") and p.count("/")==2 and p.endswith(".app/Info.plist")]
+              assert len(paths)==1
+              info=plistlib.loads(z.read(paths[0]))
+              assert info["CFBundleIdentifier"]=="com.nextsolution.aspire"
+              assert info["CFBundleShortVersionString"]=="1.2.1"
+              assert info["CFBundleVersion"]=="14"
+          print("PASS: Signed Aspire 1.2.1 build 14 has existing bundle ID")
+          PY
+          echo "SIGNED_SHA256=$(sha256sum "$RUNNER_TEMP/signed.ipa" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "SIGNED_SIZE=$(stat -c%s "$RUNNER_TEMP/signed.ipa")" >> "$GITHUB_ENV"
+
+      - name: Publish signed IPA to existing app download storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo "R2 credentials missing"; exit 1; }
+          python3 -m venv "$RUNNER_TEMP/awsvenv"
+          "$RUNNER_TEMP/awsvenv/bin/pip" -q install awscli
+          "$RUNNER_TEMP/awsvenv/bin/aws" s3 cp "$RUNNER_TEMP/signed.ipa" \
+            "s3://$R2_BUCKET/apps/ipa/com-nextsolution-aspire/1.2.1/com-nextsolution-aspire-1.2.1-14.ipa" \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            --content-type application/octet-stream \
+            --cache-control "public, max-age=31536000, immutable" --only-show-errors
+          curl --fail --silent --show-error --location --head \
+            --retry 8 --retry-all-errors --retry-delay 3 "$SIGNED_URL" >/dev/null
+
+      - name: Publish unsigned diagnostic build to NS Transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          destination="transfer/files/AspireMaintenance/1.2.1"
+          mkdir -p "$destination"
+          cp "$RUNNER_TEMP/input.ipa" "$destination/AspireMaintenance-1.2.1-unsigned.ipa"
+          cp "$RUNNER_TEMP/input.ipa" "$destination/AspireMaintenance-1.2.1.tipa"
+          python3 - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          p=Path("transfer/files/AspireMaintenance/1.2.1/AspireMaintenance-1.2.1-unsigned.ipa")
+          root=Path("transfer/index.json")
+          catalog=json.loads(root.read_text())
+          entry={
+              "id":"aspire-maintenance-1.2.1-cloud-diagnostics",
+              "name":"Aspire Maintenance 1.2.1 — iCloud Diagnostics Test",
+              "fileName":p.name,"type":"ipa",
+              "platform":"iOS 16+ — unsigned, sign using a matching explicit profile",
+              "version":"1.2.1 (14)",
+              "url":"https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.1/AspireMaintenance-1.2.1-unsigned.ipa",
+              "tipaUrl":"https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.1/AspireMaintenance-1.2.1.tipa",
+              "sha256":hashlib.sha256(p.read_bytes()).hexdigest(),
+              "sizeBytes":p.stat().st_size,
+              "notes":"Original binary ID com.aspiregroup.maintenance. Includes iCloud access diagnostics, distinct fallback reasons, local safety backup, and five themes. Requires explicit com.aspiregroup.maintenance profile to use iCloud or update original app. Separate signed build at My Apps uses com.nextsolution.aspire."
+          }
+          catalog["files"]=[entry]+[e for e in catalog["files"] if e.get("id")!=entry["id"]]
+          from datetime import datetime,timezone
+          catalog["updatedAt"]=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          root.write_text(json.dumps(catalog,indent=2,ensure_ascii=False)+"\n")
+          PY
+
+      - name: Replace Aspire entry on My Apps only after complete verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,json,plistlib
+          from datetime import date
+          from pathlib import Path
+          p=Path("install/apps.json")
+          data=json.loads(p.read_text())
+          apps=[x for x in data.get("apps",[]) if x.get("id")=="com-nextsolution-aspire"]
+          assert len(apps)==1 and apps[0]["bundleId"]=="com.nextsolution.aspire", "Existing entry missing or changed"
+          apps[0].update(name="Aspire Maintenance",version="1.2.1",build="14",minimumOS="iOS 16.0+",status="Ready to install",
+              available=True,downloadURL=os.environ["SIGNED_URL"],sha256=os.environ["SIGNED_SHA256"],
+              sizeBytes=int(os.environ["SIGNED_SIZE"]),storage="Cloudflare R2",signedByNextSigner=True)
+          data["updated"]=date.today().isoformat()
+          p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+"\n")
+          pp=Path("install/com-nextsolution-aspire.plist")
+          versioned=Path("install/manifests/com-nextsolution-aspire-1.2.1-build14.plist")
+          apps[0]["manifest"]="/install/manifests/com-nextsolution-aspire-1.2.1-build14.plist"
+          manifest=plistlib.loads(pp.read_bytes())
+          item=manifest["items"][0]
+          next(x for x in item["assets"] if x["kind"]=="software-package")["url"]=os.environ["SIGNED_URL"]
+          item["metadata"]["bundle-identifier"]="com.nextsolution.aspire"
+          item["metadata"]["bundle-version"]="14"
+          item["metadata"]["title"]="Aspire Maintenance"
+          pp.write_bytes(plistlib.dumps(manifest,sort_keys=False))
+          versioned.write_bytes(plistlib.dumps(manifest,sort_keys=False))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add install/apps.json install/com-nextsolution-aspire.plist install/manifests/com-nextsolution-aspire-1.2.1-build14.plist transfer/index.json transfer/files/AspireMaintenance/1.2.1/
+          git commit -m "Publish signed Aspire Maintenance 1.2.1 iCloud diagnostics"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          echo "Published signed Aspire Maintenance 1.2.1 build 14" >> "$GITHUB_STEP_SUMMARY"
+          echo "URL: $SIGNED_URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "Verified app ID: $REQUESTED_BUNDLE_ID" >> "$GITHUB_STEP_SUMMARY"
+          echo "SHA-256: $SIGNED_SHA256" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove certificate-encrypted profile from checkout after use
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/profile.mobileprovision" "$RUNNER_TEMP/signed.ipa"
