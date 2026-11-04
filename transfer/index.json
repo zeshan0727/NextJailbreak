@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-04T11:59:54Z",
+  "updatedAt": "2026-11-04T12:32:52.385001Z",
   "files": [
+    {
+      "id": "aspire-maintenance-1.2.2-device-sync",
+      "name": "Aspire Maintenance 1.2.2 — Device Sync Test",
+      "fileName": "AspireMaintenance-1.2.2-Build15-unsigned.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ — unsigned, requires explicit provisioning",
+      "version": "1.2.2 (15)",
+      "url": "https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.2/AspireMaintenance-1.2.2-Build15-unsigned.ipa",
+      "tipaUrl": "https://nextjailbreak.com/transfer/files/AspireMaintenance/1.2.2/AspireMaintenance-1.2.2-Build15.tipa",
+      "sha256": "9e267307d6f5973334220649ca7e9d1bd6623b3b07c045d3b86dda709c1da802",
+      "sizeBytes": 2332888,
+      "notes": "Two-way iCloud device sync and compact backup UI. Unsigned ID com.aspiregroup.maintenance; use signed My Apps to update com.nextsolution.aspire."
+    },
     {
       "id": "aspire-maintenance-1.2.1-cloud-diagnostics",
       "name": "Aspire Maintenance 1.2.1 — iCloud Diagnostics Test",
