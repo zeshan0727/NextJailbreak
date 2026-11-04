@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>IconTweak2 1.1.0 Adds App-Data Backup, Restore and Wipe Controls</title>
+      <link>https://nextjailbreak.com/icontweak2-tweak/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/icontweak2-tweak/</guid>
+      <pubDate>Wed, 04 Nov 2026 15:00:00 GMT</pubDate>
+      <description>IconTweak2 1.1.0 adds app-data backup, restore and wipe controls on iOS 15–26, with shared-container risks and recovery guidance.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
       <title>Deck 1.1.0 Reimagines the Jailbroken iOS App Switcher With Cards, Pins and Control Center Controls</title>
       <link>https://nextjailbreak.com/deck-1-1-0-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/deck-1-1-0-update/</guid>
@@ -247,3 +255,4 @@
     </item>
   </channel>
 </rss>
+

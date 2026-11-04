@@ -574,7 +574,10 @@
       "official_source": true,
       "hero": {
         "url": "https://media.havoc.app/691e9346174b1c77f3400337",
-        "alt": "IconTweak2 control menu opened from a Home Screen icon in the official package screenshot"
+        "alt": "IconTweak2 control menu opened from a Home Screen icon in the official package screenshot",
+        "local_path": "assets/articles/source-media/icontweak2-1-1-0-official-menu.png",
+        "git_blob_sha": "be14a69b57c8a9810faeca6eba83577dfc5c993a",
+        "sha256": "6d4a01ad48cb3eed3cd649dc87731ec3a19eec47892d2d2f1f02acd1f6a2f7ca"
       },
       "screenshots": [
         {
@@ -1474,3 +1477,4 @@
     }
   }
 }
+
