@@ -5,6 +5,31 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "Deck 1.1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "deck-1-1-0-update/",
+      "image": "assets/articles/source-media/deck-1-1-0-update-ed4a6526a6.jpg",
+      "media_credit": "Source visual from chariz.com",
+      "media_source_url": "https://chariz.com/buy/deck",
+      "modified_at": "2026-11-04T13:24:27+00:00",
+      "name": "Deck",
+      "package": "com.antonym.deck",
+      "published_at": "2026-11-04T13:24:27+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "repo.chariz.com",
+      "source_page_url": "https://repo.chariz.com/Packages",
+      "source_url": "https://repo.chariz.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://img.chariz.cloud/sileo-banner/deck.jpg",
+      "title": "Deck 1.1.0 Reimagines the Jailbroken iOS App Switcher With Cards, Pins and Control Center Controls",
+      "version": "1.1.0"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Watusi 3 for WhatsApp 1.3.30 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "watusi-3-for-whatsapp-1-3-30-update/",
@@ -10366,8 +10391,17 @@
       "published_at": "2026-11-03T23:00:36+00:00",
       "run_id": "41735409528",
       "version": "1.3.30"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "deck-1-1-0-update/",
+      "package": "com.antonym.deck",
+      "published_at": "2026-11-04T13:24:27+00:00",
+      "run_id": "41837565587",
+      "version": "1.1.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-03T23:00:36+00:00"
+  "updated_at": "2026-11-04T13:24:27+00:00"
 }
