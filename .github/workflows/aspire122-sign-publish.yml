@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: aspire-122-inplace-icloud-signed
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   sign-and-publish:
@@ -219,7 +219,7 @@ jobs:
           versioned.parent.mkdir(parents=True,exist_ok=True)
           versioned.write_bytes(plistlib.dumps(manifest,sort_keys=False))
           apps[0]["manifest"]="/install/manifests/com-nextsolution-aspire-1.2.2-build15.plist"
-          p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+"\\n")
+          p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+"\n")
           transfer=Path("transfer/files/AspireMaintenance/1.2.2")
           transfer.mkdir(parents=True,exist_ok=True)
           from shutil import copyfile
@@ -245,7 +245,7 @@ jobs:
           index["files"]=[record]+[x for x in index.get("files",[]) if x.get("id")!=record["id"]]
           from datetime import datetime,timezone
           index["updatedAt"]=datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
-          catalog.write_text(json.dumps(index,indent=2,ensure_ascii=False)+"\\n")
+          catalog.write_text(json.dumps(index,indent=2,ensure_ascii=False)+"\n")
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -253,7 +253,7 @@ jobs:
           git commit -m "Publish signed Aspire Maintenance 1.2.2 device sync and NS Transfer test"
           git pull --rebase origin main
           git push origin HEAD:main
-          echo "Published signed Aspire Maintenance 1.2.2 build 13" >> "$GITHUB_STEP_SUMMARY"
+          echo "Published signed Aspire Maintenance 1.2.2 build 15" >> "$GITHUB_STEP_SUMMARY"
           echo "URL: $SIGNED_URL" >> "$GITHUB_STEP_SUMMARY"
           echo "Verified app ID: $REQUESTED_BUNDLE_ID" >> "$GITHUB_STEP_SUMMARY"
           echo "SHA-256: $SIGNED_SHA256" >> "$GITHUB_STEP_SUMMARY"
