@@ -5,6 +5,192 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "Regram for Instagram 7.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "regram-for-instagram-7-0-update/",
+      "image": "assets/articles/source-media/regram-for-instagram-7-0-update-fa5d060217.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Regram-for-Instagram/commit/888589230d56c07ef121bef8df9fde339460c670",
+      "modified_at": "2026-11-05T23:25:12+00:00",
+      "name": "Regram for Instagram",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-11-05T23:25:12+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/b6b433b4cf7c914302ce940d14555297d8924ec5f8c0a2a0b764c949d77dfba6/FouadRaheb/Regram-for-Instagram/commit/888589230d56c07ef121bef8df9fde339460c670",
+      "title": "Regram 7.0 Rebuilds Its Instagram Toolkit for IG 454.1",
+      "version": "7.0"
+    },
+    {
+      "candidate_fingerprint": "calif-lockdown-mode-airdrop-ios27.2-update-persistence-2026-11-03",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Demonstrated only on one iPhone 18 Pro with Lockdown Mode enabled. The video shows an already-jailbroken device updating to iOS 27.2 and retaining the state; it does not establish fresh exploitation on iOS 27.2, support for other devices, package managers or tweaks.",
+      "description": "Calif showed an iPhone 18 Pro with Lockdown Mode enabled, then updated it to iOS 27.2 with the jailbreak still present. What the demo proves, what it does not, and how to reduce AirDrop risk.",
+      "developer": "Calif",
+      "entry_type": "editorial-news-update",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "image": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+      "media_credit": "Calif — earlier official iPhone Duo demonstration still retained as historical context; November 3 X video image retrieval blocked",
+      "media_source_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+      "modified_at": "2026-11-05T20:55:00Z",
+      "name": "Calif iPhone 18 Pro Lockdown Mode and iOS 27.2 persistence demonstration",
+      "package": "editorial.ios27-jailbreak-status",
+      "published_at": "2026-09-15T07:47:49Z",
+      "quality_target": 9,
+      "release": "Calif posted the iPhone 18 Pro Lockdown Mode and iOS 27.2 update-persistence video on November 3, 2026; no end-user tool was released",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Calif official November 3 video, Calif Hexacon disclosure, Apple iOS 27.2 security notes, Lockdown Mode and AirDrop guidance",
+      "source_page_url": "https://x.com/calif_io/status/2117720348322144733",
+      "source_url": "https://x.com/calif_io/status/2117720348322144733",
+      "source_visual_origin": "still-from-official-calif-demo-hosted-by-macrumors",
+      "source_visual_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
+      "title": "Calif’s Lockdown Mode Jailbreak Survives the iOS 27.2 Update",
+      "version": "iPhone 18 Pro / persistence through iOS 27.2 update demo November 3, 2026"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",
+          "git_blob_sha": "3b440e1b5770bd838eed1dc14e664f4ba8c14374",
+          "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-force-quit.jpg?v=bc266b0b2",
+          "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg"
+        }
+      ],
+      "article_sha256": "57823fbbc3f44dce84431edb8bb1572eea94cccd99e364cd0f5e93453e17c864",
+      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.7.9.2-stage-manager-window-fixes-2026-11-05",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "iPad only; iPadOS 15–18; compatible rootless jailbreak; no official RootHide build; one supported window engine when windowing is used",
+      "description": "MacStatusBar&Dock 1.7.9.2 fixes covered-window launches and Stage Manager drag conflicts. Check iPadOS 15–18 support, window engines and safe recovery.",
+      "developer": "BesiktasliSeba",
+      "entry_type": "jailbreak-development",
+      "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
+      "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-settings.jpg?v=0624fbbd2",
+      "media_alt": "Official MacStatusBar&Dock interface showing Settings in a Mac-style iPad window",
+      "media_credit": "Official MacStatusBar&Dock package depiction by BesiktasliSeba",
+      "media_git_blob_sha": "938abef9a1d77dd53b06e2b2ea23055bf7cb04c1",
+      "media_retrieval_status": "Official developer screenshots previously retrieved, inspected, stored locally and re-verified on main.",
+      "media_source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
+      "modified_at": "2026-11-05T15:00:00Z",
+      "name": "MacStatusBar&Dock",
+      "package": "com.besiktasliseba.macstatusbaranddock",
+      "published_at": "2026-10-04T21:04:21Z",
+      "release": "2026-11-03",
+      "selection_pool": "official-open-source-individual-update",
+      "source_name": "BesiktasliSeba official project and package repository",
+      "source_page_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
+      "source_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock/blob/main/CHANGELOG.md",
+      "source_visual_origin": "official-developer-package-depiction",
+      "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
+      "title": "MacStatusBar&Dock 1.7.9.2 Fixes Covered-Window Launches and Stage Manager Dragging",
+      "version": "1.7.9.2"
+    },
+    {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/appdata-1-4-0-official-home-screen.jpg",
+          "media_alt": "Official AppData Home Screen menu showing app-data maintenance actions",
+          "media_credit": "Fouad Raheb — official AppData interface screenshot",
+          "media_git_blob_sha": "6333f11a82bb350d097e01d14bc154fbdd2806e9",
+          "media_sha256": "09fcac4523b066e8b1d19f7842272f21433b6bf0a187f49301cdd46ea75ef39a",
+          "media_source_url": "https://raw.githubusercontent.com/FouadRaheb/AppData/master/Screenshots/1.jpg"
+        },
+        {
+          "image": "assets/articles/source-media/appdata-1-4-0-official-manager.jpg",
+          "media_alt": "Official AppData More Info screen showing requirements, URL schemes, background modes and entitlements",
+          "media_credit": "Fouad Raheb — official AppData interface screenshot",
+          "media_git_blob_sha": "b3b169d3134e6eef84f7d441d69e7834f9e85ac6",
+          "media_sha256": "e240a89d813237a18e84acb79157e0bbac41bbe88cadf372a485caa32bd2f3a1",
+          "media_source_url": "https://raw.githubusercontent.com/FouadRaheb/AppData/master/Screenshots/2.jpg"
+        },
+        {
+          "image": "assets/articles/source-media/apps-manager-official-interface.png",
+          "media_alt": "Official Apps Manager interface showing app containers and Backup, Restore and Wipe controls, plus saved backups",
+          "media_credit": "TIGI Software — official Apps Manager interface composite",
+          "media_git_blob_sha": "e8c37c27340a653451e6c05348f2d5e459bb22d9",
+          "media_sha256": "4e66e563b81cf2148f211dc8edb34031b55707a9d8d57b27865ce2518f2cdb54",
+          "media_source_url": "https://www.tigisoftware.com/default/wp-content/uploads/2016/01/scrs.png"
+        }
+      ],
+      "article_sha256": "21f91852884b352a91c792653ff4c127d0354496ead73913368a736f4e2eb014",
+      "candidate_fingerprint": "comparison.icontweak2-1.1.0-appdata-1.4.0-apps-manager-1.8.4-2026-11-05",
+      "category": {
+        "id": "roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "IconTweak2 1.1.0 lists iOS 15.0–26.0.1 and rootful, rootless and RootHide support; its RootHide package is requested from the developer. AppData 1.4.0 requires iOS 11+ and a compatible conventional rootful/rootless jailbreak. Apps Manager 1.8.4 is the official iOS 15–16 TrollStore IPA, while TIGI's APT lists 1.8.2-4 jailbreak packages. Package ranges do not establish jailbreak or TrollStore availability.",
+      "description": "Compare IconTweak2 1.1.0, AppData 1.4.0 and Apps Manager 1.8.4 for backup, restore, cache cleaning, containers, TrollStore, rootless and RootHide.",
+      "developer": "ichitaso / Fouad Raheb / TIGI Software",
+      "entry_type": "comparison",
+      "href": "appdata-vs-apps-manager-app-data-tool-comparison/",
+      "image": "assets/articles/source-media/icontweak2-1-1-0-official-menu.png",
+      "media_alt": "Official IconTweak2 menu showing app-data backup, restore and wipe actions",
+      "media_credit": "ichitaso/Havoc — official IconTweak2 1.1.0 action-menu screenshot",
+      "media_git_blob_sha": "be14a69b57c8a9810faeca6eba83577dfc5c993a",
+      "media_retrieval_status": "Reused the exact official IconTweak2 1.1.0 action-menu screenshot previously retrieved and inspected from Havoc, plus the existing exact AppData and Apps Manager developer screenshots; all are committed and embedded.",
+      "media_sha256": "6d4a01ad48cb3eed3cd649dc87731ec3a19eec47892d2d2f1f02acd1f6a2f7ca",
+      "media_source_url": "https://media.havoc.app/691e9346174b1c77f3400337",
+      "modified_at": "2026-11-05T09:00:00Z",
+      "name": "AppData vs Apps Manager app-data tool comparison",
+      "package": "comparison.appdata-apps-manager",
+      "published_at": "2026-10-27T09:08:37Z",
+      "quality_target": 9,
+      "release": "IconTweak2 1.1.0 (2026-11-01) / AppData 1.4.0 (2023-06-07) / Apps Manager 1.8.4 TrollStore and 1.8.2-4 jailbreak builds",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "appdata-vs-apps-manager-app-data-tool-comparison",
+      "source_name": "Official IconTweak2 Havoc listing, AppData project/APT, and TIGI Apps Manager pages/APT",
+      "source_page_url": "https://havoc.app/package/icontweak2",
+      "source_url": "https://www.tigisoftware.com/default/?p=510",
+      "source_visual_origin": "official-developer-assets-reused",
+      "source_visual_url": "https://media.havoc.app/691e9346174b1c77f3400337",
+      "title": "IconTweak2 vs AppData vs Apps Manager: Which App-Data Tool Should You Use?",
+      "version": "IconTweak2 1.1.0 / AppData 1.4.0 / Apps Manager 1.8.4"
+    },
+    {
+      "article_sha256": "f705cecd7b9a1ae4406ace908d7bb53bebd417961ab12991cd7d260f83ca8404",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-official-download-compatibility-sha256-2026-11-05",
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.0.13: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. Installation availability does not expand jailbreak compatibility.",
+      "description": "Download Dopamine 3.0.13 from official sources, check exact device and iOS support, verify the IPA/TIPA SHA-256, and troubleshoot installation safely.",
+      "entry_type": "evergreen-guide",
+      "href": "dopamine-3-official-download-guide.html",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-05T03:00:00Z",
+      "name": "Dopamine 3",
+      "package": "editorial.dopamine3.dopamine3-official-download",
+      "published_at": "2026-08-29T18:06:15+00:00",
+      "release": "Dopamine 3.0.13 — November 3, 2026",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Official Dopamine 3.0.13 release, tagged README and updater source",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/README.md",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "Dopamine 3 Official Download: Version 3.0.13, Compatibility and SHA-256",
+      "version": "Dopamine 3.0.13"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Drift 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "drift-1-0-0-update/",
@@ -1257,67 +1443,6 @@
       "version": "1.0"
     },
     {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/appdata-1-4-0-official-home-screen.jpg",
-          "media_alt": "Official AppData Home Screen menu showing app-data maintenance actions",
-          "media_credit": "Fouad Raheb — official AppData interface screenshot",
-          "media_git_blob_sha": "6333f11a82bb350d097e01d14bc154fbdd2806e9",
-          "media_sha256": "09fcac4523b066e8b1d19f7842272f21433b6bf0a187f49301cdd46ea75ef39a",
-          "media_source_url": "https://raw.githubusercontent.com/FouadRaheb/AppData/master/Screenshots/1.jpg"
-        },
-        {
-          "image": "assets/articles/source-media/appdata-1-4-0-official-manager.jpg",
-          "media_alt": "Official AppData More Info screen showing requirements, URL schemes, background modes and entitlements",
-          "media_credit": "Fouad Raheb — official AppData interface screenshot",
-          "media_git_blob_sha": "b3b169d3134e6eef84f7d441d69e7834f9e85ac6",
-          "media_sha256": "e240a89d813237a18e84acb79157e0bbac41bbe88cadf372a485caa32bd2f3a1",
-          "media_source_url": "https://raw.githubusercontent.com/FouadRaheb/AppData/master/Screenshots/2.jpg"
-        },
-        {
-          "image": "assets/articles/source-media/apps-manager-official-interface.png",
-          "media_alt": "Official Apps Manager interface showing app containers and Backup, Restore and Wipe controls, plus saved backups",
-          "media_credit": "TIGI Software — official Apps Manager interface composite",
-          "media_git_blob_sha": "e8c37c27340a653451e6c05348f2d5e459bb22d9",
-          "media_sha256": "4e66e563b81cf2148f211dc8edb34031b55707a9d8d57b27865ce2518f2cdb54",
-          "media_source_url": "https://www.tigisoftware.com/default/wp-content/uploads/2016/01/scrs.png"
-        }
-      ],
-      "article_sha256": "21f91852884b352a91c792653ff4c127d0354496ead73913368a736f4e2eb014",
-      "candidate_fingerprint": "comparison.icontweak2-1.1.0-appdata-1.4.0-apps-manager-1.8.4-2026-11-05",
-      "category": {
-        "id": "roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "IconTweak2 1.1.0 lists iOS 15.0–26.0.1 and rootful, rootless and RootHide support; its RootHide package is requested from the developer. AppData 1.4.0 requires iOS 11+ and a compatible conventional rootful/rootless jailbreak. Apps Manager 1.8.4 is the official iOS 15–16 TrollStore IPA, while TIGI's APT lists 1.8.2-4 jailbreak packages. Package ranges do not establish jailbreak or TrollStore availability.",
-      "description": "Compare IconTweak2 1.1.0, AppData 1.4.0 and Apps Manager 1.8.4 for backup, restore, cache cleaning, containers, TrollStore, rootless and RootHide.",
-      "developer": "ichitaso / Fouad Raheb / TIGI Software",
-      "entry_type": "comparison",
-      "href": "appdata-vs-apps-manager-app-data-tool-comparison/",
-      "image": "assets/articles/source-media/icontweak2-1-1-0-official-menu.png",
-      "media_alt": "Official IconTweak2 menu showing app-data backup, restore and wipe actions",
-      "media_credit": "ichitaso/Havoc — official IconTweak2 1.1.0 action-menu screenshot",
-      "media_retrieval_status": "Reused the exact official IconTweak2 1.1.0 action-menu screenshot previously retrieved and inspected from Havoc, plus the existing exact AppData and Apps Manager developer screenshots; all are committed and embedded.",
-      "media_sha256": "6d4a01ad48cb3eed3cd649dc87731ec3a19eec47892d2d2f1f02acd1f6a2f7ca",
-      "media_source_url": "https://media.havoc.app/691e9346174b1c77f3400337",
-      "modified_at": "2026-11-05T09:00:00Z",
-      "name": "AppData vs Apps Manager app-data tool comparison",
-      "package": "comparison.appdata-apps-manager",
-      "published_at": "2026-10-27T09:08:37Z",
-      "quality_target": 9,
-      "release": "IconTweak2 1.1.0 (2026-11-01) / AppData 1.4.0 (2023-06-07) / Apps Manager 1.8.4 TrollStore and 1.8.2-4 jailbreak builds",
-      "selection_pool": "scheduled-tweak-roundup-comparison",
-      "slug": "appdata-vs-apps-manager-app-data-tool-comparison",
-      "source_name": "Official IconTweak2 Havoc listing, AppData project/APT, and TIGI Apps Manager pages/APT",
-      "source_page_url": "https://havoc.app/package/icontweak2",
-      "source_url": "https://www.tigisoftware.com/default/?p=510",
-      "source_visual_origin": "official-developer-assets-reused",
-      "source_visual_url": "https://media.havoc.app/691e9346174b1c77f3400337",
-      "title": "IconTweak2 vs AppData vs Apps Manager: Which App-Data Tool Should You Use?",
-      "version": "IconTweak2 1.1.0 / AppData 1.4.0 / Apps Manager 1.8.4",
-      "media_git_blob_sha": "be14a69b57c8a9810faeca6eba83577dfc5c993a"
-    },
-    {
       "additional_media": [],
       "article_sha256": "e419ae5b15de2ad658364c1fef3ab9d04e86840c286bee2a24f6b3f6e34d3151",
       "candidate_fingerprint": "evergreen-guide.dopamine-3.0.12-hide-jailbreak-use-restore",
@@ -1776,35 +1901,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
       "title": "palera1n 3.0.0 Beta 3 Adds Linux AppImages and a CLI DFU Helper",
       "version": "3.0.0-beta.3"
-    },
-    {
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Demonstrated only on one iPhone 18 Pro with Lockdown Mode enabled. The video shows an already-jailbroken device updating to iOS 27.2 and retaining the state; it does not establish fresh exploitation on iOS 27.2, support for other devices, package managers or tweaks.",
-      "description": "Calif showed an iPhone 18 Pro with Lockdown Mode enabled, then updated it to iOS 27.2 with the jailbreak still present. What the demo proves, what it does not, and how to reduce AirDrop risk.",
-      "developer": "Calif",
-      "entry_type": "editorial-news-update",
-      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
-      "image": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "media_credit": "Calif — earlier official iPhone Duo demonstration still retained as historical context; November 3 X video image retrieval blocked",
-      "media_source_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "modified_at": "2026-11-05T20:55:00Z",
-      "name": "Calif iPhone 18 Pro Lockdown Mode and iOS 27.2 persistence demonstration",
-      "package": "editorial.ios27-jailbreak-status",
-      "published_at": "2026-09-15T07:47:49Z",
-      "quality_target": 9,
-      "release": "Calif posted the iPhone 18 Pro Lockdown Mode and iOS 27.2 update-persistence video on November 3, 2026; no end-user tool was released",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Calif official November 3 video, Calif Hexacon disclosure, Apple iOS 27.2 security notes, Lockdown Mode and AirDrop guidance",
-      "source_page_url": "https://x.com/calif_io/status/2117720348322144733",
-      "source_url": "https://x.com/calif_io/status/2117720348322144733",
-      "source_visual_origin": "still-from-official-calif-demo-hosted-by-macrumors",
-      "source_visual_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "title": "Calif’s Lockdown Mode Jailbreak Survives the iOS 27.2 Update",
-      "version": "iPhone 18 Pro / persistence through iOS 27.2 update demo November 3, 2026",
-      "candidate_fingerprint": "calif-lockdown-mode-airdrop-ios27.2-update-persistence-2026-11-03"
     },
     {
       "additional_media": [],
@@ -4581,46 +4677,6 @@
       "title": "Rootless vs Rootful vs RootHide Jailbreaks: How to Identify Your Setup"
     },
     {
-      "additional_media": [
-        {
-          "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",
-          "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-force-quit.jpg?v=bc266b0b2",
-          "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg",
-          "git_blob_sha": "3b440e1b5770bd838eed1dc14e664f4ba8c14374"
-        }
-      ],
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "iPad only; iPadOS 15–18; compatible rootless jailbreak; no official RootHide build; one supported window engine when windowing is used",
-      "description": "MacStatusBar&Dock 1.7.9.2 fixes covered-window launches and Stage Manager drag conflicts. Check iPadOS 15–18 support, window engines and safe recovery.",
-      "developer": "BesiktasliSeba",
-      "entry_type": "jailbreak-development",
-      "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
-      "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-settings.jpg?v=0624fbbd2",
-      "media_credit": "Official MacStatusBar&Dock package depiction by BesiktasliSeba",
-      "media_source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
-      "modified_at": "2026-11-05T15:00:00Z",
-      "name": "MacStatusBar&Dock",
-      "package": "com.besiktasliseba.macstatusbaranddock",
-      "published_at": "2026-10-04T21:04:21Z",
-      "release": "2026-11-03",
-      "selection_pool": "official-open-source-individual-update",
-      "source_name": "BesiktasliSeba official project and package repository",
-      "source_page_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
-      "source_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock/blob/main/CHANGELOG.md",
-      "source_visual_origin": "official-developer-package-depiction",
-      "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
-      "title": "MacStatusBar&Dock 1.7.9.2 Fixes Covered-Window Launches and Stage Manager Dragging",
-      "version": "1.7.9.2",
-      "article_sha256": "57823fbbc3f44dce84431edb8bb1572eea94cccd99e364cd0f5e93453e17c864",
-      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.7.9.2-stage-manager-window-fixes-2026-11-05",
-      "media_alt": "Official MacStatusBar&Dock interface showing Settings in a Mac-style iPad window",
-      "media_git_blob_sha": "938abef9a1d77dd53b06e2b2ea23055bf7cb04c1",
-      "media_retrieval_status": "Official developer screenshots previously retrieved, inspected, stored locally and re-verified on main."
-    },
-    {
       "category": {
         "id": "apps",
         "label": "YouTube Tweak"
@@ -6346,37 +6402,6 @@
       "source_url": "https://havoc.app/",
       "title": "XXTouch Elite 5.4.6: Automation Tool Package Overview",
       "version": "5.4.6"
-    },
-    {
-      "article_sha256": "f705cecd7b9a1ae4406ace908d7bb53bebd417961ab12991cd7d260f83ca8404",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-official-download-compatibility-sha256-2026-11-05",
-      "category": {
-        "id": "jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "description": "Download Dopamine 3.0.13 from official sources, check exact device and iOS support, verify the IPA/TIPA SHA-256, and troubleshoot installation safely.",
-      "entry_type": "evergreen-guide",
-      "href": "dopamine-3-official-download-guide.html",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-11-05T03:00:00Z",
-      "name": "Dopamine 3",
-      "package": "editorial.dopamine3.dopamine3-official-download",
-      "published_at": "2026-08-29T18:06:15+00:00",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "source_name": "Official Dopamine 3.0.13 release, tagged README and updater source",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/README.md",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "title": "Dopamine 3 Official Download: Version 3.0.13, Compatibility and SHA-256",
-      "version": "Dopamine 3.0.13",
-      "compat": "Dopamine 3.0.13: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. Installation availability does not expand jailbreak compatibility.",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "release": "Dopamine 3.0.13 — November 3, 2026",
-      "source_visual_origin": "official-repository-asset-reused",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png"
     },
     {
       "article_sha256": "22edb575b92fd4467c51e99e4f987e6fffa011841e18a97740c981fce46550fa",
@@ -10531,8 +10556,17 @@
       "published_at": "2026-11-05T15:00:00Z",
       "run_id": "scheduled-2026-11-05T15:00:00Z",
       "version": "1.7.9.2"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "regram-for-instagram-7-0-update/",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-11-05T23:25:12+00:00",
+      "run_id": "42129061036",
+      "version": "7.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-05T20:55:00Z"
+  "updated_at": "2026-11-05T23:25:12+00:00"
 }

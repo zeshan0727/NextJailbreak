@@ -138,11 +138,11 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-11-01T12:11:34.663151+00:00",
+      "checked_at": "2026-11-05T23:25:12+00:00",
       "package": "com.fouadraheb.regram",
-      "status": "duplicate",
-      "target_path": "regram-for-instagram-6-5-update/",
-      "version": "6.5"
+      "status": "published",
+      "target_path": "regram-for-instagram-7-0-update/",
+      "version": "7.0"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
       "checked_at": "2026-11-05T13:39:08.024972+00:00",
@@ -2789,6 +2789,47 @@
         "fun.asmo.analyticswechat: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_05462749a3fdaf25016aed107b623887d2bf05c03a67283b61",
+          "usage": {
+            "input_tokens": 22974,
+            "input_tokens_details": {
+              "cache_write_tokens": 22971,
+              "cached_tokens": 0
+            },
+            "output_tokens": 345,
+            "output_tokens_details": {
+              "reasoning_tokens": 229
+            },
+            "total_tokens": 23319
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_013de5b93f24814e016aed105fadf887d297511e863bd544e5",
+          "usage": {
+            "input_tokens": 20367,
+            "input_tokens_details": {
+              "cache_write_tokens": 20364,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2873,
+            "output_tokens_details": {
+              "reasoning_tokens": 61
+            },
+            "total_tokens": 23240
+          }
+        }
+      },
+      "at": "2026-11-05T23:25:12+00:00",
+      "package": "com.fouadraheb.regram",
+      "target_path": "regram-for-instagram-7-0-update/",
+      "version": "7.0"
     }
   ],
   "schema_version": 1
