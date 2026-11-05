@@ -916,6 +916,8 @@ struct InvoiceDetailView: View {
     @State private var shareItems: ShareItems?
     @State private var showingDelete = false
     @State private var showingPDFEditor = false
+    @State private var showingInvoiceEditor = false
+    @State private var showingEditHistory = false
     @State private var showingPaymentEntry = false
     @State private var sending = false
     @State private var resultMessage: String?
@@ -929,6 +931,9 @@ struct InvoiceDetailView: View {
                         invoiceHeader(invoice: invoice, customer: customer)
                         invoiceItems(invoice: invoice)
                         paymentSummary(invoice: invoice)
+                        if let revisions = invoice.revisions, !revisions.isEmpty {
+                            revisionHistory(revisions)
+                        }
                         actionButtons(invoice: invoice, customer: customer)
                     }
                     .padding()
@@ -939,6 +944,10 @@ struct InvoiceDetailView: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Menu {
+                            Button { showingInvoiceEditor = true } label: {
+                                Label("Edit Invoice Items", systemImage: "square.and.pencil")
+                            }
+                            .disabled(invoice.status == .paid || invoice.status == .void)
                             Button { showingPDFEditor = true } label: { Label("Edit PDF / Logo", systemImage: "doc.richtext") }
                             Divider()
                             Button(role: .destructive) { showingDelete = true } label: { Label("Delete Invoice", systemImage: "trash") }
@@ -953,6 +962,13 @@ struct InvoiceDetailView: View {
                 .sheet(item: $shareItems) { payload in ShareSheet(items: payload.items) }
                 .sheet(item: $previewItem) { GeneratedPDFPreviewSheet(item: $0) }
                 .sheet(isPresented: $showingPDFEditor) { InvoiceReportCenterView(sampleInvoiceID: invoice.id) }
+                .sheet(isPresented: $showingInvoiceEditor) {
+                    AspireInvoiceEditorView(invoice: invoice) { changed in
+                        resultMessage = changed
+                            ? "Invoice updated. Please send the revised PDF to your customer."
+                            : "No invoice changes were made."
+                    }
+                }
                 .sheet(isPresented: $showingPaymentEntry) { PaymentEntryView(invoice: invoice) }
                 .confirmationDialog("Delete this invoice?", isPresented: $showingDelete, titleVisibility: .visible) {
                     Button("Delete Invoice", role: .destructive) { store.deleteInvoice(invoice.id); dismiss() }
@@ -1021,9 +1037,41 @@ struct InvoiceDetailView: View {
         .aspirePanel()
     }
 
+    private func revisionHistory(_ revisions: [InvoiceRevision]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            DisclosureGroup(isExpanded: $showingEditHistory) {
+                ForEach(Array(revisions.enumerated().reversed()), id: \.offset) { entry in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Revision \(entry.offset + 1)")
+                            .font(.subheadline.weight(.semibold))
+                        Text(DateFormatter.backupDateTime.string(from: entry.element.revisedAt))
+                            .font(.caption).foregroundStyle(.secondary)
+                        LabeledContent("Previous total", value: store.currency(entry.element.previousTotal))
+                        LabeledContent("New total", value: store.currency(entry.element.updatedTotal))
+                    }
+                    .font(.caption)
+                    .padding(.vertical, 4)
+                }
+            } label: {
+                Label("Edit History • \(revisions.count) revisions", systemImage: "clock.arrow.circlepath")
+                    .font(.subheadline.weight(.semibold))
+            }
+        }
+        .aspirePanel()
+    }
+
     private func actionButtons(invoice: Invoice, customer: Customer) -> some View {
         VStack(spacing: 10) {
-            ActionButton(title: sending ? "Sending…" : "Send Invoice", icon: "paperplane.fill", style: .green) {
+            if invoice.status != .paid && invoice.status != .void {
+                ActionButton(title: "Edit Invoice", icon: "square.and.pencil", style: .neutral) {
+                    showingInvoiceEditor = true
+                }
+            }
+            ActionButton(
+                title: sending ? "Sending…" :
+                    ((invoice.revisions?.isEmpty == false) ? "Send Revised Invoice" : "Send Invoice"),
+                icon: "paperplane.fill", style: .green
+            ) {
                 Task { await sendInvoice(invoice: invoice, customer: customer) }
             }
             .disabled(sending || customer.email.isEmpty)
