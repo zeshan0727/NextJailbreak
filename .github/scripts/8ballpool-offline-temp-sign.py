@@ -54,6 +54,23 @@ def main():
         for k, v in [("CFBundleIdentifier", BUNDLE), ("CFBundleShortVersionString", VERSION),
                      ("CFBundleVersion", BUILD)]:
             fail_if(str(info.get(k)) != v, f"Original build has unexpected {k}: {info.get(k)!r}")
+    # Change CFBundleVersion BEFORE signing, without zsign -r (which changes
+    # CFBundleShortVersionString instead of the internal build number).
+    input_for_signing = TMP / "8ball-build5331-input.ipa"
+    with zipfile.ZipFile(SOURCE) as zin, zipfile.ZipFile(input_for_signing, "w") as zout:
+        plist_entry, _ = app_info(zin)
+        for member in zin.infolist():
+            content = zin.read(member.filename)
+            if member.filename == plist_entry:
+                info = plistlib.loads(content)
+                info["CFBundleVersion"] = SIGNED_BUILD
+                content = plistlib.dumps(info, fmt=plistlib.FMT_BINARY)
+            zout.writestr(member, content)
+    with zipfile.ZipFile(input_for_signing) as verify:
+        _, modified = app_info(verify)
+        fail_if(str(modified.get("CFBundleShortVersionString")) != VERSION
+                or str(modified.get("CFBundleVersion")) != SIGNED_BUILD,
+                "Prepared input version is not correct")
     cert_bytes = base64.b64decode(os.environ["P12_B64"], validate=True)
     secret = os.environ["P12_PASSWORD"].encode()
     key, cert, _ = load_key_and_certificates(cert_bytes, secret)
@@ -103,8 +120,8 @@ def main():
     zsign = TMP / "zsign/bin/zsign"
     subprocess.run([
         str(zsign), "-f", "-k", str(cert_file), "-p", os.environ["P12_PASSWORD"],
-        "-m", str(profile_path), "-e", str(ent_path), "-E", "-r", SIGNED_BUILD, "-b", BUNDLE, "-n", NAME,
-        "-o", str(SIGNED), str(SOURCE),
+        "-m", str(profile_path), "-e", str(ent_path), "-E", "-b", BUNDLE, "-n", NAME,
+        "-o", str(SIGNED), str(input_for_signing),
     ], check=True)
     fail_if(not SIGNED.is_file(), "Signed IPA not created")
     with zipfile.ZipFile(SIGNED) as z:
