@@ -1782,28 +1782,29 @@
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "Calif’s October 23 demonstration identifies one iPhone Duo on iOS 27.1. It does not establish support for other iPhones, package managers or tweaks, and Calif did not disclose whether the Duo result is untethered.",
-      "description": "Calif demonstrated an iPhone Duo jailbreak on iOS 27.1 on launch day, but published no tool, exploit chain, compatibility list or release date.",
+      "compat": "Demonstrated only on one iPhone 18 Pro with Lockdown Mode enabled. The video shows an already-jailbroken device updating to iOS 27.2 and retaining the state; it does not establish fresh exploitation on iOS 27.2, support for other devices, package managers or tweaks.",
+      "description": "Calif showed an iPhone 18 Pro with Lockdown Mode enabled, then updated it to iOS 27.2 with the jailbreak still present. What the demo proves, what it does not, and how to reduce AirDrop risk.",
       "developer": "Calif",
       "entry_type": "editorial-news-update",
       "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
       "image": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "media_credit": "Calif — official iPhone Duo demonstration; still hosted by MacRumors",
+      "media_credit": "Calif — earlier official iPhone Duo demonstration still retained as historical context; November 3 X video image retrieval blocked",
       "media_source_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "modified_at": "2026-10-24T16:58:54Z",
-      "name": "Calif iPhone Duo iOS 27.1 jailbreak demonstration",
+      "modified_at": "2026-11-05T20:55:00Z",
+      "name": "Calif iPhone 18 Pro Lockdown Mode and iOS 27.2 persistence demonstration",
       "package": "editorial.ios27-jailbreak-status",
       "published_at": "2026-09-15T07:47:49Z",
       "quality_target": 9,
-      "release": "Calif demonstrated the iPhone Duo on iOS 27.1 on October 23, 2026; no end-user tool was released",
+      "release": "Calif posted the iPhone 18 Pro Lockdown Mode and iOS 27.2 update-persistence video on November 3, 2026; no end-user tool was released",
       "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Calif official iPhone Duo posts, Calif Hexacon disclosure and Stefan Esser’s Heise interview",
-      "source_page_url": "https://x.com/calif_io/status/2113570095549337977",
-      "source_url": "https://x.com/calif_io/status/2113578130543882697",
+      "source_name": "Calif official November 3 video, Calif Hexacon disclosure, Apple iOS 27.2 security notes, Lockdown Mode and AirDrop guidance",
+      "source_page_url": "https://x.com/calif_io/status/2117720348322144733",
+      "source_url": "https://x.com/calif_io/status/2117720348322144733",
       "source_visual_origin": "still-from-official-calif-demo-hosted-by-macrumors",
       "source_visual_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "title": "iPhone Duo Jailbroken on iOS 27.1, but No Public Tool Is Planned",
-      "version": "iPhone Duo / iOS 27.1 demo October 23, 2026"
+      "title": "Calif’s Lockdown Mode Jailbreak Survives the iOS 27.2 Update",
+      "version": "iPhone 18 Pro / persistence through iOS 27.2 update demo November 3, 2026",
+      "candidate_fingerprint": "calif-lockdown-mode-airdrop-ios27.2-update-persistence-2026-11-03"
     },
     {
       "additional_media": [],
@@ -7233,6 +7234,17 @@
   ],
   "events": [
     {
+      "action": "update",
+      "candidate_fingerprint": "calif-lockdown-mode-airdrop-ios27.2-update-persistence-2026-11-03",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "package": "editorial.ios27-jailbreak-status",
+      "previous_version": "iPhone Duo / iOS 27.1 demo October 23, 2026",
+      "published_at": "2026-11-05T20:55:00Z",
+      "run_id": "scheduled-2026-11-05T20:55:00Z",
+      "version": "iPhone 18 Pro / persistence through iOS 27.2 update demo November 3, 2026"
+    },
+    {
       "action": "create",
       "candidate_fingerprint": "palera1n-roothide-1.0-2026-10-25-ipados-17-18-passcode",
       "channel": "scheduled-current-jailbreak-development",
@@ -10522,5 +10534,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-05T15:00:00Z"
+  "updated_at": "2026-11-05T20:55:00Z"
 }

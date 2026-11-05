@@ -106,7 +106,13 @@
         "remote_embedded": true,
         "retrieval_status": "The actual demonstration still was retrieved and inspected through ordinary read-only web access; direct binary transfer into the repository was blocked, so the inspected source image is embedded from its public host."
       },
-      "screenshots": []
+      "screenshots": [],
+      "latest_update": {
+        "source_page_url": "https://x.com/calif_io/status/2117720348322144733",
+        "posted_at": "2026-11-03",
+        "description": "Official Calif video showing an iPhone 18 Pro with Lockdown Mode enabled, an accepted AirDrop PDF, and jailbreak persistence through an update to iOS 27.2.",
+        "retrieval_status": "The official X post and its video were identified and linked, but X returned 403 and ordinary read-only retrieval did not expose a reusable still or video asset. No substitute image was fabricated."
+      }
     },
     "com.joshuaseltzer.nextalarmsx": {
       "credit_label": "Joshua Seltzer/Havoc — official NextAlarmSX Lock Screen interface screenshot",
@@ -1528,5 +1534,5 @@
       ]
     }
   },
-  "updated_at": "2026-11-05T15:00:00Z"
+  "updated_at": "2026-11-05T20:55:00Z"
 }
