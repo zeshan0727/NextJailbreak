@@ -6,7 +6,7 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
-      <title>Calif&#8217;s Lockdown Mode Jailbreak Survives the iOS 27.2 Update</title>
+      <title>Calif’s Lockdown Mode Jailbreak Survives the iOS 27.2 Update</title>
       <link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid>
       <pubDate>Thu, 05 Nov 2026 20:55:00 GMT</pubDate>
@@ -244,14 +244,6 @@
       <pubDate>Wed, 28 Oct 2026 21:00:00 GMT</pubDate>
       <description>Compare Irisin 5.0.3 and Sileo 2.5.1: architectures, RootHide limits, package filtering, tvOS support, repositories, troubleshooting and which manager to keep.</description>
       <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>Soko 1.1.0 Fixes Home Button Layout and Improves RootHide Support</title>
-      <link>https://nextjailbreak.com/soko-1-1-0-lock-screen-widgets-roothide-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/soko-1-1-0-lock-screen-widgets-roothide-update/</guid>
-      <pubDate>Wed, 28 Oct 2026 15:00:41 GMT</pubDate>
-      <description>Soko 1.1.0 moves iOS 16–18 Lock Screen widgets to an iOS 26-style bottom position, fixes Home Button devices and ships rootful, rootless and RootHide packages.</description>
-      <category>Individual Tweak Update</category>
     </item>
   </channel>
 </rss>
