@@ -3,18 +3,18 @@
     {
       "id": "com-nextsolution-aspire",
       "name": "Aspire Maintenance",
-      "version": "1.2.2",
-      "build": "15",
+      "version": "1.2.3",
+      "build": "16",
       "platform": "iPhone",
       "minimumOS": "iOS 16.0+",
       "bundleId": "com.nextsolution.aspire",
       "icon": "/install/icons/com-nextsolution-aspire-ae79ba8ecfee.png",
-      "manifest": "/install/manifests/com-nextsolution-aspire-1.2.2-build15.plist",
+      "manifest": "/install/manifests/com-nextsolution-aspire-1.2.3-build16.plist",
       "available": true,
       "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.2/com-nextsolution-aspire-1.2.2-15.ipa",
-      "sha256": "e268734fbc4debf0051e3c06249ef287d89ec1c237a5a493f4b84d483f523fb2",
-      "sizeBytes": 8712624,
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.3/com-nextsolution-aspire-1.2.3-16.ipa",
+      "sha256": "e3d41610622881b16371776913976524e043ebb8d917d2ea8425e72ac3208a22",
+      "sizeBytes": 9095180,
       "storage": "Cloudflare R2",
       "duplicateSigned": false,
       "tweakCount": 0,
@@ -451,5 +451,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-11-04"
+  "updated": "2026-11-05"
 }
