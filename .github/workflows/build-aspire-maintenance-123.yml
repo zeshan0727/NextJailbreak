@@ -1,0 +1,86 @@
+name: Build Aspire Maintenance 1.2.3 Invoice Revision
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/aspire-maintenance-1.2.3-device-sync
+    paths:
+      - 'AspireMaintenance121Editable/**'
+      - '.github/workflows/build-aspire-maintenance-123.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare editable Aspire source
+        run: |
+          set -euo pipefail
+          cp -R AspireMaintenance121Editable AspireMaintenance
+          test -f AspireMaintenance/AspireDeviceSync.swift
+          test -f AspireMaintenance/AspireDeviceSyncController.swift
+          test -f AspireMaintenance/AspireInvoiceEditor.swift
+          grep -q 'func reviseInvoice(' AspireMaintenance/ModelsAndStore.swift
+          grep -q 'drawContinuationPages' AspireMaintenance/Services.swift
+          grep -q 'AspireInvoiceEditorView' AspireMaintenance/Views.swift
+          grep -q 'MARKETING_VERSION: "1.2.3"' AspireMaintenance/project.yml
+          grep -q 'CURRENT_PROJECT_VERSION: "16"' AspireMaintenance/project.yml
+          grep -q 'iCloud.com.aspiregroup.maintenance' AspireMaintenance/AspireMaintenance.entitlements
+          grep -q 'AspireDeviceSyncController()' AspireMaintenance/AspireMaintenanceApp.swift
+          grep -q 'Sync Across Devices' AspireMaintenance/AdvancedViews.swift
+      - name: Validate Swift syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            swiftc -frontend -parse "$file"
+          done < <(find AspireMaintenance -name '*.swift' -not -path '*/Scripts/*' -print0)
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate icon
+        run: |
+          xcrun --sdk macosx swift AspireMaintenance/Scripts/GenerateIcon.swift AspireMaintenance/Assets.xcassets/AspireLogo.imageset/AspireLogo.png AspireMaintenance/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png
+      - name: Generate Xcode project
+        run: |
+          cd AspireMaintenance
+          xcodegen generate
+      - name: Build unsigned iOS app
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -project AspireMaintenance/AspireMaintenance.xcodeproj -scheme AspireMaintenance -configuration Release -sdk iphoneos -derivedDataPath build-aspire-maintenance CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build 2>&1 | tee aspire-maintenance-build.log
+      - name: Upload compilation logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AspireMaintenance-1.2.3-Compile-Logs
+          path: aspire-maintenance-build.log
+          if-no-files-found: ignore
+      - name: Package IPA and source
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find build-aspire-maintenance/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP_PATH"
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload AspireMaintenance-1.2.3-Build16-unsigned.ipa
+          cp AspireMaintenance-1.2.3-Build16-unsigned.ipa AspireMaintenance-1.2.3-Build16.tipa
+          shasum -a 256 AspireMaintenance-1.2.3-Build16-unsigned.ipa > AspireMaintenance-1.2.3-Build16-unsigned.ipa.sha256
+          rm -rf AspireMaintenance/AspireMaintenance.xcodeproj
+          ditto -c -k --sequesterRsrc --keepParent AspireMaintenance AspireMaintenance-1.2.3-source.zip
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AspireMaintenance-1.2.3-Build16
+          path: |
+            AspireMaintenance-1.2.3-Build16-unsigned.ipa
+            AspireMaintenance-1.2.3-Build16.tipa
+            AspireMaintenance-1.2.3-Build16-unsigned.ipa.sha256
+            AspireMaintenance-1.2.3-source.zip
+          if-no-files-found: error
