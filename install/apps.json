@@ -1,6 +1,26 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-nextreverselab",
+      "name": "NEXT Reverse Lab",
+      "version": "0.1.1",
+      "build": "2",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.nextreverselab",
+      "icon": "/apple-touch-icon.png",
+      "manifest": "/install/com-nextsolution-nextreverselab.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-nextreverselab/0.1.1/com-nextsolution-nextreverselab-0.1.1-2.ipa",
+      "sha256": "d0aae2074d6eb43a03d409e388f2cfa6225748425beccb97744811a047389c7d",
+      "sizeBytes": 490119,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false
+    },
+    {
       "id": "com-nextsolution-8ballpoolmult36",
       "name": "8 Ball Pool No Key",
       "version": "56.31.0",
