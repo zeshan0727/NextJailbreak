@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      P12_B64: \${{ secrets.NEXTSIGNER_P12_BASE64 }}
-      P12_PASSWORD: \${{ secrets.NEXTSIGNER_P12_PASSWORD }}
-      AWS_ACCESS_KEY_ID: \${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: \${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      P12_B64: ${{ secrets.NEXTSIGNER_P12_BASE64 }}
+      P12_PASSWORD: ${{ secrets.NEXTSIGNER_P12_PASSWORD }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: auto
       AWS_EC2_METADATA_DISABLED: "true"
       R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
@@ -76,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: NextAppLibrary-Temp-Offline-1.0.3-build4
-          path: \${{ runner.temp }}/next-app-library-temp-1.0.3-4.ipa
+          path: ${{ runner.temp }}/next-app-library-temp-1.0.3-4.ipa
           if-no-files-found: error
 
       - name: Upload signed IPA to private app download storage
