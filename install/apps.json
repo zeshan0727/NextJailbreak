@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-njapps",
+      "name": "Zee App Library",
+      "version": "1.0.2",
+      "build": "3",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.njapps",
+      "icon": "/install/icons/com-nextsolution-njapps-fb28f1d690da.png",
+      "manifest": "/install/com-nextsolution-njapps.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/1.0.2/com-nextsolution-njapps-1.0.2-3.ipa",
+      "sha256": "fb28f1d690da2173dbe17037afc702fa20bd929e8e5c2502da7be5a7801add71",
+      "sizeBytes": 1679214,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-nextreverselab",
       "name": "NEXT Reverse Lab",
       "version": "0.1.1",
@@ -61,26 +82,6 @@
       "tweakCount": 0,
       "customIcon": false,
       "signedByNextSigner": true
-    },
-    {
-      "id": "com-nextsolution-njapps",
-      "name": "Next App Library",
-      "version": "1.0.3",
-      "build": "4",
-      "platform": "iPhone",
-      "minimumOS": "iOS 16.0+",
-      "bundleId": "com.nextsolution.njapps",
-      "icon": "/install/icons/com-nextsolution-njapps-1c90ddfe883d.png",
-      "manifest": "/install/com-nextsolution-njapps.plist",
-      "available": true,
-      "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/1.0.3/com-nextsolution-njapps-1.0.3-4.ipa",
-      "sha256": "1c90ddfe883d91aa68812f95c93230c9ace358664c430fe40608d744880818ea",
-      "sizeBytes": 2599174,
-      "storage": "Cloudflare R2",
-      "duplicateSigned": false,
-      "tweakCount": 0,
-      "customIcon": false
     },
     {
       "id": "com-nextsolution-dailyledger",
