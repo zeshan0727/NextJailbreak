@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-05T16:22:40Z",
+  "updatedAt": "2026-11-05T17:19:42Z",
   "files": [
+    {
+      "id": "8ballpool-temp-offline-56.31.0",
+      "name": "8 Ball Pool Temp 56.31.0 - offline-signed iPad IPA",
+      "fileName": "8-ball-pool-temp-7-days-56.31.0-5330.ipa",
+      "type": "ipa",
+      "platform": "iPadOS 26 (iPhone compatibility mode)",
+      "version": "56.31.0 (5330)",
+      "url": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105/8-ball-pool-temp-7-days-56.31.0-5330.ipa",
+      "sha256": "1ef965c1b096ef4c74d4edafb764402381d83f3988e0d2f95ceaa3538ea0dd86",
+      "sizeBytes": 320386144,
+      "notes": "Signed with seven-day offline Ad Hoc profile for one registered iPad. Expires 2026-11-12T15:54:41Z. Bundle ID: com.nextsolution.8ballpoolmult36. Does not run on unregistered devices."
+    },
     {
       "id": "next-app-library-temp-offline-1.0.3",
       "name": "Next App Library Temp 7 Days 1.0.3 - offline signed IPA",

@@ -1,6 +1,25 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-8ballpoolmult36-offline-temp",
+      "name": "8 Ball Pool Temp",
+      "version": "56.31.0",
+      "build": "5330",
+      "platform": "iPad (iPhone compatibility app)",
+      "minimumOS": "iOS 10.0+",
+      "bundleId": "com.nextsolution.8ballpoolmult36",
+      "icon": "/install/icons/com-nextsolution-8ballpoolmult36-445cad2023a6.png",
+      "manifest": "/install/com-nextsolution-8ballpoolmult36-offline-temp.plist",
+      "available": true,
+      "status": "7-day offline Ad Hoc test; registered iPad only; expires 12 November 2026",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105/8-ball-pool-temp-7-days-56.31.0-5330.ipa",
+      "sha256": "1ef965c1b096ef4c74d4edafb764402381d83f3988e0d2f95ceaa3538ea0dd86",
+      "sizeBytes": 320386144,
+      "storage": "Cloudflare R2",
+      "signedByNextSigner": true,
+      "offlineProfileExpiresAt": "2026-11-12T15:54:41Z"
+    },
+    {
       "id": "com-nextsolution-njapps-offline-temp",
       "name": "Next App Library Temp 7 Days",
       "version": "1.0.3",
