@@ -26,10 +26,11 @@ BUNDLE = "com.nextsolution.8ballpoolmult36"
 NAME = "8 Ball Pool Temp"
 VERSION = "56.31.0"
 BUILD = "5330"
+SIGNED_BUILD = "5331"
 EXPECTED_EXPIRY = datetime(2026, 11, 12, 15, 54, 41, tzinfo=timezone.utc)
 TMP = pathlib.Path(os.environ["RUNNER_TEMP"])
 SOURCE = TMP / "8ball-original.ipa"
-SIGNED = TMP / "8-ball-pool-temp-7-days-56.31.0-5330.ipa"
+SIGNED = TMP / "8-ball-pool-temp-7-days-56.31.0-5331.ipa"
 
 def fail_if(condition, message):
     if condition:
@@ -102,23 +103,27 @@ def main():
     zsign = TMP / "zsign/bin/zsign"
     subprocess.run([
         str(zsign), "-f", "-k", str(cert_file), "-p", os.environ["P12_PASSWORD"],
-        "-m", str(profile_path), "-e", str(ent_path), "-b", BUNDLE, "-n", NAME,
+        "-m", str(profile_path), "-e", str(ent_path), "-E", "-r", SIGNED_BUILD, "-b", BUNDLE, "-n", NAME,
         "-o", str(SIGNED), str(SOURCE),
     ], check=True)
     fail_if(not SIGNED.is_file(), "Signed IPA not created")
     with zipfile.ZipFile(SIGNED) as z:
         plist_path, info = app_info(z)
         for k, v in [("CFBundleIdentifier", BUNDLE), ("CFBundleShortVersionString", VERSION),
-                     ("CFBundleVersion", BUILD), ("CFBundleDisplayName", NAME)]:
+                     ("CFBundleVersion", SIGNED_BUILD), ("CFBundleDisplayName", NAME)]:
             fail_if(str(info.get(k)) != v, f"Signed IPA has unexpected {k}: {info.get(k)!r}")
         embedded = plist_path.rsplit("/", 1)[0] + "/embedded.mobileprovision"
         fail_if(z.read(embedded) != profile_bytes, "Exact offline profile not embedded")
         fail_if(z.testzip() is not None, "Damaged IPA ZIP")
+        fail_if(any(".appex/" in n and "/PlugIns/" in n for n in z.namelist()),
+                "Optional app extensions still present after -E removal")
     sha = hashlib.sha256(SIGNED.read_bytes()).hexdigest()
     output = TMP / "8ball-offline-build.env"
-    output.write_text(f"SIGNED_SHA256={sha}\nSIGNED_SIZE={SIGNED.stat().st_size}\n")
+    output.write_text(f"SIGNED_SHA256={sha}
+SIGNED_SIZE={SIGNED.stat().st_size}
+")
     print("PASS: 8 Ball Pool Temp signed with embedded seven-day offline Ad Hoc profile")
-    print(f"App bundle: {BUNDLE}; version: {VERSION} ({BUILD})")
+    print(f"App bundle: {BUNDLE}; version: {VERSION} ({SIGNED_BUILD}); removed optional extensions")
     print(f"Profile expires UTC: {end.isoformat()}")
     print(f"IPA bytes: {SIGNED.stat().st_size}, SHA256: {sha}")
 
