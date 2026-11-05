@@ -1023,10 +1023,13 @@ final class AspireStore: ObservableObject {
             throw AspireInvoiceEditError.changedOnAnotherDevice
         }
         guard !lineItems.isEmpty,
-              lineItems.allSatisfy({
-                  !$0.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                  $0.quantity.isFinite && $0.quantity > 0 &&
-                  $0.unitPrice.isFinite && $0.unitPrice >= 0
+              lineItems.allSatisfy({ item in
+                  !item.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                  item.quantity.isFinite && item.quantity > 0 &&
+                  item.unitPrice.isFinite &&
+                  (item.unitPrice >= 0 || original.lineItems.contains(where: {
+                      $0.id == item.id && $0.unitPrice < 0
+                  }))
               }) else {
             throw AspireInvoiceEditError.invalidLines
         }
