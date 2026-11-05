@@ -1,0 +1,1 @@
+Temporary offline Ad Hoc deploy: Next App Library Temp; bundle com.nextsolution.njapps; profile expires 2026-11-12 15:54:41 UTC. No plaintext provisioning profile is stored in git.
