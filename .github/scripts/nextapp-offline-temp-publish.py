@@ -10,10 +10,10 @@ import plistlib
 from datetime import datetime, timezone
 
 BUNDLE = "com.nextsolution.njapps"
-NAME = "Next App Library Temp"
+NAME = "Next App Library Temp 7 Days"
 VERSION = "1.0.3"
 BUILD = "4"
-FILENAME = "next-app-library-temp-1.0.3-4.ipa"
+FILENAME = "next-app-library-temp-7-days-1.0.3-4.ipa"
 URL = f"https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/{FILENAME}"
 EXPIRES = "2026-11-12T15:54:41Z"
 TRANSFER_PATH = pathlib.Path("transfer/files/NextAppLibrary/offline-temp-1.0.3") / FILENAME
@@ -73,7 +73,7 @@ def main():
     transfer = json.loads(transfer_file.read_text())
     transfer_item = {
         "id": "next-app-library-temp-offline-1.0.3",
-        "name": "Next App Library Temp 1.0.3 - offline signed IPA",
+        "name": "Next App Library Temp 7 Days 1.0.3 - offline signed IPA",
         "fileName": FILENAME,
         "type": "ipa",
         "platform": "iPadOS 26 (iPhone compatibility mode)",
