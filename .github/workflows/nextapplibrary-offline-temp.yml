@@ -1,0 +1,127 @@
+name: Next App Library Temp - Offline iPad Signing
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/nextapplibrary-offline-temp.yml"
+      - ".github/nextapp-offline.enc.part4"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nextapp-library-temp-offline
+  cancel-in-progress: false
+
+jobs:
+  sign-and-publish:
+    name: Seven-day Ad Hoc IPA - build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      P12_B64: \${{ secrets.NEXTSIGNER_P12_BASE64 }}
+      P12_PASSWORD: \${{ secrets.NEXTSIGNER_P12_PASSWORD }}
+      AWS_ACCESS_KEY_ID: \${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: \${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: "true"
+      R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
+      R2_BUCKET: next-signer-apps
+      SIGNED_FILENAME: next-app-library-temp-1.0.3-4.ipa
+      SIGNED_URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/next-app-library-temp-1.0.3-4.ipa
+      ZSIGN_COMMIT: e803f870dc686e6161d00d9b22c425b8acdfacee
+
+    steps:
+      - name: Checkout trusted source and existing unsigned IPA
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Validate required private credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$P12_B64" && test -n "$P12_PASSWORD" || { echo "Existing Next Signer P12 secrets are unavailable"; exit 1; }
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo "Existing Cloudflare R2 secrets are unavailable"; exit 1; }
+          test -f transfer/files/NextAppLibrary/1.0.3/NextAppLibrary-1.0.3.ipa
+
+      - name: Install isolated signing and uploading dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/nextapp-env"
+          "$RUNNER_TEMP/nextapp-env/bin/pip" install --quiet cryptography awscli
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq g++ pkg-config libssl-dev
+
+      - name: Build audited pinned signing engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone -q --filter=blob:none https://github.com/zhlynn/zsign.git "$RUNNER_TEMP/zsign"
+          git -C "$RUNNER_TEMP/zsign" -c advice.detachedHead=false checkout -q "$ZSIGN_COMMIT"
+          make -s -C "$RUNNER_TEMP/zsign/build/linux" -j"$(nproc)"
+          test -x "$RUNNER_TEMP/zsign/bin/zsign"
+
+      - name: Sign IPA using exact uploaded seven-day offline profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/nextapp-env/bin/python" .github/scripts/nextapp-offline-temp-sign.py
+          test -s "$RUNNER_TEMP/$SIGNED_FILENAME"
+
+      - name: Save signed IPA build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextAppLibrary-Temp-Offline-1.0.3-build4
+          path: \${{ runner.temp }}/next-app-library-temp-1.0.3-4.ipa
+          if-no-files-found: error
+
+      - name: Upload signed IPA to private app download storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/nextapp-env/bin/aws" s3 cp "$RUNNER_TEMP/$SIGNED_FILENAME" \
+            "s3://$R2_BUCKET/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/$SIGNED_FILENAME" \
+            --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" \
+            --content-type application/octet-stream \
+            --cache-control "public, max-age=300" \
+            --only-show-errors
+          curl --fail --silent --show-error --location --head \
+            --retry 8 --retry-delay 3 --retry-all-errors "$SIGNED_URL" > /dev/null
+          echo "PASS: Signed IPA accessible through HTTPS storage"
+
+      - name: Publish separate website and NS Transfer listings
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            "$RUNNER_TEMP/nextapp-env/bin/python" .github/scripts/nextapp-offline-temp-publish.py
+            python3 -m json.tool install/apps.json > /dev/null
+            python3 -m json.tool transfer/index.json > /dev/null
+            git add install/apps.json install/com-nextsolution-njapps-offline-temp.plist transfer/index.json
+            git add -f transfer/files/NextAppLibrary/offline-temp-1.0.3/next-app-library-temp-1.0.3-4.ipa
+            git commit -m "Publish Next App Library Temp seven-day offline iPad IPA"
+            if git push origin HEAD:main; then
+              echo "### Next App Library Temp — offline test published" >> "$GITHUB_STEP_SUMMARY"
+              echo "Install page: https://nextjailbreak.com/install/" >> "$GITHUB_STEP_SUMMARY"
+              echo "Bundle ID: com.nextsolution.njapps (unchanged)" >> "$GITHUB_STEP_SUMMARY"
+              echo "Profile expiration: 2026-11-12 15:54:41 UTC" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Failed to publish after four retries" >&2
+          exit 1
+
+      - name: Remove temporary private signing materials
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/offline.mobileprovision" "$RUNNER_TEMP/effective-entitlements.plist" || true
