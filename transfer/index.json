@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-05T05:54:25.076208Z",
+  "updatedAt": "2026-11-05T13:15:50.921Z",
   "files": [
+    {
+      "id": "nextreverse-lab-0.1.1-build2-signed",
+      "name": "NEXT Reverse Lab 0.1.1 — Signed Test App",
+      "fileName": "com-nextsolution-nextreverselab-0.1.1-2.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ — Apple-signed Ad Hoc test build",
+      "version": "0.1.1 (2)",
+      "url": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-nextreverselab/0.1.1/com-nextsolution-nextreverselab-0.1.1-2.ipa",
+      "sha256": "d0aae2074d6eb43a03d409e388f2cfa6225748425beccb97744811a047389c7d",
+      "sizeBytes": 490119,
+      "notes": "Choose installed apps, scan readable app-bundle metadata/resources, import screen evidence, and export reconstruction prompts. Jailbreak-specific filesystem access is not guaranteed with Apple Ad Hoc signing. Signed IPA is also listed at /install."
+    },
     {
       "id": "aspire-maintenance-1.2.3-invoice-edit",
       "name": "Aspire Maintenance 1.2.3 — Invoice Editing Test",
