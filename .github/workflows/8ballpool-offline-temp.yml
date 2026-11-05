@@ -1,0 +1,165 @@
+name: 8 Ball Pool Temp - Seven-Day Offline iPad Signing and Publish
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/8ballpool-offline-temp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: 8ballpool-temp-offline
+  cancel-in-progress: false
+
+jobs:
+  sign-and-publish:
+    name: Re-sign 8 Ball Pool Temp with the validated offline iPad profile
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      P12_B64: ${{ secrets.NEXTSIGNER_P12_BASE64 }}
+      P12_PASSWORD: ${{ secrets.NEXTSIGNER_P12_PASSWORD }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: "true"
+      R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
+      R2_BUCKET: next-signer-apps
+      R2_PREFIX: apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105
+      FILE_BASE: https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105
+      SIGNED_FILENAME: 8-ball-pool-temp-7-days-56.31.0-5330.ipa
+      ORIGINAL_URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/56.31.0/com-nextsolution-8ballpoolmult36-56.31.0-5330.ipa
+      ORIGINAL_SHA256: 445cad2023a6a9d468f1c360f8f80795383ba2360d3d7cf70cf404ef93e5851a
+      ZSIGN_COMMIT: e803f870dc686e6161d00d9b22c425b8acdfacee
+
+    steps:
+      - name: Checkout validated seven-day profile envelope and publisher
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Confirm existing GitHub signing credentials and R2 storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$P12_B64" && test -n "$P12_PASSWORD" || { echo "Missing existing Next Signer P12 secrets"; exit 1; }
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo "Missing R2 secrets"; exit 1; }
+          for n in 1 2 3 4; do test -s ".github/nextapp-offline.enc.part$n"; done
+          test -s .github/scripts/8ballpool-offline-temp-sign.py
+          test -s .github/scripts/8ballpool-offline-temp-publish.py
+
+      - name: Download and verify the existing original game IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 4 --retry-all-errors \
+            "$ORIGINAL_URL" --output "$RUNNER_TEMP/8ball-original.ipa"
+          echo "$ORIGINAL_SHA256  $RUNNER_TEMP/8ball-original.ipa" | sha256sum --check
+          test "$(stat -c%s "$RUNNER_TEMP/8ball-original.ipa")" = "178767975"
+          echo "PASS: Original source IPA checksum and length match public catalog"
+
+      - name: Install isolated signing and cloud dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/8ball-env"
+          "$RUNNER_TEMP/8ball-env/bin/pip" install --quiet cryptography awscli
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq g++ pkg-config libssl-dev
+
+      - name: Compile previously validated pinned zsign release
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone -q --filter=blob:none https://github.com/zhlynn/zsign.git "$RUNNER_TEMP/zsign"
+          git -C "$RUNNER_TEMP/zsign" -c advice.detachedHead=false checkout -q "$ZSIGN_COMMIT"
+          make -s -C "$RUNNER_TEMP/zsign/build/linux" -j"$(nproc)"
+          test -x "$RUNNER_TEMP/zsign/bin/zsign"
+
+      - name: Re-sign original IPA with exact seven-day iPad special profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/8ball-env/bin/python" .github/scripts/8ballpool-offline-temp-sign.py
+          test -s "$RUNNER_TEMP/$SIGNED_FILENAME"
+
+      - name: Store signed IPA as GitHub Actions build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 8BallPool-Temp-7-Days-Offline-56.31.0-5330
+          path: ${{ runner.temp }}/8-ball-pool-temp-7-days-56.31.0-5330.ipa
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload signed IPA to existing R2 distribution storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          AWS="$RUNNER_TEMP/8ball-env/bin/aws"
+          ENDPOINT="https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+          "$AWS" s3 cp "$RUNNER_TEMP/$SIGNED_FILENAME" \
+            "s3://$R2_BUCKET/$R2_PREFIX/$SIGNED_FILENAME" \
+            --endpoint-url "$ENDPOINT" --content-type application/octet-stream \
+            --cache-control "public, max-age=300" --only-show-errors
+          curl --fail --silent --show-error --location --head --retry 8 --retry-delay 3 --retry-all-errors \
+            "$FILE_BASE/$SIGNED_FILENAME" > /dev/null
+
+      - name: Publish separate OTA manifest and install webpage in R2
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/8ball-env/bin/python" .github/scripts/8ballpool-offline-temp-publish.py
+          python3 -m json.tool install/apps.json > /dev/null
+          python3 -m json.tool transfer/index.json > /dev/null
+          AWS="$RUNNER_TEMP/8ball-env/bin/aws"
+          ENDPOINT="https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com"
+          "$AWS" s3 cp install/com-nextsolution-8ballpoolmult36-offline-temp.plist \
+            "s3://$R2_BUCKET/$R2_PREFIX/manifest.plist" \
+            --endpoint-url "$ENDPOINT" --content-type application/xml \
+            --cache-control "public, max-age=120" --only-show-errors
+          "$AWS" s3 cp "$RUNNER_TEMP/8ball-temp-install.html" \
+            "s3://$R2_BUCKET/$R2_PREFIX/install.html" \
+            --endpoint-url "$ENDPOINT" --content-type text/html \
+            --cache-control "public, max-age=120" --only-show-errors
+          curl --fail --silent --show-error --location --head --retry 7 --retry-delay 3 --retry-all-errors \
+            "$FILE_BASE/manifest.plist" > /dev/null
+          curl --fail --silent --show-error --location --head --retry 7 --retry-delay 3 --retry-all-errors \
+            "$FILE_BASE/install.html" > /dev/null
+
+      - name: Publish new Temp listings in Next Jailbreak and NS Transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            "$RUNNER_TEMP/8ball-env/bin/python" .github/scripts/8ballpool-offline-temp-publish.py
+            python3 -m json.tool install/apps.json > /dev/null
+            python3 -m json.tool transfer/index.json > /dev/null
+            git add install/apps.json install/com-nextsolution-8ballpoolmult36-offline-temp.plist transfer/index.json
+            git commit -m "Publish 8 Ball Pool Temp 7 Days offline iPad IPA"
+            if git push origin HEAD:main; then
+              echo "## 8 Ball Pool Temp 7 Days published" >> "$GITHUB_STEP_SUMMARY"
+              echo "Direct installer: $FILE_BASE/install.html" >> "$GITHUB_STEP_SUMMARY"
+              echo "Next Jailbreak: https://nextjailbreak.com/install/" >> "$GITHUB_STEP_SUMMARY"
+              echo "NS Transfer: https://nextjailbreak.com/transfer/" >> "$GITHUB_STEP_SUMMARY"
+              echo "Bundle ID: com.nextsolution.8ballpoolmult36 (preserved)" >> "$GITHUB_STEP_SUMMARY"
+              echo "Offline profile expiration: 2026-11-12T15:54:41Z" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Could not publish catalog after 4 attempts" >&2
+          exit 1
+
+      - name: Remove temporary private signing materials
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/offline.mobileprovision" \
+            "$RUNNER_TEMP/effective-entitlements.plist" || true
