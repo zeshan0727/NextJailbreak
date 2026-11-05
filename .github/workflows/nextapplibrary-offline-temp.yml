@@ -29,8 +29,8 @@ jobs:
       AWS_EC2_METADATA_DISABLED: "true"
       R2_ACCOUNT_ID: 4fe920e259870b0366118a17cc5727e5
       R2_BUCKET: next-signer-apps
-      SIGNED_FILENAME: next-app-library-temp-1.0.3-4.ipa
-      SIGNED_URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/next-app-library-temp-1.0.3-4.ipa
+      SIGNED_FILENAME: next-app-library-temp-7-days-1.0.3-4.ipa
+      SIGNED_URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/next-app-library-temp-7-days-1.0.3-4.ipa
       ZSIGN_COMMIT: e803f870dc686e6161d00d9b22c425b8acdfacee
 
     steps:
@@ -75,8 +75,8 @@ jobs:
       - name: Save signed IPA build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: NextAppLibrary-Temp-Offline-1.0.3-build4
-          path: ${{ runner.temp }}/next-app-library-temp-1.0.3-4.ipa
+          name: NextAppLibrary-Temp-7-Days-Offline-1.0.3-build4
+          path: ${{ runner.temp }}/next-app-library-temp-7-days-1.0.3-4.ipa
           if-no-files-found: error
 
       - name: Upload signed IPA to private app download storage
@@ -106,10 +106,10 @@ jobs:
             python3 -m json.tool install/apps.json > /dev/null
             python3 -m json.tool transfer/index.json > /dev/null
             git add install/apps.json install/com-nextsolution-njapps-offline-temp.plist transfer/index.json
-            git add -f transfer/files/NextAppLibrary/offline-temp-1.0.3/next-app-library-temp-1.0.3-4.ipa
-            git commit -m "Publish Next App Library Temp seven-day offline iPad IPA"
+            git add -f transfer/files/NextAppLibrary/offline-temp-1.0.3/next-app-library-temp-7-days-1.0.3-4.ipa
+            git commit -m "Publish Next App Library Temp 7 Days offline iPad IPA"
             if git push origin HEAD:main; then
-              echo "### Next App Library Temp — offline test published" >> "$GITHUB_STEP_SUMMARY"
+              echo "### Next App Library Temp 7 Days — offline test published" >> "$GITHUB_STEP_SUMMARY"
               echo "Install page: https://nextjailbreak.com/install/" >> "$GITHUB_STEP_SUMMARY"
               echo "Bundle ID: com.nextsolution.njapps (unchanged)" >> "$GITHUB_STEP_SUMMARY"
               echo "Profile expiration: 2026-11-12 15:54:41 UTC" >> "$GITHUB_STEP_SUMMARY"
