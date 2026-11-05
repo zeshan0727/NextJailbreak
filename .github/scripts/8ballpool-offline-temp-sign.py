@@ -119,9 +119,7 @@ def main():
                 "Optional app extensions still present after -E removal")
     sha = hashlib.sha256(SIGNED.read_bytes()).hexdigest()
     output = TMP / "8ball-offline-build.env"
-    output.write_text(f"SIGNED_SHA256={sha}
-SIGNED_SIZE={SIGNED.stat().st_size}
-")
+    output.write_text(f"SIGNED_SHA256={sha}\nSIGNED_SIZE={SIGNED.stat().st_size}\n")
     print("PASS: 8 Ball Pool Temp signed with embedded seven-day offline Ad Hoc profile")
     print(f"App bundle: {BUNDLE}; version: {VERSION} ({SIGNED_BUILD}); removed optional extensions")
     print(f"Profile expires UTC: {end.isoformat()}")
