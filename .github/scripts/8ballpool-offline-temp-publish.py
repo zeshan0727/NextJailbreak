@@ -15,6 +15,7 @@ BUNDLE = "com.nextsolution.8ballpoolmult36"
 NAME = "8 Ball Pool Temp"
 VERSION = "56.31.0"
 BUILD = "5331"
+ORIGINAL_BUILD = "5330"
 FILENAME = "8-ball-pool-temp-7-days-56.31.0-5331.ipa"
 R2_BASE = "https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105"
 URL = R2_BASE + "/" + FILENAME
@@ -34,7 +35,7 @@ def main():
     matches = [a for a in data["apps"] if a.get("id") == ORIGINAL_ID and a.get("bundleId") == BUNDLE]
     assert len(matches) == 1, "Existing 8 Ball Pool record missing"
     regular = matches[0]
-    assert regular["version"] == VERSION and str(regular["build"]) == BUILD, "Original version changed"
+    assert regular["version"] == VERSION and str(regular["build"]) == ORIGINAL_BUILD, "Original version changed"
     icon = regular["icon"]
     temp = {
         "id": TEMP_ID,
