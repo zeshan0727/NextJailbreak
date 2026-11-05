@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-05T16:18:45Z",
+  "updatedAt": "2026-11-05T16:22:40Z",
   "files": [
     {
       "id": "next-app-library-temp-offline-1.0.3",
-      "name": "Next App Library Temp 1.0.3 - offline signed IPA",
-      "fileName": "next-app-library-temp-1.0.3-4.ipa",
+      "name": "Next App Library Temp 7 Days 1.0.3 - offline signed IPA",
+      "fileName": "next-app-library-temp-7-days-1.0.3-4.ipa",
       "type": "ipa",
       "platform": "iPadOS 26 (iPhone compatibility mode)",
       "version": "1.0.3 (4)",
-      "url": "https://nextjailbreak.com/transfer/files/NextAppLibrary/offline-temp-1.0.3/next-app-library-temp-1.0.3-4.ipa",
-      "sha256": "579bbd62ccd370e6c4eaaf4821c99bf8df5d40c7384bc8f03cfb30138dbb54f6",
-      "sizeBytes": 2598734,
+      "url": "https://nextjailbreak.com/transfer/files/NextAppLibrary/offline-temp-1.0.3/next-app-library-temp-7-days-1.0.3-4.ipa",
+      "sha256": "7ec6c4d78958ef39d3e78c1ae66b6eb9ecda4e62b15bf2bf918093ae32abf62e",
+      "sizeBytes": 2598748,
       "notes": "Seven-day offline Ad Hoc profile for one iPad. Expires 2026-11-12T15:54:41Z. Preserved bundle ID: com.nextsolution.njapps. Same bundle ID replaces a previous installation."
     },
     {

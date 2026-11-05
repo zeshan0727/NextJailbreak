@@ -2,7 +2,7 @@
   "apps": [
     {
       "id": "com-nextsolution-njapps-offline-temp",
-      "name": "Next App Library Temp",
+      "name": "Next App Library Temp 7 Days",
       "version": "1.0.3",
       "build": "4",
       "platform": "iPad (iPhone compatibility app)",
@@ -12,9 +12,9 @@
       "manifest": "/install/com-nextsolution-njapps-offline-temp.plist",
       "available": true,
       "status": "7-day offline iPad test; expires 12 November 2026",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/next-app-library-temp-1.0.3-4.ipa",
-      "sha256": "579bbd62ccd370e6c4eaaf4821c99bf8df5d40c7384bc8f03cfb30138dbb54f6",
-      "sizeBytes": 2598734,
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/next-app-library-temp-7-days-1.0.3-4.ipa",
+      "sha256": "7ec6c4d78958ef39d3e78c1ae66b6eb9ecda4e62b15bf2bf918093ae32abf62e",
+      "sizeBytes": 2598748,
       "storage": "Cloudflare R2",
       "signedByNextSigner": true,
       "offlineProfileExpiresAt": "2026-11-12T15:54:41Z"

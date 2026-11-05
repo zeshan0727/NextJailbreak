@@ -11,7 +11,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/next-app-library-temp-1.0.3-4.ipa</string>
+					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-njapps/offline-temp-20261105/next-app-library-temp-7-days-1.0.3-4.ipa</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -39,7 +39,7 @@
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
-				<string>Next App Library Temp</string>
+				<string>Next App Library Temp 7 Days</string>
 			</dict>
 		</dict>
 	</array>
