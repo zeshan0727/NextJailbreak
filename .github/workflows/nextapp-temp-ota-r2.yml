@@ -1,4 +1,4 @@
-name: Next App Library Temp - Instant HTTPS OTA Fallback
+name: Next App Library Temp 7 Days - Instant HTTPS OTA Fallback
 
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
           assert app['bundleId']=='com.nextsolution.njapps'
           assert app['version']=='1.0.3' and app['build']=='4'
           assert app['available'] is True
-          assert app['downloadURL'].endswith('/next-app-library-temp-1.0.3-4.ipa')
+          assert app['downloadURL'].endswith('/next-app-library-temp-7-days-1.0.3-4.ipa')
           manifest=plistlib.loads(pathlib.Path('install/com-nextsolution-njapps-offline-temp.plist').read_bytes())
           item=manifest['items'][0]
           assert item['metadata']['bundle-identifier']==app['bundleId']
@@ -48,7 +48,7 @@ jobs:
           print('PASS: OTA manifest matches signed offline app record')
           PY
           curl --fail --silent --show-error --location --head --retry 4 --retry-delay 3 \
-            "$FILE_BASE/next-app-library-temp-1.0.3-4.ipa" > /dev/null
+            "$FILE_BASE/next-app-library-temp-7-days-1.0.3-4.ipa" > /dev/null
 
       - name: Generate standalone R2 HTTPS OTA installer page
         shell: bash
@@ -64,7 +64,7 @@ jobs:
           <html lang="en"><head><meta charset="utf-8">
           <meta name="viewport" content="width=device-width,initial-scale=1">
           <meta name="robots" content="noindex,nofollow">
-          <title>Next App Library Temp - Direct Install</title>
+          <title>Next App Library Temp 7 Days - Direct Install</title>
           <style>
           body{{margin:0;background:#f4f6fa;color:#101828;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;min-height:100vh}}
           main{{width:min(400px,calc(100% - 48px));padding:28px;background:white;border:1px solid #e5e7eb;border-radius:22px;box-shadow:0 16px 50px #10182814;text-align:center}}
@@ -72,7 +72,7 @@ jobs:
           a.button{{display:block;padding:16px 20px;background:#111827;color:white;border-radius:12px;text-decoration:none;font-weight:700;font-size:17px;margin-top:24px}}
           small{{color:#667085;display:block;margin-top:18px;line-height:1.5}}
           </style></head><body><main>
-          <h1>Next App Library Temp</h1>
+          <h1>Next App Library Temp 7 Days</h1>
           <p>Version 1.0.3 (4) · 7-day offline Ad Hoc test for the registered iPad</p>
           <a class="button" href="{html.escape(install,quote=True)}">Install on iPad</a>
           <small>Profile expires 12 November 2026 at 18:54 Qatar time.<br>
@@ -101,5 +101,5 @@ jobs:
             "$FILE_BASE/manifest.plist" >/dev/null
           curl --fail --silent --show-error --location --head --retry 7 --retry-delay 3 \
             "$FILE_BASE/install.html" >/dev/null
-          echo "## Direct Next App Library Temp installer published" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Direct Next App Library Temp 7 Days installer published" >> "$GITHUB_STEP_SUMMARY"
           echo "Open: $FILE_BASE/install.html" >> "$GITHUB_STEP_SUMMARY"
