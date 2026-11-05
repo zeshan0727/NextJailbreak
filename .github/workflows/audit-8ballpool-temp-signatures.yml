@@ -15,8 +15,8 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 22
     env:
-      URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105/8-ball-pool-temp-7-days-56.31.0-5330.ipa
-      EXPECTED_SHA: 1ef965c1b096ef4c74d4edafb764402381d83f3988e0d2f95ceaa3538ea0dd86
+      URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105/8-ball-pool-temp-7-days-56.31.0-5331.ipa
+      EXPECTED_SHA: b751b890591570b9318f8c036bf284f211c2aeaa84c4a1634ce0c68f11a1e26f
     steps:
       - name: Download and checksum existing signed Temp IPA
         shell: bash
@@ -40,6 +40,7 @@ jobs:
           units=[app]+nested
           print("MAIN APP:",app.name)
           print("EXTENSION COUNT:",len(nested))
+          assert len(nested) == 0, "Optional invalid extensions were not fully removed"
           print("COUNTS: libraries",len(list(app.glob("Frameworks/*"))),"extensions",len(nested))
           failed=[]
           for unit in units:
@@ -77,4 +78,5 @@ jobs:
           print("DEEP CODE SIGN VERIFY",p.returncode,(p.stdout+p.stderr)[-2200:])
           if p.returncode:failed.append("DEEP SIGN CHECK")
           print("AUDIT FINDINGS:",failed)
+          assert not failed, "Signature or entitlement verification failed"
           PY
