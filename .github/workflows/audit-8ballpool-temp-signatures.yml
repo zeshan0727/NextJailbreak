@@ -1,0 +1,80 @@
+name: Audit 8 Ball Pool Temp nested iOS signatures
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audit-8ballpool-temp-signatures.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: macos-latest
+    timeout-minutes: 22
+    env:
+      URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105/8-ball-pool-temp-7-days-56.31.0-5330.ipa
+      EXPECTED_SHA: 1ef965c1b096ef4c74d4edafb764402381d83f3988e0d2f95ceaa3538ea0dd86
+    steps:
+      - name: Download and checksum existing signed Temp IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 6 --retry-delay 4 --retry-all-errors "$URL" -o "$RUNNER_TEMP/temp.ipa"
+          echo "$EXPECTED_SHA  $RUNNER_TEMP/temp.ipa" | shasum -a 256 -c -
+      - name: Audit nested code and provisioning metadata (read only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/unpacked"
+          ditto -x -k "$RUNNER_TEMP/temp.ipa" "$RUNNER_TEMP/unpacked"
+          python3 - <<'PY'
+          import pathlib, os, subprocess, plistlib, json
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"unpacked"/"Payload"
+          apps=list(root.glob("*.app"))
+          assert len(apps)==1, "Expected exactly one main app"
+          app=apps[0]
+          nested=sorted(app.glob("PlugIns/*.appex"))
+          units=[app]+nested
+          print("MAIN APP:",app.name)
+          print("EXTENSION COUNT:",len(nested))
+          print("COUNTS: libraries",len(list(app.glob("Frameworks/*"))),"extensions",len(nested))
+          failed=[]
+          for unit in units:
+              info=plistlib.loads((unit/"Info.plist").read_bytes())
+              bid=info.get("CFBundleIdentifier","")
+              exe=info.get("CFBundleExecutable","")
+              print("\n=== UNIT",unit.name,"===")
+              print("BUNDLE ID",bid,"EXECUTABLE",exe)
+              p=subprocess.run(["codesign","--verify","--strict","--verbose=4",str(unit)],capture_output=True,text=True)
+              print("CODE SIGN VERIFY",p.returncode,(p.stdout+p.stderr)[-1100:])
+              if p.returncode:failed.append(unit.name)
+              e=subprocess.run(["codesign","-d","--entitlements",":-",str(unit)],capture_output=True)
+              if e.returncode:
+                  print("ENTITLEMENTS ERROR",(e.stderr.decode("utf-8","replace"))[-450:])
+              else:
+                  try:
+                      ent=plistlib.loads(e.stdout)
+                      print("SIGNING ENTITLEMENTS",json.dumps({k:v for k,v in ent.items() if k in ["application-identifier","com.apple.developer.team-identifier","get-task-allow","keychain-access-groups"]},sort_keys=True))
+                      aid=ent.get("application-identifier","")
+                      if aid and aid!="T52CDY8W32."+bid:
+                          print("WARNING: signed application-identifier DOES NOT MATCH actual bundle identifier")
+                          failed.append(unit.name+" entitlement mismatch")
+                  except Exception as exc:print("ENTITLEMENTS PARSE ERROR",str(exc),(e.stdout[:160]).hex())
+              profile=unit/"embedded.mobileprovision"
+              if profile.is_file():
+                  p=subprocess.run(["security","cms","-D","-i",str(profile)],capture_output=True)
+                  if p.returncode:print("PROFILE DECODE ERROR",p.stderr.decode("utf-8","replace")[-150:])
+                  else:
+                      pl=plistlib.loads(p.stdout)
+                      print("PROFILE NAME",pl.get("Name"),"UUID",pl.get("UUID"),"TTL",pl.get("TimeToLive"),"PPQCheck",pl.get("PPQCheck"))
+                      print("PROFILE APP ID",pl.get("Entitlements",{}).get("application-identifier"))
+              else:print("NO EMBEDDED PROFILE")
+          print("\n=== DEEP SIGNATURE CHECK ===")
+          p=subprocess.run(["codesign","--verify","--deep","--strict","--verbose=4",str(app)],capture_output=True,text=True)
+          print("DEEP CODE SIGN VERIFY",p.returncode,(p.stdout+p.stderr)[-2200:])
+          if p.returncode:failed.append("DEEP SIGN CHECK")
+          print("AUDIT FINDINGS:",failed)
+          PY
