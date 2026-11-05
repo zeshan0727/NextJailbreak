@@ -1,0 +1,99 @@
+name: Build and Sign NEXT Reverse Lab
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'NextReverseLab/**'
+      - '.github/workflows/build-nextreverse-lab.yml'
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: nextreverse-lab-build-and-sign
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 35
+    env:
+      APP_NAME: 'NEXT Reverse Lab'
+      BUNDLE_ID: com.nextsolution.nextreverselab
+      APP_VERSION: '0.1.1'
+      APP_BUILD: '2'
+      ARTIFACT_FILE: NextReverseLab-0.1.1-build2-unsigned.ipa
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: NextReverseLab
+        run: |
+          set -euo pipefail
+          xcodegen generate
+          test -f NextReverseLab.xcodeproj/project.pbxproj
+      - name: Compile iOS application
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project NextReverseLab/NextReverseLab.xcodeproj \
+            -scheme NextReverseLab \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/NextReverseLabDerived" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY='' \
+            clean build
+      - name: Verify and package IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/NextReverseLabDerived/Build/Products/Release-iphoneos/NextReverseLab.app"
+          test -d "$APP"
+          test -s "$APP/NextReverseLab"
+          INFO="$APP/Info.plist"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$INFO")" = "$BUNDLE_ID"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$INFO")" = "$APP_VERSION"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$INFO")" = "$APP_BUILD"
+          mkdir -p "$RUNNER_TEMP/ReverseLabPackage/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/ReverseLabPackage/Payload/"
+          (cd "$RUNNER_TEMP/ReverseLabPackage" && zip -qr "$GITHUB_WORKSPACE/$ARTIFACT_FILE" Payload)
+          unzip -t "$ARTIFACT_FILE" >/dev/null
+          shasum -a 256 "$ARTIFACT_FILE" > "$ARTIFACT_FILE.sha256"
+          echo "Compiled $BUNDLE_ID version $APP_VERSION ($APP_BUILD)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload unsigned build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEXT-Reverse-Lab-0.1.1-Build2-Unsigned
+          path: |
+            NextReverseLab-0.1.1-build2-unsigned.ipa
+            NextReverseLab-0.1.1-build2-unsigned.ipa.sha256
+          if-no-files-found: error
+      - name: Request existing Next Signer to sign and publish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN"
+          if ! gh release view nextsigner-inbox >/dev/null 2>&1; then
+            gh release create nextsigner-inbox --draft \
+              --title 'Next Signer Inbox' \
+              --notes 'Build inputs for the existing automatic Apple signing process.'
+          fi
+          ASSET="nextreverse-lab-0.1.1-build2-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.ipa"
+          cp "$ARTIFACT_FILE" "$RUNNER_TEMP/$ASSET"
+          gh release upload nextsigner-inbox "$RUNNER_TEMP/$ASSET"
+          gh workflow run nextsigner-sign-publish.yml --ref main \
+            -f "staging_asset=$ASSET" \
+            -f "requested_name=$APP_NAME" \
+            -f "requested_bundle_id=$BUNDLE_ID"
+          echo 'NEXT Reverse Lab signing requested; check Next Signer - Sign and Publish run.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Installer target: https://nextjailbreak.com/install/' >> "$GITHUB_STEP_SUMMARY"
