@@ -14,8 +14,8 @@ from datetime import datetime, timezone
 BUNDLE = "com.nextsolution.8ballpoolmult36"
 NAME = "8 Ball Pool Temp"
 VERSION = "56.31.0"
-BUILD = "5330"
-FILENAME = "8-ball-pool-temp-7-days-56.31.0-5330.ipa"
+BUILD = "5331"
+FILENAME = "8-ball-pool-temp-7-days-56.31.0-5331.ipa"
 R2_BASE = "https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105"
 URL = R2_BASE + "/" + FILENAME
 EXPIRES = "2026-11-12T15:54:41Z"
@@ -47,7 +47,7 @@ def main():
         "icon": icon,
         "manifest": "/" + str(MANIFEST_PATH),
         "available": True,
-        "status": "7-day offline Ad Hoc test; registered iPad only; expires 12 November 2026",
+        "status": "7-day offline Ad Hoc test; optional extensions removed; expires 12 November 2026",
         "downloadURL": URL,
         "sha256": digest,
         "sizeBytes": size,
@@ -88,7 +88,7 @@ def main():
         "url": URL,
         "sha256": digest,
         "sizeBytes": size,
-        "notes": "Signed with seven-day offline Ad Hoc profile for one registered iPad. Expires " + EXPIRES
+        "notes": "Signed with seven-day offline Ad Hoc profile; four invalid optional extensions excluded. Expires " + EXPIRES
                  + ". Bundle ID: " + BUNDLE + ". Does not run on unregistered devices.",
     }
     transfer["files"] = [transfer_item] + [
@@ -110,7 +110,7 @@ h1{margin:0 0 10px;font-size:24px}p{line-height:1.6;color:#667085}
 a.button{display:block;padding:16px;background:#182230;color:white;border-radius:12px;text-decoration:none;font-weight:700;margin-top:22px}
 small{display:block;color:#667085;margin-top:18px;line-height:1.6}
 </style></head><body><main><h1>8 Ball Pool Temp</h1>
-<p>Version 56.31.0 (5330) | Seven-day offline Ad Hoc test</p>
+<p>Version 56.31.0 (5331) | Seven-day offline Ad Hoc test</p>
 <a class="button" href="__INSTALL_URL__">Install on registered iPad</a>
 <small>Profile expires 12 November 2026 at 18:54 Qatar time.<br>
 The temporary version uses the original bundle ID and replaces any installed copy of that app.</small>
