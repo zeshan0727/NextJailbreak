@@ -6330,28 +6330,35 @@
       "version": "5.4.6"
     },
     {
-      "article_sha256": "036c23b86299058b9d826d9aff9db95f1d82843f8bc83ed38ca6d21efb359ef1",
-      "candidate_fingerprint": "bdd1b16f94beef963676e714de40fe1d2200ff6df9970f506c159aa8629241ad",
+      "article_sha256": "f705cecd7b9a1ae4406ace908d7bb53bebd417961ab12991cd7d260f83ca8404",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-official-download-compatibility-sha256-2026-11-05",
       "category": {
-        "id": "jailbreak",
-        "label": "Jailbreak"
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
       },
-      "description": "Dopamine 3: verified compatibility, requirements, release details and practical guidance based on official project sources.",
-      "entry_type": "cluster",
+      "description": "Download Dopamine 3.0.13 from official sources, check exact device and iOS support, verify the IPA/TIPA SHA-256, and troubleshoot installation safely.",
+      "entry_type": "evergreen-guide",
       "href": "dopamine-3-official-download-guide.html",
-      "image": "assets/articles/dopamine-3-ios-17-6-1-hero.jpg",
-      "media_credit": "Next Jailbreak real Dopamine 3 test-device visual",
-      "media_source_url": "https://nextjailbreak.com/dopamine-3-jailbreak-ios-17-6-1/",
-      "modified_at": "2026-08-29T18:06:15+00:00",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-05T03:00:00Z",
       "name": "Dopamine 3",
       "package": "editorial.dopamine3.dopamine3-official-download",
       "published_at": "2026-08-29T18:06:15+00:00",
-      "selection_pool": "dopamine-cluster",
-      "source_name": "Dopamine 3 official sources",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.x/README.md",
-      "source_url": "https://github.com/opa334/Dopamine/blob/3.x/README.md",
-      "title": "Dopamine 3 Jailbreak: Official Project Pages and Compatibility Guide",
-      "version": "3.x"
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Official Dopamine 3.0.13 release, tagged README and updater source",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/README.md",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "title": "Dopamine 3 Official Download: Version 3.0.13, Compatibility and SHA-256",
+      "version": "Dopamine 3.0.13",
+      "compat": "Dopamine 3.0.13: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. Installation availability does not expand jailbreak compatibility.",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "release": "Dopamine 3.0.13 — November 3, 2026",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png"
     },
     {
       "article_sha256": "22edb575b92fd4467c51e99e4f987e6fffa011841e18a97740c981fce46550fa",
@@ -10462,8 +10469,19 @@
       "published_at": "2026-11-04T23:22:04+00:00",
       "run_id": "41932969232",
       "version": "1.0.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-official-download-compatibility-sha256-2026-11-05",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "dopamine-3-official-download-guide.html",
+      "package": "editorial.dopamine3.dopamine3-official-download",
+      "previous_version": "3.x",
+      "published_at": "2026-11-05T03:00:00Z",
+      "run_id": "scheduled-2026-11-05T03:00:00Z",
+      "version": "Dopamine 3.0.13"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-04T23:22:04+00:00"
+  "updated_at": "2026-11-05T03:00:00Z"
 }

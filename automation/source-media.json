@@ -1474,8 +1474,19 @@
           "sha256": "78ddd5165553f3fadddd91d8a2d7eb5413150ba2723ed9867a3a92974d2f6c99"
         }
       ]
+    },
+    "editorial.dopamine3.dopamine3-official-download": {
+      "credit_label": "opa334 — official Dopamine 3.0.13 source tag",
+      "source_page_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+        "alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+        "local_path": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+        "git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+        "sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6"
+      },
+      "screenshots": []
     }
   }
 }
-
-
