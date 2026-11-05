@@ -367,6 +367,9 @@ struct InvoicePDFService {
             if settings.showTerms { drawTerms(invoice: invoice, settings: settings) }
             drawOverlayImages(settings.overlayImages)
             if settings.showFooter { drawFooter(settings: settings) }
+            if settings.showItems {
+                drawContinuationPages(context: context, invoice: invoice, company: company)
+            }
         }
     }
 
@@ -399,8 +402,10 @@ struct InvoicePDFService {
 
     private func drawTitle(invoice: Invoice, settings: InvoicePDFSettings) {
         let rect = zone(.invoiceTitle, settings: settings)
-        let title = settings.invoiceTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "INVOICE" : settings.invoiceTitle
-        drawText(title, in: CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height * 0.65), font: .systemFont(ofSize: fontSize(31, for: rect), weight: .heavy), color: dark, alignment: .right)
+        let baseTitle = settings.invoiceTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "INVOICE" : settings.invoiceTitle
+        let revised = !(invoice.revisions ?? []).isEmpty
+        let title = revised ? "REVISED " + baseTitle : baseTitle
+        drawText(title, in: CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height * 0.65), font: .systemFont(ofSize: fontSize(revised ? 23 : 31, for: rect), weight: .heavy), color: dark, alignment: .right)
         drawText(invoice.number, in: CGRect(x: rect.minX, y: rect.minY + rect.height * 0.68, width: rect.width, height: rect.height * 0.28), font: .monospacedSystemFont(ofSize: fontSize(10.5, for: rect), weight: .semibold), color: green, alignment: .right)
     }
 
@@ -452,8 +457,7 @@ struct InvoicePDFService {
         drawText("PRICE", in: CGRect(x: rect.minX + descW + qtyW, y: rect.minY + 5, width: priceW, height: headerH - 8), font: .systemFont(ofSize: 8.5, weight: .bold), color: .white, alignment: .right)
         drawText("AMOUNT", in: CGRect(x: rect.maxX - amountW, y: rect.minY + 5, width: amountW - 5, height: headerH - 8), font: .systemFont(ofSize: 8.5, weight: .bold), color: .white, alignment: .right)
 
-        let hasSecondary = invoice.lineItems.contains { $0.hasSecondaryText }
-        let items = Array(invoice.lineItems.prefix(hasSecondary ? 5 : 6))
+        let items = Array(invoice.lineItems.prefix(firstPageLineCount(for: invoice)))
         let totalH: CGFloat = min(34, max(26, rect.height * 0.18))
         let available = max(0, rect.height - headerH - totalH - 4)
         let descriptionWidth = descW - 8
@@ -512,6 +516,131 @@ struct InvoicePDFService {
         gold.setFill(); UIRectFill(totalRect)
         drawText("TOTAL", in: CGRect(x: totalRect.minX + 8, y: totalRect.minY + 8, width: totalRect.width * 0.35, height: 18), font: .systemFont(ofSize: 10.5, weight: .heavy), color: dark)
         drawText(CurrencyFormatter.string(invoice.total, code: company.currencyCode), in: CGRect(x: totalRect.minX + totalRect.width * 0.38, y: totalRect.minY + 8, width: totalRect.width * 0.58 - 6, height: 18), font: .systemFont(ofSize: 10.5, weight: .heavy), color: dark, alignment: .right)
+    }
+
+    private func firstPageLineCount(for invoice: Invoice) -> Int {
+        invoice.lineItems.contains { $0.hasSecondaryText } ? 5 : 6
+    }
+
+    /// The configurable original invoice template has space for 5-6 rows.
+    /// Continue the remaining rows on numbered supplementary pages rather than
+    /// silently omitting items added to an already issued invoice.
+    private func drawContinuationPages(
+        context: UIGraphicsPDFRendererContext,
+        invoice: Invoice,
+        company: CompanyProfile
+    ) {
+        let firstCount = firstPageLineCount(for: invoice)
+        let remaining = Array(invoice.lineItems.dropFirst(firstCount))
+        guard !remaining.isEmpty else { return }
+
+        var index = 0
+        var pageNumber = 2
+        while index < remaining.count {
+            context.beginPage()
+            UIColor.white.setFill()
+            UIRectFill(page)
+            green.setFill()
+            UIRectFill(CGRect(x: 0, y: 0, width: page.width, height: 12))
+
+            drawText(
+                company.fullName,
+                in: CGRect(x: 36, y: 33, width: 520, height: 30),
+                font: .systemFont(ofSize: 15, weight: .bold), color: green
+            )
+            drawText(
+                "INVOICE ITEMS — CONTINUED",
+                in: CGRect(x: 36, y: 72, width: 475, height: 26),
+                font: .systemFont(ofSize: 17, weight: .heavy), color: dark
+            )
+            drawText(
+                "\(invoice.number)  •  Page \(pageNumber)",
+                in: CGRect(x: 36, y: 100, width: 523, height: 18),
+                font: .monospacedSystemFont(ofSize: 10, weight: .medium),
+                color: green
+            )
+
+            let left: CGFloat = 36
+            let tableWidth: CGFloat = 523
+            let descWidth: CGFloat = 280
+            let qtyWidth: CGFloat = 52
+            let priceWidth: CGFloat = 90
+            let totalWidth: CGFloat = 99
+            var y: CGFloat = 137
+            green.setFill()
+            UIRectFill(CGRect(x: left, y: y, width: tableWidth, height: 30))
+            drawText("DESCRIPTION", in: CGRect(x: left + 7, y: y + 7, width: 270, height: 20),
+                     font: .systemFont(ofSize: 9, weight: .bold), color: .white)
+            drawText("QTY", in: CGRect(x: left + descWidth, y: y + 7, width: qtyWidth, height: 20),
+                     font: .systemFont(ofSize: 9, weight: .bold), color: .white, alignment: .center)
+            drawText("PRICE", in: CGRect(x: left + descWidth + qtyWidth, y: y + 7, width: priceWidth, height: 20),
+                     font: .systemFont(ofSize: 9, weight: .bold), color: .white, alignment: .right)
+            drawText("AMOUNT", in: CGRect(x: left + descWidth + qtyWidth + priceWidth, y: y + 7, width: totalWidth - 8, height: 20),
+                     font: .systemFont(ofSize: 9, weight: .bold), color: .white, alignment: .right)
+            y += 30
+
+            while index < remaining.count {
+                let item = remaining[index]
+                let nameHeight = invoiceMeasuredTextHeight(item.description, width: descWidth - 16, size: 9.5, weight: .semibold)
+                let detailsHeight = item.hasSecondaryText
+                    ? invoiceMeasuredTextHeight(item.secondaryDisplayText, width: descWidth - 16, size: 8, weight: .regular)
+                    : 0
+                let desiredHeight = max(37, nameHeight + detailsHeight + 15)
+                // Leave enough space for a grand total and a footer on the final page.
+                guard y + desiredHeight < 719 || y <= 167 else { break }
+                let rowHeight = min(desiredHeight, 545)
+                UIColor(white: index.isMultiple(of: 2) ? 0.965 : 0.99, alpha: 1).setFill()
+                UIRectFill(CGRect(x: left, y: y, width: tableWidth, height: rowHeight))
+
+                drawText(
+                    item.description, in: CGRect(x: left + 7, y: y + 6, width: descWidth - 14, height: min(nameHeight + 2, rowHeight - 10)),
+                    font: .systemFont(ofSize: 9.5, weight: .semibold), color: dark
+                )
+                if item.hasSecondaryText {
+                    drawText(
+                        item.secondaryDisplayText,
+                        in: CGRect(x: left + 7, y: y + 6 + nameHeight, width: descWidth - 14, height: max(0, rowHeight - nameHeight - 8)),
+                        font: .systemFont(ofSize: 8), color: .darkGray
+                    )
+                }
+                drawText(
+                    String(format: "%.2f", item.quantity),
+                    in: CGRect(x: left + descWidth, y: y + 9, width: qtyWidth, height: 18),
+                    font: .systemFont(ofSize: 9), color: dark, alignment: .center
+                )
+                drawText(
+                    CurrencyFormatter.string(item.unitPrice, code: company.currencyCode),
+                    in: CGRect(x: left + descWidth + qtyWidth, y: y + 9, width: priceWidth, height: 18),
+                    font: .systemFont(ofSize: 8), color: dark, alignment: .right
+                )
+                drawText(
+                    CurrencyFormatter.string(item.amount, code: company.currencyCode),
+                    in: CGRect(x: left + descWidth + qtyWidth + priceWidth, y: y + 9, width: totalWidth - 8, height: 18),
+                    font: .systemFont(ofSize: 8, weight: .semibold), color: dark, alignment: .right
+                )
+                y += rowHeight
+                index += 1
+            }
+
+            if index == remaining.count {
+                gold.setFill()
+                UIRectFill(CGRect(x: left + 290, y: min(y + 18, 742), width: 233, height: 35))
+                let totalY = min(y + 24, 748)
+                drawText("TOTAL", in: CGRect(x: left + 298, y: totalY, width: 75, height: 20),
+                         font: .systemFont(ofSize: 10, weight: .bold), color: dark)
+                drawText(
+                    CurrencyFormatter.string(invoice.total, code: company.currencyCode),
+                    in: CGRect(x: left + 369, y: totalY, width: 140, height: 20),
+                    font: .systemFont(ofSize: 10, weight: .bold), color: dark, alignment: .right
+                )
+            }
+            drawText(
+                "Aspire Maintenance • \(invoice.number)",
+                in: CGRect(x: 36, y: 796, width: 520, height: 20),
+                font: .systemFont(ofSize: 8), color: .gray, alignment: .center
+            )
+            pageNumber += 1
+        }
     }
 
     private func invoiceItemRowHeights(_ items: [InvoiceLineItem], width: CGFloat, titleFont: CGFloat, secondaryFont: CGFloat) -> [CGFloat] {
