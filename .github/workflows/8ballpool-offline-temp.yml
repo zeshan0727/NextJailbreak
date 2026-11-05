@@ -30,7 +30,7 @@ jobs:
       R2_BUCKET: next-signer-apps
       R2_PREFIX: apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105
       FILE_BASE: https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/offline-temp-20261105
-      SIGNED_FILENAME: 8-ball-pool-temp-7-days-56.31.0-5330.ipa
+      SIGNED_FILENAME: 8-ball-pool-temp-7-days-56.31.0-5331.ipa
       ORIGINAL_URL: https://files.nextsolution.cc/apps/ipa/com-nextsolution-8ballpoolmult36/56.31.0/com-nextsolution-8ballpoolmult36-56.31.0-5330.ipa
       ORIGINAL_SHA256: 445cad2023a6a9d468f1c360f8f80795383ba2360d3d7cf70cf404ef93e5851a
       ZSIGN_COMMIT: e803f870dc686e6161d00d9b22c425b8acdfacee
@@ -79,7 +79,7 @@ jobs:
           make -s -C "$RUNNER_TEMP/zsign/build/linux" -j"$(nproc)"
           test -x "$RUNNER_TEMP/zsign/bin/zsign"
 
-      - name: Re-sign original IPA with exact seven-day iPad special profile
+      - name: Re-sign original IPA with offline iPad profile, remove invalid optional extensions
         shell: bash
         run: |
           set -euo pipefail
@@ -89,8 +89,8 @@ jobs:
       - name: Store signed IPA as GitHub Actions build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 8BallPool-Temp-7-Days-Offline-56.31.0-5330
-          path: ${{ runner.temp }}/8-ball-pool-temp-7-days-56.31.0-5330.ipa
+          name: 8BallPool-Temp-7-Days-Offline-56.31.0-5331
+          path: ${{ runner.temp }}/8-ball-pool-temp-7-days-56.31.0-5331.ipa
           if-no-files-found: error
           compression-level: 0
 
