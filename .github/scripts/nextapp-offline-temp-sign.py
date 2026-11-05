@@ -23,13 +23,13 @@ from cryptography.hazmat.primitives.serialization.pkcs12 import load_key_and_cer
 
 TEAM = "T52CDY8W32"
 BUNDLE = "com.nextsolution.njapps"
-NAME = "Next App Library Temp"
+NAME = "Next App Library Temp 7 Days"
 VERSION = "1.0.3"
 BUILD = "4"
 EXPECTED_EXPIRY = datetime(2026, 11, 12, 15, 54, 41, tzinfo=timezone.utc)
 TMP = pathlib.Path(os.environ["RUNNER_TEMP"])
 SOURCE = pathlib.Path("transfer/files/NextAppLibrary/1.0.3/NextAppLibrary-1.0.3.ipa")
-SIGNED = TMP / "next-app-library-temp-1.0.3-4.ipa"
+SIGNED = TMP / "next-app-library-temp-7-days-1.0.3-4.ipa"
 
 def fail_if(condition, message):
     if condition:
@@ -117,7 +117,7 @@ def main():
     sha = hashlib.sha256(SIGNED.read_bytes()).hexdigest()
     output = TMP / "nextapp-offline-build.env"
     output.write_text(f"SIGNED_SHA256={sha}\nSIGNED_SIZE={SIGNED.stat().st_size}\n")
-    print("PASS: Next App Library Temp signed with embedded seven-day offline Ad Hoc profile")
+    print("PASS: Next App Library Temp 7 Days signed with embedded seven-day offline Ad Hoc profile")
     print(f"App bundle: {BUNDLE}; version: {VERSION} ({BUILD})")
     print(f"Profile expires UTC: {end.isoformat()}")
     print(f"IPA bytes: {SIGNED.stat().st_size}, SHA256: {sha}")
