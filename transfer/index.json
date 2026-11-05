@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-05T13:15:50.921Z",
+  "updatedAt": "2026-11-05T16:18:45Z",
   "files": [
+    {
+      "id": "next-app-library-temp-offline-1.0.3",
+      "name": "Next App Library Temp 1.0.3 - offline signed IPA",
+      "fileName": "next-app-library-temp-1.0.3-4.ipa",
+      "type": "ipa",
+      "platform": "iPadOS 26 (iPhone compatibility mode)",
+      "version": "1.0.3 (4)",
+      "url": "https://nextjailbreak.com/transfer/files/NextAppLibrary/offline-temp-1.0.3/next-app-library-temp-1.0.3-4.ipa",
+      "sha256": "579bbd62ccd370e6c4eaaf4821c99bf8df5d40c7384bc8f03cfb30138dbb54f6",
+      "sizeBytes": 2598734,
+      "notes": "Seven-day offline Ad Hoc profile for one iPad. Expires 2026-11-12T15:54:41Z. Preserved bundle ID: com.nextsolution.njapps. Same bundle ID replaces a previous installation."
+    },
     {
       "id": "nextreverse-lab-0.1.1-build2-signed",
       "name": "NEXT Reverse Lab 0.1.1 — Signed Test App",
