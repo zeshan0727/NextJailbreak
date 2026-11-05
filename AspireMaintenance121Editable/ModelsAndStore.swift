@@ -126,6 +126,30 @@ enum InvoiceStatus: String, CaseIterable, Codable, Identifiable {
     }
 }
 
+// Previous versions remain available for an audit trail when an issued invoice is revised.
+struct InvoiceRevision: Codable, Hashable {
+    var revisedAt: Date
+    var previousLineItems: [InvoiceLineItem]
+    var previousDueDate: Date
+    var previousNotes: String
+    var previousEmployeeID: UUID?
+    var previousTotal: Double
+    var updatedTotal: Double
+}
+
+enum AspireInvoiceEditError: LocalizedError {
+    case unavailable, changedOnAnotherDevice, invalidLines, belowAmountReceived
+
+    var errorDescription: String? {
+        switch self {
+        case .unavailable: return "Paid and void invoices cannot be edited. Use an adjustment document instead."
+        case .changedOnAnotherDevice: return "The invoice changed while you were editing it. Close and reopen to see the latest version."
+        case .invalidLines: return "Add at least one valid line item and a positive invoice total."
+        case .belowAmountReceived: return "The revised invoice total cannot be less than the payment already received."
+        }
+    }
+}
+
 struct Invoice: Identifiable, Codable, Hashable {
     var id: UUID = UUID()
     var number: String
@@ -143,6 +167,8 @@ struct Invoice: Identifiable, Codable, Hashable {
     /// Nil in older backups; nil is treated as monthly maintenance for backward compatibility.
     var jobType: JobType? = nil
     var createdAt: Date = Date()
+    /// Optional so all existing 1.2.2 invoices and backups decode unchanged.
+    var revisions: [InvoiceRevision]? = nil
 
     var total: Double { lineItems.reduce(0) { $0 + $1.amount } }
     var outstanding: Double { max(0, total - amountPaid) }
@@ -970,6 +996,76 @@ final class AspireStore: ObservableObject {
         guard let index = data.invoices.firstIndex(where: { $0.id == invoice.id }) else { return }
         data.invoices[index] = invoice
         persist()
+    }
+
+    /// Updates an existing invoice without altering its identity, issue date, customer,
+    /// payment history or original transmission timestamp. All edit paths call persist(),
+    /// so the existing backup and device-sync observers continue to work.
+    @discardableResult
+    func reviseInvoice(
+        original: Invoice,
+        lineItems: [InvoiceLineItem],
+        dueDate: Date,
+        notes: String,
+        employeeID: UUID?
+    ) throws -> Bool {
+        guard let index = data.invoices.firstIndex(where: { $0.id == original.id }) else {
+            throw AspireInvoiceEditError.changedOnAnotherDevice
+        }
+        let current = data.invoices[index]
+        guard current.status != .paid && current.status != .void else {
+            throw AspireInvoiceEditError.unavailable
+        }
+        guard current.lineItems == original.lineItems,
+              current.dueDate == original.dueDate,
+              current.notes == original.notes,
+              current.employeeID == original.employeeID else {
+            throw AspireInvoiceEditError.changedOnAnotherDevice
+        }
+        guard !lineItems.isEmpty,
+              lineItems.allSatisfy({
+                  !$0.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+                  $0.quantity.isFinite && $0.quantity > 0 &&
+                  $0.unitPrice.isFinite && $0.unitPrice >= 0
+              }) else {
+            throw AspireInvoiceEditError.invalidLines
+        }
+        let revisedTotal = lineItems.reduce(0.0) { $0 + $1.amount }
+        guard revisedTotal.isFinite && revisedTotal > 0 else {
+            throw AspireInvoiceEditError.invalidLines
+        }
+        guard revisedTotal + 0.005 >= current.amountPaid else {
+            throw AspireInvoiceEditError.belowAmountReceived
+        }
+        let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard current.lineItems != lineItems || current.dueDate != dueDate ||
+              current.notes != trimmedNotes || current.employeeID != employeeID else {
+            return false
+        }
+
+        var revised = current
+        let history = InvoiceRevision(
+            revisedAt: Date(), previousLineItems: current.lineItems,
+            previousDueDate: current.dueDate, previousNotes: current.notes,
+            previousEmployeeID: current.employeeID,
+            previousTotal: current.total, updatedTotal: revisedTotal
+        )
+        revised.revisions = (current.revisions ?? []) + [history]
+        revised.lineItems = lineItems
+        revised.dueDate = dueDate
+        revised.notes = trimmedNotes
+        revised.employeeID = employeeID
+        // Existing receipts stay intact. A partial payment becomes fully paid only
+        // when its preserved amount exactly covers the new revised invoice total.
+        if revised.amountPaid > 0 {
+            revised.status = revised.amountPaid >= revisedTotal - 0.005 ? .paid : .partial
+        }
+        data.invoices[index] = revised
+        guard persist() else {
+            data.invoices[index] = current
+            throw CocoaError(.fileWriteUnknown)
+        }
+        return true
     }
 
     func markInvoiceSent(_ id: UUID) {
