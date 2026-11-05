@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - agent/aspire-maintenance-1.2.3-device-sync
+      - agent/aspire-maintenance-1.2.3-invoice-edit
     paths:
       - 'AspireMaintenance121Editable/**'
       - '.github/workflows/build-aspire-maintenance-123.yml'
