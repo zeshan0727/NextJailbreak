@@ -1259,52 +1259,63 @@
     {
       "additional_media": [
         {
-          "image": "assets/articles/source-media/appdata-1-4-0-official-manager.jpg",
-          "media_alt": "Official AppData More Info screen showing iOS requirements, URL schemes, background modes and entitlements",
+          "image": "assets/articles/source-media/appdata-1-4-0-official-home-screen.jpg",
+          "media_alt": "Official AppData Home Screen menu showing app-data maintenance actions",
           "media_credit": "Fouad Raheb — official AppData interface screenshot",
+          "media_git_blob_sha": "6333f11a82bb350d097e01d14bc154fbdd2806e9",
+          "media_sha256": "09fcac4523b066e8b1d19f7842272f21433b6bf0a187f49301cdd46ea75ef39a",
+          "media_source_url": "https://raw.githubusercontent.com/FouadRaheb/AppData/master/Screenshots/1.jpg"
+        },
+        {
+          "image": "assets/articles/source-media/appdata-1-4-0-official-manager.jpg",
+          "media_alt": "Official AppData More Info screen showing requirements, URL schemes, background modes and entitlements",
+          "media_credit": "Fouad Raheb — official AppData interface screenshot",
+          "media_git_blob_sha": "b3b169d3134e6eef84f7d441d69e7834f9e85ac6",
           "media_sha256": "e240a89d813237a18e84acb79157e0bbac41bbe88cadf372a485caa32bd2f3a1",
           "media_source_url": "https://raw.githubusercontent.com/FouadRaheb/AppData/master/Screenshots/2.jpg"
         },
         {
           "image": "assets/articles/source-media/apps-manager-official-interface.png",
-          "media_alt": "Official Apps Manager interface showing the application list, app containers and Backup, Restore and Wipe controls, plus saved backups",
+          "media_alt": "Official Apps Manager interface showing app containers and Backup, Restore and Wipe controls, plus saved backups",
           "media_credit": "TIGI Software — official Apps Manager interface composite",
+          "media_git_blob_sha": "e8c37c27340a653451e6c05348f2d5e459bb22d9",
           "media_sha256": "4e66e563b81cf2148f211dc8edb34031b55707a9d8d57b27865ce2518f2cdb54",
           "media_source_url": "https://www.tigisoftware.com/default/wp-content/uploads/2016/01/scrs.png"
         }
       ],
-      "article_sha256": "8196a2823ad89474f173265fffa99ec2bf4fc75b9ee54f1b2f78bbdaa646210e",
-      "candidate_fingerprint": "comparison.appdata-1.4.0-apps-manager-1.8.4",
+      "article_sha256": "21f91852884b352a91c792653ff4c127d0354496ead73913368a736f4e2eb014",
+      "candidate_fingerprint": "comparison.icontweak2-1.1.0-appdata-1.4.0-apps-manager-1.8.4-2026-11-05",
       "category": {
         "id": "roundup-comparison",
         "label": "Tweak Roundup & Comparison"
       },
-      "compat": "AppData 1.4.0 requires iOS 11 or later and a compatible jailbreak; its official repository publishes iphoneos-arm and conventional-rootless iphoneos-arm64 packages. Apps Manager 1.8.4 is the official iOS 15–16 TrollStore IPA, while TIGI's developer APT separately lists 1.8.2-4 jailbreak packages for iphoneos-arm and iphoneos-arm64. Neither official index documents a RootHide arm64e lane.",
-      "description": "Compare AppData 1.4.0 and Apps Manager 1.8.4 by backup, restore, cache clearing, containers, TrollStore, rootless support and safety.",
-      "developer": "Fouad Raheb / TIGI Software",
+      "compat": "IconTweak2 1.1.0 lists iOS 15.0–26.0.1 and rootful, rootless and RootHide support; its RootHide package is requested from the developer. AppData 1.4.0 requires iOS 11+ and a compatible conventional rootful/rootless jailbreak. Apps Manager 1.8.4 is the official iOS 15–16 TrollStore IPA, while TIGI's APT lists 1.8.2-4 jailbreak packages. Package ranges do not establish jailbreak or TrollStore availability.",
+      "description": "Compare IconTweak2 1.1.0, AppData 1.4.0 and Apps Manager 1.8.4 for backup, restore, cache cleaning, containers, TrollStore, rootless and RootHide.",
+      "developer": "ichitaso / Fouad Raheb / TIGI Software",
       "entry_type": "comparison",
       "href": "appdata-vs-apps-manager-app-data-tool-comparison/",
-      "image": "assets/articles/source-media/appdata-1-4-0-official-home-screen.jpg",
-      "media_alt": "Official AppData 1.4.0 Home Screen menu showing app-data maintenance actions",
-      "media_credit": "Fouad Raheb — official AppData interface screenshot",
-      "media_retrieval_status": "Retrieved and inspected two exact screenshots from the official AppData repository and the Apps Manager interface composite still embedded by TIGI Software; all three source images are committed and embedded in the article.",
-      "media_sha256": "09fcac4523b066e8b1d19f7842272f21433b6bf0a187f49301cdd46ea75ef39a",
-      "media_source_url": "https://github.com/FouadRaheb/AppData/blob/master/Screenshots/1.jpg",
-      "modified_at": "2026-10-27T09:08:37Z",
+      "image": "assets/articles/source-media/icontweak2-1-1-0-official-menu.png",
+      "media_alt": "Official IconTweak2 menu showing app-data backup, restore and wipe actions",
+      "media_credit": "ichitaso/Havoc — official IconTweak2 1.1.0 action-menu screenshot",
+      "media_retrieval_status": "Reused the exact official IconTweak2 1.1.0 action-menu screenshot previously retrieved and inspected from Havoc, plus the existing exact AppData and Apps Manager developer screenshots; all are committed and embedded.",
+      "media_sha256": "6d4a01ad48cb3eed3cd649dc87731ec3a19eec47892d2d2f1f02acd1f6a2f7ca",
+      "media_source_url": "https://media.havoc.app/691e9346174b1c77f3400337",
+      "modified_at": "2026-11-05T09:00:00Z",
       "name": "AppData vs Apps Manager app-data tool comparison",
       "package": "comparison.appdata-apps-manager",
       "published_at": "2026-10-27T09:08:37Z",
       "quality_target": 9,
-      "release": "AppData 1.4.0 (2023-06-07) / Apps Manager 1.8.4 TrollStore build (2023-12-01 changelog) / Apps Manager 1.8.2-4 developer APT build",
+      "release": "IconTweak2 1.1.0 (2026-11-01) / AppData 1.4.0 (2023-06-07) / Apps Manager 1.8.4 TrollStore and 1.8.2-4 jailbreak builds",
       "selection_pool": "scheduled-tweak-roundup-comparison",
       "slug": "appdata-vs-apps-manager-app-data-tool-comparison",
-      "source_name": "Official AppData project, Fouad Raheb APT and TIGI Software Apps Manager pages and APT",
-      "source_page_url": "https://fouadraheb.com/apps/appdata",
+      "source_name": "Official IconTweak2 Havoc listing, AppData project/APT, and TIGI Apps Manager pages/APT",
+      "source_page_url": "https://havoc.app/package/icontweak2",
       "source_url": "https://www.tigisoftware.com/default/?p=510",
-      "source_visual_origin": "official-project-and-developer-assets",
-      "source_visual_url": "https://raw.githubusercontent.com/FouadRaheb/AppData/master/Screenshots/1.jpg",
-      "title": "AppData vs Apps Manager: Which App-Data Tool Should You Use?",
-      "version": "AppData 1.4.0 / Apps Manager 1.8.4"
+      "source_visual_origin": "official-developer-assets-reused",
+      "source_visual_url": "https://media.havoc.app/691e9346174b1c77f3400337",
+      "title": "IconTweak2 vs AppData vs Apps Manager: Which App-Data Tool Should You Use?",
+      "version": "IconTweak2 1.1.0 / AppData 1.4.0 / Apps Manager 1.8.4",
+      "media_git_blob_sha": "be14a69b57c8a9810faeca6eba83577dfc5c993a"
     },
     {
       "additional_media": [],
@@ -10480,8 +10491,19 @@
       "published_at": "2026-11-05T03:00:00Z",
       "run_id": "scheduled-2026-11-05T03:00:00Z",
       "version": "Dopamine 3.0.13"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "comparison.icontweak2-1.1.0-appdata-1.4.0-apps-manager-1.8.4-2026-11-05",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "appdata-vs-apps-manager-app-data-tool-comparison/",
+      "package": "comparison.appdata-apps-manager",
+      "previous_version": "AppData 1.4.0 / Apps Manager 1.8.4",
+      "published_at": "2026-11-05T09:00:00Z",
+      "run_id": "scheduled-2026-11-05T09:00:00Z",
+      "version": "IconTweak2 1.1.0 / AppData 1.4.0 / Apps Manager 1.8.4"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-05T03:00:00Z"
+  "updated_at": "2026-11-05T09:00:00Z"
 }
