@@ -370,28 +370,29 @@
     },
     {
       "category": {
-        "id": "system-utilities",
-        "label": "System & Utilities"
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
       },
-      "description": "Deck 1.1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
-      "entry_type": "source-news",
+      "description": "Deck 1.2.0 adds drag-to-pin, playback-aware protection, quick actions and a separate Control Center page, with native modules on iOS 18.",
+      "entry_type": "tweak-update",
       "href": "deck-1-1-0-update/",
       "image": "assets/articles/source-media/deck-1-1-0-update-ed4a6526a6.jpg",
-      "media_credit": "Source visual from chariz.com",
+      "media_credit": "Official Deck banner from the Chariz package listing",
+      "media_sha256": "d0c6271d205f2a156fc6d5efdb88c1143f155591d6fe6bcebf010c7a245835c2",
       "media_source_url": "https://chariz.com/buy/deck",
-      "modified_at": "2026-11-04T13:24:27+00:00",
+      "modified_at": "2026-11-06T15:04:00+00:00",
       "name": "Deck",
       "package": "com.antonym.deck",
       "published_at": "2026-11-04T13:24:27+00:00",
       "quality_target": 9,
-      "selection_pool": "ios-repo-discovery-original-source",
-      "source_name": "repo.chariz.com",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Chariz package listing and repository index",
       "source_page_url": "https://repo.chariz.com/Packages",
       "source_url": "https://repo.chariz.com/Packages",
-      "source_visual_origin": "og:image",
+      "source_visual_origin": "official-chariz-banner",
       "source_visual_url": "https://img.chariz.cloud/sileo-banner/deck.jpg",
-      "title": "Deck 1.1.0 Reimagines the Jailbroken iOS App Switcher With Cards, Pins and Control Center Controls",
-      "version": "1.1.0"
+      "title": "Deck 1.2.0 Adds Side-by-Side Control Center and Safer Close All Controls",
+      "version": "1.2.0"
     },
     {
       "category": {
@@ -10610,8 +10611,19 @@
       "published_at": "2026-11-06T13:22:12+00:00",
       "run_id": "42224748350",
       "version": "1.0.1"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "individual-update.deck-1.2.0-side-by-side-control-center-2026-11-06",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "deck-1-1-0-update/",
+      "package": "com.antonym.deck",
+      "previous_version": "1.1.0",
+      "published_at": "2026-11-06T15:04:00+00:00",
+      "run_id": "scheduled-2026-11-06T15:04:00Z",
+      "version": "1.2.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-06T13:22:12+00:00"
+  "updated_at": "2026-11-06T15:04:00+00:00"
 }

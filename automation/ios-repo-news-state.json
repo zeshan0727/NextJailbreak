@@ -97,11 +97,11 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/chariz/package/com.antonym.deck/": {
-      "checked_at": "2026-11-05T13:39:08.024972+00:00",
+      "checked_at": "2026-11-06T15:04:00+00:00",
       "package": "com.antonym.deck",
       "status": "duplicate",
       "target_path": "deck-1-1-0-update/",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     "https://www.ios-repo-updates.com/repository/chariz/package/com.antonym.drift/": {
       "checked_at": "2026-11-05T13:39:08.024972+00:00",
@@ -2878,6 +2878,13 @@
       "package": "com.ichitaso.srmusic",
       "target_path": "screenrecordingmusic-1-0-1-update/",
       "version": "1.0.1"
+    },
+    {
+      "action": "updated",
+      "at": "2026-11-06T15:04:00+00:00",
+      "package": "com.antonym.deck",
+      "target_path": "deck-1-1-0-update/",
+      "version": "1.2.0"
     }
   ],
   "schema_version": 1
