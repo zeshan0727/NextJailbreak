@@ -1016,6 +1016,30 @@
       },
       "screenshots": []
     },
+    "comparison.dopamine-palera1n": {
+      "credit_label": "opa334 and palera1n team — exact official tagged project assets",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "secondary_source_page_urls": [
+        "https://github.com/opa334/Dopamine/releases/tag/3.0.13"
+      ],
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
+        "alt": "Official palera1n 3 graphical interface connected to an iPhone 7 on iOS 15.7",
+        "local_path": "assets/articles/source-media/palera1n-v3-official-demo.png",
+        "git_blob_sha": "235a0b859af9093e5dac26aa8d3e22d9011a84cb",
+        "retrieval_status": "The beta 3 tag moved the image under .github but retained the exact beta 2 Git blob already stored locally."
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+          "alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+          "local_path": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+          "git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+          "sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6"
+        }
+      ]
+    },
     "guide.dopamine.rejailbreak-after-reboot": {
       "credit_label": "opa334 — official Dopamine 3.0.10 app icon",
       "source_page_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
@@ -1535,5 +1559,5 @@
       ]
     }
   },
-  "updated_at": "2026-11-06T03:00:00Z"
+  "updated_at": "2026-11-06T09:00:00Z"
 }
