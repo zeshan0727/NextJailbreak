@@ -5,6 +5,102 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "ScreenRecordingMusic 1.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "screenrecordingmusic-1-0-1-update/",
+      "image": "assets/articles/source-media/screenrecordingmusic-1-0-1-update-c0e4d6a095.png",
+      "media_credit": "Source visual from cydia.ichitaso.com",
+      "media_source_url": "https://cydia.ichitaso.com/depiction/srmusic.html",
+      "modified_at": "2026-11-06T13:22:12+00:00",
+      "name": "ScreenRecordingMusic",
+      "package": "com.ichitaso.srmusic",
+      "published_at": "2026-11-06T13:22:12+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "cydia.ichitaso.com",
+      "source_page_url": "https://cydia.ichitaso.com/Packages.gz",
+      "source_url": "https://cydia.ichitaso.com/Packages.gz",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://cydia.ichitaso.com/depiction/srmusic/banner.png",
+      "title": "ScreenRecordingMusic 1.1.0 Expands Recording Support to iOS 26 and Rootless Setups",
+      "version": "1.0.1"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official Dopamine app icon from the 3.0.10 source tag",
+          "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
+          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
+        }
+      ],
+      "category": {
+        "id": "jailbreak-comparison",
+        "label": "Jailbreak Comparison"
+      },
+      "compat": "Dopamine: official arm64e, A12/A13 and arm64 firmware ranges; palera1n: A8–A11 and listed T2 devices",
+      "description": "Compare Dopamine 3.0.13 and palera1n 3.0.0 beta 3 by supported devices, iOS range, reboot workflow, computer needs, passcode limits and release risk.",
+      "developer": "opa334; palera1n team",
+      "entry_type": "roundup-comparison",
+      "href": "dopamine-vs-palera1n-jailbreak-comparison/",
+      "image": "assets/articles/source-media/palera1n-v3-official-demo.png",
+      "media_credit": "Official palera1n 3 demonstration image; the beta 3 tag uses the same Git blob as beta 2",
+      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
+      "modified_at": "2026-11-06T09:00:00Z",
+      "name": "Dopamine 3 vs palera1n 3",
+      "package": "comparison.dopamine-palera1n",
+      "published_at": "2026-10-04T08:57:29Z",
+      "release": "Dopamine 3.0.13 (2026-11-03) / palera1n 3.0.0 beta 3 (2026-10-18)",
+      "selection_pool": "official-project-comparison",
+      "slug": "dopamine-vs-palera1n-jailbreak-comparison",
+      "source": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
+      "title": "Dopamine 3 vs palera1n 3: Which Jailbreak Fits Your iPhone?",
+      "version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.3"
+    },
+    {
+      "additional_media": [],
+      "article_sha256": "e00dba977b7081053b0642d724902b012ecb3fe7e3486b1422699562ca061e80",
+      "candidate_fingerprint": "vphone-cli-2.15.2-upgrade-guide-2026-11-06",
+      "category": {
+        "key": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Physical Apple Silicon Mac on macOS 15+; no nested virtualization. Launchpad 2.15 requires a 2.15 bundle. RootHide/rootless support is inside research guests, not physical iPhones.",
+      "description": "Install or upgrade vphone-cli 2.15.2 safely, pair Launchpad with the correct Core Bundle, preserve existing guests, verify official SHA-256 hashes and fix common 2.15 migration problems.",
+      "developer": "Lakr Aream",
+      "entry_type": "guide",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
+      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest terminal on an Apple Silicon Mac",
+      "media_credit": "Lakr233 — official vphone-cli demo from the 2.14.2 tagged repository",
+      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
+      "media_retrieval_status": "Official tagged repository demo is stored locally; the committed asset exactly matches Documents/demo.jpeg from tag 2.14.2.",
+      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
+      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.15.2/Documents/demo.jpeg",
+      "modified_at": "2026-11-06T03:00:00Z",
+      "name": "vphone-cli setup",
+      "package": "project.vphone-cli",
+      "published_at": "2026-09-15T08:07:38+00:00",
+      "quality_target": 9,
+      "release": "vphone 2.15.2 released 2026-11-03",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
+      "source_name": "Official vphone 2.15.0–2.15.2 releases and tagged documentation",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.15.2",
+      "source_url": "https://github.com/Lakr233/vphone-cli",
+      "source_visual_origin": "official-tagged-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.15.2/Documents/demo.jpeg",
+      "title": "How to Update vphone-cli 2.15.2 Safely on Apple Silicon",
+      "version": "vphone 2.15.2"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Regram for Instagram 7.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "regram-for-instagram-7-0-update/",
@@ -321,42 +417,6 @@
       "source_visual_url": "https://opengraph.githubassets.com/bf9c2803bbd8a3aceba310e11f63773512a0430782a30a249e4e2dcef6b6800c/tunecc/WatusiZhHans/commit/8957c8829b0fb379e23f86da7f1046235f3463b0",
       "title": "Watusi 3 for WhatsApp 1.3.30 adds WhatsApp 26.42 support and fixes Share Sheet failures",
       "version": "1.3.30"
-    },
-    {
-      "additional_media": [],
-      "article_sha256": "e00dba977b7081053b0642d724902b012ecb3fe7e3486b1422699562ca061e80",
-      "candidate_fingerprint": "vphone-cli-2.15.2-upgrade-guide-2026-11-06",
-      "category": {
-        "key": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Physical Apple Silicon Mac on macOS 15+; no nested virtualization. Launchpad 2.15 requires a 2.15 bundle. RootHide/rootless support is inside research guests, not physical iPhones.",
-      "description": "Install or upgrade vphone-cli 2.15.2 safely, pair Launchpad with the correct Core Bundle, preserve existing guests, verify official SHA-256 hashes and fix common 2.15 migration problems.",
-      "developer": "Lakr Aream",
-      "entry_type": "guide",
-      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
-      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
-      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest terminal on an Apple Silicon Mac",
-      "media_credit": "Lakr233 — official vphone-cli demo from the 2.14.2 tagged repository",
-      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
-      "media_retrieval_status": "Official tagged repository demo is stored locally; the committed asset exactly matches Documents/demo.jpeg from tag 2.14.2.",
-      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
-      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.15.2/Documents/demo.jpeg",
-      "modified_at": "2026-11-06T03:00:00Z",
-      "name": "vphone-cli setup",
-      "package": "project.vphone-cli",
-      "published_at": "2026-09-15T08:07:38+00:00",
-      "quality_target": 9,
-      "release": "vphone 2.15.2 released 2026-11-03",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
-      "source_name": "Official vphone 2.15.0–2.15.2 releases and tagged documentation",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.15.2",
-      "source_url": "https://github.com/Lakr233/vphone-cli",
-      "source_visual_origin": "official-tagged-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.15.2/Documents/demo.jpeg",
-      "title": "How to Update vphone-cli 2.15.2 Safely on Apple Silicon",
-      "version": "vphone 2.15.2"
     },
     {
       "additional_media": [
@@ -4725,41 +4785,6 @@
       "source_visual_url": "https://media.havoc.app/6aad9c48d0f9c7b80d3c88e1",
       "title": "QuickRing 1.1.0 Adds Time and Date Circles, Fixes iOS 26 Safe Mode",
       "version": "1.1.0"
-    },
-    {
-      "additional_media": [
-        {
-          "credit": "Official Dopamine app icon from the 3.0.10 source tag",
-          "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
-        }
-      ],
-      "category": {
-        "id": "jailbreak-comparison",
-        "label": "Jailbreak Comparison"
-      },
-      "compat": "Dopamine: official arm64e, A12/A13 and arm64 firmware ranges; palera1n: A8–A11 and listed T2 devices",
-      "description": "Compare Dopamine 3.0.13 and palera1n 3.0.0 beta 3 by supported devices, iOS range, reboot workflow, computer needs, passcode limits and release risk.",
-      "developer": "opa334; palera1n team",
-      "entry_type": "roundup-comparison",
-      "href": "dopamine-vs-palera1n-jailbreak-comparison/",
-      "image": "assets/articles/source-media/palera1n-v3-official-demo.png",
-      "media_credit": "Official palera1n 3 demonstration image; the beta 3 tag uses the same Git blob as beta 2",
-      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
-      "modified_at": "2026-11-06T09:00:00Z",
-      "name": "Dopamine 3 vs palera1n 3",
-      "package": "comparison.dopamine-palera1n",
-      "published_at": "2026-10-04T08:57:29Z",
-      "release": "Dopamine 3.0.13 (2026-11-03) / palera1n 3.0.0 beta 3 (2026-10-18)",
-      "selection_pool": "official-project-comparison",
-      "slug": "dopamine-vs-palera1n-jailbreak-comparison",
-      "source": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
-      "title": "Dopamine 3 vs palera1n 3: Which Jailbreak Fits Your iPhone?",
-      "version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.3"
     },
     {
       "additional_media": [],
@@ -10576,8 +10601,17 @@
       "published_at": "2026-11-05T23:25:12+00:00",
       "run_id": "42129061036",
       "version": "7.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "screenrecordingmusic-1-0-1-update/",
+      "package": "com.ichitaso.srmusic",
+      "published_at": "2026-11-06T13:22:12+00:00",
+      "run_id": "42224748350",
+      "version": "1.0.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-06T09:00:00Z"
+  "updated_at": "2026-11-06T13:22:12+00:00"
 }

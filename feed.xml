@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>ScreenRecordingMusic 1.1.0 Expands Recording Support to iOS 26 and Rootless Setups</title>
+      <link>https://nextjailbreak.com/screenrecordingmusic-1-0-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/screenrecordingmusic-1-0-1-update/</guid>
+      <pubDate>Fri, 06 Nov 2026 13:22:12 GMT</pubDate>
+      <description>ScreenRecordingMusic 1.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
+    <item>
       <title>Dopamine 3 vs palera1n 3: Which Jailbreak Fits Your iPhone?</title>
       <link>https://nextjailbreak.com/dopamine-vs-palera1n-jailbreak-comparison/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-vs-palera1n-jailbreak-comparison/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Thu, 29 Oct 2026 15:00:00 GMT</pubDate>
       <description>CamHop 1.0.0 streams a Mac or PC webcam and microphone to rootless iPhones and iPads on iOS 15–26.0.1. See setup, limits, privacy and fixes.</description>
       <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>Lasso vs Snapper 3 vs Unseen: Which Screenshot Tweak Should You Use?</title>
-      <link>https://nextjailbreak.com/snapper-3-vs-screenshotactions-vs-unseen-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/snapper-3-vs-screenshotactions-vs-unseen-comparison/</guid>
-      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
-      <description>Compare Lasso 1.0.0, Snapper 3 1.2.1 and Unseen 0.0.5 by capture tools, pinned screenshots, OCR, recording, privacy controls, iOS support and jailbreak environment.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
     </item>
   </channel>
 </rss>
