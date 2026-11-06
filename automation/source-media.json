@@ -876,15 +876,16 @@
       "screenshots": []
     },
     "project.vphone-cli": {
-      "credit_label": "Lakr233 — official vphone-cli 2.14.2 source repository",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/blob/2.14.2/Documents/demo.jpeg",
+      "credit_label": "Lakr233 — official vphone-cli demo from tag 2.15.2",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/blob/2.15.2/Documents/demo.jpeg",
       "official_source": true,
       "hero": {
         "url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.14.2/Documents/demo.jpeg",
         "alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest terminal on an Apple Silicon Mac",
         "local_path": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
         "git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
-        "sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f"
+        "sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
+        "retrieval_status": "Exact official demo; tag 2.15.2 and committed file share the same Git blob."
       },
       "screenshots": []
     },
@@ -1534,5 +1535,5 @@
       ]
     }
   },
-  "updated_at": "2026-11-05T20:55:00Z"
+  "updated_at": "2026-11-06T03:00:00Z"
 }
