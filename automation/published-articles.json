@@ -1022,34 +1022,34 @@
         "id": "jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "Release 29 carries Dopamine source ranges for arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. RootHide's release note does not publish a separate matrix; exact device, firmware, exploit chain and installation method must still be verified.",
-      "description": "Dopamine RootHide 3.0.12-29 fixes a Messages app lag issue, updates bundled Sileo, and provides official IPA/TIPA downloads with a new SHA-256.",
+      "compat": "Tag 30 carries Dopamine ranges for arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. RootHide's release note does not announce a wider matrix; exact device, firmware and installation path must still be verified.",
+      "description": "Verify Dopamine RootHide 3.0.13-30 downloads, device and iOS support, changes from release 29, safe update steps and troubleshooting.",
       "developer": "RootHide",
       "entry_type": "development",
       "href": "dopamine-roothide-3-x-integration-status/",
       "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
-      "media_alt": "Official Dopamine RootHide app icon from release 3.0.12-29",
-      "media_credit": "RootHide — exact app icon from official release 29 source tag",
+      "media_alt": "Official Dopamine RootHide app icon from release 3.0.13-30",
+      "media_credit": "RootHide — exact app icon from official release 30 source tag",
       "media_git_blob_sha": "74b017bf008532c15a92f1d8420fcc2bd44efae7",
-      "media_retrieval_status": "Exact official release 29 source icon retrieved, visually inspected, stored locally, embedded in the article and used in social metadata.",
+      "media_retrieval_status": "Official release 30 source icon retrieved and SHA-256 matched to the existing archived project icon; embedded in the article and social metadata.",
       "media_sha256": "572f64ad1e3c2b4b0809d53e769e88769d6292596d6a808fa113044fed7c0490",
-      "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/29/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "modified": "2026-10-29T21:00:00Z",
-      "modified_at": "2026-10-29T21:00:00Z",
-      "name": "Dopamine RootHide 3.0.12-29 release status",
+      "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified": "2026-11-06T21:05:00Z",
+      "modified_at": "2026-11-06T21:05:00Z",
+      "name": "Dopamine RootHide 3.0.13-30 release status",
       "package": "github.roothide.dopamine-roothide",
       "published_at": "2026-10-23T01:03:42Z",
       "quality_target": 9,
-      "release": "3.0.12-29 / tag 29 with official IPA and TIPA assets",
+      "release": "3.0.13-30 / tag 30 with official IPA and TIPA assets",
       "selection_pool": "scheduled-current-jailbreak-development",
       "slug": "dopamine-roothide-3-x-integration-status",
-      "source_name": "Official RootHide Dopamine-RootHide release 29, asset metadata, source tag and upstream Dopamine 3.0.12 release",
-      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/29",
+      "source_name": "Official RootHide release 30, asset metadata, tag comparison, carried support file and upstream Dopamine 3.0.13 release",
+      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/30",
       "source_url": "https://github.com/roothide/Dopamine-roothide",
-      "source_visual_origin": "official-release-29-source-tag-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/29/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "Dopamine RootHide 3.0.12-29 Fixes Messages Lag and Updates Sileo",
-      "version": "3.0.12-29"
+      "source_visual_origin": "official-release-30-source-tag-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Dopamine RootHide 3.0.13-30: Downloads, Support and Safe Update",
+      "version": "3.0.13-30"
     },
     {
       "additional_media": [
@@ -10622,8 +10622,19 @@
       "published_at": "2026-11-06T15:04:00+00:00",
       "run_id": "scheduled-2026-11-06T15:04:00Z",
       "version": "1.2.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "development.dopamine-roothide-3.0.13-30-2026-11-06",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "dopamine-roothide-3-x-integration-status/",
+      "package": "github.roothide.dopamine-roothide",
+      "previous_version": "3.0.12-29",
+      "published_at": "2026-11-06T21:05:00Z",
+      "run_id": "scheduled-2026-11-06T21:05:00Z",
+      "version": "3.0.13-30"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-06T15:04:00+00:00"
+  "updated_at": "2026-11-06T21:05:00Z"
 }
