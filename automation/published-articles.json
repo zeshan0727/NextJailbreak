@@ -4674,42 +4674,45 @@
     {
       "additional_media": [
         {
-          "credit": "Official Dopamine app icon from the 3.0.10 source tag",
-          "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
+          "credit": "RootHide — official Dopamine RootHide app icon from release 30",
+          "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
+          "source_url": "https://github.com/roothide/Dopamine-roothide/tree/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
         },
         {
-          "credit": "Official RootHide Bootstrap app icon",
+          "credit": "RootHide — official Bootstrap 2.2.1 app icon",
           "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
-          "source_url": "https://github.com/roothide/Bootstrap/blob/main/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
+          "source_url": "https://github.com/roothide/Bootstrap/blob/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
         }
       ],
       "category": {
         "id": "jailbreak-comparison",
         "label": "Jailbreak Comparison"
       },
-      "compat": "Dopamine: official chip-specific ranges; NathanLR: A12+ on 16.5.1–16.6.1, 16.7 RC and 17.0; RootHide Bootstrap: iOS 15.0–17.0 on A8–A17 Pro and M1/M2, subject to TrollStore",
-      "description": "Compare a full rootless jailbreak, an archived semi-jailbreak and the distinct RootHide environment by support, packages and current recommendation.",
-      "developer": "opa334; Nathan; RootHide team",
+      "compat": "Dopamine 3.0.13: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. Dopamine RootHide support must be verified separately. Bootstrap 2.2.2 is a migration notice; NathanLR covers 16.5.1–16.7 RC and 17.0.",
+      "description": "Compare Dopamine 3.0.13, Dopamine RootHide 3.0.13-30, the Bootstrap migration state and NathanLR by support, packages, hashes and switching risks.",
+      "developer": "opa334; RootHide team; Nathan",
       "entry_type": "roundup-comparison",
       "href": "dopamine-vs-nathanlr-vs-roothide-bootstrap/",
-      "image": "assets/articles/source-media/nathanlr-official-app-icon.png",
-      "media_credit": "Official NathanLR app icon from the project source repository",
-      "media_source_url": "https://github.com/verygenericname/nathanlr/blob/main/usprebooter/Assets.xcassets/AppIcon.appiconset/nathan.png",
-      "modified_at": "2026-10-05T09:00:14Z",
-      "name": "Dopamine vs NathanLR vs RootHide Bootstrap",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-07T08:57:56Z",
+      "name": "Dopamine vs Dopamine RootHide vs Bootstrap",
       "package": "comparison.dopamine-nathanlr-roothide",
       "published_at": "2026-10-05T09:00:14Z",
-      "release": "2026-10-05",
+      "release": "2026-11-07",
       "selection_pool": "official-project-comparison",
       "slug": "dopamine-vs-nathanlr-vs-roothide-bootstrap",
-      "source_name": "GitHub and iOS Guide",
-      "source_page_url": "https://ios.cfw.guide/installing-nathanlr/",
-      "source_url": "https://github.com/opa334/Dopamine",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/verygenericname/nathanlr/main/usprebooter/Assets.xcassets/AppIcon.appiconset/nathan.png",
-      "title": "Dopamine vs NathanLR vs RootHide Bootstrap: Which Should You Use?",
-      "version": "Dopamine 3.0.10 / NathanLR source 2.0.9 / RootHide Bootstrap 2.2.1"
+      "source_name": "Official Dopamine, Dopamine RootHide, RootHide Bootstrap and NathanLR GitHub sources",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-tagged-repository-assets",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "Dopamine vs Dopamine RootHide vs Bootstrap: Which Should You Use?",
+      "version": "Dopamine 3.0.13 / Dopamine RootHide 3.0.13-30 / Bootstrap 2.2.2 migration notice / NathanLR source",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc"
     },
     {
       "category": {
@@ -10647,5 +10650,18 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-07T02:57:22Z"
+  "updated_at": "2026-11-07T08:57:56Z",
+  "publication_events": [
+    {
+      "action": "update",
+      "candidate_fingerprint": "comparison.dopamine-3.0.13-roothide-3.0.13-30-bootstrap-migration-nathanlr-2026-11-07",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "dopamine-vs-nathanlr-vs-roothide-bootstrap/",
+      "package": "comparison.dopamine-nathanlr-roothide",
+      "previous_version": "Dopamine 3.0.10 / NathanLR source 2.0.9 / RootHide Bootstrap 2.2.1",
+      "published_at": "2026-11-07T08:57:56Z",
+      "run_id": "scheduled-2026-11-07T08:57:56Z",
+      "version": "Dopamine 3.0.13 / Dopamine RootHide 3.0.13-30 / Bootstrap 2.2.2 migration notice / NathanLR source"
+    }
+  ]
 }
