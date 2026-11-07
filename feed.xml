@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>MacStatusBar&amp;Dock 1.8.3 Adds Keyboard Window Tiling and KeyPilot Support</title>
+      <link>https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</guid>
+      <pubDate>Sat, 07 Nov 2026 14:57:20 GMT</pubDate>
+      <description>MacStatusBar&amp;Dock 1.8.3 adds macOS-style keyboard tiling, window APIs for KeyPilot and safer side-Dock behavior. Check the official repo, iPadOS support and recovery.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
       <title>Dopamine vs Dopamine RootHide vs Bootstrap: Which Should You Use?</title>
       <link>https://nextjailbreak.com/dopamine-vs-nathanlr-vs-roothide-bootstrap/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-vs-nathanlr-vs-roothide-bootstrap/</guid>
@@ -60,14 +68,6 @@
       <pubDate>Thu, 05 Nov 2026 20:55:00 GMT</pubDate>
       <description>Calif showed an iPhone 18 Pro with Lockdown Mode enabled, then updated it to iOS 27.2 with the jailbreak still present. What the demo proves, what it does not, and how to reduce AirDrop risk.</description>
       <category>Current Jailbreak Development</category>
-    </item>
-    <item>
-      <title>MacStatusBar&amp;Dock 1.7.9.2 Fixes Covered-Window Launches and Stage Manager Dragging</title>
-      <link>https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</guid>
-      <pubDate>Thu, 05 Nov 2026 15:00:00 GMT</pubDate>
-      <description>MacStatusBar&amp;Dock 1.7.9.2 fixes covered-window launches and Stage Manager drag conflicts. Check iPadOS 15–18 support, window engines and safe recovery.</description>
-      <category>Individual Tweak Update</category>
     </item>
     <item>
       <title>IconTweak2 vs AppData vs Apps Manager: Which App-Data Tool Should You Use?</title>
