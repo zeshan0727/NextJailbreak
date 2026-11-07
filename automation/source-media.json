@@ -1557,7 +1557,20 @@
           "sha256": "4e66e563b81cf2148f211dc8edb34031b55707a9d8d57b27865ce2518f2cdb54"
         }
       ]
+    },
+    "jailbreak.relaxin": {
+      "credit_label": "Relaxin team — official app icon from the verified 0.5.7 release IPA",
+      "source_page_url": "https://github.com/5hux1n/relaxin/releases/tag/v0.5.7",
+      "official_source": true,
+      "hero": {
+        "url": "https://github.com/5hux1n/relaxin/releases/download/v0.5.7/Relaxin-v0.5.7.ipa",
+        "alt": "Official Relaxin 0.5.7 application icon showing a black geometric R on a white rounded square",
+        "local_path": "assets/articles/source-media/relaxin-0-5-7-official-app-icon.png",
+        "git_blob_sha": "5d5ea3bd8050a788a053628ca757e148600de3ec",
+        "sha256": "ff452150765829fed294502bbf852a2ddbeaccc257184194cc91d4df5c46e7eb"
+      },
+      "screenshots": []
     }
   },
-  "updated_at": "2026-11-06T21:05:00Z"
+  "updated_at": "2026-11-08"
 }
