@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-esign",
+      "name": "esign 5.0.2",
+      "version": "5.0.2",
+      "build": "1",
+      "platform": "iPhone",
+      "minimumOS": "iOS 11.0+",
+      "bundleId": "com.nextsolution.esign",
+      "icon": "/install/icons/com-nextsolution-esign-4021e38e0deb.png",
+      "manifest": "/install/com-nextsolution-esign.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-esign/5.0.2/com-nextsolution-esign-5.0.2-1.ipa",
+      "sha256": "4021e38e0debaebc5d3e7f4ec6a5937ccb5f184a5a642f5454fc50343b54287b",
+      "sizeBytes": 7613476,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-mobilehousearrest",
       "name": "Filza Mod",
       "version": "4.0",
@@ -531,5 +552,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-11-05"
+  "updated": "2026-11-07"
 }
