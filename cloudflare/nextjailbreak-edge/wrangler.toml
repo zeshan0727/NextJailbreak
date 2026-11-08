@@ -2,6 +2,7 @@ name = "nextjailbreak-edge"
 main = "worker.js"
 compatibility_date = "2026-09-14"
 workers_dev = false
+triggers = { crons = ["0 * * * *"] }
 
 routes = [
   { pattern = "repo.nextjailbreak.com/*", zone_name = "nextjailbreak.com" },

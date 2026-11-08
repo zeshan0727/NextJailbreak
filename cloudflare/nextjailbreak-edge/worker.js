@@ -52,10 +52,97 @@ async function repoResponse(request) {
   return new Response(response.body, {status: response.status, headers: out});
 }
 
+// Private, opt-in location test. No location is collected on GET or page load.
+// The caller generates a 256-bit bearer capability and only its SHA-256 is stored.
+function locationJson(data, status, origin) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store, max-age=0',
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer',
+      ...cors(origin)
+    }
+  });
+}
+
+async function locationTestResponse(request, env, url, origin) {
+  const reply = (data, status=200) => locationJson(data, status, origin);
+  if (request.method !== 'POST') return reply({error:'Only POST is supported.'}, 405);
+  if (!ALLOWED_ORIGINS.has(origin) || !origin.startsWith('https://nextjailbreak.com') && !origin.startsWith('https://www.nextjailbreak.com')) {
+    return reply({error:'Origin is not permitted.'}, 403);
+  }
+  if (!env.COMMENTS) return reply({error:'Private test storage is not configured.'}, 503);
+  if (!(request.headers.get('Content-Type') || '').startsWith('application/json')) {
+    return reply({error:'JSON requests only.'}, 415);
+  }
+  let payload;
+  try {
+    const raw = await request.text();
+    if (raw.length > 2048) return reply({error:'Request too large.'}, 413);
+    payload = JSON.parse(raw);
+  } catch { return reply({error:'Invalid JSON.'}, 400); }
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return reply({error:'Invalid payload.'}, 400);
+
+  const id = String(payload.id || '');
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+    return reply({error:'Invalid test identifier.'}, 400);
+  }
+  // Opportunistic expiry cleanup; no unauthenticated retrieval/list endpoint exists.
+  await env.COMMENTS.prepare("DELETE FROM location_tests WHERE expires_at <= datetime('now')").run();
+
+  if (url.pathname === '/api/location-test/create') {
+    const tokenHash = String(payload.tokenHash || '').toLowerCase();
+    const latitude = Number(payload.latitude), longitude = Number(payload.longitude);
+    const accuracy = Number(payload.accuracyMeters);
+    if (payload.consent !== true || !/^[0-9a-f]{64}$/.test(tokenHash) ||
+      !Number.isFinite(latitude) || Math.abs(latitude)>90 ||
+      !Number.isFinite(longitude) || Math.abs(longitude)>180 ||
+      !Number.isFinite(accuracy) || accuracy < 0 || accuracy > 100000) {
+      return reply({error:'Coordinates and explicit consent are required.'}, 400);
+    }
+    // Conservative cap to limit storage abuse during the first private test.
+    const count = await env.COMMENTS.prepare(
+      "SELECT COUNT(*) AS total FROM location_tests WHERE created_at >= datetime('now', '-1 hour')"
+    ).first();
+    if (Number(count?.total || 0) >= 50) return reply({error:'Test capacity reached. Try again later.'}, 429);
+    const insert = await env.COMMENTS.prepare(
+      "INSERT OR IGNORE INTO location_tests(id,token_hash,latitude,longitude,accuracy_m,created_at,expires_at) VALUES(?,?,?,?,?,datetime('now'),datetime('now','+24 hours'))"
+    ).bind(id, tokenHash, latitude, longitude, accuracy).run();
+    if (!insert?.meta?.changes) return reply({error:'Duplicate test identifier.'}, 409);
+    return reply({ok:true,id,retentionHours:24}, 201);
+  }
+
+  const token = String(payload.token || '');
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return reply({error:'Private key required.'}, 401);
+  const tokenHash = await sha256(token);
+
+  if (url.pathname === '/api/location-test/read') {
+    const row = await env.COMMENTS.prepare(
+      "SELECT latitude,longitude,accuracy_m,created_at,expires_at FROM location_tests WHERE id=? AND token_hash=? AND expires_at>datetime('now')"
+    ).bind(id, tokenHash).first();
+    if (!row) return reply({error:'Record missing, expired, or private key invalid.'}, 404);
+    return reply({ok:true,location:{
+      latitude:row.latitude,longitude:row.longitude,accuracyMeters:row.accuracy_m,
+      createdAt:row.created_at,expiresAt:row.expires_at
+    }});
+  }
+  if (url.pathname === '/api/location-test/delete') {
+    const result = await env.COMMENTS.prepare(
+      "DELETE FROM location_tests WHERE id=? AND token_hash=?"
+    ).bind(id, tokenHash).run();
+    if (!result?.meta?.changes) return reply({error:'Record not found.'}, 404);
+    return reply({ok:true});
+  }
+  return reply({error:'Not found.'}, 404);
+}
+
 async function commentsResponse(request, env) {
   const url = new URL(request.url);
   const origin = request.headers.get('Origin') || '';
   if (request.method === 'OPTIONS') return new Response(null, {status:204, headers:cors(origin)});
+  if (url.pathname.startsWith('/api/location-test/')) return locationTestResponse(request, env, url, origin);
 
   if (request.method === 'GET' && url.pathname === '/api/comments') {
     const slug = String(url.searchParams.get('slug') || '').slice(0, 300);
@@ -103,6 +190,9 @@ async function commentsResponse(request, env) {
 }
 
 export default {
+  async scheduled(event, env, ctx) {
+    if (env.COMMENTS) ctx.waitUntil(env.COMMENTS.prepare("DELETE FROM location_tests WHERE expires_at <= datetime('now')").run());
+  },
   async fetch(request, env) {
     const host = new URL(request.url).hostname.toLowerCase();
     if (host === 'repo.nextjailbreak.com') return repoResponse(request);
