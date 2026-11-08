@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Change Mobile and Root Passwords on Dopamine 3.0.13</title>
+      <link>https://nextjailbreak.com/change-mobile-root-password-dopamine-jailbreak-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/change-mobile-root-password-dopamine-jailbreak-guide/</guid>
+      <pubDate>Sun, 08 Nov 2026 03:03:23 GMT</pubDate>
+      <description>Change mobile and root passwords safely on Dopamine 3.0.13, understand which credential sudo uses, and troubleshoot authentication without exposing secrets.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
       <title>Relaxin 0.5.7 Adds Experimental tvOS, visionOS and iOS 16.1 Support</title>
       <link>https://nextjailbreak.com/relaxin-0-5-4-jailbreak-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/relaxin-0-5-4-jailbreak-update/</guid>
@@ -28,6 +36,22 @@
       <pubDate>Sat, 07 Nov 2026 08:57:56 GMT</pubDate>
       <description>Compare Dopamine 3.0.13, Dopamine RootHide 3.0.13-30, the Bootstrap migration state and NathanLR by support, packages, hashes and switching risks.</description>
       <category>Jailbreak Comparison</category>
+    </item>
+    <item>
+      <title>How to Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30</title>
+      <link>https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</guid>
+      <pubDate>Sat, 07 Nov 2026 02:57:22 GMT</pubDate>
+      <description>Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30 safely: compatibility checks, official hashes, unbootstrap order and troubleshooting.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>Dopamine RootHide 3.0.13-30: Downloads, Support and Safe Update</title>
+      <link>https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</guid>
+      <pubDate>Fri, 06 Nov 2026 21:05:00 GMT</pubDate>
+      <description>Verify Dopamine RootHide 3.0.13-30 downloads, device and iOS support, changes from release 29, safe update steps and troubleshooting.</description>
+      <category>Current Jailbreak Development</category>
     </item>
     <item>
       <title>Deck 1.2.0 Adds Side-by-Side Control Center and Safer Close All Controls</title>
@@ -158,14 +182,6 @@
       <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
-      <title>How to Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30</title>
-      <link>https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</guid>
-      <pubDate>Sat, 07 Nov 2026 02:57:22 GMT</pubDate>
-      <description>Migrate safely with exact support checks, official release-30 hashes, the correct unbootstrap order and practical recovery steps.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
       <title>Horythia 1.1.2 Fixes Hide Jailbreak on iOS 17 and 18</title>
       <link>https://nextjailbreak.com/horythia-1-0-0-per-app-system-settings-automation/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/horythia-1-0-0-per-app-system-settings-automation/</guid>
@@ -227,38 +243,6 @@
       <guid isPermaLink="true">https://nextjailbreak.com/isponsorblock-1-3-3-youtube-player-crash-fix/</guid>
       <pubDate>Fri, 30 Oct 2026 15:00:00 GMT</pubDate>
       <description>iSponsorBlock 1.3.3 fixes sponsor-marker crashes on newer YouTube player bars. See supported YouTube/iOS versions, rootless requirements, setup and troubleshooting.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>Regram 6.5 vs Rocket 4.25.0: Which Instagram Tweak Should You Use?</title>
-      <link>https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/regram-vs-rocket-instagram-tweak-comparison/</guid>
-      <pubDate>Fri, 30 Oct 2026 09:00:00 GMT</pubDate>
-      <description>Regram 6.5 vs Rocket 4.25.0 compared: Instagram 452 support, iPhone Duo, privacy, downloads, RootHide, TrollStore and sideloading.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Audit and Repair Broken Jailbreak Packages with dpkg and Sileo</title>
-      <link>https://nextjailbreak.com/fix-sileo-dpkg-interrupted-package-manager-lock-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/fix-sileo-dpkg-interrupted-package-manager-lock-guide/</guid>
-      <pubDate>Fri, 30 Oct 2026 03:00:00 GMT</pubDate>
-      <description>Use dpkg --audit and --verify to diagnose broken jailbreak packages, then repair interrupted installs, dependencies or changed files safely through Sileo and APT.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Dopamine RootHide 3.0.13-30: Downloads, Support and Safe Update</title>
-      <link>https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</guid>
-      <pubDate>Fri, 06 Nov 2026 21:05:00 GMT</pubDate>
-      <description>Verify Dopamine RootHide 3.0.13-30 downloads, device and iOS support, changes from release 29, safe update steps and troubleshooting.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
-    <item>
-      <title>CamHop 1.0.0 Turns a Computer Webcam into an iPhone Camera</title>
-      <link>https://nextjailbreak.com/camhop-1-0-computer-webcam-iphone-camera/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/camhop-1-0-computer-webcam-iphone-camera/</guid>
-      <pubDate>Thu, 29 Oct 2026 15:00:00 GMT</pubDate>
-      <description>CamHop 1.0.0 streams a Mac or PC webcam and microphone to rootless iPhones and iPads on iOS 15–26.0.1. See setup, limits, privacy and fixes.</description>
       <category>Individual Tweak Update</category>
     </item>
   </channel>
