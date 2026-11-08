@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>How to Check Jailbreak Tweak Compatibility Before Installing</title>
+      <link>https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist/</guid>
+      <pubDate>Sun, 08 Nov 2026 21:02:19 GMT</pubDate>
+      <description>Check jailbreak tweak package compatibility across rootful, rootless and RootHide setups, including firmware, dependencies, app versions and recovery.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
       <title>Drift 1.1.0 Adds Dock Effects, Reflection and Floating Dock on iPhone</title>
       <link>https://nextjailbreak.com/drift-1-0-0-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/drift-1-0-0-update/</guid>
@@ -180,14 +188,6 @@
       <pubDate>Mon, 02 Nov 2026 09:00:00 GMT</pubDate>
       <description>Compare official Cydia 1.1.30, Sileo 2.5.1 and Zebra 1.1.37 by rootful and rootless support, current releases, features and safe migration.</description>
       <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Check Jailbreak Tweak Compatibility Before Installing</title>
-      <link>https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist/</guid>
-      <pubDate>Mon, 02 Nov 2026 03:00:00 GMT</pubDate>
-      <description>Check jailbreak tweak package compatibility across rootful, rootless and RootHide setups, including firmware, dependencies, app versions and recovery.</description>
-      <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
       <title>Horythia 1.1.2 Fixes Hide Jailbreak on iOS 17 and 18</title>

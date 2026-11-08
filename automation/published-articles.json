@@ -597,8 +597,8 @@
       "version": "Official Cydia 1.1.30; Sileo 2.5.1; Zebra 1.1.37"
     },
     {
-      "article_sha256": "6328e3cbae7931c350ee13263e624643896d097d3f2933cec8e83527ae31fd70",
-      "candidate_fingerprint": "evergreen-guide.tweak-compatibility-rootful-rootless-roothide-2026-11",
+      "article_sha256": "31db7a8e196f2b45d7adb8c7c809d8f6dd0f37e83d59f23a77e64aa8fb5506f8",
+      "candidate_fingerprint": "evergreen-guide.tweak-compatibility-dopamine-3.0.13-zebra-ios17.6-2026-11-09",
       "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
@@ -614,21 +614,21 @@
       "media_retrieval_status": "Reused the exact official 500×500 Theos project logo already registered and hash-verified in the source-media library; embedded in the canonical article. The crawler preview remains the site's established wide social card because the square source logo does not meet the site's social-preview aspect-ratio gate.",
       "media_sha256": "35b663fd1a747f7d8108caa2ffe6cddb334021c001d1da2cf72763125484dadb",
       "media_source_url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
-      "modified_at": "2026-11-02T03:00:00Z",
+      "modified_at": "2026-11-08T21:02:19Z",
       "name": "Jailbreak tweak compatibility checklist",
       "package": "editorial.compatibility-checklist",
       "published_at": "2026-09-10T09:29:47Z",
       "quality_target": 9,
-      "release": "Guide revision 2026-11-02; verified against Dopamine 3.0.12 and RootHide Patcher 2.1.4",
+      "release": "Guide revision 2026-11-09; verified against Dopamine 3.0.13 and RootHide Patcher 2.1.4",
       "selection_pool": "scheduled-evergreen-jailbreak-guide",
       "slug": "jailbreak-tweak-compatibility-checklist",
-      "source_name": "Official Theos packaging and rootless documentation, Dopamine 3.x README, RootHide Patcher 2.1.4 metadata and RootHide Packages index",
+      "source_name": "Official Theos packaging and rootless documentation, Dopamine 3.0.13 release and 3.x README, RootHide Patcher 2.1.4 metadata and RootHide Packages index",
       "source_page_url": "https://theos.dev/docs/packaging",
       "source_url": "https://theos.dev/docs/rootless",
       "source_visual_origin": "official-project-logo",
       "source_visual_url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
       "title": "How to Check Jailbreak Tweak Compatibility Before Installing",
-      "version": "Guide revision 2026-11-02"
+      "version": "Guide revision 2026-11-09 / Dopamine 3.0.13 / RootHide Patcher 2.1.4"
     },
     {
       "additional_media": [
@@ -10697,7 +10697,7 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-08T15:07:59Z",
+  "updated_at": "2026-11-08T21:02:19Z",
   "publication_events": [
     {
       "action": "update",
@@ -10764,6 +10764,17 @@
       "published_at": "2026-11-08T15:07:59Z",
       "run_id": "scheduled-2026-11-08T15:07:59Z",
       "version": "1.1.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "evergreen-guide.tweak-compatibility-dopamine-3.0.13-zebra-ios17.6-2026-11-09",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "jailbreak-tweak-compatibility-checklist/",
+      "package": "editorial.compatibility-checklist",
+      "previous_version": "Guide revision 2026-11-02",
+      "published_at": "2026-11-08T21:02:19Z",
+      "run_id": "scheduled-2026-11-08T21:02:19Z",
+      "version": "Guide revision 2026-11-09 / Dopamine 3.0.13 / RootHide Patcher 2.1.4"
     }
   ]
 }
