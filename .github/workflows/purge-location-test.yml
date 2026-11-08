@@ -14,16 +14,16 @@ jobs:
     steps:
       - name: Check Cloudflare credentials
         env:
-          TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
-          ACCOUNT: \${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          test -n "\${TOKEN:-}" && test -n "\${ACCOUNT:-}"
+          test -n "${TOKEN:-}" && test -n "${ACCOUNT:-}"
       - name: Install Wrangler
         run: npm install --global wrangler@latest
       - name: Remove expired records
         env:
-          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: \${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
           wrangler d1 list --json > /tmp/next-location-databases.json
