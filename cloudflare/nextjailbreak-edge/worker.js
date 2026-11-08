@@ -177,7 +177,7 @@ async function locationTestResponse(request, env, url, origin) {
     const device = payload.device === undefined ? null : normalizeDeviceSummary(payload.device);
     if (payload.device !== undefined && !device) return reply({error:'Invalid device summary.'},400);
     const batch = [env.COMMENTS.prepare(
-      "INSERT OR IGNORE INTO location_tests(id,token_hash,latitude,longitude,accuracy_m,created_at,expires_at) VALUES(?,?,?,?,?,datetime('now'),datetime('now','+24 hours'))"
+      "INSERT INTO location_tests(id,token_hash,latitude,longitude,accuracy_m,created_at,expires_at) VALUES(?,?,?,?,?,datetime('now'),datetime('now','+24 hours'))"
     ).bind(id, tokenHash, latitude, longitude, accuracy)];
     if (device) batch.push(env.COMMENTS.prepare(
       "INSERT INTO location_test_devices(id,summary_json) VALUES(?,?)"
