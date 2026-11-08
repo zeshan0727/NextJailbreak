@@ -316,29 +316,37 @@
       "version": "Dopamine 3.0.13"
     },
     {
+      "article_sha256": "b74be09a2e0320463984f7a9ee3962779aba59b9f48e62dea98043bc3346c7c5",
+      "candidate_fingerprint": "individual-update.drift-1.1.0-effects-reflection-floating-dock-2026-11-08",
       "category": {
-        "id": "system-utilities",
-        "label": "System & Utilities"
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
       },
-      "description": "Drift 1.0.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
-      "entry_type": "source-news",
+      "compat": "Jailbroken iPhone, iPad and iPod touch on iOS 15.0–26.0; official source does not provide a jailbreak-by-jailbreak environment matrix",
+      "description": "Drift 1.1.0 adds new dock edge and scroll effects, reflection, a position indicator and Floating Dock on iPhone. Check iOS 15–26 support and fixes.",
+      "developer": "Antony .M",
+      "entry_type": "individual-update",
       "href": "drift-1-0-0-update/",
       "image": "assets/articles/source-media/drift-1-0-0-update-702c52ab05.jpg",
-      "media_credit": "Source visual from chariz.com",
+      "media_alt": "Official Drift promotional banner showing a wide iOS dock filled with app icons",
+      "media_credit": "Official Drift promotional banner from Antony .M’s Chariz listing",
+      "media_git_blob_sha": "4dc4b414342aca9aa926ebf2b9af19638b268169",
+      "media_sha256": "64a4e2e87b5fdbc94b03fe20e794c34667954132f4a47cdb1cdd4e7d60c0de11",
       "media_source_url": "https://chariz.com/buy/drift",
-      "modified_at": "2026-11-04T23:22:04+00:00",
+      "modified_at": "2026-11-08T15:07:59Z",
       "name": "Drift",
       "package": "com.antonym.drift",
       "published_at": "2026-11-04T23:22:04+00:00",
       "quality_target": 9,
-      "selection_pool": "ios-repo-discovery-original-source",
-      "source_name": "repo.chariz.com",
-      "source_page_url": "https://repo.chariz.com/Packages",
-      "source_url": "https://repo.chariz.com/Packages",
+      "release": "2026-11-05T06:32:11.030Z",
+      "selection_pool": "official-source-individual-tweak-update",
+      "source_name": "Official Chariz Drift listing and release feed",
+      "source_page_url": "https://chariz.com/buy/drift",
+      "source_url": "https://chariz.com/buy/drift",
       "source_visual_origin": "og:image",
       "source_visual_url": "https://img.chariz.cloud/sileo-banner/drift.jpg",
-      "title": "Drift 1.0.0 Expands the iOS Dock to Hold up to 50 Apps and Folders",
-      "version": "1.0.0"
+      "title": "Drift 1.1.0 Adds Dock Effects, Reflection and Floating Dock on iPhone",
+      "version": "1.1.0"
     },
     {
       "additional_media": [],
@@ -10689,7 +10697,7 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-08T09:00:57Z",
+  "updated_at": "2026-11-08T15:07:59Z",
   "publication_events": [
     {
       "action": "update",
@@ -10745,6 +10753,17 @@
       "published_at": "2026-11-08T09:00:57Z",
       "run_id": "scheduled-2026-11-08T09:00:57Z",
       "version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3.1"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "individual-update.drift-1.1.0-effects-reflection-floating-dock-2026-11-08",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "drift-1-0-0-update/",
+      "package": "com.antonym.drift",
+      "previous_version": "1.0.0",
+      "published_at": "2026-11-08T15:07:59Z",
+      "run_id": "scheduled-2026-11-08T15:07:59Z",
+      "version": "1.1.0"
     }
   ]
 }

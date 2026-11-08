@@ -1591,6 +1591,20 @@
       ],
       "retrieval_note": "Previously retrieved from the exact official project repository assets, inspected locally and reused for the updated comparison."
     },
+    "com.antonym.drift": {
+      "credit_label": "Antony .M — official Drift promotional banner from the Chariz developer listing",
+      "source_page_url": "https://chariz.com/buy/drift",
+      "official_source": true,
+      "hero": {
+        "url": "https://img.chariz.cloud/sileo-banner/drift.jpg",
+        "alt": "Official Drift promotional banner showing a wide iOS dock filled with app icons",
+        "local_path": "assets/articles/source-media/drift-1-0-0-update-702c52ab05.jpg",
+        "git_blob_sha": "4dc4b414342aca9aa926ebf2b9af19638b268169",
+        "sha256": "64a4e2e87b5fdbc94b03fe20e794c34667954132f4a47cdb1cdd4e7d60c0de11"
+      },
+      "screenshots": [],
+      "retrieval_note": "Retrieved from the official Chariz og:image URL, re-downloaded on November 8, 2026 and verified byte-for-byte against the committed 1920×1080 JPEG."
+    },
     "jailbreak.relaxin": {
       "credit_label": "Relaxin team — official app icon from the verified 0.5.7 release IPA",
       "source_page_url": "https://github.com/5hux1n/relaxin/releases/tag/v0.5.7",
