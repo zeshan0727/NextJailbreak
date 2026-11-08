@@ -1,0 +1,122 @@
+name: NEXT REA Inspector - Build IPA to NS Transfer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'NextREAInspector/**'
+      - '.github/workflows/build-nextrea-inspector.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: next-rea-inspector-v010
+  cancel-in-progress: false
+
+jobs:
+  build-publish:
+    runs-on: macos-15
+    timeout-minutes: 35
+    env:
+      FILE_NAME: NEXT-REA-Inspector-0.1.0-1.ipa
+      BUNDLE_ID: uk.zeshanbarvi.nextreainspector
+      VERSION: '0.1.0'
+      BUILD: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Generate Xcode project
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          (cd NextREAInspector && xcodegen generate --spec project.yml)
+          test -f NextREAInspector/NEXTREAInspector.xcodeproj/project.pbxproj
+
+      - name: Build real iOS IPA
+        run: |
+          set -euo pipefail
+          xcodebuild -project NextREAInspector/NEXTREAInspector.xcodeproj \
+            -scheme NEXTREAInspector -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/rea-build" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY='' clean build
+          APP="$RUNNER_TEMP/rea-build/Build/Products/Release-iphoneos/NEXTREAInspector.app"
+          test -s "$APP/NEXTREAInspector"
+          INFO="$APP/Info.plist"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$INFO")" = "$BUNDLE_ID"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$INFO")" = "$VERSION"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$INFO")" = "$BUILD"
+          codesign --force --sign - --timestamp=none --generate-entitlement-der "$APP"
+          codesign --verify "$APP"
+          mkdir -p "$RUNNER_TEMP/rea-package/Payload" NextREAInspector/build-output
+          ditto "$APP" "$RUNNER_TEMP/rea-package/Payload/NEXTREAInspector.app"
+          (cd "$RUNNER_TEMP/rea-package" && zip -qry "$RUNNER_TEMP/$FILE_NAME" Payload)
+          unzip -tqq "$RUNNER_TEMP/$FILE_NAME"
+          shasum -a 256 "$RUNNER_TEMP/$FILE_NAME" > "$RUNNER_TEMP/$FILE_NAME.sha256"
+          cp "$RUNNER_TEMP/$FILE_NAME" "$RUNNER_TEMP/$FILE_NAME.sha256" NextREAInspector/build-output/
+          echo 'IPA compiled and ad-hoc signed for TrollStore/jailbroken devices.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEXT-REA-Inspector-0.1.0-IPA
+          path: |
+            NextREAInspector/build-output/NEXT-REA-Inspector-0.1.0-1.ipa
+            NextREAInspector/build-output/NEXT-REA-Inspector-0.1.0-1.ipa.sha256
+          if-no-files-found: error
+
+      - name: Publish to NS Transfer
+        if: github.ref == 'refs/heads/main'
+        env:
+          RELEASE_DIR: transfer/files/NEXTREAInspector/0.1.0
+        run: |
+          set -euo pipefail
+          for ATTEMPT in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p "$RELEASE_DIR"
+            cp "$RUNNER_TEMP/$FILE_NAME" "$RELEASE_DIR/$FILE_NAME"
+            SHA256=$(shasum -a 256 "$RELEASE_DIR/$FILE_NAME" | awk '{print $1}')
+            SIZE=$(stat -f%z "$RELEASE_DIR/$FILE_NAME")
+            export SHA256 SIZE
+            python3 - <<'PY'
+          import os,json
+          from datetime import datetime,timezone
+          from pathlib import Path
+          p=Path('transfer/index.json')
+          d=json.loads(p.read_text())
+          entry={
+            'id':'next-rea-inspector-0.1.0-test',
+            'name':'NEXT REA Inspector 0.1.0 - First Test',
+            'fileName':'NEXT-REA-Inspector-0.1.0-1.ipa',
+            'type':'ipa',
+            'platform':'iOS 16+ / TrollStore or jailbroken device (ad-hoc signed)',
+            'version':'0.1.0 (1)',
+            'url':'https://nextjailbreak.com/transfer/files/NEXTREAInspector/0.1.0/NEXT-REA-Inspector-0.1.0-1.ipa',
+            'sha256':os.environ['SHA256'],
+            'sizeBytes':int(os.environ['SIZE']),
+            'notes':'Read-only LaunchServices app discovery where allowed, metadata JSON export and IPA handoff for Mac REA analysis. Not Apple Distribution signed.'
+          }
+          d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
+          d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n')
+          PY
+            python3 -m json.tool transfer/index.json >/dev/null
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -f "$RELEASE_DIR/$FILE_NAME" transfer/index.json
+            if ! git diff --cached --quiet; then
+              git commit -m 'Publish NEXT REA Inspector 0.1.0 IPA'
+            fi
+            if git push origin HEAD:main; then
+              echo "Published NS Transfer: https://nextjailbreak.com/$RELEASE_DIR/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          done
+          exit 1
