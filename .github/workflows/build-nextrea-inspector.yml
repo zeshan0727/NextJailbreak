@@ -33,6 +33,9 @@ jobs:
       - name: Generate Xcode project
         run: |
           set -euo pipefail
+          # The master NEXT icon is 512x512; iOS universal app icons need 1024x1024.
+          sips -z 1024 1024 NextREAInspector/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png >/dev/null
+          test "$(sips -g pixelWidth NextREAInspector/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png | awk '/pixelWidth/ {print $2}')" = 1024
           brew install xcodegen
           (cd NextREAInspector && xcodegen generate --spec project.yml)
           test -f NextREAInspector/NEXTREAInspector.xcodeproj/project.pbxproj
