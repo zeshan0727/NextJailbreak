@@ -70,7 +70,8 @@ jobs:
                   continue
 
               rel = path.as_posix().lstrip('./')
-              if rel.startswith('accountants/'):
+              # Private consent/location pages must never receive third-party analytics.
+              if rel.startswith('accountants/') or rel.startswith('location-test/'):
                   try:
                       original = path.read_text(encoding='utf-8')
                   except UnicodeDecodeError:
