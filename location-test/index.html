@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1524">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://comments.nextjailbreak.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>NEXT Jailbreak | Private Location Test</title>
+<style>
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#07111e;color:#eaf1fc}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#17314b 0%,#07111e 60%);padding:22px 15px 70px}
+main{max-width:640px;margin:35px auto}.brand{display:flex;align-items:center;gap:11px;margin-bottom:35px;letter-spacing:.05em;font-weight:800;font-size:15px}
+.mark{width:40px;height:40px;background:#e7f4ff;color:#0a192b;border-radius:12px;display:grid;place-items:center;font-size:20px;font-weight:900}
+.kicker{font-size:12px;font-weight:700;color:#7dbbe7;letter-spacing:.15em;text-transform:uppercase;margin:0 0 13px}
+h1{font-size:clamp(29px,5vw,42px);letter-spacing:-.045em;margin:0 0 12px;line-height:1.08}
+.lede{color:#b8c8d8;line-height:1.6;font-size:15px;margin:0 0 28px}
+.panel{background:rgba(17,33,51,.95);border:1px solid #304660;border-radius:20px;padding:24px 22px;box-shadow:0 18px 45px rgba(0,0,0,.18)}
+h2{font-size:18px;margin:0 0 10px}p{margin:0 0 18px;color:#beccdb;line-height:1.55;font-size:14px}
+button{appearance:none;border:0;border-radius:12px;padding:13px 16px;font-size:14px;font-weight:730;cursor:pointer}
+button.primary{background:#8ed0ff;color:#062039}button.secondary{background:#233a53;color:#eaf1fc;border:1px solid #455d77}
+button:disabled{cursor:not-allowed;opacity:.38}.actions{display:flex;gap:10px;flex-wrap:wrap}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #37516a;background:#0a1a2a;border-radius:14px;padding:15px;color:#eff8ff;font:600 14px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;margin:15px 0}
+label.check{display:flex;align-items:flex-start;gap:10px;margin:17px 0;color:#ced9e7;font-size:13px;line-height:1.45}input[type=checkbox]{margin-top:2px;width:18px;height:18px;accent-color:#8ed0ff;flex-shrink:0}
+.notice{font-size:12px;color:#a7bdd0;border-top:1px solid #34495f;padding-top:16px;margin-top:22px;line-height:1.6}
+#status{margin-top:18px;min-height:22px;font-size:13px;color:#b9cddd;line-height:1.5}
+#status.error{color:#ffbdad}#status.ok{color:#a8e8c1}
+.code{font:500 12px ui-monospace,monospace;overflow-wrap:anywhere;padding:12px;background:#0a1a2a;border:1px solid #30475d;border-radius:12px;color:#cbdcec;margin:13px 0}
+footer{margin-top:24px;color:#8197ad;font-size:12px;line-height:1.65}
+a{color:#b5ddfb} [hidden]{display:none!important}
+@media (prefers-color-scheme:light){:root{color-scheme:light;background:#f6f9fc;color:#14263a}body{background:linear-gradient(#e4eff8,#f6f9fc 60%)}.mark{background:#102b44;color:#fff}.kicker{color:#216f9d}.lede,p{color:#486176}.panel{background:#fff;border-color:#d8e3ee;box-shadow:0 12px 35px #122e4610}.primary{color:#0b2236}.notice{color:#5e7287;border-color:#dce4eb}pre,.code{background:#eef4f9;color:#163247;border-color:#d4e3ed}.check{color:#374f65!important}#status{color:#415f77}button.secondary{background:#e9f2fa;color:#14324b;border-color:#cadae5}footer{color:#5f788c}}
+</style>
+</head>
+<body><main>
+<div class="brand"><div class="mark">N</div><span>NEXT JAILBREAK</span></div>
+<p class="kicker">Private research / Test 01</p>
+<h1>Device Location Test</h1>
+<p class="lede">Test GPS permissions on your own device. Opening the PDF or this page does not collect or send your location. Only the two actions below can do that.</p>
+<section class="panel" id="capture">
+  <h2>1. Request your location</h2>
+  <p>Your browser will ask for permission. The coordinates will first appear only on your screen; no location data is sent to the website at this stage.</p>
+  <button class="primary" id="getLocation">Get my location</button>
+  <div id="preview" hidden><pre id="previewText"></pre>
+    <label class="check"><input type="checkbox" id="agree"><span>I am sharing the location of my own device. I consent to uploading these GPS coordinates to NEXT Jailbreak for this test. I understand they can be viewed using the private link and will expire after 24 hours.</span></label>
+    <button class="primary" id="submit" disabled>2. Submit to private test space</button>
+  </div>
+</section>
+<section class="panel" id="result" hidden>
+  <h2 id="resultTitle">Private test result</h2>
+  <p id="resultDescription">Anyone who has your private link can view this test result until it expires. Do not share the link with others.</p>
+  <pre id="resultText">Loading...</pre>
+  <div class="actions">
+    <button class="primary" id="copyLink">Copy private result link</button>
+    <button class="secondary" id="copyCoords">Copy coordinates</button>
+    <button class="secondary" id="delete">Delete test result</button>
+  </div>
+  <p class="notice">The private access key is in the link fragment after #. Your browser does not transmit that part of the link when opening this page. The page uses it to request the saved record securely.</p>
+</section>
+<div id="status" role="status" aria-live="polite"></div>
+<footer>
+  <strong>Privacy by design.</strong> No background tracking, no location permissions on PDF open, no public results list, no device identifiers collected. Coordinates are sent only after your explicit confirmation. Records expire after 24 hours and can be deleted sooner.<br>
+  <a href="https://nextjailbreak.com/">NEXT Jailbreak home</a>
+</footer>
+</main>
+<script>
+"use strict";
+const api="https://comments.nextjailbreak.com/api/location-test";
+const $=id=>document.getElementById(id);
+let position=null, testId="", accessKey="";
+function status(message,kind=""){ $("status").textContent=message; $("status").className=kind; }
+function format(latitude,longitude,accuracy){
+  return "Latitude:  "+Number(latitude).toFixed(6)+"\nLongitude: "+Number(longitude).toFixed(6)+"\nAccuracy:  +/- "+Math.round(Number(accuracy))+" meters";
+}
+function b64url(bytes){return btoa(String.fromCharCode(...bytes)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+async function hashKey(value){
+  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(buf)).map(n=>n.toString(16).padStart(2,"0")).join("");
+}
+async function request(path,body){
+  const res=await fetch(api+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),cache:"no-store",credentials:"omit",referrerPolicy:"no-referrer"});
+  let data={};try{data=await res.json();}catch{}
+  if(!res.ok||!data.ok)throw new Error(data.error||"Server unavailable ("+res.status+").");
+  return data;
+}
+function viewUrl(){return location.origin+location.pathname+"#"+testId+"."+accessKey;}
+async function copy(value){
+  if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(value);
+  else window.prompt("Copy this text:",value);
+}
+function viewMode(){
+  $("capture").hidden=true;$("result").hidden=false;
+  $("resultText").textContent="Loading private result...";
+}
+async function read(){
+  if(!testId||!accessKey)return;
+  viewMode();
+  try{
+    const out=await request("/read",{id:testId,token:accessKey});
+    $("resultText").textContent=format(out.location.latitude,out.location.longitude,out.location.accuracyMeters)+"\nSaved: "+out.location.createdAt+" UTC\nExpires: "+out.location.expiresAt+" UTC";
+    status("Private record retrieved successfully.","ok");
+  }catch(err){$("resultText").textContent="Private result could not be loaded.";status(err.message,"error");}
+}
+$("getLocation").addEventListener("click",()=>{
+  if(!navigator.geolocation){status("Location access is unavailable. Open this page in Safari over HTTPS.","error");return;}
+  $("getLocation").disabled=true;
+  status("Requesting your device's location permission...");
+  navigator.geolocation.getCurrentPosition(
+    p=>{
+      position={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracyMeters:p.coords.accuracy};
+      $("previewText").textContent=format(position.latitude,position.longitude,position.accuracyMeters);
+      $("preview").hidden=false;
+      $("getLocation").disabled=false;
+      status("Location obtained locally. Nothing has been uploaded yet.","ok");
+    },
+    e=>{$("getLocation").disabled=false;status("Location not available: "+e.message+". Check browser and Location Services permissions.","error");},
+    {enableHighAccuracy:true,maximumAge:0,timeout:18000}
+  );
+});
+$("agree").addEventListener("change",()=>{$("submit").disabled=!position||!$("agree").checked;});
+$("submit").addEventListener("click",async()=>{
+  if(!position||!$("agree").checked)return;
+  if(!confirm("Send these coordinates to NEXT Jailbreak's private test storage for up to 24 hours?"))return;
+  $("submit").disabled=true;status("Submitting coordinates with your permission...");
+  try{
+    testId=crypto.randomUUID();
+    accessKey=b64url(crypto.getRandomValues(new Uint8Array(32)));
+    const tokenHash=await hashKey(accessKey);
+    await request("/create",{id:testId,tokenHash,latitude:position.latitude,longitude:position.longitude,accuracyMeters:position.accuracyMeters,consent:true});
+    window.history.replaceState(null,"",viewUrl());
+    $("resultTitle").textContent="Test submitted";
+    $("resultDescription").textContent="Your location was saved privately. Copy the link to view it on your PC. Anyone with this link can access this one record.";
+    viewMode();
+    await read();
+  }catch(e){status("Submission failed: "+e.message,"error");$("submit").disabled=false;accessKey="";testId="";}
+});
+$("copyLink").addEventListener("click",()=>copy(viewUrl()).then(()=>status("Private link copied. Keep it confidential.","ok")).catch(e=>status(e.message,"error")));
+$("copyCoords").addEventListener("click",()=>{
+  const lines=$("resultText").textContent.split("\n").slice(0,3).join("\n");
+  copy(lines).then(()=>status("Coordinates copied.","ok")).catch(e=>status(e.message,"error"));
+});
+$("delete").addEventListener("click",async()=>{
+  if(!confirm("Permanently delete this saved location?"))return;
+  try{await request("/delete",{id:testId,token:accessKey});history.replaceState(null,"",location.pathname);accessKey="";testId="";$("resultText").textContent="Deleted."; $("copyLink").disabled=true;$("copyCoords").disabled=true;$("delete").disabled=true; status("Saved location deleted.","ok");}
+  catch(e){status(e.message,"error");}
+});
+const fragment=decodeURIComponent(location.hash.slice(1));
+const match=fragment.match(/^([0-9a-f-]{36})\.([A-Za-z0-9_-]{43})$/i);
+if(match){testId=match[1];accessKey=match[2];read();}
+</script>
+</body></html>
