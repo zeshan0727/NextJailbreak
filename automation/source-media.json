@@ -1558,6 +1558,39 @@
         }
       ]
     },
+    "comparison.ipa-installers": {
+      "credit_label": "opa334, SideStore and AltStore LLC — official project app icons",
+      "source_page_url": "https://github.com/SideStore/SideStore/releases/tag/0.7.0-alpha",
+      "secondary_source_page_urls": [
+        "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+        "https://github.com/altstoreio/FAQ/blob/main/release-notes/altstore.md"
+      ],
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/SideStore/SideStore/develop/AltStore/Resources/Assets.xcassets/SideStore.imageset/1024.png",
+        "alt": "Official SideStore app icon from the SideStore project repository",
+        "local_path": "assets/articles/source-media/sidestore-official-icon.webp",
+        "git_blob_sha": "2e8f5754e38d0f11a3cf897ff03eafaebb11331d",
+        "sha256": "1743159d73bfd9934c204e63376f6591d4ac3ff1fc2ac28ac331abc8dc64dcb4"
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/altstoreio/AltStore/develop/AltStore/Resources/Assets.xcassets/AppIcon.appiconset/Group%2023.png",
+          "alt": "Official AltStore Classic app icon from the AltStore project repository",
+          "local_path": "assets/articles/source-media/altstore-classic-official-icon.webp",
+          "git_blob_sha": "3c6b3c9d0104cbb84d57d9739831962b527c7c1c",
+          "sha256": "d71084f6fc913913b773303b934a4021f2327baf841d6f58013464dba5306595"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+          "alt": "Official TrollStore app icon from the 2.1.1 tagged source",
+          "local_path": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+          "git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+          "sha256": "1bb8e87576d24e72befa2d49e1bc9d0e4acfc671143520071aa27e0e2d7a2361"
+        }
+      ],
+      "retrieval_note": "Previously retrieved from the exact official project repository assets, inspected locally and reused for the updated comparison."
+    },
     "jailbreak.relaxin": {
       "credit_label": "Relaxin team — official app icon from the verified 0.5.7 release IPA",
       "source_page_url": "https://github.com/5hux1n/relaxin/releases/tag/v0.5.7",

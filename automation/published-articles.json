@@ -4928,31 +4928,33 @@
           "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png"
         }
       ],
+      "article_sha256": "cc8cf91759ee87a0d5906121d2406223ef469c2bd8d4cd161aec309eb0c5f18c",
       "category": {
         "id": "ipa-comparison",
         "label": "IPA Installer Comparison"
       },
-      "compat": "TrollStore: iOS/iPadOS 14.0 beta 2–16.6.1, 16.7 RC (20H18), 17.0; SideStore: iOS 14+; AltStore Classic 2.3: iOS 17.4+",
-      "description": "Compare TrollStore 2.1.1, SideStore 0.7.0-alpha and AltStore Classic 2.3 by iOS support, refresh rules, setup, computer use and signing limits.",
+      "candidate_fingerprint": "comparison.trollstore-2.1.1-sidestore-0.7.0-alpha-altstore-classic-2.3.1-2026-11-08",
+      "compat": "TrollStore: iOS/iPadOS 14.0 beta 2–16.6.1, 16.7 RC (20H18), 17.0; SideStore: iOS 14+; AltStore Classic 2.3.1: iOS 17.4+",
+      "description": "Compare TrollStore 2.1.1, SideStore 0.7.0-alpha and AltStore Classic 2.3.1 by iOS support, refresh rules, setup, signing limits and current fixes.",
       "developer": "opa334, SideStore, AltStore LLC",
       "entry_type": "roundup-comparison",
       "href": "trollstore-vs-sidestore-vs-altstore/",
       "image": "assets/articles/source-media/sidestore-official-icon.webp",
       "media_credit": "Official SideStore and AltStore Classic app icons from their project repositories; official TrollStore app icon by opa334",
       "media_source_url": "https://github.com/SideStore/SideStore/blob/develop/AltStore/Resources/Assets.xcassets/SideStore.imageset/1024.png",
-      "modified_at": "2026-10-03T09:00:33Z",
+      "modified_at": "2026-11-08T09:00:57Z",
       "name": "TrollStore vs SideStore vs AltStore Classic",
       "published_at": "2026-10-03T09:00:33Z",
-      "release": "2026-09-30",
+      "release": "2026-10-21",
       "selection_pool": "official-project-comparison",
       "slug": "trollstore-vs-sidestore-vs-altstore",
-      "source": "https://github.com/altstoreio/AltStore/releases/tag/v2.3",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/altstoreio/AltStore/releases/tag/v2.3",
+      "source": "https://github.com/altstoreio/FAQ/blob/main/release-notes/altstore.md",
+      "source_name": "Official AltStore release notes",
+      "source_page_url": "https://github.com/altstoreio/FAQ/blob/main/release-notes/altstore.md",
       "source_visual_origin": "official-repository-assets",
       "source_visual_url": "https://raw.githubusercontent.com/SideStore/SideStore/develop/AltStore/Resources/Assets.xcassets/SideStore.imageset/1024.png",
-      "title": "TrollStore vs SideStore vs AltStore Classic: Which IPA Installer Should You Use?",
-      "version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3"
+      "title": "TrollStore vs SideStore vs AltStore Classic 2.3.1: Which IPA Installer Should You Use?",
+      "version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3.1"
     },
     {
       "category": {
@@ -10687,7 +10689,7 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-08T03:03:23Z",
+  "updated_at": "2026-11-08T09:00:57Z",
   "publication_events": [
     {
       "action": "update",
@@ -10732,6 +10734,17 @@
       "published_at": "2026-11-08T03:03:23Z",
       "run_id": "scheduled-2026-11-08T03:03:23Z",
       "version": "Dopamine 3.0.13"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "comparison.trollstore-2.1.1-sidestore-0.7.0-alpha-altstore-classic-2.3.1-2026-11-08",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "trollstore-vs-sidestore-vs-altstore/",
+      "package": "comparison.ipa-installers",
+      "previous_version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3",
+      "published_at": "2026-11-08T09:00:57Z",
+      "run_id": "scheduled-2026-11-08T09:00:57Z",
+      "version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3.1"
     }
   ]
 }
