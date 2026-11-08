@@ -1,0 +1,46 @@
+name: Purge expired private location tests
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check Cloudflare credentials
+        env:
+          TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: \${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "\${TOKEN:-}" && test -n "\${ACCOUNT:-}"
+      - name: Install Wrangler
+        run: npm install --global wrangler@latest
+      - name: Remove expired records
+        env:
+          CLOUDFLARE_API_TOKEN: \${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: \${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          wrangler d1 list --json > /tmp/next-location-databases.json
+          DB_ID=$(python3 - <<'PY'
+          import json
+          data = json.load(open('/tmp/next-location-databases.json'))
+          print(next((x.get('uuid') or x.get('id') or '') for x in data if x.get('name') == 'nextjailbreak-comments'), end='')
+          PY
+          )
+          test -n "$DB_ID"
+          cat > /tmp/next-location-retention.toml <<EOF
+          name = "nextjailbreak-location-retention"
+          compatibility_date = "2026-09-14"
+
+          [[d1_databases]]
+          binding = "COMMENTS"
+          database_name = "nextjailbreak-comments"
+          database_id = "$DB_ID"
+          EOF
+          wrangler d1 execute nextjailbreak-comments --remote --command="DELETE FROM location_tests WHERE expires_at <= datetime('now')" --config=/tmp/next-location-retention.toml --yes
