@@ -26,3 +26,10 @@ CREATE TABLE IF NOT EXISTS location_tests (
   expires_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_location_tests_expiry ON location_tests(expires_at);
+
+-- Non-sensitive browser-provided device summary, collected with explicit consent.
+-- Existing v1 rows remain valid and simply show no device summary.
+CREATE TABLE IF NOT EXISTS location_test_devices (
+  id TEXT PRIMARY KEY,
+  summary_json TEXT NOT NULL
+);

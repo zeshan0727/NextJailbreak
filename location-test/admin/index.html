@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#071421">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://comments.nextjailbreak.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>NEXT Jailbreak | Private Test Records</title>
+<style>
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#071421;color:#ebf5ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 40% 0%,#173249 0%,#071421 65%);min-height:100vh;padding:25px 16px 50px}
+main{max-width:960px;margin:15px auto}.brand{font-size:13px;letter-spacing:.1em;font-weight:800;color:#8acaf2;margin:0 0 30px}
+h1{font-size:clamp(28px,5vw,39px);letter-spacing:-.04em;margin:0 0 10px}
+.lead{font-size:14px;line-height:1.6;color:#b4c6d8;max-width:660px;margin:0 0 27px}
+.panel{background:#102234;border:1px solid #31506b;border-radius:19px;padding:22px;margin:14px 0}
+h2{font-size:17px;margin:0 0 12px}.sub{font-size:12px;color:#a3b9ce;line-height:1.55}
+input[type=password]{background:#081827;border:1px solid #4d6881;border-radius:11px;color:#edf7ff;padding:13px;font-size:15px;max-width:420px;width:100%;margin:8px 0 13px}
+button{font:650 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;border:0;border-radius:10px;padding:12px 16px;cursor:pointer}
+button.primary{background:#9bd4ff;color:#0b273c}button.secondary{background:#203b51;color:#eaf5ff;border:1px solid #405e77}button.danger{background:#5c2935;color:#fff2f3;border:1px solid #9e455b}
+button:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#sessions{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:11px}
+.session{display:flex;flex-direction:column;gap:6px;text-align:left;width:100%;border:1px solid #42617d;border-radius:12px;background:#172e44;color:#e9f5ff;padding:16px}
+.session:hover,.session:focus-visible{border-color:#8ed0ff;outline:none}.session strong{font-size:15px}.session span{font-size:12px;color:#b1c5d7}
+dl{display:grid;grid-template-columns:minmax(110px,1fr) minmax(150px,2fr);gap:12px 18px;margin:10px 0 22px;font-size:14px;overflow-wrap:anywhere}
+dt{color:#91b6d0}dd{margin:0;white-space:pre-wrap;font-weight:500}
+#status{font-size:13px;line-height:1.5;min-height:24px;color:#bfd2e2;margin:18px 0}
+#status.bad{color:#ffb8b8}#status.good{color:#a7e9c6}
+a{color:#b1ddfa} [hidden]{display:none!important}
+footer{font-size:12px;line-height:1.65;color:#8ea5bb;padding-top:22px;border-top:1px solid #29445b}
+@media(prefers-color-scheme:light){:root{color-scheme:light;color:#112c43;background:#f4f8fc}body{background:linear-gradient(#eaf5fc,#f4f8fc)}.lead,.sub{color:#4c667c}.panel{background:#fff;border-color:#d4e0ec}.session{background:#eff6fc;color:#15344d;border-color:#ccdeea}.session span{color:#4d6c83}input[type=password]{background:#f5f9fd;color:#17344b;border-color:#a8c3d8}.secondary{background:#e6f2fc!important;color:#183953!important}.brand{color:#216a97}dt{color:#496b84}footer{color:#617d94;border-color:#d2e1eb}#status{color:#3c5b72}}
+</style>
+</head>
+<body><main>
+<div class="brand">N / NEXT JAILBREAK — PRIVATE RESEARCH</div>
+<h1>Captured test records</h1>
+<p class="lead">Private owner dashboard. Shows only GPS tests that users explicitly approved. New entries also contain a browser-reported device summary. Nothing is listed without the owner's separate access key.</p>
+<section class="panel" id="login">
+<h2>Owner access</h2>
+<label for="secret" class="sub">Enter your configured NEXT location-admin access key. It is kept only in memory while this page is open; it is never placed in the URL or saved in browser storage.</label>
+<div><input id="secret" type="password" placeholder="Owner access key" autocomplete="off" spellcheck="false"></div>
+<div class="actions"><button id="connect" class="primary">Unlock private list</button><a href="/location-test/">Return to device test</a></div>
+</section>
+<section class="panel" id="listing" hidden>
+<div class="actions" style="justify-content:space-between;margin-bottom:15px">
+<h2 style="margin:0">Recent submissions <span id="count"></span></h2>
+<div class="actions"><button class="secondary" id="refresh">Refresh</button><button class="secondary" id="lock">Lock</button></div>
+</div>
+<div id="sessions"><p class="sub">No records loaded.</p></div>
+<p class="sub">Records are automatically excluded after 24 hours. The list shows up to 100 recent active sessions, and coordinates appear only after opening a specific entry.</p>
+</section>
+<section class="panel" id="details" hidden>
+<div class="actions" style="justify-content:space-between;margin-bottom:17px"><h2 style="margin:0">Session details</h2><button class="secondary" id="close">Close details</button></div>
+<dl id="fields"></dl>
+<div class="actions">
+<button class="secondary" id="copy">Copy coordinates</button>
+<button class="danger" id="remove">Delete this test</button>
+</div>
+</section>
+<div id="status" aria-live="polite" role="status"></div>
+<footer>The page does not collect GPS by itself. Submitted coordinates are sensitive. Keep owner access keys confidential, and do not share screenshots containing exact locations or private result links. Exact iPhone model and serial number cannot be obtained from ordinary mobile browsers.</footer>
+</main>
+<script>
+"use strict";
+const api="https://comments.nextjailbreak.com/api/location-test/admin";
+const $=id=>document.getElementById(id);
+let adminKey="", selected=null, busy=false;
+function setStatus(message,type=""){ $("status").textContent=message; $("status").className=type; }
+async function call(path,params={}){
+  if(!adminKey)throw Error("Owner authentication required.");
+  const res=await fetch(api+path,{method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+adminKey},
+    body:JSON.stringify(params),cache:"no-store",credentials:"omit",referrerPolicy:"no-referrer"});
+  let payload={};try{payload=await res.json();}catch{}
+  if(!res.ok||!payload.ok)throw Error(payload.error||"Server error ("+res.status+")");
+  return payload;
+}
+function fmt(value){return value===null||value===undefined||value===""?"Not provided":String(value);}
+function localDate(value){
+  const d=new Date(String(value).replace(" ","T")+"Z");
+  return Number.isFinite(d.getTime())?d.toLocaleString():fmt(value);
+}
+function summaryText(device){
+  return device?.deviceType||"Location only (v1)";
+}
+function renderList(items){
+  const root=$("sessions");root.replaceChildren();
+  $("count").textContent="("+items.length+")";
+  if(!items.length){const p=document.createElement("p");p.className="sub";p.textContent="No unexpired location submissions.";root.append(p);return;}
+  for(const item of items){
+    const b=document.createElement("button");
+    b.className="session";b.type="button";
+    const title=document.createElement("strong");title.textContent=summaryText(item.device);
+    const subtitle=document.createElement("span");subtitle.textContent=localDate(item.createdAt);
+    const action=document.createElement("span");action.textContent="Open full details →";
+    b.append(title,subtitle,action);
+    b.addEventListener("click",()=>openDetail(item.id));
+    root.append(b);
+  }
+}
+async function refresh(){
+  if(busy)return;busy=true;
+  $("refresh").disabled=true;setStatus("Loading private list...");
+  try{
+    const out=await call("/list");
+    renderList(out.sessions||[]);
+    setStatus("List updated. Select any entry to see coordinates and device details.","good");
+  }catch(e){setStatus(e.message,"bad");}
+  finally{busy=false;$("refresh").disabled=false;}
+}
+function showField(key,value){
+  const dt=document.createElement("dt"),dd=document.createElement("dd");
+  dt.textContent=key;dd.textContent=fmt(value);$("fields").append(dt,dd);
+}
+async function openDetail(id){
+  setStatus("Loading selected record...");$("details").hidden=true;
+  try{
+    const out=await call("/detail",{id});
+    selected=out.session;$("fields").replaceChildren();
+    showField("Saved (local time)",localDate(selected.createdAt));
+    showField("Expires (local time)",localDate(selected.expiresAt));
+    showField("Latitude",Number(selected.latitude).toFixed(6));
+    showField("Longitude",Number(selected.longitude).toFixed(6));
+    showField("GPS accuracy",Math.round(Number(selected.accuracyMeters))+" metres");
+    const dev=selected.device;
+    if(dev){
+      showField("Device category",dev.deviceType);
+      showField("Operating system",dev.os);
+      showField("Browser",dev.browser);
+      showField("Screen",dev.screen);
+      showField("Language",dev.language);
+      showField("Timezone",dev.timezone);
+      showField("Touch",dev.touch);
+    }else{showField("Device information","Not collected in the original test version.");}
+    $("details").hidden=false;setStatus("Details retrieved securely.","good");
+  }catch(e){setStatus(e.message,"bad");}
+}
+$("connect").addEventListener("click",async()=>{
+  const key=$("secret").value.trim();if(!key){setStatus("Enter your owner access key.","bad");return;}
+  adminKey=key;$("secret").value="";$("login").hidden=true;$("listing").hidden=false;
+  await refresh();
+});
+$("secret").addEventListener("keydown",e=>{if(e.key==="Enter")$("connect").click();});
+$("refresh").addEventListener("click",refresh);
+$("close").addEventListener("click",()=>{$("details").hidden=true;selected=null;});
+$("lock").addEventListener("click",()=>{
+  adminKey="";selected=null;$("details").hidden=true;$("listing").hidden=true;$("login").hidden=false;
+  $("sessions").replaceChildren();setStatus("Private dashboard locked.","good");
+});
+$("copy").addEventListener("click",async()=>{
+  if(!selected)return;
+  const contents=Number(selected.latitude).toFixed(6)+", "+Number(selected.longitude).toFixed(6);
+  try{await navigator.clipboard.writeText(contents);setStatus("Coordinates copied.","good");}
+  catch{window.prompt("Copy coordinates:",contents);}
+});
+$("remove").addEventListener("click",async()=>{
+  if(!selected||!confirm("Delete this location test permanently?"))return;
+  try{
+    await call("/delete",{id:selected.id});selected=null;$("details").hidden=true;
+    await refresh();setStatus("Location test deleted.","good");
+  }catch(e){setStatus(e.message,"bad");}
+});
+</script>
+</body></html>

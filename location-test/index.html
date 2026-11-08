@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://comments.nextjailbreak.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
-<title>NEXT Jailbreak | Private Location Test</title>
+<title>NEXT Jailbreak | Device & Location Test</title>
 <style>
 :root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#07111e;color:#eaf1fc}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#17314b 0%,#07111e 60%);padding:22px 15px 70px}
@@ -36,15 +36,21 @@ a{color:#b5ddfb} [hidden]{display:none!important}
 <body><main>
 <div class="brand"><div class="mark">N</div><span>NEXT JAILBREAK</span></div>
 <p class="kicker">Private research / Test 01</p>
-<h1>Device Location Test</h1>
-<p class="lede">Test GPS permissions on your own device. Opening the PDF or this page does not collect or send your location. Only the two actions below can do that.</p>
+<h1>Device &amp; Location Test</h1>
+<p class="lede">Test GPS and basic browser-reported device information on your own device. Opening the PDF or this page does not collect or send test data. You choose what to preview and must explicitly approve submission.</p>
 <section class="panel" id="capture">
-  <h2>1. Request your location</h2>
+  <h2>1. Inspect device information</h2>
+  <p>Tap to read basic information available to any browser: device category, operating system, browser, screen, language and timezone. This information stays on your screen until you submit it.</p>
+  <button class="secondary" id="detectDevice">Detect basic device info</button>
+  <pre id="devicePreview" hidden></pre>
+  <p class="notice">iOS browsers do not reliably expose an exact iPhone model, serial number, Apple ID, phone number, or root/jailbreak status. Missing fields are reported as unavailable rather than guessed.</p>
+  <div style="height:22px"></div>
+  <h2>2. Request your location</h2>
   <p>Your browser will ask for permission. The coordinates will first appear only on your screen; no location data is sent to the website at this stage.</p>
   <button class="primary" id="getLocation">Get my location</button>
   <div id="preview" hidden><pre id="previewText"></pre>
-    <label class="check"><input type="checkbox" id="agree"><span>I am sharing the location of my own device. I consent to uploading these GPS coordinates to NEXT Jailbreak for this test. I understand they can be viewed using the private link and will expire after 24 hours.</span></label>
-    <button class="primary" id="submit" disabled>2. Submit to private test space</button>
+    <label class="check"><input type="checkbox" id="agree"><span>I am using my own device and explicitly consent to sending these GPS coordinates and the basic device summary displayed above to NEXT Jailbreak for this test. I understand they can be viewed using the private link and will expire after 24 hours.</span></label>
+    <button class="primary" id="submit" disabled>3. Submit to private test space</button>
   </div>
 </section>
 <section class="panel" id="result" hidden>
@@ -58,9 +64,18 @@ a{color:#b5ddfb} [hidden]{display:none!important}
   </div>
   <p class="notice">The private access key is in the link fragment after #. Your browser does not transmit that part of the link when opening this page. The page uses it to request the saved record securely.</p>
 </section>
+<section class="panel" style="margin-top:16px" id="history">
+  <h2>My recent tests</h2>
+  <p>This list contains tests saved in this browser only. Each entry opens its private details. For a list of all submitted tests, use the password-protected owner dashboard.</p>
+  <div id="historyList"></div>
+  <div class="actions" style="margin-top:16px">
+    <button class="secondary" id="newTest">New test</button>
+    <a href="/location-test/admin/" style="font-size:13px;align-self:center">Open private owner dashboard</a>
+  </div>
+</section>
 <div id="status" role="status" aria-live="polite"></div>
 <footer>
-  <strong>Privacy by design.</strong> No background tracking, no location permissions on PDF open, no public results list, no device identifiers collected. Coordinates are sent only after your explicit confirmation. Records expire after 24 hours and can be deleted sooner.<br>
+  <strong>Privacy by design.</strong> No background GPS tracking, no data sent on PDF open, and no public results list. The basic device summary and coordinates are submitted only after explicit confirmation. Exact device identifiers are not available to this webpage. Records expire after 24 hours and can be deleted sooner.<br>
   <a href="https://nextjailbreak.com/">NEXT Jailbreak home</a>
 </footer>
 </main>
@@ -68,7 +83,59 @@ a{color:#b5ddfb} [hidden]{display:none!important}
 "use strict";
 const api="https://comments.nextjailbreak.com/api/location-test";
 const $=id=>document.getElementById(id);
-let position=null, testId="", accessKey="";
+let position=null, testId="", accessKey="", deviceInfo=null;
+const storageKey="next_location_own_tests_v2";
+function basicDeviceInfo(){
+  const ua=navigator.userAgent||"";
+  const deviceType=/iPad/i.test(ua)?"iPad":/iPhone/i.test(ua)?"iPhone":
+    /Android/i.test(ua)?"Android device":/Macintosh/i.test(ua)?"Mac":
+    /Windows/i.test(ua)?"Windows computer":"Unknown device";
+  const ios=ua.match(/(?:iPhone )?OS (\d+)[._](\d+)(?:[._](\d+))?/i);
+  const android=ua.match(/Android\s+([\d.]+)/i);
+  const os=ios?"iOS "+ios[1]+"."+ios[2]+(ios[3]?"."+ios[3]:""):
+    android?"Android "+android[1]:/Mac OS X/i.test(ua)?"macOS (browser reported)":
+    /Windows NT/i.test(ua)?"Windows (browser reported)":"Version not exposed";
+  const browser=/CriOS/i.test(ua)?"Chrome on iOS":/FxiOS/i.test(ua)?"Firefox on iOS":
+    /EdgiOS/i.test(ua)?"Edge on iOS":/Safari/i.test(ua)?"Safari":/Chrome/i.test(ua)?"Chrome":"Browser not identified";
+  let timezone="Not available";try{timezone=Intl.DateTimeFormat().resolvedOptions().timeZone||timezone;}catch{}
+  return {deviceType,os,browser,screen:screen.width+" × "+screen.height+" CSS pixels",
+    language:navigator.language||"Not available",timezone,touch:(navigator.maxTouchPoints||0)>0?"Touch capable":"No touch reported"};
+}
+function deviceText(info){
+  return info?Object.entries(info).map(([k,v])=>k.replace(/[A-Z]/g,x=>" "+x).replace(/^./,x=>x.toUpperCase())+": "+v).join("\n"):"Not collected in this test.";
+}
+function captureDevice(){
+  deviceInfo=basicDeviceInfo();
+  $("devicePreview").textContent=deviceText(deviceInfo);
+  $("devicePreview").hidden=false;
+  status("Basic device information read locally. No information has been uploaded yet.","ok");
+}
+function ownTests(){
+  try{const result=JSON.parse(localStorage.getItem(storageKey)||"[]");return Array.isArray(result)?result:[];}catch{return [];}
+}
+function saveOwnTest(){
+  try{
+    const items=ownTests().filter(x=>x.id!==testId);
+    items.unshift({id:testId,token:accessKey,createdAt:new Date().toISOString(),deviceType:deviceInfo?.deviceType||"Device"});
+    localStorage.setItem(storageKey,JSON.stringify(items.slice(0,30)));
+  }catch{}
+  renderHistory();
+}
+function renderHistory(){
+  const root=$("historyList");root.replaceChildren();
+  const items=ownTests();
+  if(!items.length){const p=document.createElement("p");p.textContent="No tests saved in this browser yet.";root.append(p);return;}
+  items.forEach((entry,i)=>{
+    if(!/^[0-9a-f-]{36}$/i.test(entry.id)||!/^[A-Za-z0-9_-]{43}$/.test(entry.token))return;
+    const button=document.createElement("button");
+    button.className="secondary";button.style.cssText="display:block;width:100%;text-align:left;margin:8px 0;line-height:1.5";
+    const when=new Date(entry.createdAt);
+    button.textContent=(entry.deviceType||"Device")+" — "+(Number.isFinite(when.getTime())?when.toLocaleString():"Saved test")+" · Open details";
+    button.addEventListener("click",()=>{testId=entry.id;accessKey=entry.token;history.replaceState(null,"",viewUrl());read();window.scrollTo({top:0,behavior:"smooth"});});
+    root.append(button);
+  });
+}
+
 function status(message,kind=""){ $("status").textContent=message; $("status").className=kind; }
 function format(latitude,longitude,accuracy){
   return "Latitude:  "+Number(latitude).toFixed(6)+"\nLongitude: "+Number(longitude).toFixed(6)+"\nAccuracy:  +/- "+Math.round(Number(accuracy))+" meters";
@@ -98,11 +165,13 @@ async function read(){
   viewMode();
   try{
     const out=await request("/read",{id:testId,token:accessKey});
-    $("resultText").textContent=format(out.location.latitude,out.location.longitude,out.location.accuracyMeters)+"\nSaved: "+out.location.createdAt+" UTC\nExpires: "+out.location.expiresAt+" UTC";
+    $("resultText").textContent=format(out.location.latitude,out.location.longitude,out.location.accuracyMeters)+"\nSaved: "+out.location.createdAt+" UTC\nExpires: "+out.location.expiresAt+" UTC\n\nDevice information:\n"+deviceText(out.location.device);
     status("Private record retrieved successfully.","ok");
   }catch(err){$("resultText").textContent="Private result could not be loaded.";status(err.message,"error");}
 }
+$("detectDevice").addEventListener("click",captureDevice);
 $("getLocation").addEventListener("click",()=>{
+  if(!deviceInfo) captureDevice();
   if(!navigator.geolocation){status("Location access is unavailable. Open this page in Safari over HTTPS.","error");return;}
   $("getLocation").disabled=true;
   status("Requesting your device's location permission...");
@@ -121,14 +190,16 @@ $("getLocation").addEventListener("click",()=>{
 $("agree").addEventListener("change",()=>{$("submit").disabled=!position||!$("agree").checked;});
 $("submit").addEventListener("click",async()=>{
   if(!position||!$("agree").checked)return;
-  if(!confirm("Send these coordinates to NEXT Jailbreak's private test storage for up to 24 hours?"))return;
+  if(!deviceInfo) captureDevice();
+  if(!confirm("Send your displayed GPS coordinates and basic device information to NEXT Jailbreak for up to 24 hours?"))return;
   $("submit").disabled=true;status("Submitting coordinates with your permission...");
   try{
     testId=crypto.randomUUID();
     accessKey=b64url(crypto.getRandomValues(new Uint8Array(32)));
     const tokenHash=await hashKey(accessKey);
-    await request("/create",{id:testId,tokenHash,latitude:position.latitude,longitude:position.longitude,accuracyMeters:position.accuracyMeters,consent:true});
+    await request("/create",{id:testId,tokenHash,latitude:position.latitude,longitude:position.longitude,accuracyMeters:position.accuracyMeters,device:deviceInfo,consent:true});
     window.history.replaceState(null,"",viewUrl());
+    saveOwnTest();
     $("resultTitle").textContent="Test submitted";
     $("resultDescription").textContent="Your location was saved privately. Copy the link to view it on your PC. Anyone with this link can access this one record.";
     viewMode();
@@ -142,11 +213,21 @@ $("copyCoords").addEventListener("click",()=>{
 });
 $("delete").addEventListener("click",async()=>{
   if(!confirm("Permanently delete this saved location?"))return;
-  try{await request("/delete",{id:testId,token:accessKey});history.replaceState(null,"",location.pathname);accessKey="";testId="";$("resultText").textContent="Deleted."; $("copyLink").disabled=true;$("copyCoords").disabled=true;$("delete").disabled=true; status("Saved location deleted.","ok");}
+  try{await request("/delete",{id:testId,token:accessKey});history.replaceState(null,"",location.pathname);try{localStorage.setItem(storageKey,JSON.stringify(ownTests().filter(x=>x.id!==testId)));}catch{}accessKey="";testId="";renderHistory();$("resultText").textContent="Deleted."; $("copyLink").disabled=true;$("copyCoords").disabled=true;$("delete").disabled=true; status("Saved location deleted.","ok");}
   catch(e){status(e.message,"error");}
 });
 const fragment=decodeURIComponent(location.hash.slice(1));
 const match=fragment.match(/^([0-9a-f-]{36})\.([A-Za-z0-9_-]{43})$/i);
 if(match){testId=match[1];accessKey=match[2];read();}
+$("newTest").addEventListener("click",()=>{
+  testId="";accessKey="";position=null;deviceInfo=null;
+  $("capture").hidden=false;$("result").hidden=true;$("preview").hidden=true;
+  $("devicePreview").hidden=true;$("agree").checked=false;$("submit").disabled=true;
+  $("copyLink").disabled=false;$("copyCoords").disabled=false;$("delete").disabled=false;
+  window.history.replaceState(null,"",location.pathname);
+  status("Ready for a new test.");
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+renderHistory();
 </script>
 </body></html>

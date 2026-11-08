@@ -43,4 +43,5 @@ jobs:
           database_name = "nextjailbreak-comments"
           database_id = "$DB_ID"
           EOF
+          wrangler d1 execute nextjailbreak-comments --remote --command="DELETE FROM location_test_devices WHERE id IN (SELECT id FROM location_tests WHERE expires_at <= datetime('now'))" --config=/tmp/next-location-retention.toml --yes
           wrangler d1 execute nextjailbreak-comments --remote --command="DELETE FROM location_tests WHERE expires_at <= datetime('now')" --config=/tmp/next-location-retention.toml --yes
