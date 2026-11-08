@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-05T17:33:25Z",
+  "updatedAt": "2026-11-08T14:05:21Z",
   "files": [
+    {
+      "id": "next-rea-inspector-0.1.0-test",
+      "name": "NEXT REA Inspector 0.1.0 - First Test",
+      "fileName": "NEXT-REA-Inspector-0.1.0-1.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ / TrollStore or jailbroken device (ad-hoc signed)",
+      "version": "0.1.0 (1)",
+      "url": "https://nextjailbreak.com/transfer/files/NEXTREAInspector/0.1.0/NEXT-REA-Inspector-0.1.0-1.ipa",
+      "sha256": "1b23e33eeb32e479cac2c21d9732f2e6b1e872e784ff039e0cf354bcdc2c9473",
+      "sizeBytes": 950465,
+      "notes": "Read-only LaunchServices app discovery where allowed, metadata JSON export and IPA handoff for Mac REA analysis. Not Apple Distribution signed."
+    },
     {
       "id": "8ballpool-temp-offline-56.31.0",
       "name": "8 Ball Pool Temp 56.31.0 - offline-signed iPad IPA",
