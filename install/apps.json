@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-signer",
+      "name": "NJ Signer",
+      "version": "1.4.2",
+      "build": "25",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.Signer",
+      "icon": "/install/icons/com-nextsolution-signer-91d608bc8616.png",
+      "manifest": "/install/com-nextsolution-signer.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-signer/1.4.2/com-nextsolution-signer-1.4.2-25.ipa",
+      "sha256": "91d608bc86165db15d2c506f3992f5f21e3196f23ae87189b110b0b1f5ea5895",
+      "sizeBytes": 3390379,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-esign",
       "name": "esign 5.0.2",
       "version": "5.0.2",
@@ -458,27 +479,6 @@
       "signedByNextSigner": false
     },
     {
-      "id": "com-nextsolution-signer",
-      "name": "NJ Signer",
-      "version": "1.4.2",
-      "build": "25",
-      "platform": "iPhone",
-      "minimumOS": "iOS 16.0+",
-      "bundleId": "com.nextsolution.Signer",
-      "icon": "/install/icons/com-nextsolution-signer-38f18a5da521.png",
-      "manifest": "/install/com-nextsolution-signer.plist",
-      "available": true,
-      "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-signer/1.4.2/com-nextsolution-signer-1.4.2-25.ipa",
-      "sha256": "38f18a5da521182a12153d66b43b13334181cbfd7df8bc00f4944519e5ccc674",
-      "sizeBytes": 3390211,
-      "storage": "Cloudflare R2",
-      "duplicateSigned": false,
-      "tweakCount": 0,
-      "customIcon": false,
-      "signedByNextSigner": false
-    },
-    {
       "id": "com-nextsolution-tiktok",
       "name": "TikTuk",
       "version": "46.2.0",
@@ -552,5 +552,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-11-07"
+  "updated": "2026-11-09"
 }
