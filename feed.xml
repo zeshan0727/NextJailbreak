@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Erosion 0.3 Brings Its Sandbox-Escape Toolbox to iOS 27.3 Beta 1</title>
+      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
+      <pubDate>Mon, 09 Nov 2026 21:00:36 GMT</pubDate>
+      <description>Erosion 0.3 replaces bad_query with worse_query and documents iOS 27.3 beta 1 support. Check the exact build, conflicting iOS 26 limits, signing fixes and official IPA hash.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
       <title>Cyanide 1.17.0 Adds Locked-App Previews and Respring Controls</title>
       <link>https://nextjailbreak.com/cyanide-1-6-0-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/cyanide-1-6-0-update/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Sat, 31 Oct 2026 15:00:00 GMT</pubDate>
       <description>FlickKey 1.0.2 fixes a startup deadlock on rootless iOS 17 iPhones. Check supported keyboards, license privacy, conflicts and recovery steps.</description>
       <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>Palera1n RootHide 1.0 Supports Passcode-Set iPads on iPadOS 17 and 18</title>
-      <link>https://nextjailbreak.com/palera1n-roothide-1-0-ipados-17-18-passcode/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/palera1n-roothide-1-0-ipados-17-18-passcode/</guid>
-      <pubDate>Fri, 30 Oct 2026 21:00:00 GMT</pubDate>
-      <description>Palera1n RootHide 1.0 supports passcode-set compatible arm64 iPads on iPadOS 17 and 18. Check devices, official host files, SHA-256 hashes and setup limits.</description>
-      <category>Current Jailbreak Development</category>
     </item>
   </channel>
 </rss>
