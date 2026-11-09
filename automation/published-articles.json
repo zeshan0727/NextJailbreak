@@ -760,34 +760,34 @@
     },
     {
       "category": {
-        "id": "jailbreak",
-        "label": "Current Jailbreak Development"
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
       },
       "compat": "iPhone and iPad on iOS/iPadOS 17.0–18.7.1 or 26.0–26.0.1; excludes iOS 16 and earlier, 18.7.2–25.x, 26.1+, iPhone 17 (A19/A19 Pro) and M5 devices",
-      "description": "Cyanide 1.16.0 adds reversible supervision, restores background live tweaks and moves Gravity Lite controls. Check exact iOS support, A18/M4 risks and fixes.",
-      "entry_type": "current-jailbreak-development",
+      "description": "Cyanide 1.17.0 adds locked-app notification previews, immediate per-tweak changes and Respring/Reboot controls. Check exact iOS and device support.",
+      "entry_type": "individual-tweak-update",
       "href": "cyanide-1-6-0-update/",
       "image": "assets/articles/source-media/cyanide-1-16-official-app-icon.png",
       "media_alt": "Official Cyanide app icon showing a glowing cyan bottle with a command prompt mark",
-      "media_credit": "Kolbicz/Cyanide — official app icon from the version 1.16.0 source tree",
+      "media_credit": "Kolbicz/Cyanide — official app icon verified in the version 1.17.0 source tree",
       "media_git_blob_sha": "e0e72c12817dd7328b64246bbc6394ff990ea668",
       "media_sha256": "9adc9ceb38912b196128bad4d43edc43f5ac5aabe42b97740b0ff032e59e301e",
-      "media_source_url": "https://github.com/kolbicz/Cyanide/blob/13ad360b3e7d2ec4bfe0c4a703cc85a6cea46e71/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
-      "modified_at": "2026-10-31T21:00:00+00:00",
+      "media_source_url": "https://github.com/kolbicz/Cyanide/blob/v1.17.0/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
+      "modified_at": "2026-11-09T15:23:00+00:00",
       "name": "Cyanide",
       "package": "cyanide",
       "published_at": "2026-09-17T14:03:10+00:00",
       "quality_target": 9,
-      "release": "2026-10-30",
-      "selection_pool": "scheduled-current-jailbreak-development",
+      "release": "2026-11-08",
+      "selection_pool": "scheduled-individual-tweak-update",
       "slug": "cyanide-1-6-0-update",
-      "source_name": "Official Cyanide 1.16.0 GitHub release and project README",
-      "source_page_url": "https://github.com/kolbicz/Cyanide/releases/tag/v1.16.0",
+      "source_name": "Official Cyanide 1.17.0 GitHub release and project README",
+      "source_page_url": "https://github.com/kolbicz/Cyanide/releases/tag/v1.17.0",
       "source_url": "https://github.com/kolbicz/Cyanide",
       "source_visual_origin": "official-tagged-project-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/kolbicz/Cyanide/13ad360b3e7d2ec4bfe0c4a703cc85a6cea46e71/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
-      "title": "Cyanide 1.16.0 Adds Reversible Supervision and Restores Background Live Tweaks",
-      "version": "1.16.0"
+      "source_visual_url": "https://raw.githubusercontent.com/kolbicz/Cyanide/v1.17.0/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
+      "title": "Cyanide 1.17.0 Adds Locked-App Previews and Respring Controls",
+      "version": "1.17.0"
     },
     {
       "additional_media": [
@@ -10702,7 +10702,7 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-09T09:03:23Z",
+  "updated_at": "2026-11-09T15:23:00Z",
   "publication_events": [
     {
       "action": "update",
@@ -10802,6 +10802,17 @@
       "published_at": "2026-11-09T09:03:23Z",
       "run_id": "scheduled-2026-11-09T09:03:23Z",
       "version": "Stackr 1.0.1 / PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "individual-update.cyanide-1.17.0-locked-app-previews-respring-controls-2026-11-09",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "cyanide-1-6-0-update/",
+      "package": "cyanide",
+      "previous_version": "1.16.0",
+      "published_at": "2026-11-09T15:23:00Z",
+      "run_id": "scheduled-2026-11-09T15:23:00Z",
+      "version": "1.17.0"
     }
   ]
 }

@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Cyanide 1.17.0 Adds Locked-App Previews and Respring Controls</title>
+      <link>https://nextjailbreak.com/cyanide-1-6-0-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/cyanide-1-6-0-update/</guid>
+      <pubDate>Mon, 09 Nov 2026 15:23:00 GMT</pubDate>
+      <description>Cyanide 1.17.0 adds locked-app notification previews, immediate per-tweak changes and Respring/Reboot controls. Check exact iOS and device support.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
       <title>Stackr vs PrimalFolderPro vs LegacyFolder26: Which Folder Tweak Fits?</title>
       <link>https://nextjailbreak.com/legacyfolder26-1-0-1-ios-26-folder-tweak/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/legacyfolder26-1-0-1-ios-26-folder-tweak/</guid>
@@ -220,14 +228,6 @@
       <pubDate>Sun, 01 Nov 2026 09:00:00 GMT</pubDate>
       <description>Compare ShowMyTouches 2.0 and Touch-Viz 4.2 by iOS support, RootHide compatibility, effects, recording controls, maintenance and troubleshooting.</description>
       <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>Cyanide 1.16.0 Adds Reversible Supervision and Restores Background Live Tweaks</title>
-      <link>https://nextjailbreak.com/cyanide-1-6-0-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/cyanide-1-6-0-update/</guid>
-      <pubDate>Sat, 31 Oct 2026 21:00:00 GMT</pubDate>
-      <description>Cyanide 1.16.0 adds reversible supervision, restores background live tweaks and moves Gravity Lite controls. Check exact iOS support, A18/M4 risks and fixes.</description>
-      <category>Current Jailbreak Development</category>
     </item>
     <item>
       <title>FlickKey 1.0.2 Fixes an iOS 17 SpringBoard Startup Deadlock</title>
