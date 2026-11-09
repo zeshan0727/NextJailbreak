@@ -857,34 +857,38 @@
           "media_source_url": "https://media.havoc.app/6ae11d30d81ae3dd289f36f0"
         }
       ],
+      "article_sha256": "1dd126361a5fec434f8046b2382f2232778fd74abb162659abcbaeb5e0d72a5d",
+      "candidate_fingerprint": "comparison.stackr-1.0.1-primalfolderpro-1.0.1-legacyfolder26-1.1.0-2026-11-09",
       "category": {
         "id": "tweak-roundup-comparison",
         "label": "Tweak Roundup & Comparison"
       },
-      "compat": "PrimalFolderPro: iOS/iPadOS 14.0–26.0.1, rootful/rootless/RootHide listed; LegacyFolder26: iOS/iPadOS 15.0–26.0.1, rootless listed; jailbreak availability remains device- and firmware-specific",
-      "description": "Compare PrimalFolderPro 1.0.1 and LegacyFolder26 1.1.0 by layout, quick launch, folder styles, iOS support, price, licensing and jailbreak-environment requirements.",
-      "developer": "ichitaso / bakera1n",
+      "compat": "Stackr: iOS/iPadOS 15.0–18.5, rootless listed; PrimalFolderPro: iOS/iPadOS 14.0–26.0.1, rootful/rootless/RootHide listed; LegacyFolder26: iOS/iPadOS 15.0–26.0.1, rootless listed; jailbreak availability remains device- and firmware-specific",
+      "description": "Compare Stackr 1.0.1, PrimalFolderPro 1.0.1 and LegacyFolder26 1.1.0 by workflow, iOS support, privacy, price and jailbreak environment.",
+      "developer": "T4MAG0 / ichitaso / bakera1n",
       "entry_type": "roundup-comparison",
       "href": "legacyfolder26-1-0-1-ios-26-folder-tweak/",
-      "image": "assets/articles/source-media/primalfolderpro-1-0-1-official-banner.jpg",
-      "media_credit": "Official PrimalFolderPro banner from ichitaso’s Havoc listing",
-      "media_git_blob_sha": "25cf77a3f43c909de5e0e3651e7ed54f6aa012d2",
-      "media_sha256": "9114509079d07659da4eeeaa5d82e80193122e12901056c4c0260ef0a651acfe",
-      "media_source_url": "https://media.havoc.app/6ae0fcbcd81ae3dd289e9ff6",
-      "modified_at": "2026-10-31T09:00:00Z",
-      "name": "PrimalFolderPro vs LegacyFolder26",
+      "image": "assets/articles/source-media/stackr-1-0-1-official-banner.png",
+      "media_alt": "Official Stackr artwork showing an app-style folder, notification badge and lock",
+      "media_credit": "Official Stackr banner from T4MAG0’s Havoc listing",
+      "media_git_blob_sha": "5c72c10d572958fdd09f58a743f856d08d8da0f7",
+      "media_retrieval_status": "Retrieved byte-for-byte from the live Havoc __NEXT_DATA__ banner field, inspected at 1920×1080, stored locally and embedded in article and social metadata.",
+      "media_sha256": "6a9b6ff08d553094f4936bad37326eeff859fd5232734ec5bd5cf0748df35b59",
+      "media_source_url": "https://media.havoc.app/6ae936fff03c5b354b670358",
+      "modified_at": "2026-11-09T09:03:23Z",
+      "name": "Stackr vs PrimalFolderPro vs LegacyFolder26",
       "package": "comparison.primalfolderpro-legacyfolder26",
       "published_at": "2026-10-12T17:04:42Z",
-      "release": "2026-10-29",
+      "release": "Stackr 1.0.1 — November 7, 2026; PrimalFolderPro 1.0.1 — October 29, 2026; LegacyFolder26 1.1.0 — October 19, 2026",
       "selection_pool": "scheduled-tweak-roundup-comparison",
       "slug": "legacyfolder26-1-0-1-ios-26-folder-tweak",
-      "source_name": "Official PrimalFolderPro and LegacyFolder26 Havoc listings, version histories and embedded page data",
-      "source_page_url": "https://havoc.app/package/primalfolderpro",
-      "source_url": "https://havoc.app/package/primalfolderpro",
+      "source_name": "Official Stackr, PrimalFolderPro and LegacyFolder26 Havoc listings, version histories and embedded page data",
+      "source_page_url": "https://havoc.app/package/stackr",
+      "source_url": "https://havoc.app/package/stackr/changes",
       "source_visual_origin": "official-havoc-banner-and-screenshots",
-      "source_visual_url": "https://media.havoc.app/6ae0fcbcd81ae3dd289e9ff6",
-      "title": "PrimalFolderPro vs LegacyFolder26: Which Folder Tweak Should You Use?",
-      "version": "PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
+      "source_visual_url": "https://media.havoc.app/6ae936fff03c5b354b670358",
+      "title": "Stackr vs PrimalFolderPro vs LegacyFolder26: Which Folder Tweak Fits?",
+      "version": "Stackr 1.0.1 / PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
     },
     {
       "additional_media": [],
@@ -10698,7 +10702,7 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-09T03:03:30Z",
+  "updated_at": "2026-11-09T09:03:23Z",
   "publication_events": [
     {
       "action": "update",
@@ -10787,6 +10791,17 @@
       "published_at": "2026-11-09T03:03:30Z",
       "run_id": "scheduled-2026-11-09T03:03:30Z",
       "version": "Dopamine 3.0.13 / guide revision 2026-11-09"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "comparison.stackr-1.0.1-primalfolderpro-1.0.1-legacyfolder26-1.1.0-2026-11-09",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "legacyfolder26-1-0-1-ios-26-folder-tweak/",
+      "package": "comparison.primalfolderpro-legacyfolder26",
+      "previous_version": "PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0",
+      "published_at": "2026-11-09T09:03:23Z",
+      "run_id": "scheduled-2026-11-09T09:03:23Z",
+      "version": "Stackr 1.0.1 / PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
     }
   ]
 }

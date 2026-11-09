@@ -267,17 +267,24 @@
       "screenshots": []
     },
     "comparison.primalfolderpro-legacyfolder26": {
-      "credit_label": "ichitaso and bakera1n — official PrimalFolderPro and LegacyFolder26 Havoc listings",
-      "source_page_url": "https://havoc.app/package/primalfolderpro",
+      "credit_label": "T4MAG0, ichitaso and bakera1n — official Stackr, PrimalFolderPro and LegacyFolder26 Havoc listings",
+      "source_page_url": "https://havoc.app/package/stackr",
       "official_source": true,
       "hero": {
-        "url": "https://media.havoc.app/6ae0fcbcd81ae3dd289e9ff6",
-        "alt": "Official PrimalFolderPro artwork showing a folder icon over a blue botanical background",
-        "local_path": "assets/articles/source-media/primalfolderpro-1-0-1-official-banner.jpg",
-        "git_blob_sha": "25cf77a3f43c909de5e0e3651e7ed54f6aa012d2",
-        "sha256": "9114509079d07659da4eeeaa5d82e80193122e12901056c4c0260ef0a651acfe"
+        "url": "https://media.havoc.app/6ae936fff03c5b354b670358",
+        "alt": "Official Stackr artwork showing an app-style folder, notification badge and lock",
+        "local_path": "assets/articles/source-media/stackr-1-0-1-official-banner.png",
+        "git_blob_sha": "5c72c10d572958fdd09f58a743f856d08d8da0f7",
+        "sha256": "6a9b6ff08d553094f4936bad37326eeff859fd5232734ec5bd5cf0748df35b59"
       },
       "screenshots": [
+        {
+          "url": "https://media.havoc.app/6ae0fcbcd81ae3dd289e9ff6",
+          "alt": "Official PrimalFolderPro artwork showing a folder icon over a blue botanical background",
+          "local_path": "assets/articles/source-media/primalfolderpro-1-0-1-official-banner.jpg",
+          "git_blob_sha": "25cf77a3f43c909de5e0e3651e7ed54f6aa012d2",
+          "sha256": "9114509079d07659da4eeeaa5d82e80193122e12901056c4c0260ef0a651acfe"
+        },
         {
           "url": "https://media.havoc.app/6ae11d30d81ae3dd289f36f0",
           "alt": "Official PrimalFolderPro screenshot showing the Exsto circular quick-launch menu around a Home Screen folder",
@@ -1619,5 +1626,5 @@
       "screenshots": []
     }
   },
-  "updated_at": "2026-11-08"
+  "updated_at": "2026-11-09"
 }
