@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T12:14:28Z",
+  "updatedAt": "2026-11-10T12:52:06Z",
   "files": [
     {
-      "id": "sealora-1.0.2-build3-unsigned",
-      "name": "Sealora 1.0.2 — Numeric Bundle ID Fix",
-      "fileName": "Sealora-1.0.2-unsigned.ipa",
+      "id": "sealora-1.0.3-build4-unsigned",
+      "name": "Sealora 1.0.3 — Next Jailbreak Credits and First Launch",
+      "fileName": "Sealora-1.0.3-unsigned.ipa",
       "type": "ipa",
-      "platform": "iOS 16+ / iPhone and iPad / unsigned; sign before installation",
-      "version": "1.0.2 (3)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.2/Sealora-1.0.2-unsigned.ipa",
-      "sha256": "72e48877113e29906868ed9d6259f17add8263acbc1deedf7e60c84861df997b",
-      "sizeBytes": 3273498,
-      "notes": "Fixes false profile mismatch for numeric bundle IDs such as com.nextsolution.3105 with wildcard com.nextsolution.*. Certificate, profile, entitlement and device preflight still enforced. UNSIGNED: sign with a compatible profile before normal installation. On-device signing behavior requires real-device testing."
+      "platform": "iOS 16+; unsigned IPA (requires compatible signing before installation)",
+      "version": "1.0.3 (4)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.3/Sealora-1.0.3-unsigned.ipa",
+      "sha256": "652dd1663873f04fe15b6650edd40e272466be70a42f8ddfef3a256bc6e7b4d6",
+      "sizeBytes": 3295800,
+      "notes": "Settings credits Next Jailbreak / Zeeshan0727, one-time Safari launch of nextjailbreak.com, UDID profile button with service-health guard and secure Keychain UDID return. IMPORTANT: UDID Cloudflare service not deployed because API token authentication failed; use manual UDID until fixed. Device profile exchange remains unverified. Unsigned app."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
