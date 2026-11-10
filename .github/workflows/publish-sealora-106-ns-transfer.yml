@@ -4,6 +4,10 @@ on:
     workflows: ["Sealora 1.0.6 external CodeDirectory verification fix"]
     types: [completed]
     branches: [sealora-ios-test]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-sealora-106-ns-transfer.yml'
   workflow_dispatch:
 permissions:
   contents: write
