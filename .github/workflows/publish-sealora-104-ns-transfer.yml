@@ -4,6 +4,10 @@ on:
     workflows: ["Sealora 1.0.4 simplified signing setup build"]
     types: [completed]
     branches: [sealora-ios-test]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-sealora-104-ns-transfer.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -76,6 +80,10 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add transfer/index.json transfer/files/Sealora/1.0.4/Sealora-1.0.4-unsigned.ipa
-          git commit -m 'Publish Sealora 1.0.4 unsigned test IPA to NS Transfer'
-          git pull --rebase origin main
-          git push origin HEAD:main
+          if git diff --cached --quiet; then
+            echo 'Sealora 1.0.4 already published'
+          else
+            git commit -m 'Publish Sealora 1.0.4 unsigned test IPA to NS Transfer'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
