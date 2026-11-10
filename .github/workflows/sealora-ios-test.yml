@@ -115,18 +115,32 @@ jobs:
           compressed=base64.b64decode(src,validate=True)
           assert hashlib.sha256(compressed).hexdigest() == '3bf622787d130f82aa3a9f4c9f015ddca1279ec98a6799e60b203336094d355b', 'Signing verifier patch integrity mismatch'
           patchText=lzma.decompress(compressed).decode()
-          start=patchText.index('@@ -143,3 +167,93 @@')
-          end=patchText.index('--- a/Tests/SealoraTests.swift',start)
-          extra=patchText[start:end]
+          tailStart=patchText.index('@@ -143,3 +167,93 @@')
+          testStart=patchText.index('--- a/Tests/SealoraTests.swift',tailStart)
+          extra=patchText[tailStart:testStart]
           suffix=''.join(line[1:]+'\n' for line in extra.splitlines() if line.startswith('+') and not line.startswith('+++'))
-          patch=(patchText[:start]+patchText[end:]).encode()
           root=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
-          proc=subprocess.run(['patch','-t','-p1'],cwd=root,input=patch,capture_output=True)
+          # The compact CI bootstrap is not byte-identical to the distributed
+          # Xcode ZIP. Replace the function by its declaration, not its line number.
+          start=patchText.index('@@ -115,27 +116,50 @@')
+          body=patchText[start:tailStart].splitlines()[1:]
+          result=''.join(line[1:]+'\n' for line in body if line.startswith((' ','+')) and not line.startswith('+++'))
+          newFunc=result[result.index('    static func verifyOutput('):result.index('\n}\n\nprivate enum UIImageData')]
+          target=root/'Sealora/Core/ArchiveInspector.swift'
+          current=target.read_text()
+          oldStart=current.index('    static func verifyOutput(')
+          oldEnd=current.index('\n}\n\nprivate enum UIImageData',oldStart)
+          assert current.count('    static func verifyOutput(')==1
+          current=current[:oldStart]+newFunc+current[oldEnd:]
+          assert current.count('import CryptoKit')==0
+          current=current.replace('import Foundation\n','import Foundation\nimport CryptoKit\n',1)
+          target.write_text(current+suffix)
+          # Apply unit-test fixture checks as a standalone patch.
+          proc=subprocess.run(['patch','-t','-p1'],cwd=root,
+                              input=patchText[testStart:].encode(),capture_output=True)
           print(proc.stdout.decode())
           if proc.returncode:
               raise SystemExit(proc.stderr.decode())
-          with (root/'Sealora/Core/ArchiveInspector.swift').open('a') as output:
-              output.write(suffix)
           info=root/'Sealora/Info.plist'
           config=plistlib.loads(info.read_bytes())
           assert config['CFBundleShortVersionString']=='1.0.4',config
