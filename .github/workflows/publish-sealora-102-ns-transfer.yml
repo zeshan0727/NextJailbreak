@@ -1,0 +1,89 @@
+name: Publish Sealora 1.0.2 to NS Transfer
+on:
+  workflow_run:
+    workflows: ["Sealora 1.0.2 bundle-ID compatibility build"]
+    branches: [sealora-ios-test]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: publish-sealora-ns-transfer
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: \${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download exact compiled Sealora 1.0.2 build artifact
+        env:
+          GH_TOKEN: \${{ github.token }}
+          SOURCE_RUN: \${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sealora-artifact"
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name Sealora-1.0.2-unsigned-IPA --dir "$RUNNER_TEMP/sealora-artifact"
+          test -s "$RUNNER_TEMP/sealora-artifact/Sealora-unsigned.ipa"
+          python3 - "$RUNNER_TEMP/sealora-artifact/Sealora-unsigned.ipa" <<'PY'
+          import sys, zipfile, plistlib
+          with zipfile.ZipFile(sys.argv[1]) as ipa:
+              assert ipa.testzip() is None, 'Corrupt IPA archive'
+              names = [n for n in ipa.namelist() if n.startswith('Payload/') and n.endswith('.app/Info.plist') and n.count('/')==2]
+              assert len(names)==1, names
+              p = plistlib.loads(ipa.read(names[0]))
+              assert p['CFBundleIdentifier']=='com.nextsolution.sealora'
+              assert p['CFBundleShortVersionString']=='1.0.2'
+              assert str(p['CFBundleVersion'])=='3'
+              assert p['MinimumOSVersion']=='16.0'
+              executable=names[0].removesuffix('Info.plist') + p['CFBundleExecutable']
+              assert executable in ipa.namelist()
+              assert ipa.getinfo(executable).file_size>200_000
+          PY
+      - name: Publish to NS Transfer
+        env:
+          SOURCE_RUN: \${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          mkdir -p transfer/files/Sealora/1.0.2
+          cp "$RUNNER_TEMP/sealora-artifact/Sealora-unsigned.ipa" \
+             transfer/files/Sealora/1.0.2/Sealora-1.0.2-unsigned.ipa
+          python3 - <<'PY'
+          from pathlib import Path
+          from datetime import datetime, timezone
+          import hashlib, json, os
+          output=Path('transfer/files/Sealora/1.0.2/Sealora-1.0.2-unsigned.ipa')
+          digest=hashlib.sha256(output.read_bytes()).hexdigest()
+          index=Path('transfer/index.json')
+          catalog=json.loads(index.read_text())
+          entry={
+            'id':'sealora-1.0.2-build3-unsigned',
+            'name':'Sealora 1.0.2 — Numeric Bundle ID Fix',
+            'fileName':output.name,
+            'type':'ipa',
+            'platform':'iOS 16+ / iPhone and iPad / unsigned; sign before installation',
+            'version':'1.0.2 (3)',
+            'url':'https://nextjailbreak.com/transfer/files/Sealora/1.0.2/Sealora-1.0.2-unsigned.ipa',
+            'sha256':digest,
+            'sizeBytes':output.stat().st_size,
+            'notes':'Fixes false profile mismatch for numeric bundle IDs such as com.nextsolution.3105 with wildcard com.nextsolution.*. Certificate, profile, entitlement and device preflight still enforced. UNSIGNED: sign with a compatible profile before normal installation. On-device signing behavior requires real-device testing.'
+          }
+          catalog['files']=[entry]+[f for f in catalog.get('files',[]) if not str(f.get('id','')).startswith('sealora-')]
+          catalog['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          index.write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n')
+          print('Source workflow run',os.environ['SOURCE_RUN'])
+          print('Published',entry['name'],'sha256',digest)
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json transfer/files/Sealora/1.0.2/Sealora-1.0.2-unsigned.ipa
+          git commit -m 'Publish Sealora 1.0.2 unsigned bundle ID fix to NS Transfer'
+          git pull --rebase origin main
+          git push origin HEAD:main
