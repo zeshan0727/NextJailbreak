@@ -1,4 +1,4 @@
-name: Sealora iOS unsigned test build
+name: Sealora 1.0.1 iOS Files import build
 on:
   push:
     branches: [sealora-ios-test]
@@ -28,6 +28,24 @@ jobs:
           with tarfile.open(fileobj=io.BytesIO(lzma.decompress(body)), mode='r:') as archive:
               archive.extractall(pathlib.Path(os.environ['RUNNER_TEMP'])/'SealoraProject')
           PY
+      - name: Apply Sealora 1.0.1 Files import repair
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, lzma, os, pathlib, subprocess
+          encoded = pathlib.Path('SealoraBuild/patch101.b64').read_text().strip()
+          archive = base64.b64decode(encoded, validate=True)
+          expected = 'd37de2d17ed7047947c4a148eff1b0f6e61f9bd76f838259598398f3810dec1e'
+          if hashlib.sha256(archive).hexdigest() != expected:
+              raise SystemExit('Hotfix checksum mismatch')
+          patch = lzma.decompress(archive)
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'SealoraProject'
+          result = subprocess.run(['patch','--batch','-p1'], input=patch,
+                                  cwd=root, capture_output=True)
+          print(result.stdout.decode())
+          if result.returncode:
+              raise SystemExit(result.stderr.decode())
+          subprocess.run(['python3','scripts/generate_xcodeproj.py'], cwd=root, check=True)
+          PY
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -38,7 +56,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-unsigned-test-IPA
+          name: Sealora-1.0.1-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
