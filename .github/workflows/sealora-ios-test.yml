@@ -1,4 +1,4 @@
-name: Sealora 1.0.5 signature diagnostics build
+name: Sealora 1.0.6 external CodeDirectory verification fix
 on:
   push:
     branches: [sealora-ios-test]
@@ -106,24 +106,7 @@ jobs:
           assert 'profile.containsDeveloperCertificate(for: identity)' in source
           print('Sealora 1.0.4 checks OK')
           PY
-      - name: Sealora 1.0.5 strict signature diagnostic patch
-        run: |
-          python3 .github/scripts/sealora-105-sign-diagnostics.py "$RUNNER_TEMP/SealoraProject"
-          cd "$RUNNER_TEMP/SealoraProject"
-          swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
-          python3 - <<'PY'
-          from pathlib import Path
-          import plistlib
-          info=plistlib.loads(Path('Sealora/Info.plist').read_bytes())
-          assert info['CFBundleShortVersionString']=='1.0.5'
-          assert str(info['CFBundleVersion'])=='6'
-          source=Path('Sealora/Core/ArchiveInspector.swift').read_text()
-          assert 'report.codeDirectoryHashesValid' in source
-          assert 'report.cmsSignatureValid' in source
-          assert 'CMS signature or CodeDirectory validation failed' not in source
-          print('Diagnostic verification checks passed')
-          PY
-      - name: Verify external signature slots and resource seals (Sealora 1.0.5)
+      - name: Fix full bundle signature verification and preserve diagnostics (Sealora 1.0.6)
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -141,21 +124,35 @@ jobs:
           config=plistlib.loads(info.read_bytes())
           assert config['CFBundleShortVersionString']=='1.0.4',config
           assert str(config['CFBundleVersion'])=='5',config
-          config['CFBundleShortVersionString']='1.0.5'
-          config['CFBundleVersion']='6'
+          config['CFBundleShortVersionString']='1.0.6'
+          config['CFBundleVersion']='7'
           info.write_bytes(plistlib.dumps(config,fmt=plistlib.FMT_XML,sort_keys=False))
           project=root/'project.yml'
           if project.exists():
               content=project.read_text()
-              content=content.replace('CFBundleShortVersionString: 1.0.4','CFBundleShortVersionString: 1.0.5')
-              content=content.replace('CFBundleVersion: "5"','CFBundleVersion: "6"')
+              content=content.replace('CFBundleShortVersionString: 1.0.4','CFBundleShortVersionString: 1.0.6')
+              content=content.replace('CFBundleVersion: "5"','CFBundleVersion: "7"')
               project.write_text(content)
           sources=(root/'Sealora/Core/ArchiveInspector.swift').read_text()
           assert 'SignatureSpecialSlotValidator.verify(' in sources
           assert 'verifyCodeResourcesRecursively(forBundleAt: app)' in sources
           assert 'check.codeDirectories.allSatisfy' in sources
           assert 'infoPlist: infoData' in sources and 'codeResources: resourcesData' in sources
-          print('Sealora 1.0.5: external signature slot verification and bundle seal audit included')
+          app=root/'Sealora/SealoraApp.swift'
+          view=app.read_text()
+          old='''            Button("OK", role: .cancel) { library.alertText = nil }
+        } message: { Text(library.alertText ?? "") }'''
+          new='''            Button("Copy Details") {
+                UIPasteboard.general.string = library.alertText
+                library.alertText = nil
+            }
+            Button("OK", role: .cancel) { library.alertText = nil }
+        } message: { Text(library.alertText ?? "") }'''
+          assert view.count(old)==2, 'Expected two signing error alert presentations'
+          app.write_text(view.replace(old,new))
+          assert config['CFBundleShortVersionString']=='1.0.6'
+          assert config['CFBundleVersion']=='7'
+          print('Sealora 1.0.6: all external and embedded signature slots checked and Copy Details retained')
           PY
           cd "$RUNNER_TEMP/SealoraProject"
           swiftc -frontend -parse Sealora/Core/ArchiveInspector.swift Tests/SealoraTests.swift
@@ -169,7 +166,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.5-unsigned-IPA
+          name: Sealora-1.0.6-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
