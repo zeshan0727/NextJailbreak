@@ -118,7 +118,7 @@ jobs:
           start=patchText.index('@@ -143,3 +167,93 @@')
           end=patchText.index('--- a/Tests/SealoraTests.swift',start)
           extra=patchText[start:end]
-          suffix=''.join(line[1:]+'\\n' for line in extra.splitlines() if line.startswith('+') and not line.startswith('+++'))
+          suffix=''.join(line[1:]+'\n' for line in extra.splitlines() if line.startswith('+') and not line.startswith('+++'))
           patch=(patchText[:start]+patchText[end:]).encode()
           root=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
           proc=subprocess.run(['patch','-t','-p1'],cwd=root,input=patch,capture_output=True)
