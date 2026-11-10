@@ -4,7 +4,7 @@ on:
     branches: [sealora-ios-test]
     paths:
       - '.github/workflows/sealora-ios-test.yml'
-      - 'SealoraBuild/**'
+      - 'SealoraBuild/READY'
   workflow_dispatch:
 jobs:
   ipa:
@@ -17,11 +17,17 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/SealoraProject"
           python3 - <<'PY'
-          import base64, pathlib
-          encoded=pathlib.Path('SealoraBuild/source.tar.gz.b64').read_text()
-          pathlib.Path('SealoraBuild/source.tar.gz').write_bytes(base64.b64decode(encoded))
+          import base64, pathlib, lzma, tarfile, io, hashlib, os
+          paths=sorted(pathlib.Path('SealoraBuild/parts').glob('part*.b64'))
+          if len(paths)!=8: raise SystemExit(f'Expected 8 source pieces; found {len(paths)}')
+          encoded=''.join(p.read_text().strip() for p in paths)
+          body=base64.b64decode(encoded,validate=True)
+          digest=hashlib.sha256(body).hexdigest()
+          expected='2a51eca73bce2673240555762b69fae87eedf84fffc32d50462ee573973a85c3'
+          if digest!=expected: raise SystemExit('Source archive checksum mismatch: '+digest)
+          with tarfile.open(fileobj=io.BytesIO(lzma.decompress(body)), mode='r:') as archive:
+              archive.extractall(pathlib.Path(os.environ['RUNNER_TEMP'])/'SealoraProject')
           PY
-          tar -xzf SealoraBuild/source.tar.gz -C "$RUNNER_TEMP/SealoraProject"
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
