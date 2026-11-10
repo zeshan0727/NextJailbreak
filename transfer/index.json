@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T12:52:06Z",
+  "updatedAt": "2026-11-10T13:13:28Z",
   "files": [
     {
-      "id": "sealora-1.0.3-build4-unsigned",
-      "name": "Sealora 1.0.3 — Next Jailbreak Credits and First Launch",
-      "fileName": "Sealora-1.0.3-unsigned.ipa",
+      "id": "sealora-1.0.4-build5-unsigned",
+      "name": "Sealora 1.0.4 — No UDID Setup",
+      "fileName": "Sealora-1.0.4-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+; unsigned IPA (requires compatible signing before installation)",
-      "version": "1.0.3 (4)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.3/Sealora-1.0.3-unsigned.ipa",
-      "sha256": "652dd1663873f04fe15b6650edd40e272466be70a42f8ddfef3a256bc6e7b4d6",
-      "sizeBytes": 3295800,
-      "notes": "Settings credits Next Jailbreak / Zeeshan0727, one-time Safari launch of nextjailbreak.com, UDID profile button with service-health guard and secure Keychain UDID return. IMPORTANT: UDID Cloudflare service not deployed because API token authentication failed; use manual UDID until fixed. Device profile exchange remains unverified. Unsigned app."
+      "version": "1.0.4 (5)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.4/Sealora-1.0.4-unsigned.ipa",
+      "sha256": "75bbcb989563fa4dc4de3a501012089c335dd8ce0e3785893e077bb78cee2f33",
+      "sizeBytes": 3272875,
+      "notes": "Removed manual UDID input, UDID profile download, and UDID preflight requirement. Saved credentials and imported IPAs remain; Apple Ad Hoc device restrictions still apply at installation. Unsigned iOS 16+ test IPA."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
