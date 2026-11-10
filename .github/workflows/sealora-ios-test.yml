@@ -39,7 +39,7 @@ jobs:
               raise SystemExit('Hotfix checksum mismatch')
           patch = lzma.decompress(archive)
           root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'SealoraProject'
-          result = subprocess.run(['patch','--batch','-p1'], input=patch,
+          result = subprocess.run(['patch','-t','-p1'], input=patch,
                                   cwd=root, capture_output=True)
           print(result.stdout.decode())
           if result.returncode:
