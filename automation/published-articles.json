@@ -1,6 +1,99 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Regram for Instagram 7.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "regram-for-instagram-7-0-1-update/",
+      "image": "assets/articles/source-media/regram-for-instagram-7-0-1-update-34438abcb3.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Regram-for-Instagram",
+      "modified_at": "2026-11-10T13:53:22+00:00",
+      "name": "Regram for Instagram",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-11-10T13:53:22+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/437add3db99cf45168ff930ae1c7cef872c4b0ece3cd825116300eca11b49f5d/FouadRaheb/Regram-for-Instagram",
+      "title": "Regram 7.0.1 for Instagram Fixes Sideloading, Chats, Stories, and iOS 26 Issues",
+      "version": "7.0.1"
+    },
+    {
+      "additional_media": [
+        "assets/articles/source-media/rocket-4-24-0-official-reels-menu.webp"
+      ],
+      "article_sha256": "6fdae15808845ab45feeb1e1d8a211019d9a1abe554272dbd0f865e75b1a9c64",
+      "candidate_fingerprint": "comparison.regram-7.0.1-rocket-4.26.0-instagram-454-2026-11-10",
+      "category": {
+        "id": "tweak-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Current Regram 7.0.1 downloads pair with Instagram 454.1.0 and use separate jailbreak, TrollStore and sideload paths whose requirements must not be interchanged. Rocket 4.26.0 requires iOS 15.0 or later and the App Store Instagram app, and adds Instagram 454.0.0 compatibility. Package compatibility does not establish jailbreak availability for every device or firmware.",
+      "description": "Regram 7.0.1 vs Rocket 4.26.0 compared: Instagram 454 support, iPhone Duo, privacy, downloads, jailbreak packages, TrollStore and sideloading.",
+      "developer": "Fouad Raheb; Rocket",
+      "entry_type": "comparison",
+      "href": "regram-vs-rocket-instagram-tweak-comparison/",
+      "image": "assets/articles/source-media/rocket-4-24-0-official-banner.jpg",
+      "media_credit": "Rocket — official developer banner and Reels action-menu interface screenshot",
+      "media_source_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
+      "modified_at": "2026-11-10T09:04:04Z",
+      "name": "Regram 7.0.1 vs Rocket 4.26.0",
+      "package": "com.fouadraheb.regram; me.alfhaily.rocket",
+      "published_at": "2026-10-18T08:58:53Z",
+      "quality_target": 9,
+      "release": "Regram 7.0.1 released November 9, 2026; Rocket 4.26.0 published November 4, 2026",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "regram-vs-rocket-instagram-tweak-comparison",
+      "source_name": "Official Regram and Rocket package, changelog, installation and project pages",
+      "source_page_url": "https://fouadraheb.com/apt/package/com.fouadraheb.regram/changelogs",
+      "source_url": "https://apt.getrocketapp.io/",
+      "source_visual_origin": "official-developer-banner-and-interface-screenshot",
+      "source_visual_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
+      "title": "Regram 7.0.1 vs Rocket 4.26.0: Which Instagram Tweak Should You Use?",
+      "version": "Regram 7.0.1; Rocket 4.26.0"
+    },
+    {
+      "additional_media": [],
+      "article_sha256": "117824506f0d0c3ad7342176c07bfcacc4f51b119d24cc4395739add96f3cc10",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-rejailbreak-after-reboot-second-pass-2026-11-10",
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.x official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
+      "description": "Re-jailbreak Dopamine 3.0.13 after a full reboot, restore tweaks safely, and fix app-launch, second-pass respring, missing package-manager and Zebra failures.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "rejailbreak-dopamine-after-reboot-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-10T03:00:00Z",
+      "name": "Dopamine re-jailbreak after reboot",
+      "package": "guide.dopamine.rejailbreak-after-reboot",
+      "published_at": "2026-10-12T00:56:11Z",
+      "release": "Dopamine 3.0.13 — November 3, 2026",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "rejailbreak-dopamine-after-reboot-guide",
+      "source_name": "Official Dopamine 3.0.13 release, tagged README, interface strings and jailbreak flow",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Re-Jailbreak Dopamine 3.0.13 After a Reboot",
+      "version": "Dopamine 3.0.13 / guide revision 2026-11-10"
+    },
+    {
       "additional_media": [],
       "article_sha256": "9631b93424a07e6d329083950af04f13b0e37238eea1e8dd0fd3388105d2ea06",
       "candidate_fingerprint": "jailbreak-development.erosion-0.3-worse-query-ios27.3-beta1-2026-11-09",
@@ -35,6 +128,263 @@
       "version": "0.3"
     },
     {
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "iPhone and iPad on iOS/iPadOS 17.0–18.7.1 or 26.0–26.0.1; excludes iOS 16 and earlier, 18.7.2–25.x, 26.1+, iPhone 17 (A19/A19 Pro) and M5 devices",
+      "description": "Cyanide 1.17.0 adds locked-app notification previews, immediate per-tweak changes and Respring/Reboot controls. Check exact iOS and device support.",
+      "entry_type": "individual-tweak-update",
+      "href": "cyanide-1-6-0-update/",
+      "image": "assets/articles/source-media/cyanide-1-16-official-app-icon.png",
+      "media_alt": "Official Cyanide app icon showing a glowing cyan bottle with a command prompt mark",
+      "media_credit": "Kolbicz/Cyanide — official app icon verified in the version 1.17.0 source tree",
+      "media_git_blob_sha": "e0e72c12817dd7328b64246bbc6394ff990ea668",
+      "media_sha256": "9adc9ceb38912b196128bad4d43edc43f5ac5aabe42b97740b0ff032e59e301e",
+      "media_source_url": "https://github.com/kolbicz/Cyanide/blob/v1.17.0/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
+      "modified_at": "2026-11-09T15:23:00+00:00",
+      "name": "Cyanide",
+      "package": "cyanide",
+      "published_at": "2026-09-17T14:03:10+00:00",
+      "quality_target": 9,
+      "release": "2026-11-08",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "cyanide-1-6-0-update",
+      "source_name": "Official Cyanide 1.17.0 GitHub release and project README",
+      "source_page_url": "https://github.com/kolbicz/Cyanide/releases/tag/v1.17.0",
+      "source_url": "https://github.com/kolbicz/Cyanide",
+      "source_visual_origin": "official-tagged-project-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/kolbicz/Cyanide/v1.17.0/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
+      "title": "Cyanide 1.17.0 Adds Locked-App Previews and Respring Controls",
+      "version": "1.17.0"
+    },
+    {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/legacyfolder26-1-0-1-official-translucent-folder.png",
+          "media_credit": "Official LegacyFolder26 translucent folder-panel screenshot from bakera1n’s Havoc listing",
+          "media_sha256": "621c8682c300b8c4ad7c20a6d0f929f190584a410082e73cc51a26e2a93597e9",
+          "media_source_url": "https://media.havoc.app/6ac7ee2b52e2be116d314291"
+        },
+        {
+          "image": "assets/articles/source-media/primalfolderpro-1-0-1-official-exsto-menu.png",
+          "media_credit": "Official PrimalFolderPro screenshot showing the Exsto circular quick-launch menu",
+          "media_git_blob_sha": "c5bca9000c27d5af67a9575f3b00ef01686ec4c7",
+          "media_sha256": "66b5e51990642c77e1affa4f6f3128e08268ffc289be316ea8c986c2cb40c67c",
+          "media_source_url": "https://media.havoc.app/6ae11d30d81ae3dd289f36f0"
+        }
+      ],
+      "article_sha256": "1dd126361a5fec434f8046b2382f2232778fd74abb162659abcbaeb5e0d72a5d",
+      "candidate_fingerprint": "comparison.stackr-1.0.1-primalfolderpro-1.0.1-legacyfolder26-1.1.0-2026-11-09",
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Stackr: iOS/iPadOS 15.0–18.5, rootless listed; PrimalFolderPro: iOS/iPadOS 14.0–26.0.1, rootful/rootless/RootHide listed; LegacyFolder26: iOS/iPadOS 15.0–26.0.1, rootless listed; jailbreak availability remains device- and firmware-specific",
+      "description": "Compare Stackr 1.0.1, PrimalFolderPro 1.0.1 and LegacyFolder26 1.1.0 by workflow, iOS support, privacy, price and jailbreak environment.",
+      "developer": "T4MAG0 / ichitaso / bakera1n",
+      "entry_type": "roundup-comparison",
+      "href": "legacyfolder26-1-0-1-ios-26-folder-tweak/",
+      "image": "assets/articles/source-media/stackr-1-0-1-official-banner.png",
+      "media_alt": "Official Stackr artwork showing an app-style folder, notification badge and lock",
+      "media_credit": "Official Stackr banner from T4MAG0’s Havoc listing",
+      "media_git_blob_sha": "5c72c10d572958fdd09f58a743f856d08d8da0f7",
+      "media_retrieval_status": "Retrieved byte-for-byte from the live Havoc __NEXT_DATA__ banner field, inspected at 1920×1080, stored locally and embedded in article and social metadata.",
+      "media_sha256": "6a9b6ff08d553094f4936bad37326eeff859fd5232734ec5bd5cf0748df35b59",
+      "media_source_url": "https://media.havoc.app/6ae936fff03c5b354b670358",
+      "modified_at": "2026-11-09T09:03:23Z",
+      "name": "Stackr vs PrimalFolderPro vs LegacyFolder26",
+      "package": "comparison.primalfolderpro-legacyfolder26",
+      "published_at": "2026-10-12T17:04:42Z",
+      "release": "Stackr 1.0.1 — November 7, 2026; PrimalFolderPro 1.0.1 — October 29, 2026; LegacyFolder26 1.1.0 — October 19, 2026",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "legacyfolder26-1-0-1-ios-26-folder-tweak",
+      "source_name": "Official Stackr, PrimalFolderPro and LegacyFolder26 Havoc listings, version histories and embedded page data",
+      "source_page_url": "https://havoc.app/package/stackr",
+      "source_url": "https://havoc.app/package/stackr/changes",
+      "source_visual_origin": "official-havoc-banner-and-screenshots",
+      "source_visual_url": "https://media.havoc.app/6ae936fff03c5b354b670358",
+      "title": "Stackr vs PrimalFolderPro vs LegacyFolder26: Which Folder Tweak Fits?",
+      "version": "Stackr 1.0.1 / PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
+    },
+    {
+      "additional_media": [],
+      "article_sha256": "9f72b321fbf5cd927c1f402378d723828b1402958632899f076d6c45cab77bfb",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-bad-tweak-crash-loop-zebra-2026-11-09",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.0.13 documents arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. This recovery flow assumes a previously working standard rootless Dopamine environment; it does not apply to RootHide or expand device and firmware support.",
+      "description": "Recover Dopamine 3.0.13 after Safe Mode, a bad tweak, SpringBoard crash loop or Watchdog Timeout; distinguish the iOS 17.6+ Zebra fix before removing packages.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — exact official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_retrieval_status": "Reused the exact official 192×192 Dopamine app icon from the 3.0.13 source tag, already hash-verified and stored locally; embedded in article and social metadata.",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "modified_at": "2026-11-09T03:03:30Z",
+      "name": "Dopamine bad-tweak recovery",
+      "package": "guide.dopamine.crash-loop-recovery",
+      "published_at": "2026-10-06T00:55:26Z",
+      "release": "Dopamine 3.0.13 — November 3, 2026; guide revised November 9, 2026",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "dopamine-bad-tweak-crash-loop-recovery-guide",
+      "source_name": "Official Dopamine 3.0.13 release, settings, environment manager, system hook and watchdog source",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Settings/DOSettingsController.m",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop",
+      "version": "Dopamine 3.0.13 / guide revision 2026-11-09"
+    },
+    {
+      "article_sha256": "31db7a8e196f2b45d7adb8c7c809d8f6dd0f37e83d59f23a77e64aa8fb5506f8",
+      "candidate_fingerprint": "evergreen-guide.tweak-compatibility-dopamine-3.0.13-zebra-ios17.6-2026-11-09",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Architecture guidance covers traditional rootful iphoneos-arm, conventional rootless iphoneos-arm64 and explicitly supported RootHide iphoneos-arm64e packages. Package metadata does not establish jailbreak availability; exact device, firmware, bootstrap, injection provider and target-app version must also match.",
+      "description": "Check jailbreak tweak package compatibility across rootful, rootless and RootHide setups, including firmware, dependencies, app versions and recovery.",
+      "developer": "Theos contributors, Dopamine and RootHide teams",
+      "entry_type": "evergreen-guide",
+      "href": "jailbreak-tweak-compatibility-checklist/",
+      "image": "assets/articles/source-media/theos-official-logo.png",
+      "media_alt": "Official purple Theos project logo",
+      "media_credit": "Theos project — exact official project logo",
+      "media_retrieval_status": "Reused the exact official 500×500 Theos project logo already registered and hash-verified in the source-media library; embedded in the canonical article. The crawler preview remains the site's established wide social card because the square source logo does not meet the site's social-preview aspect-ratio gate.",
+      "media_sha256": "35b663fd1a747f7d8108caa2ffe6cddb334021c001d1da2cf72763125484dadb",
+      "media_source_url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
+      "modified_at": "2026-11-08T21:02:19Z",
+      "name": "Jailbreak tweak compatibility checklist",
+      "package": "editorial.compatibility-checklist",
+      "published_at": "2026-09-10T09:29:47Z",
+      "quality_target": 9,
+      "release": "Guide revision 2026-11-09; verified against Dopamine 3.0.13 and RootHide Patcher 2.1.4",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "jailbreak-tweak-compatibility-checklist",
+      "source_name": "Official Theos packaging and rootless documentation, Dopamine 3.0.13 release and 3.x README, RootHide Patcher 2.1.4 metadata and RootHide Packages index",
+      "source_page_url": "https://theos.dev/docs/packaging",
+      "source_url": "https://theos.dev/docs/rootless",
+      "source_visual_origin": "official-project-logo",
+      "source_visual_url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
+      "title": "How to Check Jailbreak Tweak Compatibility Before Installing",
+      "version": "Guide revision 2026-11-09 / Dopamine 3.0.13 / RootHide Patcher 2.1.4"
+    },
+    {
+      "article_sha256": "b74be09a2e0320463984f7a9ee3962779aba59b9f48e62dea98043bc3346c7c5",
+      "candidate_fingerprint": "individual-update.drift-1.1.0-effects-reflection-floating-dock-2026-11-08",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Jailbroken iPhone, iPad and iPod touch on iOS 15.0–26.0; official source does not provide a jailbreak-by-jailbreak environment matrix",
+      "description": "Drift 1.1.0 adds new dock edge and scroll effects, reflection, a position indicator and Floating Dock on iPhone. Check iOS 15–26 support and fixes.",
+      "developer": "Antony .M",
+      "entry_type": "individual-update",
+      "href": "drift-1-0-0-update/",
+      "image": "assets/articles/source-media/drift-1-0-0-update-702c52ab05.jpg",
+      "media_alt": "Official Drift promotional banner showing a wide iOS dock filled with app icons",
+      "media_credit": "Official Drift promotional banner from Antony .M’s Chariz listing",
+      "media_git_blob_sha": "4dc4b414342aca9aa926ebf2b9af19638b268169",
+      "media_sha256": "64a4e2e87b5fdbc94b03fe20e794c34667954132f4a47cdb1cdd4e7d60c0de11",
+      "media_source_url": "https://chariz.com/buy/drift",
+      "modified_at": "2026-11-08T15:07:59Z",
+      "name": "Drift",
+      "package": "com.antonym.drift",
+      "published_at": "2026-11-04T23:22:04+00:00",
+      "quality_target": 9,
+      "release": "2026-11-05T06:32:11.030Z",
+      "selection_pool": "official-source-individual-tweak-update",
+      "source_name": "Official Chariz Drift listing and release feed",
+      "source_page_url": "https://chariz.com/buy/drift",
+      "source_url": "https://chariz.com/buy/drift",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://img.chariz.cloud/sileo-banner/drift.jpg",
+      "title": "Drift 1.1.0 Adds Dock Effects, Reflection and Floating Dock on iPhone",
+      "version": "1.1.0"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official AltStore Classic app icon",
+          "path": "assets/articles/source-media/altstore-classic-official-icon.webp",
+          "source_url": "https://github.com/altstoreio/AltStore/blob/develop/AltStore/Resources/Assets.xcassets/AppIcon.appiconset/Group%2023.png"
+        },
+        {
+          "credit": "Official TrollStore app icon",
+          "path": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+          "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png"
+        }
+      ],
+      "article_sha256": "cc8cf91759ee87a0d5906121d2406223ef469c2bd8d4cd161aec309eb0c5f18c",
+      "candidate_fingerprint": "comparison.trollstore-2.1.1-sidestore-0.7.0-alpha-altstore-classic-2.3.1-2026-11-08",
+      "category": {
+        "id": "ipa-comparison",
+        "label": "IPA Installer Comparison"
+      },
+      "compat": "TrollStore: iOS/iPadOS 14.0 beta 2–16.6.1, 16.7 RC (20H18), 17.0; SideStore: iOS 14+; AltStore Classic 2.3.1: iOS 17.4+",
+      "description": "Compare TrollStore 2.1.1, SideStore 0.7.0-alpha and AltStore Classic 2.3.1 by iOS support, refresh rules, setup, signing limits and current fixes.",
+      "developer": "opa334, SideStore, AltStore LLC",
+      "entry_type": "roundup-comparison",
+      "href": "trollstore-vs-sidestore-vs-altstore/",
+      "image": "assets/articles/source-media/sidestore-official-icon.webp",
+      "media_credit": "Official SideStore and AltStore Classic app icons from their project repositories; official TrollStore app icon by opa334",
+      "media_source_url": "https://github.com/SideStore/SideStore/blob/develop/AltStore/Resources/Assets.xcassets/SideStore.imageset/1024.png",
+      "modified_at": "2026-11-08T09:00:57Z",
+      "name": "TrollStore vs SideStore vs AltStore Classic",
+      "published_at": "2026-10-03T09:00:33Z",
+      "release": "2026-10-21",
+      "selection_pool": "official-project-comparison",
+      "slug": "trollstore-vs-sidestore-vs-altstore",
+      "source": "https://github.com/altstoreio/FAQ/blob/main/release-notes/altstore.md",
+      "source_name": "Official AltStore release notes",
+      "source_page_url": "https://github.com/altstoreio/FAQ/blob/main/release-notes/altstore.md",
+      "source_visual_origin": "official-repository-assets",
+      "source_visual_url": "https://raw.githubusercontent.com/SideStore/SideStore/develop/AltStore/Resources/Assets.xcassets/SideStore.imageset/1024.png",
+      "title": "TrollStore vs SideStore vs AltStore Classic 2.3.1: Which IPA Installer Should You Use?",
+      "version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3.1"
+    },
+    {
+      "additional_media": [],
+      "article_sha256": "4a6aec4b2fc853f99b9c1f0047a79503e98ea35098a3b40f903225d826c64b98",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-mobile-root-passwords-2026-11-08",
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.x official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
+      "description": "Change mobile and root passwords safely on Dopamine 3.0.13, understand which credential sudo uses, and troubleshoot authentication without exposing secrets.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "change-mobile-root-password-dopamine-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-08T03:03:23Z",
+      "name": "Dopamine password hardening",
+      "package": "guide.dopamine.passwords",
+      "published_at": "2026-10-12T05:01:49Z",
+      "release": "Dopamine 3.0.13 — November 3, 2026",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "change-mobile-root-password-dopamine-jailbreak-guide",
+      "source_name": "Official Dopamine 3.0.13 release, tagged README and tagged interface strings",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings",
+      "source_url": "https://github.com/opa334/Dopamine",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Change Mobile and Root Passwords on Dopamine 3.0.13",
+      "version": "Dopamine 3.0.13"
+    },
+    {
       "additional_media": [],
       "article_sha256": "1cc5efaed6c90b4536c15b76dd69740cd7c0f1d3621c0f98260a218745d749a9",
       "candidate_fingerprint": "jailbreak-development.relaxin-0.5.7-experimental-tvos-visionos-ios16.1-2026-11-08",
@@ -66,6 +416,190 @@
       "source_visual_url": "https://github.com/5hux1n/relaxin/releases/download/v0.5.7/Relaxin-v0.5.7.ipa",
       "title": "Relaxin 0.5.7 Adds Experimental tvOS, visionOS and iOS 16.1 Support",
       "version": "0.5.7"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",
+          "git_blob_sha": "3b440e1b5770bd838eed1dc14e664f4ba8c14374",
+          "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-force-quit.jpg?v=bc266b0b2",
+          "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg"
+        }
+      ],
+      "article_sha256": "d6f1a59df91aeae51a8a6afebfc4e4ac817336175fa1e064b3f4575255176bbb",
+      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.8.3-keyboard-tiling-keypilot-2026-11-07",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "MacStatusBar&Dock 1.8.3: iPad only, iPadOS 15–18, conventional rootless jailbreak. No iPhone or RootHide build is documented; package compatibility does not create jailbreak support.",
+      "description": "MacStatusBar&Dock 1.8.3 adds macOS-style keyboard tiling, window APIs for KeyPilot and safer side-Dock behavior. Check the official repo, iPadOS support and recovery.",
+      "developer": "BesiktasliSeba",
+      "entry_type": "jailbreak-development",
+      "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
+      "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-settings.jpg?v=0624fbbd2",
+      "media_alt": "Official MacStatusBar&Dock interface showing Settings in a Mac-style iPad window",
+      "media_credit": "Official MacStatusBar&Dock package depiction by BesiktasliSeba",
+      "media_git_blob_sha": "938abef9a1d77dd53b06e2b2ea23055bf7cb04c1",
+      "media_retrieval_status": "Exact official developer screenshots already stored locally and re-verified; current Havoc __NEXT_DATA__ also exposes official banner and screenshot URLs.",
+      "media_source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
+      "modified_at": "2026-11-07T14:57:20Z",
+      "name": "MacStatusBar&Dock",
+      "package": "com.besiktasliseba.macstatusbaranddock",
+      "published_at": "2026-10-04T21:04:21Z",
+      "release": "2026-11-07",
+      "selection_pool": "official-open-source-individual-update",
+      "source_name": "BesiktasliSeba official project, release ledger and Havoc page data",
+      "source_page_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
+      "source_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock/blob/main/CHANGELOG.md",
+      "source_visual_origin": "official-developer-package-depiction",
+      "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
+      "title": "MacStatusBar&Dock 1.8.3 Adds Keyboard Window Tiling and KeyPilot Support",
+      "version": "1.8.3"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "RootHide — official Dopamine RootHide app icon from release 30",
+          "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
+          "source_url": "https://github.com/roothide/Dopamine-roothide/tree/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
+        },
+        {
+          "credit": "RootHide — official Bootstrap 2.2.1 app icon",
+          "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
+          "source_url": "https://github.com/roothide/Bootstrap/blob/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
+        }
+      ],
+      "category": {
+        "id": "jailbreak-comparison",
+        "label": "Jailbreak Comparison"
+      },
+      "compat": "Dopamine 3.0.13: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. Dopamine RootHide support must be verified separately. Bootstrap 2.2.2 is a migration notice; NathanLR covers 16.5.1–16.7 RC and 17.0.",
+      "description": "Compare Dopamine 3.0.13, Dopamine RootHide 3.0.13-30, the Bootstrap migration state and NathanLR by support, packages, hashes and switching risks.",
+      "developer": "opa334; RootHide team; Nathan",
+      "entry_type": "roundup-comparison",
+      "href": "dopamine-vs-nathanlr-vs-roothide-bootstrap/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-07T08:57:56Z",
+      "name": "Dopamine vs Dopamine RootHide vs Bootstrap",
+      "package": "comparison.dopamine-nathanlr-roothide",
+      "published_at": "2026-10-05T09:00:14Z",
+      "release": "2026-11-07",
+      "selection_pool": "official-project-comparison",
+      "slug": "dopamine-vs-nathanlr-vs-roothide-bootstrap",
+      "source_name": "Official Dopamine, Dopamine RootHide, RootHide Bootstrap and NathanLR GitHub sources",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-tagged-repository-assets",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "Dopamine vs Dopamine RootHide vs Bootstrap: Which Should You Use?",
+      "version": "Dopamine 3.0.13 / Dopamine RootHide 3.0.13-30 / Bootstrap 2.2.2 migration notice / NathanLR source"
+    },
+    {
+      "additional_media": [
+        "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png"
+      ],
+      "additional_media_sha256": [
+        "572f64ad1e3c2b4b0809d53e769e88769d6292596d6a808fa113044fed7c0490"
+      ],
+      "article_sha256": "151172f598ce062b6c500e6157f4b3f2a86079b8954f9548680e42e7824dd149",
+      "candidate_fingerprint": "evergreen-guide.roothide-bootstrap-2.2.2-migration-dopamine-roothide-3.0.13-30",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Standalone Bootstrap historically lists iOS 15.0–17.0 on A8–A17 Pro and M1/M2 TrollStore devices. RootHide tag 30 carries Dopamine ranges for arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1; exact hardware and installation support must still be verified.",
+      "description": "Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30 safely: compatibility checks, official hashes, unbootstrap order and troubleshooting.",
+      "developer": "RootHide",
+      "entry_type": "evergreen-guide",
+      "href": "install-roothide-bootstrap-trollstore-guide/",
+      "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
+      "media_alt": "Official RootHide Bootstrap icon depicting a pale table on a dark gradient",
+      "media_credit": "RootHide — official Bootstrap 2.2.1 source icon and Dopamine RootHide release 30 source icon",
+      "media_git_blob_sha": "8c0def0017af33dc1f3e14ed07dbf4be25630e7c",
+      "media_retrieval_status": "Re-fetched and hash-matched two official source assets: the 1024×1024 Bootstrap 2.2.1 icon and 167×167 Dopamine RootHide release 30 icon. Both are embedded in the canonical article.",
+      "media_sha256": "64e76d863e8909ee7f028de58c3a079cf4099c4a449ba5b2051ff97cc7d62ab0",
+      "media_source_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "modified_at": "2026-11-07T02:57:22Z",
+      "name": "Migrate RootHide Bootstrap to Dopamine RootHide 3.0.13-30",
+      "package": "guide.roothide.bootstrap.trollstore.install",
+      "published_at": "2026-10-28T01:00:09Z",
+      "quality_target": 9,
+      "release": "RootHide Bootstrap 2.2.2 migration notice published 2026-10-25 / Dopamine RootHide 3.0.13-30 published 2026-11-06",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "install-roothide-bootstrap-trollstore-guide",
+      "source_name": "Official RootHide Bootstrap 2.2.2 migration notice, Bootstrap 2.2.1 asset metadata, Dopamine RootHide 3.0.13-30 release and tag-30 support file",
+      "source_page_url": "https://github.com/roothide/Bootstrap/releases/tag/2.2.2",
+      "source_url": "https://github.com/roothide/Bootstrap",
+      "source_visual_origin": "official-2.2.1-source-repository-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+      "title": "How to Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30",
+      "version": "Guide revision 2026-11-07 / Bootstrap 2.2.2 / Dopamine RootHide 3.0.13-30"
+    },
+    {
+      "category": {
+        "id": "jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Tag 30 carries Dopamine ranges for arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. RootHide's release note does not announce a wider matrix; exact device, firmware and installation path must still be verified.",
+      "description": "Verify Dopamine RootHide 3.0.13-30 downloads, device and iOS support, changes from release 29, safe update steps and troubleshooting.",
+      "developer": "RootHide",
+      "entry_type": "development",
+      "href": "dopamine-roothide-3-x-integration-status/",
+      "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
+      "media_alt": "Official Dopamine RootHide app icon from release 3.0.13-30",
+      "media_credit": "RootHide — exact app icon from official release 30 source tag",
+      "media_git_blob_sha": "74b017bf008532c15a92f1d8420fcc2bd44efae7",
+      "media_retrieval_status": "Official release 30 source icon retrieved and SHA-256 matched to the existing archived project icon; embedded in the article and social metadata.",
+      "media_sha256": "572f64ad1e3c2b4b0809d53e769e88769d6292596d6a808fa113044fed7c0490",
+      "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "modified": "2026-11-06T21:05:00Z",
+      "modified_at": "2026-11-06T21:05:00Z",
+      "name": "Dopamine RootHide 3.0.13-30 release status",
+      "package": "github.roothide.dopamine-roothide",
+      "published_at": "2026-10-23T01:03:42Z",
+      "quality_target": 9,
+      "release": "3.0.13-30 / tag 30 with official IPA and TIPA assets",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "dopamine-roothide-3-x-integration-status",
+      "source_name": "Official RootHide release 30, asset metadata, tag comparison, carried support file and upstream Dopamine 3.0.13 release",
+      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/30",
+      "source_url": "https://github.com/roothide/Dopamine-roothide",
+      "source_visual_origin": "official-release-30-source-tag-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
+      "title": "Dopamine RootHide 3.0.13-30: Downloads, Support and Safe Update",
+      "version": "3.0.13-30"
+    },
+    {
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "description": "Deck 1.2.0 adds drag-to-pin, playback-aware protection, quick actions and a separate Control Center page, with native modules on iOS 18.",
+      "entry_type": "tweak-update",
+      "href": "deck-1-1-0-update/",
+      "image": "assets/articles/source-media/deck-1-1-0-update-ed4a6526a6.jpg",
+      "media_credit": "Official Deck banner from the Chariz package listing",
+      "media_sha256": "d0c6271d205f2a156fc6d5efdb88c1143f155591d6fe6bcebf010c7a245835c2",
+      "media_source_url": "https://chariz.com/buy/deck",
+      "modified_at": "2026-11-06T15:04:00+00:00",
+      "name": "Deck",
+      "package": "com.antonym.deck",
+      "published_at": "2026-11-04T13:24:27+00:00",
+      "quality_target": 9,
+      "selection_pool": "scheduled-individual-tweak-update",
+      "source_name": "Official Chariz package listing and repository index",
+      "source_page_url": "https://repo.chariz.com/Packages",
+      "source_url": "https://repo.chariz.com/Packages",
+      "source_visual_origin": "official-chariz-banner",
+      "source_visual_url": "https://img.chariz.cloud/sileo-banner/deck.jpg",
+      "title": "Deck 1.2.0 Adds Side-by-Side Control Center and Safer Close All Controls",
+      "version": "1.2.0"
     },
     {
       "category": {
@@ -220,46 +754,6 @@
     {
       "additional_media": [
         {
-          "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",
-          "git_blob_sha": "3b440e1b5770bd838eed1dc14e664f4ba8c14374",
-          "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-force-quit.jpg?v=bc266b0b2",
-          "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg"
-        }
-      ],
-      "article_sha256": "d6f1a59df91aeae51a8a6afebfc4e4ac817336175fa1e064b3f4575255176bbb",
-      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.8.3-keyboard-tiling-keypilot-2026-11-07",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "MacStatusBar&Dock 1.8.3: iPad only, iPadOS 15–18, conventional rootless jailbreak. No iPhone or RootHide build is documented; package compatibility does not create jailbreak support.",
-      "description": "MacStatusBar&Dock 1.8.3 adds macOS-style keyboard tiling, window APIs for KeyPilot and safer side-Dock behavior. Check the official repo, iPadOS support and recovery.",
-      "developer": "BesiktasliSeba",
-      "entry_type": "jailbreak-development",
-      "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
-      "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-settings.jpg?v=0624fbbd2",
-      "media_alt": "Official MacStatusBar&Dock interface showing Settings in a Mac-style iPad window",
-      "media_credit": "Official MacStatusBar&Dock package depiction by BesiktasliSeba",
-      "media_git_blob_sha": "938abef9a1d77dd53b06e2b2ea23055bf7cb04c1",
-      "media_retrieval_status": "Exact official developer screenshots already stored locally and re-verified; current Havoc __NEXT_DATA__ also exposes official banner and screenshot URLs.",
-      "media_source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
-      "modified_at": "2026-11-07T14:57:20Z",
-      "name": "MacStatusBar&Dock",
-      "package": "com.besiktasliseba.macstatusbaranddock",
-      "published_at": "2026-10-04T21:04:21Z",
-      "release": "2026-11-07",
-      "selection_pool": "official-open-source-individual-update",
-      "source_name": "BesiktasliSeba official project, release ledger and Havoc page data",
-      "source_page_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
-      "source_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock/blob/main/CHANGELOG.md",
-      "source_visual_origin": "official-developer-package-depiction",
-      "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
-      "title": "MacStatusBar&Dock 1.8.3 Adds Keyboard Window Tiling and KeyPilot Support",
-      "version": "1.8.3"
-    },
-    {
-      "additional_media": [
-        {
           "image": "assets/articles/source-media/appdata-1-4-0-official-home-screen.jpg",
           "media_alt": "Official AppData Home Screen menu showing app-data maintenance actions",
           "media_credit": "Fouad Raheb — official AppData interface screenshot",
@@ -350,39 +844,6 @@
       "version": "Dopamine 3.0.13"
     },
     {
-      "article_sha256": "b74be09a2e0320463984f7a9ee3962779aba59b9f48e62dea98043bc3346c7c5",
-      "candidate_fingerprint": "individual-update.drift-1.1.0-effects-reflection-floating-dock-2026-11-08",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Jailbroken iPhone, iPad and iPod touch on iOS 15.0–26.0; official source does not provide a jailbreak-by-jailbreak environment matrix",
-      "description": "Drift 1.1.0 adds new dock edge and scroll effects, reflection, a position indicator and Floating Dock on iPhone. Check iOS 15–26 support and fixes.",
-      "developer": "Antony .M",
-      "entry_type": "individual-update",
-      "href": "drift-1-0-0-update/",
-      "image": "assets/articles/source-media/drift-1-0-0-update-702c52ab05.jpg",
-      "media_alt": "Official Drift promotional banner showing a wide iOS dock filled with app icons",
-      "media_credit": "Official Drift promotional banner from Antony .M’s Chariz listing",
-      "media_git_blob_sha": "4dc4b414342aca9aa926ebf2b9af19638b268169",
-      "media_sha256": "64a4e2e87b5fdbc94b03fe20e794c34667954132f4a47cdb1cdd4e7d60c0de11",
-      "media_source_url": "https://chariz.com/buy/drift",
-      "modified_at": "2026-11-08T15:07:59Z",
-      "name": "Drift",
-      "package": "com.antonym.drift",
-      "published_at": "2026-11-04T23:22:04+00:00",
-      "quality_target": 9,
-      "release": "2026-11-05T06:32:11.030Z",
-      "selection_pool": "official-source-individual-tweak-update",
-      "source_name": "Official Chariz Drift listing and release feed",
-      "source_page_url": "https://chariz.com/buy/drift",
-      "source_url": "https://chariz.com/buy/drift",
-      "source_visual_origin": "og:image",
-      "source_visual_url": "https://img.chariz.cloud/sileo-banner/drift.jpg",
-      "title": "Drift 1.1.0 Adds Dock Effects, Reflection and Floating Dock on iPhone",
-      "version": "1.1.0"
-    },
-    {
       "additional_media": [],
       "article_sha256": "20a1dad7143da86bc4bef44fa0ad226569ae76fc38e30fc53e408de70c0960f5",
       "candidate_fingerprint": "dopamine-3.0.13-zebra-ios17.6-posix-spawn-fix-2026-11-05",
@@ -442,32 +903,6 @@
       "source_visual_url": "https://media.havoc.app/691e9346174b1c77f3400337",
       "title": "IconTweak2 1.1.0 Adds App-Data Backup, Restore and Wipe Controls",
       "version": "1.1.0"
-    },
-    {
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "description": "Deck 1.2.0 adds drag-to-pin, playback-aware protection, quick actions and a separate Control Center page, with native modules on iOS 18.",
-      "entry_type": "tweak-update",
-      "href": "deck-1-1-0-update/",
-      "image": "assets/articles/source-media/deck-1-1-0-update-ed4a6526a6.jpg",
-      "media_credit": "Official Deck banner from the Chariz package listing",
-      "media_sha256": "d0c6271d205f2a156fc6d5efdb88c1143f155591d6fe6bcebf010c7a245835c2",
-      "media_source_url": "https://chariz.com/buy/deck",
-      "modified_at": "2026-11-06T15:04:00+00:00",
-      "name": "Deck",
-      "package": "com.antonym.deck",
-      "published_at": "2026-11-04T13:24:27+00:00",
-      "quality_target": 9,
-      "selection_pool": "scheduled-individual-tweak-update",
-      "source_name": "Official Chariz package listing and repository index",
-      "source_page_url": "https://repo.chariz.com/Packages",
-      "source_url": "https://repo.chariz.com/Packages",
-      "source_visual_origin": "official-chariz-banner",
-      "source_visual_url": "https://img.chariz.cloud/sileo-banner/deck.jpg",
-      "title": "Deck 1.2.0 Adds Side-by-Side Control Center and Safer Close All Controls",
-      "version": "1.2.0"
     },
     {
       "category": {
@@ -631,81 +1066,6 @@
       "version": "Official Cydia 1.1.30; Sileo 2.5.1; Zebra 1.1.37"
     },
     {
-      "article_sha256": "31db7a8e196f2b45d7adb8c7c809d8f6dd0f37e83d59f23a77e64aa8fb5506f8",
-      "candidate_fingerprint": "evergreen-guide.tweak-compatibility-dopamine-3.0.13-zebra-ios17.6-2026-11-09",
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Architecture guidance covers traditional rootful iphoneos-arm, conventional rootless iphoneos-arm64 and explicitly supported RootHide iphoneos-arm64e packages. Package metadata does not establish jailbreak availability; exact device, firmware, bootstrap, injection provider and target-app version must also match.",
-      "description": "Check jailbreak tweak package compatibility across rootful, rootless and RootHide setups, including firmware, dependencies, app versions and recovery.",
-      "developer": "Theos contributors, Dopamine and RootHide teams",
-      "entry_type": "evergreen-guide",
-      "href": "jailbreak-tweak-compatibility-checklist/",
-      "image": "assets/articles/source-media/theos-official-logo.png",
-      "media_alt": "Official purple Theos project logo",
-      "media_credit": "Theos project — exact official project logo",
-      "media_retrieval_status": "Reused the exact official 500×500 Theos project logo already registered and hash-verified in the source-media library; embedded in the canonical article. The crawler preview remains the site's established wide social card because the square source logo does not meet the site's social-preview aspect-ratio gate.",
-      "media_sha256": "35b663fd1a747f7d8108caa2ffe6cddb334021c001d1da2cf72763125484dadb",
-      "media_source_url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
-      "modified_at": "2026-11-08T21:02:19Z",
-      "name": "Jailbreak tweak compatibility checklist",
-      "package": "editorial.compatibility-checklist",
-      "published_at": "2026-09-10T09:29:47Z",
-      "quality_target": 9,
-      "release": "Guide revision 2026-11-09; verified against Dopamine 3.0.13 and RootHide Patcher 2.1.4",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "jailbreak-tweak-compatibility-checklist",
-      "source_name": "Official Theos packaging and rootless documentation, Dopamine 3.0.13 release and 3.x README, RootHide Patcher 2.1.4 metadata and RootHide Packages index",
-      "source_page_url": "https://theos.dev/docs/packaging",
-      "source_url": "https://theos.dev/docs/rootless",
-      "source_visual_origin": "official-project-logo",
-      "source_visual_url": "https://raw.githubusercontent.com/theos/theos.dev/ba4f810192a9f229b1f14fd6c39c36e078192afe/assets/img/logo.png",
-      "title": "How to Check Jailbreak Tweak Compatibility Before Installing",
-      "version": "Guide revision 2026-11-09 / Dopamine 3.0.13 / RootHide Patcher 2.1.4"
-    },
-    {
-      "additional_media": [
-        "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png"
-      ],
-      "additional_media_sha256": [
-        "572f64ad1e3c2b4b0809d53e769e88769d6292596d6a808fa113044fed7c0490"
-      ],
-      "article_sha256": "151172f598ce062b6c500e6157f4b3f2a86079b8954f9548680e42e7824dd149",
-      "candidate_fingerprint": "evergreen-guide.roothide-bootstrap-2.2.2-migration-dopamine-roothide-3.0.13-30",
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Standalone Bootstrap historically lists iOS 15.0–17.0 on A8–A17 Pro and M1/M2 TrollStore devices. RootHide tag 30 carries Dopamine ranges for arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1; exact hardware and installation support must still be verified.",
-      "description": "Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30 safely: compatibility checks, official hashes, unbootstrap order and troubleshooting.",
-      "developer": "RootHide",
-      "entry_type": "evergreen-guide",
-      "href": "install-roothide-bootstrap-trollstore-guide/",
-      "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
-      "media_alt": "Official RootHide Bootstrap icon depicting a pale table on a dark gradient",
-      "media_credit": "RootHide — official Bootstrap 2.2.1 source icon and Dopamine RootHide release 30 source icon",
-      "media_git_blob_sha": "8c0def0017af33dc1f3e14ed07dbf4be25630e7c",
-      "media_retrieval_status": "Re-fetched and hash-matched two official source assets: the 1024×1024 Bootstrap 2.2.1 icon and 167×167 Dopamine RootHide release 30 icon. Both are embedded in the canonical article.",
-      "media_sha256": "64e76d863e8909ee7f028de58c3a079cf4099c4a449ba5b2051ff97cc7d62ab0",
-      "media_source_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-      "modified_at": "2026-11-07T02:57:22Z",
-      "name": "Migrate RootHide Bootstrap to Dopamine RootHide 3.0.13-30",
-      "package": "guide.roothide.bootstrap.trollstore.install",
-      "published_at": "2026-10-28T01:00:09Z",
-      "quality_target": 9,
-      "release": "RootHide Bootstrap 2.2.2 migration notice published 2026-10-25 / Dopamine RootHide 3.0.13-30 published 2026-11-06",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "install-roothide-bootstrap-trollstore-guide",
-      "source_name": "Official RootHide Bootstrap 2.2.2 migration notice, Bootstrap 2.2.1 asset metadata, Dopamine RootHide 3.0.13-30 release and tag-30 support file",
-      "source_page_url": "https://github.com/roothide/Bootstrap/releases/tag/2.2.2",
-      "source_url": "https://github.com/roothide/Bootstrap",
-      "source_visual_origin": "official-2.2.1-source-repository-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/roothide/Bootstrap/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-      "title": "How to Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30",
-      "version": "Guide revision 2026-11-07 / Bootstrap 2.2.2 / Dopamine RootHide 3.0.13-30"
-    },
-    {
       "additional_media": [
         "assets/articles/source-media/horythia-1-1-2-official-hide-jailbreak.png"
       ],
@@ -793,37 +1153,6 @@
       "version": "ShowMyTouches 2.0; Touch-Viz 4.2"
     },
     {
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "iPhone and iPad on iOS/iPadOS 17.0–18.7.1 or 26.0–26.0.1; excludes iOS 16 and earlier, 18.7.2–25.x, 26.1+, iPhone 17 (A19/A19 Pro) and M5 devices",
-      "description": "Cyanide 1.17.0 adds locked-app notification previews, immediate per-tweak changes and Respring/Reboot controls. Check exact iOS and device support.",
-      "entry_type": "individual-tweak-update",
-      "href": "cyanide-1-6-0-update/",
-      "image": "assets/articles/source-media/cyanide-1-16-official-app-icon.png",
-      "media_alt": "Official Cyanide app icon showing a glowing cyan bottle with a command prompt mark",
-      "media_credit": "Kolbicz/Cyanide — official app icon verified in the version 1.17.0 source tree",
-      "media_git_blob_sha": "e0e72c12817dd7328b64246bbc6394ff990ea668",
-      "media_sha256": "9adc9ceb38912b196128bad4d43edc43f5ac5aabe42b97740b0ff032e59e301e",
-      "media_source_url": "https://github.com/kolbicz/Cyanide/blob/v1.17.0/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
-      "modified_at": "2026-11-09T15:23:00+00:00",
-      "name": "Cyanide",
-      "package": "cyanide",
-      "published_at": "2026-09-17T14:03:10+00:00",
-      "quality_target": 9,
-      "release": "2026-11-08",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "cyanide-1-6-0-update",
-      "source_name": "Official Cyanide 1.17.0 GitHub release and project README",
-      "source_page_url": "https://github.com/kolbicz/Cyanide/releases/tag/v1.17.0",
-      "source_url": "https://github.com/kolbicz/Cyanide",
-      "source_visual_origin": "official-tagged-project-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/kolbicz/Cyanide/v1.17.0/Cyanide/Assets.xcassets/AppIcon.appiconset/icon-ios-64x64%403x.png",
-      "title": "Cyanide 1.17.0 Adds Locked-App Previews and Respring Controls",
-      "version": "1.17.0"
-    },
-    {
       "additional_media": [
         {
           "image": "assets/articles/source-media/flickkey-1-0-2-official-letter-flick-keys.png",
@@ -874,90 +1203,6 @@
       "source_visual_url": "https://media.havoc.app/6ac499272ff28d01ba3b30ea",
       "title": "FlickKey 1.0.2 Fixes an iOS 17 SpringBoard Startup Deadlock",
       "version": "1.0.2"
-    },
-    {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/legacyfolder26-1-0-1-official-translucent-folder.png",
-          "media_credit": "Official LegacyFolder26 translucent folder-panel screenshot from bakera1n’s Havoc listing",
-          "media_sha256": "621c8682c300b8c4ad7c20a6d0f929f190584a410082e73cc51a26e2a93597e9",
-          "media_source_url": "https://media.havoc.app/6ac7ee2b52e2be116d314291"
-        },
-        {
-          "image": "assets/articles/source-media/primalfolderpro-1-0-1-official-exsto-menu.png",
-          "media_credit": "Official PrimalFolderPro screenshot showing the Exsto circular quick-launch menu",
-          "media_git_blob_sha": "c5bca9000c27d5af67a9575f3b00ef01686ec4c7",
-          "media_sha256": "66b5e51990642c77e1affa4f6f3128e08268ffc289be316ea8c986c2cb40c67c",
-          "media_source_url": "https://media.havoc.app/6ae11d30d81ae3dd289f36f0"
-        }
-      ],
-      "article_sha256": "1dd126361a5fec434f8046b2382f2232778fd74abb162659abcbaeb5e0d72a5d",
-      "candidate_fingerprint": "comparison.stackr-1.0.1-primalfolderpro-1.0.1-legacyfolder26-1.1.0-2026-11-09",
-      "category": {
-        "id": "tweak-roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "Stackr: iOS/iPadOS 15.0–18.5, rootless listed; PrimalFolderPro: iOS/iPadOS 14.0–26.0.1, rootful/rootless/RootHide listed; LegacyFolder26: iOS/iPadOS 15.0–26.0.1, rootless listed; jailbreak availability remains device- and firmware-specific",
-      "description": "Compare Stackr 1.0.1, PrimalFolderPro 1.0.1 and LegacyFolder26 1.1.0 by workflow, iOS support, privacy, price and jailbreak environment.",
-      "developer": "T4MAG0 / ichitaso / bakera1n",
-      "entry_type": "roundup-comparison",
-      "href": "legacyfolder26-1-0-1-ios-26-folder-tweak/",
-      "image": "assets/articles/source-media/stackr-1-0-1-official-banner.png",
-      "media_alt": "Official Stackr artwork showing an app-style folder, notification badge and lock",
-      "media_credit": "Official Stackr banner from T4MAG0’s Havoc listing",
-      "media_git_blob_sha": "5c72c10d572958fdd09f58a743f856d08d8da0f7",
-      "media_retrieval_status": "Retrieved byte-for-byte from the live Havoc __NEXT_DATA__ banner field, inspected at 1920×1080, stored locally and embedded in article and social metadata.",
-      "media_sha256": "6a9b6ff08d553094f4936bad37326eeff859fd5232734ec5bd5cf0748df35b59",
-      "media_source_url": "https://media.havoc.app/6ae936fff03c5b354b670358",
-      "modified_at": "2026-11-09T09:03:23Z",
-      "name": "Stackr vs PrimalFolderPro vs LegacyFolder26",
-      "package": "comparison.primalfolderpro-legacyfolder26",
-      "published_at": "2026-10-12T17:04:42Z",
-      "release": "Stackr 1.0.1 — November 7, 2026; PrimalFolderPro 1.0.1 — October 29, 2026; LegacyFolder26 1.1.0 — October 19, 2026",
-      "selection_pool": "scheduled-tweak-roundup-comparison",
-      "slug": "legacyfolder26-1-0-1-ios-26-folder-tweak",
-      "source_name": "Official Stackr, PrimalFolderPro and LegacyFolder26 Havoc listings, version histories and embedded page data",
-      "source_page_url": "https://havoc.app/package/stackr",
-      "source_url": "https://havoc.app/package/stackr/changes",
-      "source_visual_origin": "official-havoc-banner-and-screenshots",
-      "source_visual_url": "https://media.havoc.app/6ae936fff03c5b354b670358",
-      "title": "Stackr vs PrimalFolderPro vs LegacyFolder26: Which Folder Tweak Fits?",
-      "version": "Stackr 1.0.1 / PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
-    },
-    {
-      "additional_media": [],
-      "article_sha256": "9f72b321fbf5cd927c1f402378d723828b1402958632899f076d6c45cab77bfb",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-bad-tweak-crash-loop-zebra-2026-11-09",
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Dopamine 3.0.13 documents arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. This recovery flow assumes a previously working standard rootless Dopamine environment; it does not apply to RootHide or expand device and firmware support.",
-      "description": "Recover Dopamine 3.0.13 after Safe Mode, a bad tweak, SpringBoard crash loop or Watchdog Timeout; distinguish the iOS 17.6+ Zebra fix before removing packages.",
-      "developer": "opa334",
-      "entry_type": "evergreen-guide",
-      "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_credit": "opa334 — exact official Dopamine app icon from the 3.0.13 source tag",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_retrieval_status": "Reused the exact official 192×192 Dopamine app icon from the 3.0.13 source tag, already hash-verified and stored locally; embedded in article and social metadata.",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "modified_at": "2026-11-09T03:03:30Z",
-      "name": "Dopamine bad-tweak recovery",
-      "package": "guide.dopamine.crash-loop-recovery",
-      "published_at": "2026-10-06T00:55:26Z",
-      "release": "Dopamine 3.0.13 — November 3, 2026; guide revised November 9, 2026",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "dopamine-bad-tweak-crash-loop-recovery-guide",
-      "source_name": "Official Dopamine 3.0.13 release, settings, environment manager, system hook and watchdog source",
-      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Settings/DOSettingsController.m",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop",
-      "version": "Dopamine 3.0.13 / guide revision 2026-11-09"
     },
     {
       "candidate_fingerprint": "palera1n-roothide-1.0-2026-10-25-ipados-17-18-passcode",
@@ -1027,40 +1272,6 @@
     },
     {
       "additional_media": [
-        "assets/articles/source-media/rocket-4-24-0-official-reels-menu.webp"
-      ],
-      "article_sha256": "6fdae15808845ab45feeb1e1d8a211019d9a1abe554272dbd0f865e75b1a9c64",
-      "candidate_fingerprint": "comparison.regram-7.0.1-rocket-4.26.0-instagram-454-2026-11-10",
-      "category": {
-        "id": "tweak-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "Current Regram 7.0.1 downloads pair with Instagram 454.1.0 and use separate jailbreak, TrollStore and sideload paths whose requirements must not be interchanged. Rocket 4.26.0 requires iOS 15.0 or later and the App Store Instagram app, and adds Instagram 454.0.0 compatibility. Package compatibility does not establish jailbreak availability for every device or firmware.",
-      "description": "Regram 7.0.1 vs Rocket 4.26.0 compared: Instagram 454 support, iPhone Duo, privacy, downloads, jailbreak packages, TrollStore and sideloading.",
-      "developer": "Fouad Raheb; Rocket",
-      "entry_type": "comparison",
-      "href": "regram-vs-rocket-instagram-tweak-comparison/",
-      "image": "assets/articles/source-media/rocket-4-24-0-official-banner.jpg",
-      "media_credit": "Rocket — official developer banner and Reels action-menu interface screenshot",
-      "media_source_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
-      "modified_at": "2026-11-10T09:04:04Z",
-      "name": "Regram 7.0.1 vs Rocket 4.26.0",
-      "package": "com.fouadraheb.regram; me.alfhaily.rocket",
-      "published_at": "2026-10-18T08:58:53Z",
-      "quality_target": 9,
-      "release": "Regram 7.0.1 released November 9, 2026; Rocket 4.26.0 published November 4, 2026",
-      "selection_pool": "scheduled-tweak-roundup-comparison",
-      "slug": "regram-vs-rocket-instagram-tweak-comparison",
-      "source_name": "Official Regram and Rocket package, changelog, installation and project pages",
-      "source_page_url": "https://fouadraheb.com/apt/package/com.fouadraheb.regram/changelogs",
-      "source_url": "https://apt.getrocketapp.io/",
-      "source_visual_origin": "official-developer-banner-and-interface-screenshot",
-      "source_visual_url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
-      "title": "Regram 7.0.1 vs Rocket 4.26.0: Which Instagram Tweak Should You Use?",
-      "version": "Regram 7.0.1; Rocket 4.26.0"
-    },
-    {
-      "additional_media": [
         {
           "image": "assets/articles/source-media/debian-open-use-logo.png",
           "media_alt": "Official Debian Open Use logo with the red Debian swirl and Debian wordmark",
@@ -1098,40 +1309,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
       "title": "How to Audit and Repair Broken Jailbreak Packages with dpkg and Sileo",
       "version": "Guide revision 2026-10-30 / dpkg 1.23.11 documentation / Sileo 2.5.1"
-    },
-    {
-      "category": {
-        "id": "jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Tag 30 carries Dopamine ranges for arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. RootHide's release note does not announce a wider matrix; exact device, firmware and installation path must still be verified.",
-      "description": "Verify Dopamine RootHide 3.0.13-30 downloads, device and iOS support, changes from release 29, safe update steps and troubleshooting.",
-      "developer": "RootHide",
-      "entry_type": "development",
-      "href": "dopamine-roothide-3-x-integration-status/",
-      "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
-      "media_alt": "Official Dopamine RootHide app icon from release 3.0.13-30",
-      "media_credit": "RootHide — exact app icon from official release 30 source tag",
-      "media_git_blob_sha": "74b017bf008532c15a92f1d8420fcc2bd44efae7",
-      "media_retrieval_status": "Official release 30 source icon retrieved and SHA-256 matched to the existing archived project icon; embedded in the article and social metadata.",
-      "media_sha256": "572f64ad1e3c2b4b0809d53e769e88769d6292596d6a808fa113044fed7c0490",
-      "media_source_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "modified": "2026-11-06T21:05:00Z",
-      "modified_at": "2026-11-06T21:05:00Z",
-      "name": "Dopamine RootHide 3.0.13-30 release status",
-      "package": "github.roothide.dopamine-roothide",
-      "published_at": "2026-10-23T01:03:42Z",
-      "quality_target": 9,
-      "release": "3.0.13-30 / tag 30 with official IPA and TIPA assets",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "dopamine-roothide-3-x-integration-status",
-      "source_name": "Official RootHide release 30, asset metadata, tag comparison, carried support file and upstream Dopamine 3.0.13 release",
-      "source_page_url": "https://github.com/roothide/Dopamine-roothide/releases/tag/30",
-      "source_url": "https://github.com/roothide/Dopamine-roothide",
-      "source_visual_origin": "official-release-30-source-tag-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/roothide/Dopamine-roothide/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "Dopamine RootHide 3.0.13-30: Downloads, Support and Safe Update",
-      "version": "3.0.13-30"
     },
     {
       "additional_media": [
@@ -3757,74 +3934,6 @@
       "version": "1.3.18-2"
     },
     {
-      "additional_media": [],
-      "category": {
-        "id": "jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Dopamine 3.x official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
-      "article_sha256": "4a6aec4b2fc853f99b9c1f0047a79503e98ea35098a3b40f903225d826c64b98",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-mobile-root-passwords-2026-11-08",
-      "description": "Change mobile and root passwords safely on Dopamine 3.0.13, understand which credential sudo uses, and troubleshoot authentication without exposing secrets.",
-      "developer": "opa334",
-      "entry_type": "evergreen-guide",
-      "href": "change-mobile-root-password-dopamine-jailbreak-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-11-08T03:03:23Z",
-      "name": "Dopamine password hardening",
-      "package": "guide.dopamine.passwords",
-      "published_at": "2026-10-12T05:01:49Z",
-      "release": "Dopamine 3.0.13 — November 3, 2026",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "change-mobile-root-password-dopamine-jailbreak-guide",
-      "source_name": "Official Dopamine 3.0.13 release, tagged README and tagged interface strings",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings",
-      "source_url": "https://github.com/opa334/Dopamine",
-      "source_visual_origin": "official-repository-asset-reused",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "How to Change Mobile and Root Passwords on Dopamine 3.0.13",
-      "version": "Dopamine 3.0.13"
-    },
-    {
-      "additional_media": [],
-      "category": {
-        "id": "jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Dopamine 3.x official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
-      "description": "Re-jailbreak Dopamine 3.0.13 after a full reboot, restore tweaks safely, and fix app-launch, second-pass respring, missing package-manager and Zebra failures.",
-      "article_sha256": "117824506f0d0c3ad7342176c07bfcacc4f51b119d24cc4395739add96f3cc10",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-rejailbreak-after-reboot-second-pass-2026-11-10",
-      "developer": "opa334",
-      "entry_type": "evergreen-guide",
-      "href": "rejailbreak-dopamine-after-reboot-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-11-10T03:00:00Z",
-      "name": "Dopamine re-jailbreak after reboot",
-      "package": "guide.dopamine.rejailbreak-after-reboot",
-      "published_at": "2026-10-12T00:56:11Z",
-      "release": "Dopamine 3.0.13 — November 3, 2026",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "rejailbreak-dopamine-after-reboot-guide",
-      "source_name": "Official Dopamine 3.0.13 release, tagged README, interface strings and jailbreak flow",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "source_visual_origin": "official-repository-asset-reused",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "How to Re-Jailbreak Dopamine 3.0.13 After a Reboot",
-      "version": "Dopamine 3.0.13 / guide revision 2026-11-10"
-    },
-    {
       "category": {
         "id": "development",
         "label": "Jailbreak Development"
@@ -4762,49 +4871,6 @@
       "version": "3.3.3-3"
     },
     {
-      "additional_media": [
-        {
-          "credit": "RootHide — official Dopamine RootHide app icon from release 30",
-          "image": "assets/articles/source-media/dopamine-roothide-3-x-official-icon.png",
-          "source_url": "https://github.com/roothide/Dopamine-roothide/tree/30/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
-        },
-        {
-          "credit": "RootHide — official Bootstrap 2.2.1 app icon",
-          "image": "assets/articles/source-media/roothide-bootstrap-official-icon.png",
-          "source_url": "https://github.com/roothide/Bootstrap/blob/2.2.1/Bootstrap/Assets.xcassets/AppIcon.appiconset/icon-1024.png"
-        }
-      ],
-      "category": {
-        "id": "jailbreak-comparison",
-        "label": "Jailbreak Comparison"
-      },
-      "compat": "Dopamine 3.0.13: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. Dopamine RootHide support must be verified separately. Bootstrap 2.2.2 is a migration notice; NathanLR covers 16.5.1–16.7 RC and 17.0.",
-      "description": "Compare Dopamine 3.0.13, Dopamine RootHide 3.0.13-30, the Bootstrap migration state and NathanLR by support, packages, hashes and switching risks.",
-      "developer": "opa334; RootHide team; Nathan",
-      "entry_type": "roundup-comparison",
-      "href": "dopamine-vs-nathanlr-vs-roothide-bootstrap/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-11-07T08:57:56Z",
-      "name": "Dopamine vs Dopamine RootHide vs Bootstrap",
-      "package": "comparison.dopamine-nathanlr-roothide",
-      "published_at": "2026-10-05T09:00:14Z",
-      "release": "2026-11-07",
-      "selection_pool": "official-project-comparison",
-      "slug": "dopamine-vs-nathanlr-vs-roothide-bootstrap",
-      "source_name": "Official Dopamine, Dopamine RootHide, RootHide Bootstrap and NathanLR GitHub sources",
-      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "source_visual_origin": "official-tagged-repository-assets",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "Dopamine vs Dopamine RootHide vs Bootstrap: Which Should You Use?",
-      "version": "Dopamine 3.0.13 / Dopamine RootHide 3.0.13-30 / Bootstrap 2.2.2 migration notice / NathanLR source",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc"
-    },
-    {
       "category": {
         "id": "jailbreak-guide",
         "label": "Jailbreak Guide"
@@ -4967,47 +5033,6 @@
       "source_url": "https://havoc.app/",
       "title": "KrashKop 1.0.2: Lightweight Crash Reporter",
       "version": "1.0.2"
-    },
-    {
-      "additional_media": [
-        {
-          "credit": "Official AltStore Classic app icon",
-          "path": "assets/articles/source-media/altstore-classic-official-icon.webp",
-          "source_url": "https://github.com/altstoreio/AltStore/blob/develop/AltStore/Resources/Assets.xcassets/AppIcon.appiconset/Group%2023.png"
-        },
-        {
-          "credit": "Official TrollStore app icon",
-          "path": "assets/articles/source-media/trollstore-official-app-icon.jpg",
-          "source_url": "https://github.com/opa334/TrollStore/blob/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png"
-        }
-      ],
-      "article_sha256": "cc8cf91759ee87a0d5906121d2406223ef469c2bd8d4cd161aec309eb0c5f18c",
-      "category": {
-        "id": "ipa-comparison",
-        "label": "IPA Installer Comparison"
-      },
-      "candidate_fingerprint": "comparison.trollstore-2.1.1-sidestore-0.7.0-alpha-altstore-classic-2.3.1-2026-11-08",
-      "compat": "TrollStore: iOS/iPadOS 14.0 beta 2–16.6.1, 16.7 RC (20H18), 17.0; SideStore: iOS 14+; AltStore Classic 2.3.1: iOS 17.4+",
-      "description": "Compare TrollStore 2.1.1, SideStore 0.7.0-alpha and AltStore Classic 2.3.1 by iOS support, refresh rules, setup, signing limits and current fixes.",
-      "developer": "opa334, SideStore, AltStore LLC",
-      "entry_type": "roundup-comparison",
-      "href": "trollstore-vs-sidestore-vs-altstore/",
-      "image": "assets/articles/source-media/sidestore-official-icon.webp",
-      "media_credit": "Official SideStore and AltStore Classic app icons from their project repositories; official TrollStore app icon by opa334",
-      "media_source_url": "https://github.com/SideStore/SideStore/blob/develop/AltStore/Resources/Assets.xcassets/SideStore.imageset/1024.png",
-      "modified_at": "2026-11-08T09:00:57Z",
-      "name": "TrollStore vs SideStore vs AltStore Classic",
-      "published_at": "2026-10-03T09:00:33Z",
-      "release": "2026-10-21",
-      "selection_pool": "official-project-comparison",
-      "slug": "trollstore-vs-sidestore-vs-altstore",
-      "source": "https://github.com/altstoreio/FAQ/blob/main/release-notes/altstore.md",
-      "source_name": "Official AltStore release notes",
-      "source_page_url": "https://github.com/altstoreio/FAQ/blob/main/release-notes/altstore.md",
-      "source_visual_origin": "official-repository-assets",
-      "source_visual_url": "https://raw.githubusercontent.com/SideStore/SideStore/develop/AltStore/Resources/Assets.xcassets/SideStore.imageset/1024.png",
-      "title": "TrollStore vs SideStore vs AltStore Classic 2.3.1: Which IPA Installer Should You Use?",
-      "version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3.1"
     },
     {
       "category": {
@@ -10739,152 +10764,17 @@
       "published_at": "2026-11-07T02:57:22Z",
       "run_id": "scheduled-2026-11-07T02:57:22Z",
       "version": "Guide revision 2026-11-07 / Bootstrap 2.2.2 / Dopamine RootHide 3.0.13-30"
-    }
-  ],
-  "schema_version": 1,
-  "updated_at": "2026-11-10T09:04:04Z",
-  "publication_events": [
-    {
-      "action": "update",
-      "candidate_fingerprint": "comparison.dopamine-3.0.13-roothide-3.0.13-30-bootstrap-migration-nathanlr-2026-11-07",
-      "channel": "scheduled-tweak-roundup-comparison",
-      "href": "dopamine-vs-nathanlr-vs-roothide-bootstrap/",
-      "package": "comparison.dopamine-nathanlr-roothide",
-      "previous_version": "Dopamine 3.0.10 / NathanLR source 2.0.9 / RootHide Bootstrap 2.2.1",
-      "published_at": "2026-11-07T08:57:56Z",
-      "run_id": "scheduled-2026-11-07T08:57:56Z",
-      "version": "Dopamine 3.0.13 / Dopamine RootHide 3.0.13-30 / Bootstrap 2.2.2 migration notice / NathanLR source"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.8.3-keyboard-tiling-keypilot-2026-11-07",
-      "channel": "scheduled-individual-tweak-update",
-      "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
-      "package": "com.besiktasliseba.macstatusbaranddock",
-      "previous_version": "1.7.9.2",
-      "published_at": "2026-11-07T14:57:20Z",
-      "run_id": "scheduled-2026-11-07T14:57:20Z",
-      "version": "1.8.3"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "jailbreak-development.relaxin-0.5.7-experimental-tvos-visionos-ios16.1-2026-11-08",
-      "channel": "scheduled-current-jailbreak-development",
-      "href": "relaxin-0-5-4-jailbreak-update/",
-      "package": "jailbreak.relaxin",
-      "previous_version": "0.5.4",
-      "published_at": "2026-11-07T21:00:32Z",
-      "run_id": "scheduled-2026-11-07T21:00:32Z",
-      "version": "0.5.7"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-mobile-root-passwords-2026-11-08",
-      "channel": "scheduled-evergreen-jailbreak-guide",
-      "href": "change-mobile-root-password-dopamine-jailbreak-guide/",
-      "package": "guide.dopamine.passwords",
-      "previous_version": "Dopamine 3.0.10",
-      "published_at": "2026-11-08T03:03:23Z",
-      "run_id": "scheduled-2026-11-08T03:03:23Z",
-      "version": "Dopamine 3.0.13"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "comparison.trollstore-2.1.1-sidestore-0.7.0-alpha-altstore-classic-2.3.1-2026-11-08",
-      "channel": "scheduled-tweak-roundup-comparison",
-      "href": "trollstore-vs-sidestore-vs-altstore/",
-      "package": "comparison.ipa-installers",
-      "previous_version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3",
-      "published_at": "2026-11-08T09:00:57Z",
-      "run_id": "scheduled-2026-11-08T09:00:57Z",
-      "version": "TrollStore 2.1.1 / SideStore 0.7.0-alpha / AltStore Classic 2.3.1"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "individual-update.drift-1.1.0-effects-reflection-floating-dock-2026-11-08",
-      "channel": "scheduled-individual-tweak-update",
-      "href": "drift-1-0-0-update/",
-      "package": "com.antonym.drift",
-      "previous_version": "1.0.0",
-      "published_at": "2026-11-08T15:07:59Z",
-      "run_id": "scheduled-2026-11-08T15:07:59Z",
-      "version": "1.1.0"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "evergreen-guide.tweak-compatibility-dopamine-3.0.13-zebra-ios17.6-2026-11-09",
-      "channel": "scheduled-evergreen-jailbreak-guide",
-      "href": "jailbreak-tweak-compatibility-checklist/",
-      "package": "editorial.compatibility-checklist",
-      "previous_version": "Guide revision 2026-11-02",
-      "published_at": "2026-11-08T21:02:19Z",
-      "run_id": "scheduled-2026-11-08T21:02:19Z",
-      "version": "Guide revision 2026-11-09 / Dopamine 3.0.13 / RootHide Patcher 2.1.4"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-bad-tweak-crash-loop-zebra-2026-11-09",
-      "channel": "scheduled-evergreen-jailbreak-guide",
-      "href": "dopamine-bad-tweak-crash-loop-recovery-guide/",
-      "package": "guide.dopamine.crash-loop-recovery",
-      "previous_version": "Dopamine 3.0.12",
-      "published_at": "2026-11-09T03:03:30Z",
-      "run_id": "scheduled-2026-11-09T03:03:30Z",
-      "version": "Dopamine 3.0.13 / guide revision 2026-11-09"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "comparison.stackr-1.0.1-primalfolderpro-1.0.1-legacyfolder26-1.1.0-2026-11-09",
-      "channel": "scheduled-tweak-roundup-comparison",
-      "href": "legacyfolder26-1-0-1-ios-26-folder-tweak/",
-      "package": "comparison.primalfolderpro-legacyfolder26",
-      "previous_version": "PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0",
-      "published_at": "2026-11-09T09:03:23Z",
-      "run_id": "scheduled-2026-11-09T09:03:23Z",
-      "version": "Stackr 1.0.1 / PrimalFolderPro 1.0.1 / LegacyFolder26 1.1.0"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "individual-update.cyanide-1.17.0-locked-app-previews-respring-controls-2026-11-09",
-      "channel": "scheduled-individual-tweak-update",
-      "href": "cyanide-1-6-0-update/",
-      "package": "cyanide",
-      "previous_version": "1.16.0",
-      "published_at": "2026-11-09T15:23:00Z",
-      "run_id": "scheduled-2026-11-09T15:23:00Z",
-      "version": "1.17.0"
     },
     {
       "action": "create",
-      "candidate_fingerprint": "jailbreak-development.erosion-0.3-worse-query-ios27.3-beta1-2026-11-09",
-      "channel": "scheduled-current-jailbreak-development",
-      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
-      "package": "project.erosion",
-      "published_at": "2026-11-09T21:00:36Z",
-      "run_id": "scheduled-2026-11-09T21:00:36Z",
-      "version": "0.3"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-rejailbreak-after-reboot-second-pass-2026-11-10",
-      "channel": "scheduled-evergreen-jailbreak-guide",
-      "href": "rejailbreak-dopamine-after-reboot-guide/",
-      "package": "guide.dopamine.rejailbreak-after-reboot",
-      "previous_version": "Dopamine 3.0.10",
-      "published_at": "2026-11-10T03:00:00Z",
-      "run_id": "scheduled-2026-11-10T03:00:00Z",
-      "version": "Dopamine 3.0.13 / guide revision 2026-11-10"
-    },
-    {
-      "action": "update",
-      "candidate_fingerprint": "comparison.regram-7.0.1-rocket-4.26.0-instagram-454-2026-11-10",
-      "channel": "scheduled-tweak-roundup-comparison",
-      "href": "regram-vs-rocket-instagram-tweak-comparison/",
-      "package": "com.fouadraheb.regram; me.alfhaily.rocket",
-      "previous_version": "Regram 6.5; Rocket 4.25.0",
-      "published_at": "2026-11-10T09:04:04Z",
-      "run_id": "scheduled-2026-11-10T09:04:04Z",
-      "version": "Regram 7.0.1; Rocket 4.26.0"
+      "channel": "ios-repo-discovery-original-source",
+      "href": "regram-for-instagram-7-0-1-update/",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-11-10T13:53:22+00:00",
+      "run_id": "42828476577",
+      "version": "7.0.1"
     }
-  ]
+  ],
+  "schema_version": 1,
+  "updated_at": "2026-11-10T13:53:22+00:00"
 }
