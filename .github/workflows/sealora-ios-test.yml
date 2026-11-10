@@ -114,12 +114,19 @@ jobs:
           src=Path('SealoraBuild/patch105.b64').read_text().strip()
           compressed=base64.b64decode(src,validate=True)
           assert hashlib.sha256(compressed).hexdigest() == '3bf622787d130f82aa3a9f4c9f015ddca1279ec98a6799e60b203336094d355b', 'Signing verifier patch integrity mismatch'
-          patch=lzma.decompress(compressed)
+          patchText=lzma.decompress(compressed).decode()
+          start=patchText.index('@@ -143,3 +167,93 @@')
+          end=patchText.index('--- a/Tests/SealoraTests.swift',start)
+          extra=patchText[start:end]
+          suffix=''.join(line[1:]+'\\n' for line in extra.splitlines() if line.startswith('+') and not line.startswith('+++'))
+          patch=(patchText[:start]+patchText[end:]).encode()
           root=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
           proc=subprocess.run(['patch','-t','-p1'],cwd=root,input=patch,capture_output=True)
           print(proc.stdout.decode())
           if proc.returncode:
               raise SystemExit(proc.stderr.decode())
+          with (root/'Sealora/Core/ArchiveInspector.swift').open('a') as output:
+              output.write(suffix)
           info=root/'Sealora/Info.plist'
           config=plistlib.loads(info.read_bytes())
           assert config['CFBundleShortVersionString']=='1.0.4',config
