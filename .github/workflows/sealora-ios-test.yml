@@ -86,7 +86,7 @@ jobs:
           print('Applied verified Sealora 1.0.3 source update')
           PY
           swiftc -frontend -parse "$RUNNER_TEMP/SealoraProject/Sealora/SealoraApp.swift" "$RUNNER_TEMP/SealoraProject/Sealora/Features/SettingsView.swift"
-      - name: Remove UDID section and signing requirement (Sealora 1.0.4)
+      - name: Remove UDID section and signing requirement (Sealora 1.0.4, source compatibility fix)
         run: |
           python3 .github/scripts/sealora-104-remove-udid.py "$RUNNER_TEMP/SealoraProject"
           cd "$RUNNER_TEMP/SealoraProject"
