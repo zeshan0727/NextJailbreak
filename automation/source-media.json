@@ -1473,6 +1473,8 @@
         "https://fouadraheb.com/apt/package/com.fouadraheb.regram"
       ],
       "official_source": true,
+      "retrieval_status": "Re-fetched the current official Rocket banner and Reels action-menu screenshot on 2026-11-10; both files remain byte-for-byte identical to the committed assets.",
+      "verified_at": "2026-11-10T09:04:04Z",
       "hero": {
         "url": "https://getrocketapp.io/assets/optimized/rocket-social-banner-v2.jpg",
         "alt": "Official Rocket for Instagram social banner",
