@@ -141,7 +141,7 @@ jobs:
           app=root/'Sealora/SealoraApp.swift'
           view=app.read_text()
           old='            Button("OK", role: .cancel) { library.alertText = nil }'
-          new='            Button("Copy Details") {\\n                UIPasteboard.general.string = library.alertText\\n                library.alertText = nil\\n            }\\n' + old
+          new='            Button("Copy Details") {\n                UIPasteboard.general.string = library.alertText\n                library.alertText = nil\n            }\n' + old
           assert view.count(old)==2, 'Expected two signing error alert presentations'
           app.write_text(view.replace(old,new))
           assert config['CFBundleShortVersionString']=='1.0.6'
