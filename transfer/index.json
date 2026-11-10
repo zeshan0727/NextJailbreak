@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T11:34:41Z",
+  "updatedAt": "2026-11-10T12:14:28Z",
   "files": [
     {
-      "id": "sealora-1.0.1-build2-unsigned",
-      "name": "Sealora 1.0.1 (Build 2) — Files Picker Fix",
-      "fileName": "Sealora-1.0.1-unsigned.ipa",
+      "id": "sealora-1.0.2-build3-unsigned",
+      "name": "Sealora 1.0.2 — Numeric Bundle ID Fix",
+      "fileName": "Sealora-1.0.2-unsigned.ipa",
       "type": "ipa",
-      "platform": "iOS 16+ / iPhone and iPad; unsigned (sign before installation)",
-      "version": "1.0.1 (2)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.1/Sealora-1.0.1-unsigned.ipa",
-      "sha256": "8099eba9869b664c7823e9b9eeefdbaeec5e2e3176f355cbdee12a15dc59c333",
-      "sizeBytes": 3273713,
-      "notes": "Native SwiftUI test build: updated Files importer for IPA/certificates, credential setup in Settings, P12/PFX and certificate + key import. UNSIGNED output: use a compatible signing profile for com.nextsolution.sealora before normal installation. Picker functionality on a physical device is not verified."
+      "platform": "iOS 16+ / iPhone and iPad / unsigned; sign before installation",
+      "version": "1.0.2 (3)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.2/Sealora-1.0.2-unsigned.ipa",
+      "sha256": "72e48877113e29906868ed9d6259f17add8263acbc1deedf7e60c84861df997b",
+      "sizeBytes": 3273498,
+      "notes": "Fixes false profile mismatch for numeric bundle IDs such as com.nextsolution.3105 with wildcard com.nextsolution.*. Certificate, profile, entitlement and device preflight still enforced. UNSIGNED: sign with a compatible profile before normal installation. On-device signing behavior requires real-device testing."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
