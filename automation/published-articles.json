@@ -3795,28 +3795,32 @@
         "label": "Evergreen Jailbreak Guide"
       },
       "compat": "Dopamine 3.x official ranges: arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1",
-      "description": "Re-jailbreak Dopamine 3 after a full iPhone reboot, restore tweak injection safely, and fix common package-manager or respring issues without removing the jailbreak.",
+      "description": "Re-jailbreak Dopamine 3.0.13 after a full reboot, restore tweaks safely, and fix app-launch, second-pass respring, missing package-manager and Zebra failures.",
+      "article_sha256": "117824506f0d0c3ad7342176c07bfcacc4f51b119d24cc4395739add96f3cc10",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-rejailbreak-after-reboot-second-pass-2026-11-10",
       "developer": "opa334",
       "entry_type": "evergreen-guide",
       "href": "rejailbreak-dopamine-after-reboot-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
-      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-10-12T00:56:11Z",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-10T03:00:00Z",
       "name": "Dopamine re-jailbreak after reboot",
       "package": "guide.dopamine.rejailbreak-after-reboot",
       "published_at": "2026-10-12T00:56:11Z",
-      "release": "2026-09-23",
+      "release": "Dopamine 3.0.13 — November 3, 2026",
       "selection_pool": "scheduled-evergreen-jailbreak-guide",
       "slug": "rejailbreak-dopamine-after-reboot-guide",
-      "source_name": "Official Dopamine 3.x README, 3.0.10 release and tagged interface strings",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.x/README.md",
-      "source_url": "https://github.com/opa334/Dopamine",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "How to Re-Jailbreak Dopamine After Reboot and Restore Tweaks",
-      "version": "Dopamine 3.0.10"
+      "source_name": "Official Dopamine 3.0.13 release, tagged README, interface strings and jailbreak flow",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-repository-asset-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Re-Jailbreak Dopamine 3.0.13 After a Reboot",
+      "version": "Dopamine 3.0.13 / guide revision 2026-11-10"
     },
     {
       "category": {
@@ -10736,7 +10740,7 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-09T21:00:36Z",
+  "updated_at": "2026-11-10T03:00:00Z",
   "publication_events": [
     {
       "action": "update",
@@ -10857,6 +10861,17 @@
       "published_at": "2026-11-09T21:00:36Z",
       "run_id": "scheduled-2026-11-09T21:00:36Z",
       "version": "0.3"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-rejailbreak-after-reboot-second-pass-2026-11-10",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "rejailbreak-dopamine-after-reboot-guide/",
+      "package": "guide.dopamine.rejailbreak-after-reboot",
+      "previous_version": "Dopamine 3.0.10",
+      "published_at": "2026-11-10T03:00:00Z",
+      "run_id": "scheduled-2026-11-10T03:00:00Z",
+      "version": "Dopamine 3.0.13 / guide revision 2026-11-10"
     }
   ]
 }
