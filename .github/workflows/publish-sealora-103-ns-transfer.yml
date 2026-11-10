@@ -1,0 +1,80 @@
+name: Publish Sealora 1.0.3 to NS Transfer
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-sealora-103-ns-transfer.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-sealora-103-ns-transfer
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download verified Sealora 1.0.3 iOS build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh api /repos/${GITHUB_REPOSITORY}/actions/runs/42818586687 --jq .conclusion)" = success
+          mkdir -p "$RUNNER_TEMP/sealora103"
+          gh run download 42818586687 --repo "$GITHUB_REPOSITORY" --name Sealora-1.0.3-unsigned-IPA --dir "$RUNNER_TEMP/sealora103"
+          test -s "$RUNNER_TEMP/sealora103/Sealora-unsigned.ipa"
+          python3 - "$RUNNER_TEMP/sealora103/Sealora-unsigned.ipa" <<'PY'
+          import sys,zipfile,plistlib
+          with zipfile.ZipFile(sys.argv[1]) as z:
+              assert z.testzip() is None, 'Damaged IPA'
+              matches = [s for s in z.namelist() if s.startswith('Payload/') and s.endswith('.app/Info.plist') and s.count('/')==2]
+              assert len(matches)==1,matches
+              info = plistlib.loads(z.read(matches[0]))
+              assert info['CFBundleIdentifier']=='com.nextsolution.sealora'
+              assert info['CFBundleShortVersionString']=='1.0.3'
+              assert str(info['CFBundleVersion'])=='4'
+              assert info['MinimumOSVersion']=='16.0'
+              assert any('sealora' in s.get('CFBundleURLSchemes',[]) for s in info.get('CFBundleURLTypes',[]))
+              executable=matches[0].removesuffix('Info.plist')+info['CFBundleExecutable']
+              assert z.getinfo(executable).file_size>500_000
+          PY
+      - name: Publish unsigned test IPA and catalog metadata
+        run: |
+          set -euo pipefail
+          mkdir -p transfer/files/Sealora/1.0.3
+          cp "$RUNNER_TEMP/sealora103/Sealora-unsigned.ipa" transfer/files/Sealora/1.0.3/Sealora-1.0.3-unsigned.ipa
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          from datetime import datetime, timezone
+          ipa=Path('transfer/files/Sealora/1.0.3/Sealora-1.0.3-unsigned.ipa')
+          catalog_path=Path('transfer/index.json')
+          catalog=json.loads(catalog_path.read_text())
+          entry={
+            'id':'sealora-1.0.3-build4-unsigned',
+            'name':'Sealora 1.0.3 — Next Jailbreak Credits and First Launch',
+            'fileName':ipa.name,
+            'type':'ipa',
+            'platform':'iOS 16+; unsigned IPA (requires compatible signing before installation)',
+            'version':'1.0.3 (4)',
+            'url':'https://nextjailbreak.com/transfer/files/Sealora/1.0.3/Sealora-1.0.3-unsigned.ipa',
+            'sha256':hashlib.sha256(ipa.read_bytes()).hexdigest(),
+            'sizeBytes':ipa.stat().st_size,
+            'notes':'Settings credits Next Jailbreak / Zeeshan0727, one-time Safari launch of nextjailbreak.com, UDID profile button with service-health guard and secure Keychain UDID return. IMPORTANT: UDID Cloudflare service not deployed because API token authentication failed; use manual UDID until fixed. Device profile exchange remains unverified. Unsigned app.'
+          }
+          catalog['files']=[entry]+[x for x in catalog.get('files',[]) if not str(x.get('id','')).startswith('sealora-')]
+          catalog['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          catalog_path.write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n')
+          print('Publishing SHA256',entry['sha256'])
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json transfer/files/Sealora/1.0.3/Sealora-1.0.3-unsigned.ipa
+          git commit -m 'Publish Sealora 1.0.3 unsigned test IPA to NS Transfer'
+          git pull --rebase origin main
+          git push origin HEAD:main
