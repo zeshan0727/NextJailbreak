@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T14:05:21Z",
+  "updatedAt": "2026-11-10T11:34:41Z",
   "files": [
+    {
+      "id": "sealora-1.0.1-build2-unsigned",
+      "name": "Sealora 1.0.1 (Build 2) — Files Picker Fix",
+      "fileName": "Sealora-1.0.1-unsigned.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ / iPhone and iPad; unsigned (sign before installation)",
+      "version": "1.0.1 (2)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.1/Sealora-1.0.1-unsigned.ipa",
+      "sha256": "8099eba9869b664c7823e9b9eeefdbaeec5e2e3176f355cbdee12a15dc59c333",
+      "sizeBytes": 3273713,
+      "notes": "Native SwiftUI test build: updated Files importer for IPA/certificates, credential setup in Settings, P12/PFX and certificate + key import. UNSIGNED output: use a compatible signing profile for com.nextsolution.sealora before normal installation. Picker functionality on a physical device is not verified."
+    },
     {
       "id": "next-rea-inspector-0.1.0-test",
       "name": "NEXT REA Inspector 0.1.0 - First Test",
