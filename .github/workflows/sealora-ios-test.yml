@@ -31,20 +31,29 @@ jobs:
       - name: Apply Sealora 1.0.1 Files import repair
         run: |
           python3 - <<'PY'
-          import base64, hashlib, lzma, os, pathlib, subprocess
+          import base64, hashlib, lzma, os, pathlib, re, subprocess
           encoded = pathlib.Path('SealoraBuild/patch101.b64').read_text().strip()
           archive = base64.b64decode(encoded, validate=True)
           expected = 'd37de2d17ed7047947c4a148eff1b0f6e61f9bd76f838259598398f3810dec1e'
           if hashlib.sha256(archive).hexdigest() != expected:
               raise SystemExit('Hotfix checksum mismatch')
           patch = lzma.decompress(archive)
+          # The compact CI source archive deliberately omits README and project.yml.
+          chunks = re.split(rb'(?=^--- a/)', patch, flags=re.MULTILINE)
+          patch = b''.join(c for c in chunks if not c.startswith((b'--- a/README.md', b'--- a/project.yml')))
           root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'SealoraProject'
           result = subprocess.run(['patch','-t','-p1'], input=patch,
                                   cwd=root, capture_output=True)
           print(result.stdout.decode())
           if result.returncode:
               raise SystemExit(result.stderr.decode())
-          subprocess.run(['python3','scripts/generate_xcodeproj.py'], cwd=root, check=True)
+          # The compact bootstrap includes a fixed Xcode project: embed the new
+          # document picker inside an already registered Swift source file.
+          helper = root/'Sealora/Core/FilesImportPicker.swift'
+          app = root/'Sealora/Features/AppsView.swift'
+          old = app.read_text().replace('import SwiftUI\nimport UniformTypeIdentifiers\n', '', 1)
+          app.write_text(helper.read_text() + '\n' + old)
+          helper.unlink()
           PY
       - name: Generate branded app icon
         run: |
