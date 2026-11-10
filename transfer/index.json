@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T19:24:22Z",
+  "updatedAt": "2026-11-10T20:31:57Z",
   "files": [
     {
-      "id": "sealora-1.0.5-build6-unsigned",
-      "name": "Sealora 1.0.5 — Signature Diagnostics",
-      "fileName": "Sealora-1.0.5-unsigned.ipa",
+      "id": "sealora-1.0.6-build7-unsigned",
+      "name": "Sealora 1.0.6 — Signature Verification Fix",
+      "fileName": "Sealora-1.0.6-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+; unsigned IPA (requires compatible signing before installation)",
-      "version": "1.0.5 (6)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.5/Sealora-1.0.5-unsigned.ipa",
-      "sha256": "b0e72096b4d8fdc6a39a8635491f2fe7f8429857683d889bcb60f4a9f26ddc34",
-      "sizeBytes": 3275500,
-      "notes": "Diagnosis update: differentiates CMS signature missing or invalid from CodeDirectory integrity failures by architecture; Copy Details added to failure alert. Strict cryptographic validation remains enforced; signing success on user 3105 IPA is NOT yet verified. Original inputs retained, failed output deleted. Unsigned iOS 16+ IPA: compatible Apple signing required for installation."
+      "version": "1.0.6 (7)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.6/Sealora-1.0.6-unsigned.ipa",
+      "sha256": "4585bee18f827e932765623520d6c17ecd6fa3e200441abe24fda8362f156f51",
+      "sizeBytes": 3281544,
+      "notes": "Fixes false signing failure caused by Mach-O-only validation of external CodeDirectory slots 1 and 3. Verifies Info.plist and CodeResources against packaged signed IPA, with CMS, code page, embedded special slots and recursive resource seals checked. Copy Details retained. Physical-device signing and install remain to be tested. UNSIGNED iOS 16+ IPA: must sign before installation."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
