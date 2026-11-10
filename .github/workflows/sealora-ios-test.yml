@@ -140,14 +140,8 @@ jobs:
           assert 'infoPlist: infoData' in sources and 'codeResources: resourcesData' in sources
           app=root/'Sealora/SealoraApp.swift'
           view=app.read_text()
-          old='''            Button("OK", role: .cancel) { library.alertText = nil }
-        } message: { Text(library.alertText ?? "") }'''
-          new='''            Button("Copy Details") {
-                UIPasteboard.general.string = library.alertText
-                library.alertText = nil
-            }
-            Button("OK", role: .cancel) { library.alertText = nil }
-        } message: { Text(library.alertText ?? "") }'''
+          old='            Button("OK", role: .cancel) { library.alertText = nil }'
+          new='            Button("Copy Details") {\\n                UIPasteboard.general.string = library.alertText\\n                library.alertText = nil\\n            }\\n' + old
           assert view.count(old)==2, 'Expected two signing error alert presentations'
           app.write_text(view.replace(old,new))
           assert config['CFBundleShortVersionString']=='1.0.6'
