@@ -1,4 +1,4 @@
-name: Sealora 1.0.1 iOS Files import build
+name: Sealora 1.0.2 bundle-ID compatibility build
 on:
   push:
     branches: [sealora-ios-test]
@@ -55,6 +55,13 @@ jobs:
           app.write_text(helper.read_text() + '\n' + old)
           helper.unlink()
           PY
+      - name: Fix numeric app bundle identifiers and profile warning (1.0.2)
+        run: |
+          python3 .github/scripts/sealora-102-bundleid-fix.py "$RUNNER_TEMP/SealoraProject"
+          cd "$RUNNER_TEMP/SealoraProject"
+          grep -F 'XCTAssertTrue(BundleIDs.isValid("com.nextsolution.3105"))' Tests/SealoraTests.swift
+          grep -F 'private var validationMessage: String?' Sealora/Features/SigningSheet.swift
+          grep -F '<string>1.0.2</string>' Sealora/Info.plist
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -65,7 +72,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.1-unsigned-IPA
+          name: Sealora-1.0.2-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
