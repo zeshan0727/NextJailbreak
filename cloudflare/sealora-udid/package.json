@@ -1,0 +1,10 @@
+{
+  "name": "sealora-udid-profile-service",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "asn1js": "^3.0.6",
+    "pkijs": "^3.3.3"
+  }
+}
