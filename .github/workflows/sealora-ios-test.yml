@@ -1,4 +1,4 @@
-name: Sealora 1.0.3 Credits and UDID build
+name: Sealora 1.0.4 simplified signing setup build
 on:
   push:
     branches: [sealora-ios-test]
@@ -86,6 +86,26 @@ jobs:
           print('Applied verified Sealora 1.0.3 source update')
           PY
           swiftc -frontend -parse "$RUNNER_TEMP/SealoraProject/Sealora/SealoraApp.swift" "$RUNNER_TEMP/SealoraProject/Sealora/Features/SettingsView.swift"
+      - name: Remove UDID section and signing requirement (Sealora 1.0.4)
+        run: |
+          python3 .github/scripts/sealora-104-remove-udid.py "$RUNNER_TEMP/SealoraProject"
+          cd "$RUNNER_TEMP/SealoraProject"
+          swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
+          python3 - <<'PY'
+          import plistlib
+          from pathlib import Path
+          p=plistlib.loads(Path('Sealora/Info.plist').read_bytes())
+          assert p['CFBundleShortVersionString']=='1.0.4'
+          assert p['CFBundleVersion']=='5'
+          assert not p.get('CFBundleURLTypes')
+          source='\n'.join(q.read_text() for q in Path('Sealora').rglob('*.swift'))
+          assert 'UDIDEnrollment' not in source
+          assert 'Registered test device' not in source
+          assert 'deviceUDID' not in source
+          assert 'SigningService.perform(choice)' in source
+          assert 'profile.containsDeveloperCertificate(for: identity)' in source
+          print('Sealora 1.0.4 checks OK')
+          PY
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -96,7 +116,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.3-unsigned-IPA
+          name: Sealora-1.0.4-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
