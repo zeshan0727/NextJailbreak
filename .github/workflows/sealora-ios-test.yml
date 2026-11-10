@@ -70,7 +70,7 @@ jobs:
           base=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
           encoded=Path('SealoraBuild/patch103.b64').read_text().strip()
           compressed=base64.b64decode(encoded,validate=True)
-          expected='a8d2ba45c5df701259acf9682615271f3111e75f93a393e6ed777d78f17f58ed'
+          expected='ccad08724c1f431eaf2964e5b9205bd257ecec417dad13a05b1288617ec3335a'
           assert hashlib.sha256(compressed).hexdigest()==expected,'Sealora patch 1.0.3 checksum mismatch'
           archive=tarfile.open(fileobj=io.BytesIO(lzma.decompress(compressed)),mode='r:')
           safe={'Sealora/Features/SettingsView.swift','Sealora/SealoraApp.swift','Sealora/Info.plist','project.yml'}
