@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   publish:
-    if: \${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,8 +23,8 @@ jobs:
           fetch-depth: 0
       - name: Download exact compiled Sealora 1.0.2 build artifact
         env:
-          GH_TOKEN: \${{ github.token }}
-          SOURCE_RUN: \${{ github.event.workflow_run.id }}
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/sealora-artifact"
@@ -48,7 +48,7 @@ jobs:
           PY
       - name: Publish to NS Transfer
         env:
-          SOURCE_RUN: \${{ github.event.workflow_run.id }}
+          SOURCE_RUN: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
           mkdir -p transfer/files/Sealora/1.0.2
