@@ -1,0 +1,38 @@
+name: Sealora iOS unsigned test build
+on:
+  push:
+    branches: [sealora-ios-test]
+    paths:
+      - '.github/workflows/sealora-ios-test.yml'
+      - 'SealoraBuild/**'
+  workflow_dispatch:
+jobs:
+  ipa:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract Sealora Xcode sources
+        run: |
+          mkdir -p "$RUNNER_TEMP/SealoraProject"
+          python3 - <<'PY'
+          import base64, pathlib
+          encoded=pathlib.Path('SealoraBuild/source.tar.gz.b64').read_text()
+          pathlib.Path('SealoraBuild/source.tar.gz').write_bytes(base64.b64decode(encoded))
+          PY
+          tar -xzf SealoraBuild/source.tar.gz -C "$RUNNER_TEMP/SealoraProject"
+      - name: Generate branded app icon
+        run: |
+          cd "$RUNNER_TEMP/SealoraProject"
+          python3 scripts/generate_build_icon.py
+      - name: Compile actual iOS app (device Release)
+        run: |
+          cd "$RUNNER_TEMP/SealoraProject"
+          bash scripts/build-unsigned-ipa.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Sealora-unsigned-test-IPA
+          path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
