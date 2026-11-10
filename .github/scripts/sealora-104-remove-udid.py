@@ -31,7 +31,7 @@ save(p,s)
 p='Sealora/Core/ProfileAudit.swift'
 s=load(p)
 a=s.index('    static func check(data: Data, identity: SigningIdentity, bundleID: String, deviceUDID: String?) throws {')
-b=s.index('    // Apple profiles contain an XML plist',a)
+b=s.index('    private static func profilePlist(',a)
 s=s[:a]+'''    /// Check signing authorization; iOS enforces Ad Hoc device lists at installation.
     static func check(data: Data, identity: SigningIdentity, bundleID: String) throws {
         let profile = try RorkSigner.decodeProvisioningProfile(data)
