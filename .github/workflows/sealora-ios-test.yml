@@ -1,4 +1,4 @@
-name: Sealora 1.0.4 simplified signing setup build
+name: Sealora 1.0.5 signature diagnostics build
 on:
   push:
     branches: [sealora-ios-test]
@@ -106,6 +106,23 @@ jobs:
           assert 'profile.containsDeveloperCertificate(for: identity)' in source
           print('Sealora 1.0.4 checks OK')
           PY
+      - name: Sealora 1.0.5 strict signature diagnostic patch
+        run: |
+          python3 .github/scripts/sealora-105-sign-diagnostics.py "$RUNNER_TEMP/SealoraProject"
+          cd "$RUNNER_TEMP/SealoraProject"
+          swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib
+          info=plistlib.loads(Path('Sealora/Info.plist').read_bytes())
+          assert info['CFBundleShortVersionString']=='1.0.5'
+          assert str(info['CFBundleVersion'])=='6'
+          source=Path('Sealora/Core/ArchiveInspector.swift').read_text()
+          assert 'report.codeDirectoryHashesValid' in source
+          assert 'report.cmsSignatureValid' in source
+          assert 'CMS signature or CodeDirectory validation failed' not in source
+          print('Diagnostic verification checks passed')
+          PY
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -116,7 +133,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.4-unsigned-IPA
+          name: Sealora-1.0.5-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
