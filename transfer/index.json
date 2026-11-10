@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T13:13:28Z",
+  "updatedAt": "2026-11-10T19:24:22Z",
   "files": [
     {
-      "id": "sealora-1.0.4-build5-unsigned",
-      "name": "Sealora 1.0.4 — No UDID Setup",
-      "fileName": "Sealora-1.0.4-unsigned.ipa",
+      "id": "sealora-1.0.5-build5-unsigned",
+      "name": "Sealora 1.0.5 — Signature Diagnostics",
+      "fileName": "Sealora-1.0.5-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+; unsigned IPA (requires compatible signing before installation)",
-      "version": "1.0.4 (5)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.4/Sealora-1.0.4-unsigned.ipa",
-      "sha256": "75bbcb989563fa4dc4de3a501012089c335dd8ce0e3785893e077bb78cee2f33",
-      "sizeBytes": 3272875,
-      "notes": "Removed manual UDID input, UDID profile download, and UDID preflight requirement. Saved credentials and imported IPAs remain; Apple Ad Hoc device restrictions still apply at installation. Unsigned iOS 16+ test IPA."
+      "version": "1.0.5 (6)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.5/Sealora-1.0.5-unsigned.ipa",
+      "sha256": "b0e72096b4d8fdc6a39a8635491f2fe7f8429857683d889bcb60f4a9f26ddc34",
+      "sizeBytes": 3275500,
+      "notes": "Diagnosis update: differentiates CMS signature missing or invalid from CodeDirectory integrity failures by architecture; Copy Details added to failure alert. Strict cryptographic validation remains enforced; signing success on user 3105 IPA is NOT yet verified. Original inputs retained, failed output deleted. Unsigned iOS 16+ IPA: compatible Apple signing required for installation."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
