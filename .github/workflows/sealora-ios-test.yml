@@ -1,4 +1,4 @@
-name: Sealora 1.0.2 bundle-ID compatibility build
+name: Sealora 1.0.3 Credits and UDID build
 on:
   push:
     branches: [sealora-ios-test]
@@ -62,6 +62,30 @@ jobs:
           grep -F 'XCTAssertTrue(BundleIDs.isValid("com.nextsolution.3105"))' Tests/SealoraTests.swift
           grep -F 'private var validationMessage: String?' Sealora/Features/SigningSheet.swift
           grep -F '<string>1.0.2</string>' Sealora/Info.plist
+      - name: Add Sealora 1.0.3 studio credits, first-launch website, and UDID profile flow
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,hashlib,io,lzma,tarfile,os
+          base=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
+          encoded=Path('SealoraBuild/patch103.b64').read_text().strip()
+          compressed=base64.b64decode(encoded,validate=True)
+          expected='a8d2ba45c5df701259acf9682615271f3111e75f93a393e6ed777d78f17f58ed'
+          assert hashlib.sha256(compressed).hexdigest()==expected,'Sealora patch 1.0.3 checksum mismatch'
+          archive=tarfile.open(fileobj=io.BytesIO(lzma.decompress(compressed)),mode='r:')
+          safe={'Sealora/Features/SettingsView.swift','Sealora/SealoraApp.swift','Sealora/Info.plist','project.yml'}
+          assert set(archive.getnames())==safe, 'Unexpected files in Sealora update'
+          for member in archive:
+              destination=base/member.name
+              destination.write_bytes(archive.extractfile(member).read())
+          import plistlib
+          info=plistlib.loads((base/'Sealora/Info.plist').read_bytes())
+          assert info['CFBundleShortVersionString']=='1.0.3'
+          assert info['CFBundleVersion']=='4'
+          assert any('sealora' in v.get('CFBundleURLSchemes',[]) for v in info['CFBundleURLTypes'])
+          print('Applied verified Sealora 1.0.3 source update')
+          PY
+          swiftc -frontend -parse "$RUNNER_TEMP/SealoraProject/Sealora/SealoraApp.swift" "$RUNNER_TEMP/SealoraProject/Sealora/Features/SettingsView.swift"
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -72,7 +96,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.2-unsigned-IPA
+          name: Sealora-1.0.3-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
