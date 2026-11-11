@@ -1,4 +1,4 @@
-name: Sealora 1.0.8 direct OTA install test build
+name: Sealora 1.0.10 publisher AdMob and UMP consent build
 on:
   push:
     branches: [sealora-ios-test]
