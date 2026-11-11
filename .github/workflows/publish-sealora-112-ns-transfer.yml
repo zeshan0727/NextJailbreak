@@ -1,7 +1,7 @@
 name: Publish Sealora 1.0.12 AdMob publisher to NS Transfer
 on:
   workflow_run:
-    workflows: ["Sealora 1.0.12 banner label update"]
+    workflows: ["Sealora 1.0.12 automatic clean AdMob banner"]
     types: [completed]
     branches: [sealora-ios-test]
   workflow_dispatch:
