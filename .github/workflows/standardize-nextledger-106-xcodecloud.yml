@@ -1,0 +1,150 @@
+name: Standardize Next Ledger 106 Xcode Cloud Project
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/standardize-nextledger-106-xcodecloud.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  standardize:
+    runs-on: macos-26
+    timeout-minutes: 55
+    steps:
+      - name: Checkout the isolated App Store release
+        uses: actions/checkout@v4
+        with:
+          ref: release/nextledger-1.3.84-build106-xcodecloud
+          fetch-depth: 0
+
+      - name: Rename project and source to NextLedger without changing user data
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d DailyLedger
+          test -f DailyLedger.xcodeproj/project.pbxproj
+          test ! -e NextLedger
+          git mv DailyLedger NextLedger
+          git mv NextLedger/DailyLedgerApp.swift NextLedger/NextLedgerApp.swift
+          git mv NextLedger/DailyLedger.entitlements NextLedger/NextLedger.entitlements
+          git rm -r -q DailyLedger.xcodeproj
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib
+          project=Path("project.yml")
+          s=project.read_text()
+          changes={
+            "name: DailyLedger\n":"name: NextLedger\n",
+            "targets:\n  DailyLedger:\n":"targets:\n  NextLedger:\n",
+            "path: DailyLedger/DailyLedger.entitlements":"path: NextLedger/NextLedger.entitlements",
+            "path: DailyLedger\n":"path: NextLedger\n",
+            "INFOPLIST_FILE: DailyLedger/Info.plist":"INFOPLIST_FILE: NextLedger/Info.plist",
+          }
+          for original, new in changes.items():
+            assert s.count(original)==1, (original,s.count(original))
+            s=s.replace(original,new)
+          assert 'PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger' in s
+          assert 'MARKETING_VERSION: "1.3.84"' in s
+          assert 'CURRENT_PROJECT_VERSION: "106"' in s
+          assert 'iCloud.com.nextsolution.dailyledger' in s
+          s=s.replace('    CODE_SIGN_STYLE: Automatic',
+              '    CODE_SIGN_STYLE: Automatic\n    OTHER_SWIFT_FLAGS: "-debug-prefix-map $(SRCROOT)=/NextLedger"')
+          project.write_text(s)
+          app=Path("NextLedger/NextLedgerApp.swift")
+          body=app.read_text()
+          assert body.count("struct DailyLedgerApp: App")==1
+          app.write_text(body.replace("struct DailyLedgerApp: App","struct NextLedgerApp: App"))
+          info=Path("NextLedger/Info.plist")
+          p=plistlib.loads(info.read_bytes())
+          for item in p.get("CFBundleURLTypes",[]):
+            if item.get("CFBundleURLName")=="com.nextsolution.dailyledger":
+              item["CFBundleURLName"]="com.nextsolution.nextledger"
+              item["CFBundleURLSchemes"]=["nextledger"]
+          assert "iCloud.com.nextsolution.dailyledger" in p["NSUbiquitousContainers"]
+          with info.open("wb") as f:
+            plistlib.dump(p,f)
+          print("Standardized product, project, source and URL scheme; legacy persistent keys and iCloud retained.")
+          PY
+
+      - name: Generate and validate one NextLedger scheme
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+          test -f NextLedger.xcodeproj/project.pbxproj
+          test -f NextLedger.xcodeproj/xcshareddata/xcschemes/NextLedger.xcscheme
+          test ! -e DailyLedger.xcodeproj
+          grep -Fq 'CURRENT_PROJECT_VERSION = 106;' NextLedger.xcodeproj/project.pbxproj
+          grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER = com.nextsolution.nextledger;' NextLedger.xcodeproj/project.pbxproj
+          grep -Fq 'BudgetPerformanceReportView.swift' NextLedger.xcodeproj/project.pbxproj
+          grep -Fq 'NextLedgerApp.swift' NextLedger.xcodeproj/project.pbxproj
+          ! grep -Fq 'DailyLedger.xcodeproj' NextLedger.xcodeproj/xcshareddata/xcschemes/NextLedger.xcscheme
+          xcrun swiftc NextLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/nextledger-106-budget
+          /tmp/nextledger-106-budget
+          xcrun swiftc NextLedger/Services/SafeDeviceMerge.swift Tests/NextLedgerDeviceSync/main.swift -o /tmp/nextledger-106-sync
+          /tmp/nextledger-106-sync
+          xcrun swiftc NextLedger/Models/MonthlyFixedBudget.swift NextLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/nextledger-106-performance
+          /tmp/nextledger-106-performance
+
+      - name: Compile NextLedger on iOS using clean source
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -project NextLedger.xcodeproj -scheme NextLedger -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath /tmp/nextledger-unified-106 \
+            CODE_SIGNING_ALLOWED=NO build > /tmp/nextledger-unified-build.log 2>&1 || {
+              tail -90 /tmp/nextledger-unified-build.log
+              exit 1
+            }
+          APP="$(find /tmp/nextledger-unified-106/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP"
+          python3 - "$APP" <<'PY'
+          import pathlib,plistlib,sys
+          app=pathlib.Path(sys.argv[1])
+          info=plistlib.loads((app/"Info.plist").read_bytes())
+          assert info["CFBundleIdentifier"]=="com.nextsolution.nextledger"
+          assert info["CFBundleShortVersionString"]=="1.3.84"
+          assert info["CFBundleVersion"]=="106"
+          assert info["CFBundleDisplayName"]=="Next Ledger"
+          assert "iCloud.com.nextsolution.dailyledger" in info["NSUbiquitousContainers"]
+          forbidden=(b"nextjailbreak",b"next jailbreak",b"next-jailbreak",b"nextsolution.cc",
+                     b"next solution",b"trollstore",b"roothide",b"cydia",b"sileo")
+          matches=[]
+          for file in app.rglob("*"):
+            if file.is_file() and not file.is_symlink():
+              raw=file.read_bytes().lower()
+              matches.extend((str(file.relative_to(app)),term.decode()) for term in forbidden if term in raw)
+          assert not matches, matches
+          print("PASS: NextLedger 106 compiled, branded cleanly, and preserved iCloud")
+          PY
+
+      - name: Update Xcode Cloud instructions and publish isolated branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > NEXT_LEDGER_XCODE_CLOUD.md <<'NOTE'
+          Next Ledger 1.3.84 (Build 106)
+          Xcode Cloud source branch: release/nextledger-1.3.84-build106-xcodecloud
+          Project: NextLedger.xcodeproj
+          Scheme: NextLedger
+          Target: NextLedger
+          Display name: Next Ledger
+          App Store bundle ID: com.nextsolution.nextledger
+          Existing iCloud container: iCloud.com.nextsolution.dailyledger
+          This container and legacy storage keys MUST be preserved to maintain data access.
+          Configure a NEW Xcode Cloud workflow using Archive - iOS,
+          Distribution Preparation: App Store Connect, restricted to this release branch.
+          Apple may assign a distinct build number to archives uploaded by Xcode Cloud.
+          Submit to TestFlight for QA before App Review.
+          NOTE
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A NextLedger DailyLedger NextLedger.xcodeproj DailyLedger.xcodeproj project.yml NEXT_LEDGER_XCODE_CLOUD.md
+          git diff --cached --check
+          git commit -m 'Unify App Store Xcode Cloud app, project and scheme as NextLedger'
+          git push origin HEAD:refs/heads/release/nextledger-1.3.84-build106-xcodecloud
