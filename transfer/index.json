@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T08:56:26Z",
+  "updatedAt": "2026-11-11T09:27:38Z",
   "files": [
     {
-      "id": "sealora-1.0.10-build11-unsigned",
-      "name": "Sealora 1.0.10 — AdMob Publisher Configured",
-      "fileName": "Sealora-1.0.10-unsigned.ipa",
+      "id": "sealora-1.0.12-build13-unsigned",
+      "name": "Sealora 1.0.12 — Automatic AdMob Banner",
+      "fileName": "Sealora-1.0.12-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+; unsigned IPA (requires compatible signing before installation)",
-      "version": "1.0.10 (11)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.10/Sealora-1.0.10-unsigned.ipa",
-      "sha256": "21d13466d842a35748b426dae0361ec1db974489d8b6e0c724ede1211102255b",
-      "sizeBytes": 4779620,
-      "notes": "Publisher AdMob App ID and banner unit configured; Google demo banner by default, explicit live-ads toggle, UMP privacy consent and Next Jailbreak promotional fallback. Maintains local signing and OTA installation. Unpublished AdMob app has limited ad serving until supported-store approval. Unsigned iOS 16+ IPA."
+      "version": "1.0.12 (13)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.12/Sealora-1.0.12-unsigned.ipa",
+      "sha256": "494d6d454472f55656c75033365eed3b1f4ac2446c8ad6e0819b338da6ee50e9",
+      "sizeBytes": 4767721,
+      "notes": "No banner text or fallback placeholder; ad area hidden until Google returns an ad. Production unit selected automatically, subject to UMP consent and AdMob approval. Developer test-mode switch remains in Settings. Preserves local IPA signing and OTA installation. Unsigned iOS 16+ IPA."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
