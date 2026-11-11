@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T06:51:24Z",
+  "updatedAt": "2026-11-11T07:12:57Z",
   "files": [
     {
-      "id": "sealora-1.0.8-build9-unsigned",
-      "name": "Sealora 1.0.8 — Direct OTA Install",
-      "fileName": "Sealora-1.0.8-unsigned.ipa",
+      "id": "sealora-1.0.9-build10-unsigned",
+      "name": "Sealora 1.0.9 — Test Banner Ads",
+      "fileName": "Sealora-1.0.9-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+; unsigned IPA (requires compatible signing before installation)",
-      "version": "1.0.8 (9)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.8/Sealora-1.0.8-unsigned.ipa",
-      "sha256": "7c9eb5017254346e032fe3ae5fb1d54b216f2d5d4d32358a653f4a2f318ca8ac",
-      "sizeBytes": 3369557,
-      "notes": "Install now uses a loopback-only IPA transfer server, validates a third-party HTTPS OTA manifest, then invokes the iOS itms-services system installer with Safari fallback. No IPA or credentials are uploaded; the manifest providers receive the app name, bundle ID, version and local URL. Displays Delivered, not Installed, until device confirmation. The bootstrap IPA is UNSIGNED and must be signed before standard installation. Actual OTA install/launch remain unverified on hardware."
+      "version": "1.0.9 (10)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.9/Sealora-1.0.9-unsigned.ipa",
+      "sha256": "b0a6d0704f58b6aedf5a39a39c6f07946a205030e727f9834e77f9b806f99969",
+      "sizeBytes": 4748422,
+      "notes": "Adds slim 320x50 Google AdMob official TEST banner above the tab bar, with Next Jailbreak house promotion fallback and Settings toggle. Google demo unit does not generate revenue. Preserves on-device IPA signing and direct OTA install. Unsigned iOS 16+ test IPA; sign using a compatible profile before installation."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
