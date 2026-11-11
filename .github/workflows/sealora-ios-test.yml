@@ -1,4 +1,4 @@
-name: Sealora 1.0.10 publisher AdMob and UMP consent build
+name: Sealora 1.0.11 banner label update
 on:
   push:
     branches: [sealora-ios-test]
@@ -373,6 +373,22 @@ jobs:
           python3 scripts/generate_xcodeproj.py
           grep -q 'GoogleUserMessagingPlatform in Frameworks' Sealora.xcodeproj/project.pbxproj
           swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
+      - name: Simplify banner label while retaining verified AdMob setup (Sealora 1.0.11)
+        run: |
+          python3 .github/scripts/sealora-111-banner-label.py "$RUNNER_TEMP/SealoraProject"
+          cd "$RUNNER_TEMP/SealoraProject"
+          swiftc -frontend -parse Sealora/Features/BannerAdsView.swift
+          python3 - <<'PY'
+          import plistlib
+          from pathlib import Path
+          p=plistlib.loads(Path('Sealora/Info.plist').read_bytes())
+          assert p['CFBundleShortVersionString']=='1.0.11'
+          assert str(p['CFBundleVersion'])=='12'
+          s=Path('Sealora/Features/BannerAdsView.swift').read_text()
+          assert 'ADVERTISEMENT · TEST' not in s
+          assert 'Text(receivedAd ? "ADVERTISEMENT" : "NEXT PROMOTION")' in s
+          print('Verified updated banner label and unchanged AdMob identifiers')
+          PY
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -383,7 +399,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.10-unsigned-IPA
+          name: Sealora-1.0.11-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
