@@ -15,31 +15,20 @@ jobs:
         with:
           ref: feature/nextledger-1.3.84-build106-budget-performance-entry
 
-      - name: Prepare verified Build 106 source for existing App Store record
+      - name: Checkout independently versioned App Store release checks
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .release-tooling
+          sparse-checkout: |
+            .github/scripts/nextledger_appstore_brand_audit.py
+          sparse-checkout-cone-mode: false
+
+      - name: Prepare App Store identity and remove legacy branding
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path("project.yml")
-          s=p.read_text()
-          old="PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.dailyledger"
-          assert s.count(old)==1, "Unexpected Build 106 source bundle ID"
-          assert 'MARKETING_VERSION: "1.3.84"' in s and 'CURRENT_PROJECT_VERSION: "106"' in s
-          s=s.replace(old,"PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger")
-          assert s.count("    CODE_SIGN_STYLE: Automatic")==1
-          s=s.replace("    CODE_SIGN_STYLE: Automatic","    CODE_SIGN_STYLE: Automatic\\n    DEVELOPMENT_TEAM: T52CDY8W32".replace("\\n","\n"))
-          p.write_text(s)
-          old_task="com.nextsolution.dailyledger.backup-refresh"
-          new_task="com.nextsolution.nextledger.backup-refresh"
-          for name in ("DailyLedger/Info.plist", "DailyLedger/Services/BackupSyncService.swift"):
-              f=Path(name)
-              text=f.read_text()
-              assert old_task in text, f"Missing expected BGTask identifier in {name}"
-              f.write_text(text.replace(old_task,new_task))
-          assert 'iCloud.com.nextsolution.dailyledger' in Path("DailyLedger/DailyLedger.entitlements").read_text()
-          print("Prepared Build 106 with App Store identity; retained iCloud container")
-          PY
+          python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --prepare
 
       - name: Require secrets and exact App Store identity
         shell: bash
@@ -189,6 +178,7 @@ jobs:
           ditto -x -k "$NEXTLEDGER_APPSTORE_IPA" "$RUNNER_TEMP/ipa-verify"
           APP="$(find "$RUNNER_TEMP/ipa-verify/Payload" -maxdepth 1 -name '*.app' -print -quit)"
           test -n "$APP"
+          python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --app-audit "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.nextledger'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '106'
