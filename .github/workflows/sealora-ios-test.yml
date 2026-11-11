@@ -1,4 +1,4 @@
-name: Sealora 1.0.6 external CodeDirectory verification fix
+name: Sealora 1.0.7 signing complete and install handoff
 on:
   push:
     branches: [sealora-ios-test]
@@ -171,6 +171,45 @@ jobs:
           PY
           cd "$RUNNER_TEMP/SealoraProject"
           swiftc -frontend -parse Sealora/Core/ArchiveInspector.swift Tests/SealoraTests.swift
+      - name: Add signing completed screen and iOS installer handoff (Sealora 1.0.7)
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os,io,lzma,base64,hashlib,tarfile,plistlib
+          root=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
+          src=Path('SealoraBuild/patch107.b64')
+          compressed=base64.b64decode(src.read_text().strip(),validate=True)
+          expected='a47f44a3da229dfae348b8d101f5bfb15114f5e61ab3d1232d24e5ecbe700348'
+          assert hashlib.sha256(compressed).hexdigest()==expected,'Unexpected 1.0.7 patch checksum'
+          payload=lzma.decompress(compressed)
+          allowed={
+              'Sealora/Core/LibraryStore.swift','Sealora/SealoraApp.swift',
+              'Sealora/Features/SignedView.swift','Sealora/Info.plist','project.yml'
+          }
+          with tarfile.open(fileobj=io.BytesIO(payload),mode='r:') as t:
+              assert set(t.getnames())==allowed, 'Unexpected patch archive paths'
+              for m in t:
+                  assert m.isfile() and not m.issym(), 'Unexpected archive item'
+                  target=root/m.name
+                  assert target.exists(), 'Source missing: '+m.name
+                  target.write_bytes(t.extractfile(m).read())
+          info=plistlib.loads((root/'Sealora/Info.plist').read_bytes())
+          assert info['CFBundleIdentifier']=='com.nextsolution.sealora'
+          assert info['CFBundleShortVersionString']=='1.0.7'
+          assert info['CFBundleVersion']=='8'
+          app=(root/'Sealora/SealoraApp.swift').read_text()
+          store=(root/'Sealora/Core/LibraryStore.swift').read_text()
+          view=(root/'Sealora/Features/SignedView.swift').read_text()
+          assert '.sheet(item: $library.completedSigning, onDismiss: { selection = 1 })' in app
+          assert 'completedSigning = signed' in store and 'try save()' in store
+          assert 'IPAInstallerShareSheet(fileURL: library.signedURL(item))' in view
+          assert 'Text("Signing Complete")' in view
+          assert 'Button("Cancel") { onFinish() }' in view
+          assert 'Label("Install", systemImage:' in view
+          print('1.0.7 success, saved output and installer handoff source verification passed')
+          PY
+          cd "$RUNNER_TEMP/SealoraProject"
+          swiftc -frontend -parse Sealora/SealoraApp.swift Sealora/Features/SignedView.swift Sealora/Core/LibraryStore.swift
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -181,7 +220,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.6-unsigned-IPA
+          name: Sealora-1.0.7-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
