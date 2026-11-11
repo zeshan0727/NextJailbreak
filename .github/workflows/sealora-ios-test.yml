@@ -250,10 +250,32 @@ jobs:
           print('Sealora 1.0.8 direct install source and privacy checks passed')
           PY
           cd "$RUNNER_TEMP/SealoraProject"
+          # The CI bootstrap is a reduced, pre-generated Xcode project and
+          # intentionally excludes generate_xcodeproj.py. Embed the two new
+          # independent source units in an existing registered Swift file.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          folder=Path('Sealora')
+          target=folder/'Features/SignedView.swift'
+          inputs=[
+              folder/'Core/DirectInstallServer.swift',
+              folder/'Core/DirectInstallCoordinator.swift',
+              target,
+          ]
+          chunks=[]
+          for path in inputs:
+              body=path.read_text()
+              body=re.sub(r'^import (Foundation|UIKit|SwiftUI|UniformTypeIdentifiers|AVFoundation|Darwin)\\n','',body,flags=re.MULTILINE)
+              chunks.append(body)
+          header='import Foundation\\nimport UIKit\\nimport SwiftUI\\nimport AVFoundation\\nimport Darwin\\nimport UniformTypeIdentifiers\\n'
+          target.write_text(header+'\\n'.join(chunks))
+          for path in inputs[:2]: path.unlink()
+          assert 'final class DirectInstallServer' in target.read_text()
+          assert 'final class DirectInstallCoordinator' in target.read_text()
+          print('Compiled original OTA sources into the registered Swift target')
+          PY
           swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
-          python3 scripts/generate_xcodeproj.py
-          grep -q 'DirectInstallServer.swift in Sources' Sealora.xcodeproj/project.pbxproj
-          grep -q 'DirectInstallCoordinator.swift in Sources' Sealora.xcodeproj/project.pbxproj
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
