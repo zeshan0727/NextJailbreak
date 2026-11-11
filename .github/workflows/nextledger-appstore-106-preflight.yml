@@ -1,0 +1,140 @@
+name: Next Ledger 1.3.84 Build 106 - App Store Preflight
+
+on:
+  push:
+    branches: [prep/nextledger-build106-appstore]
+    paths:
+      - ".github/workflows/nextledger-appstore-106-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nextledger-appstore-build106-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: macos-26
+    timeout-minutes: 55
+    steps:
+      - name: Checkout dedicated App Store source
+        uses: actions/checkout@v4
+        with:
+          ref: feature/nextledger-1.3.84-build106-budget-performance-entry
+
+      - name: Bind verified Build 106 source to existing App Store Bundle ID
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("project.yml")
+          s=p.read_text()
+          old="PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.dailyledger"
+          assert s.count(old)==1, "Unexpected original bundle ID or source"
+          assert 'MARKETING_VERSION: "1.3.84"' in s and 'CURRENT_PROJECT_VERSION: "106"' in s
+          s=s.replace(old, "PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger")
+          assert s.count("    CODE_SIGN_STYLE: Automatic")==1
+          s=s.replace("    CODE_SIGN_STYLE: Automatic","    CODE_SIGN_STYLE: Automatic\n    DEVELOPMENT_TEAM: T52CDY8W32")
+          p.write_text(s)
+          # Background refresh task IDs must agree with the App Store target's Info.plist.
+          old_task="com.nextsolution.dailyledger.backup-refresh"
+          new_task="com.nextsolution.nextledger.backup-refresh"
+          for name in ("DailyLedger/Info.plist", "DailyLedger/Services/BackupSyncService.swift"):
+              f=Path(name)
+              content=f.read_text()
+              assert content.count(old_task)>=1, f"Missing original background task identifier in {name}"
+              f.write_text(content.replace(old_task,new_task))
+          print("App Store bundle and background task identifiers aligned; iCloud container unchanged")
+          PY
+
+      - name: Require supported App Store SDK and preserve correct identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+          python3 -c 'import sys; assert int(sys.argv[1].split(".")[0]) >= 26, "App Store requires iOS 26+ SDK"' "$SDK_VERSION"
+          grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger' project.yml
+          grep -Fq 'DEVELOPMENT_TEAM: T52CDY8W32' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "106"' project.yml
+          grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
+          grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'iCloud.com.nextsolution.dailyledger' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'iCloud.com.nextsolution.dailyledger' DailyLedger/Info.plist
+          grep -Fq 'static let taskIdentifier = "com.nextsolution.nextledger.backup-refresh"' DailyLedger/Services/BackupSyncService.swift
+          grep -Fq 'Sync Across Devices' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'SettingsGroupedDetailPage(title: "Backup & Sync")' DailyLedger/Views/SettingsView.swift
+          ! grep -Fq 'Section("ERP Accounting")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Section("Accounting Registers")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Section("Statements & Aging")' DailyLedger/Views/ReportsView.swift
+          plutil -lint DailyLedger/DailyLedger.entitlements DailyLedger/Info.plist
+
+      - name: Run ledger regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/nextledger-budget-tests
+          /tmp/nextledger-budget-tests
+          xcrun swiftc DailyLedger/Services/SafeDeviceMerge.swift Tests/NextLedgerDeviceSync/main.swift -o /tmp/nextledger-device-sync-tests
+          /tmp/nextledger-device-sync-tests
+
+      - name: Run Build 106 Budget Performance regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/nextledger-appstore-budget106
+          /tmp/nextledger-appstore-budget106
+          grep -Fq 'Actual vs Forecast' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'BudgetPerformanceReportView(initialCycle: displayedCycle)' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'Books vs Messages Balance' DailyLedger/Views/ReportsView.swift
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+
+      - name: Compile unsigned iOS 26 or newer App Store configuration
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -project DailyLedger.xcodeproj -scheme DailyLedger \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath /tmp/nextledger-appstore-106 \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee /tmp/nextledger-appstore-106.log
+
+      - name: Verify app identity and prepare unsigned preflight artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$(find /tmp/nextledger-appstore-106/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.nextledger'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '106'
+          test "$(/usr/libexec/PlistBuddy -c 'Print NSUbiquitousContainers:iCloud.com.nextsolution.dailyledger:NSUbiquitousContainerIsDocumentScopePublic' "$APP/Info.plist")" = 'true'
+          test "$(/usr/libexec/PlistBuddy -c 'Print BGTaskSchedulerPermittedIdentifiers:0' "$APP/Info.plist")" = 'com.nextsolution.nextledger.backup-refresh'
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa
+          unzip -t NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa >/dev/null
+          cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build106-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
+          shasum -a 256 NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa > NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.sha256
+          echo 'PREFLIGHT ONLY: Unsigned archive cannot be uploaded to App Store Connect.'
+          echo 'Publishing requires an Apple App Store Distribution profile authorizing the EXACT com.nextsolution.nextledger App ID and iCloud.com.nextsolution.dailyledger container.'
+          echo 'Never use the Ad Hoc / TrollStore signing profile for App Store distribution.'
+
+      - name: Upload App Store SDK preflight artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.84-Build106-AppStore-Preflight-UNSIGNED
+          if-no-files-found: error
+          path: |
+            NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa
+            NextLedger-1.3.84-Build106-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
+            NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.sha256
