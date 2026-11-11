@@ -1,8 +1,13 @@
-# Next Ledger 1.3.84 (106) - App Store Xcode Cloud source
-- Scheme: DailyLedger
-- Team: T52CDY8W32
-- App Store ID: com.nextsolution.nextledger
-- Preserved iCloud container: iCloud.com.nextsolution.dailyledger
-- Xcode Cloud may assign a different build number for its archive.
-- Use Archive -> TestFlight & App Store, not automatic review submission.
-- Complete Apple's seven Guideline 2.1 evidence requirements first.
+Next Ledger 1.3.84 (Build 106)
+Xcode Cloud source branch: release/nextledger-1.3.84-build106-xcodecloud
+Project: NextLedger.xcodeproj
+Scheme: NextLedger
+Target: NextLedger
+Display name: Next Ledger
+App Store bundle ID: com.nextsolution.nextledger
+Existing iCloud container: iCloud.com.nextsolution.dailyledger
+This container and legacy storage keys MUST be preserved to maintain data access.
+Configure a NEW Xcode Cloud workflow using Archive - iOS,
+Distribution Preparation: App Store Connect, restricted to this release branch.
+Apple may assign a distinct build number to archives uploaded by Xcode Cloud.
+Submit to TestFlight for QA before App Review.

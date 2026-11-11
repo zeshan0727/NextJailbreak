@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct DailyLedgerApp: App {
+struct NextLedgerApp: App {
     @StateObject private var store = LedgerStore()
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage("DailyLedgerAppearance") private var appearance = AppAppearance.system.rawValue

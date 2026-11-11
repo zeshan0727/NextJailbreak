@@ -1,4 +1,4 @@
-name: DailyLedger
+name: NextLedger
 options:
   bundleIdPrefix: com.nextsolution
   deploymentTarget:
@@ -11,15 +11,16 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
     SUPPORTS_MACCATALYST: "NO"
     CODE_SIGN_STYLE: Automatic
+    OTHER_SWIFT_FLAGS: "-debug-prefix-map $(SRCROOT)=/NextLedger"
     DEVELOPMENT_TEAM: T52CDY8W32
     MARKETING_VERSION: "1.3.84"
     CURRENT_PROJECT_VERSION: "106"
 targets:
-  DailyLedger:
+  NextLedger:
     type: application
     platform: iOS
     entitlements:
-      path: DailyLedger/DailyLedger.entitlements
+      path: NextLedger/NextLedger.entitlements
       properties:
         com.apple.developer.icloud-services:
           - CloudDocuments
@@ -28,12 +29,12 @@ targets:
         com.apple.developer.ubiquity-container-identifiers:
           - iCloud.com.nextsolution.dailyledger
     sources:
-      - path: DailyLedger
+      - path: NextLedger
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger
         PRODUCT_NAME: Next Ledger
-        INFOPLIST_FILE: DailyLedger/Info.plist
+        INFOPLIST_FILE: NextLedger/Info.plist
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         GENERATE_INFOPLIST_FILE: "NO"
