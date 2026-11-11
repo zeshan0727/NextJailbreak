@@ -1,13 +1,5 @@
 name: Publish Sealora 1.0.8 direct OTA installer to NS Transfer
 on:
-  workflow_run:
-    workflows: ["Sealora 1.0.8 direct OTA install test build"]
-    types: [completed]
-    branches: [sealora-ios-test]
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/publish-sealora-108-ns-transfer.yml'
   workflow_dispatch:
 permissions:
   contents: write
