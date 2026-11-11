@@ -1,4 +1,4 @@
-name: Sealora 1.0.7 signing complete and install handoff
+name: Sealora 1.0.8 direct OTA install test build
 on:
   push:
     branches: [sealora-ios-test]
@@ -244,7 +244,7 @@ jobs:
           assert 'https://ipa.s0n1c.ca/genPlist' in coordinator
           assert 'https://api.palera.in/genPlist' in coordinator
           assert 'validManifest(data, matching:' in coordinator
-          assert 'case .delivered' in coordinator
+          assert 'self.phase = .delivered' in coordinator
           server=(root/'Sealora/Core/DirectInstallServer.swift').read_text()
           assert '127.0.0.1' in server and 'Accept-Ranges: bytes' in server
           print('Sealora 1.0.8 direct install source and privacy checks passed')
