@@ -2,9 +2,10 @@ name: Next Ledger 1.3.84 Build 106 - App Store Preflight
 
 on:
   push:
-    branches: [prep/nextledger-build106-appstore]
+    branches: [fix/nextledger-appstore106-branding-audit]
     paths:
       - ".github/workflows/nextledger-appstore-106-preflight.yml"
+      - ".github/scripts/nextledger_appstore_brand_audit.py"
   workflow_dispatch:
 
 permissions:
@@ -24,35 +25,35 @@ jobs:
         with:
           ref: feature/nextledger-1.3.84-build106-budget-performance-entry
 
-      - name: Bind verified Build 106 source to existing App Store Bundle ID
+      - name: Checkout independently versioned App Store release checks
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .release-tooling
+          sparse-checkout: |
+            .github/scripts/nextledger_appstore_brand_audit.py
+          sparse-checkout-cone-mode: false
+
+      - name: Stage clean source outside studio-named repository path
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path("project.yml")
-          s=p.read_text()
-          old="PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.dailyledger"
-          assert s.count(old)==1, "Unexpected original bundle ID or source"
-          assert 'MARKETING_VERSION: "1.3.84"' in s and 'CURRENT_PROJECT_VERSION: "106"' in s
-          s=s.replace(old, "PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger")
-          assert s.count("    CODE_SIGN_STYLE: Automatic")==1
-          s=s.replace("    CODE_SIGN_STYLE: Automatic","    CODE_SIGN_STYLE: Automatic\n    DEVELOPMENT_TEAM: T52CDY8W32")
-          p.write_text(s)
-          # Background refresh task IDs must agree with the App Store target's Info.plist.
-          old_task="com.nextsolution.dailyledger.backup-refresh"
-          new_task="com.nextsolution.nextledger.backup-refresh"
-          for name in ("DailyLedger/Info.plist", "DailyLedger/Services/BackupSyncService.swift"):
-              f=Path(name)
-              content=f.read_text()
-              assert content.count(old_task)>=1, f"Missing original background task identifier in {name}"
-              f.write_text(content.replace(old_task,new_task))
-          print("App Store bundle and background task identifiers aligned; iCloud container unchanged")
-          PY
+          mkdir -p "$RUNNER_TEMP/ledger-appstore-source/.release-tooling/.github/scripts"
+          cp -R DailyLedger Tests project.yml "$RUNNER_TEMP/ledger-appstore-source/"
+          cp .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py "$RUNNER_TEMP/ledger-appstore-source/.release-tooling/.github/scripts/"
+          test -f "$RUNNER_TEMP/ledger-appstore-source/project.yml"
+
+      - name: Prepare App Store identity and remove legacy branding
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
+          set -euo pipefail
+          python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --prepare
 
       - name: Require supported App Store SDK and preserve correct identity
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           xcodebuild -version
           SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
@@ -75,6 +76,7 @@ jobs:
       - name: Run ledger regression tests
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/nextledger-budget-tests
           /tmp/nextledger-budget-tests
@@ -84,6 +86,7 @@ jobs:
       - name: Run Build 106 Budget Performance regression tests
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/nextledger-appstore-budget106
           /tmp/nextledger-appstore-budget106
@@ -94,6 +97,7 @@ jobs:
       - name: Generate Xcode project
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
           xcodegen generate
@@ -101,6 +105,7 @@ jobs:
       - name: Compile unsigned iOS 26 or newer App Store configuration
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -o pipefail
           xcodebuild -project DailyLedger.xcodeproj -scheme DailyLedger \
             -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
@@ -111,9 +116,11 @@ jobs:
       - name: Verify app identity and prepare unsigned preflight artifact
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           APP="$(find /tmp/nextledger-appstore-106/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
           test -n "$APP"
+          python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --app-audit "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.nextledger'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '106'
@@ -125,6 +132,25 @@ jobs:
           unzip -t NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa >/dev/null
           cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build106-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
           shasum -a 256 NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa > NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.sha256
+          mkdir -p NextLedger-AppStore-Xcode
+          cp -R DailyLedger DailyLedger.xcodeproj Tests project.yml NextLedger-AppStore-Xcode/
+          cat > NextLedger-AppStore-Xcode/README.txt <<'EOF'
+          Next Ledger 1.3.84 (106) - App Store Xcode source
+          =================================================
+          This source is prepared for the App Store bundle ID
+          com.nextsolution.nextledger and the shared CloudDocuments container
+          iCloud.com.nextsolution.dailyledger.
+
+          Open DailyLedger.xcodeproj in current Xcode on a Mac.
+          Select target DailyLedger > Signing & Capabilities.
+          Choose team T52CDY8W32 and Automatically manage signing.
+          Verify iCloud Documents and the existing shared container.
+          Select a generic iOS device, Product > Archive, then Distribute App
+          to TestFlight & App Store and follow Apple's prompts.
+          Test on a stock device and complete the App Review 2.1 checklist.
+          EOF
+          ditto -c -k --sequesterRsrc --keepParent NextLedger-AppStore-Xcode NextLedger-1.3.84-Build106-APPSTORE-XCODE-SOURCE.zip
+          unzip -t NextLedger-1.3.84-Build106-APPSTORE-XCODE-SOURCE.zip >/dev/null
           echo 'PREFLIGHT ONLY: Unsigned archive cannot be uploaded to App Store Connect.'
           echo 'Publishing requires an Apple App Store Distribution profile authorizing the EXACT com.nextsolution.nextledger App ID and iCloud.com.nextsolution.dailyledger container.'
           echo 'Never use the Ad Hoc / TrollStore signing profile for App Store distribution.'
@@ -135,6 +161,7 @@ jobs:
           name: NextLedger-1.3.84-Build106-AppStore-Preflight-UNSIGNED
           if-no-files-found: error
           path: |
-            NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa
-            NextLedger-1.3.84-Build106-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
-            NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.sha256
+            ${{ runner.temp }}/ledger-appstore-source/NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa
+            ${{ runner.temp }}/ledger-appstore-source/NextLedger-1.3.84-Build106-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
+            ${{ runner.temp }}/ledger-appstore-source/NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.sha256
+            ${{ runner.temp }}/ledger-appstore-source/NextLedger-1.3.84-Build106-APPSTORE-XCODE-SOURCE.zip
