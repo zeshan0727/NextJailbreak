@@ -348,6 +348,24 @@ jobs:
           print('Verified 1.0.10 publisher IDs, test ad safety and UMP consent gate')
           PY
           cd "$RUNNER_TEMP/SealoraProject"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/generate_xcodeproj.py')
+          s=p.read_text()
+          products="['RorkSign','ZIPFoundation','GoogleMobileAds']"
+          assert s.count(products)==3, 'Unexpected Xcode package lists'
+          s=s.replace(products,"['RorkSign','ZIPFoundation','GoogleMobileAds','UserMessagingPlatform']")
+          existing="('https://github.com/googleads/swift-package-manager-google-mobile-ads.git','13.0.0','GoogleMobileAds')]:"
+          assert s.count(existing)==1, 'Google package reference not found'
+          s=s.replace(existing,
+            "('https://github.com/googleads/swift-package-manager-google-mobile-ads.git','13.0.0','GoogleMobileAds'),\n"
+            "    ('https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git','3.1.0','UserMessagingPlatform')]:")
+          old_ref='ref("XCRemoteSwiftPackageReference:GoogleMobileAds","GoogleMobileAds")}, );'
+          new_ref='ref("XCRemoteSwiftPackageReference:GoogleMobileAds","GoogleMobileAds")}, {ref("XCRemoteSwiftPackageReference:UserMessagingPlatform","UserMessagingPlatform")}, );'
+          assert s.count(old_ref)==1, 'Xcode packageReferences not found'
+          s=s.replace(old_ref,new_ref)
+          p.write_text(s)
+          PY
           python3 scripts/generate_xcodeproj.py
           grep -q 'UserMessagingPlatform' Sealora.xcodeproj/project.pbxproj
           swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
