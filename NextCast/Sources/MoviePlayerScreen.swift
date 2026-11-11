@@ -183,7 +183,7 @@ struct MoviePlayerScreen: View {
                         }
                         Button(broadcast ? "Playing on TV" :
                                castPreparer.preparing ? "Preparing TV MP4…" :
-                               movie.format == "MKV" ? "MKV requires MP4" : "Play on TV") {
+                               movie.format == "MKV" ? "Prepare MKV & Cast" : "Play on TV") {
                             requestedCast = true
                             expectedCastMovieID = nil
                             if cast.isConnected { playOnTV() }
@@ -272,10 +272,10 @@ struct MoviePlayerScreen: View {
                             }
                         }
                         if movie.format == "MKV" {
-                            Text("MKV playback in VLC is supported. MKV-to-MP4 conversion is temporarily disabled because the old FFmpeg engine crashed on iOS 16. Use a compatible MP4 for TV.")
+                            Text("MKV is prepared as TV-compatible MP4 using the new FFmpeg conversion engine. The video is copied without quality loss when it is already H.264; audio becomes AAC stereo.")
                                 .font(.caption).foregroundStyle(.orange)
                         } else if !movie.castCompatible {
-                            Text("Native MP4 preparation supports MP4, M4V and MOV containing H.264 video. Other containers can still play locally through VLC.")
+                            Text("MPEG, MKV, AVI and other supported containers are converted into TV MP4. Unsupported video codecs require H.264 re-encoding.")
                                 .font(.caption).foregroundStyle(.orange)
                         }
                     }

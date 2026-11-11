@@ -4,9 +4,9 @@ import AVFoundation
 import AudioToolbox
 import CoreMedia
 
-// 1.4.5: The previous embedded FFmpeg CLI crashed with SIGBUS in
-// av_format_init_next on iOS 16. This module deliberately never calls it.
-// MP4/MOV processing uses Apple's system encoders and muxer instead.
+// Legacy FFmpeg CLI (1.4.3) caused SIGBUS on iOS 16 and is permanently
+// disabled. Native MP4 fast conversion is retained; the independent modern
+// FFmpegKit 8.1.2 engine handles MKV and advanced video/audio conversions.
 private enum NativeCastCompatibility {
     static let containers: Set<String> = ["mp4", "m4v", "mov"]
 

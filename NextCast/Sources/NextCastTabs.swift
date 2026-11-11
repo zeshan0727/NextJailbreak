@@ -273,7 +273,7 @@ struct MoviesTab: View {
                     .disabled(library.isImporting)
 
                     Button { showConverter = true } label: {
-                        Label("Video Converter · Fast MP4 + AAC", systemImage: "arrow.triangle.2.circlepath")
+                        Label("TV Video Converter · MKV / MP4 / AAC", systemImage: "arrow.triangle.2.circlepath")
                             .font(.subheadline.bold())
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 9)
@@ -413,7 +413,7 @@ struct SettingsTab: View {
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("About") {
-                    LabeledContent("App", value: "Next Cast 1.4.9")
+                    LabeledContent("App", value: "Next Cast 1.5.0")
                     LabeledContent("Credits", value: "Next Jailbreak – Zeshan0727")
                     LabeledContent("Playback", value: "MobileVLCKit")
                     LabeledContent("Casting", value: "Google Cast")
