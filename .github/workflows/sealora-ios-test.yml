@@ -210,6 +210,50 @@ jobs:
           PY
           cd "$RUNNER_TEMP/SealoraProject"
           swiftc -frontend -parse Sealora/SealoraApp.swift Sealora/Features/SignedView.swift Sealora/Core/LibraryStore.swift
+      - name: Integrate native OTA install flow (Sealora 1.0.8)
+        run: |
+          python3 - <<'PY'
+          import base64, hashlib, io, lzma, os, plistlib, tarfile
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
+          raw=base64.b64decode(''.join(Path('SealoraBuild/patch108.b64').read_text().splitlines()),validate=True)
+          expected='e6d0c2d92df2e05732543932deb2b20887f77883d4648369f405d11b499f1abe'
+          assert hashlib.sha256(raw).hexdigest()==expected, 'Sealora OTA source archive checksum mismatch'
+          allowed={
+              'Sealora/Core/DirectInstallCoordinator.swift',
+              'Sealora/Core/DirectInstallServer.swift',
+              'Sealora/Features/SignedView.swift',
+              'Sealora/Info.plist',
+              'project.yml',
+          }
+          with tarfile.open(fileobj=io.BytesIO(lzma.decompress(raw)),mode='r:') as archive:
+              assert set(archive.getnames())==allowed, 'Unexpected install source files'
+              for member in archive:
+                  assert member.isfile() and not member.issym(), 'Non-file OTA patch'
+                  destination=root/member.name
+                  destination.parent.mkdir(parents=True,exist_ok=True)
+                  destination.write_bytes(archive.extractfile(member).read())
+          info=plistlib.loads((root/'Sealora/Info.plist').read_bytes())
+          assert info['CFBundleShortVersionString']=='1.0.8' and info['CFBundleVersion']=='9'
+          assert 'audio' in info['UIBackgroundModes'], 'Local install transfer would suspend'
+          view=(root/'Sealora/Features/SignedView.swift').read_text()
+          assert 'installer.begin(item: item, url: library.signedURL(item))' in view
+          assert 'IPAInstallerShareSheet' not in view, 'Install is still a share action'
+          assert 'DirectInstallStatusView' in view
+          coordinator=(root/'Sealora/Core/DirectInstallCoordinator.swift').read_text()
+          assert 'https://ipa.s0n1c.ca/genPlist' in coordinator
+          assert 'https://api.palera.in/genPlist' in coordinator
+          assert 'validManifest(data, matching:' in coordinator
+          assert 'case .delivered' in coordinator
+          server=(root/'Sealora/Core/DirectInstallServer.swift').read_text()
+          assert '127.0.0.1' in server and 'Accept-Ranges: bytes' in server
+          print('Sealora 1.0.8 direct install source and privacy checks passed')
+          PY
+          cd "$RUNNER_TEMP/SealoraProject"
+          swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
+          python3 scripts/generate_xcodeproj.py
+          grep -q 'DirectInstallServer.swift in Sources' Sealora.xcodeproj/project.pbxproj
+          grep -q 'DirectInstallCoordinator.swift in Sources' Sealora.xcodeproj/project.pbxproj
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -220,7 +264,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.7-unsigned-IPA
+          name: Sealora-1.0.8-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
