@@ -2,9 +2,10 @@ name: Next Ledger 1.3.84 Build 106 - App Store Preflight
 
 on:
   push:
-    branches: [prep/nextledger-build106-appstore]
+    branches: [fix/nextledger-appstore106-branding-audit]
     paths:
       - ".github/workflows/nextledger-appstore-106-preflight.yml"
+      - ".github/scripts/nextledger_appstore_brand_audit.py"
   workflow_dispatch:
 
 permissions:
@@ -24,31 +25,20 @@ jobs:
         with:
           ref: feature/nextledger-1.3.84-build106-budget-performance-entry
 
-      - name: Bind verified Build 106 source to existing App Store Bundle ID
+      - name: Checkout independently versioned App Store release checks
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .release-tooling
+          sparse-checkout: |
+            .github/scripts/nextledger_appstore_brand_audit.py
+          sparse-checkout-cone-mode: false
+
+      - name: Prepare App Store identity and remove legacy branding
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path("project.yml")
-          s=p.read_text()
-          old="PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.dailyledger"
-          assert s.count(old)==1, "Unexpected original bundle ID or source"
-          assert 'MARKETING_VERSION: "1.3.84"' in s and 'CURRENT_PROJECT_VERSION: "106"' in s
-          s=s.replace(old, "PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger")
-          assert s.count("    CODE_SIGN_STYLE: Automatic")==1
-          s=s.replace("    CODE_SIGN_STYLE: Automatic","    CODE_SIGN_STYLE: Automatic\n    DEVELOPMENT_TEAM: T52CDY8W32")
-          p.write_text(s)
-          # Background refresh task IDs must agree with the App Store target's Info.plist.
-          old_task="com.nextsolution.dailyledger.backup-refresh"
-          new_task="com.nextsolution.nextledger.backup-refresh"
-          for name in ("DailyLedger/Info.plist", "DailyLedger/Services/BackupSyncService.swift"):
-              f=Path(name)
-              content=f.read_text()
-              assert content.count(old_task)>=1, f"Missing original background task identifier in {name}"
-              f.write_text(content.replace(old_task,new_task))
-          print("App Store bundle and background task identifiers aligned; iCloud container unchanged")
-          PY
+          python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --prepare
 
       - name: Require supported App Store SDK and preserve correct identity
         shell: bash
@@ -114,6 +104,7 @@ jobs:
           set -euo pipefail
           APP="$(find /tmp/nextledger-appstore-106/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
           test -n "$APP"
+          python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --app-audit "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.nextledger'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
           test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '106'
