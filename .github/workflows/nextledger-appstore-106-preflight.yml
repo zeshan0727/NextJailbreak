@@ -132,6 +132,25 @@ jobs:
           unzip -t NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa >/dev/null
           cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build106-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
           shasum -a 256 NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa > NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.sha256
+          mkdir -p NextLedger-AppStore-Xcode
+          cp -R DailyLedger DailyLedger.xcodeproj Tests project.yml NextLedger-AppStore-Xcode/
+          cat > NextLedger-AppStore-Xcode/README.txt <<'EOF'
+          Next Ledger 1.3.84 (106) - App Store Xcode source
+          =================================================
+          This source is prepared for the App Store bundle ID
+          com.nextsolution.nextledger and the shared CloudDocuments container
+          iCloud.com.nextsolution.dailyledger.
+
+          Open DailyLedger.xcodeproj in current Xcode on a Mac.
+          Select target DailyLedger > Signing & Capabilities.
+          Choose team T52CDY8W32 and Automatically manage signing.
+          Verify iCloud Documents and the existing shared container.
+          Select a generic iOS device, Product > Archive, then Distribute App
+          to TestFlight & App Store and follow Apple's prompts.
+          Test on a stock device and complete the App Review 2.1 checklist.
+          EOF
+          ditto -c -k --sequesterRsrc --keepParent NextLedger-AppStore-Xcode NextLedger-1.3.84-Build106-APPSTORE-XCODE-SOURCE.zip
+          unzip -t NextLedger-1.3.84-Build106-APPSTORE-XCODE-SOURCE.zip >/dev/null
           echo 'PREFLIGHT ONLY: Unsigned archive cannot be uploaded to App Store Connect.'
           echo 'Publishing requires an Apple App Store Distribution profile authorizing the EXACT com.nextsolution.nextledger App ID and iCloud.com.nextsolution.dailyledger container.'
           echo 'Never use the Ad Hoc / TrollStore signing profile for App Store distribution.'
@@ -145,3 +164,4 @@ jobs:
             ${{ runner.temp }}/ledger-appstore-source/NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.ipa
             ${{ runner.temp }}/ledger-appstore-source/NextLedger-1.3.84-Build106-APPSTORE-ENTITLEMENTS-TEMPLATE.plist
             ${{ runner.temp }}/ledger-appstore-source/NextLedger-1.3.84-Build106-APPSTORE-PREFLIGHT-UNSIGNED.sha256
+            ${{ runner.temp }}/ledger-appstore-source/NextLedger-1.3.84-Build106-APPSTORE-XCODE-SOURCE.zip
