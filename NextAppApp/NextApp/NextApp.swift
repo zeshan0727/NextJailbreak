@@ -48,7 +48,7 @@ final class AppCatalogStore: ObservableObject {
             request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             request.timeoutInterval = 20
             request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
-            request.setValue("NextAppLibrary/1.0.3", forHTTPHeaderField: "User-Agent")
+            request.setValue("AppBucket/1.0.4", forHTTPHeaderField: "User-Agent")
 
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse,
@@ -161,9 +161,9 @@ struct AppsHomeView: View {
 
                     if !store.apps.isEmpty {
                         VStack(spacing: 4) {
-                            Text("Live from nextjailbreak.com/install")
+                            Text("NEXT JAILBREAK · APP BUCKET")
                                 .font(.caption2.weight(.semibold))
-                            Text("New apps appear automatically")
+                            Text("New apps appear automatically · nextjailbreak.com")
                                 .font(.caption2)
                         }
                         .foregroundStyle(.white.opacity(0.42))
@@ -213,18 +213,18 @@ struct AppsHomeView: View {
                             .stroke(.white.opacity(0.20), lineWidth: 0.8)
                     )
 
-                Image(systemName: "square.grid.2x2.fill")
+                Image(systemName: "shippingbox.fill")
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundStyle(.white)
             }
             .frame(width: 58, height: 58)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("Next App Library")
+                Text("App Bucket")
                     .font(.system(size: 29, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
 
-                Text(store.apps.isEmpty ? "Your private app library" : "\(store.apps.count) apps available")
+                Text(store.apps.isEmpty ? "by Next Jailbreak" : "\(store.apps.count) apps · by Next Jailbreak")
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.white.opacity(0.62))
             }
@@ -337,7 +337,7 @@ struct AppCard: View, Equatable {
         .padding(15)
         .fastGlassPanel(cornerRadius: 23)
         .alert(
-            "Next App Library",
+            "App Bucket",
             isPresented: Binding(
                 get: { alertMessage != nil },
                 set: { if !$0 { alertMessage = nil } }
