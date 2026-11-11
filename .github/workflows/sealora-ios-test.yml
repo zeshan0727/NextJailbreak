@@ -266,10 +266,10 @@ jobs:
           chunks=[]
           for path in inputs:
               body=path.read_text()
-              body=re.sub(r'^import (Foundation|UIKit|SwiftUI|UniformTypeIdentifiers|AVFoundation|Darwin)\\n','',body,flags=re.MULTILINE)
+              body=re.sub(r'^import (Foundation|UIKit|SwiftUI|UniformTypeIdentifiers|AVFoundation|Darwin)\n','',body,flags=re.MULTILINE)
               chunks.append(body)
-          header='import Foundation\\nimport UIKit\\nimport SwiftUI\\nimport AVFoundation\\nimport Darwin\\nimport UniformTypeIdentifiers\\n'
-          target.write_text(header+'\\n'.join(chunks))
+          header='import Foundation\nimport UIKit\nimport SwiftUI\nimport AVFoundation\nimport Darwin\nimport UniformTypeIdentifiers\n'
+          target.write_text(header+'\n'.join(chunks))
           for path in inputs[:2]: path.unlink()
           assert 'final class DirectInstallServer' in target.read_text()
           assert 'final class DirectInstallCoordinator' in target.read_text()
