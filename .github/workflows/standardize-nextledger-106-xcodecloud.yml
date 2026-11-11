@@ -144,7 +144,7 @@ jobs:
           NOTE
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A NextLedger DailyLedger NextLedger.xcodeproj DailyLedger.xcodeproj project.yml NEXT_LEDGER_XCODE_CLOUD.md
+          git add -A NextLedger NextLedger.xcodeproj project.yml NEXT_LEDGER_XCODE_CLOUD.md
           git diff --cached --check
           git commit -m 'Unify App Store Xcode Cloud app, project and scheme as NextLedger'
           git push origin HEAD:refs/heads/release/nextledger-1.3.84-build106-xcodecloud
