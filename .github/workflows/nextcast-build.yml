@@ -14,7 +14,7 @@ permissions:
 
 # Never waste multiple macOS runners compiling superseded edits.
 concurrency:
-  group: nextcast-v149-${{ github.head_ref || github.ref_name }}
+  group: nextcast-v150-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -55,10 +55,14 @@ jobs:
             ~/Library/Caches/CocoaPods
             ~/.cocoapods
             NextCast/Pods
+            NextCast/Vendor/FFmpeg
             ~/Library/Developer/Xcode/DerivedData/SourcePackages
-          key: nextcast-macos15-intel-${{ hashFiles('NextCast/Podfile', 'NextCast/project.yml') }}
+          key: nextcast-macos15-intel-${{ hashFiles('NextCast/Podfile', 'NextCast/project.yml', 'NextCast/tools/install_ffmpeg_min.sh') }}
           restore-keys: |
             nextcast-macos15-intel-
+
+      - name: Download and verify LGPL FFmpeg iOS framework binaries
+        run: bash NextCast/tools/install_ffmpeg_min.sh
 
       - name: Generate project and resolve official Google Cast SDK
         working-directory: NextCast
@@ -139,17 +143,17 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.4.9.tipa" Payload)
-          cp NextCast-1.4.9.tipa NextCast-1.4.9.ipa
-          ls -lh NextCast-1.4.9.tipa NextCast-1.4.9.ipa
+          (cd dist && zip -qry "../NextCast-1.5.0.tipa" Payload)
+          cp NextCast-1.5.0.tipa NextCast-1.5.0.ipa
+          ls -lh NextCast-1.5.0.tipa NextCast-1.5.0.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-4-9-IPA-TIPA
+          name: NextCast-iOS16-V1-5-0-IPA-TIPA
           path: |
-            NextCast-1.4.9.tipa
-            NextCast-1.4.9.ipa
+            NextCast-1.5.0.tipa
+            NextCast-1.5.0.ipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
