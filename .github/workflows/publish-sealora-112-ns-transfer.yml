@@ -1,0 +1,89 @@
+name: Publish Sealora 1.0.12 AdMob publisher to NS Transfer
+on:
+  workflow_run:
+    workflows: ["Sealora 1.0.12 banner label update"]
+    types: [completed]
+    branches: [sealora-ios-test]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-sealora-112-ns-transfer
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download verified Sealora 1.0.12 iOS build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh api /repos/${GITHUB_REPOSITORY}/actions/runs/42994378091 --jq .conclusion)" = success
+          mkdir -p "$RUNNER_TEMP/sealora109"
+          gh run download 42994378091 --repo "$GITHUB_REPOSITORY" --name Sealora-1.0.12-unsigned-IPA --dir "$RUNNER_TEMP/sealora109"
+          test -s "$RUNNER_TEMP/sealora109/Sealora-unsigned.ipa"
+          python3 - "$RUNNER_TEMP/sealora109/Sealora-unsigned.ipa" <<'PY'
+          import sys,zipfile,plistlib
+          with zipfile.ZipFile(sys.argv[1]) as z:
+              assert z.testzip() is None, 'Damaged IPA'
+              matches = [s for s in z.namelist() if s.startswith('Payload/') and s.endswith('.app/Info.plist') and s.count('/')==2]
+              assert len(matches)==1,matches
+              info = plistlib.loads(z.read(matches[0]))
+              assert info['CFBundleIdentifier']=='com.nextsolution.sealora'
+              assert info['CFBundleShortVersionString']=='1.0.12'
+              assert str(info['CFBundleVersion'])=='13'
+              assert info['MinimumOSVersion']=='16.0'
+              assert not info.get('CFBundleURLTypes'), 'Retired UDID callback still present'
+              assert 'audio' in info.get('UIBackgroundModes',[]), 'OTA background audio support missing'
+              assert info.get('GADApplicationIdentifier')=='ca-app-pub-4770123899731214~1230048425', 'Incorrect AdMob publisher App ID'
+              assert any('/Frameworks/GoogleMobileAds.framework/GoogleMobileAds' in n for n in z.namelist()), 'AdMob framework missing'
+              assert any('/Frameworks/UserMessagingPlatform.framework/UserMessagingPlatform' in n for n in z.namelist()), 'UMP framework missing'
+              executable=matches[0].removesuffix('Info.plist')+info['CFBundleExecutable']
+              assert z.getinfo(executable).file_size>500_000
+          PY
+      - name: Publish unsigned test IPA and catalog metadata
+        run: |
+          set -euo pipefail
+          mkdir -p transfer/files/Sealora/1.0.12
+          cp "$RUNNER_TEMP/sealora109/Sealora-unsigned.ipa" transfer/files/Sealora/1.0.12/Sealora-1.0.12-unsigned.ipa
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          from datetime import datetime, timezone
+          ipa=Path('transfer/files/Sealora/1.0.12/Sealora-1.0.12-unsigned.ipa')
+          catalog_path=Path('transfer/index.json')
+          catalog=json.loads(catalog_path.read_text())
+          entry={
+            'id':'sealora-1.0.12-build13-unsigned',
+            'name':'Sealora 1.0.12 — Automatic AdMob Banner',
+            'fileName':ipa.name,
+            'type':'ipa',
+            'platform':'iOS 16+; unsigned IPA (requires compatible signing before installation)',
+            'version':'1.0.12 (13)',
+            'url':'https://nextjailbreak.com/transfer/files/Sealora/1.0.12/Sealora-1.0.12-unsigned.ipa',
+            'sha256':hashlib.sha256(ipa.read_bytes()).hexdigest(),
+            'sizeBytes':ipa.stat().st_size,
+            'notes':'No banner text or fallback placeholder; ad area hidden until Google returns an ad. Production unit selected automatically, subject to UMP consent and AdMob approval. Developer test-mode switch remains in Settings. Preserves local IPA signing and OTA installation. Unsigned iOS 16+ IPA.'
+          }
+          catalog['files']=[entry]+[x for x in catalog.get('files',[]) if not str(x.get('id','')).startswith('sealora-')]
+          catalog['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          catalog_path.write_text(json.dumps(catalog,ensure_ascii=False,indent=2)+'\n')
+          print('Publishing SHA256',entry['sha256'])
+          PY
+          python3 -m json.tool transfer/index.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add transfer/index.json transfer/files/Sealora/1.0.12/Sealora-1.0.12-unsigned.ipa
+          if git diff --cached --quiet; then
+            echo 'Sealora 1.0.12 already published'
+          else
+            git commit -m 'Publish Sealora 1.0.12 unsigned test banner IPA to NS Transfer'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
