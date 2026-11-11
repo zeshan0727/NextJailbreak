@@ -194,7 +194,7 @@ jobs:
                   assert target.exists(), 'Source missing: '+m.name
                   target.write_bytes(t.extractfile(m).read())
           info=plistlib.loads((root/'Sealora/Info.plist').read_bytes())
-          assert info['CFBundleIdentifier']=='com.nextsolution.sealora'
+          assert info['CFBundleIdentifier'] in ('$(PRODUCT_BUNDLE_IDENTIFIER)', 'com.nextsolution.sealora')
           assert info['CFBundleShortVersionString']=='1.0.7'
           assert info['CFBundleVersion']=='8'
           app=(root/'Sealora/SealoraApp.swift').read_text()
