@@ -24,9 +24,19 @@ jobs:
             .github/scripts/nextledger_appstore_brand_audit.py
           sparse-checkout-cone-mode: false
 
+      - name: Stage clean source outside studio-named repository path
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/ledger-appstore-source/.release-tooling/.github/scripts"
+          cp -R DailyLedger Tests project.yml "$RUNNER_TEMP/ledger-appstore-source/"
+          cp .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py "$RUNNER_TEMP/ledger-appstore-source/.release-tooling/.github/scripts/"
+          test -f "$RUNNER_TEMP/ledger-appstore-source/project.yml"
+
       - name: Prepare App Store identity and remove legacy branding
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --prepare
 
@@ -40,6 +50,7 @@ jobs:
           API_KEY_ID: ${{ secrets.NEXTLEDGER_ASC_KEY_ID }}
           API_ISSUER_ID: ${{ secrets.NEXTLEDGER_ASC_ISSUER_ID }}
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           # Show ALL missing GitHub secret names in one run, not temporary env aliases.
           missing=0
@@ -76,6 +87,7 @@ jobs:
           API_P8_B64: ${{ secrets.NEXTLEDGER_ASC_KEY_P8_BASE64 }}
           API_KEY_ID: ${{ secrets.NEXTLEDGER_ASC_KEY_ID }}
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/nextledger-signing"
           printf '%s' "$P12_B64" | base64 -D > "$RUNNER_TEMP/nextledger-signing/Distribution.p12"
@@ -123,6 +135,7 @@ jobs:
 
       - name: Run tests and generate the application project
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/ledger-budget
           /tmp/ledger-budget
@@ -138,6 +151,7 @@ jobs:
       - name: Build signed App Store archive
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -o pipefail
           xcodebuild -project DailyLedger.xcodeproj -scheme DailyLedger \
             -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
@@ -150,6 +164,7 @@ jobs:
       - name: Export Apple App Store distribution IPA
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           python3 - <<'PY'
           import os, plistlib
@@ -173,6 +188,7 @@ jobs:
       - name: Check FINAL signed app identity and iCloud entitlements
         shell: bash
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/ipa-verify"
           ditto -x -k "$NEXTLEDGER_APPSTORE_IPA" "$RUNNER_TEMP/ipa-verify"
@@ -203,6 +219,7 @@ jobs:
           API_KEY_ID: ${{ secrets.NEXTLEDGER_ASC_KEY_ID }}
           API_ISSUER_ID: ${{ secrets.NEXTLEDGER_ASC_ISSUER_ID }}
         run: |
+          cd "$RUNNER_TEMP/ledger-appstore-source"
           set -euo pipefail
           xcrun altool --validate-app -f "$NEXTLEDGER_APPSTORE_IPA" -t ios \
             --apiKey "$API_KEY_ID" --apiIssuer "$API_ISSUER_ID"
