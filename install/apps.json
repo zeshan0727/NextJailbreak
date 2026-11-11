@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-sealora",
+      "name": "Sealora",
+      "version": "1.0.12",
+      "build": "13",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.sealora",
+      "icon": "/install/icons/com-nextsolution-sealora-1b346b453326.png",
+      "manifest": "/install/com-nextsolution-sealora.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-sealora/1.0.12/com-nextsolution-sealora-1.0.12-13.ipa",
+      "sha256": "1b346b453326073535bde2114f39a31f9bbaaf1097ae0a450515f1feba53a4d7",
+      "sizeBytes": 4982274,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-township",
       "name": "Township",
       "version": "40.0.0",
@@ -552,5 +573,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-11-10"
+  "updated": "2026-11-11"
 }
