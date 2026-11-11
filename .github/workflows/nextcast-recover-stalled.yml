@@ -1,0 +1,23 @@
+name: Recover superseded Next Cast macOS builds
+on:
+  push:
+    branches:
+      - agent/next-cast-1.4.2-ios16-dyld-androidtv
+    paths:
+      - ".github/workflows/nextcast-recover-stalled.yml"
+permissions:
+  actions: write
+jobs:
+  unblock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancel only obsolete build runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          for run in 41099486169 41100880268; do
+            echo "Request cancellation for superseded Next Cast run $run"
+            gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/$run/cancel" || true
+          done
