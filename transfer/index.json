@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-10T20:31:57Z",
+  "updatedAt": "2026-11-11T05:43:46Z",
   "files": [
     {
-      "id": "sealora-1.0.6-build7-unsigned",
-      "name": "Sealora 1.0.6 — Signature Verification Fix",
-      "fileName": "Sealora-1.0.6-unsigned.ipa",
+      "id": "sealora-1.0.7-build8-unsigned",
+      "name": "Sealora 1.0.7 — Signing Complete and Install Handoff",
+      "fileName": "Sealora-1.0.7-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+; unsigned IPA (requires compatible signing before installation)",
-      "version": "1.0.6 (7)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.6/Sealora-1.0.6-unsigned.ipa",
-      "sha256": "4585bee18f827e932765623520d6c17ecd6fa3e200441abe24fda8362f156f51",
-      "sizeBytes": 3281544,
-      "notes": "Fixes false signing failure caused by Mach-O-only validation of external CodeDirectory slots 1 and 3. Verifies Info.plist and CodeResources against packaged signed IPA, with CMS, code page, embedded special slots and recursive resource seals checked. Copy Details retained. Physical-device signing and install remain to be tested. UNSIGNED iOS 16+ IPA: must sign before installation."
+      "version": "1.0.7 (8)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.7/Sealora-1.0.7-unsigned.ipa",
+      "sha256": "055ea484940135cecebfbd4f35e32279ec7c513b07c678c65617b30c44c71861",
+      "sizeBytes": 3306609,
+      "notes": "Adds green Signing Complete confirmation with Install and Cancel buttons. Cancel navigates to Signed IPA while preserving output. Install and Signed IPA tab hand local signed IPA to the iOS share sheet for a compatible external installer (such as TrollStore); no automatic installation or file upload. Signing and installation on a physical device require testing. UNSIGNED bootstrap IPA requires compatible signing to install."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
