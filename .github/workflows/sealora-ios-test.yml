@@ -276,6 +276,47 @@ jobs:
           print('Compiled original OTA sources into the registered Swift target')
           PY
           swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
+      - name: Add anchored test banner ads and regenerate Xcode project (Sealora 1.0.9)
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,hashlib,tarfile,lzma,io,os,plistlib
+          root=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
+          raw=base64.b64decode(Path('SealoraBuild/patch109.b64').read_text().strip(),validate=True)
+          assert hashlib.sha256(raw).hexdigest() == '7ab645c44bf16f112ba0d9eac61666b633873c594ce810db5b03116ebb5c61d4'
+          expected={
+            'Sealora/SealoraApp.swift',
+            'Sealora/Features/SettingsView.swift',
+            'Sealora/Features/BannerAdsView.swift',
+            'Sealora/Info.plist',
+            'project.yml',
+            'scripts/generate_xcodeproj.py',
+          }
+          with tarfile.open(fileobj=io.BytesIO(lzma.decompress(raw)),mode='r:') as t:
+              assert set(t.getnames())==expected, 'Invalid patch file manifest'
+              for member in t:
+                  assert member.isfile() and not member.issym()
+                  f=root/member.name
+                  f.parent.mkdir(parents=True,exist_ok=True)
+                  f.write_bytes(t.extractfile(member).read())
+          info=plistlib.loads((root/'Sealora/Info.plist').read_bytes())
+          assert info['CFBundleShortVersionString']=='1.0.9'
+          assert str(info['CFBundleVersion'])=='10'
+          assert info['GADApplicationIdentifier']=='ca-app-pub-3940256099942544~1458002511'
+          banner=(root/'Sealora/Features/BannerAdsView.swift').read_text()
+          assert 'ca-app-pub-3940256099942544/2435281174' in banner
+          assert 'GoogleMobileAds' in banner and 'BannerView(adSize: AdSizeBanner)' in banner
+          assert 'SealoraBannerInset' in (root/'Sealora/SealoraApp.swift').read_text()
+          assert 'DirectInstallCoordinator' in (root/'Sealora/Features/SignedView.swift').read_text()
+          print('Sealora 1.0.9 source overlay verified')
+          PY
+          cd "$RUNNER_TEMP/SealoraProject"
+          # The CI bootstrap flattened the 1.0.8 installer sources into SignedView.
+          # Regenerating from current files avoids stale build references.
+          python3 scripts/generate_xcodeproj.py
+          grep -q 'GoogleMobileAds in Frameworks' Sealora.xcodeproj/project.pbxproj
+          grep -q 'BannerAdsView.swift in Sources' Sealora.xcodeproj/project.pbxproj
+          swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -286,7 +327,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.8-unsigned-IPA
+          name: Sealora-1.0.9-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
