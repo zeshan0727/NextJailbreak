@@ -39,7 +39,15 @@ jobs:
           assert s.count("    CODE_SIGN_STYLE: Automatic")==1
           s=s.replace("    CODE_SIGN_STYLE: Automatic","    CODE_SIGN_STYLE: Automatic\n    DEVELOPMENT_TEAM: T52CDY8W32")
           p.write_text(s)
-          print("App Store Build 106 uses existing App Store bundle ID; iCloud container unchanged")
+          # Background refresh task IDs must agree with the App Store target's Info.plist.
+          old_task="com.nextsolution.dailyledger.backup-refresh"
+          new_task="com.nextsolution.nextledger.backup-refresh"
+          for name in ("DailyLedger/Info.plist", "DailyLedger/Services/BackupSyncService.swift"):
+              f=Path(name)
+              content=f.read_text()
+              assert content.count(old_task)>=1, f"Missing original background task identifier in {name}"
+              f.write_text(content.replace(old_task,new_task))
+          print("App Store bundle and background task identifiers aligned; iCloud container unchanged")
           PY
 
       - name: Require supported App Store SDK and preserve correct identity
