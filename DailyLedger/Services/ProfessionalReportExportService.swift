@@ -1621,7 +1621,7 @@ enum ProfessionalReportExporter {
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = [
             kCGPDFContextCreator as String: "Next Ledger",
-            kCGPDFContextAuthor as String: "Next Solution – Zeeshan Barvi",
+            kCGPDFContextAuthor as String: "Next Ledger",
             kCGPDFContextTitle as String: document.title
         ]
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)

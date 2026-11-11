@@ -15,30 +15,19 @@ private enum SpendingCardKind: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-private struct NextSolutionHeaderLogo: View {
+private struct LedgerHeaderMark: View {
     var body: some View {
-        Group {
-            if let logo = NextSolutionLogoAsset.image {
-                Image(uiImage: logo)
-                    .resizable()
-                    .interpolation(.high)
-                    .scaledToFit()
-            } else {
-                Image(systemName: "shippingbox.fill")
-                    .font(.system(size: 21, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(AppTheme.balanceGradient)
+        Image(systemName: "chart.bar.xaxis")
+            .font(.system(size: 22, weight: .bold))
+            .foregroundStyle(.white)
+            .frame(width: 48, height: 48)
+            .background(AppTheme.balanceGradient)
+            .clipShape(Circle())
+            .overlay {
+                Circle()
+                    .stroke(.white.opacity(0.24), lineWidth: 1)
             }
-        }
-        .frame(width: 48, height: 48)
-        .clipShape(Circle())
-        .overlay {
-            Circle()
-                .stroke(.white.opacity(0.24), lineWidth: 1)
-        }
-        .shadow(color: .black.opacity(0.12), radius: 8, y: 4)
-        .accessibilityLabel("Next Solution logo")
+            .accessibilityLabel("Next Ledger")
     }
 }
 
@@ -343,7 +332,7 @@ struct DashboardView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            NextSolutionHeaderLogo()
+            LedgerHeaderMark()
         }
         .padding(.top, 16)
     }

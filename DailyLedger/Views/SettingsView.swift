@@ -395,7 +395,7 @@ struct SettingsView: View {
                     NavigationLink {
                         SettingsSectionPage(title: "About") {
                         LabeledContent("Version", value: (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.3.84") + " (Build " + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "93") + ")")
-                        LabeledContent("Author", value: "Next Solution – Zeeshan Barvi")
+
                         }
                     } label: {
                         SettingsHomeLinkLabel(title: "About", subtitle: "Version and developer information", icon: "info.circle.fill", tint: AppTheme.blue)

@@ -34,9 +34,7 @@ final class OpenAIService: ObservableObject {
         let value = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty else { deleteAPIKey(); return }
 
-        // The protected app store is the reliable source of truth for TrollStore
-        // and rootless installs. If Keychain entitlement behavior differs, the
-        // OpenAI key still persists securely inside this device/app container.
+        // Store the user-provided API key in protected local storage.
         try ProtectedSecretStore.shared.save(value, for: Self.service)
 
         let query: [String: Any] = [
