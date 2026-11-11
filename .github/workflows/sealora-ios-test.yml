@@ -1,4 +1,4 @@
-name: Sealora 1.0.11 banner label update
+name: Sealora 1.0.12 automatic clean AdMob banner
 on:
   push:
     branches: [sealora-ios-test]
@@ -389,6 +389,24 @@ jobs:
           assert 'Text(receivedAd ? "ADVERTISEMENT" : "NEXT PROMOTION")' in s
           print('Verified updated banner label and unchanged AdMob identifiers')
           PY
+      - name: Enable automatic clean AdMob banner (Sealora 1.0.12)
+        run: |
+          python3 .github/scripts/sealora-112-auto-banner.py "$RUNNER_TEMP/SealoraProject"
+          cd "$RUNNER_TEMP/SealoraProject"
+          swiftc -frontend -parse Sealora/Features/BannerAdsView.swift Sealora/Features/SettingsView.swift
+          python3 - <<'PY'
+          import plistlib
+          from pathlib import Path
+          p=plistlib.loads(Path('Sealora/Info.plist').read_bytes())
+          assert p['CFBundleShortVersionString']=='1.0.12'
+          assert str(p['CFBundleVersion'])=='13'
+          s=Path('Sealora/Features/BannerAdsView.swift').read_text()
+          assert 'ADVERTISEMENT' not in s and 'NEXT PROMOTION' not in s
+          assert '@AppStorage("sealora-admob-live-enabled") private var showLiveAds = true' in s
+          assert '.frame(height: receivedAd ? 50 : 0' in s
+          assert 'ConsentInformation.shared.canRequestAds' in s
+          print('Verified no banner label or placeholder, auto production unit and consent gate')
+          PY
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -399,7 +417,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.11-unsigned-IPA
+          name: Sealora-1.0.12-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
