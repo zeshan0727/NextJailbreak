@@ -1,0 +1,124 @@
+name: Prepare Next Ledger 106 Xcode Cloud Source
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/prepare-nextledger-106-xcodecloud.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: macos-26
+    timeout-minutes: 55
+    steps:
+      - name: Checkout verified source
+        uses: actions/checkout@v4
+        with:
+          ref: feature/nextledger-1.3.84-build106-budget-performance-entry
+          fetch-depth: 0
+
+      - name: Checkout independent App Store audit
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: .release-tooling
+          sparse-checkout: |
+            .github/scripts/nextledger_appstore_brand_audit.py
+          sparse-checkout-cone-mode: false
+
+      - name: Require fresh release branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin refs/heads/release/nextledger-1.3.84-build106-xcodecloud >/dev/null; then
+            echo "::error::Release branch already exists; refuse to overwrite"
+            exit 1
+          fi
+
+      - name: Sanitize Build 106 App Store source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --prepare
+          grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "106"' project.yml
+          grep -Fq 'DEVELOPMENT_TEAM: T52CDY8W32' project.yml
+
+      - name: Run tests and commit persistent Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/ledger106-budget
+          /tmp/ledger106-budget
+          xcrun swiftc DailyLedger/Services/SafeDeviceMerge.swift Tests/NextLedgerDeviceSync/main.swift -o /tmp/ledger106-sync
+          /tmp/ledger106-sync
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/ledger106-performance
+          /tmp/ledger106-performance
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+          test -f DailyLedger.xcodeproj/project.pbxproj
+          test -f DailyLedger.xcodeproj/xcshareddata/xcschemes/DailyLedger.xcscheme
+          grep -Fq 'BudgetPerformanceReportView.swift' DailyLedger.xcodeproj/project.pbxproj
+          grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER = com.nextsolution.nextledger;' DailyLedger.xcodeproj/project.pbxproj
+          grep -Fq 'CURRENT_PROJECT_VERSION = 106;' DailyLedger.xcodeproj/project.pbxproj
+
+      - name: Add Xcode Cloud archive audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ci_scripts
+          cat > ci_scripts/ci_post_xcodebuild.sh <<'SCRIPT'
+          #!/bin/zsh
+          set -euo pipefail
+          [[ "$(printenv CI_XCODEBUILD_ACTION || true)" == "archive" ]] || exit 0
+          [[ "$(printenv CI_XCODEBUILD_EXIT_CODE || true)" == "0" ]] || exit 0
+          ARCHIVE="$(printenv CI_ARCHIVE_PATH || true)"
+          [[ -n "$ARCHIVE" ]] || { echo "Missing Xcode Cloud archive"; exit 1; }
+          APP="$(find "$ARCHIVE/Products/Applications" -maxdepth 1 -name '*.app' -print -quit)"
+          [[ -n "$APP" ]] || { echo "Missing archived application"; exit 1; }
+          python3 - "$APP" <<'PY'
+          import pathlib,plistlib,sys
+          app=pathlib.Path(sys.argv[1])
+          info=plistlib.loads((app/"Info.plist").read_bytes())
+          assert info.get("CFBundleIdentifier")=="com.nextsolution.nextledger"
+          assert info.get("CFBundleShortVersionString")=="1.3.84"
+          assert "iCloud.com.nextsolution.dailyledger" in info.get("NSUbiquitousContainers", {})
+          forbidden=(b"nextjailbreak",b"next jailbreak",b"next-jailbreak",
+                     b"nextsolution.cc",b"files.nextsolution",
+                     b"next solution",b"trollstore",b"roothide",b"cydia",b"sileo")
+          found=[]
+          for p in app.rglob("*"):
+            if p.is_file() and not p.is_symlink():
+              raw=p.read_bytes().lower()
+              found += [(str(p.relative_to(app)),t.decode()) for t in forbidden if t in raw]
+          assert not found, f"Prohibited studio or jailbreak references: {found}"
+          print("PASS: Next Ledger archive branding and app identity")
+          PY
+          SCRIPT
+          chmod +x ci_scripts/ci_post_xcodebuild.sh
+          cat > NEXT_LEDGER_XCODE_CLOUD.md <<'DOC'
+          # Next Ledger 1.3.84 (106) - App Store Xcode Cloud source
+          - Scheme: DailyLedger
+          - Team: T52CDY8W32
+          - App Store ID: com.nextsolution.nextledger
+          - Preserved iCloud container: iCloud.com.nextsolution.dailyledger
+          - Xcode Cloud may assign a different build number for its archive.
+          - Use Archive -> TestFlight & App Store, not automatic review submission.
+          - Complete Apple's seven Guideline 2.1 evidence requirements first.
+          DOC
+
+      - name: Push dedicated, clean source branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c release/nextledger-1.3.84-build106-xcodecloud
+          git add -A DailyLedger DailyLedger.xcodeproj project.yml ci_scripts NEXT_LEDGER_XCODE_CLOUD.md
+          git diff --cached --check
+          git commit -m 'Next Ledger Build 106: clean persistent Xcode Cloud source'
+          git push origin HEAD:refs/heads/release/nextledger-1.3.84-build106-xcodecloud
