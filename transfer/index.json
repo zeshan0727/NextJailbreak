@@ -1,18 +1,18 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T05:43:46Z",
+  "updatedAt": "2026-11-11T06:51:24Z",
   "files": [
     {
-      "id": "sealora-1.0.7-build8-unsigned",
-      "name": "Sealora 1.0.7 — Signing Complete and Install Handoff",
-      "fileName": "Sealora-1.0.7-unsigned.ipa",
+      "id": "sealora-1.0.8-build9-unsigned",
+      "name": "Sealora 1.0.8 — Direct OTA Install",
+      "fileName": "Sealora-1.0.8-unsigned.ipa",
       "type": "ipa",
       "platform": "iOS 16+; unsigned IPA (requires compatible signing before installation)",
-      "version": "1.0.7 (8)",
-      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.7/Sealora-1.0.7-unsigned.ipa",
-      "sha256": "055ea484940135cecebfbd4f35e32279ec7c513b07c678c65617b30c44c71861",
-      "sizeBytes": 3306609,
-      "notes": "Adds green Signing Complete confirmation with Install and Cancel buttons. Cancel navigates to Signed IPA while preserving output. Install and Signed IPA tab hand local signed IPA to the iOS share sheet for a compatible external installer (such as TrollStore); no automatic installation or file upload. Signing and installation on a physical device require testing. UNSIGNED bootstrap IPA requires compatible signing to install."
+      "version": "1.0.8 (9)",
+      "url": "https://nextjailbreak.com/transfer/files/Sealora/1.0.8/Sealora-1.0.8-unsigned.ipa",
+      "sha256": "7c9eb5017254346e032fe3ae5fb1d54b216f2d5d4d32358a653f4a2f318ca8ac",
+      "sizeBytes": 3369557,
+      "notes": "Install now uses a loopback-only IPA transfer server, validates a third-party HTTPS OTA manifest, then invokes the iOS itms-services system installer with Safari fallback. No IPA or credentials are uploaded; the manifest providers receive the app name, bundle ID, version and local URL. Displays Delivered, not Installed, until device confirmation. The bootstrap IPA is UNSIGNED and must be signed before standard installation. Actual OTA install/launch remain unverified on hardware."
     },
     {
       "id": "next-rea-inspector-0.1.0-test",
