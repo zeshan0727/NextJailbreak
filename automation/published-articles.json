@@ -95,37 +95,37 @@
     },
     {
       "additional_media": [],
-      "article_sha256": "9631b93424a07e6d329083950af04f13b0e37238eea1e8dd0fd3388105d2ea06",
-      "candidate_fingerprint": "jailbreak-development.erosion-0.3-worse-query-ios27.3-beta1-2026-11-09",
+      "article_sha256": "4c05631a79bf86edb755808a599072f86b3af83618e6c9b8e400268693bc3623",
+      "candidate_fingerprint": "jailbreak-development.erosion-0.3.1-pathleak-ios26-config-tweaks-2026-11-10",
       "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "The tagged README consistently documents iOS/iPadOS 27.0–27.2 and 27.3 beta 1 build 24C5037i. Its detailed iOS 26 section stops at 26.6.2 while the release summary says 26.7.2, so 26.6.2 is the conservative upper bound until the project resolves the conflict. iOS 26 functionality is limited and excludes MobileGestalt tweaks.",
-      "description": "Erosion 0.3 replaces bad_query with worse_query and documents iOS 27.3 beta 1 support. Check the exact build, conflicting iOS 26 limits, signing fixes and official IPA hash.",
+      "compat": "The 0.3.1 tagged README documents iOS/iPadOS 27.0–27.2.1 and iOS/iPadOS 27.3 beta 1 build 24C5037i. Its detailed iOS 26 section stops at 26.6.2 while the summary says 26.7.2, so 26.6.2 remains the conservative upper bound. iOS 26 support is limited: Config Tweaks are experimental and MobileGestalt tweaks remain unavailable.",
+      "description": "Erosion 0.3.1 speeds container discovery, adds visible first-scan progress and exposes experimental iOS 26 Config Tweaks. Check exact firmware support, signing warnings and the verified IPA hash.",
       "developer": "jailbreakdotparty / Erosion team",
       "entry_type": "jailbreak-development",
       "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
       "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
       "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
-      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3 tagged source",
+      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
       "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
-      "media_retrieval_status": "Downloaded the exact PreviewIcon.png asset from the official 0.3 tag and inspected the 1024×1024 PNG locally.",
+      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
       "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
-      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3/PreviewIcon.png",
-      "modified_at": "2026-11-09T21:00:36Z",
+      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "modified_at": "2026-11-11T20:57:57Z",
       "name": "Erosion",
       "package": "project.erosion",
       "published_at": "2026-11-09T21:00:36Z",
-      "release": "2026-11-09",
+      "release": "2026-11-10",
       "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Official Erosion 0.3 release, tagged README and tagged source code",
-      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3/README.md",
-      "source_url": "https://github.com/jailbreakdotparty/Erosion/releases/tag/0.3",
+      "source_name": "Official Erosion 0.3.1 release, tagged README, tagged source and verified IPA",
+      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/README.md",
+      "source_url": "https://github.com/jailbreakdotparty/Erosion/releases/tag/0.3.1",
       "source_visual_origin": "official-tagged-project-app-icon",
-      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3/PreviewIcon.png",
-      "title": "Erosion 0.3 Brings Its Sandbox-Escape Toolbox to iOS 27.3 Beta 1",
-      "version": "0.3"
+      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "title": "Erosion 0.3.1 Speeds Container Setup and Enables iOS 26 Config Tweaks",
+      "version": "0.3.1"
     },
     {
       "category": {
@@ -10773,8 +10773,19 @@
       "published_at": "2026-11-10T13:53:22+00:00",
       "run_id": "42828476577",
       "version": "7.0.1"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.erosion-0.3.1-pathleak-ios26-config-tweaks-2026-11-10",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
+      "package": "project.erosion",
+      "previous_version": "0.3",
+      "published_at": "2026-11-11T20:57:57Z",
+      "run_id": "scheduled-2026-11-11T20:57:57Z",
+      "version": "0.3.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-10T13:53:22+00:00"
+  "updated_at": "2026-11-11T20:57:57Z"
 }

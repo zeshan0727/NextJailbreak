@@ -16,18 +16,18 @@
       "retrieval_note": "Reused the exact official 192×192 PNG already retrieved and verified from the Dopamine 3.0.13 source tag. The project does not publish a separate official post-reboot walkthrough image."
     },
     "project.erosion": {
-      "credit_label": "jailbreakdotparty/Erosion — official application icon from the version 0.3 tagged source",
-      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/releases/tag/0.3",
+      "credit_label": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
+      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/releases/tag/0.3.1",
       "official_source": true,
       "hero": {
-        "url": "https://raw.githubusercontent.com/jailbreakdotparty/Erosion/0.3/PreviewIcon.png",
+        "url": "https://raw.githubusercontent.com/jailbreakdotparty/Erosion/0.3.1/PreviewIcon.png",
         "alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
         "local_path": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
         "git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
         "sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7"
       },
       "screenshots": [],
-      "retrieval_note": "Retrieved from the exact official 0.3 tag, inspected locally as a 1024×1024 PNG and verified against the tagged Git blob SHA. The project provides an icon rather than an interface screenshot in its tagged top-level assets."
+      "retrieval_note": "Verified against the exact official 0.3.1 tag: PreviewIcon.png is the same tagged Git blob as the committed 1024×1024 PNG. The current release provides the icon but no separate release artwork or interface screenshot."
     },
     "com.pitroytech.wificrush": {
       "credit_label": "pitroytech/Havoc — official WifiCrush banner and interface screenshots",
@@ -1643,5 +1643,5 @@
       "screenshots": []
     }
   },
-  "updated_at": "2026-11-10"
+  "updated_at": "2026-11-11"
 }

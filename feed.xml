@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Erosion 0.3.1 Speeds Container Setup and Enables iOS 26 Config Tweaks</title>
+      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
+      <pubDate>Wed, 11 Nov 2026 20:57:57 GMT</pubDate>
+      <description>Erosion 0.3.1 speeds container discovery, adds visible first-scan progress and exposes experimental iOS 26 Config Tweaks. Check exact firmware support, signing warnings and the verified IPA hash.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+    <item>
       <title>Regram 7.0.1 for Instagram Fixes Sideloading, Chats, Stories, and iOS 26 Issues</title>
       <link>https://nextjailbreak.com/regram-for-instagram-7-0-1-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/regram-for-instagram-7-0-1-update/</guid>
@@ -28,14 +36,6 @@
       <pubDate>Tue, 10 Nov 2026 03:00:00 GMT</pubDate>
       <description>Re-jailbreak Dopamine 3.0.13 after a full reboot, restore tweaks safely, and fix app-launch, second-pass respring, missing package-manager and Zebra failures.</description>
       <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Erosion 0.3 Brings Its Sandbox-Escape Toolbox to iOS 27.3 Beta 1</title>
-      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
-      <pubDate>Mon, 09 Nov 2026 21:00:36 GMT</pubDate>
-      <description>Erosion 0.3 replaces bad_query with worse_query and documents iOS 27.3 beta 1 support. Check the exact build, conflicting iOS 26 limits, signing fixes and official IPA hash.</description>
-      <category>Current Jailbreak Development</category>
     </item>
     <item>
       <title>Cyanide 1.17.0 Adds Locked-App Previews and Respring Controls</title>
