@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T09:27:38Z",
+  "updatedAt": "2026-11-11T13:26:33Z",
   "files": [
+    {
+      "id": "appbucket-1.0.4-unsigned-test",
+      "name": "App Bucket 1.0.4 — NEXT Jailbreak Edition",
+      "fileName": "AppBucket-1.0.4.ipa",
+      "type": "ipa",
+      "platform": "Unsigned IPA / TrollStore signing required",
+      "version": "1.0.4 (5)",
+      "url": "https://nextjailbreak.com/transfer/files/AppBucket/1.0.4/AppBucket-1.0.4.ipa",
+      "sha256": "7be6bc4d46e83f1f9c0381e76a573b2c52a24eb2a17a84e1673e3fc5c1fc71cd",
+      "sizeBytes": 1842859,
+      "notes": "App Bucket 1.0.4 branding update. Preserves existing app catalog, local duplicate-install options, and installed bundle ID com.nextsolution.njapps. This NS Transfer IPA is unsigned; the separate signed build is published at nextjailbreak.com/install."
+    },
     {
       "id": "sealora-1.0.12-build13-unsigned",
       "name": "Sealora 1.0.12 — Automatic AdMob Banner",
