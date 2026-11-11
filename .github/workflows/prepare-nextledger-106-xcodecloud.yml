@@ -44,6 +44,12 @@ jobs:
         run: |
           set -euo pipefail
           python3 .release-tooling/.github/scripts/nextledger_appstore_brand_audit.py --prepare
+          # Remove whitespace-only lines left by the old studio attribution.
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("DailyLedger/Views/SettingsView.swift")
+          p.write_text("\n".join(line.rstrip() for line in p.read_text().splitlines()) + "\n")
+          PY
           grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.nextledger' project.yml
           grep -Fq 'CURRENT_PROJECT_VERSION: "106"' project.yml
           grep -Fq 'DEVELOPMENT_TEAM: T52CDY8W32' project.yml
