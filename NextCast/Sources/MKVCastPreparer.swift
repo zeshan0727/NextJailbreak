@@ -285,10 +285,18 @@ final class MKVCastPreparer: ObservableObject {
         label: "uk.zeshanbarvi.nextcast.nativeconversion", qos: .userInitiated)
     private var stopToken: ConversionStopToken?
     private var monitor: Timer?
+    private var ffmpegIsRunning = false
 
     func prepare(_ movie: Movie, library: MovieLibrary, forceConversion: Bool = false,
+                 options: TVConversionOptions = TVConversionOptions(),
                  completion: @escaping (Movie) -> Void) {
         guard !preparing else { return }
+        if options.useFFmpeg ||
+            !NativeCastCompatibility.containers.contains(movie.localURL.pathExtension.lowercased()) {
+            prepareUsingFFmpeg(movie, library: library, options: options,
+                               completion: completion)
+            return
+        }
         errorMessage = nil
         status = "Checking iOS native codec support…"
         preparing = true
@@ -432,8 +440,165 @@ final class MKVCastPreparer: ObservableObject {
         }
     }
 
+    /// Real FFmpeg 8.1.2 path for MKV/AVI and advanced options. The earlier
+    /// FFmpegSupport legacy CLI is never used; conversion is through the
+    /// official ObjC FFmpegKit session API and input path argument arrays.
+    private func prepareUsingFFmpeg(_ movie: Movie, library: MovieLibrary,
+                                    options: TVConversionOptions,
+                                    completion: @escaping (Movie) -> Void) {
+        guard !preparing else { return }
+        guard FileManager.default.fileExists(atPath: movie.localURL.path) else {
+            errorMessage = "Original movie file is missing. Re-import it from Files."
+            return
+        }
+        preparing = true
+        ffmpegIsRunning = true
+        errorMessage = nil
+        status = "Inspecting video and audio tracks…"
+        bytesWritten = 0
+        bytesProcessed = 0
+        elapsedSeconds = 0
+        progressFraction = 0
+        hasTimeline = false
+        isFinalizing = false
+        estimatedRemainingSeconds = nil
+        let started = Date()
+        let folder = MovieLibrary.convertedFolder
+        let name = movie.id.uuidString + "." + options.fingerprint + ".native.cast.mp4"
+        let output = folder.appendingPathComponent(name)
+        let temporary = folder.appendingPathComponent(name + ".building.mp4")
+        func finished(_ result: Result<Movie, Error>) {
+            self.preparing = false
+            self.ffmpegIsRunning = false
+            self.isFinalizing = false
+            switch result {
+            case .success(let video):
+                self.progressFraction = 1.0
+                self.hasTimeline = true
+                self.estimatedRemainingSeconds = 0
+                self.status = "TV MP4 saved in Movies / Converted"
+                completion(video)
+            case .failure(let error):
+                self.status = "Conversion failed"
+                self.errorMessage = error.localizedDescription
+            }
+        }
+        func error(_ message: String) -> NSError {
+            NSError(domain: "NextCast.FFmpeg", code: 4,
+                    userInfo: [NSLocalizedDescriptionKey: message])
+        }
+        func start(with source: TVSourceDetails) {
+            guard !source.audio.isEmpty else {
+                finished(.failure(error("No audio tracks found in this video.")))
+                return
+            }
+            guard options.audioOrdinal < source.audio.count else {
+                finished(.failure(error("Selected audio track is unavailable in the movie.")))
+                return
+            }
+            do {
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                let required = max(movie.fileSize, 128 * 1024 * 1024) + 128 * 1024 * 1024
+                if let capacity = try folder.resourceValues(
+                    forKeys: [.volumeAvailableCapacityKey]).volumeAvailableCapacity,
+                   Int64(capacity) < required {
+                    finished(.failure(error("Not enough storage to create a TV MP4. Original movie is safe.")))
+                    return
+                }
+            } catch {
+                finished(.failure(error))
+                return
+            }
+            if FileManager.default.fileExists(atPath: temporary.path) {
+                try? FileManager.default.removeItem(at: temporary)
+            }
+            let reencode = options.requiresVideoEncode(source)
+            status = reencode
+                ? "Encoding H.264 video and stereo AAC audio…"
+                : "Fast MKV remux · copying H.264, encoding stereo AAC…"
+            hasTimeline = source.duration > 0
+            let args = TVFFmpegEngine.conversionArgs(
+                source: movie.localURL, target: temporary,
+                details: source, options: options)
+            NCFFmpegBridge.convertArguments(args, progress: { milliseconds, bytes in
+                self.bytesProcessed = bytes
+                self.bytesWritten = bytes
+                self.elapsedSeconds = max(0, Int(Date().timeIntervalSince(started)))
+                if source.duration > 0, milliseconds.isFinite {
+                    let fraction = min(0.99, max(0, (milliseconds / 1000) / source.duration))
+                    self.progressFraction = max(self.progressFraction, fraction)
+                    if self.elapsedSeconds >= 4 && fraction >= 0.005 {
+                        self.estimatedRemainingSeconds = min(86400,
+                            Int(Double(self.elapsedSeconds) * (1 - fraction) / fraction))
+                    }
+                }
+            }, completion: { successful, issue in
+                guard successful else {
+                    try? FileManager.default.removeItem(at: temporary)
+                    finished(.failure(error(issue ?? "This codec is unsupported or the FFmpeg conversion failed.")))
+                    return
+                }
+                self.isFinalizing = true
+                self.status = "Checking MP4 video and AAC audio…"
+                TVFFmpegEngine.inspect(temporary) { result in
+                    switch result {
+                    case .failure(let issue):
+                        try? FileManager.default.removeItem(at: temporary)
+                        finished(.failure(issue))
+                    case .success(let inspected):
+                        guard inspected.videoCodec.lowercased() == "h264",
+                              inspected.audio.first?.codec.lowercased() == "aac" else {
+                            try? FileManager.default.removeItem(at: temporary)
+                            finished(.failure(error("Output verification failed: expected H.264 video and AAC audio.")))
+                            return
+                        }
+                        do {
+                            if FileManager.default.fileExists(atPath: output.path) {
+                                try FileManager.default.removeItem(at: output)
+                            }
+                            try FileManager.default.moveItem(at: temporary, to: output)
+                            let saved = library.registerPreparedFile(output, source: movie)
+                            finished(.success(saved))
+                        } catch {
+                            finished(.failure(error))
+                        }
+                    }
+                }
+            })
+        }
+        TVFFmpegEngine.inspect(movie.localURL) { result in
+            switch result {
+            case .failure(let issue):
+                finished(.failure(issue))
+            case .success(let source):
+                // Reuse a prepared output only if its actual media streams are
+                // valid. A mere file-size check is insufficient.
+                if FileManager.default.fileExists(atPath: output.path) {
+                    TVFFmpegEngine.inspect(output) { cached in
+                        if case .success(let check) = cached,
+                           check.videoCodec.lowercased() == "h264",
+                           check.audio.first?.codec.lowercased() == "aac",
+                           check.duration > 1 {
+                            let saved = library.registerPreparedFile(output, source: movie)
+                            finished(.success(saved))
+                        } else {
+                            start(with: source)
+                        }
+                    }
+                } else {
+                    start(with: source)
+                }
+            }
+        }
+    }
+
     func cancel() {
         guard preparing else { return }
+        if ffmpegIsRunning {
+            NCFFmpegBridge.cancelActiveConversion()
+            status = "Cancelling FFmpeg conversion…"
+            return
+        }
         stopToken?.cancel()
         status = "Stopping native conversion…"
     }
