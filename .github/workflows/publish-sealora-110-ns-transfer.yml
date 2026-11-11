@@ -1,18 +1,18 @@
 name: Publish Sealora 1.0.10 AdMob publisher to NS Transfer
 on:
-  workflow_run:
-    workflows: ["Sealora 1.0.10 publisher AdMob and UMP consent build"]
-    branches: [sealora-ios-test]
-    types: [completed]
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-sealora-110-ns-transfer.yml'
+  workflow_dispatch:
 permissions:
   contents: write
   actions: read
 concurrency:
-  group: publish-sealora-109-ns-transfer
+  group: publish-sealora-110-ns-transfer
   cancel-in-progress: false
 jobs:
   publish:
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,9 +23,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          test "$(gh api /repos/${GITHUB_REPOSITORY}/actions/runs/${{ github.event.workflow_run.id }} --jq .conclusion)" = success
+          test "$(gh api /repos/${GITHUB_REPOSITORY}/actions/runs/42989876175 --jq .conclusion)" = success
           mkdir -p "$RUNNER_TEMP/sealora109"
-          gh run download ${{ github.event.workflow_run.id }} --repo "$GITHUB_REPOSITORY" --name Sealora-1.0.10-unsigned-IPA --dir "$RUNNER_TEMP/sealora109"
+          gh run download 42989876175 --repo "$GITHUB_REPOSITORY" --name Sealora-1.0.10-unsigned-IPA --dir "$RUNNER_TEMP/sealora109"
           test -s "$RUNNER_TEMP/sealora109/Sealora-unsigned.ipa"
           python3 - "$RUNNER_TEMP/sealora109/Sealora-unsigned.ipa" <<'PY'
           import sys,zipfile,plistlib
