@@ -317,6 +317,40 @@ jobs:
           grep -q 'GoogleMobileAds in Frameworks' Sealora.xcodeproj/project.pbxproj
           grep -q 'BannerAdsView.swift in Sources' Sealora.xcodeproj/project.pbxproj
           swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
+      - name: Configure Sealora publisher AdMob and privacy consent (1.0.10)
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,hashlib,tarfile,lzma,io,os,plistlib
+          root=Path(os.environ['RUNNER_TEMP'])/'SealoraProject'
+          raw=base64.b64decode(Path('SealoraBuild/patch110.b64').read_text().strip(),validate=True)
+          expected='c8ffdb2f8c48d9d71ca3e9575a0ceda9e3c4dc58b49e307ff58ba22f2f0c994d'
+          assert hashlib.sha256(raw).hexdigest()==expected, 'Unexpected 1.0.10 source overlay digest'
+          allowed={'Sealora/SealoraApp.swift','Sealora/Features/BannerAdsView.swift',
+                   'Sealora/Features/SettingsView.swift','Sealora/Info.plist','project.yml'}
+          with tarfile.open(fileobj=io.BytesIO(lzma.decompress(raw)),mode='r:') as t:
+              assert set(t.getnames())==allowed, 'Unexpected AdMob overlay files'
+              for m in t:
+                  assert m.isfile() and not m.issym()
+                  target=root/m.name
+                  assert target.exists(), 'Base file missing: '+m.name
+                  target.write_bytes(t.extractfile(m).read())
+          info=plistlib.loads((root/'Sealora/Info.plist').read_bytes())
+          assert info['GADApplicationIdentifier']=='ca-app-pub-4770123899731214~1230048425'
+          assert info['CFBundleShortVersionString']=='1.0.10' and info['CFBundleVersion']=='11'
+          banner=(root/'Sealora/Features/BannerAdsView.swift').read_text()
+          assert 'ca-app-pub-4770123899731214/5001772479' in banner
+          assert 'ConsentInformation.shared.canRequestAds' in banner
+          assert 'UserMessagingPlatform' in banner
+          assert 'ca-app-pub-3940256099942544/2435281174' in banner
+          project=(root/'project.yml').read_text()
+          assert 'GoogleUserMessagingPlatform' in project
+          print('Verified 1.0.10 publisher IDs, test ad safety and UMP consent gate')
+          PY
+          cd "$RUNNER_TEMP/SealoraProject"
+          python3 scripts/generate_xcodeproj.py
+          grep -q 'UserMessagingPlatform' Sealora.xcodeproj/project.pbxproj
+          swiftc -frontend -parse $(find Sealora Tests -name '*.swift' -type f)
       - name: Generate branded app icon
         run: |
           cd "$RUNNER_TEMP/SealoraProject"
@@ -327,7 +361,7 @@ jobs:
           bash scripts/build-unsigned-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Sealora-1.0.9-unsigned-IPA
+          name: Sealora-1.0.10-unsigned-IPA
           path: ${{ runner.temp }}/SealoraProject/dist/Sealora-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
