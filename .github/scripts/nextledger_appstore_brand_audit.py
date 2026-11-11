@@ -149,7 +149,10 @@ def app_audit(app: pathlib.Path) -> None:
         data = p.read_bytes().lower()
         for term in BANNED:
             if term in data:
-                violations.append((str(p.relative_to(app)), term.decode()))
+                i = data.find(term)
+                sample = data[max(0, i - 90):i + len(term) + 130]
+                sample = "".join(chr(c) if 32 <= c < 127 else "." for c in sample)
+                violations.append((str(p.relative_to(app)), term.decode(), sample))
     require(not violations, f"Packaged app contains forbidden wording/links: {violations}")
     print(f"PASS: compiled {VERSION} ({BUILD}) App Store app has no prohibited brand or site strings")
 
