@@ -27,6 +27,8 @@ struct BudgetPerformanceExpense: Identifiable {
     let record: BudgetSpendRecord
     let bucket: BudgetPerformanceBucket
     let matchedManually: Bool
+    /// SMS/automatic imports stay in the review queue until explicitly assigned.
+    let needsReview: Bool
 
     var id: UUID { record.id }
 }
@@ -77,10 +79,10 @@ struct BudgetPerformanceResult {
         return NSDecimalNumber(decimal: budgetSpent / totalBudget).doubleValue * 100
     }
     var outsideExpenses: [BudgetPerformanceExpense] { expenses.filter { $0.bucket == .outside } }
-    // Fixed, essentials and Other with a planned allocation are automatically
-    // categorized, so only genuine Outside Budget records require review.
+    // Explicitly unassigned automatic imports require review even when their
+    // preserved recorded category happens to match Grocery, Fuel or Other.
     var unassignedExpenses: [BudgetPerformanceExpense] {
-        expenses.filter { !$0.matchedManually && $0.bucket == .outside }
+        expenses.filter { $0.needsReview }
     }
 
     /// Read-only breakdown of the OTHER allocation by the category recorded on
@@ -229,7 +231,10 @@ enum BudgetPerformanceEngine {
             }
             collected[bucket, default: 0] += expense.amount
             classified.append(BudgetPerformanceExpense(
-                record: expense, bucket: bucket, matchedManually: assignment != nil
+                record: expense, bucket: bucket,
+                matchedManually: assignment != nil && assignment?.kind != .unassigned,
+                needsReview: assignment?.kind == .unassigned ||
+                    (assignment == nil && bucket == .outside)
             ))
         }
         classified.sort {
@@ -286,6 +291,7 @@ enum BudgetPerformanceEngine {
     ) -> BudgetPerformanceBucket {
         if let assignment {
             switch assignment.kind {
+            case .unassigned: return .outside
             case .fixed:
                 guard let id = assignment.fixedItemID, fixed.contains(where: { $0.id == id }) else {
                     return .outside // inactive/removed fixed plan, never silently assign it
