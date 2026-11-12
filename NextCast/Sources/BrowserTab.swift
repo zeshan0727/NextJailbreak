@@ -714,6 +714,10 @@ struct BrowserTab: View {
     @ObservedObject var downloads: BrowserDownloadStore
     @StateObject private var model: BrowserStore
     @State private var safariPage: NextCastSafariPage?
+    @AppStorage("nextcast.ios16LegacyWebKit") private var legacyWebKit = true
+    @AppStorage("nextcast.detailedVideoDiagnostics") private var detailedVideoLogs = false
+    @State private var shareLogFile: URL?
+    @State private var showLogShare = false
     @State private var inputURL = ""
     @State private var showBookmarks = false
     @State private var showTabList = false
@@ -801,6 +805,16 @@ struct BrowserTab: View {
                         }
                 }
 
+                if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 16 && legacyWebKit {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.shield")
+                        Text("iOS 16 Legacy WebKit active")
+                            .font(.caption2)
+                        Spacer()
+                    }
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12).padding(.bottom, 4)
+                }
                 // Always-visible playback actions, even before media detection.
                 HStack(spacing: 12) {
                     Button { model.reloadUnblockedPage() } label: {
@@ -876,6 +890,20 @@ struct BrowserTab: View {
                         Button("Save Playing Video", systemImage: "arrow.down.to.line") {
                             model.downloadPlayingVideo()
                         }
+                        if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 16 {
+                            Toggle("iOS 16 Legacy WebKit (recommended)", isOn: $legacyWebKit)
+                        }
+                        Toggle("Detailed Player Logging", isOn: $detailedVideoLogs)
+                        Button("Export Playback Log", systemImage: "square.and.arrow.up") {
+                            model.capturePlaybackSnapshot {
+                                shareLogFile = NextCastPlaybackLog.shared.exportFile()
+                                if shareLogFile != nil {
+                                    showLogShare = true
+                                } else {
+                                    model.showMessage = "Unable to create playback log."
+                                }
+                            }
+                        }
                         Button("Playback Diagnostics", systemImage: "stethoscope") {
                             model.browserDiagnosis()
                         }
@@ -903,6 +931,11 @@ struct BrowserTab: View {
             }
             .onChange(of: model.currentAddress) { inputURL = $0 }
             .onChange(of: model.selectedID) { _ in inputURL = model.currentAddress }
+            .onChange(of: legacyWebKit) { _ in model.reopenActiveWithBrowserMode() }
+            .onChange(of: detailedVideoLogs) { _ in model.reopenActiveWithBrowserMode() }
+            .sheet(isPresented: $showLogShare) {
+                if let file = shareLogFile { NextCastPlaybackShareSheet(fileURL: file) }
+            }
             .sheet(item: $safariPage) { page in
                 NextCastSafariPlayer(url: page.url)
                     .ignoresSafeArea()
