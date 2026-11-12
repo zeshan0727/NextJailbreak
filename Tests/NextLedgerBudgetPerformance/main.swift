@@ -160,3 +160,37 @@ check(!finalProjection.isEstimated && finalProjection.forecast == report.actualS
 check(finalProjection.elapsedDays == finalProjection.totalDays,
       "completed cycle progress is full")
 print("Budget Performance Build 106: actual, forecast, salary-cycle boundaries and category invariants passed.")
+
+// Build 109: an imported Gadgets expense remains in its recorded category,
+// is explicitly Unassigned, and can be reassigned to an installment.
+let gadgetID = UUID()
+let gadget = spend(gadgetID, 1095, "Gadgets & Accessories", day(2026, 10, 30))
+var importedPlan = MonthlyFixedBudget(items: [rent, income])
+importedPlan.setAllocation(grocery: 45, fuel: 25, eatOut: 15, cycle: cycle)
+importedPlan.spendAssignments[gadgetID] = BudgetSpendAssignment(kind: .unassigned)
+let awaitingReview = BudgetPerformanceEngine.build(
+    plan: importedPlan, cycleStart: cycle, expenses: [gadget],
+    currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
+check(awaitingReview.unassignedExpenses.map(\.id) == [gadgetID],
+      "SMS auto-import remains pending even when an Other allocation is available")
+check(awaitingReview.outsideSpent == 1095,
+      "unassigned spend is visible in totals, not silently counted in a fixed plan")
+check(awaitingReview.expenses.first?.record.category == "Gadgets & Accessories",
+      "unassigned import preserves original recorded category")
+importedPlan.spendAssignments[gadgetID] =
+    BudgetSpendAssignment(kind: .fixed, fixedItemID: rent.id)
+let installment = BudgetPerformanceEngine.build(
+    plan: importedPlan, cycleStart: cycle, expenses: [gadget],
+    currencyCode: "QAR", asOf: day(2026, 11, 1), calendar: calendar)
+check(installment.unassignedExpenses.isEmpty, "manually mapped gadget installment leaves review")
+check(installment.lines.first(where: { $0.title == "Rent" })?.spent == 1095,
+      "manual fixed mapping counts paid installment")
+check(installment.actualSpent == awaitingReview.actualSpent,
+      "budget allocation never duplicates or changes original financial spending")
+check(installment.expenses.first?.record.category == "Gadgets & Accessories",
+      "mapping a gadget to an installment does not rewrite original category")
+let importedJSON = try JSONEncoder().encode(importedPlan)
+check(try JSONDecoder().decode(MonthlyFixedBudget.self, from: importedJSON) == importedPlan,
+      "manual fixed mapping and imported review state persist through backups")
+print("Build 109: imported review, per-transaction fixed installment, original category preservation and backup compatibility passed.")
+
