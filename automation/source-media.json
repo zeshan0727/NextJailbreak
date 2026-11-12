@@ -1,6 +1,20 @@
 {
   "schema_version": 1,
   "packages": {
+    "org.xplo8e.liter8": {
+      "credit_label": "Xplo8E — official Liter8 project repository",
+      "source_page_url": "https://github.com/Xplo8E/Liter8/commit/9bfe8fa51dea964be0122412f45abc60a0cbfa4a",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
+        "alt": "Official Liter8 project photo showing an iPhone 11 running Sileo beside a root SSH session on a Mac",
+        "local_path": "assets/articles/source-media/liter8-ios-27-3-beta1-official-iphone11-sileo.jpg",
+        "git_blob_sha": "03bf969e90df7e4101912f0d01b48254d0798107",
+        "sha256": "5d0cad626ec7f2889e7ad9d9c4eddcc0c772f2a746358f035b40bcce019d9f6f"
+      },
+      "screenshots": [],
+      "retrieval_note": "Retrieved from the exact Liter8 iOS 27.3 beta 1 merge commit. The official photo shows the project's earlier iPhone 11 iOS 27.0 Sileo and root SSH run; the article labels it as representative project evidence because no separate 27.3 interface screenshot is published."
+    },
     "com.cysxl.atria": {
       "credit_label": "CySxL — official Atria 1.9.3 package repository",
       "source_page_url": "https://github.com/CySxL/CySxL.github.io/commit/89a833946e16723f589ce84c25917958df532c6c",

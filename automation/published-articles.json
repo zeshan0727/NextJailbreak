@@ -881,33 +881,37 @@
       "version": "7.0"
     },
     {
-      "candidate_fingerprint": "calif-lockdown-mode-airdrop-ios27.2-update-persistence-2026-11-03",
+      "article_sha256": "91db89b91c8deb4cded0ee8e3074d1fdf8d6f8a40415bdc749c6a89702ba1f40",
+      "candidate_fingerprint": "jailbreak-development.liter8-ios-27.3-beta1-iphone11-tfp0-2026-11-11",
       "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "Demonstrated only on one iPhone 18 Pro with Lockdown Mode enabled. The video shows an already-jailbroken device updating to iOS 27.2 and retaining the state; it does not establish fresh exploitation on iOS 27.2, support for other devices, package managers or tweaks.",
-      "description": "Calif showed an iPhone 18 Pro with Lockdown Mode enabled, then updated it to iOS 27.2 with the jailbreak still present. What the demo proves, what it does not, and how to reduce AirDrop risk.",
-      "developer": "Calif",
+      "compat": "Hardware-reviewed only on iPhone 11 (iPhone12,1 / n104ap) with iOS 27.3 beta 1 build 24C5037i; iPhone 11 Pro and Pro Max are experimental; tethered Mac and pwnDFU boot required; erase restore; no SEP, passcode or cellular data",
+      "description": "Liter8 now boots iOS 27.3 beta 1 on a reviewed iPhone 11 with Sileo and tfp0. Check the erase-restore, tethered-boot, signing and unsupported-feature limits first.",
+      "developer": "Vinay Kumar Rasala (Xplo8E)",
       "entry_type": "editorial-news-update",
       "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
-      "image": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "media_credit": "Calif — earlier official iPhone Duo demonstration still retained as historical context; November 3 X video image retrieval blocked",
-      "media_source_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "modified_at": "2026-11-05T20:55:00Z",
-      "name": "Calif iPhone 18 Pro Lockdown Mode and iOS 27.2 persistence demonstration",
+      "image": "assets/articles/source-media/liter8-ios-27-3-beta1-official-iphone11-sileo.jpg",
+      "media_alt": "Official Liter8 project photo showing an iPhone 11 running Sileo beside a root SSH session on a Mac",
+      "media_credit": "Xplo8E — official Liter8 iPhone 11 Sileo and root SSH project photo",
+      "media_git_blob_sha": "03bf969e90df7e4101912f0d01b48254d0798107",
+      "media_sha256": "5d0cad626ec7f2889e7ad9d9c4eddcc0c772f2a746358f035b40bcce019d9f6f",
+      "media_source_url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
+      "modified_at": "2026-11-12T21:02:07Z",
+      "name": "Liter8 iOS 27 custom firmware and tethered jailbreak environment",
       "package": "editorial.ios27-jailbreak-status",
       "published_at": "2026-09-15T07:47:49Z",
       "quality_target": 9,
-      "release": "Calif posted the iPhone 18 Pro Lockdown Mode and iOS 27.2 update-persistence video on November 3, 2026; no end-user tool was released",
+      "release": "Liter8 commit 9bfe8fa merged reviewed iPhone 11 support for iOS 27.3 beta 1 build 24C5037i on November 11, 2026",
       "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Calif official November 3 video, Calif Hexacon disclosure, Apple iOS 27.2 security notes, Lockdown Mode and AirDrop guidance",
-      "source_page_url": "https://x.com/calif_io/status/2117720348322144733",
-      "source_url": "https://x.com/calif_io/status/2117720348322144733",
-      "source_visual_origin": "still-from-official-calif-demo-hosted-by-macrumors",
-      "source_visual_url": "https://images.macrumors.com/t/L7-JcC51FPbqTeIYqNU2jMWVGL0%3D/400x0/article-new/2026/10/iPhone-Duo-AAAAAAAHHHHHPP-Icons-Feature.jpg?lossy=",
-      "title": "Calif’s Lockdown Mode Jailbreak Survives the iOS 27.2 Update",
-      "version": "iPhone 18 Pro / persistence through iOS 27.2 update demo November 3, 2026"
+      "source_name": "Liter8 exact merge commit, README, iPhone 11 24C5037i tfp0 runtime evidence and Apple 27.3 beta release",
+      "source_page_url": "https://github.com/Xplo8E/Liter8/commit/9bfe8fa51dea964be0122412f45abc60a0cbfa4a",
+      "source_url": "https://github.com/Xplo8E/Liter8/commit/9bfe8fa51dea964be0122412f45abc60a0cbfa4a",
+      "source_visual_origin": "official-project-readme-photo",
+      "source_visual_url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
+      "title": "Liter8 Adds iOS 27.3 Beta 1 Support for iPhone 11—With Major Limits",
+      "version": "main commit 9bfe8fa / iOS 27.3 beta 1 build 24C5037i"
     },
     {
       "additional_media": [
@@ -10922,8 +10926,19 @@
       "published_at": "2026-11-12T14:59:54Z",
       "run_id": "scheduled-2026-11-12T14:59:54Z",
       "version": "1.9.3"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.liter8-ios-27.3-beta1-iphone11-tfp0-2026-11-11",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "package": "editorial.ios27-jailbreak-status",
+      "previous_version": "iPhone 18 Pro / persistence through iOS 27.2 update demo November 3, 2026",
+      "published_at": "2026-11-12T21:02:07Z",
+      "run_id": "scheduled-2026-11-12T21:02:07Z",
+      "version": "main commit 9bfe8fa / iOS 27.3 beta 1 build 24C5037i"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-12T14:59:54Z"
+  "updated_at": "2026-11-12T21:02:07Z"
 }
