@@ -1,0 +1,622 @@
+name: Next Ledger 1.3.84 Build 110 - Home Screen Widgets
+
+on:
+  push:
+    branches: [feature/nextledger-1.3.84-build110-home-screen-widgets]
+    paths:
+      - ".github/workflows/nextledger-build110-home-widgets.yml"
+      - "DailyLedger/Services/BudgetPerformanceEngine.swift"
+      - "DailyLedger/Views/BudgetPerformanceReportView.swift"
+      - "DailyLedger/Views/FixedBudgetDashboardView.swift"
+      - "DailyLedger/Views/ReportsView.swift"
+      - "DailyLedger/Views/TransferView.swift"
+      - "DailyLedger/Views/AddTransactionView.swift"
+      - "DailyLedger/Views/BudgetCategoryExpensesView.swift"
+      - "DailyLedger/Services/LedgerStore.swift"
+      - "DailyLedger/Models/MonthlyFixedBudget.swift"
+      - "DailyLedger/Services/UpcomingPaymentPlanner.swift"
+      - "DailyLedger/Services/UpcomingWidgetPublisher.swift"
+      - "DailyLedgerWidgets/**"
+      - "Shared/NextLedgerWidgetSnapshot.swift"
+      - "Tests/NextLedgerWidget/main.swift"
+      - "DailyLedger/Views/AppRootView.swift"
+      - "Tests/NextLedgerBudgetPerformance/main.swift"
+      - "project.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nextledger-build110-home-widgets
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 50
+    steps:
+      - name: Checkout full verified original Next Ledger 1.3.84 source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Validate full original features and iCloud documents declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'title: "Import JSON Backup"' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'SettingsGroupedDetailPage(title: "Backup & Sync")' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'Label("iCloud Backup", systemImage: "icloud")' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'Label("Backup Activity", systemImage: "clock.arrow.circlepath")' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'Label("Export & Restore", systemImage: "externaldrive")' DailyLedger/Views/SettingsView.swift
+          grep -Fq '.listRowSeparator(.visible)' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'Group {' DailyLedger/Views/LedgerRestoreImportControl.swift
+          if grep -Fq 'SettingsSectionPage(title: "Backup & Sync")' DailyLedger/Views/SettingsView.swift; then
+            echo 'Backup page must not use nested merged-row SettingsSectionPage layout' >&2
+            exit 1
+          fi
+          grep -Fq 'private var daemonHeartbeatRecent: Bool' DailyLedger/Views/SMSImportConsoleView.swift
+          # Backup & Sync is the sole Settings JSON import location.
+          test "$(grep -c 'LedgerRestoreImportControl(' DailyLedger/Views/SettingsView.swift)" -eq 1
+          grep -Fq 'MARKETING_VERSION: "1.3.84"' project.yml
+          grep -Fq 'CURRENT_PROJECT_VERSION: "110"' project.yml
+          grep -Fq 'path: DailyLedger/DailyLedger.entitlements' project.yml
+          grep -Fq 'com.apple.developer.icloud-services' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'iCloud.com.nextsolution.dailyledger' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'NSUbiquitousContainers' DailyLedger/Info.plist
+          grep -Fq 'backupOnAppOpen()' DailyLedger/DailyLedgerApp.swift
+          grep -Fq 'LedgerBackupExportPicker' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'LedgerRestoreImportControl' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'forOpeningContentTypes: [.item]' DailyLedger/Views/LedgerBackupFilePicker.swift
+          grep -Fq 'Import JSON Backup' DailyLedger/Views/SettingsView.swift
+          grep -Fq '.fileImporter(' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'onFileImporterResult(result)' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'Merge Verified Backup' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'Find JSON in App Imports Folder' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'startAccessingSecurityScopedResource()' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'let data = try Data(contentsOf: url)' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'DispatchQueue.main.asyncAfter(deadline: .now() + 12)' DailyLedger/Views/LedgerRestoreImportControl.swift
+          if grep -Fq 'NSFileCoordinator()' DailyLedger/Views/LedgerRestoreImportControl.swift; then
+            echo 'Blocking NSFileCoordinator is still used for JSON restore; aborting build' >&2
+            exit 1
+          fi
+          /usr/libexec/PlistBuddy -c 'Print UIFileSharingEnabled' DailyLedger/Info.plist | grep -Fq true
+          /usr/libexec/PlistBuddy -c 'Print LSSupportsOpeningDocumentsInPlace' DailyLedger/Info.plist | grep -Fq true
+          grep -Fq 'DispatchQueue.global(qos: .userInitiated).async' DailyLedger/Views/LedgerRestoreImportControl.swift
+          grep -Fq 'iCloudContainerUnavailable' DailyLedger/Services/BackupSyncService.swift
+          grep -Fq 'verifiedBackupData()' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'refreshCloudDiagnostics()' DailyLedger/Views/SettingsView.swift
+          ! grep -Fq '.preferredColorScheme(.light)' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'maxBackupFiles = 10' DailyLedger/Services/BackupSyncService.swift
+          grep -Fq 'Fetch Latest 15 SMS' DailyLedger/Views/SMSImportConsoleView.swift
+          grep -Fq 'Loan Summary Comparison' DailyLedger/Views/ReportsView.swift
+          # Build 100: remove only requested visible sections/shortcuts.
+          ! grep -Fq 'Section("Accounting Registers")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Section("ERP Accounting")' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Section("Statements & Aging")' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'Section("Planning & Comparison")' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'Text("Choose a report")' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'struct FixedBudgetDashboardView: View' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'Text("Monthly Budget")' DailyLedger/Views/FixedBudgetDashboardView.swift
+          ! grep -Fq 'SettingsSectionPage(title: "Import & Export")' DailyLedger/Views/SettingsView.swift
+          ! grep -Fq 'title: "Fixed Monthly Budget"' DailyLedger/Views/SettingsView.swift
+          ! grep -Fq 'title: "Budgets"' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'title: "Auto-Categorize Transactions"' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'title: "Review Uncategorized"' DailyLedger/Views/SettingsView.swift
+          grep -Fq 'SettingsGroupedDetailPage(title: "Backup & Sync")' DailyLedger/Views/SettingsView.swift
+
+          grep -Fq 'TabOrderSettingsView' DailyLedger/Views/SettingsView.swift
+          plutil -lint DailyLedger/DailyLedger.entitlements DailyLedger/Info.plist
+
+      - name: Run safe cross-device sync regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Services/SafeDeviceMerge.swift Tests/NextLedgerDeviceSync/main.swift -o /tmp/nextledger-device-sync-test
+          /tmp/nextledger-device-sync-test
+          grep -Fq 'NSMetadataQueryUbiquitousDocumentsScope' DailyLedger/Services/DeviceSyncService.swift
+          grep -Fq 'device-' DailyLedger/Services/DeviceSyncService.swift
+          grep -Fq 'lastPublishedData != fingerprint' DailyLedger/Services/DeviceSyncService.swift
+          grep -Fq 'DeviceSyncService.shared.ledgerDidSave()' DailyLedger/Services/LedgerDiskStore.swift
+          grep -Fq 'DeviceSyncService.shared.start(store: store)' DailyLedger/DailyLedgerApp.swift
+          grep -Fq 'Sync Across Devices' DailyLedger/Views/SettingsView.swift
+
+      - name: Run monthly budget regression test
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/nextledger-184-budget-test
+          /tmp/nextledger-184-budget-test
+
+      - name: Test Budget Performance math and historic backup compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcrun swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/nextledger-performance-110
+          /tmp/nextledger-performance-110
+          grep -Fq 'BudgetPerformanceReportView(initialCycle: displayedCycle)' DailyLedger/Views/FixedBudgetDashboardView.swift
+          grep -Fq 'performancePreview' DailyLedger/Views/FixedBudgetDashboardView.swift
+          ! grep -Fq 'Label("Budget Performance · Actual vs Plan"' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Label("Budget Consumption"' DailyLedger/Views/ReportsView.swift
+          ! grep -Fq 'Label("Budget Suggestions"' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'Label("Books vs Messages Balance", systemImage: "books.vertical.fill")' DailyLedger/Views/ReportsView.swift
+          grep -Fq 'spendAssignments' DailyLedger/Models/MonthlyFixedBudget.swift
+          grep -Fq 'Categories without a planned allocation are outside budget' DailyLedger/Services/BudgetPerformanceEngine.swift
+          grep -Fq 'Outside Budget' DailyLedger/Views/BudgetPerformanceReportView.swift
+
+          grep -Fq 'Fixed expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'includesInSpending' DailyLedger/Services/BudgetPerformanceEngine.swift
+
+          grep -Fq 'amount(fixed.amount)' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'otherRecordedCategories' DailyLedger/Services/BudgetPerformanceEngine.swift
+          grep -Fq 'category: transaction.category' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Other planned expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'fixedMatchHint' DailyLedger/Services/BudgetPerformanceEngine.swift
+
+
+          grep -Fq 'case breakdown = "Breakdown"' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'case review = "Review"' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'store.saveFixedBudget(next)' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'case forecast = "Forecast"' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Actual vs Forecast' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'Review / Outside Budget' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'static func projection(' DailyLedger/Services/BudgetPerformanceEngine.swift
+          grep -Fq 'private var transferRoute' DailyLedger/Views/TransferView.swift
+          grep -Fq 'private var transferAmountCard' DailyLedger/Views/TransferView.swift
+          grep -Fq 'private var transferActionBar' DailyLedger/Views/TransferView.swift
+          grep -Fq 'private func swapAccounts()' DailyLedger/Views/TransferView.swift
+          grep -Fq 'store.addTransfer(' DailyLedger/Views/TransferView.swift
+          grep -Fq 'store.update(transaction)' DailyLedger/Views/TransferView.swift
+          grep -Fq 'ERPTransactionDimensionsEditor' DailyLedger/Views/TransferView.swift
+          grep -Fq 'DatePicker("Time"' DailyLedger/Views/TransferView.swift
+          grep -Fq 'private func chooseCurrency(' DailyLedger/Views/TransferView.swift
+          grep -Fq 'private func chooseAccount(' DailyLedger/Views/TransferView.swift
+          grep -Fq 'Section("Other currencies")' DailyLedger/Views/TransferView.swift
+          grep -Fq '.contentShape(Rectangle())' DailyLedger/Views/TransferView.swift
+          ! grep -Fq '.onChange(of: sourceAccountID)' DailyLedger/Views/TransferView.swift
+          ! grep -Fq '.onChange(of: destinationCurrencySelection)' DailyLedger/Views/TransferView.swift
+          grep -Fq 'case unassigned' DailyLedger/Models/MonthlyFixedBudget.swift
+          grep -Fq 'needsReview: assignment?.kind == .unassigned' DailyLedger/Services/BudgetPerformanceEngine.swift
+          grep -Fq 'private var budgetAssignmentEditor' DailyLedger/Views/AddTransactionView.swift
+          grep -Fq 'updatingBudgetAssignment: true' DailyLedger/Views/AddTransactionView.swift
+          grep -Fq 'budgetAssignment: BudgetSpendAssignment? = nil' DailyLedger/Services/LedgerStore.swift
+          grep -Fq 'func performanceSnapshot(for cycle: Date)' DailyLedger/Services/LedgerStore.swift
+          grep -Fq 'BudgetCategoryExpensesView(recordIDs:' DailyLedger/Views/BudgetPerformanceReportView.swift
+          grep -Fq 'private func changeRecordedCategory(' DailyLedger/Views/BudgetCategoryExpensesView.swift
+          grep -Fq 'Build 109: imported review' Tests/NextLedgerBudgetPerformance/main.swift
+          grep -Fq '<key>CADisableMinimumFrameDurationOnPhone</key>' DailyLedger/Info.plist
+          grep -Fq 'Other planned expenses' DailyLedger/Views/BudgetPerformanceReportView.swift
+
+      - name: Verify upcoming payment schedule and backward-compatible fixed-budget data
+        shell: bash
+        run: |
+          set -euo pipefail
+          swiftc -swift-version 5 -O \
+            DailyLedger/Models/MonthlyFixedBudget.swift \
+            Shared/NextLedgerWidgetSnapshot.swift \
+            DailyLedger/Services/UpcomingPaymentPlanner.swift \
+            Tests/NextLedgerWidget/main.swift \
+            -o /tmp/nextledger-widget-110-test
+          /tmp/nextledger-widget-110-test
+          grep -Fq 'type: app-extension' project.yml
+          grep -Fq 'PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.dailyledger.widgets' project.yml
+          grep -Fq 'DailyLedgerWidgets' project.yml
+          grep -Fq 'UpcomingWidgetPublisher.publish(store: self)' DailyLedger/Services/LedgerStore.swift
+          grep -Fq 'case .systemSmall:' DailyLedgerWidgets/UpcomingPaymentsWidget.swift
+          grep -Fq 'case .systemMedium:' DailyLedgerWidgets/UpcomingPaymentsWidget.swift
+          grep -Fq 'case .systemLarge:' DailyLedgerWidgets/UpcomingPaymentsWidget.swift
+          grep -Fq 'dailyledger://budget-upcoming' DailyLedgerWidgets/UpcomingPaymentsWidget.swift
+          plutil -lint DailyLedgerWidgets/Info.plist DailyLedgerWidgets/NextLedgerWidgets.entitlements
+
+      - name: Generate full Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          xcodegen generate
+          grep -q 'DailyLedger.entitlements' DailyLedger.xcodeproj/project.pbxproj
+          # XcodeGen writes the entitlement file; verify actual generated values.
+          grep -Fq 'CloudDocuments' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'com.apple.developer.ubiquity-container-identifiers' DailyLedger/DailyLedger.entitlements
+          grep -Fq 'iCloud.com.nextsolution.dailyledger' DailyLedger/DailyLedger.entitlements
+          /usr/libexec/PlistBuddy -c 'Print com.apple.developer.icloud-services:0' DailyLedger/DailyLedger.entitlements | grep -Fq 'CloudDocuments'
+
+      - name: Build unsigned device IPA for personal Ad Hoc certificate signing
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild -project DailyLedger.xcodeproj -scheme DailyLedger \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath /tmp/nextledger-184-icloud \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee /tmp/nextledger-184-build.log
+
+      - name: Check IPA and copy iCloud entitlements for external signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$(find /tmp/nextledger-184-icloud/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.dailyledger'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '110'
+          test "$(/usr/libexec/PlistBuddy -c 'Print NSUbiquitousContainers:iCloud.com.nextsolution.dailyledger:NSUbiquitousContainerIsDocumentScopePublic' "$APP/Info.plist")" = 'true'
+          BIN="$APP/$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' "$APP/Info.plist")"
+          test "$(stat -f %z "$BIN")" -gt 12000000
+          # A standalone UI inside the app does NOT qualify: the actual
+          # WidgetKit .appex must be embedded in Payload/*.app/PlugIns.
+          EXT="$APP/PlugIns/NextLedgerWidgets.appex"
+          test -d "$EXT" || { echo 'Missing embedded WidgetKit extension' >&2; exit 1; }
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$EXT/Info.plist")" = 'com.nextsolution.dailyledger.widgets'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$EXT/Info.plist")" = '110'
+          test "$(/usr/libexec/PlistBuddy -c 'Print NSExtension:NSExtensionPointIdentifier' "$EXT/Info.plist")" = 'com.apple.widgetkit-extension'
+          strings "$BIN" > /tmp/nextledger183-binary-strings.txt
+          for REQUIRED in "Fetch Latest 15 SMS" "SMS Import Console" "Loan Summary Comparison" "Monthly Fixed Expenses" "Apply Budget Plan"; do
+            grep -Fq "$REQUIRED" /tmp/nextledger183-binary-strings.txt
+          done
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED.ipa
+          unzip -t NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED.ipa >/dev/null
+          cp DailyLedger/DailyLedger.entitlements NextLedger-1.3.84-Build110-iCloud.entitlements
+          shasum -a 256 NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED.ipa > NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED.sha256
+          ls -lh NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED.ipa
+          echo "NOTE: This IPA is unsigned. It MUST be signed with an Apple certificate and valid iCloud-enabled Ad Hoc provisioning profile."
+
+      - name: Upload unsigned signing-ready IPA, entitlements and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED
+          path: |
+            NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED.ipa
+            NextLedger-1.3.84-Build110-iCloud.entitlements
+            NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED.sha256
+          if-no-files-found: error
+          retention-days: 90
+
+  sign_and_publish:
+    name: Sign with Next Ledger mobileprovision and publish to App Bucket
+    needs: build
+    runs-on: macos-15
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      P12_B64: ${{ secrets.NEXTSIGNER_P12_BASE64 }}
+      P12_PASSWORD: ${{ secrets.NEXTSIGNER_P12_PASSWORD }}
+      PROFILE_B64: ${{ secrets.NEXTLEDGER_MOBILEPROVISION_BASE64 }}
+      WIDGET_PROFILE_B64: ${{ secrets.NEXTLEDGER_WIDGET_MOBILEPROVISION_BASE64 }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: "true"
+    steps:
+      - name: Checkout website and signing helpers
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download compiled Next Ledger Build 110
+        uses: actions/download-artifact@v4
+        with:
+          name: NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED
+          path: unsigned
+
+      - name: Validate certificate and exact Next Ledger iCloud profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$P12_B64" || { echo 'NEXTSIGNER_P12_BASE64 signing certificate secret missing'; exit 1; }
+          test -n "$P12_PASSWORD" || { echo 'NEXTSIGNER_P12_PASSWORD missing'; exit 1; }
+          test -n "$WIDGET_PROFILE_B64" || {
+            echo 'Missing separate Ad Hoc widget provisioning profile. Register com.nextsolution.dailyledger.widgets with CloudDocuments iCloud.com.nextsolution.dailyledger and add secret NEXTLEDGER_WIDGET_MOBILEPROVISION_BASE64. Keeping Build 109 live.'
+            exit 1
+          }
+          printf '%s' "$P12_B64" | base64 -D > "$RUNNER_TEMP/ledger110.p12"
+          if [ -n "$PROFILE_B64" ]; then
+            printf '%s' "$PROFILE_B64" | base64 -D > "$RUNNER_TEMP/ledger110.mobileprovision"
+          else
+            # Reuse the exact installed Next Ledger profile from our own
+            # independently SHA-256-verified, signed Build 106. Do NOT use
+            # the generic Next Signer profile (it may be another app).
+            PREVIOUS='https://files.nextsolution.cc/apps/ipa/com-nextsolution-dailyledger/1.3.84/com-nextsolution-dailyledger-1.3.84-106.ipa'
+            curl --fail --silent --show-error --location --retry 5 --retry-all-errors "$PREVIOUS" -o "$RUNNER_TEMP/nextledger106-reference.ipa"
+            echo 'dffc941ba7a583ddb936dd7fa98d689963e7b93635c48870f6b55f422ff1d519' > "$RUNNER_TEMP/reference.sha256"
+            python3 - <<'PY'
+          import hashlib,os,zipfile,plistlib
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])
+          package=root/'nextledger106-reference.ipa'
+          expected=(root/'reference.sha256').read_text().strip()
+          assert hashlib.sha256(package.read_bytes()).hexdigest()==expected,'Previous signed Build 106 checksum mismatch'
+          with zipfile.ZipFile(package) as z:
+              app_infos=[n for n in z.namelist() if n.startswith('Payload/') and n.endswith('.app/Info.plist') and n.count('/')==2]
+              assert len(app_infos)==1,'Expected one signed Next Ledger app'
+              info=plistlib.loads(z.read(app_infos[0]))
+              assert info['CFBundleIdentifier']=='com.nextsolution.dailyledger'
+              assert info['CFBundleShortVersionString']=='1.3.84'
+              assert str(info['CFBundleVersion'])=='106'
+              profile=app_infos[0].replace('Info.plist','embedded.mobileprovision')
+              assert profile in z.namelist(),'Previous signed Next Ledger IPA has no embedded profile'
+              (root/'ledger110.mobileprovision').write_bytes(z.read(profile))
+          print('Reused and SHA256-verified app-specific mobileprovision from signed Next Ledger 106')
+          PY
+          fi
+          chmod 600 "$RUNNER_TEMP/ledger110.p12" "$RUNNER_TEMP/ledger110.mobileprovision"
+          security cms -D -i "$RUNNER_TEMP/ledger110.mobileprovision" > "$RUNNER_TEMP/profile.plist"
+          python3 - <<'PY'
+          import os,plistlib,datetime
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])
+          d=plistlib.loads((root/'profile.plist').read_bytes())
+          e=d['Entitlements']
+          expected='T52CDY8W32.com.nextsolution.dailyledger'
+          assert 'next ledger' in d.get('Name','').lower(), 'Wrong profile. Use Next Ledger iCloud profile'
+          assert e.get('application-identifier') == expected,'Provisioned App ID mismatch'
+          assert 'T52CDY8W32' in d.get('TeamIdentifier',[]),'Wrong team'
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.icloud-container-identifiers',[]),'Missing iCloud Documents container'
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.ubiquity-container-identifiers',[]),'Missing ubiquity container'
+          assert any(x in ('CloudDocuments','*') for x in e.get('com.apple.developer.icloud-services',[])),'iCloud services not authorized'
+          assert d['ExpirationDate'] > datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None),'Expired profile'
+          assert bool(d.get('ProvisionedDevices')),'Not an Ad Hoc device profile'
+          signed={
+            'application-identifier':expected,'com.apple.developer.team-identifier':'T52CDY8W32',
+            'get-task-allow':False,
+            'com.apple.developer.icloud-services':['CloudDocuments'],
+            'com.apple.developer.icloud-container-identifiers':['iCloud.com.nextsolution.dailyledger'],
+            'com.apple.developer.ubiquity-container-identifiers':['iCloud.com.nextsolution.dailyledger']
+          }
+          plistlib.dump(signed,(root/'ledger110-entitlements.plist').open('wb'))
+          print('Profile validated for exact Next Ledger bundle ID and CloudDocuments')
+          PY
+          printf '%s' "$WIDGET_PROFILE_B64" | base64 -D > "$RUNNER_TEMP/ledger110-widget.mobileprovision"
+          chmod 600 "$RUNNER_TEMP/ledger110-widget.mobileprovision"
+          security cms -D -i "$RUNNER_TEMP/ledger110-widget.mobileprovision" > "$RUNNER_TEMP/widget-profile.plist"
+          python3 - <<'PY'
+          import os,plistlib,datetime
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])
+          p=plistlib.loads((root/'widget-profile.plist').read_bytes())
+          ent=p['Entitlements']
+          expected='T52CDY8W32.com.nextsolution.dailyledger.widgets'
+          assert ent.get('application-identifier')==expected, 'Wrong widget extension App ID'
+          assert 'T52CDY8W32' in p.get('TeamIdentifier',[]),'Wrong extension signing team'
+          assert 'iCloud.com.nextsolution.dailyledger' in ent.get('com.apple.developer.icloud-container-identifiers',[]),'Widget lacks main app iCloud container'
+          assert 'iCloud.com.nextsolution.dailyledger' in ent.get('com.apple.developer.ubiquity-container-identifiers',[]),'Widget lacks iCloud Documents'
+          assert 'CloudDocuments' in ent.get('com.apple.developer.icloud-services',[]),'Widget does not authorize CloudDocuments'
+          assert p['ExpirationDate']>datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None), 'Widget profile expired'
+          assert p.get('ProvisionedDevices'), 'Widget profile is not Ad Hoc'
+          signed={
+            'application-identifier':expected,
+            'com.apple.developer.team-identifier':'T52CDY8W32',
+            'get-task-allow':False,
+            'com.apple.developer.icloud-services':['CloudDocuments'],
+            'com.apple.developer.icloud-container-identifiers':['iCloud.com.nextsolution.dailyledger'],
+            'com.apple.developer.ubiquity-container-identifiers':['iCloud.com.nextsolution.dailyledger']
+          }
+          plistlib.dump(signed,(root/'ledger110-widget-entitlements.plist').open('wb'))
+          print('WidgetKit provisioned App ID, device list and shared iCloud Documents validated')
+          PY
+
+      - name: Install private Apple Distribution key for codesign
+        shell: bash
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/nextledger110.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 20)"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security import "$RUNNER_TEMP/ledger110.p12" -k "$KEYCHAIN" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | grep -Eo '[[:xdigit:]]{40}' | head -n1)"
+          test -n "$IDENTITY" || { echo 'Distribution private key not available in selected P12'; exit 1; }
+          python3 - "$IDENTITY" <<'PY'
+          import sys,hashlib,plistlib,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'profile.plist'
+          d=plistlib.loads(p.read_bytes())
+          allowed={hashlib.sha1(cert).hexdigest().upper() for cert in d.get('DeveloperCertificates',[])}
+          assert sys.argv[1].upper() in allowed, 'P12 certificate does not match the selected Next Ledger mobileprovision certificate'
+          print('Signing private key matches a certificate authorized by Next Ledger iCloud profile')
+          PY
+          python3 - "$IDENTITY" <<'PY'
+          import sys,hashlib,plistlib,os
+          from pathlib import Path
+          p=plistlib.loads((Path(os.environ['RUNNER_TEMP'])/'widget-profile.plist').read_bytes())
+          allowed={hashlib.sha1(c).hexdigest().upper() for c in p.get('DeveloperCertificates',[])}
+          assert sys.argv[1].upper() in allowed, 'Distribution P12 does not match widget extension provisioning profile'
+          print('Widget and host signing certificates authorize the same Apple Distribution identity')
+          PY
+          echo "CODE_SIGN_IDENTITY_SHA1=$IDENTITY" >> "$GITHUB_ENV"
+
+      - name: Codesign Next Ledger and inspect final CloudDocuments entitlements
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORIGINAL="unsigned/NextLedger-1.3.84-Build110-HomeScreenWidgets-UNSIGNED.ipa"
+          test -s "$ORIGINAL"
+          mkdir -p "$RUNNER_TEMP/ledger110-payload"
+          ditto -x -k "$ORIGINAL" "$RUNNER_TEMP/ledger110-payload"
+          APP="$(find "$RUNNER_TEMP/ledger110-payload/Payload" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.dailyledger'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '110'
+          cp "$RUNNER_TEMP/ledger110.mobileprovision" "$APP/embedded.mobileprovision"
+          if [ -d "$APP/Frameworks" ]; then
+            while IFS= read -r -d '' NESTED; do
+              codesign --force --sign "$CODE_SIGN_IDENTITY_SHA1" "$NESTED"
+            done < <(find "$APP/Frameworks" -mindepth 1 -maxdepth 1 -name '*.framework' -print0)
+          fi
+          EXT="$APP/PlugIns/NextLedgerWidgets.appex"
+          test -d "$EXT" || { echo 'Unsigned app lacks WidgetKit .appex'; exit 1; }
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$EXT/Info.plist")" = 'com.nextsolution.dailyledger.widgets'
+          cp "$RUNNER_TEMP/ledger110-widget.mobileprovision" "$EXT/embedded.mobileprovision"
+          codesign --force --sign "$CODE_SIGN_IDENTITY_SHA1" --entitlements "$RUNNER_TEMP/ledger110-widget-entitlements.plist" "$EXT"
+          codesign --verify --strict --verbose=2 "$EXT"
+          codesign -d --entitlements :- "$EXT" > "$RUNNER_TEMP/widget-signed-entitlements.plist" 2>/dev/null
+          python3 - <<'PY'
+          import plistlib,os
+          from pathlib import Path
+          r=Path(os.environ['RUNNER_TEMP'])
+          e=plistlib.loads((r/'widget-signed-entitlements.plist').read_bytes())
+          assert e.get('application-identifier')=='T52CDY8W32.com.nextsolution.dailyledger.widgets'
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.icloud-container-identifiers',[])
+          assert e.get('com.apple.developer.icloud-services')==['CloudDocuments']
+          assert not e.get('get-task-allow',True)
+          print('Signed widget extension verified independently before host signing')
+          PY
+          codesign --force --sign "$CODE_SIGN_IDENTITY_SHA1" --entitlements "$RUNNER_TEMP/ledger110-entitlements.plist" "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          codesign -d --entitlements :- "$APP" > "$RUNNER_TEMP/signed-entitlements.plist" 2>/dev/null
+          python3 - <<'PY'
+          import plistlib,os
+          from pathlib import Path
+          e=plistlib.loads((Path(os.environ['RUNNER_TEMP'])/'signed-entitlements.plist').read_bytes())
+          assert e.get('application-identifier')=='T52CDY8W32.com.nextsolution.dailyledger'
+          assert e.get('com.apple.developer.icloud-services')==['CloudDocuments']
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.icloud-container-identifiers',[])
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.ubiquity-container-identifiers',[])
+          assert not e.get('get-task-allow',True)
+          print('Verified final signed CloudDocuments entitlement and explicit Next Ledger bundle ID')
+          PY
+          cd "$RUNNER_TEMP/ledger110-payload"
+          ditto -c -k --sequesterRsrc --keepParent Payload "$GITHUB_WORKSPACE/NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa"
+          cd "$GITHUB_WORKSPACE"
+          unzip -t NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa >/dev/null
+          unzip -Z1 NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa > "$RUNNER_TEMP/ipa-entries.txt"
+          grep -Eq '^Payload/[^/]+\\.app/PlugIns/NextLedgerWidgets\\.appex/embedded.mobileprovision
+          shasum -a 256 NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa > NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.sha256
+
+      - name: Upload verified signed Build 110 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED
+          path: |
+            NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa
+            NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.sha256
+          if-no-files-found: error
+
+      - name: Upload signed IPA to R2 and compare public bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'R2 secrets unavailable'; exit 1; }
+          if ! command -v aws >/dev/null; then brew install awscli; fi
+          FILE='NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa'
+          KEY='apps/ipa/com-nextsolution-dailyledger/1.3.84/com-nextsolution-dailyledger-1.3.84-110.ipa'
+          URL="https://files.nextsolution.cc/$KEY"
+          aws s3 cp "$FILE" "s3://next-signer-apps/$KEY" --endpoint-url 'https://4fe920e259870b0366118a17cc5727e5.r2.cloudflarestorage.com' --content-type application/octet-stream --cache-control 'public, max-age=31536000, immutable' --only-show-errors
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors "$URL" -o "$RUNNER_TEMP/remote.ipa"
+          cmp "$FILE" "$RUNNER_TEMP/remote.ipa"
+          echo "SIGNED_URL=$URL" >> "$GITHUB_ENV"
+          echo "SIGNED_SHA=$(shasum -a 256 "$FILE" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "SIGNED_BYTES=$(stat -f %z "$FILE")" >> "$GITHUB_ENV"
+
+      - name: Register signed Build 110 in permanent App Bucket catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,plistlib,json
+          from pathlib import Path
+          p=Path('install/apps.json')
+          doc=json.loads(p.read_text())
+          matches=[a for a in doc.get('apps',[]) if a.get('bundleId')=='com.nextsolution.dailyledger']
+          assert len(matches)==1,'Expected one current Next Ledger entry'
+          app=matches[0]
+          app.update(name='Next Ledger',version='1.3.84',build='110',
+            platform='iPhone',minimumOS='iOS 16.0+',bundleId='com.nextsolution.dailyledger',
+            available=True,status='Ready to install',downloadURL=os.environ['SIGNED_URL'],
+            sha256=os.environ['SIGNED_SHA'],sizeBytes=int(os.environ['SIGNED_BYTES']),
+            storage='Cloudflare R2',duplicateSigned=False,
+            signingProfile='Next Ledger iCloud profile',cloudDocumentsVerified=True)
+          p.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+'\n')
+          manifest=Path('install/com-nextsolution-dailyledger.plist')
+          d=plistlib.loads(manifest.read_bytes())
+          entry=d['items'][0]
+          entry['assets'][0]['url']=os.environ['SIGNED_URL']
+          entry['metadata']['bundle-version']='110'
+          manifest.write_bytes(plistlib.dumps(d,sort_keys=False))
+          PY
+          python3 -m json.tool install/apps.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add install/apps.json install/com-nextsolution-dailyledger.plist
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish signed Next Ledger 1.3.84 Build 110 to App Bucket'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          echo 'Build 110 signed, iCloud verified, uploaded and added to App Bucket.'
+ "$RUNNER_TEMP/ipa-entries.txt" || {
+            echo 'Unsigned or missing widget extension in signed IPA' >&2; exit 1;
+          }
+          shasum -a 256 NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa > NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.sha256
+
+      - name: Upload verified signed Build 110 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED
+          path: |
+            NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa
+            NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.sha256
+          if-no-files-found: error
+
+      - name: Upload signed IPA to R2 and compare public bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'R2 secrets unavailable'; exit 1; }
+          if ! command -v aws >/dev/null; then brew install awscli; fi
+          FILE='NextLedger-1.3.84-Build110-HomeScreenWidgets-SIGNED.ipa'
+          KEY='apps/ipa/com-nextsolution-dailyledger/1.3.84/com-nextsolution-dailyledger-1.3.84-110.ipa'
+          URL="https://files.nextsolution.cc/$KEY"
+          aws s3 cp "$FILE" "s3://next-signer-apps/$KEY" --endpoint-url 'https://4fe920e259870b0366118a17cc5727e5.r2.cloudflarestorage.com' --content-type application/octet-stream --cache-control 'public, max-age=31536000, immutable' --only-show-errors
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors "$URL" -o "$RUNNER_TEMP/remote.ipa"
+          cmp "$FILE" "$RUNNER_TEMP/remote.ipa"
+          echo "SIGNED_URL=$URL" >> "$GITHUB_ENV"
+          echo "SIGNED_SHA=$(shasum -a 256 "$FILE" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "SIGNED_BYTES=$(stat -f %z "$FILE")" >> "$GITHUB_ENV"
+
+      - name: Register signed Build 110 in permanent App Bucket catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,plistlib,json
+          from pathlib import Path
+          p=Path('install/apps.json')
+          doc=json.loads(p.read_text())
+          matches=[a for a in doc.get('apps',[]) if a.get('bundleId')=='com.nextsolution.dailyledger']
+          assert len(matches)==1,'Expected one current Next Ledger entry'
+          app=matches[0]
+          app.update(name='Next Ledger',version='1.3.84',build='110',
+            platform='iPhone',minimumOS='iOS 16.0+',bundleId='com.nextsolution.dailyledger',
+            available=True,status='Ready to install',downloadURL=os.environ['SIGNED_URL'],
+            sha256=os.environ['SIGNED_SHA'],sizeBytes=int(os.environ['SIGNED_BYTES']),
+            storage='Cloudflare R2',duplicateSigned=False,
+            signingProfile='Next Ledger iCloud profile',cloudDocumentsVerified=True)
+          p.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+'\n')
+          manifest=Path('install/com-nextsolution-dailyledger.plist')
+          d=plistlib.loads(manifest.read_bytes())
+          entry=d['items'][0]
+          entry['assets'][0]['url']=os.environ['SIGNED_URL']
+          entry['metadata']['bundle-version']='110'
+          manifest.write_bytes(plistlib.dumps(d,sort_keys=False))
+          PY
+          python3 -m json.tool install/apps.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add install/apps.json install/com-nextsolution-dailyledger.plist
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish signed Next Ledger 1.3.84 Build 110 to App Bucket'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          echo 'Build 110 signed, iCloud verified, uploaded and added to App Bucket.'
