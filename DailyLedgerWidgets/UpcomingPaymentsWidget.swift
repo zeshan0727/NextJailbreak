@@ -20,7 +20,6 @@ private struct UpcomingPaymentsProvider: TimelineProvider {
     func placeholder(in context: Context) -> UpcomingPaymentsEntry {
         UpcomingPaymentsEntry(
             date: Date(),
-            selectedPaymentIndex: 0,
             snapshot: UpcomingPaymentsWidgetSnapshot(
                 version: 1, generatedAt: Date(),
                 cycleStart: Calendar.current.startOfDay(for: Date()),
@@ -33,7 +32,8 @@ private struct UpcomingPaymentsProvider: TimelineProvider {
                         hasSpecifiedDueDay: true
                     )
                 ]
-            )
+            ),
+            selectedPaymentIndex: 0
         )
     }
 
@@ -442,6 +442,20 @@ private struct UpcomingPaymentStackWidget: Widget {
     let kind: String
     let title: String
     let offset: Int
+
+    // Widget requires init(), even when instances in WidgetBundle use custom
+    // configuration arguments. Do not rely on a memberwise initializer.
+    init() {
+        self.kind = UpcomingPaymentsWidgetStorage.secondWidgetKind
+        self.title = "Upcoming Payment 2"
+        self.offset = 1
+    }
+
+    init(kind: String, title: String, offset: Int) {
+        self.kind = kind
+        self.title = title
+        self.offset = offset
+    }
 
     var body: some WidgetConfiguration {
         StaticConfiguration(
