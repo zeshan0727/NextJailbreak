@@ -86,13 +86,14 @@ struct BudgetPerformanceReportView: View {
     @State private var showAllTransactions = false
     @State private var showAssignedTransactions = false
     @State private var showOtherCategoryBreakdown = true
+    @State private var selectedRecordedCategory: BudgetRecordedCategory?
 
     private var activeExpenses: [FixedPlanItem] {
         store.fixedBudget.activeItems(.expense, in: cycleStart)
     }
 
     private var result: BudgetPerformanceResult {
-        BudgetPerformanceSnapshot.make(store: store, cycleStart: cycleStart)
+        store.performanceSnapshot(for: cycleStart)
     }
 
     var body: some View {
@@ -145,6 +146,15 @@ struct BudgetPerformanceReportView: View {
         .navigationTitle("Budget Performance")
         .navigationBarTitleDisplayMode(.inline)
         .tint(PerformanceStyle.indigo)
+        .sheet(item: $selectedRecordedCategory) { category in
+            let ids = Set(result.expenses.filter {
+                $0.bucket == .other &&
+                $0.record.category.caseInsensitiveCompare(category.name) == .orderedSame
+            }.map(\.id))
+            BudgetCategoryExpensesView(recordIDs: ids, categoryName: category.name,
+                                       cycleStart: cycleStart)
+                .environmentObject(store)
+        }
     }
 
     // MARK: - Cycle navigation
@@ -512,22 +522,34 @@ struct BudgetPerformanceReportView: View {
                 DisclosureGroup(isExpanded: $showOtherCategoryBreakdown) {
                     VStack(spacing: 0) {
                         ForEach(summary.otherRecordedCategories) { category in
-                            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(category.name)
-                                        .font(.subheadline.weight(.medium))
-                                    Text("\(category.transactionCount) transaction\(category.transactionCount == 1 ? "" : "s")")
-                                        .font(.caption)
-                                        .foregroundStyle(PerformanceStyle.secondary)
+                            Button {
+                                selectedRecordedCategory = category
+                            } label: {
+                                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(category.name)
+                                            .font(.subheadline.weight(.medium))
+                                            .foregroundStyle(PerformanceStyle.primary)
+                                        Text("\(category.transactionCount) transaction\(category.transactionCount == 1 ? "" : "s") · Tap to review and assign")
+                                            .font(.caption)
+                                            .foregroundStyle(PerformanceStyle.secondary)
+                                    }
+                                    Spacer(minLength: 6)
+                                    Text(amount(category.spent))
+                                        .font(.subheadline.weight(.semibold))
+                                        .monospacedDigit()
+                                        .foregroundStyle(PerformanceStyle.primary)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.75)
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(PerformanceStyle.indigo)
                                 }
-                                Spacer(minLength: 6)
-                                Text(amount(category.spent))
-                                    .font(.subheadline.weight(.semibold))
-                                    .monospacedDigit()
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.75)
+                                .contentShape(Rectangle())
+                                .padding(.vertical, 10)
                             }
-                            .padding(.vertical, 9)
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Open \(category.name) transactions to edit categories or assign fixed budget")
                             if category.id != summary.otherRecordedCategories.last?.id {
                                 Divider()
                             }
@@ -608,8 +630,8 @@ struct BudgetPerformanceReportView: View {
                     Text(pending.isEmpty ? "All caught up" : "\(pending.count) expense\(pending.count == 1 ? "" : "s") to review")
                         .font(.headline)
                         .foregroundStyle(PerformanceStyle.primary)
-                    Text(pending.isEmpty ? "Every payment has a budget classification." :
-                            "Assign only transactions without an available allocation.")
+                    Text(pending.isEmpty ? "Every expense has an available budget classification." :
+                            "Review automatic imports and expenses without a chosen plan.")
                         .font(.caption)
                         .foregroundStyle(PerformanceStyle.secondary)
                 }
@@ -642,12 +664,12 @@ struct BudgetPerformanceReportView: View {
             }
         }
 
-        sectionHeading("Needs your review", subtitle: "Only expenses without a valid allocation",
+        sectionHeading("Needs your review", subtitle: "Automatic imports and expenses without a chosen plan",
                        symbol: "tray.full")
         reportCard {
             let rows = showAllTransactions ? pending : Array(pending.prefix(40))
             if rows.isEmpty {
-                emptyMessage("Nothing to assign. Automatically categorized spending is already included.")
+                emptyMessage("Nothing awaiting budget assignment.")
             } else {
                 ForEach(rows) { expense in
                     expenseRow(expense)
@@ -706,7 +728,7 @@ struct BudgetPerformanceReportView: View {
                 }
             }
         }
-        Text("Assignments update only this report and your saved budget mapping. Your original transactions and backup/sync data remain intact. Bank-to-bank transfers are not spending; bank-to-Payments transfers are.")
+        Text("Budget assignments are stored separately from recorded accounting categories. Bank-to-bank transfers are not spending; bank-to-Payments transfers are.")
             .font(.caption)
             .foregroundStyle(PerformanceStyle.secondary)
             .padding(.horizontal, 4)
@@ -738,7 +760,7 @@ struct BudgetPerformanceReportView: View {
                     .minimumScaleFactor(0.7)
             }
             HStack(spacing: 7) {
-                Text(bucketTitle(expense.bucket))
+                Text(expense.needsReview ? "Unassigned · Review" : bucketTitle(expense.bucket))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(expense.bucket == .outside ? PerformanceStyle.coral : PerformanceStyle.indigo)
                     .lineLimit(1)
@@ -750,6 +772,9 @@ struct BudgetPerformanceReportView: View {
                 Spacer(minLength: 5)
                 Menu {
                     Button("Automatic matching") { setAssignment(expense.id, nil) }
+                    Button("Unassigned — Review Later") {
+                        setAssignment(expense.id, BudgetSpendAssignment(kind: .unassigned))
+                    }
                     ForEach(activeExpenses) { fixed in
                         Button("Fixed: \(fixed.title) · \(amount(fixed.amount))") {
                             setAssignment(expense.id, BudgetSpendAssignment(kind: .fixed, fixedItemID: fixed.id))
