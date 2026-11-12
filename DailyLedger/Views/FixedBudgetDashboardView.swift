@@ -731,6 +731,8 @@ private struct FixedPlanItemEditor: View {
     @State private var firstCycle: Date
     @State private var isLimited: Bool
     @State private var duration: Int
+    @State private var hasDueDate: Bool
+    @State private var dueDay: Int
 
     init(kind: FixedPlanKind, item: FixedPlanItem?, currency: String,
          onSave: @escaping (FixedPlanItem) -> Void) {
@@ -745,6 +747,8 @@ private struct FixedPlanItemEditor: View {
         _firstCycle = State(initialValue: item?.firstCycle ?? Date())
         _isLimited = State(initialValue: item?.durationCycles != nil)
         _duration = State(initialValue: item?.durationCycles ?? 1)
+        _hasDueDate = State(initialValue: item?.dueDay != nil)
+        _dueDay = State(initialValue: item?.dueDay ?? 25)
     }
 
     private var decimalAmount: Decimal? {
@@ -775,6 +779,25 @@ private struct FixedPlanItemEditor: View {
             } footer: {
                 Text("Each cycle runs from the 26th to the following 25th. Limited entries automatically stop when the selected cycles finish.")
             }
+            if kind == .expense {
+                Section {
+                    Toggle("Specify monthly payment due date", isOn: $hasDueDate)
+                    if hasDueDate {
+                        Picker("Payment due day", selection: $dueDay) {
+                            ForEach(1...31, id: \.self) { day in
+                                Text("Day \(day)").tag(day)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                } header: {
+                    Text("Home Screen Upcoming Payments")
+                } footer: {
+                    Text(hasDueDate
+                         ? "The widget uses this day each month (clamped for shorter months)."
+                         : "Without a due date, the widget lists payment as due by cycle close on the 25th.")
+                }
+            }
         }
         .navigationTitle(item == nil ? "Add \(kind.title)" : "Edit \(kind.title)")
         .navigationBarTitleDisplayMode(.inline)
@@ -790,7 +813,8 @@ private struct FixedPlanItemEditor: View {
                                          title: title.trimmingCharacters(in: .whitespacesAndNewlines),
                                          amount: amount,
                                          firstCycle: BudgetCycle.start(containing: firstCycle),
-                                         durationCycles: isLimited ? duration : nil))
+                                         durationCycles: isLimited ? duration : nil,
+                                         dueDay: kind == .expense && hasDueDate ? dueDay : nil))
                     dismiss()
                 }
                 .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
