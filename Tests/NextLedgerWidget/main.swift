@@ -93,3 +93,38 @@ assertWidget(sample.isCurrent(on: today), "this salary cycle is current")
 assertWidget(!sample.isCurrent(on: date(2026, 11, 26)), "stale widget refreshes after period close")
 
 print("Build 110 widget tests passed: 3 sizes' payload, actual paid/unpaid, optional due day, 26–25 cycle, shorter months, iCloud legacy decoding.")
+
+// Build 111: page selection is widget-only and does not modify the ledger,
+// upcoming payment order, the snapshot JSON or the iCloud backup.
+let defaults = UserDefaults(suiteName: "nextledger-widget-pager-build111-tests")!
+defaults.removePersistentDomain(forName: "nextledger-widget-pager-build111-tests")
+assertWidget(UpcomingWidgetPager.selectedIndex(for: sample, defaults: defaults) == 0,
+             "existing widgets start at the nearest upcoming fixed payment")
+assertWidget(UpcomingWidgetPager.advance(snapshot: sample, defaults: defaults) == 1,
+             "next action moves from the first to the second upcoming payment")
+assertWidget(UpcomingWidgetPager.advance(snapshot: sample, defaults: defaults) == 2,
+             "next action moves to the third upcoming payment")
+assertWidget(UpcomingWidgetPager.advance(snapshot: sample, defaults: defaults) == 0,
+             "next action wraps back to the first of three payments")
+assertWidget(UpcomingWidgetPager.displayIndex(selectedIndex: 0,
+    staticOffset: 1, count: 3) == 1, "iOS 16 second stack widget shows second payment")
+assertWidget(UpcomingWidgetPager.displayIndex(selectedIndex: 0,
+    staticOffset: 2, count: 3) == 2, "iOS 16 third stack widget shows third payment")
+assertWidget(UpcomingWidgetPager.displayIndex(selectedIndex: 2,
+    staticOffset: 2, count: 3) == 1, "stack offsets wrap safely after interactive paging")
+assertWidget(UpcomingWidgetPager.displayIndex(selectedIndex: 999,
+    staticOffset: 1, count: 0) == 0, "no empty-list index or division by zero")
+let nextCycle = UpcomingPaymentPlanner.snapshot(
+    plan: plan, fixedSpending: [:],
+    currency: "QAR", asOf: date(2026, 11, 28), calendar: calendar
+)
+defaults.set(sample.cycleStart.timeIntervalSince1970, forKey: "NextLedger.WidgetPage.CycleV1")
+defaults.set(2, forKey: "NextLedger.WidgetPage.IndexV1")
+assertWidget(UpcomingWidgetPager.selectedIndex(for: nextCycle, defaults: defaults) == 0,
+             "new budget cycle resets the small widget to the nearest payment")
+let backupAfterPaging = try JSONEncoder().encode(sample)
+assertWidget(backupAfterPaging == encodedSnapshot,
+             "widget paging never changes the saved financial widget payload")
+defaults.removePersistentDomain(forName: "nextledger-widget-pager-build111-tests")
+print("Build 111 widgets: iOS17 paging, iOS16 stack offsets, wraparound and cycle reset passed.")
+
