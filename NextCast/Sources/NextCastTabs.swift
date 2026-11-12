@@ -22,7 +22,7 @@ struct NextCastTabs: View {
                 tab = 0
             }
                 .tabItem { Label("Downloads", systemImage: "arrow.down.circle") }.tag(1)
-            BrowserTab(library: library, downloads: browserDownloads) {
+            BrowserTab(library: library, downloads: browserDownloads, cast: cast) {
                 tab = 1
             }
                 .tabItem { Label("Browser", systemImage: "globe") }.tag(2)
