@@ -168,10 +168,10 @@ struct MonthlyFixedBudget: Codable, Equatable {
         // Build 108-compatible backup decoding; restore the distinct queue state
         // via the new optional pendingBudgetReviewIDs key in newer builds.
         var compatible = spendAssignments
-        let pending = spendAssignments.compactMap { id, mapping -> UUID? in
-            guard mapping.kind == .unassigned else { return nil }
+        var pending: [UUID] = []
+        for (id, mapping) in spendAssignments where mapping.kind == .unassigned {
             compatible[id] = BudgetSpendAssignment(kind: .outside)
-            return id
+            pending.append(id)
         }
         try c.encode(compatible, forKey: .spendAssignments)
         try c.encode(pending.sorted { $0.uuidString < $1.uuidString },
