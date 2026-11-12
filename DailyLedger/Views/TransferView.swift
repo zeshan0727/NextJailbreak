@@ -50,120 +50,49 @@ struct TransferView: View {
         _erpDimensions = State(initialValue: ERPAccountingEngine.dimensionDictionary(transaction))
     }
 
+
+    // Design 2: native, accessible and compact without changing transfer posting logic.
+    private enum TransferDesign {
+        static let canvas = Color(uiColor: .systemGroupedBackground)
+        static let surface = Color(uiColor: .secondarySystemGroupedBackground)
+        static let blue = Color(red: 0.18, green: 0.37, blue: 0.96)
+        static let navy = Color(uiColor: .label)
+        static let muted = Color(uiColor: .secondaryLabel)
+        static let line = Color(uiColor: .separator)
+    }
+
     var body: some View {
         NavigationStack {
-            Form {
-                if editingTransaction != nil {
-                    Section("Transaction Nature") {
-                        LabeledContent("Current", value: "Transfer")
-                        HStack(spacing: 12) {
-                            Button("Income") { convertingTo = .income }
-                            Button("Expense") { convertingTo = .expense }
-                        }
-                        Text("Choose Income or Expense to convert this existing transfer. Account balances are recalculated when the converted transaction is saved.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 17) {
+                    transferHeading
+                    transferRoute
+                    transferAmountCard
+                    if isCrossCurrency {
+                        exchangeCard
                     }
-                }
-
-                Section("From") {
-                    currencyPicker("From Currency", selection: $sourceCurrencySelection)
-                    accountPicker(
-                        "Source Account",
-                        selection: $sourceAccountID,
-                        currency: sourceCurrencySelection
-                    )
-                    accountAvailabilityMessage(for: .source)
-                    addAccountButton(for: .source)
-                    amountField("Amount Sent", text: $amountText, currency: sourceCurrency)
-                }
-
-                Section("To") {
-                    currencyPicker("To Currency", selection: $destinationCurrencySelection)
-                    accountPicker(
-                        "Destination Account",
-                        selection: $destinationAccountID,
-                        currency: destinationCurrencySelection
-                    )
-                    accountAvailabilityMessage(for: .destination)
-                    addAccountButton(for: .destination)
-                    if !isCrossCurrency, let receivedAmount {
-                        LabeledContent(
-                            "Amount Received",
-                            value: DisplayFormat.currency(receivedAmount, code: destinationCurrency)
-                        )
-                    }
-                }
-
-                if isCrossCurrency {
-                    Section {
-                        if let fixedRate {
-                            Toggle("Use Custom Rate", isOn: $useCustomRate)
-                            if !useCustomRate {
-                                LabeledContent(
-                                    "Fixed Rate",
-                                    value: "1 \(sourceCurrency) = \(rateString(fixedRate)) \(destinationCurrency)"
-                                )
-                            }
-                        } else {
-                            Label("Custom rate required", systemImage: "exclamationmark.circle")
-                                .foregroundStyle(.secondary)
-                        }
-
-                        if useCustomRate || fixedRate == nil {
-                            rateField
-                        }
-
-                        LabeledContent("Amount Sent") {
-                            Text(sourceAmount.map {
-                                DisplayFormat.currency($0, code: sourceCurrency)
-                            } ?? "—")
-                        }
-                        LabeledContent("Amount Received") {
-                            Text(receivedAmount.map {
-                                DisplayFormat.currency($0, code: destinationCurrency)
-                            } ?? "—")
-                                .fontWeight(.semibold)
-                        }
-                    } header: {
-                        Text("Currency Conversion")
-                    } footer: {
-                        Text(conversionFooter)
-                    }
-                }
-
-                ERPTransactionDimensionsEditor(values: $erpDimensions, type: .transfer)
-
-                Section("Details") {
-                    TextField("Description (optional)", text: $details)
-                    DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
+                    transferDetailsCard
+                    ERPTransactionDimensionsEditor(values: $erpDimensions, type: .transfer)
                     if let saveValidationMessage {
                         Label(saveValidationMessage, systemImage: "info.circle")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.footnote)
+                            .foregroundStyle(TransferDesign.muted)
+                            .padding(.horizontal, 7)
+                    }
+                    if let editingTransaction {
+                        editActions(for: editingTransaction)
                     }
                 }
-
-                if let editingTransaction {
-                    Section {
-                        Button("Delete Transfer", role: .destructive) {
-                            store.delete(editingTransaction)
-                            dismiss()
-                        }
-                    } footer: {
-                        Text("Deleting reverses this transfer’s effect on both account balances.")
-                    }
-                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 16)
             }
+            .background(TransferDesign.canvas.ignoresSafeArea())
             .navigationTitle(editingTransaction == nil ? "New Transfer" : "Edit Transfer")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(editingTransaction == nil ? "Transfer" : "Update", action: save)
-                        .disabled(!canSave)
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     ForEach(["+", "−", "×", "÷"], id: \.self) { symbol in
@@ -171,6 +100,9 @@ struct TransferView: View {
                     }
                     Button("=", action: calculateFocusedAmount)
                 }
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                transferActionBar
             }
             .onAppear {
                 chooseDefaults()
@@ -221,6 +153,302 @@ struct TransferView: View {
                 }
             }
         }
+    }
+
+
+    private var transferHeading: some View {
+        HStack(alignment: .center, spacing: 11) {
+            Image(systemName: "arrow.left.arrow.right")
+                .font(.system(size: 21, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 50, height: 50)
+                .background(TransferDesign.blue,
+                            in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+            VStack(alignment: .leading, spacing: 4) {
+                Text(editingTransaction == nil ? "Transfer" : "Edit Transfer")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .foregroundStyle(TransferDesign.navy)
+                Text("Move money between your accounts")
+                    .font(.subheadline)
+                    .foregroundStyle(TransferDesign.muted)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 8)
+    }
+
+    private var transferRoute: some View {
+        VStack(spacing: 0) {
+            routeAccount(
+                label: "From Account", role: .source,
+                account: sourceAccount, selection: $sourceAccountID,
+                currencySelection: $sourceCurrencySelection
+            )
+            HStack {
+                Spacer()
+                Button(action: swapAccounts) {
+                    Image(systemName: "arrow.up.arrow.down")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(TransferDesign.blue)
+                        .frame(width: 40, height: 40)
+                        .background(TransferDesign.canvas, in: Circle())
+                        .overlay(Circle().stroke(TransferDesign.blue.opacity(0.14), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Swap source and destination accounts")
+                Spacer()
+            }
+            .padding(.vertical, -2)
+            .zIndex(1)
+            routeAccount(
+                label: "To Account", role: .destination,
+                account: destinationAccount, selection: $destinationAccountID,
+                currencySelection: $destinationCurrencySelection
+            )
+            HStack {
+                addAccountButton(for: .source)
+                Spacer(minLength: 8)
+                addAccountButton(for: .destination)
+            }
+            .padding(.top, 14)
+        }
+        .padding(14)
+        .background(TransferDesign.surface,
+                    in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private func routeAccount(label: String, role: TransferAccountRole,
+                              account: LedgerAccount?,
+                              selection: Binding<UUID?>,
+                              currencySelection: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(label)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(TransferDesign.muted)
+                Spacer()
+                Menu {
+                    ForEach(availableCurrencies, id: \.self) { currency in
+                        Button(currency) { currencySelection.wrappedValue = currency }
+                    }
+                } label: {
+                    HStack(spacing: 5) {
+                        Text(normalizedCurrency(currencySelection.wrappedValue))
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 10, weight: .bold))
+                    }
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(TransferDesign.blue)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 6)
+                    .background(TransferDesign.blue.opacity(0.08), in: Capsule())
+                }
+                .accessibilityLabel(label + " currency")
+            }
+            Picker(label, selection: selection) {
+                Text("Select Account").tag(Optional<UUID>.none)
+                ForEach(filteredAccounts(currency: currencySelection.wrappedValue)) { item in
+                    Text(accountDisplayName(item)).tag(Optional(item.id))
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(TransferDesign.navy)
+            .labelsHidden()
+            .accessibilityLabel(label)
+            HStack(spacing: 7) {
+                Image(systemName: role == .source ? "wallet.bifold.fill" : "building.columns.fill")
+                    .foregroundStyle(TransferDesign.blue)
+                if let account {
+                    Text(account.name)
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(TransferDesign.navy)
+                        .lineLimit(1)
+                    Spacer(minLength: 4)
+                    Text(DisplayFormat.currency(store.balance(for: account),
+                                               code: account.currencyCode))
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(TransferDesign.muted)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                } else {
+                    Text("Select an account to continue")
+                        .font(.footnote)
+                        .foregroundStyle(TransferDesign.muted)
+                    Spacer(minLength: 0)
+                }
+            }
+            accountAvailabilityMessage(for: role)
+        }
+        .padding(14)
+        .background(TransferDesign.canvas,
+                    in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(TransferDesign.blue.opacity(0.08), lineWidth: 1)
+        }
+    }
+
+    private var transferAmountCard: some View {
+        VStack(alignment: .leading, spacing: 13) {
+            HStack {
+                Text("Amount")
+                    .font(.headline)
+                Spacer()
+                Text(sourceCurrency)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(TransferDesign.blue)
+            }
+            HStack(spacing: 8) {
+                Image(systemName: "creditcard")
+                    .foregroundStyle(TransferDesign.blue)
+                TextField("0.00", text: $amountText)
+                    .keyboardType(.decimalPad)
+                    .font(.system(size: 34, weight: .semibold, design: .rounded))
+                    .focused($focusedAmount, equals: .source)
+                    .accessibilityLabel("Amount sent in " + sourceCurrency)
+            }
+            .padding(.horizontal, 13)
+            .frame(minHeight: 70)
+            .background(TransferDesign.canvas,
+                        in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(TransferDesign.blue.opacity(0.18), lineWidth: 1)
+            }
+            HStack(spacing: 6) {
+                ForEach(["100", "500", "1000", "5000", "10000"], id: \.self) { amount in
+                    Button {
+                        amountText = amount
+                        focusedAmount = nil
+                    } label: {
+                        Text(Decimal(string: amount)?.formatted(.number) ?? amount)
+                            .font(.system(size: 11, weight: .semibold))
+                            .frame(maxWidth: .infinity, minHeight: 34)
+                            .foregroundStyle(TransferDesign.blue)
+                            .background(TransferDesign.blue.opacity(0.08),
+                                        in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Set amount to " + amount)
+                }
+            }
+        }
+        .padding(16)
+        .background(TransferDesign.surface,
+                    in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var exchangeCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("Currency Conversion", systemImage: "arrow.left.arrow.right.circle.fill")
+                .font(.headline)
+                .foregroundStyle(TransferDesign.navy)
+            if let fixedRate {
+                Toggle("Use Custom Rate", isOn: $useCustomRate)
+                    .tint(TransferDesign.blue)
+                if !useCustomRate {
+                    LabeledContent("Conversion Rate",
+                                   value: "1 \(sourceCurrency) = \(rateString(fixedRate)) \(destinationCurrency)")
+                }
+            }
+            if fixedRate == nil {
+                Label("Custom conversion rate required", systemImage: "info.circle")
+                    .font(.footnote)
+                    .foregroundStyle(TransferDesign.muted)
+            }
+            if useCustomRate || fixedRate == nil { rateField }
+            Divider()
+            LabeledContent("Amount Sent",
+                           value: sourceAmount.map { DisplayFormat.currency($0, code: sourceCurrency) } ?? "—")
+            LabeledContent("Amount Received",
+                           value: receivedAmount.map { DisplayFormat.currency($0, code: destinationCurrency) } ?? "—")
+            Text(conversionFooter)
+                .font(.caption)
+                .foregroundStyle(TransferDesign.muted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .background(TransferDesign.surface,
+                    in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var transferDetailsCard: some View {
+        VStack(alignment: .leading, spacing: 13) {
+            Label("Details", systemImage: "note.text")
+                .font(.headline)
+            HStack {
+                Image(systemName: "text.alignleft")
+                    .foregroundStyle(TransferDesign.blue)
+                TextField("Note (optional)", text: $details)
+                    .textInputAutocapitalization(.sentences)
+            }
+            .padding(.vertical, 12)
+            Divider()
+            DatePicker("Date", selection: $date, displayedComponents: [.date])
+                .font(.subheadline.weight(.medium))
+            Divider()
+            DatePicker("Time", selection: $date, displayedComponents: [.hourAndMinute])
+                .font(.subheadline.weight(.medium))
+        }
+        .padding(16)
+        .background(TransferDesign.surface,
+                    in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var transferActionBar: some View {
+        Button(action: save) {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.left.arrow.right")
+                Text(editingTransaction == nil ? "Transfer" : "Update Transfer")
+            }
+            .font(.headline.weight(.semibold))
+            .frame(maxWidth: .infinity, minHeight: 54)
+            .foregroundStyle(.white)
+            .background(TransferDesign.blue.opacity(canSave ? 1 : 0.38),
+                        in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .disabled(!canSave)
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 7)
+        .background(.regularMaterial)
+    }
+
+    private func editActions(for transaction: LedgerTransaction) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Change transaction type")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(TransferDesign.muted)
+            HStack {
+                Button("Convert to Income") { convertingTo = .income }
+                Spacer()
+                Button("Convert to Expense") { convertingTo = .expense }
+            }
+            .font(.subheadline)
+            Divider()
+            Button(role: .destructive) {
+                store.delete(transaction)
+                dismiss()
+            } label: {
+                Label("Delete Transfer", systemImage: "trash")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .font(.subheadline)
+        }
+        .padding(16)
+        .background(TransferDesign.surface,
+                    in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private func swapAccounts() {
+        let oldSource = sourceAccountID
+        let oldCurrency = sourceCurrencySelection
+        sourceAccountID = destinationAccountID
+        destinationAccountID = oldSource
+        sourceCurrencySelection = destinationCurrencySelection
+        destinationCurrencySelection = oldCurrency
+        configureConversion(preserveEditingRate: false)
     }
 
     private func currencyPicker(_ title: String, selection: Binding<String>) -> some View {
