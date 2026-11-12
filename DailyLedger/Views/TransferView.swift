@@ -206,10 +206,19 @@ struct TransferView: View {
                 currencySelection: $destinationCurrencySelection
             )
             HStack {
-                addAccountButton(for: .source)
+                Button {
+                    addingAccountFor = .source
+                } label: {
+                    Label("Add Source", systemImage: "plus.circle")
+                }
                 Spacer(minLength: 8)
-                addAccountButton(for: .destination)
+                Button {
+                    addingAccountFor = .destination
+                } label: {
+                    Label("Add Destination", systemImage: "plus.circle")
+                }
             }
+            .font(.caption.weight(.semibold))
             .padding(.top, 14)
         }
         .padding(14)
@@ -245,38 +254,43 @@ struct TransferView: View {
                 }
                 .accessibilityLabel(label + " currency")
             }
-            Picker(label, selection: selection) {
-                Text("Select Account").tag(Optional<UUID>.none)
+            Menu {
                 ForEach(filteredAccounts(currency: currencySelection.wrappedValue)) { item in
-                    Text(accountDisplayName(item)).tag(Optional(item.id))
+                    Button(accountDisplayName(item)) {
+                        selection.wrappedValue = item.id
+                    }
                 }
-            }
-            .pickerStyle(.menu)
-            .tint(TransferDesign.navy)
-            .labelsHidden()
-            .accessibilityLabel(label)
-            HStack(spacing: 7) {
-                Image(systemName: role == .source ? "wallet.bifold.fill" : "building.columns.fill")
-                    .foregroundStyle(TransferDesign.blue)
-                if let account {
-                    Text(account.name)
-                        .font(.footnote.weight(.medium))
-                        .foregroundStyle(TransferDesign.navy)
-                        .lineLimit(1)
+            } label: {
+                HStack(spacing: 9) {
+                    Image(systemName: role == .source ? "wallet.bifold.fill" : "building.columns.fill")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(TransferDesign.blue)
+                        .frame(width: 28)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(account?.name ?? "Select Account")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(TransferDesign.navy)
+                            .lineLimit(1)
+                        Text(account?.currencyCode ?? normalizedCurrency(currencySelection.wrappedValue))
+                            .font(.caption)
+                            .foregroundStyle(TransferDesign.muted)
+                    }
                     Spacer(minLength: 4)
-                    Text(DisplayFormat.currency(store.balance(for: account),
-                                               code: account.currencyCode))
-                        .font(.footnote.weight(.semibold))
+                    if let account {
+                        Text(DisplayFormat.currency(store.balance(for: account),
+                                                   code: account.currencyCode))
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(TransferDesign.navy)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.65)
+                    }
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
                         .foregroundStyle(TransferDesign.muted)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.65)
-                } else {
-                    Text("Select an account to continue")
-                        .font(.footnote)
-                        .foregroundStyle(TransferDesign.muted)
-                    Spacer(minLength: 0)
                 }
+                .frame(minHeight: 46)
             }
+            .accessibilityLabel(label)
             accountAvailabilityMessage(for: role)
         }
         .padding(14)
