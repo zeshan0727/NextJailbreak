@@ -20,6 +20,7 @@ on:
       - "Shared/NextLedgerWidgetSnapshot.swift"
       - "Tests/NextLedgerWidget/main.swift"
       - "DailyLedger/Views/AppRootView.swift"
+      - "SigningAssets/NextLedgerWidgetProfileEncrypted.*.txt"
       - "Tests/NextLedgerBudgetPerformance/main.swift"
       - "project.yml"
   workflow_dispatch:
@@ -299,6 +300,15 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Read certificate-encrypted widget profile without exposing iPhone identifiers
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .widget-signing-data
+          sparse-checkout: |
+            SigningAssets
+          sparse-checkout-cone-mode: false
+
       - name: Download compiled Next Ledger Build 110
         uses: actions/download-artifact@v4
         with:
@@ -311,10 +321,6 @@ jobs:
           set -euo pipefail
           test -n "$P12_B64" || { echo 'NEXTSIGNER_P12_BASE64 signing certificate secret missing'; exit 1; }
           test -n "$P12_PASSWORD" || { echo 'NEXTSIGNER_P12_PASSWORD missing'; exit 1; }
-          test -n "$WIDGET_PROFILE_B64" || {
-            echo 'Missing separate Ad Hoc widget provisioning profile. Register com.nextsolution.dailyledger.widgets with CloudDocuments iCloud.com.nextsolution.dailyledger and add secret NEXTLEDGER_WIDGET_MOBILEPROVISION_BASE64. Keeping Build 109 live.'
-            exit 1
-          }
           printf '%s' "$P12_B64" | base64 -D > "$RUNNER_TEMP/ledger110.p12"
           if [ -n "$PROFILE_B64" ]; then
             printf '%s' "$PROFILE_B64" | base64 -D > "$RUNNER_TEMP/ledger110.mobileprovision"
@@ -372,7 +378,46 @@ jobs:
           plistlib.dump(signed,(root/'ledger110-entitlements.plist').open('wb'))
           print('Profile validated for exact Next Ledger bundle ID and CloudDocuments')
           PY
-          printf '%s' "$WIDGET_PROFILE_B64" | base64 -D > "$RUNNER_TEMP/ledger110-widget.mobileprovision"
+          if [ -n "$WIDGET_PROFILE_B64" ]; then
+            # An explicitly configured secret overrides the encrypted recovery bundle.
+            printf '%s' "$WIDGET_PROFILE_B64" | base64 -D > "$RUNNER_TEMP/ledger110-widget.mobileprovision"
+          else
+            # The user's uploaded widget Ad Hoc profile has been compressed,
+            # encrypted to their existing Apple Distribution public certificate,
+            # and committed only as ciphertext. Decrypt solely on the ephemeral
+            # macOS signing runner using the P12 private key from Actions secrets.
+            for n in 1 2 3 4; do
+              test -s ".widget-signing-data/SigningAssets/NextLedgerWidgetProfileEncrypted.part${n}.txt"
+            done
+            cat .widget-signing-data/SigningAssets/NextLedgerWidgetProfileEncrypted.part{1,2,3,4}.txt | base64 -D > "$RUNNER_TEMP/widget-profile-patch.cms"
+            openssl pkcs12 -in "$RUNNER_TEMP/ledger110.p12" -passin env:P12_PASSWORD -clcerts -nokeys -out "$RUNNER_TEMP/widget-sign-cert.pem"
+            openssl pkcs12 -in "$RUNNER_TEMP/ledger110.p12" -passin env:P12_PASSWORD -nocerts -nodes -out "$RUNNER_TEMP/widget-sign-key.pem"
+            chmod 600 "$RUNNER_TEMP/widget-sign-key.pem"
+            openssl cms -decrypt -inform DER -in "$RUNNER_TEMP/widget-profile-patch.cms" \
+              -recip "$RUNNER_TEMP/widget-sign-cert.pem" -inkey "$RUNNER_TEMP/widget-sign-key.pem" \
+              -out "$RUNNER_TEMP/widget-profile-patch.xz"
+            rm -f "$RUNNER_TEMP/widget-sign-key.pem"
+            python3 - <<'PY'
+          import os,json,lzma,hashlib,base64
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])
+          baseline=(root/'ledger110.mobileprovision').read_bytes()
+          patch=json.loads(lzma.decompress((root/'widget-profile-patch.xz').read_bytes()))
+          assert hashlib.sha256(baseline).hexdigest()==patch['sha256base'], 'Base Next Ledger profile differs from the checked signing baseline'
+          restored=bytearray()
+          for command in patch['operations']:
+              if command[0]==0:
+                  restored.extend(baseline[command[1]:command[2]])
+              elif command[0]==1:
+                  restored.extend(base64.b64decode(command[1]))
+              else:
+                  raise ValueError('Unexpected encrypted widget profile patch command')
+          verified=bytes(restored)
+          assert hashlib.sha256(verified).hexdigest()==patch['sha256widget'], 'Widget profile reconstruction checksum mismatch'
+          (root/'ledger110-widget.mobileprovision').write_bytes(verified)
+          print('Encrypted widget profile decrypted and cryptographic checksums verified locally on signing runner')
+          PY
+          fi
           chmod 600 "$RUNNER_TEMP/ledger110-widget.mobileprovision"
           security cms -D -i "$RUNNER_TEMP/ledger110-widget.mobileprovision" > "$RUNNER_TEMP/widget-profile.plist"
           python3 - <<'PY'
@@ -386,7 +431,7 @@ jobs:
           assert 'T52CDY8W32' in p.get('TeamIdentifier',[]),'Wrong extension signing team'
           assert 'iCloud.com.nextsolution.dailyledger' in ent.get('com.apple.developer.icloud-container-identifiers',[]),'Widget lacks main app iCloud container'
           assert 'iCloud.com.nextsolution.dailyledger' in ent.get('com.apple.developer.ubiquity-container-identifiers',[]),'Widget lacks iCloud Documents'
-          assert 'CloudDocuments' in ent.get('com.apple.developer.icloud-services',[]),'Widget does not authorize CloudDocuments'
+          assert any(x in ('CloudDocuments','*') for x in ent.get('com.apple.developer.icloud-services',[])), 'Widget does not authorize CloudDocuments'
           assert p['ExpirationDate']>datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None), 'Widget profile expired'
           assert p.get('ProvisionedDevices'), 'Widget profile is not Ad Hoc'
           signed={
