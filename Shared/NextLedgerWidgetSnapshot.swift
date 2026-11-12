@@ -55,6 +55,10 @@ struct UpcomingPaymentsWidgetSnapshot: Codable, Equatable {
 enum UpcomingPaymentsWidgetStorage {
     static let iCloudContainer = "iCloud.com.nextsolution.dailyledger"
     static let widgetKind = "NextLedgerUpcomingPayments"
+    /// Small widgets 2 and 3 can be stacked with the original small widget.
+    /// iOS 16 users swipe the Home Screen stack, not inside an individual widget.
+    static let secondWidgetKind = "NextLedgerUpcomingPaymentTwo"
+    static let thirdWidgetKind = "NextLedgerUpcomingPaymentThree"
     static let relativeFilename = "nextledger-upcoming-widget-v1.json"
 
     static func fileURL() -> URL? {
@@ -94,5 +98,47 @@ enum UpcomingPaymentsWidgetStorage {
         let output = try JSONEncoder().encode(snapshot)
         try output.write(to: destination, options: [.atomic])
         return true
+    }
+}
+
+
+/// Pure, deterministic page logic reused by WidgetKit's timeline provider
+/// and the iOS 17+ AppIntent. This does not change ledger transactions.
+enum UpcomingWidgetPager {
+    static func displayIndex(selectedIndex: Int, staticOffset: Int, count: Int) -> Int {
+        guard count > 0 else { return 0 }
+        let normalized = ((selectedIndex % count) + count) % count
+        let offset = ((staticOffset % count) + count) % count
+        return (normalized + offset) % count
+    }
+
+    static func nextIndex(current: Int, count: Int) -> Int {
+        displayIndex(selectedIndex: current, staticOffset: 1, count: count)
+    }
+
+    /// Widget-extension preferences are independent of the main app and
+    /// carry only an index and cycle, never account or transaction data.
+    private static let cycleKey = "NextLedger.WidgetPage.CycleV1"
+    private static let indexKey = "NextLedger.WidgetPage.IndexV1"
+
+    static func selectedIndex(for snapshot: UpcomingPaymentsWidgetSnapshot,
+                              defaults: UserDefaults = .standard) -> Int {
+        guard defaults.object(forKey: cycleKey) != nil,
+              defaults.double(forKey: cycleKey) == snapshot.cycleStart.timeIntervalSince1970
+        else { return 0 }
+        return displayIndex(selectedIndex: defaults.integer(forKey: indexKey),
+                            staticOffset: 0,
+                            count: snapshot.payments.count)
+    }
+
+    @discardableResult
+    static func advance(snapshot: UpcomingPaymentsWidgetSnapshot,
+                        defaults: UserDefaults = .standard) -> Int {
+        guard snapshot.payments.count > 0 else { return 0 }
+        let current = selectedIndex(for: snapshot, defaults: defaults)
+        let next = nextIndex(current: current, count: snapshot.payments.count)
+        defaults.set(snapshot.cycleStart.timeIntervalSince1970, forKey: cycleKey)
+        defaults.set(next, forKey: indexKey)
+        return next
     }
 }
