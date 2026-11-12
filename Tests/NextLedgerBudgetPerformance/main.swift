@@ -190,7 +190,8 @@ check(installment.actualSpent == awaitingReview.actualSpent,
 check(installment.expenses.first?.record.category == "Gadgets & Accessories",
       "mapping a gadget to an installment does not rewrite original category")
 let importedJSON = try JSONEncoder().encode(importedPlan)
-check(try JSONDecoder().decode(MonthlyFixedBudget.self, from: importedJSON) == importedPlan,
+let restoredImported = try JSONDecoder().decode(MonthlyFixedBudget.self, from: importedJSON)
+check(restoredImported == importedPlan,
       "manual fixed mapping and imported review state persist through backups")
 print("Build 109: imported review, per-transaction fixed installment, original category preservation and backup compatibility passed.")
 
