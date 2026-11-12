@@ -79,7 +79,7 @@ struct FixedBudgetDashboardView: View {
     @State private var showPerformance = false
 
     private var performanceSummary: BudgetPerformanceResult {
-        BudgetPerformanceSnapshot.make(store: store, cycleStart: displayedCycle)
+        store.performanceSnapshot(for: displayedCycle)
     }
 
     private var plan: MonthlyFixedBudget { store.fixedBudget }
