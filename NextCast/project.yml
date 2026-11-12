@@ -67,8 +67,8 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: Next Cast
-        CFBundleShortVersionString: "1.5.2"
-        CFBundleVersion: "26"
+        CFBundleShortVersionString: "1.5.3"
+        CFBundleVersion: "27"
         UILaunchScreen: {}
         CFBundleDocumentTypes:
           - CFBundleTypeName: Next Cast Video
