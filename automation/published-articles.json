@@ -5,6 +5,107 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "Watusi for WhatsApp 1.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "watusi-for-whatsapp-1-0-update/",
+      "image": "assets/articles/source-media/watusi-for-whatsapp-1-0-update-78121cb348.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Watusi-for-WhatsApp/commit/aef0744d1a65172df72c70e03d7b204d4979e250",
+      "modified_at": "2026-11-12T14:08:18+00:00",
+      "name": "Watusi for WhatsApp",
+      "package": "com.fouadraheb.watusi",
+      "published_at": "2026-11-12T14:08:18+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/2961abb52dd9561c918b38e841a1ee96181b2502ffd95cad4b463107491e2f10/FouadRaheb/Watusi-for-WhatsApp/commit/aef0744d1a65172df72c70e03d7b204d4979e250",
+      "title": "Watusi 1.0 Rebuilds WhatsApp Tweak Around Media, Privacy and Account-Level Settings",
+      "version": "1.0"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official Feather Library screenshot from the project repository",
+          "image": "assets/articles/source-media/feather-2-9-0-official-library.png",
+          "source_url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Library.png"
+        },
+        {
+          "credit": "Official Feather signing customization screenshot from the project repository",
+          "image": "assets/articles/source-media/feather-2-9-0-official-sign.png",
+          "source_url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Sign.png"
+        }
+      ],
+      "article_sha256": "75c06abeca2b026de16e37d0bcdb64f081dc2dc95a677d7f47e60bf75e8c98d3",
+      "category": {
+        "id": "comparison",
+        "label": "IPA Installer Comparison"
+      },
+      "compat": "LiveContainer nightly 20261108: iOS/iPadOS 15+, multitasking 16+, and not every guest app is compatible; Feather 2.9.0: iOS deployment target 16.0 with a valid signing certificate and provisioning profile; neither core workflow requires a jailbreak",
+      "description": "Compare the project-recommended LiveContainer nightly 20261108 with Feather 2.9.0 by release stability, app model, certificates, App IDs, extensions, notifications, JIT and isolation.",
+      "developer": "LiveContainer contributors and Samara (Feather)",
+      "entry_type": "comparison",
+      "href": "livecontainer-vs-feather-ipa-installer-comparison/",
+      "image": "assets/articles/source-media/livecontainer-3-8-0-official-interface.png",
+      "media_credit": "Official LiveContainer release artwork, verified unchanged at nightly commit 9d6ea09",
+      "media_source_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/9d6ea09b05afa2c8fc537c372795a294db631311/screenshots/release.png",
+      "modified_at": "2026-11-12T08:55:39Z",
+      "name": "LiveContainer vs Feather",
+      "package": "comparison.livecontainer-feather",
+      "published_at": "2026-10-08T13:03:11Z",
+      "release": "LiveContainer nightly 20261108 (2026-11-08) and Feather 2.9.0 (2026-07-05)",
+      "selection_pool": "roundup-comparison",
+      "slug": "livecontainer-vs-feather-ipa-installer-comparison",
+      "source_name": "Official LiveContainer and Feather releases, documentation and source assets",
+      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/nightly",
+      "source_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/nightly",
+      "source_visual_origin": "official-project-release-artwork",
+      "source_visual_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/9d6ea09b05afa2c8fc537c372795a294db631311/screenshots/release.png",
+      "title": "LiveContainer Nightly vs Feather 2.9.0: Which IPA Workflow Fits?",
+      "version": "LiveContainer nightly 20261108 commit 9d6ea09 vs Feather 2.9.0"
+    },
+    {
+      "article_sha256": "7e55a86f46d67d8f867f98ef3d96bfe38a61767d2cc289032d60bc8369cfd9c8",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-openssh-procursus-9.7p1-safe-lan-2026-11-12",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Use only on an active, officially supported Dopamine 3.0.13 rootless jailbreak. Dopamine documents iOS 15.0–17.3.1 for arm64e, iOS 15.0–18.7.1 for listed arm64 and A12/A13 combinations, and iOS 26.0–26.0.1 only for listed A12/A13 combinations; OpenSSH availability does not expand jailbreak compatibility.",
+      "description": "Install OpenSSH on Dopamine 3.0.13 safely, connect as mobile over a trusted LAN, add an SSH key, troubleshoot access and remove the server cleanly.",
+      "developer": "Procursus Team / OpenSSH",
+      "entry_type": "guide",
+      "href": "install-openssh-dopamine-rootless-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_retrieval_status": "Reused the exact official 192×192 PNG already retrieved and verified from the Dopamine 3.0.13 source tag; the project does not publish a dedicated OpenSSH walkthrough image.",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "modified_at": "2026-11-12T03:02:00Z",
+      "name": "OpenSSH on Dopamine safety guide",
+      "package": "guide.dopamine.openssh",
+      "published_at": "2026-10-22T04:56:50Z",
+      "quality_target": 9,
+      "release": "Guide revision 2026-11-12 / Dopamine 3.0.13 / Procursus public recipe OpenSSH 9.7p1-1",
+      "selection_pool": "scheduled-evergreen-guide",
+      "slug": "install-openssh-dopamine-rootless-jailbreak-guide",
+      "source_name": "Dopamine 3.0.13 release and tagged README; current Procursus OpenSSH build and package scripts; OpenSSH 10.6p2 release notes",
+      "source_page_url": "https://github.com/ProcursusTeam/Procursus",
+      "source_url": "https://github.com/ProcursusTeam/Procursus/blob/main/makefiles/openssh.mk",
+      "source_visual_origin": "official-dopamine-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Install OpenSSH on Dopamine 3.0.13 Safely",
+      "version": "Guide revision 2026-11-12 / Dopamine 3.0.13 / OpenSSH package version repository-dependent"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "net.limneos.audiorecorderxs iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "net-limneos-audiorecorderxs-update/",
@@ -2589,41 +2690,6 @@
       "version": "1.2 / 2.6.2"
     },
     {
-      "article_sha256": "7e55a86f46d67d8f867f98ef3d96bfe38a61767d2cc289032d60bc8369cfd9c8",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-openssh-procursus-9.7p1-safe-lan-2026-11-12",
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Use only on an active, officially supported Dopamine 3.0.13 rootless jailbreak. Dopamine documents iOS 15.0–17.3.1 for arm64e, iOS 15.0–18.7.1 for listed arm64 and A12/A13 combinations, and iOS 26.0–26.0.1 only for listed A12/A13 combinations; OpenSSH availability does not expand jailbreak compatibility.",
-      "description": "Install OpenSSH on Dopamine 3.0.13 safely, connect as mobile over a trusted LAN, add an SSH key, troubleshoot access and remove the server cleanly.",
-      "developer": "Procursus Team / OpenSSH",
-      "entry_type": "guide",
-      "href": "install-openssh-dopamine-rootless-jailbreak-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_credit": "opa334 — official Dopamine 3.0.13 source tag",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_retrieval_status": "Reused the exact official 192×192 PNG already retrieved and verified from the Dopamine 3.0.13 source tag; the project does not publish a dedicated OpenSSH walkthrough image.",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "modified_at": "2026-11-12T03:02:00Z",
-      "name": "OpenSSH on Dopamine safety guide",
-      "package": "guide.dopamine.openssh",
-      "published_at": "2026-10-22T04:56:50Z",
-      "quality_target": 9,
-      "release": "Guide revision 2026-11-12 / Dopamine 3.0.13 / Procursus public recipe OpenSSH 9.7p1-1",
-      "selection_pool": "scheduled-evergreen-guide",
-      "slug": "install-openssh-dopamine-rootless-jailbreak-guide",
-      "source_name": "Dopamine 3.0.13 release and tagged README; current Procursus OpenSSH build and package scripts; OpenSSH 10.6p2 release notes",
-      "source_page_url": "https://github.com/ProcursusTeam/Procursus",
-      "source_url": "https://github.com/ProcursusTeam/Procursus/blob/main/makefiles/openssh.mk",
-      "source_visual_origin": "official-dopamine-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "How to Install OpenSSH on Dopamine 3.0.13 Safely",
-      "version": "Guide revision 2026-11-12 / Dopamine 3.0.13 / OpenSSH package version repository-dependent"
-    },
-    {
       "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
@@ -4429,47 +4495,6 @@
       "source_visual_url": "https://media.havoc.app/6ac27358d021b0f97081fff7",
       "title": "5Row Pro 1.19.0 Adds a Custom Number and Symbol Row to the Stock iPhone Keyboard",
       "version": "1.19.0"
-    },
-    {
-      "additional_media": [
-        {
-          "credit": "Official Feather Library screenshot from the project repository",
-          "image": "assets/articles/source-media/feather-2-9-0-official-library.png",
-          "source_url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Library.png"
-        },
-        {
-          "credit": "Official Feather signing customization screenshot from the project repository",
-          "image": "assets/articles/source-media/feather-2-9-0-official-sign.png",
-          "source_url": "https://raw.githubusercontent.com/claration/Feather/v1.x/Images/Sign.png"
-        }
-      ],
-      "category": {
-        "id": "comparison",
-        "label": "IPA Installer Comparison"
-      },
-      "compat": "LiveContainer nightly 20261108: iOS/iPadOS 15+, multitasking 16+, and not every guest app is compatible; Feather 2.9.0: iOS deployment target 16.0 with a valid signing certificate and provisioning profile; neither core workflow requires a jailbreak",
-      "description": "Compare the project-recommended LiveContainer nightly 20261108 with Feather 2.9.0 by release stability, app model, certificates, App IDs, extensions, notifications, JIT and isolation.",
-      "developer": "LiveContainer contributors and Samara (Feather)",
-      "entry_type": "comparison",
-      "href": "livecontainer-vs-feather-ipa-installer-comparison/",
-      "article_sha256": "75c06abeca2b026de16e37d0bcdb64f081dc2dc95a677d7f47e60bf75e8c98d3",
-      "image": "assets/articles/source-media/livecontainer-3-8-0-official-interface.png",
-      "media_credit": "Official LiveContainer release artwork, verified unchanged at nightly commit 9d6ea09",
-      "media_source_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/9d6ea09b05afa2c8fc537c372795a294db631311/screenshots/release.png",
-      "modified_at": "2026-11-12T08:55:39Z",
-      "name": "LiveContainer vs Feather",
-      "package": "comparison.livecontainer-feather",
-      "published_at": "2026-10-08T13:03:11Z",
-      "release": "LiveContainer nightly 20261108 (2026-11-08) and Feather 2.9.0 (2026-07-05)",
-      "selection_pool": "roundup-comparison",
-      "slug": "livecontainer-vs-feather-ipa-installer-comparison",
-      "source_name": "Official LiveContainer and Feather releases, documentation and source assets",
-      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/nightly",
-      "source_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/nightly",
-      "source_visual_origin": "official-project-release-artwork",
-      "source_visual_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/9d6ea09b05afa2c8fc537c372795a294db631311/screenshots/release.png",
-      "title": "LiveContainer Nightly vs Feather 2.9.0: Which IPA Workflow Fits?",
-      "version": "LiveContainer nightly 20261108 commit 9d6ea09 vs Feather 2.9.0"
     },
     {
       "category": {
@@ -10846,8 +10871,17 @@
       "published_at": "2026-11-12T08:55:39Z",
       "run_id": "scheduled-2026-11-12T08:55:39Z",
       "version": "LiveContainer nightly 20261108 commit 9d6ea09 vs Feather 2.9.0"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "watusi-for-whatsapp-1-0-update/",
+      "package": "com.fouadraheb.watusi",
+      "published_at": "2026-11-12T14:08:18+00:00",
+      "run_id": "43233766157",
+      "version": "1.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-12T08:55:39Z"
+  "updated_at": "2026-11-12T14:08:18+00:00"
 }
