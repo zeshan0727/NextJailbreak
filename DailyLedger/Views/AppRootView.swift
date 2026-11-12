@@ -82,6 +82,10 @@ struct AppRootView: View {
                 .environmentObject(store)
         }
         .onAppear(perform: consumeShortcutRequest)
+        .onOpenURL { url in
+            guard url.scheme == "dailyledger", url.host == "budget-upcoming" else { return }
+            selectedTab = .budget
+        }
         .onChange(of: scenePhase) { phase in
             guard phase == .active else { return }
             store.reload()
