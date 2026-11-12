@@ -47,6 +47,9 @@ struct FixedPlanItem: Identifiable, Codable, Equatable {
     var firstCycle: Date
     /// nil means ongoing; a positive value ends after exactly that many cycles.
     var durationCycles: Int?
+    /// Optional actual monthly due-day (1...31); nil means due by the cycle
+    /// close on the 25th, not a fabricated installment date.
+    var dueDay: Int? = nil
 
     func isActive(in cycle: Date, calendar: Calendar = .current) -> Bool {
         let month = BudgetCycle.start(containing: cycle, calendar: calendar)
