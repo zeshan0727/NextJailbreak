@@ -23,7 +23,7 @@ permissions:
 
 concurrency:
   group: nextledger-build109-budget-mapping
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -33,7 +33,7 @@ jobs:
       - name: Checkout full verified original Next Ledger 1.3.84 source
         uses: actions/checkout@v4
         with:
-          ref: feature/nextledger-1.3.84-build109-budget-manual-mapping-performance
+          ref: ${{ github.sha }}
 
       - name: Validate full original features and iCloud documents declarations
         shell: bash
