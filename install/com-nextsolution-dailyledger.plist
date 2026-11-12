@@ -11,7 +11,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-dailyledger/1.3.84/com-nextsolution-dailyledger-1.3.84-108.ipa</string>
+					<string>https://files.nextsolution.cc/apps/ipa/com-nextsolution-dailyledger/1.3.84/com-nextsolution-dailyledger-1.3.84-109.ipa</string>
 				</dict>
 				<dict>
 					<key>kind</key>
@@ -35,7 +35,7 @@
 				<key>bundle-identifier</key>
 				<string>com.nextsolution.dailyledger</string>
 				<key>bundle-version</key>
-				<string>108</string>
+				<string>109</string>
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
