@@ -177,6 +177,15 @@ check(awaitingReview.outsideSpent == 1095,
       "unassigned spend is visible in totals, not silently counted in a fixed plan")
 check(awaitingReview.expenses.first?.record.category == "Gadgets & Accessories",
       "unassigned import preserves original recorded category")
+let pendingBackup = try JSONEncoder().encode(importedPlan)
+let pendingBackupText = String(decoding: pendingBackup, as: UTF8.self)
+check(pendingBackupText.contains("pendingBudgetReviewIDs"),
+      "pending budget queue persists through JSON backup")
+check(!pendingBackupText.contains("\"unassigned\""),
+      "saved JSON uses older-build-compatible budget kinds")
+let pendingRestore = try JSONDecoder().decode(MonthlyFixedBudget.self, from: pendingBackup)
+check(pendingRestore.spendAssignments[gadgetID]?.kind == .unassigned,
+      "new build restores pending review state from compatible JSON")
 importedPlan.spendAssignments[gadgetID] =
     BudgetSpendAssignment(kind: .fixed, fixedItemID: rent.id)
 let installment = BudgetPerformanceEngine.build(
