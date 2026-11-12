@@ -4447,28 +4447,29 @@
         "id": "comparison",
         "label": "IPA Installer Comparison"
       },
-      "compat": "LiveContainer 3.8.0: iOS/iPadOS 15+, multitasking 16+; Feather 2.9.0: iOS deployment target 16.0; neither core workflow requires a jailbreak, but both require a supported host-installation and signing path",
-      "description": "Compare LiveContainer 3.8.0 and Feather 2.9.0 by app model, certificates, App IDs, extensions, notifications, JIT and isolation.",
+      "compat": "LiveContainer nightly 20261108: iOS/iPadOS 15+, multitasking 16+, and not every guest app is compatible; Feather 2.9.0: iOS deployment target 16.0 with a valid signing certificate and provisioning profile; neither core workflow requires a jailbreak",
+      "description": "Compare the project-recommended LiveContainer nightly 20261108 with Feather 2.9.0 by release stability, app model, certificates, App IDs, extensions, notifications, JIT and isolation.",
       "developer": "LiveContainer contributors and Samara (Feather)",
       "entry_type": "comparison",
       "href": "livecontainer-vs-feather-ipa-installer-comparison/",
+      "article_sha256": "75c06abeca2b026de16e37d0bcdb64f081dc2dc95a677d7f47e60bf75e8c98d3",
       "image": "assets/articles/source-media/livecontainer-3-8-0-official-interface.png",
-      "media_credit": "Official LiveContainer 3.8.0 release artwork",
-      "media_source_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/3.8.0/screenshots/release.png",
-      "modified_at": "2026-10-08T13:03:11Z",
+      "media_credit": "Official LiveContainer release artwork, verified unchanged at nightly commit 9d6ea09",
+      "media_source_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/9d6ea09b05afa2c8fc537c372795a294db631311/screenshots/release.png",
+      "modified_at": "2026-11-12T08:55:39Z",
       "name": "LiveContainer vs Feather",
       "package": "comparison.livecontainer-feather",
       "published_at": "2026-10-08T13:03:11Z",
-      "release": "2026-07-17 and 2026-07-05",
+      "release": "LiveContainer nightly 20261108 (2026-11-08) and Feather 2.9.0 (2026-07-05)",
       "selection_pool": "roundup-comparison",
       "slug": "livecontainer-vs-feather-ipa-installer-comparison",
       "source_name": "Official LiveContainer and Feather releases, documentation and source assets",
-      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
-      "source_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/nightly",
+      "source_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/nightly",
       "source_visual_origin": "official-project-release-artwork",
-      "source_visual_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/3.8.0/screenshots/release.png",
-      "title": "LiveContainer vs Feather: Which IPA Installer Fits Your iPhone?",
-      "version": "LiveContainer 3.8.0 vs Feather 2.9.0"
+      "source_visual_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/9d6ea09b05afa2c8fc537c372795a294db631311/screenshots/release.png",
+      "title": "LiveContainer Nightly vs Feather 2.9.0: Which IPA Workflow Fits?",
+      "version": "LiveContainer nightly 20261108 commit 9d6ea09 vs Feather 2.9.0"
     },
     {
       "category": {
@@ -10834,8 +10835,19 @@
       "published_at": "2026-11-12T03:02:00Z",
       "run_id": "scheduled-2026-11-12T03:02:00Z",
       "version": "Guide revision 2026-11-12 / Dopamine 3.0.13 / OpenSSH package version repository-dependent"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "comparison.livecontainer-nightly-20261108-feather-2.9.0-2026-11-12",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "livecontainer-vs-feather-ipa-installer-comparison/",
+      "package": "comparison.livecontainer-feather",
+      "previous_version": "LiveContainer 3.8.0 vs Feather 2.9.0",
+      "published_at": "2026-11-12T08:55:39Z",
+      "run_id": "scheduled-2026-11-12T08:55:39Z",
+      "version": "LiveContainer nightly 20261108 commit 9d6ea09 vs Feather 2.9.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-12T03:02:00Z"
+  "updated_at": "2026-11-12T08:55:39Z"
 }

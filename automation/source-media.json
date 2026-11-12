@@ -407,13 +407,15 @@
     },
     "comparison.livecontainer-feather": {
       "credit_label": "LiveContainer contributors and Samara — official project repositories",
-      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/3.8.0",
+      "source_page_url": "https://github.com/LiveContainer/LiveContainer/releases/tag/nightly",
       "official_source": true,
       "hero": {
-        "url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/3.8.0/screenshots/release.png",
+        "url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/9d6ea09b05afa2c8fc537c372795a294db631311/screenshots/release.png",
         "alt": "Official LiveContainer release artwork showing the Apps, Tweaks and Settings interface",
         "local_path": "assets/articles/source-media/livecontainer-3-8-0-official-interface.png",
-        "git_blob_sha": "5b60bcf74e7be88e67242e82175380ed90cedbec"
+        "git_blob_sha": "5b60bcf74e7be88e67242e82175380ed90cedbec",
+        "sha256": "e118e1db2249bbe08a0b6837c957a1e21b92b8fc51371b2c6945528c6e1bf84b",
+        "retrieval_note": "Verified unchanged at LiveContainer nightly commit 9d6ea09b05afa2c8fc537c372795a294db631311 on 2026-11-12"
       },
       "screenshots": [
         {

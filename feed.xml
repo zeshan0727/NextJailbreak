@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>LiveContainer Nightly vs Feather 2.9.0: Which IPA Workflow Fits?</title>
+      <link>https://nextjailbreak.com/livecontainer-vs-feather-ipa-installer-comparison/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/livecontainer-vs-feather-ipa-installer-comparison/</guid>
+      <pubDate>Thu, 12 Nov 2026 08:55:39 GMT</pubDate>
+      <description>Compare the project-recommended LiveContainer nightly 20261108 with Feather 2.9.0 by release stability, app model, certificates, App IDs, extensions, notifications, JIT and isolation.</description>
+      <category>IPA Installer Comparison</category>
+    </item>
+    <item>
       <title>How to Install OpenSSH on Dopamine 3.0.13 Safely</title>
       <link>https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Tue, 03 Nov 2026 23:00:36 GMT</pubDate>
       <description>Watusi 3 for WhatsApp 1.3.30 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>WifiCrush 1.0.2 Automates Wi-Fi and 5G Switching on iOS 15–26</title>
-      <link>https://nextjailbreak.com/wificrush-1-0-2-wifi-5g-handoff-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/wificrush-1-0-2-wifi-5g-handoff-update/</guid>
-      <pubDate>Mon, 02 Nov 2026 15:00:00 GMT</pubDate>
-      <description>WifiCrush 1.0.2 switches between saved Wi-Fi and mobile data on rootless or RootHide iOS 15–26. Check dependencies, privacy and troubleshooting.</description>
-      <category>Individual Tweak Update</category>
     </item>
   </channel>
 </rss>
