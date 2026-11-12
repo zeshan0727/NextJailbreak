@@ -24,8 +24,16 @@ enum UpcomingWidgetPublisher {
         DispatchQueue.global(qos: .utility).async {
             do {
                 if try UpcomingPaymentsWidgetStorage.save(snapshot) {
+                    // The same minimal upcoming-payments snapshot feeds all
+                    // three stackable widgets. Refresh each timeline on payment.
                     WidgetCenter.shared.reloadTimelines(
                         ofKind: UpcomingPaymentsWidgetStorage.widgetKind
+                    )
+                    WidgetCenter.shared.reloadTimelines(
+                        ofKind: UpcomingPaymentsWidgetStorage.secondWidgetKind
+                    )
+                    WidgetCenter.shared.reloadTimelines(
+                        ofKind: UpcomingPaymentsWidgetStorage.thirdWidgetKind
                     )
                 }
             } catch {
