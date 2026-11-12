@@ -92,6 +92,9 @@ final class BrowserPage: Identifiable {
     init(store: BrowserStore, url: URL) {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        // Playback-first browser: NEVER attach content blocking rules.
+        // Clear legacy rules from the configuration before loading a page.
+        config.userContentController.removeAllContentRuleLists()
         // Only website windows triggered by a real user gesture are allowed.
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
         config.allowsInlineMediaPlayback = true
@@ -114,13 +117,14 @@ final class BrowserPage: Identifiable {
         view.uiDelegate = handler
         view.allowsBackForwardNavigationGestures = true
         view.scrollView.contentInsetAdjustmentBehavior = .automatic
-        store.applyFilters(to: view)
         view.load(URLRequest(url: url))
     }
 
     // WebKit MUST receive a view built with its supplied configuration for
     // target=_blank / window.open players. It performs the navigation itself.
     init(store: BrowserStore, popupConfiguration: WKWebViewConfiguration, url: URL?) {
+        // A target=_blank video player must inherit a clean configuration.
+        popupConfiguration.userContentController.removeAllContentRuleLists()
         let view = WKWebView(frame: .zero, configuration: popupConfiguration)
         let handler = NextWebDelegate(store: store)
         webView = view
@@ -130,7 +134,6 @@ final class BrowserPage: Identifiable {
         view.uiDelegate = handler
         view.allowsBackForwardNavigationGestures = true
         view.scrollView.contentInsetAdjustmentBehavior = .automatic
-        if store.blockAds { store.applyFilters(to: view) }
     }
 }
 
@@ -150,11 +153,13 @@ final class BrowserStore: ObservableObject {
     let library: MovieLibrary
     let downloads: BrowserDownloadStore
     private let bookmarkKey = "nextcast.bookmarks.1"
-    var blockAds = UserDefaults.standard.object(forKey: "browserBlockAds") as? Bool ?? true
+    // Ad-blocker functionality was removed for streaming site compatibility.
+    // No in-app content-rule list is registered, regardless of old preferences.
 
     init(library: MovieLibrary, downloads: BrowserDownloadStore) {
         self.library = library
         self.downloads = downloads
+        UserDefaults.standard.set(false, forKey: "browserBlockAds")
         if let data = UserDefaults.standard.data(forKey: bookmarkKey),
            let decoded = try? JSONDecoder().decode([SavedBookmark].self, from: data) {
             bookmarks = decoded
@@ -227,10 +232,9 @@ final class BrowserStore: ObservableObject {
     }
 
     func browserDiagnosis() {
-        let blocking = blockAds ? "on" : "off"
         let detected = activePlayingMedia == nil ? "no HTML5 video detected" : "HTML5 video detected"
         let issue = lastBrowserError ?? "no top-level navigation failure reported"
-        showMessage = "Ad blocker: \(blocking). Player: \(detected). Browser: \(issue). Some websites do not allow embedded in-app playback. Try Safari Player if the player stays blank."
+        showMessage = "Built-in ad blocker: removed. No WKContentRuleLists are attached. Player: \(detected). Browser: \(issue). If playback remains blank, test Safari Player; some sites disallow embedded browsers."
     }
 
     func refresh(view: WKWebView) {
@@ -384,37 +388,15 @@ final class BrowserStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: bookmarkKey)
     }
 
-    func applyFilters(to view: WKWebView) {
-        guard blockAds else { return }
-        let domains = [
-            "doubleclick[.]net", "googlesyndication[.]com",
-            "adservice[.]google[.]com", "popads[.]net", "popcash[.]net",
-            "propellerads[.]com", "exoclick[.]com",
-            "adnxs[.]com", "taboola[.]com", "outbrain[.]com"
-        ]
-        let rules: [[String: Any]] = domains.map {
-            ["trigger": ["url-filter": ".*" + $0 + ".*"],
-             "action": ["type": "block"]]
-        }
-        guard let data = try? JSONSerialization.data(withJSONObject: rules),
-              let json = String(data: data, encoding: .utf8) else { return }
-        WKContentRuleListStore.default().compileContentRuleList(
-            forIdentifier: "NextCastBlockedAds-v2", encodedContentRuleList: json
-        ) { list, _ in
-            DispatchQueue.main.async {
-                if let list { view.configuration.userContentController.add(list) }
-            }
-        }
+    func reloadUnblockedPage() {
+        // A fresh reload ensures previously blocked scripts get a new chance
+        // to load after removing any legacy rule lists from the active view.
+        guard let page = active else { return }
+        page.webView.configuration.userContentController.removeAllContentRuleLists()
+        lastBrowserError = nil
+        page.webView.reload()
     }
-    func toggleFilter(_ enabled: Bool) {
-        guard blockAds != enabled else { return }
-        blockAds = enabled
-        for page in pages {
-            page.webView.configuration.userContentController.removeAllContentRuleLists()
-            if enabled { applyFilters(to: page.webView) }
-            page.webView.reload()
-        }
-    }
+
 }
 
 struct BrowserWebSurface: UIViewRepresentable {
@@ -544,7 +526,6 @@ struct BrowserTab: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var downloads: BrowserDownloadStore
     @StateObject private var model: BrowserStore
-    @AppStorage("browserBlockAds") private var blockAds = false
     @State private var safariPage: NextCastSafariPage?
     @State private var inputURL = ""
     @State private var showBookmarks = false
@@ -635,11 +616,8 @@ struct BrowserTab: View {
 
                 // Always-visible playback actions, even before media detection.
                 HStack(spacing: 12) {
-                    Button {
-                        if blockAds { blockAds = false }
-                        else { model.activeWebView?.reload() }
-                    } label: {
-                        Label("Fix Player", systemImage: "arrow.clockwise.circle")
+                    Button { model.reloadUnblockedPage() } label: {
+                        Label("Reload Player", systemImage: "arrow.clockwise.circle")
                     }
                     Spacer(minLength: 4)
                     Button {
@@ -705,12 +683,8 @@ struct BrowserTab: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Toggle("Block common ads", isOn: $blockAds)
-                        Button("Try Video Compatibility", systemImage: "play.rectangle") {
-                            // Third-party players sometimes require scripts
-                            // blocked by generic advertising rule lists.
-                            if blockAds { blockAds = false }
-                            else { model.activeWebView?.reload() }
+                        Button("Reload Unblocked Player", systemImage: "play.rectangle") {
+                            model.reloadUnblockedPage()
                         }
                         Button("Save Playing Video", systemImage: "arrow.down.to.line") {
                             model.downloadPlayingVideo()
@@ -738,10 +712,8 @@ struct BrowserTab: View {
                 }
             }
             .onAppear {
-                model.toggleFilter(blockAds)
                 inputURL = model.currentAddress
             }
-            .onChange(of: blockAds) { enabled in model.toggleFilter(enabled) }
             .onChange(of: model.currentAddress) { inputURL = $0 }
             .onChange(of: model.selectedID) { _ in inputURL = model.currentAddress }
             .sheet(item: $safariPage) { page in
