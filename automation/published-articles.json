@@ -2589,34 +2589,39 @@
       "version": "1.2 / 2.6.2"
     },
     {
+      "article_sha256": "7e55a86f46d67d8f867f98ef3d96bfe38a61767d2cc289032d60bc8369cfd9c8",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-openssh-procursus-9.7p1-safe-lan-2026-11-12",
       "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
-      "compat": "Use only on a currently active compatible Dopamine rootless jailbreak. Dopamine 3.0.12 support is device- and firmware-specific; OpenSSH availability does not expand jailbreak compatibility.",
-      "description": "Install the Procursus OpenSSH server on a Dopamine rootless jailbreak, connect as mobile over a trusted LAN, add an SSH key, and remove remote access cleanly.",
+      "compat": "Use only on an active, officially supported Dopamine 3.0.13 rootless jailbreak. Dopamine documents iOS 15.0–17.3.1 for arm64e, iOS 15.0–18.7.1 for listed arm64 and A12/A13 combinations, and iOS 26.0–26.0.1 only for listed A12/A13 combinations; OpenSSH availability does not expand jailbreak compatibility.",
+      "description": "Install OpenSSH on Dopamine 3.0.13 safely, connect as mobile over a trusted LAN, add an SSH key, troubleshoot access and remove the server cleanly.",
       "developer": "Procursus Team / OpenSSH",
       "entry_type": "guide",
       "href": "install-openssh-dopamine-rootless-jailbreak-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
-      "media_alt": "Official green Dopamine jailbreak app icon from the 3.0.12 source tag",
-      "media_credit": "opa334 — official Dopamine app icon; 3.0.12 asset matches the existing committed Git blob",
-      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "modified_at": "2026-10-22T04:56:50Z",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_retrieval_status": "Reused the exact official 192×192 PNG already retrieved and verified from the Dopamine 3.0.13 source tag; the project does not publish a dedicated OpenSSH walkthrough image.",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "modified_at": "2026-11-12T03:02:00Z",
       "name": "OpenSSH on Dopamine safety guide",
       "package": "guide.dopamine.openssh",
       "published_at": "2026-10-22T04:56:50Z",
       "quality_target": 9,
-      "release": "Dopamine 3.0.12 / Procursus OpenSSH repository package",
+      "release": "Guide revision 2026-11-12 / Dopamine 3.0.13 / Procursus public recipe OpenSSH 9.7p1-1",
       "selection_pool": "scheduled-evergreen-guide",
       "slug": "install-openssh-dopamine-rootless-jailbreak-guide",
-      "source_name": "Dopamine 3.0.12 release and README; Procursus OpenSSH build and package scripts; OpenSSH manuals",
+      "source_name": "Dopamine 3.0.13 release and tagged README; current Procursus OpenSSH build and package scripts; OpenSSH 10.6p2 release notes",
       "source_page_url": "https://github.com/ProcursusTeam/Procursus",
       "source_url": "https://github.com/ProcursusTeam/Procursus/blob/main/makefiles/openssh.mk",
       "source_visual_origin": "official-dopamine-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.12/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "How to Install OpenSSH on Dopamine and Connect Safely",
-      "version": "Dopamine 3.0.12 / OpenSSH package version repository-dependent"
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Install OpenSSH on Dopamine 3.0.13 Safely",
+      "version": "Guide revision 2026-11-12 / Dopamine 3.0.13 / OpenSSH package version repository-dependent"
     },
     {
       "category": {
@@ -10818,8 +10823,19 @@
       "published_at": "2026-11-12T00:13:50+00:00",
       "run_id": "43125588004",
       "version": ""
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-openssh-procursus-9.7p1-safe-lan-2026-11-12",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "install-openssh-dopamine-rootless-jailbreak-guide/",
+      "package": "guide.dopamine.openssh",
+      "previous_version": "Dopamine 3.0.12 / OpenSSH package version repository-dependent",
+      "published_at": "2026-11-12T03:02:00Z",
+      "run_id": "scheduled-2026-11-12T03:02:00Z",
+      "version": "Guide revision 2026-11-12 / Dopamine 3.0.13 / OpenSSH package version repository-dependent"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-12T00:13:50+00:00"
+  "updated_at": "2026-11-12T03:02:00Z"
 }
