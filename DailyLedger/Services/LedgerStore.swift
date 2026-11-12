@@ -164,6 +164,7 @@ final class LedgerStore: ObservableObject {
             }
         }
         hasLoaded = true
+        UpcomingWidgetPublisher.publish(store: self)
     }
 
     @discardableResult
