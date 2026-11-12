@@ -319,7 +319,79 @@ final class BrowserStore: ObservableObject {
         let nsError = error as NSError
         guard nsError.code != NSURLErrorCancelled else { return }
         lastBrowserError = "Web view failed: \(nsError.localizedDescription) (\(nsError.domain) \(nsError.code))"
+        NextCastPlaybackLog.shared.append("navigation-failure",
+            "domain=\(nsError.domain) code=\(nsError.code)")
         refresh(view: view)
+    }
+
+
+    func reopenActiveWithBrowserMode() {
+        guard let id = selectedID,
+              let index = pages.firstIndex(where: { $0.id == id }) else { return }
+        let oldPage = pages[index]
+        let url = oldPage.webView.url ?? URL(string: oldPage.address) ?? URL(string: "https://www.google.com")!
+        oldPage.webView.stopLoading()
+        let newPage = BrowserPage(store: self, url: url)
+        pages[index] = newPage
+        if playingMedia?.tabID == id { playingMedia = nil }
+        select(newPage.id)
+        NextCastPlaybackLog.shared.append("browser-mode-recreated", "host=\(url.host ?? "-")")
+    }
+
+    func capturePlaybackSnapshot(completion: @escaping () -> Void) {
+        guard let webView = activeWebView else {
+            NextCastPlaybackLog.shared.append("snapshot-error", "no active webview")
+            completion()
+            return
+        }
+        NextCastPlaybackLog.shared.append("snapshot-start",
+            "host=\(webView.url?.host ?? "-") loading=\(webView.isLoading) progress=\(webView.estimatedProgress)")
+        let script = #"""
+        (function () {
+          var videos = document.querySelectorAll('video');
+          var v = videos.length ? videos[0] : null;
+          var test = document.createElement('video');
+          return JSON.stringify({
+            documentState: document.readyState,
+            videos: videos.length,
+            iframes: document.querySelectorAll('iframe').length,
+            mediaSource: typeof window.MediaSource,
+            managedMediaSource: typeof window.ManagedMediaSource,
+            nativeHLS: test.canPlayType('application/vnd.apple.mpegurl'),
+            mp4H264: test.canPlayType('video/mp4; codecs="avc1.42E01E"'),
+            videoPaused: v ? v.paused : null,
+            videoReady: v ? v.readyState : null,
+            videoNetwork: v ? v.networkState : null,
+            videoError: v && v.error ? v.error.code : 0,
+            videoSrcType: v && v.currentSrc ?
+              (v.currentSrc.indexOf('blob:') === 0 ? 'blob' :
+              v.currentSrc.indexOf('http') === 0 ? 'http' : 'other') : 'none'
+          });
+        })();
+        """#
+        webView.evaluateJavaScript(script) { result, error in
+            DispatchQueue.main.async {
+                if let error {
+                    let ns = error as NSError
+                    NextCastPlaybackLog.shared.append("snapshot-js-error",
+                        "domain=\(ns.domain) code=\(ns.code)")
+                } else {
+                    NextCastPlaybackLog.shared.append("snapshot-result",
+                        String(describing: result ?? "nil"))
+                }
+                completion()
+            }
+        }
+    }
+
+    func receiveDiagnostic(_ message: WKScriptMessage) {
+        guard let payload = message.body as? [String: Any] else { return }
+        let kind = String((payload["kind"] as? String ?? "event").prefix(50))
+        let frame = String((payload["frame"] as? String ?? "").prefix(80))
+        var info = (payload["info"] as? String ?? "")
+        info = info.replacingOccurrences(of: #"https?://\S+"#,
+                                         with: "[url]", options: .regularExpression)
+        NextCastPlaybackLog.shared.append("frame-\(kind)", "origin=\(frame) \(String(info.prefix(140)))")
     }
 
     func browserDiagnosis() {
@@ -504,14 +576,27 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
 
     func userContentController(_ userContentController: WKUserContentController,
                                didReceive message: WKScriptMessage) {
-        guard message.name == "nextcastMedia" else { return }
-        store?.receiveVideoMessage(message)
+        if message.name == "nextcastMedia" {
+            store?.receiveVideoMessage(message)
+        } else if message.name == "nextcastDiagnostic" {
+            store?.receiveDiagnostic(message)
+        }
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        NextCastPlaybackLog.shared.append("navigation-start",
+            "host=\(webView.url?.host ?? "-")")
         store?.refresh(view: webView)
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        NextCastPlaybackLog.shared.append("navigation-finish",
+            "host=\(webView.url?.host ?? "-")")
+        store?.refresh(view: webView)
+    }
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        NextCastPlaybackLog.shared.append("webkit-process-terminated",
+            "host=\(webView.url?.host ?? "-")")
+        store?.lastBrowserError = "WebKit content process terminated"
         store?.refresh(view: webView)
     }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -529,6 +614,11 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
             return
         }
         lastRequest = navigationAction.request
+        if navigationAction.navigationType == .linkActivated ||
+           navigationAction.targetFrame == nil {
+            NextCastPlaybackLog.shared.append("navigation-click",
+                "host=\(url.host ?? "-") popup=\(navigationAction.targetFrame == nil)")
+        }
         // A click on MP4/video is playback unless the website explicitly
         // requests a download (HTML download attribute / WebKit policy).
         if navigationAction.shouldPerformDownload {
@@ -548,6 +638,10 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
                  decidePolicyFor navigationResponse: WKNavigationResponse,
                  decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         let response = navigationResponse.response
+        if navigationResponse.isForMainFrame, let http = response as? HTTPURLResponse {
+            NextCastPlaybackLog.shared.append("navigation-http",
+                "host=\(response.url?.host ?? "-") status=\(http.statusCode) mime=\(response.mimeType ?? "-")")
+        }
         let headers = (response as? HTTPURLResponse)?.allHeaderFields ?? [:]
         let disposition = headers.first(where: {
             String(describing: $0.key).lowercased() == "content-disposition"
@@ -581,6 +675,8 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
             store?.requestDownload(navigationAction.request, view: webView)
             return nil
         }
+        NextCastPlaybackLog.shared.append("popup-request",
+            "host=\(navigationAction.request.url?.host ?? "-")")
         return store?.openPlayerWindow(configuration: configuration, action: navigationAction)
     }
 
