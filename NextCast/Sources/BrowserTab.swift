@@ -860,8 +860,10 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
 struct BrowserTab: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var downloads: BrowserDownloadStore
+    @ObservedObject var cast: CastController
     @StateObject private var model: BrowserStore
     @State private var safariPage: NextCastSafariPage?
+    @State private var vlcCandidate: BrowserStreamCandidate?
     @AppStorage("nextcast.ios16LegacyWebKit") private var legacyWebKit = true
     @AppStorage("nextcast.detailedVideoDiagnostics") private var detailedVideoLogs = false
     @State private var shareLogFile: URL?
@@ -872,9 +874,10 @@ struct BrowserTab: View {
     var openDownloads: () -> Void
 
     init(library: MovieLibrary, downloads: BrowserDownloadStore,
-         openDownloads: @escaping () -> Void) {
+         cast: CastController, openDownloads: @escaping () -> Void) {
         self.library = library
         self.downloads = downloads
+        self.cast = cast
         self.openDownloads = openDownloads
         _model = StateObject(wrappedValue: BrowserStore(library: library, downloads: downloads))
     }
@@ -991,6 +994,73 @@ struct BrowserTab: View {
                 .padding(.vertical, 10)
                 .background(.secondary.opacity(0.07))
 
+
+                // Remote casting works independently of the phone's WebKit
+                // decoder. The receiver itself must support the stream.
+                HStack(spacing: 10) {
+                    BrowserCastPicker()
+                        .frame(width: 42, height: 42)
+                        .accessibilityLabel("Select Google Cast TV")
+                    Button {
+                        if !cast.isConnected {
+                            model.showMessage = "First tap the Cast icon to connect your Chromecast or Google Cast TV."
+                        } else {
+                            model.resolveActiveVideo { candidate in
+                                guard let candidate else { return }
+                                cast.loadWebStream(candidate.url,
+                                    contentType: candidate.contentType,
+                                    title: candidate.title)
+                            }
+                        }
+                    } label: {
+                        Label("Cast Video", systemImage: "tv.and.hifispeaker.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.cyan)
+                    Button {
+                        model.resolveActiveVideo { candidate in
+                            guard let candidate else { return }
+                            vlcCandidate = candidate
+                        }
+                    } label: {
+                        Label("Try VLC", systemImage: "play.tv")
+                            .font(.system(size: 13, weight: .semibold))
+                            .padding(.vertical, 10)
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+
+                if cast.isConnected || cast.nowCastingWebTitle != nil {
+                    HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(cast.nowCastingWebTitle ?? cast.pendingWebTitle ?? cast.tvName)
+                                .font(.caption.weight(.semibold))
+                                .lineLimit(1)
+                            Text(cast.castStatus)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
+                        Spacer(minLength: 3)
+                        if cast.nowCastingWebTitle != nil {
+                            Button { cast.togglePlay() } label: {
+                                Image(systemName: cast.isPlaying ? "pause.fill" : "play.fill")
+                            }
+                            Button { cast.stopRemotePlayback() } label: {
+                                Image(systemName: "stop.fill")
+                            }
+                        }
+                    }
+                    .foregroundStyle(.cyan)
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 6)
+                }
+
                 HStack {
                     Button { model.activeWebView?.goBack() } label: {
                         Image(systemName: "chevron.left")
@@ -1037,6 +1107,24 @@ struct BrowserTab: View {
                         }
                         Button("Save Playing Video", systemImage: "arrow.down.to.line") {
                             model.downloadPlayingVideo()
+                        }
+                        Button("Cast Current Video to TV", systemImage: "tv") {
+                            if !cast.isConnected {
+                                model.showMessage = "Tap the TV Cast icon below the video to select a receiver first."
+                            } else {
+                                model.resolveActiveVideo { candidate in
+                                    guard let candidate else { return }
+                                    cast.loadWebStream(candidate.url,
+                                        contentType: candidate.contentType,
+                                        title: candidate.title)
+                                }
+                            }
+                        }
+                        Button("Try Video in VLC", systemImage: "play.tv") {
+                            model.resolveActiveVideo { candidate in
+                                guard let candidate else { return }
+                                vlcCandidate = candidate
+                            }
                         }
                         if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 16 {
                             Toggle("iOS 16 Legacy WebKit (recommended)", isOn: $legacyWebKit)
@@ -1087,6 +1175,9 @@ struct BrowserTab: View {
             .sheet(item: $safariPage) { page in
                 NextCastSafariPlayer(url: page.url)
                     .ignoresSafeArea()
+            }
+            .sheet(item: $vlcCandidate) { candidate in
+                BrowserStreamVLCPlayer(candidate: candidate)
             }
             .confirmationDialog("Download this file?",
                 isPresented: Binding(get: { model.pendingDownload != nil },
