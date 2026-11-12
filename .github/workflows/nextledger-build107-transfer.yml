@@ -221,3 +221,185 @@ jobs:
             NextLedger-1.3.84-Build107-TransferDesign2-UNSIGNED.sha256
           if-no-files-found: error
           retention-days: 90
+
+  sign_and_publish:
+    name: Sign with Next Ledger mobileprovision and publish to App Bucket
+    needs: build
+    runs-on: macos-15
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      P12_B64: ${{ secrets.NEXTSIGNER_P12_BASE64 }}
+      P12_PASSWORD: ${{ secrets.NEXTSIGNER_P12_PASSWORD }}
+      PROFILE_B64: ${{ secrets.NEXTLEDGER_MOBILEPROVISION_BASE64 || secrets.NEXTSIGNER_MOBILEPROVISION_BASE64 }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_EC2_METADATA_DISABLED: "true"
+    steps:
+      - name: Checkout website and signing helpers
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download compiled Next Ledger Build 107
+        uses: actions/download-artifact@v4
+        with:
+          name: NextLedger-1.3.84-Build107-TransferDesign2-UNSIGNED
+          path: unsigned
+
+      - name: Validate certificate and exact Next Ledger iCloud profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$P12_B64" || { echo 'NEXTSIGNER_P12_BASE64 signing certificate secret missing'; exit 1; }
+          test -n "$P12_PASSWORD" || { echo 'NEXTSIGNER_P12_PASSWORD missing'; exit 1; }
+          test -n "$PROFILE_B64" || { echo 'NEXTLEDGER_MOBILEPROVISION_BASE64 missing; set exact Next Ledger iCloud profile in Actions secrets'; exit 1; }
+          printf '%s' "$P12_B64" | base64 -D > "$RUNNER_TEMP/ledger107.p12"
+          printf '%s' "$PROFILE_B64" | base64 -D > "$RUNNER_TEMP/ledger107.mobileprovision"
+          chmod 600 "$RUNNER_TEMP/ledger107.p12" "$RUNNER_TEMP/ledger107.mobileprovision"
+          security cms -D -i "$RUNNER_TEMP/ledger107.mobileprovision" > "$RUNNER_TEMP/profile.plist"
+          python3 - <<'PY'
+          import os,plistlib,datetime
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])
+          d=plistlib.loads((root/'profile.plist').read_bytes())
+          e=d['Entitlements']
+          expected='T52CDY8W32.com.nextsolution.dailyledger'
+          assert 'next ledger' in d.get('Name','').lower(), 'Wrong profile. Use Next Ledger iCloud profile'
+          assert e.get('application-identifier') == expected,'Provisioned App ID mismatch'
+          assert 'T52CDY8W32' in d.get('TeamIdentifier',[]),'Wrong team'
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.icloud-container-identifiers',[]),'Missing iCloud Documents container'
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.ubiquity-container-identifiers',[]),'Missing ubiquity container'
+          assert any(x in ('CloudDocuments','*') for x in e.get('com.apple.developer.icloud-services',[])),'iCloud services not authorized'
+          assert d['ExpirationDate'] > datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None),'Expired profile'
+          assert bool(d.get('ProvisionedDevices')),'Not an Ad Hoc device profile'
+          signed={
+            'application-identifier':expected,'com.apple.developer.team-identifier':'T52CDY8W32',
+            'get-task-allow':False,
+            'com.apple.developer.icloud-services':['CloudDocuments'],
+            'com.apple.developer.icloud-container-identifiers':['iCloud.com.nextsolution.dailyledger'],
+            'com.apple.developer.ubiquity-container-identifiers':['iCloud.com.nextsolution.dailyledger']
+          }
+          plistlib.dump(signed,(root/'ledger107-entitlements.plist').open('wb'))
+          print('Profile validated for exact Next Ledger bundle ID and CloudDocuments')
+          PY
+
+      - name: Install private Apple Distribution key for codesign
+        shell: bash
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/nextledger107.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 20)"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security import "$RUNNER_TEMP/ledger107.p12" -k "$KEYCHAIN" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | grep -Eo '[[:xdigit:]]{40}' | head -n1)"
+          test -n "$IDENTITY" || { echo 'Distribution private key not available in selected P12'; exit 1; }
+          echo "CODE_SIGN_IDENTITY_SHA1=$IDENTITY" >> "$GITHUB_ENV"
+
+      - name: Codesign Next Ledger and inspect final CloudDocuments entitlements
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORIGINAL="unsigned/NextLedger-1.3.84-Build107-TransferDesign2-UNSIGNED.ipa"
+          test -s "$ORIGINAL"
+          mkdir -p "$RUNNER_TEMP/ledger107-payload"
+          ditto -x -k "$ORIGINAL" "$RUNNER_TEMP/ledger107-payload"
+          APP="$(find "$RUNNER_TEMP/ledger107-payload/Payload" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")" = 'com.nextsolution.dailyledger'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Info.plist")" = '1.3.84'
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$APP/Info.plist")" = '107'
+          cp "$RUNNER_TEMP/ledger107.mobileprovision" "$APP/embedded.mobileprovision"
+          if [ -d "$APP/Frameworks" ]; then
+            while IFS= read -r -d '' NESTED; do
+              codesign --force --sign "$CODE_SIGN_IDENTITY_SHA1" "$NESTED"
+            done < <(find "$APP/Frameworks" -mindepth 1 -maxdepth 1 -name '*.framework' -print0)
+          fi
+          codesign --force --sign "$CODE_SIGN_IDENTITY_SHA1" --entitlements "$RUNNER_TEMP/ledger107-entitlements.plist" "$APP"
+          codesign --verify --strict --verbose=2 "$APP"
+          codesign -d --entitlements :- "$APP" > "$RUNNER_TEMP/signed-entitlements.plist" 2>/dev/null
+          python3 - <<'PY'
+          import plistlib,os
+          from pathlib import Path
+          e=plistlib.loads((Path(os.environ['RUNNER_TEMP'])/'signed-entitlements.plist').read_bytes())
+          assert e.get('application-identifier')=='T52CDY8W32.com.nextsolution.dailyledger'
+          assert e.get('com.apple.developer.icloud-services')==['CloudDocuments']
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.icloud-container-identifiers',[])
+          assert 'iCloud.com.nextsolution.dailyledger' in e.get('com.apple.developer.ubiquity-container-identifiers',[])
+          assert not e.get('get-task-allow',True)
+          print('Verified final signed CloudDocuments entitlement and explicit Next Ledger bundle ID')
+          PY
+          cd "$RUNNER_TEMP/ledger107-payload"
+          ditto -c -k --sequesterRsrc --keepParent Payload "$GITHUB_WORKSPACE/NextLedger-1.3.84-Build107-TransferDesign2-SIGNED.ipa"
+          cd "$GITHUB_WORKSPACE"
+          unzip -t NextLedger-1.3.84-Build107-TransferDesign2-SIGNED.ipa >/dev/null
+          shasum -a 256 NextLedger-1.3.84-Build107-TransferDesign2-SIGNED.ipa > NextLedger-1.3.84-Build107-TransferDesign2-SIGNED.sha256
+
+      - name: Upload verified signed Build 107 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextLedger-1.3.84-Build107-TransferDesign2-SIGNED
+          path: |
+            NextLedger-1.3.84-Build107-TransferDesign2-SIGNED.ipa
+            NextLedger-1.3.84-Build107-TransferDesign2-SIGNED.sha256
+          if-no-files-found: error
+
+      - name: Upload signed IPA to R2 and compare public bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'R2 secrets unavailable'; exit 1; }
+          if ! command -v aws >/dev/null; then brew install awscli; fi
+          FILE='NextLedger-1.3.84-Build107-TransferDesign2-SIGNED.ipa'
+          KEY='apps/ipa/com-nextsolution-dailyledger/1.3.84/com-nextsolution-dailyledger-1.3.84-107.ipa'
+          URL="https://files.nextsolution.cc/$KEY"
+          aws s3 cp "$FILE" "s3://next-signer-apps/$KEY" --endpoint-url 'https://4fe920e259870b0366118a17cc5727e5.r2.cloudflarestorage.com' --content-type application/octet-stream --cache-control 'public, max-age=31536000, immutable' --only-show-errors
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors "$URL" -o "$RUNNER_TEMP/remote.ipa"
+          cmp "$FILE" "$RUNNER_TEMP/remote.ipa"
+          echo "SIGNED_URL=$URL" >> "$GITHUB_ENV"
+          echo "SIGNED_SHA=$(shasum -a 256 "$FILE" | awk '{print $1}')" >> "$GITHUB_ENV"
+          echo "SIGNED_BYTES=$(stat -f %z "$FILE")" >> "$GITHUB_ENV"
+
+      - name: Register signed Build 107 in permanent App Bucket catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,plistlib,json
+          from pathlib import Path
+          p=Path('install/apps.json')
+          doc=json.loads(p.read_text())
+          matches=[a for a in doc.get('apps',[]) if a.get('bundleId')=='com.nextsolution.dailyledger']
+          assert len(matches)==1,'Expected one current Next Ledger entry'
+          app=matches[0]
+          app.update(name='Next Ledger',version='1.3.84',build='107',
+            platform='iPhone',minimumOS='iOS 16.0+',bundleId='com.nextsolution.dailyledger',
+            available=True,status='Ready to install',downloadURL=os.environ['SIGNED_URL'],
+            sha256=os.environ['SIGNED_SHA'],sizeBytes=int(os.environ['SIGNED_BYTES']),
+            storage='Cloudflare R2',duplicateSigned=False,
+            signingProfile='Next Ledger iCloud profile',cloudDocumentsVerified=True)
+          p.write_text(json.dumps(doc,ensure_ascii=False,indent=2)+'\n')
+          manifest=Path('install/com-nextsolution-dailyledger.plist')
+          d=plistlib.loads(manifest.read_bytes())
+          entry=d['items'][0]
+          entry['assets'][0]['url']=os.environ['SIGNED_URL']
+          entry['metadata']['bundle-version']='107'
+          manifest.write_bytes(plistlib.dumps(d,sort_keys=False))
+          PY
+          python3 -m json.tool install/apps.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add install/apps.json install/com-nextsolution-dailyledger.plist
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish signed Next Ledger 1.3.84 Build 107 to App Bucket'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          echo 'Build 107 signed, iCloud verified, uploaded and added to App Bucket.'
