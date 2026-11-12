@@ -82,6 +82,8 @@ struct SavedCycleBudget: Codable, Equatable {
 /// How a recorded expense was allocated in the Budget Performance report.
 /// "automatic" is represented by the absence of a saved assignment.
 enum BudgetMatchKind: String, Codable, CaseIterable, Identifiable {
+    /// Automatic imports retain their recorded category but await user budget allocation.
+    case unassigned
     case fixed
     case grocery
     case fuel
