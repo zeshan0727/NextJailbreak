@@ -38,6 +38,37 @@ struct BudgetCategoryExpensesView: View {
                 } footer: {
                     Text("Changing the recorded category does not change the amount or account. Assigning a fixed installment changes the budget report only.")
                 }
+                Section {
+                    Menu {
+                        Button("Unassigned — Review Later") {
+                            assignAll(BudgetSpendAssignment(kind: .unassigned))
+                        }
+                        if !activePlans.isEmpty {
+                            Section("Fixed expenses & installments") {
+                                ForEach(activePlans) { item in
+                                    Button("Fixed · \(item.title)") {
+                                        assignAll(BudgetSpendAssignment(kind: .fixed, fixedItemID: item.id))
+                                    }
+                                }
+                            }
+                        }
+                        Section("Planned allocations") {
+                            Button("Grocery") { assignAll(BudgetSpendAssignment(kind: .grocery)) }
+                            Button("Fuel") { assignAll(BudgetSpendAssignment(kind: .fuel)) }
+                            Button("Eat Out") { assignAll(BudgetSpendAssignment(kind: .eatOut)) }
+                            Button("Other Planned Expenses") {
+                                assignAll(BudgetSpendAssignment(kind: .other))
+                            }
+                        }
+                    } label: {
+                        Label("Assign all \(records.count) expenses to a budget", systemImage: "checkmark.circle")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .disabled(records.isEmpty)
+                } footer: {
+                    Text("A category-wide assignment can be overridden on any individual expense below.")
+                }
                 Section("Individual expenses") {
                     ForEach(records) { transaction in
                         VStack(alignment: .leading, spacing: 12) {
@@ -154,6 +185,13 @@ struct BudgetCategoryExpensesView: View {
         case .other: return "Other Planned Expenses"
         case .outside: return "Outside Budget"
         }
+    }
+
+    private func assignAll(_ assignment: BudgetSpendAssignment) {
+        guard !records.isEmpty else { return }
+        var plan = store.fixedBudget
+        for item in records { plan.spendAssignments[item.id] = assignment }
+        store.saveFixedBudget(plan) // One atomic write, not one write per expense.
     }
 
     private func saveAssignment(_ id: UUID, _ assignment: BudgetSpendAssignment?) {
