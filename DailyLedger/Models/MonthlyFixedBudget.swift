@@ -135,7 +135,7 @@ struct MonthlyFixedBudget: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case items, groceryPercent, fuelPercent, eatOutPercent
-        case appliedCycle, cycleAllocations, spendAssignments
+        case appliedCycle, cycleAllocations, spendAssignments, pendingBudgetReviewIDs
     }
 
     init(from decoder: Decoder) throws {
@@ -148,6 +148,12 @@ struct MonthlyFixedBudget: Codable, Equatable {
         cycleAllocations = try c.decodeIfPresent([SavedCycleBudget].self, forKey: .cycleAllocations) ?? []
         spendAssignments = try c.decodeIfPresent([UUID: BudgetSpendAssignment].self,
                                                    forKey: .spendAssignments) ?? [:]
+        // Backward compatible: older builds can decode .outside, ignore the new
+        // pending IDs, and still restore all financial transactions and plans.
+        let pending = try c.decodeIfPresent([UUID].self, forKey: .pendingBudgetReviewIDs) ?? []
+        for id in pending where spendAssignments[id]?.kind == .outside {
+            spendAssignments[id] = BudgetSpendAssignment(kind: .unassigned)
+        }
     }
 
     func encode(to encoder: Encoder) throws {
@@ -158,7 +164,18 @@ struct MonthlyFixedBudget: Codable, Equatable {
         try c.encode(eatOutPercent, forKey: .eatOutPercent)
         try c.encodeIfPresent(appliedCycle, forKey: .appliedCycle)
         try c.encode(cycleAllocations, forKey: .cycleAllocations)
-        try c.encode(spendAssignments, forKey: .spendAssignments)
+        // Serialize pending status as an existing .outside budget kind for
+        // Build 108-compatible backup decoding; restore the distinct queue state
+        // via the new optional pendingBudgetReviewIDs key in newer builds.
+        var compatible = spendAssignments
+        let pending = spendAssignments.compactMap { id, mapping -> UUID? in
+            guard mapping.kind == .unassigned else { return nil }
+            compatible[id] = BudgetSpendAssignment(kind: .outside)
+            return id
+        }
+        try c.encode(compatible, forKey: .spendAssignments)
+        try c.encode(pending.sorted { $0.uuidString < $1.uuidString },
+                     forKey: .pendingBudgetReviewIDs)
     }
 
 
