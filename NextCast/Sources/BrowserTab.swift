@@ -25,8 +25,43 @@ struct WebPopupPrompt: Identifiable {
     let originatingTabID: UUID
 }
 
+struct BrowserPlayingMedia: Equatable {
+    let url: URL
+    let referer: String
+    let title: String
+    let tabID: UUID
+
+    var isDirectHTTPFile: Bool {
+        guard ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return false }
+        return ["mp4", "m4v", "mov", "mkv", "webm", "avi"].contains(url.pathExtension.lowercased())
+    }
+}
+
 @MainActor
 final class BrowserPage: Identifiable {
+    // Runs inside video-provider iframes too; never reads cookies or page contents.
+    private static let mediaObserverScript = #"""
+    (function () {
+      if (window.__nextCastVideoObserverInstalled) return;
+      window.__nextCastVideoObserverInstalled = true;
+      function publish(event) {
+        var video = event.target;
+        if (!video || video.tagName !== 'VIDEO') return;
+        var address = video.currentSrc || video.src || '';
+        if (!address) return;
+        try {
+          window.webkit.messageHandlers.nextcastMedia.postMessage({
+            event: event.type,
+            url: address,
+            referer: window.location.href,
+            title: document.title || 'Video'
+          });
+        } catch (_) {}
+      }
+      ['playing', 'loadedmetadata', 'pause', 'ended', 'emptied']
+        .forEach(function (name) { document.addEventListener(name, publish, true); });
+    })();
+    """#
     let id = UUID()
     let webView: WKWebView
     let delegate: NextWebDelegate
@@ -39,12 +74,21 @@ final class BrowserPage: Identifiable {
     init(store: BrowserStore, url: URL) {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        // Only website windows triggered by a real user gesture are allowed.
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
         config.allowsInlineMediaPlayback = true
-        // Every tab has its own independent navigation stack. Cookies may be
-        // shared in the normal WebKit profile for signed-in websites.
-        let view = WKWebView(frame: .zero, configuration: config)
+        config.allowsPictureInPictureMediaPlayback = true
+        config.allowsAirPlayForMediaPlayback = true
+        config.mediaTypesRequiringUserActionForPlayback = []
+        config.defaultWebpagePreferences.allowsContentJavaScript = true
+        // Observe video elements in nested third-party player frames, too.
         let handler = NextWebDelegate(store: store)
+        config.userContentController.add(handler, name: "nextcastMedia")
+        config.userContentController.addUserScript(
+            WKUserScript(source: Self.mediaObserverScript,
+                         injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        )
+        let view = WKWebView(frame: .zero, configuration: config)
         webView = view
         delegate = handler
         address = url.absoluteString
@@ -54,6 +98,21 @@ final class BrowserPage: Identifiable {
         view.scrollView.contentInsetAdjustmentBehavior = .automatic
         store.applyFilters(to: view)
         view.load(URLRequest(url: url))
+    }
+
+    // WebKit MUST receive a view built with its supplied configuration for
+    // target=_blank / window.open players. It performs the navigation itself.
+    init(store: BrowserStore, popupConfiguration: WKWebViewConfiguration, url: URL?) {
+        let view = WKWebView(frame: .zero, configuration: popupConfiguration)
+        let handler = NextWebDelegate(store: store)
+        webView = view
+        delegate = handler
+        address = url?.absoluteString ?? "about:blank"
+        view.navigationDelegate = handler
+        view.uiDelegate = handler
+        view.allowsBackForwardNavigationGestures = true
+        view.scrollView.contentInsetAdjustmentBehavior = .automatic
+        if store.blockAds { store.applyFilters(to: view) }
     }
 }
 
@@ -66,12 +125,13 @@ final class BrowserStore: ObservableObject {
     @Published var pendingDownload: WebDownloadPrompt?
     @Published var pendingPopup: WebPopupPrompt?
     @Published var showMessage: String?
+    @Published var playingMedia: BrowserPlayingMedia?
     @Published var bookmarks: [SavedBookmark] = []
 
     let library: MovieLibrary
     let downloads: BrowserDownloadStore
     private let bookmarkKey = "nextcast.bookmarks.1"
-    var blockAds = true
+    var blockAds = UserDefaults.standard.object(forKey: "browserBlockAds") as? Bool ?? true
 
     init(library: MovieLibrary, downloads: BrowserDownloadStore) {
         self.library = library
@@ -87,6 +147,10 @@ final class BrowserStore: ObservableObject {
         pages.first { $0.id == selectedID }
     }
     var activeWebView: WKWebView? { active?.webView }
+    var activePlayingMedia: BrowserPlayingMedia? {
+        guard let media = playingMedia, media.tabID == selectedID else { return nil }
+        return media
+    }
     var canBack: Bool { active?.canBack ?? false }
     var canForward: Bool { active?.canForward ?? false }
 
@@ -110,6 +174,7 @@ final class BrowserStore: ObservableObject {
         guard let index = pages.firstIndex(where: { $0.id == id }) else { return }
         let page = pages.remove(at: index)
         page.webView.stopLoading()
+        if playingMedia?.tabID == id { playingMedia = nil }
         if pages.isEmpty {
             addTab()
         } else if selectedID == id {
@@ -180,7 +245,8 @@ final class BrowserStore: ObservableObject {
                             request.setValue(cookieValue, forHTTPHeaderField: "Cookie")
                         }
                     }
-                    if let referer = tab.webView.url?.absoluteString {
+                    if request.value(forHTTPHeaderField: "Referer") == nil,
+                       let referer = tab.webView.url?.absoluteString {
                         request.setValue(referer, forHTTPHeaderField: "Referer")
                     }
                     TransferStore.shared.start(request, origin: "Browser")
@@ -197,6 +263,65 @@ final class BrowserStore: ObservableObject {
             }
         }
     }
+    func openPlayerWindow(configuration: WKWebViewConfiguration,
+                          action: WKNavigationAction) -> WKWebView? {
+        guard pages.count < 16 else {
+            showMessage = "Video site opened too many windows (16 tabs maximum)."
+            return nil
+        }
+        if let url = action.request.url {
+            guard ["http", "https", "about"].contains(url.scheme?.lowercased() ?? "") else {
+                return nil
+            }
+        }
+        let page = BrowserPage(store: self, popupConfiguration: configuration,
+                               url: action.request.url)
+        pages.append(page)
+        select(page.id)
+        return page.webView
+    }
+
+    func receiveVideoMessage(_ message: WKScriptMessage) {
+        guard let view = message.webView,
+              let page = pages.first(where: { $0.webView === view }),
+              let payload = message.body as? [String: Any],
+              let raw = payload["url"] as? String,
+              let url = URL(string: raw) else { return }
+        let event = payload["event"] as? String ?? ""
+        if event == "ended" || event == "emptied" {
+            if playingMedia?.tabID == page.id && playingMedia?.url == url {
+                playingMedia = nil
+            }
+            return
+        }
+        guard event == "playing" || event == "loadedmetadata",
+              ["http", "https", "blob"].contains(url.scheme?.lowercased() ?? "") else { return }
+        playingMedia = BrowserPlayingMedia(
+            url: url,
+            referer: payload["referer"] as? String ?? "",
+            title: payload["title"] as? String ?? "Video",
+            tabID: page.id
+        )
+    }
+
+    func downloadPlayingVideo() {
+        guard let media = activePlayingMedia,
+              let page = pages.first(where: { $0.id == media.tabID }) else {
+            showMessage = "Start playing a video to detect its media address."
+            return
+        }
+        guard media.isDirectHTTPFile else {
+            showMessage = "This player uses a stream or protected media address, not a direct downloadable video file. Use the site's own offline option if offered."
+            return
+        }
+        var request = URLRequest(url: media.url)
+        if let refererURL = URL(string: media.referer),
+           ["http", "https"].contains(refererURL.scheme?.lowercased() ?? "") {
+            request.setValue(refererURL.absoluteString, forHTTPHeaderField: "Referer")
+        }
+        requestDownload(request, view: page.webView)
+    }
+
     func offerPopup(_ url: URL, from webView: WKWebView) {
         guard let tab = pages.first(where: { $0.webView === webView }) else { return }
         pendingPopup = WebPopupPrompt(url: url, originatingTabID: tab.id)
@@ -249,6 +374,7 @@ final class BrowserStore: ObservableObject {
         }
     }
     func toggleFilter(_ enabled: Bool) {
+        guard blockAds != enabled else { return }
         blockAds = enabled
         for page in pages {
             page.webView.configuration.userContentController.removeAllContentRuleLists()
@@ -265,15 +391,15 @@ struct BrowserWebSurface: UIViewRepresentable {
 }
 
 @MainActor
-final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
+final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, WKScriptMessageHandler {
     weak var store: BrowserStore?
     private var lastRequest: URLRequest?
     init(store: BrowserStore) { self.store = store }
 
-    private func looksLikeDownload(_ url: URL) -> Bool {
-        let ext = url.pathExtension.lowercased()
-        return VideoFormats.extensions.contains(ext) ||
-            ["pdf", "zip", "rar", "7z", "txt", "srt", "vtt", "jpg", "png", "apk", "ipa", "tipa"].contains(ext)
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage) {
+        guard message.name == "nextcastMedia" else { return }
+        store?.receiveVideoMessage(message)
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
@@ -297,16 +423,16 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
             return
         }
         lastRequest = navigationAction.request
-        let download = navigationAction.shouldPerformDownload ||
-            (navigationAction.navigationType == .linkActivated && looksLikeDownload(url))
-        if download {
+        // A click on MP4/video is playback unless the website explicitly
+        // requests a download (HTML download attribute / WebKit policy).
+        if navigationAction.shouldPerformDownload {
             store?.requestDownload(navigationAction.request, view: webView)
             decisionHandler(.cancel)
             return
         }
         if navigationAction.targetFrame == nil {
-            store?.offerPopup(url, from: webView)
-            decisionHandler(.cancel)
+            // Allow WebKit's UI delegate to create a real target window.
+            decisionHandler(.allow)
             return
         }
         decisionHandler(.allow)
@@ -345,14 +471,17 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for navigationAction: WKNavigationAction,
                  windowFeatures: WKWindowFeatures) -> WKWebView? {
-        if let url = navigationAction.request.url {
-            if navigationAction.shouldPerformDownload || looksLikeDownload(url) {
-                store?.requestDownload(navigationAction.request, view: webView)
-            } else {
-                store?.offerPopup(url, from: webView)
-            }
+        if navigationAction.shouldPerformDownload {
+            store?.requestDownload(navigationAction.request, view: webView)
+            return nil
         }
-        return nil
+        return store?.openPlayerWindow(configuration: configuration, action: navigationAction)
+    }
+
+    func webViewDidClose(_ webView: WKWebView) {
+        guard let store,
+              let page = store.pages.first(where: { $0.webView === webView }) else { return }
+        store.close(page.id)
     }
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
@@ -450,6 +579,24 @@ struct BrowserTab: View {
                     BrowserWebSurface(page: page)
                         .id(page.id)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .overlay(alignment: .topTrailing) {
+                            if let media = model.activePlayingMedia {
+                                Button {
+                                    model.downloadPlayingVideo()
+                                } label: {
+                                    Label(media.isDirectHTTPFile ? "Save Video" : "Stream Info",
+                                          systemImage: media.isDirectHTTPFile ? "arrow.down.to.line" : "info.circle")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 9)
+                                        .background(.regularMaterial, in: Capsule())
+                                }
+                                .foregroundStyle(.cyan)
+                                .padding(12)
+                                .accessibilityLabel(media.isDirectHTTPFile ?
+                                                    "Save playing video" : "Video stream information")
+                            }
+                        }
                 }
 
                 HStack {
@@ -494,6 +641,15 @@ struct BrowserTab: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Toggle("Block common ads", isOn: $blockAds)
+                        Button("Try Video Compatibility", systemImage: "play.rectangle") {
+                            // Third-party players sometimes require scripts
+                            // blocked by generic advertising rule lists.
+                            if blockAds { blockAds = false }
+                            else { model.activeWebView?.reload() }
+                        }
+                        Button("Save Playing Video", systemImage: "arrow.down.to.line") {
+                            model.downloadPlayingVideo()
+                        }
                         Button("New Tab", systemImage: "plus") { model.addTab() }
                         Button("Download current URL", systemImage: "arrow.down") {
                             if let url = model.activeWebView?.url,
