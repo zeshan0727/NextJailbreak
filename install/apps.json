@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-nextcast",
+      "name": "Next Cast",
+      "version": "1.5.3",
+      "build": "27",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.nextcast",
+      "icon": "/install/icons/com-nextsolution-nextcast-be5d4c06b473.png",
+      "manifest": "/install/com-nextsolution-nextcast.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-nextcast/1.5.3/com-nextsolution-nextcast-1.5.3-27.ipa",
+      "sha256": "be5d4c06b47376e2287e8166368272ed3d86c427571b0cd11fbe9e5ff75e0ef1",
+      "sizeBytes": 28637025,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-njapps",
       "name": "App Bucket",
       "version": "1.0.4",
@@ -247,27 +268,6 @@
       "tweakCount": 0,
       "customIcon": false,
       "signedByNextSigner": true
-    },
-    {
-      "id": "com-nextsolution-nextcast",
-      "name": "Next Cast",
-      "version": "1.4.0",
-      "build": "14",
-      "platform": "iPhone",
-      "minimumOS": "iOS 16.0+",
-      "bundleId": "com.nextsolution.nextcast",
-      "icon": "/install/icons/com-nextsolution-nextcast-11553da48f7b.png",
-      "manifest": "/install/com-nextsolution-nextcast.plist",
-      "available": true,
-      "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-nextcast/1.4.0/com-nextsolution-nextcast-1.4.0-14.ipa",
-      "sha256": "11553da48f7b9fdcc26ab427efe70cfda3f7435dbf26d23a1cfc8d86f97c619c",
-      "sizeBytes": 20470543,
-      "storage": "Cloudflare R2",
-      "duplicateSigned": false,
-      "tweakCount": 0,
-      "customIcon": false,
-      "signedByNextSigner": false
     },
     {
       "id": "com-nextsolution-storage",
