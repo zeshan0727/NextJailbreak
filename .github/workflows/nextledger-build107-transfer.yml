@@ -328,6 +328,15 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
           IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | grep -Eo '[[:xdigit:]]{40}' | head -n1)"
           test -n "$IDENTITY" || { echo 'Distribution private key not available in selected P12'; exit 1; }
+          python3 - "$IDENTITY" <<'PY'
+          import sys,hashlib,plistlib,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'profile.plist'
+          d=plistlib.loads(p.read_bytes())
+          allowed={hashlib.sha1(cert).hexdigest().upper() for cert in d.get('DeveloperCertificates',[])}
+          assert sys.argv[1].upper() in allowed, 'P12 certificate does not match the selected Next Ledger mobileprovision certificate'
+          print('Signing private key matches a certificate authorized by Next Ledger iCloud profile')
+          PY
           echo "CODE_SIGN_IDENTITY_SHA1=$IDENTITY" >> "$GITHUB_ENV"
 
       - name: Codesign Next Ledger and inspect final CloudDocuments entitlements
