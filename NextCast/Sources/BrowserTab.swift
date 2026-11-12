@@ -2,6 +2,7 @@ import SwiftUI
 import WebKit
 import SafariServices
 import Combine
+import GoogleCast
 
 private struct NextCastSafariPage: Identifiable {
     let id = UUID()
@@ -55,6 +56,76 @@ private struct NextCastPlaybackShareSheet: UIViewControllerRepresentable {
         UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
     }
     func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
+}
+
+
+struct BrowserStreamCandidate: Identifiable {
+    let id = UUID()
+    let url: URL
+    let title: String
+    let contentType: String
+    let referer: String
+
+    var typeSummary: String {
+        contentType + " • " + (url.host ?? "remote")
+    }
+}
+
+private struct BrowserStreamVLCPlayer: View {
+    let candidate: BrowserStreamCandidate
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var player = VLCPlayback()
+    private let refreshTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 14) {
+                VLCVideoSurface(player: player)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 260)
+                    .background(.black)
+                Text(candidate.title).font(.headline).lineLimit(2)
+                Text(candidate.typeSummary).font(.caption).foregroundStyle(.secondary)
+                HStack(spacing: 28) {
+                    Button { player.skip(-10) } label: { Image(systemName: "gobackward.10") }
+                    Button { player.togglePlay() } label: {
+                        Image(systemName: player.playing ? "pause.fill" : "play.fill")
+                    }
+                    Button { player.skip(10) } label: { Image(systemName: "goforward.10") }
+                }
+                .font(.title2)
+                Text("VLC supports additional media formats, but the site must permit direct access to the stream.")
+                    .font(.footnote).foregroundStyle(.secondary)
+                    .padding(.horizontal)
+                Spacer(minLength: 0)
+            }
+            .padding(.top, 12)
+            .navigationTitle("Try VLC Stream")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .onAppear {
+                player.open(candidate.url)
+                player.play()
+                NextCastPlaybackLog.shared.append("vlc-web-attempt",
+                    "host=\(candidate.url.host ?? "-") format=\(candidate.contentType)")
+            }
+            .onReceive(refreshTimer) { _ in player.refresh() }
+            .onDisappear { player.stop() }
+        }
+    }
+}
+
+private struct BrowserCastPicker: UIViewRepresentable {
+    func makeUIView(context: Context) -> GCKUICastButton {
+        let button = GCKUICastButton(frame: .init(x: 0, y: 0, width: 42, height: 42))
+        button.tintColor = .systemTeal
+        return button
+    }
+    func updateUIView(_ uiView: GCKUICastButton, context: Context) {}
 }
 
 struct SavedBookmark: Codable, Identifiable, Equatable {
@@ -502,6 +573,83 @@ final class BrowserStore: ObservableObject {
             title: payload["title"] as? String ?? "Video",
             tabID: page.id
         )
+    }
+
+
+    /// Captures HTML5 video addresses on demand. Works even if video.error
+    /// is already set because iOS 16 WebKit cannot decode the stream.
+    func resolveActiveVideo(_ completion: @escaping (BrowserStreamCandidate?) -> Void) {
+        guard let webView = activeWebView else {
+            showMessage = "Open a webpage containing an HTML5 video first."
+            completion(nil)
+            return
+        }
+        let script = #"""
+        (function () {
+          var videos = Array.from(document.querySelectorAll('video'));
+          var video = videos.find(function(v) {
+            return !!(v.currentSrc || v.src || v.querySelector('source[src]'));
+          }) || videos[0];
+          if (!video) return null;
+          var firstSource = video.querySelector('source[src]');
+          var raw = video.currentSrc || video.src ||
+                    (firstSource ? firstSource.src : '') || '';
+          if (!raw) return null;
+          return {
+            url: String(raw),
+            type: String(video.getAttribute('type') ||
+                         (firstSource ? firstSource.getAttribute('type') : '') || ''),
+            title: String(document.title || 'Web Video'),
+            referer: String(location.href),
+            errorCode: video.error ? video.error.code : 0
+          };
+        })();
+        """#
+        webView.evaluateJavaScript(script) { [weak self] result, error in
+            DispatchQueue.main.async {
+                guard let self else { completion(nil); return }
+                guard error == nil, let dict = result as? [String: Any],
+                      let raw = dict["url"] as? String,
+                      let url = URL(string: raw),
+                      ["https", "http"].contains(url.scheme?.lowercased() ?? "") else {
+                    NextCastPlaybackLog.shared.append("video-resolve-failed",
+                        "html5_video_url_absent_or_non_http")
+                    self.showMessage = "No direct HTTP video stream was found in the current page. This button cannot cast blob, protected, or hidden player sources."
+                    completion(nil)
+                    return
+                }
+                let rawMIME = (dict["type"] as? String ?? "")
+                    .components(separatedBy: ";").first?
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .lowercased() ?? ""
+                let ext = url.pathExtension.lowercased()
+                let type: String
+                switch ext {
+                case "m3u8": type = "application/x-mpegurl"
+                case "mpd": type = "application/dash+xml"
+                case "mp4", "m4v": type = "video/mp4"
+                case "webm": type = "video/webm"
+                case "ts", "m2ts": type = "video/mp2t"
+                case "mov": type = "video/quicktime"
+                default:
+                    type = rawMIME.isEmpty ? "video/mp4" : rawMIME
+                    if rawMIME.isEmpty {
+                        NextCastPlaybackLog.shared.append("stream-type-guess",
+                            "host=\(url.host ?? "-") assumed=video/mp4")
+                    }
+                }
+                let candidate = BrowserStreamCandidate(
+                    url: url,
+                    title: (dict["title"] as? String ?? "Web Video"),
+                    contentType: type,
+                    referer: (dict["referer"] as? String ?? "")
+                )
+                let code = dict["errorCode"] as? Int ?? 0
+                NextCastPlaybackLog.shared.append("video-resolved",
+                    "host=\(url.host ?? "-") mime=\(type) mediaError=\(code)")
+                completion(candidate)
+            }
+        }
     }
 
     func downloadPlayingVideo() {
