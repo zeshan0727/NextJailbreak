@@ -378,7 +378,7 @@ struct MoviesTab: View {
 struct SettingsTab: View {
     @ObservedObject var library: MovieLibrary
     @AppStorage("appearance") private var appearance = "system"
-    @AppStorage("browserBlockAds") private var browserBlockAds = true
+    @AppStorage("browserBlockAds") private var browserBlockAds = false
     @AppStorage("nextcast.keepLocalCastWhileLocked") private var keepLocalCastWhileLocked = true
     var body: some View {
         NavigationStack {
@@ -392,7 +392,7 @@ struct SettingsTab: View {
                 }
                 Section("Browser protection") {
                     Toggle("Block common ad networks", isOn: $browserBlockAds)
-                    Text("Pop-ups require explicit approval. Ad filtering is best-effort and cannot remove all advertising.")
+                    Text("Leave ad blocking off when testing embedded video players. Some sites load their player from additional domains.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("TV playback while locked") {
@@ -413,7 +413,9 @@ struct SettingsTab: View {
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("About") {
-                    LabeledContent("App", value: "Next Cast 1.5.0")
+                    LabeledContent("App", value: "Next Cast")
+                    LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown")
+                    LabeledContent("Build", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown")
                     LabeledContent("Credits", value: "Next Jailbreak – Zeshan0727")
                     LabeledContent("Playback", value: "MobileVLCKit")
                     LabeledContent("Casting", value: "Google Cast")
