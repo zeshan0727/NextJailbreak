@@ -378,7 +378,6 @@ struct MoviesTab: View {
 struct SettingsTab: View {
     @ObservedObject var library: MovieLibrary
     @AppStorage("appearance") private var appearance = "system"
-    @AppStorage("browserBlockAds") private var browserBlockAds = false
     @AppStorage("nextcast.keepLocalCastWhileLocked") private var keepLocalCastWhileLocked = true
     var body: some View {
         NavigationStack {
@@ -390,9 +389,9 @@ struct SettingsTab: View {
                         Text("Dark").tag("dark")
                     }.pickerStyle(.segmented)
                 }
-                Section("Browser protection") {
-                    Toggle("Block common ad networks", isOn: $browserBlockAds)
-                    Text("Leave ad blocking off when testing embedded video players. Some sites load their player from additional domains.")
+                Section("Website video compatibility") {
+                    LabeledContent("Built-in content blocker", value: "Disabled")
+                    Text("Next Cast allows third-party video player scripts and media domains. Sites may show advertising or pop-up windows. No content-filtering rules are installed by this browser.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("TV playback while locked") {
