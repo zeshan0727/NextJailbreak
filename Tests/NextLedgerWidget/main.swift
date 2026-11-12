@@ -123,7 +123,13 @@ defaults.set(2, forKey: "NextLedger.WidgetPage.IndexV1")
 assertWidget(UpcomingWidgetPager.selectedIndex(for: nextCycle, defaults: defaults) == 0,
              "new budget cycle resets the small widget to the nearest payment")
 let backupAfterPaging = try JSONEncoder().encode(sample)
-assertWidget(backupAfterPaging == encodedSnapshot,
+// JSONEncoder does not guarantee byte-identical dictionary key ordering.
+// Verify semantic payload integrity, not raw serialized key order.
+let restoredAfterPaging = try JSONDecoder().decode(
+    UpcomingPaymentsWidgetSnapshot.self, from: backupAfterPaging)
+let restoredBeforePaging = try JSONDecoder().decode(
+    UpcomingPaymentsWidgetSnapshot.self, from: encodedSnapshot)
+assertWidget(restoredAfterPaging == restoredBeforePaging,
              "widget paging never changes the saved financial widget payload")
 defaults.removePersistentDomain(forName: "nextledger-widget-pager-build111-tests")
 print("Build 111 widgets: iOS17 paging, iOS16 stack offsets, wraparound and cycle reset passed.")
