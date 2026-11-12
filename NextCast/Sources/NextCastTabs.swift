@@ -70,6 +70,30 @@ struct NextCastTabs: View {
                 }
                 .padding(.horizontal, 15).padding(.vertical, 11)
                 .background(.regularMaterial)
+            } else if let webTitle = cast.nowCastingWebTitle {
+                HStack(spacing: 12) {
+                    Button {
+                        tab = 2
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "tv.fill").foregroundStyle(.cyan)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(webTitle).lineLimit(1).font(.caption.bold())
+                                Text(cast.castStatus).lineLimit(1).font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer(minLength: 3)
+                        }
+                    }.buttonStyle(.plain)
+                    Button { cast.togglePlay() } label: {
+                        Image(systemName: cast.isPlaying ? "pause.fill" : "play.fill")
+                    }.accessibilityLabel(cast.isPlaying ? "Pause TV" : "Play TV")
+                    Button { cast.stopRemotePlayback() } label: {
+                        Image(systemName: "stop.fill")
+                    }.accessibilityLabel("Stop web video on TV")
+                }
+                .padding(.horizontal, 15).padding(.vertical, 11)
+                .background(.regularMaterial)
             }
         }
         .sheet(isPresented: $showTVControls) {
