@@ -20,6 +20,43 @@ private struct NextCastSafariPlayer: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
 }
 
+
+@MainActor
+final class NextCastPlaybackLog {
+    static let shared = NextCastPlaybackLog()
+    private var lines: [String] = []
+
+    func append(_ event: String, _ detail: String = "") {
+        // Never deliberately record complete URLs, cookies, or page contents.
+        let safe = detail.replacingOccurrences(of: #"https?://\S+"#,
+            with: "[url]", options: .regularExpression)
+        lines.append("[\(ISO8601DateFormatter().string(from: Date()))] \(event): \(String(safe.prefix(250)))")
+        if lines.count > 400 { lines.removeFirst(lines.count - 400) }
+    }
+
+    func exportFile() -> URL? {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+        let legacy = UserDefaults.standard.object(forKey: "nextcast.ios16LegacyWebKit") as? Bool ?? true
+        let detailed = UserDefaults.standard.bool(forKey: "nextcast.detailedVideoDiagnostics")
+        let header = "Next Cast Playback Diagnostic\nVersion: \(version) build \(build)\niOS: \(UIDevice.current.systemVersion)\nLegacy WebKit: \(legacy)\nDetailed logs: \(detailed)\nBuilt-in ad blocker: removed\nNo media URLs or cookies intentionally collected.\n---\n"
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("NextCast-Playback-\(UUID().uuidString.prefix(8)).txt")
+        do {
+            try (header + lines.joined(separator: "\n") + "\n")
+                .write(to: file, atomically: true, encoding: .utf8)
+            return file
+        } catch { return nil }
+    }
+}
+
+private struct NextCastPlaybackShareSheet: UIViewControllerRepresentable {
+    let fileURL: URL
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+    }
+    func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
+}
+
 struct SavedBookmark: Codable, Identifiable, Equatable {
     var id = UUID()
     let title: String
@@ -80,6 +117,44 @@ final class BrowserPage: Identifiable {
         .forEach(function (name) { document.addEventListener(name, publish, true); });
     })();
     """#
+
+    private static let diagnosticScript = #"""
+    (function () {
+      if (window.__nextCastProbeInstalled) return;
+      window.__nextCastProbeInstalled = true;
+      function report(kind, info) {
+        try {
+          window.webkit.messageHandlers.nextcastDiagnostic.postMessage({
+            kind: kind, info: String(info || '').slice(0, 180),
+            frame: location.hostname || '(none)'
+          });
+        } catch (_) {}
+      }
+      report('frame-ready', document.readyState);
+      window.addEventListener('error', function (event) {
+        report('js-error', event.message || 'resource-error');
+      }, true);
+      window.addEventListener('unhandledrejection', function (event) {
+        report('promise-rejection', String(event.reason || 'unknown'));
+      });
+      ['play', 'playing', 'waiting', 'stalled', 'error'].forEach(function (name) {
+        document.addEventListener(name, function (event) {
+          if (event.target && event.target.tagName === 'VIDEO') {
+            var v = event.target;
+            report('video-' + name, 'ready=' + v.readyState +
+                   ',network=' + v.networkState +
+                   ',code=' + (v.error ? v.error.code : 0));
+          }
+        }, true);
+      });
+      document.addEventListener('click', function (event) {
+        var el = event.target;
+        if (el && el.closest && el.closest('button,[role=button],video')) {
+          report('player-click', el.tagName || 'element');
+        }
+      }, true);
+    })();
+    """#
     let id = UUID()
     let webView: WKWebView
     let delegate: NextWebDelegate
@@ -95,21 +170,37 @@ final class BrowserPage: Identifiable {
         // Playback-first browser: NEVER attach content blocking rules.
         // Clear legacy rules from the configuration before loading a page.
         config.userContentController.removeAllContentRuleLists()
-        // Only website windows triggered by a real user gesture are allowed.
+        // iOS 16 defaults to the 1.4.0-era minimal WKWebView media setup.
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
         config.allowsInlineMediaPlayback = true
-        config.allowsPictureInPictureMediaPlayback = true
-        config.allowsAirPlayForMediaPlayback = true
-        config.mediaTypesRequiringUserActionForPlayback = []
-        config.defaultWebpagePreferences.allowsContentJavaScript = true
-        // Observe video elements in nested third-party player frames, too.
+        let legacyOption = UserDefaults.standard.object(forKey: "nextcast.ios16LegacyWebKit") as? Bool ?? true
+        let legacy = ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 16 && legacyOption
+        let detailed = UserDefaults.standard.bool(forKey: "nextcast.detailedVideoDiagnostics")
         let handler = NextWebDelegate(store: store)
-        config.userContentController.add(handler, name: "nextcastMedia")
-        config.userContentController.addUserScript(
-            WKUserScript(source: Self.mediaObserverScript,
-                         injectionTime: .atDocumentStart, forMainFrameOnly: false)
-        )
+        if !legacy {
+            config.allowsPictureInPictureMediaPlayback = true
+            config.allowsAirPlayForMediaPlayback = true
+            config.mediaTypesRequiringUserActionForPlayback = []
+            config.defaultWebpagePreferences.allowsContentJavaScript = true
+        }
+        if !legacy || detailed {
+            config.userContentController.add(handler, name: "nextcastMedia")
+            config.userContentController.addUserScript(
+                WKUserScript(source: Self.mediaObserverScript,
+                             injectionTime: .atDocumentStart, forMainFrameOnly: false)
+            )
+        }
+        if detailed {
+            config.userContentController.add(handler, name: "nextcastDiagnostic")
+            config.userContentController.addUserScript(
+                WKUserScript(source: Self.diagnosticScript,
+                             injectionTime: .atDocumentStart, forMainFrameOnly: false)
+            )
+        }
         let view = WKWebView(frame: .zero, configuration: config)
+        if #available(iOS 16.4, *) { view.isInspectable = true }
+        NextCastPlaybackLog.shared.append("browser-init",
+             "ios=\(UIDevice.current.systemVersion) legacy=\(legacy) detailed=\(detailed) filters=none")
         webView = view
         delegate = handler
         address = url.absoluteString
