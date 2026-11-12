@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import AppIntents
 
 private enum WidgetPalette {
     static let blue = Color(red: 0.20, green: 0.26, blue: 0.90)
@@ -12,12 +13,14 @@ private enum WidgetPalette {
 private struct UpcomingPaymentsEntry: TimelineEntry {
     let date: Date
     let snapshot: UpcomingPaymentsWidgetSnapshot?
+    let selectedPaymentIndex: Int
 }
 
 private struct UpcomingPaymentsProvider: TimelineProvider {
     func placeholder(in context: Context) -> UpcomingPaymentsEntry {
         UpcomingPaymentsEntry(
             date: Date(),
+            selectedPaymentIndex: 0,
             snapshot: UpcomingPaymentsWidgetSnapshot(
                 version: 1, generatedAt: Date(),
                 cycleStart: Calendar.current.startOfDay(for: Date()),
@@ -35,15 +38,25 @@ private struct UpcomingPaymentsProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (UpcomingPaymentsEntry) -> Void) {
+        let snapshot = UpcomingPaymentsWidgetStorage.load()
         completion(UpcomingPaymentsEntry(
-            date: Date(), snapshot: UpcomingPaymentsWidgetStorage.load()
+            date: Date(),
+            snapshot: snapshot,
+            selectedPaymentIndex: snapshot.map {
+                UpcomingWidgetPager.selectedIndex(for: $0)
+            } ?? 0
         ))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<UpcomingPaymentsEntry>) -> Void) {
         let now = Date()
         let snapshot = UpcomingPaymentsWidgetStorage.load()
-        let entry = UpcomingPaymentsEntry(date: now, snapshot: snapshot)
+        let entry = UpcomingPaymentsEntry(
+            date: now, snapshot: snapshot,
+            selectedPaymentIndex: snapshot.map {
+                UpcomingWidgetPager.selectedIndex(for: $0)
+            } ?? 0
+        )
         // WidgetKit controls the final refresh time. Timelines also reload
         // proactively after an expense or budget update in the main app.
         let nextMidnight = Calendar.current.nextDate(
@@ -58,6 +71,8 @@ private struct UpcomingPaymentsProvider: TimelineProvider {
 private struct NextLedgerUpcomingPaymentsView: View {
     @Environment(\.widgetFamily) private var family
     let entry: UpcomingPaymentsEntry
+    /// Zero = original widget; 1/2 = further payments in a swipeable iOS Home Screen stack.
+    let pageOffset: Int
 
     private var snapshot: UpcomingPaymentsWidgetSnapshot? {
         guard let snapshot = entry.snapshot, snapshot.isCurrent(on: entry.date) else { return nil }
@@ -65,6 +80,17 @@ private struct NextLedgerUpcomingPaymentsView: View {
     }
 
     private var payments: [UpcomingWidgetPayment] { snapshot?.payments ?? [] }
+    private var visiblePaymentIndex: Int {
+        UpcomingWidgetPager.displayIndex(
+            selectedIndex: entry.selectedPaymentIndex,
+            staticOffset: pageOffset,
+            count: payments.count
+        )
+    }
+    private var visiblePayment: UpcomingWidgetPayment? {
+        guard !payments.isEmpty else { return nil }
+        return payments[visiblePaymentIndex]
+    }
     private var currency: String { snapshot?.currency ?? "QAR" }
     private var closingLabel: String {
         snapshot?.closeDay.formatted(.dateTime.day().month(.abbreviated)) ?? "25th"
@@ -106,10 +132,24 @@ private struct NextLedgerUpcomingPaymentsView: View {
             WidgetPalette.soft
             VStack(alignment: .leading, spacing: 7) {
                 brand
-                Text("Upcoming")
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
-                    .foregroundStyle(WidgetPalette.navy)
-                if let payment = payments.first {
+                HStack(spacing: 4) {
+                    Text("Upcoming")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundStyle(WidgetPalette.navy)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer(minLength: 0)
+                    if payments.count > 1 {
+                        Text("\(visiblePaymentIndex + 1)/\(payments.count)")
+                            .font(.system(size: 9, weight: .bold))
+                            .monospacedDigit()
+                            .foregroundStyle(WidgetPalette.blue)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 3)
+                            .background(WidgetPalette.blue.opacity(0.10), in: Capsule())
+                    }
+                }
+                if let payment = visiblePayment {
                     HStack(spacing: 6) {
                         Image(systemName: symbol(for: payment.title))
                             .foregroundStyle(WidgetPalette.blue)
@@ -129,11 +169,31 @@ private struct NextLedgerUpcomingPaymentsView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.65)
                     Spacer(minLength: 0)
-                    Text(payments.count > 1 ? "+\(payments.count - 1) more payments" :
-                            "By \(closingLabel)")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(WidgetPalette.blue)
-                        .lineLimit(1)
+                    HStack(spacing: 3) {
+                        Text(payments.count > 1 ? "\(payments.count) upcoming" : "By \(closingLabel)")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(WidgetPalette.blue)
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
+                        if payments.count > 1 {
+                            if #available(iOS 17.0, *) {
+                                Button(intent: NextUpcomingPaymentIntent()) {
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundStyle(.white)
+                                        .frame(width: 29, height: 29)
+                                        .background(WidgetPalette.blue, in: Circle())
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Show next upcoming fixed payment")
+                            } else {
+                                Image(systemName: "square.stack.3d.up")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(WidgetPalette.blue)
+                                    .accessibilityLabel("Swipe a Next Ledger widget stack for the next payment")
+                            }
+                        }
+                    }
                 } else {
                     emptyState
                 }
@@ -323,10 +383,42 @@ private struct NextLedgerUpcomingPaymentsView: View {
     }
 }
 
+/// iOS 17+ can change the visible payment in place with an interactive
+/// AppIntent button. iOS 16 cannot receive arbitrary swipe gestures or
+/// interactive buttons inside WidgetKit; use multiple widgets in a stack.
+@available(iOS 17.0, *)
+struct NextUpcomingPaymentIntent: AppIntent {
+    static var title: LocalizedStringResource = "Next Upcoming Payment"
+    static var description = IntentDescription(
+        "Show the next unpaid fixed-budget payment on Next Ledger's small widget."
+    )
+    static var openAppWhenRun: Bool = false
+
+    func perform() async throws -> some IntentResult {
+        guard let snapshot = UpcomingPaymentsWidgetStorage.load(),
+              snapshot.isCurrent(), snapshot.payments.count > 1 else {
+            return .result()
+        }
+        UpcomingWidgetPager.advance(snapshot: snapshot)
+        // WidgetKit automatically requests a fresh timeline after the intent.
+        return .result()
+    }
+}
+
 @main
 struct NextLedgerWidgetCollection: WidgetBundle {
     var body: some Widget {
         UpcomingPaymentsWidget()
+        UpcomingPaymentStackWidget(
+            kind: UpcomingPaymentsWidgetStorage.secondWidgetKind,
+            title: "Upcoming Payment 2",
+            offset: 1
+        )
+        UpcomingPaymentStackWidget(
+            kind: UpcomingPaymentsWidgetStorage.thirdWidgetKind,
+            title: "Upcoming Payment 3",
+            offset: 2
+        )
     }
 }
 
@@ -336,10 +428,31 @@ private struct UpcomingPaymentsWidget: Widget {
             kind: UpcomingPaymentsWidgetStorage.widgetKind,
             provider: UpcomingPaymentsProvider()
         ) { entry in
-            NextLedgerUpcomingPaymentsView(entry: entry)
+            NextLedgerUpcomingPaymentsView(entry: entry, pageOffset: 0)
         }
         .configurationDisplayName("Upcoming Fixed Payments")
-        .description("Unpaid fixed-budget expenses before the 25th, shown on your Home Screen.")
+        .description("Next unpaid fixed payment; tap the arrow on iOS 17+, or stack widgets on iOS 16.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
+
+/// WidgetKit's stack gesture belongs to the Home Screen, not to a custom
+/// inner view. These two size-matched widgets display the next two payments.
+private struct UpcomingPaymentStackWidget: Widget {
+    let kind: String
+    let title: String
+    let offset: Int
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(
+            kind: kind,
+            provider: UpcomingPaymentsProvider()
+        ) { entry in
+            NextLedgerUpcomingPaymentsView(entry: entry, pageOffset: offset)
+        }
+        .configurationDisplayName(title)
+        .description("Add alongside Upcoming Fixed Payments in a small widget stack to swipe between due payments.")
+        .supportedFamilies([.systemSmall])
+    }
+}
+
