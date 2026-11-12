@@ -5,6 +5,65 @@
         "id": "system-utilities",
         "label": "System & Utilities"
       },
+      "description": "net.limneos.audiorecorderxs iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "net-limneos-audiorecorderxs-update/",
+      "image": "assets/articles/source-media/net-limneos-audiorecorderxs-update-2ccc0f97ae.png",
+      "media_credit": "Source visual from limneos.net",
+      "media_source_url": "http://www.limneos.net/cydia/depiction.php?package=net.limneos.audiorecorderxs",
+      "modified_at": "2026-11-12T00:13:50+00:00",
+      "name": "net.limneos.audiorecorderxs",
+      "package": "net.limneos.audiorecorderxs",
+      "published_at": "2026-11-12T00:13:50+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "limneos.net",
+      "source_page_url": "http://www.limneos.net/cydia/depiction.php?package=net.limneos.audiorecorderxs",
+      "source_url": "http://www.limneos.net/cydia/depiction.php?package=net.limneos.audiorecorderxs",
+      "source_visual_origin": "img",
+      "source_visual_url": "https://www.limneos.net/cydia/packageImages/net.limneos.audiorecorderxs/AudioRecorder1.png",
+      "title": "AudioRecorder XS Adds Ringtone Support and a Built-In Audio Editor",
+      "version": ""
+    },
+    {
+      "additional_media": [],
+      "article_sha256": "4c05631a79bf86edb755808a599072f86b3af83618e6c9b8e400268693bc3623",
+      "candidate_fingerprint": "jailbreak-development.erosion-0.3.1-pathleak-ios26-config-tweaks-2026-11-10",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "The 0.3.1 tagged README documents iOS/iPadOS 27.0–27.2.1 and iOS/iPadOS 27.3 beta 1 build 24C5037i. Its detailed iOS 26 section stops at 26.6.2 while the summary says 26.7.2, so 26.6.2 remains the conservative upper bound. iOS 26 support is limited: Config Tweaks are experimental and MobileGestalt tweaks remain unavailable.",
+      "description": "Erosion 0.3.1 speeds container discovery, adds visible first-scan progress and exposes experimental iOS 26 Config Tweaks. Check exact firmware support, signing warnings and the verified IPA hash.",
+      "developer": "jailbreakdotparty / Erosion team",
+      "entry_type": "jailbreak-development",
+      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
+      "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
+      "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
+      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
+      "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
+      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
+      "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
+      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "modified_at": "2026-11-11T20:57:57Z",
+      "name": "Erosion",
+      "package": "project.erosion",
+      "published_at": "2026-11-09T21:00:36Z",
+      "release": "2026-11-10",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Official Erosion 0.3.1 release, tagged README, tagged source and verified IPA",
+      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/README.md",
+      "source_url": "https://github.com/jailbreakdotparty/Erosion/releases/tag/0.3.1",
+      "source_visual_origin": "official-tagged-project-app-icon",
+      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "title": "Erosion 0.3.1 Speeds Container Setup and Enables iOS 26 Config Tweaks",
+      "version": "0.3.1"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
       "description": "Regram for Instagram 7.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
       "entry_type": "source-news",
       "href": "regram-for-instagram-7-0-1-update/",
@@ -92,40 +151,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
       "title": "How to Re-Jailbreak Dopamine 3.0.13 After a Reboot",
       "version": "Dopamine 3.0.13 / guide revision 2026-11-10"
-    },
-    {
-      "additional_media": [],
-      "article_sha256": "4c05631a79bf86edb755808a599072f86b3af83618e6c9b8e400268693bc3623",
-      "candidate_fingerprint": "jailbreak-development.erosion-0.3.1-pathleak-ios26-config-tweaks-2026-11-10",
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "The 0.3.1 tagged README documents iOS/iPadOS 27.0–27.2.1 and iOS/iPadOS 27.3 beta 1 build 24C5037i. Its detailed iOS 26 section stops at 26.6.2 while the summary says 26.7.2, so 26.6.2 remains the conservative upper bound. iOS 26 support is limited: Config Tweaks are experimental and MobileGestalt tweaks remain unavailable.",
-      "description": "Erosion 0.3.1 speeds container discovery, adds visible first-scan progress and exposes experimental iOS 26 Config Tweaks. Check exact firmware support, signing warnings and the verified IPA hash.",
-      "developer": "jailbreakdotparty / Erosion team",
-      "entry_type": "jailbreak-development",
-      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
-      "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
-      "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
-      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
-      "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
-      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
-      "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
-      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "modified_at": "2026-11-11T20:57:57Z",
-      "name": "Erosion",
-      "package": "project.erosion",
-      "published_at": "2026-11-09T21:00:36Z",
-      "release": "2026-11-10",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Official Erosion 0.3.1 release, tagged README, tagged source and verified IPA",
-      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/README.md",
-      "source_url": "https://github.com/jailbreakdotparty/Erosion/releases/tag/0.3.1",
-      "source_visual_origin": "official-tagged-project-app-icon",
-      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "title": "Erosion 0.3.1 Speeds Container Setup and Enables iOS 26 Config Tweaks",
-      "version": "0.3.1"
     },
     {
       "category": {
@@ -10784,8 +10809,17 @@
       "published_at": "2026-11-11T20:57:57Z",
       "run_id": "scheduled-2026-11-11T20:57:57Z",
       "version": "0.3.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "net-limneos-audiorecorderxs-update/",
+      "package": "net.limneos.audiorecorderxs",
+      "published_at": "2026-11-12T00:13:50+00:00",
+      "run_id": "43125588004",
+      "version": ""
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-11T20:57:57Z"
+  "updated_at": "2026-11-12T00:13:50+00:00"
 }

@@ -343,6 +343,19 @@
       "reason": "original source material is too thin for a high-value article",
       "status": "failed"
     },
+    "https://www.ios-repo-updates.com/repository/limneos-repo/package/net.limneos.audiorecorderxs-rootless/": {
+      "checked_at": "2026-11-12T00:13:50.921596+00:00",
+      "package": "net.limneos.audiorecorderxs-rootless",
+      "reason": "resolved source does not independently identify the discovered package",
+      "status": "failed"
+    },
+    "https://www.ios-repo-updates.com/repository/limneos-repo/package/net.limneos.audiorecorderxs/": {
+      "checked_at": "2026-11-12T00:13:50+00:00",
+      "package": "net.limneos.audiorecorderxs",
+      "status": "published",
+      "target_path": "net-limneos-audiorecorderxs-update/",
+      "version": ""
+    },
     "https://www.ios-repo-updates.com/repository/majd-alfhaily/package/me.alfhaily.rocket/": {
       "checked_at": "2026-11-10T22:58:09.564603+00:00",
       "package": "me.alfhaily.rocket",
@@ -2995,6 +3008,47 @@
         "com.cydiageek.gorgonemodern: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0af92f6059ae5b6e016af504df4adc87d29cd6821bbecc0c5f",
+          "usage": {
+            "input_tokens": 3248,
+            "input_tokens_details": {
+              "cache_write_tokens": 3245,
+              "cached_tokens": 0
+            },
+            "output_tokens": 256,
+            "output_tokens_details": {
+              "reasoning_tokens": 170
+            },
+            "total_tokens": 3504
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_08b72c138638d06a016af504c9db8c87d286338437425d9a9d",
+          "usage": {
+            "input_tokens": 1337,
+            "input_tokens_details": {
+              "cache_write_tokens": 1334,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2177,
+            "output_tokens_details": {
+              "reasoning_tokens": 70
+            },
+            "total_tokens": 3514
+          }
+        }
+      },
+      "at": "2026-11-12T00:13:50+00:00",
+      "package": "net.limneos.audiorecorderxs",
+      "target_path": "net-limneos-audiorecorderxs-update/",
+      "version": ""
     }
   ],
   "schema_version": 1
