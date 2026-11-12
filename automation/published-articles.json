@@ -1,6 +1,38 @@
 {
   "entries": [
     {
+      "article_sha256": "c0f2daddc50c64854432a1466ac3a6b4473f973635a134ef0cbe4a8f35b147c7",
+      "candidate_fingerprint": "individual-update.atria-1.9.3-roothide-app-library-categories-2026-11-12",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Atria 1.9.3 declares firmware 15.0+ but documents its current layout workflow for iOS 16–17; native RootHide arm64e package available; rootless arm64 package explicitly marked not yet tested; iOS 26 fixes do not confirm full iOS 26 support; a compatible jailbreak remains required",
+      "description": "Atria 1.9.3 adds native RootHide and rootless packages, custom App Library categories, privacy-aware exports and SpringBoard fixes. Check exact compatibility and migration steps.",
+      "developer": "CySxL / ren7995",
+      "entry_type": "individual-tweak-update",
+      "href": "atria-1-9-3-roothide-app-library-categories/",
+      "image": "assets/articles/source-media/atria-1-9-3-official-icon.png",
+      "media_alt": "Official Atria app icon from CySxL’s 1.9.3 package repository",
+      "media_credit": "CySxL — official Atria 1.9.3 package icon",
+      "media_sha256": "4de63207b2018962425fdc64bf2215ead9fd86c4078292338a023e2d29f84ad3",
+      "media_source_url": "https://raw.githubusercontent.com/CySxL/CySxL.github.io/89a833946e16723f589ce84c25917958df532c6c/icons/com.cysxl.atria.png",
+      "modified_at": "2026-11-12T14:59:54Z",
+      "name": "Atria",
+      "package": "com.cysxl.atria",
+      "published_at": "2026-11-12T14:59:54Z",
+      "release": "Atria 1.9.3 committed 2026-11-12T14:23:31Z",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "atria-1-9-3-roothide-app-library-categories",
+      "source_name": "CySxL official repository package metadata, depiction changelog and 1.9.3 commit",
+      "source_page_url": "https://cysxl.github.io/repo/",
+      "source_url": "https://github.com/CySxL/CySxL.github.io/commit/89a833946e16723f589ce84c25917958df532c6c",
+      "source_visual_origin": "official-project-package-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/CySxL/CySxL.github.io/89a833946e16723f589ce84c25917958df532c6c/icons/com.cysxl.atria.png",
+      "title": "Atria 1.9.3 Adds Native RootHide Support and Custom App Library Categories",
+      "version": "1.9.3"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -10880,8 +10912,18 @@
       "published_at": "2026-11-12T14:08:18+00:00",
       "run_id": "43233766157",
       "version": "1.0"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "individual-update.atria-1.9.3-roothide-app-library-categories-2026-11-12",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "atria-1-9-3-roothide-app-library-categories/",
+      "package": "com.cysxl.atria",
+      "published_at": "2026-11-12T14:59:54Z",
+      "run_id": "scheduled-2026-11-12T14:59:54Z",
+      "version": "1.9.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-12T14:08:18+00:00"
+  "updated_at": "2026-11-12T14:59:54Z"
 }

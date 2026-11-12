@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Atria 1.9.3 Adds Native RootHide Support and Custom App Library Categories</title>
+      <link>https://nextjailbreak.com/atria-1-9-3-roothide-app-library-categories/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/atria-1-9-3-roothide-app-library-categories/</guid>
+      <pubDate>Thu, 12 Nov 2026 14:59:54 GMT</pubDate>
+      <description>Atria 1.9.3 adds native RootHide and rootless packages, custom App Library categories, privacy-aware exports and SpringBoard fixes. Check exact compatibility and migration steps.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
       <title>Watusi 1.0 Rebuilds WhatsApp Tweak Around Media, Privacy and Account-Level Settings</title>
       <link>https://nextjailbreak.com/watusi-for-whatsapp-1-0-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/watusi-for-whatsapp-1-0-update/</guid>
@@ -236,14 +244,6 @@
       <pubDate>Wed, 04 Nov 2026 21:00:00 GMT</pubDate>
       <description>Update Dopamine 3.0.13 safely, verify the official IPA/TIPA hash, fix Zebra on iOS 17.6+, refresh the active environment and preserve your tweak list.</description>
       <category>Current Jailbreak Development</category>
-    </item>
-    <item>
-      <title>IconTweak2 1.1.0 Adds App-Data Backup, Restore and Wipe Controls</title>
-      <link>https://nextjailbreak.com/icontweak2-tweak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/icontweak2-tweak/</guid>
-      <pubDate>Wed, 04 Nov 2026 15:00:00 GMT</pubDate>
-      <description>IconTweak2 1.1.0 adds app-data backup, restore and wipe controls on iOS 15–26, with shared-container risks and recovery guidance.</description>
-      <category>Individual Tweak Update</category>
     </item>
   </channel>
 </rss>

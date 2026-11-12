@@ -1,6 +1,20 @@
 {
   "schema_version": 1,
   "packages": {
+    "com.cysxl.atria": {
+      "credit_label": "CySxL — official Atria 1.9.3 package repository",
+      "source_page_url": "https://github.com/CySxL/CySxL.github.io/commit/89a833946e16723f589ce84c25917958df532c6c",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/CySxL/CySxL.github.io/89a833946e16723f589ce84c25917958df532c6c/icons/com.cysxl.atria.png",
+        "alt": "Official Atria app icon from CySxL’s 1.9.3 package repository",
+        "local_path": "assets/articles/source-media/atria-1-9-3-official-icon.png",
+        "git_blob_sha": "e55f581b2e4fa5366ab890b89daca35af7c9341e",
+        "sha256": "4de63207b2018962425fdc64bf2215ead9fd86c4078292338a023e2d29f84ad3"
+      },
+      "screenshots": [],
+      "retrieval_note": "Retrieved and verified from the exact Atria 1.9.3 repository commit. The official depiction contains changelog text but no current 1.9.3 interface screenshots."
+    },
     "guide.dopamine.rejailbreak-after-reboot": {
       "credit_label": "opa334 — official Dopamine 3.0.13 source tag",
       "source_page_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
