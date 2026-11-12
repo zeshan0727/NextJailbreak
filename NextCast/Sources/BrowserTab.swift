@@ -1,6 +1,24 @@
 import SwiftUI
 import WebKit
+import SafariServices
 import Combine
+
+private struct NextCastSafariPage: Identifiable {
+    let id = UUID()
+    let url: URL
+}
+
+// An in-app Safari browser uses Apple's supported Safari playback path.
+// Its cookies and downloaded media are not accessible to Next Cast.
+private struct NextCastSafariPlayer: UIViewControllerRepresentable {
+    let url: URL
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        let view = SFSafariViewController(url: url)
+        view.dismissButtonStyle = .done
+        return view
+    }
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
+}
 
 struct SavedBookmark: Codable, Identifiable, Equatable {
     var id = UUID()
@@ -125,6 +143,7 @@ final class BrowserStore: ObservableObject {
     @Published var pendingDownload: WebDownloadPrompt?
     @Published var pendingPopup: WebPopupPrompt?
     @Published var showMessage: String?
+    @Published var lastBrowserError: String?
     @Published var playingMedia: BrowserPlayingMedia?
     @Published var bookmarks: [SavedBookmark] = []
 
@@ -200,6 +219,20 @@ final class BrowserStore: ObservableObject {
         }
         activeWebView?.load(URLRequest(url: url))
     }
+    func recordNavigationError(_ error: Error, view: WKWebView) {
+        let nsError = error as NSError
+        guard nsError.code != NSURLErrorCancelled else { return }
+        lastBrowserError = "Web view failed: \(nsError.localizedDescription) (\(nsError.domain) \(nsError.code))"
+        refresh(view: view)
+    }
+
+    func browserDiagnosis() {
+        let blocking = blockAds ? "on" : "off"
+        let detected = activePlayingMedia == nil ? "no HTML5 video detected" : "HTML5 video detected"
+        let issue = lastBrowserError ?? "no top-level navigation failure reported"
+        showMessage = "Ad blocker: \(blocking). Player: \(detected). Browser: \(issue). Some websites do not allow embedded in-app playback. Try Safari Player if the player stays blank."
+    }
+
     func refresh(view: WKWebView) {
         guard let page = pages.first(where: { $0.webView === view }) else { return }
         page.title = view.title ?? view.url?.host ?? "Tab"
@@ -409,10 +442,10 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
         store?.refresh(view: webView)
     }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        store?.refresh(view: webView)
+        store?.recordNavigationError(error, view: webView)
     }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        store?.refresh(view: webView)
+        store?.recordNavigationError(error, view: webView)
     }
 
     func webView(_ webView: WKWebView,
@@ -511,7 +544,8 @@ struct BrowserTab: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var downloads: BrowserDownloadStore
     @StateObject private var model: BrowserStore
-    @AppStorage("browserBlockAds") private var blockAds = true
+    @AppStorage("browserBlockAds") private var blockAds = false
+    @State private var safariPage: NextCastSafariPage?
     @State private var inputURL = ""
     @State private var showBookmarks = false
     @State private var showTabList = false
@@ -599,6 +633,37 @@ struct BrowserTab: View {
                         }
                 }
 
+                // Always-visible playback actions, even before media detection.
+                HStack(spacing: 12) {
+                    Button {
+                        if blockAds { blockAds = false }
+                        else { model.activeWebView?.reload() }
+                    } label: {
+                        Label("Fix Player", systemImage: "arrow.clockwise.circle")
+                    }
+                    Spacer(minLength: 4)
+                    Button {
+                        if let url = model.activeWebView?.url,
+                           ["https", "http"].contains(url.scheme?.lowercased() ?? "") {
+                            safariPage = NextCastSafariPage(url: url)
+                        } else {
+                            model.showMessage = "Open a website first."
+                        }
+                    } label: {
+                        Label("Safari Player", systemImage: "play.rectangle")
+                    }
+                    Spacer(minLength: 4)
+                    Button { model.downloadPlayingVideo() } label: {
+                        Label("Save Video", systemImage: "arrow.down.to.line")
+                    }
+                }
+                .font(.system(size: 12, weight: .semibold))
+                .labelStyle(.titleAndIcon)
+                .foregroundStyle(.cyan)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(.secondary.opacity(0.07))
+
                 HStack {
                     Button { model.activeWebView?.goBack() } label: {
                         Image(systemName: "chevron.left")
@@ -636,7 +701,7 @@ struct BrowserTab: View {
                 .padding(.horizontal, 15).padding(.vertical, 13)
                 .foregroundStyle(.cyan)
             }
-            .navigationTitle("Browser")
+            .navigationTitle("Browser · v\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?")")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -649,6 +714,15 @@ struct BrowserTab: View {
                         }
                         Button("Save Playing Video", systemImage: "arrow.down.to.line") {
                             model.downloadPlayingVideo()
+                        }
+                        Button("Playback Diagnostics", systemImage: "stethoscope") {
+                            model.browserDiagnosis()
+                        }
+                        Button("Open in Safari Player", systemImage: "safari") {
+                            if let url = model.activeWebView?.url,
+                               ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
+                                safariPage = NextCastSafariPage(url: url)
+                            }
                         }
                         Button("New Tab", systemImage: "plus") { model.addTab() }
                         Button("Download current URL", systemImage: "arrow.down") {
@@ -670,6 +744,10 @@ struct BrowserTab: View {
             .onChange(of: blockAds) { enabled in model.toggleFilter(enabled) }
             .onChange(of: model.currentAddress) { inputURL = $0 }
             .onChange(of: model.selectedID) { _ in inputURL = model.currentAddress }
+            .sheet(item: $safariPage) { page in
+                NextCastSafariPlayer(url: page.url)
+                    .ignoresSafeArea()
+            }
             .confirmationDialog("Download this file?",
                 isPresented: Binding(get: { model.pendingDownload != nil },
                                     set: { if !$0 { model.pendingDownload = nil } }),
