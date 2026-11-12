@@ -40,6 +40,8 @@ final class LedgerStore: ObservableObject {
     private var totalsCache: [String: LedgerTotals] = [:]
     private var loanMovementCache: [String: [LoanNetMovement]] = [:]
     private var historicalBalanceCache: [HistoricalBalanceCacheKey: Decimal] = [:]
+    /// Reuse expensive report calculations across SwiftUI redraws.
+    private var performanceCache: (cycle: Date, day: Date, currency: String, result: BudgetPerformanceResult)?
     private var hasLoaded = false
 
     init() {
@@ -47,6 +49,18 @@ final class LedgerStore: ObservableObject {
     }
 
     var currencyCode: String { settings.currencyCode }
+
+    func performanceSnapshot(for cycle: Date) -> BudgetPerformanceResult {
+        let normalized = BudgetCycle.start(containing: cycle)
+        let today = Calendar.current.startOfDay(for: Date())
+        if let cache = performanceCache,
+           cache.cycle == normalized,
+           cache.day == today,
+           cache.currency == currencyCode { return cache.result }
+        let report = BudgetPerformanceSnapshot.make(store: self, cycleStart: normalized)
+        performanceCache = (normalized, today, currencyCode, report)
+        return report
+    }
     var defaultAccountID: UUID? { settings.defaultAccountID ?? accounts.first?.id }
 
     private func requireOpenPeriod(_ date: Date, action: String) -> Bool {
@@ -67,6 +81,7 @@ final class LedgerStore: ObservableObject {
     }
 
     private func apply(_ ledger: LedgerData) {
+        performanceCache = nil
         let previousTransactions = transactions
         let previousIDs = Set(transactions.map(\.id))
         let ordered = ledger.transactions.sorted {
@@ -160,7 +175,8 @@ final class LedgerStore: ObservableObject {
         vendor: String = "",
         details: String,
         accountID: UUID? = nil,
-        dimensions: [ERPTransactionDimension]? = nil
+        dimensions: [ERPTransactionDimension]? = nil,
+        budgetAssignment: BudgetSpendAssignment? = nil
     ) -> Bool {
         guard requireOpenPeriod(date, action: "record") else { return false }
         let cleanedDetails = details.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -193,6 +209,9 @@ final class LedgerStore: ObservableObject {
         do {
             let ledger = try LedgerDiskStore.shared.mutate { ledger in
                 ledger.transactions.append(item)
+                if type == .expense, let budgetAssignment {
+                    ledger.fixedBudget.spendAssignments[item.id] = budgetAssignment
+                }
                 guard let vendor = item.vendor, !vendor.isEmpty,
                       !ledger.settings.vendorRules.contains(where: {
                           $0.keyword.caseInsensitiveCompare(vendor) == .orderedSame
@@ -532,6 +551,12 @@ final class LedgerStore: ObservableObject {
             let ledger = try LedgerDiskStore.shared.mutate { ledger in
                 guard !ledger.transactions.contains(where: { $0.id == item.id }) else { return }
                 ledger.transactions.append(item)
+                if item.type == .expense {
+                    // Preserve the SMS's recorded category, but await explicit
+                    // budget classification rather than guessing a fixed plan.
+                    ledger.fixedBudget.spendAssignments[item.id] =
+                        BudgetSpendAssignment(kind: .unassigned)
+                }
             }
             apply(ledger)
             return true
@@ -636,6 +661,12 @@ final class LedgerStore: ObservableObject {
             let ledger = try LedgerDiskStore.shared.mutate { ledger in
                 guard !ledger.transactions.contains(where: { $0.id == item.id }) else { return }
                 ledger.transactions.append(item)
+                if item.type == .expense {
+                    // Preserve the SMS's recorded category, but await explicit
+                    // budget classification rather than guessing a fixed plan.
+                    ledger.fixedBudget.spendAssignments[item.id] =
+                        BudgetSpendAssignment(kind: .unassigned)
+                }
             }
             apply(ledger)
             return true
@@ -1366,7 +1397,9 @@ final class LedgerStore: ObservableObject {
     }
 
     @discardableResult
-    func update(_ transaction: LedgerTransaction) -> Bool {
+    func update(_ transaction: LedgerTransaction,
+                updatingBudgetAssignment: Bool = false,
+                budgetAssignment: BudgetSpendAssignment? = nil) -> Bool {
         if let original = transactions.first(where: { $0.id == transaction.id }),
            !requireOpenPeriod(original.date, action: "update") {
             return false
@@ -1398,6 +1431,10 @@ final class LedgerStore: ObservableObject {
             let ledger = try LedgerDiskStore.shared.mutate { ledger in
                 guard let index = ledger.transactions.firstIndex(where: { $0.id == candidate.id }) else { return }
                 ledger.transactions[index] = candidate
+                if updatingBudgetAssignment {
+                    ledger.fixedBudget.spendAssignments[candidate.id] =
+                        candidate.type == .expense ? budgetAssignment : nil
+                }
                 found = true
             }
             guard found else {
