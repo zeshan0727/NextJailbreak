@@ -163,7 +163,8 @@ private struct NextLedgerUpcomingPaymentsView: View {
                     .foregroundStyle(.white.opacity(0.8))
             }
             .padding(14)
-            .frame(width: 128, maxHeight: .infinity, alignment: .topLeading)
+            .frame(width: 128, alignment: .topLeading)
+            .frame(maxHeight: .infinity, alignment: .topLeading)
             .background(
                 LinearGradient(colors: [WidgetPalette.navy, WidgetPalette.blue],
                                startPoint: .topLeading, endPoint: .bottomTrailing)
