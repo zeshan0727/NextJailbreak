@@ -108,30 +108,10 @@ struct TransferView: View {
                 chooseDefaults()
                 configureConversion(preserveEditingRate: true)
             }
-            .onChange(of: sourceAccountID) { value in
-                if let account = store.account(withID: value) {
-                    sourceCurrencySelection = account.currencyCode.uppercased()
-                }
-                if destinationAccountID == value {
-                    destinationAccountID = filteredAccounts(currency: destinationCurrencySelection)
-                        .first(where: { $0.id != value })?.id
-                }
-                configureConversion(preserveEditingRate: false)
-            }
-            .onChange(of: destinationAccountID) { value in
-                if let account = store.account(withID: value) {
-                    destinationCurrencySelection = account.currencyCode.uppercased()
-                }
-                configureConversion(preserveEditingRate: false)
-            }
-            .onChange(of: sourceCurrencySelection) { value in
-                selectSourceAccount(for: value)
-                configureConversion(preserveEditingRate: false)
-            }
-            .onChange(of: destinationCurrencySelection) { value in
-                selectDestinationAccount(for: value)
-                configureConversion(preserveEditingRate: false)
-            }
+            // Do not observe currency and account IDs independently.
+            // Those four onChange handlers could invalidate each other's
+            // selections after currency changes and account swaps. All
+            // updates now use a single intentional selection action.
             .sheet(item: $addingAccountFor) { role in
                 AccountEditorView(
                     initialGroup: .other,
@@ -181,8 +161,7 @@ struct TransferView: View {
         VStack(spacing: 0) {
             routeAccount(
                 label: "From Account", role: .source,
-                account: sourceAccount, selection: $sourceAccountID,
-                currencySelection: $sourceCurrencySelection
+                account: sourceAccount, currencySelection: sourceCurrencySelection
             )
             HStack {
                 Spacer()
@@ -195,15 +174,15 @@ struct TransferView: View {
                         .overlay(Circle().stroke(TransferDesign.blue.opacity(0.14), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
+                .disabled(sourceAccountID == nil || destinationAccountID == nil)
                 .accessibilityLabel("Swap source and destination accounts")
                 Spacer()
             }
-            .padding(.vertical, -2)
-            .zIndex(1)
+            .padding(.vertical, 10)
+            .zIndex(2)
             routeAccount(
                 label: "To Account", role: .destination,
-                account: destinationAccount, selection: $destinationAccountID,
-                currencySelection: $destinationCurrencySelection
+                account: destinationAccount, currencySelection: destinationCurrencySelection
             )
             HStack {
                 Button {
@@ -227,9 +206,7 @@ struct TransferView: View {
     }
 
     private func routeAccount(label: String, role: TransferAccountRole,
-                              account: LedgerAccount?,
-                              selection: Binding<UUID?>,
-                              currencySelection: Binding<String>) -> some View {
+                              account: LedgerAccount?, currencySelection: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(label)
@@ -238,11 +215,11 @@ struct TransferView: View {
                 Spacer()
                 Menu {
                     ForEach(availableCurrencies, id: \.self) { currency in
-                        Button(currency) { currencySelection.wrappedValue = currency }
+                        Button(currency) { chooseCurrency(currency, for: role) }
                     }
                 } label: {
                     HStack(spacing: 5) {
-                        Text(normalizedCurrency(currencySelection.wrappedValue))
+                        Text(normalizedCurrency(currencySelection))
                         Image(systemName: "chevron.down")
                             .font(.system(size: 10, weight: .bold))
                     }
@@ -255,10 +232,31 @@ struct TransferView: View {
                 .accessibilityLabel(label + " currency")
             }
             Menu {
-                ForEach(filteredAccounts(currency: currencySelection.wrappedValue)) { item in
-                    Button(accountDisplayName(item)) {
-                        selection.wrappedValue = item.id
+                let preferred = filteredAccounts(currency: currencySelection)
+                let otherCurrencies = filteredAccounts(currency: "")
+                    .filter { $0.currencyCode.caseInsensitiveCompare(currencySelection) != .orderedSame }
+
+                if !preferred.isEmpty {
+                    Section("Accounts · \(normalizedCurrency(currencySelection))") {
+                        ForEach(preferred) { item in
+                            Button(accountDisplayName(item)) { chooseAccount(item, for: role) }
+                        }
                     }
+                }
+                if !otherCurrencies.isEmpty {
+                    Section("Other currencies") {
+                        ForEach(otherCurrencies) { item in
+                            Button("\(accountDisplayName(item)) · \(item.currencyCode)") {
+                                chooseAccount(item, for: role)
+                            }
+                        }
+                    }
+                }
+                Divider()
+                Button {
+                    addingAccountFor = role
+                } label: {
+                    Label("Add a new account", systemImage: "plus.circle")
                 }
             } label: {
                 HStack(spacing: 9) {
@@ -271,7 +269,7 @@ struct TransferView: View {
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(TransferDesign.navy)
                             .lineLimit(1)
-                        Text(account?.currencyCode ?? normalizedCurrency(currencySelection.wrappedValue))
+                        Text(account?.currencyCode ?? normalizedCurrency(currencySelection))
                             .font(.caption)
                             .foregroundStyle(TransferDesign.muted)
                     }
@@ -288,9 +286,11 @@ struct TransferView: View {
                         .font(.caption.weight(.bold))
                         .foregroundStyle(TransferDesign.muted)
                 }
-                .frame(minHeight: 46)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .contentShape(Rectangle())
             }
             .accessibilityLabel(label)
+            .accessibilityHint("Select an account; accounts in other currencies are also available")
             accountAvailabilityMessage(for: role)
         }
         .padding(14)
@@ -455,13 +455,63 @@ struct TransferView: View {
                     in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
+    /// All mutations are explicit and atomic from the user's action.
+    /// Never let an account-selection onChange rewrite the opposite field.
+    private func chooseAccount(_ account: LedgerAccount, for role: TransferAccountRole) {
+        let currency = account.currencyCode.uppercased()
+        if role == .source {
+            let oldSource = sourceAccountID
+            sourceAccountID = account.id
+            sourceCurrencySelection = currency
+            if destinationAccountID == account.id {
+                // Selecting the destination as the source swaps the two
+                // accounts where possible; never silently use the same account.
+                destinationAccountID = oldSource != account.id ? oldSource :
+                    store.activeAccounts.first(where: { $0.id != account.id })?.id
+                destinationCurrencySelection = destinationAccount?.currencyCode.uppercased() ?? ""
+            }
+        } else {
+            let oldDestination = destinationAccountID
+            destinationAccountID = account.id
+            destinationCurrencySelection = currency
+            if sourceAccountID == account.id {
+                sourceAccountID = oldDestination != account.id ? oldDestination :
+                    store.activeAccounts.first(where: { $0.id != account.id })?.id
+                sourceCurrencySelection = sourceAccount?.currencyCode.uppercased() ?? ""
+            }
+        }
+        configureConversion(preserveEditingRate: false)
+    }
+
+    private func chooseCurrency(_ currency: String, for role: TransferAccountRole) {
+        let code = normalizedCurrency(currency)
+        if role == .source {
+            sourceCurrencySelection = code
+            if sourceAccount?.currencyCode.caseInsensitiveCompare(code) != .orderedSame {
+                sourceAccountID = filteredAccounts(currency: code)
+                    .first(where: { $0.id != destinationAccountID })?.id
+            }
+        } else {
+            destinationCurrencySelection = code
+            if destinationAccount?.currencyCode.caseInsensitiveCompare(code) != .orderedSame {
+                destinationAccountID = filteredAccounts(currency: code)
+                    .first(where: { $0.id != sourceAccountID })?.id
+            }
+        }
+        // With no accounts in the requested currency, the chooser still
+        // offers all other currencies plus Add Account. No greyed-out menu.
+        configureConversion(preserveEditingRate: false)
+    }
+
     private func swapAccounts() {
-        let oldSource = sourceAccountID
-        let oldCurrency = sourceCurrencySelection
-        sourceAccountID = destinationAccountID
-        destinationAccountID = oldSource
-        sourceCurrencySelection = destinationCurrencySelection
-        destinationCurrencySelection = oldCurrency
+        guard let from = sourceAccountID, let to = destinationAccountID,
+              from != to else { return }
+        let fromCurrency = sourceCurrencySelection
+        let toCurrency = destinationCurrencySelection
+        sourceAccountID = to
+        destinationAccountID = from
+        sourceCurrencySelection = toCurrency
+        destinationCurrencySelection = fromCurrency
         configureConversion(preserveEditingRate: false)
     }
 
@@ -586,23 +636,7 @@ struct TransferView: View {
     }
 
     private func selectNewAccount(_ account: LedgerAccount, for role: TransferAccountRole) {
-        let currency = account.currencyCode.uppercased()
-        if role == .source {
-            sourceCurrencySelection = currency
-            sourceAccountID = account.id
-            if destinationAccountID == account.id {
-                destinationAccountID = filteredAccounts(currency: destinationCurrencySelection)
-                    .first(where: { $0.id != account.id })?.id
-            }
-        } else {
-            destinationCurrencySelection = currency
-            destinationAccountID = account.id
-            if sourceAccountID == account.id {
-                sourceAccountID = filteredAccounts(currency: sourceCurrencySelection)
-                    .first(where: { $0.id != account.id })?.id
-            }
-        }
-        configureConversion(preserveEditingRate: false)
+        chooseAccount(account, for: role)
     }
 
     private var sourceAccount: LedgerAccount? {
@@ -722,24 +756,6 @@ struct TransferView: View {
         } else if let first = availableCurrencies.first {
             destinationCurrencySelection = first
             destinationAccountID = filteredAccounts(currency: first)
-                .first(where: { $0.id != sourceAccountID })?.id
-        }
-    }
-
-    private func selectSourceAccount(for currency: String) {
-        guard !currency.isEmpty else { return }
-        if sourceAccount?.currencyCode.caseInsensitiveCompare(currency) != .orderedSame {
-            sourceAccountID = filteredAccounts(currency: currency)
-                .first(where: { $0.id != destinationAccountID })?.id
-                ?? filteredAccounts(currency: currency).first?.id
-        }
-    }
-
-    private func selectDestinationAccount(for currency: String) {
-        guard !currency.isEmpty else { return }
-        if destinationAccount?.currencyCode.caseInsensitiveCompare(currency) != .orderedSame ||
-            destinationAccountID == sourceAccountID {
-            destinationAccountID = filteredAccounts(currency: currency)
                 .first(where: { $0.id != sourceAccountID })?.id
         }
     }
