@@ -253,6 +253,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
     @Published private(set) var castStatus = "No TV media playing"
     @Published private(set) var nowCastingMovie: Movie?
     @Published private(set) var pendingCastMovie: Movie?
+    @Published private(set) var nowCastingWebTitle: String?
+    @Published private(set) var pendingWebTitle: String?
     @Published private(set) var didReceiveMediaGET = false
     var selectedMovie: Movie?
     private var streamAttempt = 0
@@ -314,6 +316,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         let attempt = streamAttempt
         didReceiveMediaGET = false
         pendingCastMovie = movie
+        pendingWebTitle = nil
+        nowCastingWebTitle = nil
         nowCastingMovie = nil
         activeLoadRequest = nil
         expectedMediaURL = nil
@@ -364,8 +368,66 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         }
     }
 
+
+    /// Cast a remote website's direct media URL without requiring iPhone decoding.
+    /// The TV requests the media itself; DRM, cookies, referer-protected streams
+    /// and receiver-unsupported formats can still fail.
+    func loadWebStream(_ mediaURL: URL, contentType: String, title: String) {
+        guard isConnected, let client else {
+            castStatus = "Connect a Chromecast or Google Cast TV first."
+            errorMessage = castStatus
+            return
+        }
+        guard mediaURL.scheme?.lowercased() == "https" ||
+              mediaURL.scheme?.lowercased() == "http" else {
+            errorMessage = "Only direct HTTP/HTTPS streams can be sent to the TV."
+            return
+        }
+        guard ["video/mp4", "video/webm", "application/x-mpegurl",
+               "application/vnd.apple.mpegurl", "application/dash+xml",
+               "video/mp2t", "video/quicktime"].contains(contentType.lowercased()) else {
+            errorMessage = "Unsupported or unknown video format for Google Cast: \(contentType)."
+            return
+        }
+        streamAttempt += 1
+        let attempt = streamAttempt
+        pendingCastMovie = nil
+        nowCastingMovie = nil
+        pendingWebTitle = String(title.prefix(100))
+        nowCastingWebTitle = nil
+        expectedStreamID = nil
+        didReceiveMediaGET = false
+        activeLoadRequest = nil
+        localStreamLoaded = false
+        hasStartedTVPlayback = false
+        lockStreamKeeper.stop()
+        server.stop()
+        let builder = GCKMediaInformationBuilder(contentURL: mediaURL)
+        builder.streamType = .buffered
+        builder.contentType = contentType
+        expectedMediaURL = mediaURL
+        castStatus = "Sending website video to \(tvName)…"
+        NextCastPlaybackLog.shared.append("cast-web-request",
+            "host=\(mediaURL.host ?? "-") format=\(contentType)")
+        let request = client.loadMedia(builder.build())
+        activeLoadRequest = request
+        request.delegate = self
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 25_000_000_000)
+            guard let self, self.streamAttempt == attempt,
+                  self.pendingWebTitle != nil else { return }
+            self.castStatus = "TV has not confirmed video playback. Stream may require login, a different format, or CORS."
+            self.errorMessage = self.castStatus
+            self.pendingWebTitle = nil
+            self.activeLoadRequest = nil
+            NextCastPlaybackLog.shared.append("cast-web-timeout",
+                "host=\(mediaURL.host ?? "-")")
+        }
+    }
+
     func requestDidComplete(_ request: GCKRequest) {
-        guard activeLoadRequest === request, pendingCastMovie != nil else { return }
+        guard activeLoadRequest === request,
+              (pendingCastMovie != nil || pendingWebTitle != nil) else { return }
         castStatus = "TV acknowledged media request · checking playback…"
     }
 
@@ -373,6 +435,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         guard activeLoadRequest === request else { return }
         castStatus = "Chromecast rejected the video: " + error.localizedDescription
         errorMessage = castStatus
+        NextCastPlaybackLog.shared.append("cast-load-failed", "code=\(error.code)")
+        pendingWebTitle = nil
         pendingCastMovie = nil
         activeLoadRequest = nil
         expectedMediaURL = nil
@@ -411,6 +475,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         streamAttempt += 1
         pendingCastMovie = nil
         nowCastingMovie = nil
+        pendingWebTitle = nil
+        nowCastingWebTitle = nil
         activeLoadRequest = nil
         expectedMediaURL = nil
         expectedStreamID = nil
@@ -457,6 +523,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         streamAttempt += 1
         pendingCastMovie = nil
         nowCastingMovie = nil
+        pendingWebTitle = nil
+        nowCastingWebTitle = nil
         didReceiveMediaGET = false
         castStatus = "Chromecast disconnected"
         lockStreamKeeper.stop()
@@ -469,7 +537,7 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         let receivedDuration = mediaStatus?.mediaInformation?.streamDuration ?? 0
         duration = receivedDuration.isFinite ? max(0, receivedDuration) : 0
         position = max(0, client.approximateStreamPosition())
-        if pendingCastMovie != nil, let expectedMediaURL,
+        if (pendingCastMovie != nil || pendingWebTitle != nil), let expectedMediaURL,
            let receiverURL = mediaStatus?.mediaInformation?.contentURL,
            receiverURL != expectedMediaURL {
             // Stale status from a previous Cast item must not mark the new
@@ -484,17 +552,29 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 pendingCastMovie = nil
                 activeLoadRequest = nil
             }
-            if nowCastingMovie != nil {
+            if let webTitle = pendingWebTitle {
+                nowCastingWebTitle = webTitle
+                pendingWebTitle = nil
+                activeLoadRequest = nil
+                NextCastPlaybackLog.shared.append("cast-web-playback",
+                    "state=\(isPlaying ? "playing" : "paused")")
+            }
+            if nowCastingMovie != nil || nowCastingWebTitle != nil {
                 hasStartedTVPlayback = true
                 castStatus = isPlaying ? "Playing on \(tvName)" : "Paused on \(tvName)"
             }
         case .buffering:
-            if pendingCastMovie != nil { castStatus = "TV buffering video…" }
-            else if nowCastingMovie != nil { castStatus = "TV buffering…" }
+            if pendingCastMovie != nil || pendingWebTitle != nil {
+                castStatus = "TV buffering video…"
+            } else if nowCastingMovie != nil || nowCastingWebTitle != nil {
+                castStatus = "TV buffering…"
+            }
         case .idle:
             // The default Cast receiver can send a transient idle status during
             // a new LOAD. Never tear down the HTTP listener on that update.
-            if nowCastingMovie != nil { castStatus = "Receiver idle · resume or stop" }
+            if nowCastingMovie != nil || nowCastingWebTitle != nil {
+                castStatus = "Receiver idle · resume or stop"
+            }
         default:
             break
         }
