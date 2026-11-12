@@ -13,6 +13,8 @@ struct AddTransactionView: View {
     @State private var erpDimensions: [String: String] = [:]
     @State private var newCategory = ""
     @State private var categorySearch = ""
+    @State private var budgetAssignment: BudgetSpendAssignment?
+    @State private var loadedBudget = false
     @State private var showingTransferConversion = false
     @FocusState private var focusedField: Field?
     private let editingTransaction: LedgerTransaction?
@@ -57,6 +59,7 @@ struct AddTransactionView: View {
                     accountPicker
                     amountEditor
                     categoryPicker
+                    if type == .expense { budgetAssignmentEditor }
                     detailsEditor
                     vendorEditor
                     ERPTransactionDimensionsEditor(values: $erpDimensions, type: type)
@@ -98,12 +101,19 @@ struct AddTransactionView: View {
             }
             .onAppear {
                 if accountID == nil { accountID = store.defaultAccountID }
+                if !loadedBudget {
+                    loadedBudget = true
+                    if let transaction = editingTransaction {
+                        budgetAssignment = store.fixedBudget.spendAssignments[transaction.id]
+                    }
+                }
             }
             .onChange(of: type) { newType in
                 let available = categories(for: newType)
                 if !available.contains(category) {
                     category = newType == .expense ? "Food" : "Salary"
                 }
+                if newType != .expense { budgetAssignment = nil }
             }
         }
         .sheet(isPresented: $showingTransferConversion) {
@@ -245,6 +255,16 @@ struct AddTransactionView: View {
             }
             .padding(12)
             .background(.background, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            Menu {
+                ForEach(categories(for: type), id: \.self) { saved in
+                    Button(saved) { category = saved }
+                }
+            } label: {
+                Label("Choose from all saved categories", systemImage: "list.bullet")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 5)
+            }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 92), spacing: 10)], spacing: 10) {
                 ForEach(visibleCategories, id: \.self) { item in
                     Button {
@@ -286,6 +306,72 @@ struct AddTransactionView: View {
                 .buttonStyle(.borderedProminent)
                 .disabled(newCategory.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
+        }
+    }
+
+    private var budgetAssignmentEditor: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Budget Assignment", systemImage: "chart.pie.fill")
+                .font(.headline)
+            Menu {
+                Button("Automatic matching") { budgetAssignment = nil }
+                Button("Unassigned — Review in Budget") {
+                    budgetAssignment = BudgetSpendAssignment(kind: .unassigned)
+                }
+                let fixed = store.fixedBudget.activeItems(.expense, in: BudgetCycle.start(containing: date))
+                if !fixed.isEmpty {
+                    Section("Fixed budget installments") {
+                        ForEach(fixed) { item in
+                            Button("\(item.title) · \(item.amount.formatted())") {
+                                budgetAssignment = BudgetSpendAssignment(kind: .fixed, fixedItemID: item.id)
+                            }
+                        }
+                    }
+                }
+                Section("Planned variable allocations") {
+                    Button("Grocery") { budgetAssignment = BudgetSpendAssignment(kind: .grocery) }
+                    Button("Fuel") { budgetAssignment = BudgetSpendAssignment(kind: .fuel) }
+                    Button("Eat Out") { budgetAssignment = BudgetSpendAssignment(kind: .eatOut) }
+                    Button("Other Planned Expenses") { budgetAssignment = BudgetSpendAssignment(kind: .other) }
+                }
+                Button("Outside Budget") { budgetAssignment = BudgetSpendAssignment(kind: .outside) }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "square.stack.3d.up")
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(budgetAssignmentTitle)
+                            .font(.subheadline.weight(.semibold))
+                        Text("Independent of the recorded category")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption.weight(.semibold))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(14)
+                .foregroundStyle(.primary)
+                .background(.background, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            Text("An expense recorded under Gadgets can still pay an installment under your fixed budget.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var budgetAssignmentTitle: String {
+        guard let assignment = budgetAssignment else { return "Automatic matching" }
+        switch assignment.kind {
+        case .unassigned: return "Unassigned — Review in Budget"
+        case .fixed:
+            let item = store.fixedBudget.items.first { $0.id == assignment.fixedItemID }
+            return "Fixed · " + (item?.title ?? "Unlinked installment")
+        case .grocery: return "Grocery"
+        case .fuel: return "Fuel"
+        case .eatOut: return "Eat Out"
+        case .other: return "Other Planned Expenses"
+        case .outside: return "Outside Budget"
         }
     }
 
@@ -477,7 +563,9 @@ struct AddTransactionView: View {
             transaction.destinationAccountID = nil
             transaction.destinationAmount = nil
             transaction.dimensions = dimensions
-            saved = store.update(transaction)
+            saved = store.update(transaction,
+                updatingBudgetAssignment: true,
+                budgetAssignment: type == .expense ? budgetAssignment : nil)
         } else {
             saved = store.add(
                 type: type,
@@ -487,7 +575,8 @@ struct AddTransactionView: View {
                 vendor: vendor,
                 details: details,
                 accountID: accountID,
-                dimensions: dimensions
+                dimensions: dimensions,
+                budgetAssignment: type == .expense ? budgetAssignment : nil
             )
         }
         guard saved else { return }
