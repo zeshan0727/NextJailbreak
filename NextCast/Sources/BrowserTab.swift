@@ -149,6 +149,7 @@ struct WebPopupPrompt: Identifiable {
     let id = UUID()
     let url: URL
     let originatingTabID: UUID
+    let sourceHost: String
 }
 
 struct BrowserPlayingMedia: Equatable {
@@ -310,6 +311,7 @@ final class BrowserStore: ObservableObject {
     @Published var loading = false
     @Published var pendingDownload: WebDownloadPrompt?
     @Published var pendingPopup: WebPopupPrompt?
+    private var popupQueue: [WebPopupPrompt] = []
     @Published var showMessage: String?
     @Published var lastBrowserError: String?
     @Published var playingMedia: BrowserPlayingMedia?
@@ -350,7 +352,7 @@ final class BrowserStore: ObservableObject {
         let rules: [[String: Any]] = domains.map {
             ["trigger": [
                 "url-filter": ".*" + $0 + ".*",
-                "resource-type": ["script", "image", "popup", "ping"],
+                "resource-type": ["script", "image", "ping"],
                 // Player sites may use third-party bootstrap scripts.
                 "unless-top-url": [".*://([a-z0-9.-]*[.])?play4u[.]org(/.*)?"]
               ],
@@ -624,9 +626,19 @@ final class BrowserStore: ObservableObject {
         }
     }
     func openPlayerWindow(configuration: WKWebViewConfiguration,
-                          action: WKNavigationAction) -> WKWebView? {
+                          action: WKNavigationAction, from webView: WKWebView) -> WKWebView? {
+        // Ask for each new-window request when protection is enabled.
+        // WebKit requires an immediate return; on Allow Once we open the
+        // requested URL in a real tab rather than silently rejecting it.
         if blockPopups {
-            popupBlocked(action.request.url)
+            guard let target = action.request.url,
+                  ["http", "https"].contains(target.scheme?.lowercased() ?? "") else {
+                NextCastPlaybackLog.shared.append("popup-not-requestable", "missing-http-url")
+                return nil
+            }
+            offerPopup(target, from: webView)
+            NextCastPlaybackLog.shared.append("popup-permission-request",
+                "target=\(target.host ?? "-")")
             return nil
         }
         guard pages.count < 16 else {
@@ -765,16 +777,38 @@ final class BrowserStore: ObservableObject {
 
     func offerPopup(_ url: URL, from webView: WKWebView) {
         guard let tab = pages.first(where: { $0.webView === webView }) else { return }
-        pendingPopup = WebPopupPrompt(url: url, originatingTabID: tab.id)
+        // Keep permission requests in order instead of replacing a visible
+        // alert when a website attempts multiple windows.
+        let prompt = WebPopupPrompt(url: url, originatingTabID: tab.id,
+                                    sourceHost: webView.url?.host ?? "Website")
+        if pendingPopup == nil {
+            pendingPopup = prompt
+        } else if popupQueue.count < 10 {
+            popupQueue.append(prompt)
+        } else {
+            NextCastPlaybackLog.shared.append("popup-queue-limit", "additional request ignored")
+        }
     }
-    func approvePopup(newTab: Bool) {
+    private func nextPopup() {
+        pendingPopup = popupQueue.isEmpty ? nil : popupQueue.removeFirst()
+    }
+    func rejectPopup() {
         guard let prompt = pendingPopup else { return }
-        pendingPopup = nil
+        popupBlocked(prompt.url)
+        nextPopup()
+    }
+    func approvePopup(newTab: Bool = true) {
+        guard let prompt = pendingPopup else { return }
+        nextPopup()
+        guard pages.contains(where: { $0.id == prompt.originatingTabID }) else { return }
         if newTab { addTab(url: prompt.url) }
         else if let tab = pages.first(where: { $0.id == prompt.originatingTabID }) {
+            startPageIDs.remove(tab.id)
             select(tab.id)
             tab.webView.load(URLRequest(url: prompt.url))
         }
+        NextCastPlaybackLog.shared.append("popup-allowed-once",
+            "target=\(prompt.url.host ?? "-")")
     }
 
     func addBookmark() {
@@ -917,7 +951,7 @@ final class NextWebDelegate: NSObject, WKNavigationDelegate, WKUIDelegate, WKDow
         }
         NextCastPlaybackLog.shared.append("popup-request",
             "host=\(navigationAction.request.url?.host ?? "-")")
-        return store?.openPlayerWindow(configuration: configuration, action: navigationAction)
+        return store?.openPlayerWindow(configuration: configuration, action: navigationAction, from: webView)
     }
 
     func webViewDidClose(_ webView: WKWebView) {
@@ -1144,7 +1178,7 @@ struct BrowserTab: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Toggle("Block intrusive pop-ups", isOn: $blockPopups)
+                        Toggle("Ask before opening new windows", isOn: $blockPopups)
                         Toggle("Block ad networks", isOn: $blockAds)
                         Button("Reload Page", systemImage: "arrow.clockwise") {
                             model.activeWebView?.reload()
@@ -1248,15 +1282,16 @@ struct BrowserTab: View {
             } message: {
                 Text(model.pendingDownload?.label ?? "File")
             }
-            .confirmationDialog("Website requested a new window",
+            .confirmationDialog("Website wants to open a new window",
                 isPresented: Binding(get: { model.pendingPopup != nil },
-                                    set: { if !$0 { model.pendingPopup = nil } }),
+                                    set: { if !$0 { model.rejectPopup() } }),
                 titleVisibility: .visible) {
-                Button("Open in New Tab") { model.approvePopup(newTab: true) }
-                Button("Open in Current Tab") { model.approvePopup(newTab: false) }
-                Button("Block", role: .cancel) { model.pendingPopup = nil }
+                Button("Allow Once") { model.approvePopup(newTab: true) }
+                Button("Reject", role: .cancel) { model.rejectPopup() }
             } message: {
-                Text(model.pendingPopup?.url.host ?? "Website")
+                if let request = model.pendingPopup {
+                    Text("From: \(request.sourceHost)\nOpen: \(request.url.absoluteString)")
+                }
             }
             .alert("Browser", isPresented: Binding(
                 get: { model.showMessage != nil },
