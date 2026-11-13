@@ -930,6 +930,8 @@ struct BrowserTab: View {
     @StateObject private var model: BrowserStore
     @State private var safariPage: NextCastSafariPage?
     @State private var vlcCandidate: BrowserStreamCandidate?
+    @AppStorage("browserBlockAds") private var blockAds = true
+    @AppStorage("nextcast.blockPopups") private var blockPopups = true
     @AppStorage("nextcast.ios16LegacyWebKit") private var legacyWebKit = true
     @AppStorage("nextcast.detailedVideoDiagnostics") private var detailedVideoLogs = false
     @State private var shareLogFile: URL?
@@ -1022,6 +1024,16 @@ struct BrowserTab: View {
                         }
                 }
 
+                if blockPopups && model.blockedPopupCount > 0 {
+                    HStack(spacing: 6) {
+                        Image(systemName: "hand.raised.fill")
+                        Text("\(model.blockedPopupCount) pop-up(s) blocked")
+                            .font(.caption2.weight(.semibold))
+                        Spacer()
+                    }
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12).padding(.bottom, 4)
+                }
                 if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 16 && legacyWebKit {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.shield")
@@ -1168,6 +1180,11 @@ struct BrowserTab: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        Toggle("Block intrusive pop-ups", isOn: $blockPopups)
+                        Toggle("Block ad networks", isOn: $blockAds)
+                        Button("Unblock Current Page", systemImage: "play.rectangle") {
+                            model.reloadUnblockedPage()
+                        }
                         Button("Reload Unblocked Player", systemImage: "play.rectangle") {
                             model.reloadUnblockedPage()
                         }
@@ -1230,7 +1247,10 @@ struct BrowserTab: View {
             }
             .onAppear {
                 inputURL = model.currentAddress
+                model.updateProtection()
             }
+            .onChange(of: blockAds) { _ in model.updateProtection() }
+            .onChange(of: blockPopups) { _ in model.updateProtection() }
             .onChange(of: model.currentAddress) { inputURL = $0 }
             .onChange(of: model.selectedID) { _ in inputURL = model.currentAddress }
             .onChange(of: legacyWebKit) { _ in model.reopenActiveWithBrowserMode() }
