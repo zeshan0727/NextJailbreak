@@ -8203,13 +8203,45 @@
       "version": "1.0.1"
     },
     {
-      "action": "create",
-      "channel": "ios-repo-discovery-original-source",
+      "action": "update",
+      "additional_media": [
+        "assets/articles/source-media/replyactions-3-0-1-official-popup.png"
+      ],
+      "additional_media_sha256": [
+        "bf836afab7ca2389b4de370d065e4b79d597be10c3cf305b8df56ef50de18da8"
+      ],
+      "article_sha256": "987cb60876b3faefa43b03d13a15a16beb6fd2f35b24354eaf80d5db13c19862",
+      "candidate_fingerprint": "individual-update.replyactions-3.0.1-roothide-ui-fixes-2026-11-13",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "Havoc lists ReplyActions 3.0.1 for iOS 14.0–26.0.1 with a jailbreak required and Rootless support. The developer separately publishes an iphoneos-arm64e RootHide package that requires a Havoc purchase. No current Rootful support claim is made; package compatibility does not create jailbreak availability for every device.",
+      "description": "ReplyActions 3.0.1 adds official RootHide support and fixes keyboard, Home Screen gesture, appearance-slider and Liquid Glass bugs. Check iOS limits and install paths.",
+      "developer": "sergy",
+      "entry_type": "individual-update",
       "href": "replyactions-1-0-3-update/",
+      "image": "assets/articles/source-media/replyactions-3-0-1-official-banner.png",
+      "media_alt": "Official ReplyActions banner showing its translucent popup messaging interface on two iPhones",
+      "media_credit": "sergy — official ReplyActions Havoc banner",
+      "media_sha256": "0d0ee0b719b9f7dcf0ecf37884d6c099953b9e16d954142becdd56dfda9f6765",
+      "media_source_url": "https://media.havoc.app/6a9bf30841cbeab3dd6e7009",
+      "modified_at": "2026-11-13T15:08:25Z",
+      "name": "ReplyActions",
       "package": "com.sergy.replyactions",
       "published_at": "2026-09-14T09:26:07+00:00",
+      "release": "ReplyActions 3.0.1 updated 2026-11-13T01:42:59.392Z; RootHide asset published 2026-11-13T01:41:52Z",
       "run_id": "34811983953-8",
-      "version": "1.0.3"
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "replyactions-1-0-3-update",
+      "source_name": "Official Havoc live package data, 3.0.1 changelog and developer RootHide GitHub release",
+      "source_page_url": "https://havoc.app/package/replyactions",
+      "source_url": "https://github.com/sergealagon/ReplyActions/releases/tag/Roothide",
+      "source_visual_origin": "official-havoc-banner-and-screenshot",
+      "source_visual_url": "https://media.havoc.app/6a9bf30841cbeab3dd6e7009",
+      "title": "ReplyActions 3.0.1 Adds RootHide Support and Fixes UI Regressions",
+      "version": "3.0.1"
     },
     {
       "action": "create",
@@ -10983,5 +11015,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-13T09:06:07+00:00"
+  "updated_at": "2026-11-13T15:08:25+00:00"
 }
