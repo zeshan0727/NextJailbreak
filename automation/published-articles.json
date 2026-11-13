@@ -3682,34 +3682,40 @@
     },
     {
       "additional_media": [
-        "assets/articles/source-media/atria-1-4-1-official-layout-showcase.jpg"
+        "assets/articles/source-media/atria-1-9-3-official-icon.png"
       ],
+      "additional_media_sha256": [
+        "4de63207b2018962425fdc64bf2215ead9fd86c4078292338a023e2d29f84ad3"
+      ],
+      "article_sha256": "469f14ee0d2f47fa64655d9767517140ae08ac5772928a0f0b0a0d6f59a09332",
       "category": {
         "id": "tweak-roundup-comparison",
         "label": "Tweak Roundup & Comparison"
       },
-      "compat": "Atria 1.4.1 officially lists iOS 13.0–16.5 and added official rootless support in 1.4.0-1. Lynx 2 2.5.4 officially lists iOS 14.0–16.7.10 and rootless support. Package compatibility does not prove jailbreak availability for every device.",
-      "description": "Compare Atria 1.4.1 and Lynx 2 2.5.4 by Home Screen controls, system-wide customization, iOS range, rootless support, price and update history.",
-      "developer": "ren7995 / MTAC",
+      "compat": "Atria 1.9.3 declares firmware 15.0+ and documents iOS 16–17, with a native RootHide package and a separate rootless package explicitly marked not yet tested; iOS 26 fixes do not confirm full support. Lynx 2 2.5.4 officially lists iOS 14.0–16.7.10 and rootless support. Package compatibility does not prove jailbreak availability for every device.",
+      "description": "Compare Atria 1.9.3 and Lynx 2.5.4 by iOS range, RootHide and rootless support, App Library tools, whole-system features, price and recovery.",
+      "developer": "CySxL / MTAC",
       "entry_type": "comparison",
       "href": "atria-vs-lynx-2-ios-16-customization-comparison/",
       "image": "assets/articles/source-media/lynx-2-2-5-4-official-banner.png",
-      "media_credit": "MTAC — official Lynx 2 Havoc banner; ren7995 — official Atria Chariz layout showcase",
+      "media_alt": "Official Lynx 2 banner showing its Settings interface and customization categories",
+      "media_credit": "MTAC — official Lynx 2 Havoc banner; CySxL — official Atria 1.9.3 package icon",
       "media_sha256": "950e2abe3d3db2568f86327994ee4a713df2c98f2b4798f1a523eab433e3103c",
       "media_source_url": "https://media.havoc.app/653ef2f6f119bab2880206c0",
       "name": "Atria vs Lynx 2",
       "package": "comparison.atria-lynx-2",
+      "modified_at": "2026-11-13T09:06:07Z",
       "published_at": "2026-10-15T08:58:45Z",
-      "release": "Atria 1.4.1 released 2023-06-22; Lynx 2 2.5.4 updated 2025-01-03",
+      "release": "Atria 1.9.3 committed 2026-11-12T14:23:31Z; Lynx 2 2.5.4 updated 2025-01-03",
       "selection_pool": "scheduled-tweak-roundup-comparison",
       "slug": "atria-vs-lynx-2-ios-16-customization-comparison",
-      "source_name": "Official Chariz Atria 1.4.1 page and changelog; Havoc Lynx 2 page data and 2.5.4 changelog",
-      "source_page_url": "https://chariz.com/get/atria/",
+      "source_name": "CySxL official Atria 1.9.3 commit, package metadata and depiction; official Havoc Lynx 2 page and MTAC feature list",
+      "source_page_url": "https://github.com/CySxL/CySxL.github.io/commit/89a833946e16723f589ce84c25917958df532c6c",
       "source_url": "https://havoc.app/package/lynxtwo",
-      "source_visual_origin": "official-havoc-banner-and-chariz-screenshot",
+      "source_visual_origin": "official-havoc-banner-and-project-package-icon",
       "source_visual_url": "https://media.havoc.app/653ef2f6f119bab2880206c0",
-      "title": "Atria vs Lynx 2: Which iOS 16 Customization Tweak Should You Use?",
-      "version": "Atria 1.4.1 / Lynx 2 2.5.4"
+      "title": "Atria 1.9.3 vs Lynx 2: Home Screen Editor or Full iOS Suite?",
+      "version": "Atria 1.9.3 / Lynx 2 2.5.4"
     },
     {
       "additional_media": [],
@@ -10977,5 +10983,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-13T03:02:00+00:00"
+  "updated_at": "2026-11-13T09:06:07+00:00"
 }
