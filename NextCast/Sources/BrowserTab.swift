@@ -313,6 +313,9 @@ final class BrowserStore: ObservableObject {
     @Published var playingMedia: BrowserPlayingMedia?
     @Published private(set) var blockedPopupCount = 0
     @Published var bookmarks: [SavedBookmark] = []
+    // A blank browser tab presents locally saved bookmarks instead of loading
+    // Google's homepage. This state is per tab and is never persisted.
+    @Published private(set) var startPageIDs: Set<UUID> = []
 
     let library: MovieLibrary
     let downloads: BrowserDownloadStore
@@ -403,6 +406,10 @@ final class BrowserStore: ObservableObject {
         pages.first { $0.id == selectedID }
     }
     var activeWebView: WKWebView? { active?.webView }
+    var showingStartPage: Bool {
+        guard let selectedID else { return false }
+        return startPageIDs.contains(selectedID)
+    }
     var activePlayingMedia: BrowserPlayingMedia? {
         guard let media = playingMedia, media.tabID == selectedID else { return nil }
         return media
@@ -415,20 +422,24 @@ final class BrowserStore: ObservableObject {
             showMessage = "Close an existing tab before opening another (16 maximum)."
             return
         }
-        let page = BrowserPage(store: self, url: url ?? URL(string: "https://www.google.com")!)
+        let isNewStartPage = url == nil
+        let page = BrowserPage(store: self, url: url ?? URL(string: "about:blank")!)
         pages.append(page)
+        if isNewStartPage { startPageIDs.insert(page.id) }
         select(page.id)
     }
     func select(_ id: UUID) {
         guard let page = pages.first(where: { $0.id == id }) else { return }
         selectedID = id
-        currentAddress = page.webView.url?.absoluteString ?? page.address
-        loading = page.webView.isLoading
+        let start = startPageIDs.contains(id)
+        currentAddress = start ? "" : (page.webView.url?.absoluteString ?? page.address)
+        loading = !start && page.webView.isLoading
         objectWillChange.send()
     }
     func close(_ id: UUID) {
         guard let index = pages.firstIndex(where: { $0.id == id }) else { return }
         let page = pages.remove(at: index)
+        startPageIDs.remove(id)
         page.webView.stopLoading()
         if playingMedia?.tabID == id { playingMedia = nil }
         if pages.isEmpty {
@@ -454,6 +465,7 @@ final class BrowserStore: ObservableObject {
             showMessage = "Enter a valid webpage URL or search."
             return
         }
+        if let selectedID { startPageIDs.remove(selectedID) }
         activeWebView?.load(URLRequest(url: url))
     }
     func recordNavigationError(_ error: Error, view: WKWebView) {
@@ -470,10 +482,14 @@ final class BrowserStore: ObservableObject {
         guard let id = selectedID,
               let index = pages.firstIndex(where: { $0.id == id }) else { return }
         let oldPage = pages[index]
-        let url = oldPage.webView.url ?? URL(string: oldPage.address) ?? URL(string: "https://www.google.com")!
+        let wasStartPage = startPageIDs.contains(id)
+        let url = wasStartPage ? URL(string: "about:blank")! :
+            (oldPage.webView.url ?? URL(string: oldPage.address) ?? URL(string: "about:blank")!)
         oldPage.webView.stopLoading()
         let newPage = BrowserPage(store: self, url: url)
         pages[index] = newPage
+        startPageIDs.remove(id)
+        if wasStartPage { startPageIDs.insert(newPage.id) }
         if playingMedia?.tabID == id { playingMedia = nil }
         select(newPage.id)
         NextCastPlaybackLog.shared.append("browser-mode-recreated", "host=\(url.host ?? "-")")
@@ -549,8 +565,9 @@ final class BrowserStore: ObservableObject {
         page.canForward = view.canGoForward
         page.isLoading = view.isLoading
         if page.id == selectedID {
-            currentAddress = page.address
-            loading = view.isLoading
+            let start = startPageIDs.contains(page.id)
+            currentAddress = start ? "" : page.address
+            loading = !start && view.isLoading
         }
         objectWillChange.send()
     }
