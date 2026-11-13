@@ -6,6 +6,15 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>vphone 2.16.1 Update: Safe Upgrade, SHA-256 and Guest Fixes</title>
+      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
+      <pubDate>Fri, 13 Nov 2026 21:03:15 GMT</pubDate>
+      <description>Update vphone to 2.16.1 safely: verify official ZIP hashes, install the matching 2.16 bundle, refresh guest environments and fix rotation, GLES and TXM app-launch problems.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+
+    <item>
       <title>ReplyActions 3.0.1 Adds RootHide Support and Fixes UI Regressions</title>
       <link>https://nextjailbreak.com/replyactions-1-0-3-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/replyactions-1-0-3-update/</guid>
@@ -237,14 +246,7 @@
       <description>Compare Dopamine 3.0.13 and palera1n 3.0.0 beta 3 by supported devices, iOS range, reboot workflow, computer needs, passcode limits and release risk.</description>
       <category>Jailbreak Comparison</category>
     </item>
-    <item>
-      <title>How to Update vphone-cli 2.15.2 Safely on Apple Silicon</title>
-      <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</guid>
-      <pubDate>Fri, 06 Nov 2026 03:00:00 GMT</pubDate>
-      <description>Install or upgrade vphone-cli 2.15.2 safely, pair Launchpad with the correct Core Bundle, preserve existing guests, verify official SHA-256 hashes and fix common 2.15 migration problems.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
+
     <item>
       <title>Regram 7.0 Rebuilds Its Instagram Toolkit for IG 454.1</title>
       <link>https://nextjailbreak.com/regram-for-instagram-7-0-update/</link>
