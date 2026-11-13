@@ -385,6 +385,13 @@ final class BrowserStore: ObservableObject {
     init(library: MovieLibrary, downloads: BrowserDownloadStore) {
         self.library = library
         self.downloads = downloads
+        // 1.5.3 forcibly stored browserBlockAds=false. Enable the restored
+        // protection exactly once on upgrade; respect user choices afterward.
+        if !UserDefaults.standard.bool(forKey: "nextcast.protectionMigration156") {
+            UserDefaults.standard.set(true, forKey: "browserBlockAds")
+            UserDefaults.standard.set(true, forKey: "nextcast.blockPopups")
+            UserDefaults.standard.set(true, forKey: "nextcast.protectionMigration156")
+        }
         if let data = UserDefaults.standard.data(forKey: bookmarkKey),
            let decoded = try? JSONDecoder().decode([SavedBookmark].self, from: data) {
             bookmarks = decoded
