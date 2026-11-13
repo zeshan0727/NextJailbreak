@@ -40,7 +40,7 @@ final class NextCastPlaybackLog {
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
         let legacy = UserDefaults.standard.object(forKey: "nextcast.ios16LegacyWebKit") as? Bool ?? true
         let detailed = UserDefaults.standard.bool(forKey: "nextcast.detailedVideoDiagnostics")
-        let header = "Next Cast Playback Diagnostic\nVersion: \(version) build \(build)\niOS: \(UIDevice.current.systemVersion)\nLegacy WebKit: \(legacy)\nDetailed logs: \(detailed)\nBuilt-in ad blocker: removed\nNo media URLs or cookies intentionally collected.\n---\n"
+        let header = "Next Cast Playback Diagnostic\nVersion: \(version) build \(build)\niOS: \(UIDevice.current.systemVersion)\nLegacy WebKit: \(legacy)\nDetailed logs: \(detailed)\nBuilt-in ad blocker: configurable (exempts video compatibility sites)\nNo media URLs or cookies intentionally collected.\n---\n"
         let file = FileManager.default.temporaryDirectory.appendingPathComponent("NextCast-Playback-\(UUID().uuidString.prefix(8)).txt")
         do {
             try (header + lines.joined(separator: "\n") + "\n")
@@ -238,8 +238,8 @@ final class BrowserPage: Identifiable {
     init(store: BrowserStore, url: URL) {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
-        // Playback-first browser: NEVER attach content blocking rules.
-        // Clear legacy rules from the configuration before loading a page.
+        // The browser restores controlled ad filters. Playback domains can
+        // opt out; intrusive popup windows are blocked separately.
         config.userContentController.removeAllContentRuleLists()
         // iOS 16 defaults to the 1.4.0-era minimal WKWebView media setup.
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
@@ -279,13 +279,13 @@ final class BrowserPage: Identifiable {
         view.uiDelegate = handler
         view.allowsBackForwardNavigationGestures = true
         view.scrollView.contentInsetAdjustmentBehavior = .automatic
+        store.configureBlocking(for: view, initialURL: url)
         view.load(URLRequest(url: url))
     }
 
     // WebKit MUST receive a view built with its supplied configuration for
     // target=_blank / window.open players. It performs the navigation itself.
     init(store: BrowserStore, popupConfiguration: WKWebViewConfiguration, url: URL?) {
-        // A target=_blank video player must inherit a clean configuration.
         popupConfiguration.userContentController.removeAllContentRuleLists()
         let view = WKWebView(frame: .zero, configuration: popupConfiguration)
         let handler = NextWebDelegate(store: store)
@@ -296,6 +296,7 @@ final class BrowserPage: Identifiable {
         view.uiDelegate = handler
         view.allowsBackForwardNavigationGestures = true
         view.scrollView.contentInsetAdjustmentBehavior = .automatic
+        if let url { store.configureBlocking(for: view, initialURL: url) }
     }
 }
 
@@ -310,18 +311,80 @@ final class BrowserStore: ObservableObject {
     @Published var showMessage: String?
     @Published var lastBrowserError: String?
     @Published var playingMedia: BrowserPlayingMedia?
+    @Published private(set) var blockedPopupCount = 0
     @Published var bookmarks: [SavedBookmark] = []
 
     let library: MovieLibrary
     let downloads: BrowserDownloadStore
     private let bookmarkKey = "nextcast.bookmarks.1"
-    // Ad-blocker functionality was removed for streaming site compatibility.
-    // No in-app content-rule list is registered, regardless of old preferences.
+    private var filterGeneration = 0
+    var blockAds: Bool { UserDefaults.standard.object(forKey: "browserBlockAds") as? Bool ?? true }
+    var blockPopups: Bool { UserDefaults.standard.object(forKey: "nextcast.blockPopups") as? Bool ?? true }
+    private let streamingAllowlist = ["play4u.org", "www.play4u.org"]
+
+    private func isVideoCompatibilitySite(_ url: URL?) -> Bool {
+        guard let host = url?.host?.lowercased() else { return false }
+        return streamingAllowlist.contains(host)
+    }
+
+    func popupBlocked(_ url: URL?) {
+        blockedPopupCount += 1
+        NextCastPlaybackLog.shared.append("popup-blocked", "host=\(url?.host ?? "-")")
+    }
+
+    func configureBlocking(for view: WKWebView, initialURL: URL? = nil) {
+        guard blockAds else { return }
+        // Only block requests to known advertising domains. Do not block
+        // generic media, playlists, image servers, or all third-party scripts.
+        let domains = [
+            "doubleclick[.]net", "googlesyndication[.]com",
+            "adservice[.]google[.]com", "popads[.]net", "popcash[.]net",
+            "propellerads[.]com", "exoclick[.]com",
+            "adnxs[.]com", "taboola[.]com", "outbrain[.]com"
+        ]
+        let rules: [[String: Any]] = domains.map {
+            ["trigger": [
+                "url-filter": ".*" + $0 + ".*",
+                "resource-type": ["script", "image", "popup", "ping"],
+                // Player sites may use third-party bootstrap scripts.
+                "unless-top-url": [".*://([a-z0-9.-]*[.])?play4u[.]org(/.*)?"]
+              ],
+             "action": ["type": "block"]]
+        }
+        guard let data = try? JSONSerialization.data(withJSONObject: rules),
+              let json = String(data: data, encoding: .utf8) else { return }
+        let generation = filterGeneration
+        WKContentRuleListStore.default().compileContentRuleList(
+            forIdentifier: "NextCastSmartAdBlock-v156", encodedContentRuleList: json
+        ) { [weak self, weak view] list, error in
+            DispatchQueue.main.async {
+                guard let self, let view, let list,
+                      self.blockAds, generation == self.filterGeneration else { return }
+                // The user may have navigated to a playback compatibility site
+                // while the rule list was compiling; WebKit's unless-top-url
+                // additionally exempts that site's resources at evaluation.
+                view.configuration.userContentController.removeAllContentRuleLists()
+                view.configuration.userContentController.add(list)
+                NextCastPlaybackLog.shared.append("ad-filter-installed",
+                    "site=\(view.url?.host ?? initialURL?.host ?? "-")")
+                if view.url != nil { view.reload() }
+            }
+        }
+    }
+
+    func updateProtection() {
+        filterGeneration += 1
+        blockedPopupCount = 0
+        for page in pages {
+            page.webView.configuration.userContentController.removeAllContentRuleLists()
+            if blockAds { configureBlocking(for: page.webView) }
+            else { page.webView.reload() }
+        }
+    }
 
     init(library: MovieLibrary, downloads: BrowserDownloadStore) {
         self.library = library
         self.downloads = downloads
-        UserDefaults.standard.set(false, forKey: "browserBlockAds")
         if let data = UserDefaults.standard.data(forKey: bookmarkKey),
            let decoded = try? JSONDecoder().decode([SavedBookmark].self, from: data) {
             bookmarks = decoded
@@ -468,7 +531,7 @@ final class BrowserStore: ObservableObject {
     func browserDiagnosis() {
         let detected = activePlayingMedia == nil ? "no HTML5 video detected" : "HTML5 video detected"
         let issue = lastBrowserError ?? "no top-level navigation failure reported"
-        showMessage = "Built-in ad blocker: removed. No WKContentRuleLists are attached. Player: \(detected). Browser: \(issue). If playback remains blank, test Safari Player; some sites disallow embedded browsers."
+        showMessage = "Ad filtering: \(blockAds ? "on" : "off"). Pop-up blocking: \(blockPopups ? "on" : "off"), blocked \(blockedPopupCount). Player: \(detected). Browser: \(issue)."
     }
 
     func refresh(view: WKWebView) {
@@ -536,6 +599,10 @@ final class BrowserStore: ObservableObject {
     }
     func openPlayerWindow(configuration: WKWebViewConfiguration,
                           action: WKNavigationAction) -> WKWebView? {
+        if blockPopups {
+            popupBlocked(action.request.url)
+            return nil
+        }
         guard pages.count < 16 else {
             showMessage = "Video site opened too many windows (16 tabs maximum)."
             return nil
@@ -700,8 +767,7 @@ final class BrowserStore: ObservableObject {
     }
 
     func reloadUnblockedPage() {
-        // A fresh reload ensures previously blocked scripts get a new chance
-        // to load after removing any legacy rule lists from the active view.
+        // Useful if a player needs an entirely unfiltered reload for this tab.
         guard let page = active else { return }
         page.webView.configuration.userContentController.removeAllContentRuleLists()
         lastBrowserError = nil
