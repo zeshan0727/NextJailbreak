@@ -402,6 +402,8 @@ struct MoviesTab: View {
 struct SettingsTab: View {
     @ObservedObject var library: MovieLibrary
     @AppStorage("appearance") private var appearance = "system"
+    @AppStorage("browserBlockAds") private var browserBlockAds = true
+    @AppStorage("nextcast.blockPopups") private var blockPopups = true
     @AppStorage("nextcast.keepLocalCastWhileLocked") private var keepLocalCastWhileLocked = true
     var body: some View {
         NavigationStack {
@@ -413,9 +415,12 @@ struct SettingsTab: View {
                         Text("Dark").tag("dark")
                     }.pickerStyle(.segmented)
                 }
-                Section("Website video compatibility") {
-                    LabeledContent("Built-in content blocker", value: "Disabled")
-                    Text("Next Cast allows third-party video player scripts and media domains. Sites may show advertising or pop-up windows. No content-filtering rules are installed by this browser.")
+                Section("Browser protection") {
+                    Toggle("Block intrusive pop-ups", isOn: $blockPopups)
+                    Toggle("Block known ad networks", isOn: $browserBlockAds)
+                    Text("Both protections are enabled by default. Pop-up blocking prevents websites from opening unwanted tabs. Ad filtering targets common advertising domains while exempting Play4U for video compatibility.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                    Text("If a video does not start, choose Browser → ⋯ → Unblock Current Page. Cast Video and Try VLC remain available.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("TV playback while locked") {
