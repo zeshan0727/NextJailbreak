@@ -280,7 +280,9 @@ final class BrowserPage: Identifiable {
         view.allowsBackForwardNavigationGestures = true
         view.scrollView.contentInsetAdjustmentBehavior = .automatic
         store.configureBlocking(for: view, initialURL: url)
-        view.load(URLRequest(url: url))
+        // Start tabs are intentionally blank; load the requested site only
+        // after the user types an address or chooses a saved bookmark.
+        if url.scheme != "about" { view.load(URLRequest(url: url)) }
     }
 
     // WebKit MUST receive a view built with its supplied configuration for
@@ -974,233 +976,147 @@ struct BrowserTab: View {
         _model = StateObject(wrappedValue: BrowserStore(library: library, downloads: downloads))
     }
 
+
+    private var favoriteStartPage: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Start Page")
+                        .font(.system(size: 29, weight: .bold, design: .rounded))
+                    Text("Quick access to your saved websites")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 18)
+
+                HStack(spacing: 8) {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.cyan)
+                    Text("Favorites")
+                        .font(.title3.weight(.semibold))
+                }
+
+                if model.bookmarks.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "bookmark")
+                            .font(.system(size: 32, weight: .light))
+                            .foregroundStyle(.cyan)
+                        Text("No bookmarks yet")
+                            .font(.headline)
+                        Text("Open a website and tap the star in the toolbar to save it here.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 42)
+                    .background(.secondary.opacity(0.06), in: RoundedRectangle(cornerRadius: 18))
+                } else {
+                    LazyVGrid(columns: [
+                        GridItem(.adaptive(minimum: 128, maximum: 240), spacing: 12)
+                    ], spacing: 12) {
+                        ForEach(model.bookmarks) { bookmark in
+                            Button {
+                                model.navigate(bookmark.url)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Image(systemName: "globe")
+                                        .font(.system(size: 23, weight: .medium))
+                                        .foregroundStyle(.cyan)
+                                        .frame(width: 44, height: 44)
+                                        .background(Color.cyan.opacity(0.10),
+                                                    in: RoundedRectangle(cornerRadius: 12))
+                                    Spacer(minLength: 0)
+                                    Text(bookmark.title)
+                                        .font(.subheadline.weight(.semibold))
+                                        .lineLimit(2)
+                                        .foregroundStyle(.primary)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Text(URL(string: bookmark.url)?.host ?? bookmark.url)
+                                        .font(.caption2)
+                                        .lineLimit(1)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding(14)
+                                .frame(maxWidth: .infinity, minHeight: 155, alignment: .leading)
+                                .background(.background, in: RoundedRectangle(cornerRadius: 18))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 18)
+                                        .strokeBorder(.secondary.opacity(0.12), lineWidth: 1)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button("Remove Bookmark", role: .destructive) {
+                                    model.removeBookmark(bookmark)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, 36)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(uiColor: .systemGroupedBackground))
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                HStack(spacing: 8) {
-                    Image(systemName: "lock.shield").foregroundStyle(.cyan)
-                    TextField("Search or URL", text: $inputURL)
+                HStack(spacing: 7) {
+                    Image(systemName: "lock.shield")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.cyan)
+                    TextField("Search or website address", text: $inputURL)
+                        .font(.system(size: 14))
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .submitLabel(.go)
                         .onSubmit { model.navigate(inputURL) }
                     Button { model.navigate(inputURL) } label: {
-                        Image(systemName: "arrow.right.circle.fill").font(.title3)
+                        Image(systemName: "arrow.up.right.circle.fill")
+                            .font(.system(size: 19))
                     }
-                }
-                .padding(11)
-                .background(.secondary.opacity(0.09), in: RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal, 12).padding(.vertical, 8)
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 7) {
-                        ForEach(model.pages) { page in
-                            HStack(spacing: 6) {
-                                Button { model.select(page.id) } label: {
-                                    Text(page.title)
-                                        .font(.caption)
-                                        .lineLimit(1)
-                                        .frame(maxWidth: 112, alignment: .leading)
-                                }
-                                Button { model.close(page.id) } label: {
-                                    Image(systemName: "xmark.circle.fill").font(.caption)
-                                }
-                                .accessibilityLabel("Close tab")
-                            }
-                            .padding(.horizontal, 11).padding(.vertical, 10)
-                            .foregroundStyle(model.selectedID == page.id ? .white : .primary)
-                            .background(model.selectedID == page.id ? Color.cyan.opacity(0.6) :
-                                        Color.secondary.opacity(0.11), in: Capsule())
+                    .accessibilityLabel("Go to website")
+                    Button { model.addTab() } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .accessibilityLabel("New tab")
+                    Button { showTabList = true } label: {
+                        HStack(spacing: 2) {
+                            Image(systemName: "square.on.square")
+                            Text("\(model.pages.count)")
+                                .font(.caption2.monospacedDigit())
                         }
-                        Button { model.addTab() } label: {
-                            Image(systemName: "plus.circle.fill").font(.title3)
-                        }
-                        .accessibilityLabel("New browser tab")
-                    }.padding(.horizontal, 10)
+                        .font(.system(size: 15))
+                    }
+                    .accessibilityLabel("Show browser tabs")
                 }
-                .padding(.bottom, 6)
+                .foregroundStyle(.cyan)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 9)
+                .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
 
                 if model.loading {
                     ProgressView().progressViewStyle(.linear).tint(.cyan)
                 }
-                if let page = model.active {
+                if model.showingStartPage {
+                    favoriteStartPage
+                } else if let page = model.active {
                     BrowserWebSurface(page: page)
                         .id(page.id)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .overlay(alignment: .topTrailing) {
-                            if let media = model.activePlayingMedia {
-                                Button {
-                                    model.downloadPlayingVideo()
-                                } label: {
-                                    Label(media.isDirectHTTPFile ? "Save Video" : "Stream Info",
-                                          systemImage: media.isDirectHTTPFile ? "arrow.down.to.line" : "info.circle")
-                                        .font(.system(size: 13, weight: .semibold))
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 9)
-                                        .background(.regularMaterial, in: Capsule())
-                                }
-                                .foregroundStyle(.cyan)
-                                .padding(12)
-                                .accessibilityLabel(media.isDirectHTTPFile ?
-                                                    "Save playing video" : "Video stream information")
-                            }
-                        }
                 }
-
-                if blockPopups && model.blockedPopupCount > 0 {
-                    HStack(spacing: 6) {
-                        Image(systemName: "hand.raised.fill")
-                        Text("\(model.blockedPopupCount) pop-up(s) blocked")
-                            .font(.caption2.weight(.semibold))
-                        Spacer()
-                    }
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12).padding(.bottom, 4)
-                }
-                if ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 16 && legacyWebKit {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.shield")
-                        Text("iOS 16 Legacy WebKit active")
-                            .font(.caption2)
-                        Spacer()
-                    }
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12).padding(.bottom, 4)
-                }
-                // Always-visible playback actions, even before media detection.
-                HStack(spacing: 12) {
-                    Button { model.reloadUnblockedPage() } label: {
-                        Label("Reload Player", systemImage: "arrow.clockwise.circle")
-                    }
-                    Spacer(minLength: 4)
-                    Button {
-                        if let url = model.activeWebView?.url,
-                           ["https", "http"].contains(url.scheme?.lowercased() ?? "") {
-                            safariPage = NextCastSafariPage(url: url)
-                        } else {
-                            model.showMessage = "Open a website first."
-                        }
-                    } label: {
-                        Label("Safari Player", systemImage: "play.rectangle")
-                    }
-                    Spacer(minLength: 4)
-                    Button { model.downloadPlayingVideo() } label: {
-                        Label("Save Video", systemImage: "arrow.down.to.line")
-                    }
-                }
-                .font(.system(size: 12, weight: .semibold))
-                .labelStyle(.titleAndIcon)
-                .foregroundStyle(.cyan)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .background(.secondary.opacity(0.07))
-
-
-                // Remote casting works independently of the phone's WebKit
-                // decoder. The receiver itself must support the stream.
-                HStack(spacing: 10) {
-                    BrowserCastPicker()
-                        .frame(width: 42, height: 42)
-                        .accessibilityLabel("Select Google Cast TV")
-                    Button {
-                        if !cast.isConnected {
-                            model.showMessage = "First tap the Cast icon to connect your Chromecast or Google Cast TV."
-                        } else {
-                            model.resolveActiveVideo { candidate in
-                                guard let candidate else { return }
-                                cast.loadWebStream(candidate.url,
-                                    contentType: candidate.contentType,
-                                    title: candidate.title)
-                            }
-                        }
-                    } label: {
-                        Label("Cast Video", systemImage: "tv.and.hifispeaker.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.cyan)
-                    Button {
-                        model.resolveActiveVideo { candidate in
-                            guard let candidate else { return }
-                            vlcCandidate = candidate
-                        }
-                    } label: {
-                        Label("Try VLC", systemImage: "play.tv")
-                            .font(.system(size: 13, weight: .semibold))
-                            .padding(.vertical, 10)
-                    }
-                    .buttonStyle(.bordered)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 5)
-
-                if cast.isConnected || cast.nowCastingWebTitle != nil {
-                    HStack(spacing: 10) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(cast.nowCastingWebTitle ?? cast.pendingWebTitle ?? cast.tvName)
-                                .font(.caption.weight(.semibold))
-                                .lineLimit(1)
-                            Text(cast.castStatus)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                        }
-                        Spacer(minLength: 3)
-                        if cast.nowCastingWebTitle != nil {
-                            Button { cast.togglePlay() } label: {
-                                Image(systemName: cast.isPlaying ? "pause.fill" : "play.fill")
-                            }
-                            Button { cast.stopRemotePlayback() } label: {
-                                Image(systemName: "stop.fill")
-                            }
-                        }
-                    }
-                    .foregroundStyle(.cyan)
-                    .padding(.horizontal, 15)
-                    .padding(.vertical, 6)
-                }
-
-                HStack {
-                    Button { model.activeWebView?.goBack() } label: {
-                        Image(systemName: "chevron.left")
-                    }.disabled(!model.canBack)
-                    Spacer()
-                    Button { model.activeWebView?.goForward() } label: {
-                        Image(systemName: "chevron.right")
-                    }.disabled(!model.canForward)
-                    Spacer()
-                    Button { model.navigate("https://www.google.com") } label: {
-                        Image(systemName: "house")
-                    }
-                    Spacer()
-                    Button { model.activeWebView?.reload() } label: {
-                        Image(systemName: "arrow.clockwise")
-                    }
-                    Spacer()
-                    Button { model.addBookmark() } label: {
-                        Image(systemName: "star")
-                    }
-                    Spacer()
-                    Button { showBookmarks = true } label: {
-                        Image(systemName: "book.closed")
-                    }
-                    Spacer()
-                    Button { showTabList = true } label: {
-                        Label("\(model.pages.count)", systemImage: "square.on.square")
-                    }
-                    Spacer()
-                    Button { openDownloads() } label: {
-                        Image(systemName: "arrow.down.circle")
-                    }
-                }
-                .font(.system(size: 17, weight: .medium))
-                .padding(.horizontal, 15).padding(.vertical, 13)
-                .foregroundStyle(.cyan)
             }
-            .navigationTitle("Browser · v\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?")")
+            .navigationTitle("Browser")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
