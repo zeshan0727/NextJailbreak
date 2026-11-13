@@ -790,7 +790,14 @@ final class BrowserStore: ObservableObject {
         }
     }
     private func nextPopup() {
-        pendingPopup = popupQueue.isEmpty ? nil : popupQueue.removeFirst()
+        // Complete this dialog dismissal before presenting the next one.
+        // Otherwise SwiftUI can call the old dismissal Binding on the next
+        // request and accidentally reject it without asking.
+        pendingPopup = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            guard let self, self.pendingPopup == nil, !self.popupQueue.isEmpty else { return }
+            self.pendingPopup = self.popupQueue.removeFirst()
+        }
     }
     func rejectPopup() {
         guard let prompt = pendingPopup else { return }
