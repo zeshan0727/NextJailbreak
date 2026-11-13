@@ -1118,22 +1118,56 @@ struct BrowserTab: View {
             .navigationTitle("Browser")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    Button { model.activeWebView?.goBack() } label: {
+                        Image(systemName: "chevron.left")
+                    }
+                    .disabled(model.showingStartPage || !model.canBack)
+                    .accessibilityLabel("Back")
+                    Button { model.activeWebView?.goForward() } label: {
+                        Image(systemName: "chevron.right")
+                    }
+                    .disabled(model.showingStartPage || !model.canForward)
+                    .accessibilityLabel("Forward")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { model.addBookmark() } label: {
+                        Image(systemName: "star")
+                    }
+                    .disabled(model.showingStartPage)
+                    .accessibilityLabel("Save bookmark")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    BrowserCastPicker()
+                        .frame(width: 32, height: 32)
+                        .accessibilityLabel("Choose Google Cast TV")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Toggle("Block intrusive pop-ups", isOn: $blockPopups)
                         Toggle("Block ad networks", isOn: $blockAds)
+                        Button("Reload Page", systemImage: "arrow.clockwise") {
+                            model.activeWebView?.reload()
+                        }
                         Button("Unblock Current Page", systemImage: "play.rectangle") {
                             model.reloadUnblockedPage()
                         }
-                        Button("Reload Unblocked Player", systemImage: "play.rectangle") {
-                            model.reloadUnblockedPage()
+                        Button("View Bookmarks", systemImage: "book.closed") {
+                            showBookmarks = true
+                        }
+                        Button("Add Bookmark", systemImage: "star") {
+                            model.addBookmark()
+                        }
+                        .disabled(model.showingStartPage)
+                        Button("Downloads", systemImage: "arrow.down.circle") {
+                            openDownloads()
                         }
                         Button("Save Playing Video", systemImage: "arrow.down.to.line") {
                             model.downloadPlayingVideo()
                         }
                         Button("Cast Current Video to TV", systemImage: "tv") {
                             if !cast.isConnected {
-                                model.showMessage = "Tap the TV Cast icon below the video to select a receiver first."
+                                model.showMessage = "Tap the Cast icon in the top toolbar to connect a TV first."
                             } else {
                                 model.resolveActiveVideo { candidate in
                                     guard let candidate else { return }
@@ -1240,8 +1274,11 @@ struct BrowserTab: View {
                                     showTabList = false
                                 } label: {
                                     VStack(alignment: .leading, spacing: 5) {
-                                        Text(page.title).font(.headline)
-                                        Text(page.address).font(.caption)
+                                        Text(model.startPageIDs.contains(page.id) ? "Start Page" : page.title)
+                                            .font(.headline)
+                                        Text(model.startPageIDs.contains(page.id) ?
+                                             "Saved bookmarks" : page.address)
+                                            .font(.caption)
                                             .lineLimit(1).foregroundStyle(.secondary)
                                     }
                                 }
