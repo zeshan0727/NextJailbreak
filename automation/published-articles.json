@@ -1,6 +1,139 @@
 {
   "entries": [
     {
+      "action": "update",
+      "additional_media": [],
+      "article_sha256": "0da163496ee4891968418749eb5a8a9c7ec1de3951395887c3f337e1afca8988",
+      "candidate_fingerprint": "development.vphone-2.16.1-guest-fixes-2026-11-10",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "channel": "scheduled-current-jailbreak-development",
+      "compat": "Physical Apple Silicon Mac on macOS 15+; no nested virtualization. Launchpad 2.16.1 requires a 2.16.0+ bundle and is not notarized. Existing VMs need a guest-environment update. VM support does not prove physical-device jailbreak availability.",
+      "description": "Update vphone to 2.16.1 safely: verify official ZIP hashes, install the matching 2.16 bundle, refresh guest environments and fix rotation, GLES and TXM app-launch problems.",
+      "developer": "Lakr Aream",
+      "entry_type": "development",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
+      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest terminal on an Apple Silicon Mac",
+      "media_credit": "Lakr233 — official vphone demo from the 2.16.1 tagged repository",
+      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
+      "media_retrieval_status": "Official project demo is stored locally; the committed asset exactly matches Documents/demo.jpeg in tag 2.16.1 (Git blob a63a8d0f2eeff3e783b80904084b30e54d93dde7).",
+      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
+      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.16.1/Documents/demo.jpeg",
+      "modified_at": "2026-11-14T00:03:15+03:00",
+      "name": "vphone-cli setup",
+      "package": "project.vphone-cli",
+      "published_at": "2026-09-15T08:07:38+00:00",
+      "quality_target": 9,
+      "release": "vphone 2.16.1 released 2026-11-10T17:53:41Z; official Core Bundle and Launchpad ZIP hashes verified",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
+      "source_name": "Official Lakr233/vphone-cli 2.16.1 release, tagged documentation and release assets",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.16.1",
+      "source_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.16.1",
+      "source_visual_origin": "official-tagged-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.15.2/Documents/demo.jpeg",
+      "title": "vphone 2.16.1 Update: Safe Upgrade, SHA-256 and Guest Fixes",
+      "version": "2.16.1"
+    },
+    {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Watusi for WhatsApp 1.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "watusi-for-whatsapp-1-0-1-update/",
+      "image": "assets/articles/source-media/watusi-for-whatsapp-1-0-1-update-12615b0909.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Watusi-for-WhatsApp/commit/6db862bd32992271fda985cd7b94f031d3a6aa5a",
+      "modified_at": "2026-11-13T23:22:30+00:00",
+      "name": "Watusi for WhatsApp",
+      "package": "com.fouadraheb.watusi",
+      "published_at": "2026-11-13T23:22:30+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/4a9de16d0c3c976cfa16a64e365b2e5882438f540d8c6ceadf395a70cdacac90/FouadRaheb/Watusi-for-WhatsApp/commit/6db862bd32992271fda985cd7b94f031d3a6aa5a",
+      "title": "Watusi 1.0.1 for WhatsApp Adds Online List, Backup Fixes and iOS 26 Theme Improvements",
+      "version": "1.0.1"
+    },
+    {
+      "additional_media": [
+        "assets/articles/source-media/atria-1-9-3-official-icon.png"
+      ],
+      "additional_media_sha256": [
+        "4de63207b2018962425fdc64bf2215ead9fd86c4078292338a023e2d29f84ad3"
+      ],
+      "article_sha256": "469f14ee0d2f47fa64655d9767517140ae08ac5772928a0f0b0a0d6f59a09332",
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Atria 1.9.3 declares firmware 15.0+ and documents iOS 16–17, with a native RootHide package and a separate rootless package explicitly marked not yet tested; iOS 26 fixes do not confirm full support. Lynx 2 2.5.4 officially lists iOS 14.0–16.7.10 and rootless support. Package compatibility does not prove jailbreak availability for every device.",
+      "description": "Compare Atria 1.9.3 and Lynx 2.5.4 by iOS range, RootHide and rootless support, App Library tools, whole-system features, price and recovery.",
+      "developer": "CySxL / MTAC",
+      "entry_type": "comparison",
+      "href": "atria-vs-lynx-2-ios-16-customization-comparison/",
+      "image": "assets/articles/source-media/lynx-2-2-5-4-official-banner.png",
+      "media_alt": "Official Lynx 2 banner showing its Settings interface and customization categories",
+      "media_credit": "MTAC — official Lynx 2 Havoc banner; CySxL — official Atria 1.9.3 package icon",
+      "media_sha256": "950e2abe3d3db2568f86327994ee4a713df2c98f2b4798f1a523eab433e3103c",
+      "media_source_url": "https://media.havoc.app/653ef2f6f119bab2880206c0",
+      "modified_at": "2026-11-13T09:06:07Z",
+      "name": "Atria vs Lynx 2",
+      "package": "comparison.atria-lynx-2",
+      "published_at": "2026-10-15T08:58:45Z",
+      "release": "Atria 1.9.3 committed 2026-11-12T14:23:31Z; Lynx 2 2.5.4 updated 2025-01-03",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "atria-vs-lynx-2-ios-16-customization-comparison",
+      "source_name": "CySxL official Atria 1.9.3 commit, package metadata and depiction; official Havoc Lynx 2 page and MTAC feature list",
+      "source_page_url": "https://github.com/CySxL/CySxL.github.io/commit/89a833946e16723f589ce84c25917958df532c6c",
+      "source_url": "https://havoc.app/package/lynxtwo",
+      "source_visual_origin": "official-havoc-banner-and-project-package-icon",
+      "source_visual_url": "https://media.havoc.app/653ef2f6f119bab2880206c0",
+      "title": "Atria 1.9.3 vs Lynx 2: Home Screen Editor or Full iOS Suite?",
+      "version": "Atria 1.9.3 / Lynx 2 2.5.4"
+    },
+    {
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.0.13 documents arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. This recovery flow is for conventional Dopamine rootless jailbreak apps; TrollStore, RootHide and other jailbreaks use separate recovery paths.",
+      "description": "Restore missing Sileo, Zebra, Filza or jailbreak-app icons on Dopamine 3.0.13 with the official refresh, respring and package-manager recovery controls.",
+      "developer": "opa334",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "fix-missing-sileo-jailbreak-app-icons-dopamine-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_retrieval_status": "Reused the exact official 192×192 Dopamine app icon already retrieved and hash-verified from the 3.0.13 source tag; the project does not publish a dedicated missing-icon screenshot.",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "modified_at": "2026-11-13T03:02:00Z",
+      "name": "Dopamine jailbreak-app icon recovery",
+      "package": "com.opa334.dopamine-icon-recovery-guide",
+      "published_at": "2026-10-20T01:01:41Z",
+      "quality_target": 9,
+      "release": "Verified against Dopamine 3.0.13 official release, tagged source, README and developer issue responses",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "fix-missing-sileo-jailbreak-app-icons-dopamine-guide",
+      "source_name": "Dopamine 3.0.13 release, tagged source, README and official issue tracker",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings",
+      "source_visual_origin": "reused-official-dopamine-3.0.13-source-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "Sileo Icon Missing? Restore Jailbreak Apps on Dopamine Safely",
+      "version": "3.0.13"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -876,44 +1009,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
       "title": "Dopamine 3 vs palera1n 3: Which Jailbreak Fits Your iPhone?",
       "version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.3"
-    },
-    {
-      "additional_media": [],
-      "article_sha256": "0da163496ee4891968418749eb5a8a9c7ec1de3951395887c3f337e1afca8988",
-      "candidate_fingerprint": "development.vphone-2.16.1-guest-fixes-2026-11-10",
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Physical Apple Silicon Mac on macOS 15+; no nested virtualization. Launchpad 2.16.1 requires a 2.16.0+ bundle and is not notarized. Existing VMs need a guest-environment update. VM support does not prove physical-device jailbreak availability.",
-      "description": "Update vphone to 2.16.1 safely: verify official ZIP hashes, install the matching 2.16 bundle, refresh guest environments and fix rotation, GLES and TXM app-launch problems.",
-      "developer": "Lakr Aream",
-      "entry_type": "development",
-      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
-      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
-      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest terminal on an Apple Silicon Mac",
-      "media_credit": "Lakr233 — official vphone demo from the 2.16.1 tagged repository",
-      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
-      "media_retrieval_status": "Official project demo is stored locally; the committed asset exactly matches Documents/demo.jpeg in tag 2.16.1 (Git blob a63a8d0f2eeff3e783b80904084b30e54d93dde7).",
-      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
-      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.16.1/Documents/demo.jpeg",
-      "modified_at": "2026-11-14T00:03:15+03:00",
-      "name": "vphone-cli setup",
-      "package": "project.vphone-cli",
-      "published_at": "2026-09-15T08:07:38+00:00",
-      "quality_target": 9,
-      "release": "vphone 2.16.1 released 2026-11-10T17:53:41Z; official Core Bundle and Launchpad ZIP hashes verified",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
-      "source_name": "Official Lakr233/vphone-cli 2.16.1 release, tagged documentation and release assets",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.16.1",
-      "source_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.16.1",
-      "source_visual_origin": "official-tagged-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.15.2/Documents/demo.jpeg",
-      "title": "vphone 2.16.1 Update: Safe Upgrade, SHA-256 and Guest Fixes",
-      "version": "2.16.1",
-      "action": "update",
-      "channel": "scheduled-current-jailbreak-development"
     },
     {
       "category": {
@@ -2971,39 +3066,6 @@
       "version": "2.5.1"
     },
     {
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Dopamine 3.0.13 documents arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. This recovery flow is for conventional Dopamine rootless jailbreak apps; TrollStore, RootHide and other jailbreaks use separate recovery paths.",
-      "description": "Restore missing Sileo, Zebra, Filza or jailbreak-app icons on Dopamine 3.0.13 with the official refresh, respring and package-manager recovery controls.",
-      "developer": "opa334",
-      "entry_type": "evergreen-jailbreak-guide",
-      "href": "fix-missing-sileo-jailbreak-app-icons-dopamine-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_retrieval_status": "Reused the exact official 192×192 Dopamine app icon already retrieved and hash-verified from the 3.0.13 source tag; the project does not publish a dedicated missing-icon screenshot.",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "modified_at": "2026-11-13T03:02:00Z",
-      "name": "Dopamine jailbreak-app icon recovery",
-      "package": "com.opa334.dopamine-icon-recovery-guide",
-      "published_at": "2026-10-20T01:01:41Z",
-      "quality_target": 9,
-      "release": "Verified against Dopamine 3.0.13 official release, tagged source, README and developer issue responses",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "fix-missing-sileo-jailbreak-app-icons-dopamine-guide",
-      "source_name": "Dopamine 3.0.13 release, tagged source, README and official issue tracker",
-      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings",
-      "source_visual_origin": "reused-official-dopamine-3.0.13-source-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "Sileo Icon Missing? Restore Jailbreak Apps on Dopamine Safely",
-      "version": "3.0.13"
-    },
-    {
       "additional_media": [
         "assets/articles/source-media/sidedock-1-0-1-official-home-screen.jpg"
       ],
@@ -3681,43 +3743,6 @@
       "source_visual_url": "https://media.havoc.app/66146485f290ffddc2a30df8",
       "title": "Bloom 1.4.1 Fixes iOS 18 Loading and iPhone 16 Dynamic Island Animations",
       "version": "1.4.1"
-    },
-    {
-      "additional_media": [
-        "assets/articles/source-media/atria-1-9-3-official-icon.png"
-      ],
-      "additional_media_sha256": [
-        "4de63207b2018962425fdc64bf2215ead9fd86c4078292338a023e2d29f84ad3"
-      ],
-      "article_sha256": "469f14ee0d2f47fa64655d9767517140ae08ac5772928a0f0b0a0d6f59a09332",
-      "category": {
-        "id": "tweak-roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "Atria 1.9.3 declares firmware 15.0+ and documents iOS 16–17, with a native RootHide package and a separate rootless package explicitly marked not yet tested; iOS 26 fixes do not confirm full support. Lynx 2 2.5.4 officially lists iOS 14.0–16.7.10 and rootless support. Package compatibility does not prove jailbreak availability for every device.",
-      "description": "Compare Atria 1.9.3 and Lynx 2.5.4 by iOS range, RootHide and rootless support, App Library tools, whole-system features, price and recovery.",
-      "developer": "CySxL / MTAC",
-      "entry_type": "comparison",
-      "href": "atria-vs-lynx-2-ios-16-customization-comparison/",
-      "image": "assets/articles/source-media/lynx-2-2-5-4-official-banner.png",
-      "media_alt": "Official Lynx 2 banner showing its Settings interface and customization categories",
-      "media_credit": "MTAC — official Lynx 2 Havoc banner; CySxL — official Atria 1.9.3 package icon",
-      "media_sha256": "950e2abe3d3db2568f86327994ee4a713df2c98f2b4798f1a523eab433e3103c",
-      "media_source_url": "https://media.havoc.app/653ef2f6f119bab2880206c0",
-      "name": "Atria vs Lynx 2",
-      "package": "comparison.atria-lynx-2",
-      "modified_at": "2026-11-13T09:06:07Z",
-      "published_at": "2026-10-15T08:58:45Z",
-      "release": "Atria 1.9.3 committed 2026-11-12T14:23:31Z; Lynx 2 2.5.4 updated 2025-01-03",
-      "selection_pool": "scheduled-tweak-roundup-comparison",
-      "slug": "atria-vs-lynx-2-ios-16-customization-comparison",
-      "source_name": "CySxL official Atria 1.9.3 commit, package metadata and depiction; official Havoc Lynx 2 page and MTAC feature list",
-      "source_page_url": "https://github.com/CySxL/CySxL.github.io/commit/89a833946e16723f589ce84c25917958df532c6c",
-      "source_url": "https://havoc.app/package/lynxtwo",
-      "source_visual_origin": "official-havoc-banner-and-project-package-icon",
-      "source_visual_url": "https://media.havoc.app/653ef2f6f119bab2880206c0",
-      "title": "Atria 1.9.3 vs Lynx 2: Home Screen Editor or Full iOS Suite?",
-      "version": "Atria 1.9.3 / Lynx 2 2.5.4"
     },
     {
       "additional_media": [],
@@ -11025,8 +11050,17 @@
       "published_at": "2026-11-14T00:03:15+03:00",
       "run_id": "scheduled-2026-11-14T00:03:15+03:00",
       "version": "2.16.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "watusi-for-whatsapp-1-0-1-update/",
+      "package": "com.fouadraheb.watusi",
+      "published_at": "2026-11-13T23:22:30+00:00",
+      "run_id": "43526433683",
+      "version": "1.0.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-14T00:03:15+03:00"
+  "updated_at": "2026-11-13T23:22:30+00:00"
 }

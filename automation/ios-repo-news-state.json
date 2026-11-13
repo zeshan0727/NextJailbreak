@@ -162,18 +162,18 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-11-13T13:32:35.427312+00:00",
+      "checked_at": "2026-11-13T23:22:30.528331+00:00",
       "package": "com.fouadraheb.regram",
       "status": "duplicate",
       "target_path": "regram-for-instagram-7-0-1-update/",
       "version": "7.0.1"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi/": {
-      "checked_at": "2026-11-13T13:32:35.427312+00:00",
+      "checked_at": "2026-11-13T23:22:30+00:00",
       "package": "com.fouadraheb.watusi",
-      "status": "duplicate",
-      "target_path": "watusi-for-whatsapp-1-0-update/",
-      "version": "1.0"
+      "status": "published",
+      "target_path": "watusi-for-whatsapp-1-0-1-update/",
+      "version": "1.0.1"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi3/": {
       "checked_at": "2026-11-13T13:32:35.427312+00:00",
@@ -351,13 +351,13 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/limneos-repo/package/net.limneos.audiorecorderxs-rootless/": {
-      "checked_at": "2026-11-12T23:19:50.220050+00:00",
+      "checked_at": "2026-11-13T23:22:30.528331+00:00",
       "package": "net.limneos.audiorecorderxs-rootless",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/limneos-repo/package/net.limneos.audiorecorderxs/": {
-      "checked_at": "2026-11-13T13:32:35.427312+00:00",
+      "checked_at": "2026-11-13T23:22:30.528331+00:00",
       "package": "net.limneos.audiorecorderxs",
       "status": "duplicate",
       "target_path": "net-limneos-audiorecorderxs-update/",
@@ -3178,6 +3178,47 @@
         "com.cydiageek.morelinesnotifications: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_04b44e55e9952552016af79be8ec2087d195a77cc064f95317",
+          "usage": {
+            "input_tokens": 31590,
+            "input_tokens_details": {
+              "cache_write_tokens": 31587,
+              "cached_tokens": 0
+            },
+            "output_tokens": 441,
+            "output_tokens_details": {
+              "reasoning_tokens": 341
+            },
+            "total_tokens": 32031
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_05f731dcba86b677016af79bd0bdbc87d183314c90512c6679",
+          "usage": {
+            "input_tokens": 28983,
+            "input_tokens_details": {
+              "cache_write_tokens": 28980,
+              "cached_tokens": 0
+            },
+            "output_tokens": 2858,
+            "output_tokens_details": {
+              "reasoning_tokens": 63
+            },
+            "total_tokens": 31841
+          }
+        }
+      },
+      "at": "2026-11-13T23:22:30+00:00",
+      "package": "com.fouadraheb.watusi",
+      "target_path": "watusi-for-whatsapp-1-0-1-update/",
+      "version": "1.0.1"
     }
   ],
   "schema_version": 1

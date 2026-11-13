@@ -13,14 +13,13 @@
       <description>Update vphone to 2.16.1 safely: verify official ZIP hashes, install the matching 2.16 bundle, refresh guest environments and fix rotation, GLES and TXM app-launch problems.</description>
       <category>Current Jailbreak Development</category>
     </item>
-
     <item>
-      <title>ReplyActions 3.0.1 Adds RootHide Support and Fixes UI Regressions</title>
-      <link>https://nextjailbreak.com/replyactions-1-0-3-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/replyactions-1-0-3-update/</guid>
-      <pubDate>Fri, 13 Nov 2026 15:08:25 GMT</pubDate>
-      <description>ReplyActions 3.0.1 adds official RootHide support and fixes keyboard, Home Screen gesture, appearance-slider and Liquid Glass bugs. Check iOS limits and install paths.</description>
-      <category>Individual Tweak Update</category>
+      <title>Watusi 1.0.1 for WhatsApp Adds Online List, Backup Fixes and iOS 26 Theme Improvements</title>
+      <link>https://nextjailbreak.com/watusi-for-whatsapp-1-0-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/watusi-for-whatsapp-1-0-1-update/</guid>
+      <pubDate>Fri, 13 Nov 2026 23:22:30 GMT</pubDate>
+      <description>Watusi for WhatsApp 1.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
     </item>
     <item>
       <title>Atria 1.9.3 vs Lynx 2: Home Screen Editor or Full iOS Suite?</title>
@@ -245,31 +244,6 @@
       <pubDate>Fri, 06 Nov 2026 09:00:00 GMT</pubDate>
       <description>Compare Dopamine 3.0.13 and palera1n 3.0.0 beta 3 by supported devices, iOS range, reboot workflow, computer needs, passcode limits and release risk.</description>
       <category>Jailbreak Comparison</category>
-    </item>
-
-    <item>
-      <title>Regram 7.0 Rebuilds Its Instagram Toolkit for IG 454.1</title>
-      <link>https://nextjailbreak.com/regram-for-instagram-7-0-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/regram-for-instagram-7-0-update/</guid>
-      <pubDate>Thu, 05 Nov 2026 23:25:12 GMT</pubDate>
-      <description>Regram for Instagram 7.0 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>IconTweak2 vs AppData vs Apps Manager: Which App-Data Tool Should You Use?</title>
-      <link>https://nextjailbreak.com/appdata-vs-apps-manager-app-data-tool-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/appdata-vs-apps-manager-app-data-tool-comparison/</guid>
-      <pubDate>Thu, 05 Nov 2026 09:00:00 GMT</pubDate>
-      <description>Compare IconTweak2 1.1.0, AppData 1.4.0 and Apps Manager 1.8.4 for backup, restore, cache cleaning, containers, TrollStore, rootless and RootHide.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>Dopamine 3 Official Download: Version 3.0.13, Compatibility and SHA-256</title>
-      <link>https://nextjailbreak.com/dopamine-3-official-download-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-3-official-download-guide/</guid>
-      <pubDate>Thu, 05 Nov 2026 03:00:00 GMT</pubDate>
-      <description>Download Dopamine 3.0.13 from official sources, check exact device and iOS support, verify the IPA/TIPA SHA-256, and troubleshoot installation safely.</description>
-      <category>Evergreen Jailbreak Guide</category>
     </item>
   </channel>
 </rss>
