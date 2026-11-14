@@ -3,6 +3,54 @@
     {
       "action": "create",
       "additional_media": [
+        "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png",
+        "assets/articles/source-media/pullover-pro-3-0-1-official-quickswitch.png"
+      ],
+      "additional_media_sha256": {
+        "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png": "364f2e65d7f2be31edd2a0039edf2d6e4be8e72dd8028e9d9758e9c7819524c6",
+        "assets/articles/source-media/pullover-pro-3-0-1-official-quickswitch.png": "7e93e5a7b2ea575a3e41cd603cf214e8e9451d76bd8a4c8d6f6e58e5cbef81a2"
+      },
+      "additional_media_source_urls": {
+        "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png": "https://raw.githubusercontent.com/Jond-ie/repo/main/screenshots/pullover/over.png",
+        "assets/articles/source-media/pullover-pro-3-0-1-official-quickswitch.png": "https://raw.githubusercontent.com/Jond-ie/repo/main/screenshots/pullover/quickswitch.png"
+      },
+      "candidate_fingerprint": "tweak.pullover-pro-3.0.1-2026-11-14",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "Official package metadata declares iOS 15.0 through 27.x, Rootless and RootHide, with arm64 and arm64e builds. A compatible jailbreak is still required; no rootful, stock-iOS, TrollStore-only or regular sideload path is documented.",
+      "description": "PullOver Pro 3.0.1 fixes its missing edge handle after a respring. Check iOS 15–27, Rootless and RootHide limits, AltList, setup and recovery.",
+      "developer": "c1d3r / Jond_ie",
+      "entry_type": "individual-tweak-update",
+      "href": "pullover-pro-3-0-1-respring-handle-fix-roothide/",
+      "image": "assets/articles/source-media/pullover-pro-3-0-1-official-poster.jpg",
+      "media_alt": "Official PullOver Pro artwork showing a live app pulled over another app",
+      "media_credit": "Jond_ie — official PullOver Pro 3 poster and interface screenshots from the project repository",
+      "media_sha256": "e9c74ebc64e0b62a93ba5d421d80a71e55f0eb5b68f907443d229f4b7ad37279",
+      "media_source_url": "https://raw.githubusercontent.com/Jond-ie/repo/main/media/pullover-poster.jpg",
+      "media_retrieval_status": "Downloaded and inspected the exact official 1280×720 poster and two 828×1792 project screenshots; verified their SHA-256 hashes before commit.",
+      "modified_at": "2026-11-14T18:18:00+03:00",
+      "name": "PullOver Pro",
+      "package": "com.johndie.pulloverpro-rootless",
+      "published_at": "2026-11-14T18:18:00+03:00",
+      "quality_target": 9,
+      "release": "PullOver Pro 3.0.1 — released November 12, 2026 at 17:22 UTC",
+      "route": "pullover-pro-3-0-1-respring-handle-fix-roothide/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "pullover-pro-3-0-1-respring-handle-fix-roothide",
+      "source_name": "Official PullOver Pro source commit, changelog, control metadata and Jond_ie package repository",
+      "source_page_url": "https://jond-ie.github.io/repo/depictions/com.johndie.pulloverpro-rootless.html",
+      "source_url": "https://github.com/Jond-ie/pulloverpro/commit/0962ad6eb661ca22684a3cb4674bec8f86adfddd",
+      "source_visual_origin": "official-project-poster-and-interface-screenshots",
+      "source_visual_url": "https://raw.githubusercontent.com/Jond-ie/repo/main/media/pullover-poster.jpg",
+      "title": "PullOver Pro 3.0.1 Fixes Missing Handle After Respring on iOS 15–27",
+      "version": "3.0.1"
+    },
+    {
+      "action": "create",
+      "additional_media": [
         "assets/articles/source-media/watusi-1-0-1-sticker-studio-official.webp",
         "assets/articles/source-media/watusi-3-1-3-31-official-settings.png"
       ],
@@ -7614,6 +7662,16 @@
   "events": [
     {
       "action": "create",
+      "candidate_fingerprint": "tweak.pullover-pro-3.0.1-2026-11-14",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "pullover-pro-3-0-1-respring-handle-fix-roothide/",
+      "package": "com.johndie.pulloverpro-rootless",
+      "published_at": "2026-11-14T18:18:00+03:00",
+      "run_id": "scheduled-2026-11-14T15:00:00Z",
+      "version": "3.0.1"
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "comparison.watusi-1.0.1-vs-watusi3-1.3.31-2026-11-14",
       "channel": "scheduled-tweak-roundup-comparison",
       "href": "watusi-vs-watusi-3-whatsapp-tweak-comparison/",
@@ -11134,5 +11192,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-14T12:18:00+03:00"
+  "updated_at": "2026-11-14T18:18:00+03:00"
 }
