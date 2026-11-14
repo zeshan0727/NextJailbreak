@@ -1,6 +1,45 @@
 {
   "entries": [
     {
+      "additional_media": [
+        "assets/articles/source-media/roothide-bootstrap-official-icon.png"
+      ],
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.0.13 documents arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. RootHide Bootstrap 2.2.1 is a separate TrollStore environment for its own documented iOS 15.0–17.0 device range.",
+      "description": "Choose the right restart on Dopamine 3.0.13: compare respring, userspace reboot and full reboot, supported devices, failure symptoms and safe recovery.",
+      "developer": "opa334 / RootHide team",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag; RootHide team — official Bootstrap 2.2.1 icon used as secondary project artwork",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "modified_at": "2026-11-14T06:08:00+03:00",
+      "name": "Respring vs Userspace Reboot vs Full Reboot",
+      "package": "guide.jailbreak.restart-types",
+      "published_at": "2026-10-16T00:58:53Z",
+      "release": "Dopamine 3.0.13 — released November 3, 2026; RootHide Bootstrap 2.2.1 remains latest official Bootstrap release",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide",
+      "source_name": "Official Dopamine 3.0.13 release, tagged README and tagged restart-action source; official RootHide Bootstrap 2.2.1 release",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-tagged-repository-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "Respring vs Userspace Reboot vs Full Reboot on Dopamine 3.0.13",
+      "version": "Dopamine 3.0.13 / RootHide Bootstrap 2.2.1",
+      "action": "update",
+      "candidate_fingerprint": "guide.restart-types-dopamine-3.0.13-2026-11-14",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_retrieval_status": "Reused the exact official 192×192 Dopamine app icon already retrieved and hash-verified from the 3.0.13 source tag; the article embeds it and uses it in social metadata. The existing official RootHide Bootstrap 2.2.1 icon remains embedded as secondary source artwork.",
+      "quality_target": 9
+    },
+    {
       "action": "update",
       "additional_media": [],
       "article_sha256": "0da163496ee4891968418749eb5a8a9c7ec1de3951395887c3f337e1afca8988",
@@ -3649,38 +3688,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/Sileo/Sileo/2.5.1/Sileo/Assets.xcassets/AppIcon.appiconset/AppIcon60x60%403x.png",
       "title": "How to Uninstall a Jailbreak Tweak Safely in Sileo",
       "version": "Sileo 2.5.1"
-    },
-    {
-      "additional_media": [
-        "assets/articles/source-media/roothide-bootstrap-official-icon.png"
-      ],
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Restart behavior verified against Dopamine 3.x and RootHide Bootstrap source. Device and firmware support still follows each project's official compatibility ranges.",
-      "description": "Learn when to respring, perform a userspace reboot or fully restart a jailbroken iPhone, and what each action does to tweaks and the jailbreak state.",
-      "developer": "opa334 and RootHide team",
-      "entry_type": "guide",
-      "href": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-11-official-app-icon.png",
-      "media_credit": "opa334 — official Dopamine 3.0.11 app icon; RootHide team — official Bootstrap 2.2.1 app icon referenced in the comparison",
-      "media_sha256": "2821e251aa3cdeac1c16830edefefc97ee1c50aa377b39bd39528b195beef89d",
-      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "modified_at": "2026-10-16T00:58:53Z",
-      "name": "Respring vs Userspace Reboot vs Full Reboot",
-      "package": "guide.jailbreak.restart-types",
-      "published_at": "2026-10-16T00:58:53Z",
-      "release": "Evergreen guide verified against current Dopamine 3.x and RootHide Bootstrap source",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide",
-      "source_name": "Official Dopamine 3.x and RootHide Bootstrap source",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.x/BaseBin/jbctl/src/main.m",
-      "source_url": "https://github.com/opa334/Dopamine",
-      "source_visual_origin": "official-tagged-repository-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.11/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "Respring vs Userspace Reboot vs Full Reboot on a Jailbroken iPhone",
-      "version": "Dopamine 3.x / RootHide Bootstrap 2.2.1"
     },
     {
       "additional_media": [],
@@ -11059,6 +11066,13 @@
       "published_at": "2026-11-13T23:22:30+00:00",
       "run_id": "43526433683",
       "version": "1.0.1"
+    },
+    {
+      "action": "updated",
+      "at": "2026-11-14T06:08:00+03:00",
+      "package": "guide.jailbreak.restart-types",
+      "target_path": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide/",
+      "version": "Dopamine 3.0.13"
     }
   ],
   "schema_version": 1,
