@@ -2,6 +2,15 @@
 <rss version="2.0">
   <channel>
     <item>
+      <title>Erosion 0.3.1: MobileGestalt Persistence Fix Lands in Source, Not Release Yet</title>
+      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
+      <pubDate>Sat, 14 Nov 2026 21:14:00 GMT</pubDate>
+      <description>Erosion 0.3.1 remains the latest release, while a November 14 source commit adds MobileGestalt persistence controls. Check release status, iOS limits and safe testing.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+
+    <item>
       <title>PullOver Pro 3.0.1 Fixes Missing Handle After Respring on iOS 15–27</title>
       <link>https://nextjailbreak.com/pullover-pro-3-0-1-respring-handle-fix-roothide/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/pullover-pro-3-0-1-respring-handle-fix-roothide/</guid>
@@ -119,14 +128,7 @@
       <description>net.limneos.audiorecorderxs iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
     </item>
-    <item>
-      <title>Erosion 0.3.1 Speeds Container Setup and Enables iOS 26 Config Tweaks</title>
-      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
-      <pubDate>Wed, 11 Nov 2026 20:57:57 GMT</pubDate>
-      <description>Erosion 0.3.1 speeds container discovery, adds visible first-scan progress and exposes experimental iOS 26 Config Tweaks. Check exact firmware support, signing warnings and the verified IPA hash.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
+    
     <item>
       <title>Regram 7.0.1 for Instagram Fixes Sideloading, Chats, Stories, and iOS 26 Issues</title>
       <link>https://nextjailbreak.com/regram-for-instagram-7-0-1-update/</link>

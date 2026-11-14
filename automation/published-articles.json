@@ -1,6 +1,40 @@
 {
   "entries": [
     {
+      "additional_media": [],
+      "candidate_fingerprint": "jailbreak-development.erosion-mobilegestalt-persistence-12c0a2d-2026-11-15",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Latest official release remains Erosion 0.3.1. Post-release commit 12c0a2d changes MobileGestalt persistence controls for supported iOS 27 devices; iOS 26 still cannot use MobileGestalt writes. Erosion is a jailed toolbox, not a jailbreak.",
+      "description": "Erosion 0.3.1 remains the latest release, while a November 14 source commit adds MobileGestalt persistence controls. Check release status, iOS limits and safe testing.",
+      "developer": "jailbreakdotparty / Erosion team",
+      "entry_type": "jailbreak-development",
+      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
+      "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
+      "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
+      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
+      "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
+      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
+      "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
+      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "modified_at": "2026-11-15T00:14:00+03:00",
+      "name": "Erosion",
+      "package": "project.erosion",
+      "published_at": "2026-11-09T21:00:36Z",
+      "release": "Erosion 0.3.1 released November 10, 2026; MobileGestalt persistence source fix committed November 14, 2026 and not yet included in an official IPA",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Official Erosion 0.3.1 release and post-release MobileGestalt persistence commit 12c0a2d",
+      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/12c0a2d00c444c9b09112608b47d4d6c10e0df14",
+      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/12c0a2d00c444c9b09112608b47d4d6c10e0df14",
+      "source_visual_origin": "official-tagged-project-app-icon",
+      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "title": "Erosion 0.3.1: MobileGestalt Persistence Fix Lands in Source, Not Release Yet",
+      "version": "0.3.1 release / source commit 12c0a2d",
+      "action": "update"
+    },
+    {
       "action": "create",
       "additional_media": [
         "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png",
@@ -483,40 +517,6 @@
       "source_visual_url": "https://www.limneos.net/cydia/packageImages/net.limneos.audiorecorderxs/AudioRecorder1.png",
       "title": "AudioRecorder XS Adds Ringtone Support and a Built-In Audio Editor",
       "version": ""
-    },
-    {
-      "additional_media": [],
-      "article_sha256": "4c05631a79bf86edb755808a599072f86b3af83618e6c9b8e400268693bc3623",
-      "candidate_fingerprint": "jailbreak-development.erosion-0.3.1-pathleak-ios26-config-tweaks-2026-11-10",
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "The 0.3.1 tagged README documents iOS/iPadOS 27.0–27.2.1 and iOS/iPadOS 27.3 beta 1 build 24C5037i. Its detailed iOS 26 section stops at 26.6.2 while the summary says 26.7.2, so 26.6.2 remains the conservative upper bound. iOS 26 support is limited: Config Tweaks are experimental and MobileGestalt tweaks remain unavailable.",
-      "description": "Erosion 0.3.1 speeds container discovery, adds visible first-scan progress and exposes experimental iOS 26 Config Tweaks. Check exact firmware support, signing warnings and the verified IPA hash.",
-      "developer": "jailbreakdotparty / Erosion team",
-      "entry_type": "jailbreak-development",
-      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
-      "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
-      "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
-      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
-      "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
-      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
-      "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
-      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "modified_at": "2026-11-11T20:57:57Z",
-      "name": "Erosion",
-      "package": "project.erosion",
-      "published_at": "2026-11-09T21:00:36Z",
-      "release": "2026-11-10",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Official Erosion 0.3.1 release, tagged README, tagged source and verified IPA",
-      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/README.md",
-      "source_url": "https://github.com/jailbreakdotparty/Erosion/releases/tag/0.3.1",
-      "source_visual_origin": "official-tagged-project-app-icon",
-      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "title": "Erosion 0.3.1 Speeds Container Setup and Enables iOS 26 Config Tweaks",
-      "version": "0.3.1"
     },
     {
       "category": {
@@ -7661,6 +7661,17 @@
   ],
   "events": [
     {
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.erosion-mobilegestalt-persistence-12c0a2d-2026-11-15",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
+      "package": "project.erosion",
+      "previous_version": "0.3.1",
+      "published_at": "2026-11-15T00:14:00+03:00",
+      "run_id": "scheduled-2026-11-14T21:00:00Z",
+      "version": "0.3.1 release / source commit 12c0a2d"
+    },
+    {
       "action": "create",
       "candidate_fingerprint": "tweak.pullover-pro-3.0.1-2026-11-14",
       "channel": "scheduled-individual-tweak-update",
@@ -11192,5 +11203,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-14T18:18:00+03:00"
+  "updated_at": "2026-11-15T00:14:00+03:00"
 }
