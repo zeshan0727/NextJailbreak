@@ -76,13 +76,13 @@
     },
     {
       "additional_media": [],
-      "candidate_fingerprint": "jailbreak-development.erosion-mobilegestalt-persistence-12c0a2d-2026-11-15",
+      "candidate_fingerprint": "jailbreak-development.erosion-0.3.2-beta-file-browser-pathleak-fb16225-2026-11-16",
       "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "Latest official release remains Erosion 0.3.1. Post-release commit 12c0a2d changes MobileGestalt persistence controls for supported iOS 27 devices; iOS 26 still cannot use MobileGestalt writes. Erosion is a jailed toolbox, not a jailbreak.",
-      "description": "Erosion 0.3.1 remains the latest release, while a November 14 source commit adds MobileGestalt persistence controls. Check release status, iOS limits and safe testing.",
+      "compat": "Latest official release remains Erosion 0.3.1. Unreleased 0.3.2 build 1 source fixes file-browser container permissions, adds folder renaming and raises the pathleak inode limit for faster container lookup. Documented firmware support is unchanged; Erosion is not a jailbreak.",
+      "description": "Erosion 0.3.2 beta source fixes file-browser permissions, adds folder renaming and accelerates pathleak container lookup. The latest official IPA remains 0.3.1.",
       "developer": "jailbreakdotparty / Erosion team",
       "entry_type": "jailbreak-development",
       "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
@@ -93,19 +93,19 @@
       "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
       "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
       "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "modified_at": "2026-11-15T00:14:00+03:00",
+      "modified_at": "2026-11-16T00:04:00+03:00",
       "name": "Erosion",
       "package": "project.erosion",
       "published_at": "2026-11-09T21:00:36Z",
-      "release": "Erosion 0.3.1 released November 10, 2026; MobileGestalt persistence source fix committed November 14, 2026 and not yet included in an official IPA",
+      "release": "Erosion 0.3.1 released November 10, 2026; 0.3.2 build 1 exists only in official source commit fb16225 from November 15, 2026",
       "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Official Erosion 0.3.1 release and post-release MobileGestalt persistence commit 12c0a2d",
-      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/12c0a2d00c444c9b09112608b47d4d6c10e0df14",
-      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/12c0a2d00c444c9b09112608b47d4d6c10e0df14",
+      "source_name": "Official Erosion 0.3.2 beta source commit fb16225 and Erosion 0.3.1 release",
+      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/fb16225faa120d258ca5b8856568cf504199598f",
+      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/fb16225faa120d258ca5b8856568cf504199598f",
       "source_visual_origin": "official-tagged-project-app-icon",
       "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "title": "Erosion 0.3.1: MobileGestalt Persistence Fix Lands in Source, Not Release Yet",
-      "version": "0.3.1 release / source commit 12c0a2d",
+      "title": "Erosion 0.3.2 Beta Source Fixes File Browser and Container Lookup",
+      "version": "0.3.1 official release / 0.3.2 build 1 source commit fb16225",
       "action": "update"
     },
     {
@@ -7744,6 +7744,17 @@
   "events": [
     {
       "action": "update",
+      "candidate_fingerprint": "jailbreak-development.erosion-0.3.2-beta-file-browser-pathleak-fb16225-2026-11-16",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
+      "package": "project.erosion",
+      "previous_version": "0.3.1 release / source commit 12c0a2d",
+      "published_at": "2026-11-16T00:04:00+03:00",
+      "run_id": "scheduled-2026-11-15T21:00:00Z",
+      "version": "0.3.1 official release / 0.3.2 build 1 source commit fb16225"
+    },
+    {
+      "action": "update",
       "candidate_fingerprint": "individual-update.dynamicseth-1.0.2-2026-11-15",
       "channel": "scheduled-individual-tweak-update",
       "href": "dynamicseth-1-0-dynamic-notch-live-activities/",
@@ -11315,5 +11326,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-15T18:00:00+03:00"
+  "updated_at": "2026-11-16T00:04:00+03:00"
 }

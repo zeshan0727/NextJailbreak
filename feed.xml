@@ -2,6 +2,18 @@
 <rss version="2.0">
   <channel>
     <item>
+      <title>Erosion 0.3.2 Beta Source Fixes File Browser and Container Lookup</title>
+      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
+      <pubDate>Sun, 15 Nov 2026 21:04:00 GMT</pubDate>
+      <description>Erosion 0.3.2 beta source fixes file-browser permissions, adds folder renaming and accelerates pathleak container lookup. The latest official IPA remains 0.3.1.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+
+
+
+
+    <item>
       <title>DynamicSeth 1.0.2 Adds iOS 26 Support and Test Mode</title>
       <link>https://nextjailbreak.com/dynamicseth-1-0-dynamic-notch-live-activities/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/dynamicseth-1-0-dynamic-notch-live-activities/</guid>
@@ -28,15 +40,6 @@
       <pubDate>Sun, 15 Nov 2026 03:04:00 GMT</pubDate>
       <description>Find your exact iPhone model, chip, iOS version and build before choosing Dopamine, palera1n or TrollStore. Includes current support limits and safe checks.</description>
       <category>Evergreen Jailbreak Guide</category>
-    </item>
-
-    <item>
-      <title>Erosion 0.3.1: MobileGestalt Persistence Fix Lands in Source, Not Release Yet</title>
-      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
-      <pubDate>Sat, 14 Nov 2026 21:14:00 GMT</pubDate>
-      <description>Erosion 0.3.1 remains the latest release, while a November 14 source commit adds MobileGestalt persistence controls. Check release status, iOS limits and safe testing.</description>
-      <category>Current Jailbreak Development</category>
     </item>
 
     <item>
