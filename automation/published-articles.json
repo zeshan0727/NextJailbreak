@@ -1,6 +1,40 @@
 {
   "entries": [
     {
+      "action": "create",
+      "additional_media": [],
+      "candidate_fingerprint": "evergreen-guide.iphone-model-ios-build-jailbreak-compatibility-2026-11-15",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Identification guide for iPhone and iPad. Current project baselines: Dopamine 3.0.13, palera1n 3.0.0 beta 3, TrollStore 2.1.1 and Erosion 0.3.1. Project availability still depends on exact hardware, firmware and sometimes build.",
+      "description": "Find your exact iPhone model, chip, iOS version and build before choosing Dopamine, palera1n or TrollStore. Includes current support limits and safe checks.",
+      "developer": "Next Jailbreak editorial; Apple and primary project documentation",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "check-iphone-model-ios-build-jailbreak-compatibility/",
+      "image": "assets/articles/source-media/apple-ios-27-about-software-version.png",
+      "media_alt": "Apple Support About screen showing iOS Version 27.0.1, iPhone 17 Pro model name and model number field",
+      "media_credit": "Apple Support — official About-screen example from Find the software version on your iPhone, iPad or iPod touch",
+      "media_git_blob_sha": "b516d4c43d13ff3eaee5434e3a880adc1a0eeeb1",
+      "media_retrieval_status": "Retrieved directly from the Apple Support CDN, inspected locally as the exact 760×688 PNG and embedded without alteration.",
+      "media_sha256": "a391edd5a028641b2900374ec22527537f0521c0ada1e29e4e8dcfde5c90733d",
+      "media_source_url": "https://support.apple.com/en-gb/109065",
+      "modified_at": "2026-11-15T06:04:00+03:00",
+      "name": "Jailbreak compatibility pre-check",
+      "package": "guide.jailbreak.model-build-compatibility",
+      "published_at": "2026-11-15T06:04:00+03:00",
+      "release": "Guide revision 2026-11-15",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Apple device-identification instructions plus current Dopamine, palera1n and TrollStore primary documentation",
+      "source_page_url": "https://support.apple.com/en-gb/109065",
+      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/Exploits/momentarius/Info.plist",
+      "source_visual_origin": "official-apple-support-screenshot",
+      "source_visual_url": "https://cdsassets.apple.com/live/7WUAS350/images/ios/locale/en-gb/ios-27-iphone-17-pro-settings-general-about-software-version.png",
+      "title": "How to Check Your iPhone Model and iOS Build Before Jailbreaking",
+      "version": "Guide revision 2026-11-15 / Dopamine 3.0.13 / palera1n 3.0.0 beta 3 / TrollStore 2.1.1"
+    },
+    {
       "additional_media": [],
       "candidate_fingerprint": "jailbreak-development.erosion-mobilegestalt-persistence-12c0a2d-2026-11-15",
       "category": {
@@ -7661,6 +7695,16 @@
   ],
   "events": [
     {
+      "action": "create",
+      "candidate_fingerprint": "evergreen-guide.iphone-model-ios-build-jailbreak-compatibility-2026-11-15",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "check-iphone-model-ios-build-jailbreak-compatibility/",
+      "package": "guide.jailbreak.model-build-compatibility",
+      "published_at": "2026-11-15T06:04:00+03:00",
+      "run_id": "scheduled-2026-11-15T03:00:00Z",
+      "version": "Guide revision 2026-11-15 / Dopamine 3.0.13 / palera1n 3.0.0 beta 3 / TrollStore 2.1.1"
+    },
+    {
       "action": "update",
       "candidate_fingerprint": "jailbreak-development.erosion-mobilegestalt-persistence-12c0a2d-2026-11-15",
       "channel": "scheduled-current-jailbreak-development",
@@ -11203,5 +11247,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-15T00:14:00+03:00"
+  "updated_at": "2026-11-15T06:04:00+03:00"
 }
