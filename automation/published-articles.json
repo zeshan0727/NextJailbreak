@@ -2,6 +2,33 @@
   "entries": [
     {
       "action": "create",
+      "additional_media": [],
+      "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-shsh-449-2026-11-16",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "TSSChecker Build 449 provides official Windows x86_64, macOS arm64/x86_64 and multiple Linux assets. A status check does not establish jailbreak availability or guarantee a future restore; device-specific tickets and compatible nonce, SEP, baseband and Cryptex conditions remain separate requirements.",
+      "description": "Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats.",
+      "developer": "1Conan / TSSChecker contributors; FutureRestore contributors",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "check-ios-signing-status-tsschecker-guide/",
+      "media_retrieval_status": "No suitable original source visual was available: the official TSSChecker repository and Build 449 release provide command-line binaries, source files and a CI badge, but no app interface screenshot, release artwork or project image appropriate for editorial embedding.",
+      "modified_at": "2026-11-16T06:01:00+03:00",
+      "name": "iOS signing status with TSSChecker",
+      "package": "guide.ios.signing-status-tsschecker",
+      "published_at": "2026-11-16T06:01:00+03:00",
+      "release": "TSSChecker Build 449 released November 16, 2026 at 01:54:51 UTC; FutureRestore v194 remains officially deprecated in favor of nightlies",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Official TSSChecker Build 449 release and source documentation; FutureRestore official warning and README; Apple Support",
+      "source_page_url": "https://github.com/1Conan/tsschecker/releases/tag/449",
+      "source_url": "https://github.com/1Conan/tsschecker/blob/1672165f5894fb7f9698555d15aa3d667c3c1a2b/README.md",
+      "source_visual_origin": "no-suitable-source-visual",
+      "title": "How to Check If an iOS Version Is Still Signed with TSSChecker",
+      "version": "Guide revision 2026-11-16 / TSSChecker 0.449.0 Build 449"
+    },
+    {
+      "action": "create",
       "additional_media": [
         "assets/articles/source-media/pullover-pro-3-0-1-official-poster.jpg",
         "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png",
@@ -7743,6 +7770,16 @@
   ],
   "events": [
     {
+      "action": "create",
+      "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-shsh-449-2026-11-16",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "check-ios-signing-status-tsschecker-guide/",
+      "package": "guide.ios.signing-status-tsschecker",
+      "published_at": "2026-11-16T06:01:00+03:00",
+      "run_id": "scheduled-2026-11-16T03:00:00Z",
+      "version": "Guide revision 2026-11-16 / TSSChecker 0.449.0 Build 449"
+    },
+    {
       "action": "update",
       "candidate_fingerprint": "jailbreak-development.erosion-0.3.2-beta-file-browser-pathleak-fb16225-2026-11-16",
       "channel": "scheduled-current-jailbreak-development",
@@ -11326,5 +11363,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-16T00:04:00+03:00"
+  "updated_at": "2026-11-16T06:01:00+03:00"
 }

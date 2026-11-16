@@ -2,6 +2,16 @@
 <rss version="2.0">
   <channel>
     <item>
+      <title>How to Check If an iOS Version Is Still Signed with TSSChecker</title>
+      <link>https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/</guid>
+      <pubDate>Mon, 16 Nov 2026 03:01:00 GMT</pubDate>
+      <description>Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+
+
+    <item>
       <title>Erosion 0.3.2 Beta Source Fixes File Browser and Container Lookup</title>
       <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>

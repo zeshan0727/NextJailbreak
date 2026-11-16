@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f3f5f6">
+  <title>How to Check If an iOS Version Is Still Signed with TSSChecker | Next Jailbreak</title><meta name="description" content="Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats."><meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/"><link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml"><link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg">
+  <link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/community-comments.css">
+  <meta property="og:type" content="article"><meta property="og:site_name" content="Next Jailbreak"><meta property="og:url" content="https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/">
+  <meta property="og:title" content="How to Check If an iOS Version Is Still Signed with TSSChecker | Next Jailbreak"><meta property="og:description" content="Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats."><meta property="og:image" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card-whatsapp.jpg"><meta property="og:image:secure_url" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card-whatsapp.jpg"><meta property="og:image:type" content="image/jpeg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Next Jailbreak">
+  <meta property="article:published_time" content="2026-11-16T06:01:00+03:00"><meta property="article:modified_time" content="2026-11-16T06:01:00+03:00">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@nextjailbreak"><meta name="twitter:title" content="How to Check If an iOS Version Is Still Signed with TSSChecker | Next Jailbreak"><meta name="twitter:description" content="Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats."><meta name="twitter:image" content="https://nextjailbreak.com/assets/brand/next-jailbreak-social-card-whatsapp.jpg"><meta name="twitter:image:alt" content="Next Jailbreak">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"How to Check If an iOS Version Is Still Signed with TSSChecker","description":"Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats.","datePublished":"2026-11-16T06:01:00+03:00","dateModified":"2026-11-16T06:01:00+03:00","author":{"@type":"Person","name":"Zeeshan Barvi"},"publisher":{"@type":"Organization","name":"Next Jailbreak","url":"https://nextjailbreak.com"},"mainEntityOfPage":"https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/","articleSection":"Evergreen Jailbreak Guide","about":["TSSChecker 449","iOS signing status","SHSH blobs","APTicket","FutureRestore","SEP","baseband","Cryptex1"],"citation":["https://github.com/1Conan/tsschecker/releases/tag/449","https://github.com/1Conan/tsschecker/blob/1672165f5894fb7f9698555d15aa3d667c3c1a2b/README.md","https://github.com/futurerestore/futurerestore/releases/tag/194","https://github.com/futurerestore/futurerestore/blob/main/README.md","https://support.apple.com/en-us/108308"]},{"@type":"SoftwareApplication","name":"TSSChecker","softwareVersion":"0.449.0 / Build 449","applicationCategory":"DeveloperApplication","operatingSystem":"Windows x86_64; macOS arm64 and x86_64; Linux aarch64, arm, mips, mipsel, riscv32, riscv64 and x86_64","downloadUrl":"https://github.com/1Conan/tsschecker/releases/tag/449","releaseNotes":"https://github.com/1Conan/tsschecker/releases/tag/449"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nextjailbreak.com/"},{"@type":"ListItem","position":2,"name":"Jailbreak Guides","item":"https://nextjailbreak.com/tutorials/#jailbreak-guides"},{"@type":"ListItem","position":3,"name":"Check iOS signing status","item":"https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does signed firmware mean my iPhone can jailbreak it?","acceptedAnswer":{"@type":"Answer","text":"No. Signing status only answers whether Apple is currently issuing the requested ticket. Jailbreak availability separately depends on the exact device, firmware, exploit and project support."}},{"@type":"Question","name":"Do saved SHSH blobs guarantee a future downgrade?","acceptedAnswer":{"@type":"Answer","text":"No. A usable restore also depends on a matching device ticket and nonce conditions plus compatible SEP, baseband and, where applicable, Cryptex components and a working restore tool."}},{"@type":"Question","name":"Are OTA and full-restore signing status the same?","acceptedAnswer":{"@type":"Answer","text":"Not necessarily. TSSChecker uses the --ota option for OTA tickets; a signed OTA path does not automatically establish a normal IPSW restore path."}},{"@type":"Question","name":"Is FutureRestore v194 the current recommended download?","acceptedAnswer":{"@type":"Answer","text":"No. Its official release page marks v194 deprecated, warns that it may bootloop a device and directs users to current nightly builds."}}]}]}</script>
+  <!-- google-analytics-auto:start -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7GJ4N0HV92"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7GJ4N0HV92');
+</script>
+<!-- google-analytics-auto:end -->
+  <script data-clean-url-redirect>(function(){var path=window.location.pathname;if(path.endsWith('.html')&&path.toLowerCase()!='/index.html'){window.location.replace(path.slice(0,-5)+'/'+window.location.search+window.location.hash);}}());</script>
+  <meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324">
+</head><body>
+  <div class="topline"><div class="topline-inner"><span>iPhone jailbreak guides, tweak reviews and practical fixes</span><span class="topline-status"><i aria-hidden="true"></i> TSSChecker 449 release and help output verified</span></div></div>
+  <header class="site-header"><div class="nav-shell"><a class="brand" href="/" aria-label="Next Jailbreak home"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><nav aria-label="Primary navigation"><ul class="nav-links"><li><a href="/">Blog</a></li><li><a href="/tutorials/#verified-articles">Tweaks</a></li><li><a href="/tutorials/#jailbreak-guides" aria-current="page">Jailbreak</a></li><li><a href="/videos/">Videos</a></li><li><a href="https://repo.nextjailbreak.com/">Repo</a></li></ul></nav></div></header>
+  <main class="container article-main"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/tutorials/#jailbreak-guides">Jailbreak guides</a><span aria-hidden="true">/</span><span>iOS signing status</span></nav>
+  <article><header class="article-hero"><span class="article-kicker">Evergreen guide · TSSChecker 449 · SHSH safety</span><h1>How to Check If an iOS Version Is Still Signed with TSSChecker</h1><p class="article-summary">TSSChecker asks Apple’s TSS service whether a specific firmware request is currently being signed. It can answer a useful preflight question, but it does not make an unsigned version installable, prove jailbreak compatibility or guarantee that saved blobs can restore later.</p><p class="article-footnote">By Zeeshan Barvi · Published November 16, 2026 · Verified against TSSChecker Build 449, official project documentation, FutureRestore warnings and Apple Support</p></header>
+  <div class="article-layout"><div class="article-content">
+    <div class="info-box"><strong>Quick answer:</strong> download TSSChecker only from its official Build 449 release, verify the published SHA-256, identify the exact device ProductType, then run <code>tsschecker -d PRODUCTTYPE -i VERSION</code>. Read-only status checks do not require an ECID. Saving device-specific tickets is a separate, more demanding workflow.</div>
+
+    <h2>What is current—and what is not</h2>
+    <p>The official TSSChecker project published <strong>Build 449</strong> on November 16, 2026 at 04:54 in Qatar. Its binary reports version <code>0.449.0-1672165f…-RELEASE</code>. The changelog adds devices released since the previous fall, including new iPhones and Apple Watches, and adds MT6815 baseband identifiers.</p>
+    <p>The release provides Windows x86_64, macOS arm64 and x86_64, plus Linux builds for aarch64, arm, mips, mipsel, riscv32, riscv64 and x86_64. Next Jailbreak downloaded the official Linux x86_64 asset, confirmed the project’s published SHA-256 and checked its built-in help output. We did <strong>not</strong> perform a restore or claim that every possible TSS request succeeds.</p>
+    <table><thead><tr><th>Tool or result</th><th>Verified status</th><th>What it establishes</th></tr></thead><tbody>
+      <tr><td>TSSChecker Build 449</td><td>Current official release checked November 16, 2026</td><td>Queries Apple TSS signing and can save requested tickets when complete device values are supplied.</td></tr>
+      <tr><td>FutureRestore v194</td><td>Official release page says <strong>stop using</strong>; it is deprecated and may bootloop</td><td>Do not use the “Latest” badge as a recommendation. The project points to current nightlies instead.</td></tr>
+      <tr><td>“STATUS: SIGNED”</td><td>Apple accepted that request at that moment</td><td>It does not prove that the firmware has a jailbreak or that a future downgrade will work.</td></tr>
+    </tbody></table>
+
+    <h2>Step 1: identify the exact device and target</h2>
+    <p>TSS requests use Apple’s ProductType, such as <code>iPhone10,3</code>, rather than only a marketing name such as “iPhone X.” Record the exact iPhone or iPad model, current iOS build and target firmware before checking. Our <a href="/check-iphone-model-ios-build-jailbreak-compatibility/">model and iOS build guide</a> explains how to collect those values without exposing a serial number, IMEI or Apple Account.</p>
+    <p>Build numbers matter when two releases share a visible version label or when you are checking an RC, beta or OTA build. TSSChecker accepts <code>-i VERSION</code> for a firmware version or <code>-Z BUILD</code> for a specific build identifier. Do not round one version to another.</p>
+
+    <h2>Step 2: download Build 449 and verify it</h2>
+    <ol>
+      <li>Open the <a href="https://github.com/1Conan/tsschecker/releases/tag/449" rel="noopener noreferrer">official TSSChecker Build 449 release</a>.</li>
+      <li>Choose the asset for the computer’s operating system and CPU. A Windows x86_64 executable is not the macOS arm64 build.</li>
+      <li>Compare the file’s SHA-256 with GitHub’s published digest before running it. Follow our <a href="/verify-ipa-tipa-sha256-trollstore-guide/">SHA-256 verification workflow</a>; the same identity principle applies even though this download is a desktop executable rather than an IPA.</li>
+      <li>On macOS or Linux, make the file executable only after the hash matches: <code>chmod +x ./tsschecker</code>.</li>
+    </ol>
+    <p>For the official Linux x86_64 Build 449 asset, GitHub publishes:</p>
+    <p style="overflow-wrap:anywhere"><code>57da00fb9612b591132f8ad34d9829af73fb4ccd07dbd699d7b47e5507402fac</code></p>
+    <p>This digest applies only to <code>tsschecker_linux_x86_64</code> from release 449. Every other platform asset has its own digest on the release page.</p>
+
+    <h2>Step 3: run a read-only signing check</h2>
+    <p>From Terminal, Command Prompt or PowerShell, use the syntax below and replace both placeholders with real values:</p>
+    <pre><code>tsschecker -d PRODUCTTYPE -i VERSION</code></pre>
+    <p>For an exact build rather than a version label:</p>
+    <pre><code>tsschecker -d PRODUCTTYPE -Z BUILDID</code></pre>
+    <p>To ask for the latest public firmware known to the tool:</p>
+    <pre><code>tsschecker -d PRODUCTTYPE -l</code></pre>
+    <p>A basic status check can use randomized device values because it asks whether Apple is signing that device/firmware combination generally. The official README explicitly distinguishes this from saving reusable tickets, which needs correct device-specific values.</p>
+
+    <h2>How to interpret the result</h2>
+    <table><thead><tr><th>Result or symptom</th><th>Meaning</th><th>Safe next step</th></tr></thead><tbody>
+      <tr><td>Signed</td><td>Apple issued the requested ticket for that request type at query time.</td><td>If you plan a normal restore, confirm the exact IPSW and create a current backup. Separately check jailbreak availability.</td></tr>
+      <tr><td>Not signed</td><td>Apple did not issue the requested normal ticket.</td><td>Do not assume a random IPSW mirror or old iTunes version can bypass signing.</td></tr>
+      <tr><td>Unknown device or firmware</td><td>The ProductType, build or local device list may be wrong or too old.</td><td>Confirm the identifier, use Build 449, then retry with <code>--nocache</code> only if stale cached data is suspected.</td></tr>
+      <tr><td>OTA differs from restore</td><td>OTA and full IPSW requests are separate lanes.</td><td>Use <code>--ota</code> only when you intentionally want OTA status; do not describe it as a normal restore ticket.</td></tr>
+      <tr><td>Network or TSS error</td><td>No reliable signing conclusion was obtained.</td><td>Retry later and preserve the full output. Do not label an error as unsigned.</td></tr>
+    </tbody></table>
+
+    <h2>OTA signing is a separate check</h2>
+    <p>Use <code>-o</code> or <code>--ota</code> to query OTA signing instead of the normal restore path:</p>
+    <pre><code>tsschecker -d PRODUCTTYPE -i VERSION --ota</code></pre>
+    <p>An OTA ticket can be available when a normal IPSW restore ticket is not. That does not mean Finder, Apple Devices or FutureRestore can perform the downgrade you want. Record which request type produced the result.</p>
+
+    <h2>Checking status is not the same as saving SHSH blobs</h2>
+    <p>The <code>--save</code> option writes a fetched ticket, but a reusable device ticket must match the actual hardware and nonce conditions. The official help exposes ECID, generator, APNonce, board configuration, baseband serial and Cryptex values because modern restores cannot be reduced to one universal command.</p>
+    <ul>
+      <li><strong>ECID is device-specific.</strong> A blob saved for another device is not yours.</li>
+      <li><strong>arm64e nonce entanglement matters.</strong> The project documentation requires a matching APNonce and generator pair for reusable arm64e tickets.</li>
+      <li><strong>Baseband tickets can matter.</strong> Devices with cellular baseband may require the correct baseband serial data for a valid BBTicket.</li>
+      <li><strong>iOS 16 added Cryptex1.</strong> The official README says saving and using Cryptex blobs requires a jailbreak and checkm8-class access; a normal status query does not create those prerequisites.</li>
+      <li><strong>Saving a file is not proof of future usability.</strong> Validate the ticket’s identity and keep the generator, APNonce, ProductType, board configuration, ECID, target version and build together.</li>
+    </ul>
+    <div class="info-box"><strong>Privacy:</strong> do not post your ECID, serial, IMEI, baseband serial or full ticket publicly. A signing-status question usually needs only the ProductType, firmware/build, request type and sanitized output.</div>
+
+    <h2>Why a valid blob still may not restore</h2>
+    <p>FutureRestore’s official README describes unsigned restores as conditional: the APTicket must match the ECID, APNonce and board identity, while the target firmware must remain compatible with the SEP and baseband components available for the restore. On newer systems, Cryptex compatibility adds another boundary.</p>
+    <p>That is why these three statements are different:</p>
+    <ol>
+      <li><strong>Apple is signing the firmware now.</strong> A current TSS request succeeds.</li>
+      <li><strong>I saved a valid device-specific ticket.</strong> The ticket matches the device and nonce information.</li>
+      <li><strong>I can restore or downgrade later.</strong> A current tool and compatible SEP, baseband, Cryptex and restore path all exist.</li>
+    </ol>
+    <p>Do not follow an old FutureRestore tutorial solely because GitHub labels v194 “Latest.” The project’s own v194 page says it is deprecated, may bootloop a device and should be replaced with its current nightly builds. Even a nightly does not remove device and firmware compatibility requirements.</p>
+
+    <h2>Signing status does not prove jailbreak availability</h2>
+    <p>A signed version may have no public jailbreak for your device. Conversely, an unsigned firmware may have a historical jailbreak but no usable restore path. After the signing check, compare the exact model, firmware and build with current project documentation:</p>
+    <ul>
+      <li><a href="/dopamine-3-official-download-guide/">Dopamine 3 compatibility and official download guide</a></li>
+      <li><a href="/how-to-jailbreak/">palera1n device and installation guide</a></li>
+      <li><a href="/ios-27-jailbreak-status-security-fixes-usbliter8/">Current iOS 27 jailbreak status</a></li>
+      <li><a href="/trollstore-installation-method-guide/">TrollStore installation-method guide</a>—TrollStore is not a jailbreak.</li>
+    </ul>
+
+    <h2>Troubleshooting checklist</h2>
+    <ol>
+      <li><strong>“Command not found”:</strong> run the binary from its directory, include <code>./</code> on macOS/Linux and confirm execute permission.</li>
+      <li><strong>Wrong architecture:</strong> download the matching macOS, Windows or Linux CPU asset.</li>
+      <li><strong>macOS blocks execution:</strong> verify the official digest first, then review the exact Gatekeeper warning. Do not disable system-wide protections for an unverified binary.</li>
+      <li><strong>Device not found:</strong> use ProductType, not a retail name; Build 449 adds newer device definitions.</li>
+      <li><strong>Version ambiguity:</strong> query the exact build with <code>-Z</code>.</li>
+      <li><strong>Unexpected OTA result:</strong> check whether <code>--ota</code> was used and repeat the normal request without it.</li>
+      <li><strong>Cached data looks stale:</strong> retry with <code>--nocache</code>; keep the raw error if Apple’s service is unreachable.</li>
+      <li><strong>You intend to restore:</strong> stop at the status check until device-specific blobs, nonce data and current SEP/baseband/Cryptex compatibility are independently verified.</li>
+    </ol>
+
+    <h2>Official sources</h2>
+    <ul>
+      <li><a href="https://github.com/1Conan/tsschecker/releases/tag/449" rel="noopener noreferrer">TSSChecker Build 449 official release, assets and SHA-256 digests</a></li>
+      <li><a href="https://github.com/1Conan/tsschecker/blob/1672165f5894fb7f9698555d15aa3d667c3c1a2b/README.md" rel="noopener noreferrer">TSSChecker source documentation at the Build 449 commit</a></li>
+      <li><a href="https://github.com/futurerestore/futurerestore/releases/tag/194" rel="noopener noreferrer">FutureRestore v194 deprecation and bootloop warning</a></li>
+      <li><a href="https://github.com/futurerestore/futurerestore/blob/main/README.md" rel="noopener noreferrer">FutureRestore requirements for APTicket, nonce, SEP and baseband</a></li>
+      <li><a href="https://support.apple.com/en-us/108308" rel="noopener noreferrer">Apple Support: restore errors when attempting an earlier iOS version</a></li>
+    </ul>
+    <p class="article-footnote">Sources checked November 16, 2026 (Asia/Qatar). Next Jailbreak verified the official Linux x86_64 Build 449 digest and help output. We did not perform a device restore, save a personal ticket or infer jailbreak support from signing status.</p>
+
+    <h2>Frequently asked questions</h2>
+    <h3>Does signed firmware mean my iPhone can jailbreak it?</h3><p>No. Signing and jailbreak availability are separate checks.</p>
+    <h3>Do SHSH blobs guarantee a future downgrade?</h3><p>No. The ticket, device nonce conditions and compatible restore components must all align.</p>
+    <h3>Are OTA and normal restore signing the same?</h3><p>No. Use <code>--ota</code> only for the OTA lane and label the result accordingly.</p>
+    <h3>Should I use FutureRestore v194 because GitHub marks it Latest?</h3><p>No. Its own release page says to stop using it, warns it may bootloop and directs users to nightlies.</p>
+  </div><aside class="article-sidebar">
+    <div class="sidebar-card"><span class="eyebrow">Current release</span><h2>TSSChecker 449</h2><p>Published November 16, 2026</p><p>Commit <code>1672165</code></p><p>Windows, macOS and Linux assets</p></div>
+    <div class="sidebar-card"><span class="eyebrow">Status check</span><h2>Minimum inputs</h2><p>Exact ProductType</p><p>Firmware version or build</p><p>Normal restore or OTA lane</p></div>
+    <div class="sidebar-card"><span class="eyebrow">Does not prove</span><h2>Separate checks</h2><p>Jailbreak availability</p><p>FutureRestore compatibility</p><p>Reusable SHSH ticket</p><p>SEP/baseband/Cryptex match</p></div>
+  </aside></div></article>
+  <!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_START --><section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title"><div class="nj-comments-head"><div><h2 id="community-comments-title">Community comments</h2><p>Share the ProductType, firmware/build, request type and sanitized output. Do not post ECIDs, serial numbers, IMEI, baseband serials or personal SHSH tickets.</p></div><span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span></div><form class="nj-comment-form" data-comment-form><label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label><label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label><label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful result or ask a question…" required></textarea></label><div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div></form><div class="nj-comment-list" data-comment-list></div></section><!-- NEXTJAILBREAK_COMMUNITY_COMMENTS_END -->
+  </main>
+  <footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="brand" href="/"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><p>Jailbreak news, useful tweak information, practical guides, and original videos.</p></div><div class="footer-column"><strong>Read</strong><a href="/#latest">Latest articles</a><a href="/tutorials/#verified-articles">Tweaks</a><a href="/tutorials/#jailbreak-guides">Jailbreak</a></div><div class="footer-column"><strong>Legal</strong><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div><div class="footer-bottom"><div class="container"><span>© 2026 Next Jailbreak</span></div></div></footer>
+  <script src="/assets/community-comments.js" defer></script>
+  <script defer src="/assets/adsterra.js?v=20260910-1" data-ns-monetag-loader="1"></script>
+  <script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>
+</body></html>
