@@ -1011,14 +1011,14 @@
           "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg"
         }
       ],
-      "article_sha256": "d6f1a59df91aeae51a8a6afebfc4e4ac817336175fa1e064b3f4575255176bbb",
-      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.8.3-keyboard-tiling-keypilot-2026-11-07",
+      "article_sha256": "cd4b1dc42ac22c93a16a9fedb58db6f36e855129997d329be336bb6dac69f8de",
+      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.8.7.5-stability-fixes-2026-11-16",
       "category": {
         "id": "individual-tweak-update",
         "label": "Individual Tweak Update"
       },
-      "compat": "MacStatusBar&Dock 1.8.3: iPad only, iPadOS 15–18, conventional rootless jailbreak. No iPhone or RootHide build is documented; package compatibility does not create jailbreak support.",
-      "description": "MacStatusBar&Dock 1.8.3 adds macOS-style keyboard tiling, window APIs for KeyPilot and safer side-Dock behavior. Check the official repo, iPadOS support and recovery.",
+      "compat": "MacStatusBar&Dock 1.8.7.5: iPad only, iPadOS 15–18, rootless jailbreak. The developer tests Dopamine and palera1n; no iPhone or separate RootHide build is documented, and package compatibility does not create jailbreak support.",
+      "description": "MacStatusBar&Dock 1.8.7.5 fixes charge controls, Stage Manager windows and crash recovery. Check iPadOS support, requirements and safe update steps.",
       "developer": "BesiktasliSeba",
       "entry_type": "jailbreak-development",
       "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
@@ -1028,19 +1028,19 @@
       "media_git_blob_sha": "938abef9a1d77dd53b06e2b2ea23055bf7cb04c1",
       "media_retrieval_status": "Exact official developer screenshots already stored locally and re-verified; current Havoc __NEXT_DATA__ also exposes official banner and screenshot URLs.",
       "media_source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
-      "modified_at": "2026-11-07T14:57:20Z",
+      "modified_at": "2026-11-16T15:40:00Z",
       "name": "MacStatusBar&Dock",
       "package": "com.besiktasliseba.macstatusbaranddock",
       "published_at": "2026-10-04T21:04:21Z",
-      "release": "2026-11-07",
+      "release": "2026-11-15",
       "selection_pool": "official-open-source-individual-update",
       "source_name": "BesiktasliSeba official project, release ledger and Havoc page data",
       "source_page_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
       "source_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock/blob/main/CHANGELOG.md",
       "source_visual_origin": "official-developer-package-depiction",
       "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
-      "title": "MacStatusBar&Dock 1.8.3 Adds Keyboard Window Tiling and KeyPilot Support",
-      "version": "1.8.3"
+      "title": "MacStatusBar&Dock 1.8.7.5 Fixes Charge Limits, Stage Manager and Crash Recovery",
+      "version": "1.8.7.5"
     },
     {
       "additional_media": [
