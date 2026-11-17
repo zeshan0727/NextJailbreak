@@ -14,12 +14,15 @@ struct SMSAIRecognitionResult: Codable, Equatable {
 
 enum SMSAIRecognitionError: LocalizedError {
     case noProvider
+    case consentRequired
     case invalidResponse
 
     var errorDescription: String? {
         switch self {
         case .noProvider:
             return "Add an OpenAI or DeepSeek API key in Settings first."
+        case .consentRequired:
+            return "Turn on SMS Cloud AI consent under Settings → AI Privacy to send bank SMS text for classification."
         case .invalidResponse:
             return "AI did not return a valid transaction classification."
         }
@@ -28,11 +31,15 @@ enum SMSAIRecognitionError: LocalizedError {
 
 enum SMSAIRecognitionService {
     static let statusChanged = Notification.Name("SMSAIRecognitionStatusChanged")
+    static let cloudConsentKey = "NextLedgerSMSCloudAIOptInV1"
+
+    static var hasCloudConsent: Bool {
+        UserDefaults.standard.bool(forKey: cloudConsentKey)
+    }
 
     static var isAvailable: Bool {
-        // SMS database recovery intentionally uses the existing OpenAI credential
-        // from the main AI Settings. There is no separate SMS API key.
-        OpenAIService.shared.hasAPIKey
+        hasCloudConsent &&
+        (OpenAIService.shared.hasAPIKey || DeepSeekService.shared.hasAPIKey)
     }
 
     static func cachedResult(for id: UUID) -> SMSAIRecognitionResult? {
@@ -45,6 +52,9 @@ enum SMSAIRecognitionService {
 
     @discardableResult
     static func analyze(draft: SMSImportDraft) async throws -> SMSAIRecognitionResult {
+        // The raw bank message may contain amounts, card digits and merchants.
+        // Require an explicit user opt-in before transmitting it to any AI API.
+        guard hasCloudConsent else { throw SMSAIRecognitionError.consentRequired }
         let response: String
         let provider: String
         let system = """
@@ -182,8 +192,12 @@ actor SMSOpenAIAutoRecoveryCoordinator {
 
     func processPending(force: Bool = false, limit: Int = 5) async {
         guard !processing else { return }
-        guard OpenAIService.shared.hasAPIKey else {
-            setStatus("OpenAI API not connected")
+        guard SMSAIRecognitionService.hasCloudConsent else {
+            setStatus("Paused · SMS Cloud AI requires consent in AI Privacy")
+            return
+        }
+        guard OpenAIService.shared.hasAPIKey || DeepSeekService.shared.hasAPIKey else {
+            setStatus("AI API not connected")
             return
         }
 
