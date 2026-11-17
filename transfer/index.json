@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T16:19:46Z",
+  "updatedAt": "2026-11-17T19:20:00Z",
   "files": [
+    {
+      "id": "medtrack-1.0.0-b1-test",
+      "name": "MedTrack 1.0.0 — First iOS 16+ Test",
+      "fileName": "MedTrack-1.0.0-b1.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.0.0 (1)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.0.0/MedTrack-1.0.0-b1.ipa",
+      "sha256": "bbfd3cefc49ee28bf206bc56f3856a8f9461a3827a4ac172fb83f0110450cf37",
+      "sizeBytes": 477506,
+      "notes": "Native SwiftUI medicine reminder and dose tracker, five editable starter medication records, reminders after user confirmation, refill counts, history, widget. Test build is ad-hoc signed and requires TrollStore or a compatible installer; not standard App Store/ad-hoc provisioning."
+    },
     {
       "id": "nextcast-1.5.13",
       "name": "NexaPlay 1.5.13 — iOS Media Hub, Chromecast and Downloads",
