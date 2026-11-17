@@ -1,0 +1,103 @@
+name: Next Ledger Build 112 - App Store Preflight (Unsigned)
+
+on:
+  push:
+    branches: [release/nextledger-1.3.84-build112-appstore-prep]
+    paths:
+      - "DailyLedger/**"
+      - "DailyLedgerWidgets/**"
+      - "Shared/**"
+      - "Tests/NextLedgerWidget/**"
+      - "project.yml"
+      - "scripts/nextledger_appstore_audit.py"
+      - ".github/workflows/nextledger-build112-appstore-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nextledger-build112-appstore-preflight
+  cancel-in-progress: true
+
+jobs:
+  inspect:
+    name: Xcode 26+ source and iOS device compile audit
+    runs-on: macos-26
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - name: Confirm Apple's current SDK and immutable app identifiers
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          SDK="$(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "iOS SDK: $SDK"
+          MAJOR="$(echo "$SDK" | cut -d. -f1)"
+          test "$MAJOR" -ge 26
+          python3 scripts/nextledger_appstore_audit.py
+          plutil -lint DailyLedger/PrivacyInfo.xcprivacy DailyLedgerWidgets/PrivacyInfo.xcprivacy
+      - name: Run budget and widget regression checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          swiftc DailyLedger/Models/MonthlyFixedBudget.swift Tests/NextLedgerBudget/main.swift -o /tmp/ledger-budget
+          /tmp/ledger-budget
+          swiftc DailyLedger/Services/SafeDeviceMerge.swift Tests/NextLedgerDeviceSync/main.swift -o /tmp/ledger-sync
+          /tmp/ledger-sync
+          swiftc DailyLedger/Models/MonthlyFixedBudget.swift DailyLedger/Services/BudgetPerformanceEngine.swift Tests/NextLedgerBudgetPerformance/main.swift -o /tmp/ledger-budget-performance
+          /tmp/ledger-budget-performance
+          swiftc -swift-version 5 -O \
+            DailyLedger/Models/MonthlyFixedBudget.swift \
+            Shared/NextLedgerWidgetSnapshot.swift \
+            DailyLedger/Services/UpcomingPaymentPlanner.swift \
+            Tests/NextLedgerWidget/main.swift \
+            -o /tmp/ledger-widget
+          /tmp/ledger-widget
+      - name: Generate the single Next Ledger Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+          test -f NextLedger.xcodeproj/project.pbxproj
+          xcodebuild -project NextLedger.xcodeproj -list
+      - name: Compile iOS 16+ app and three widget sizes with current App Store SDK
+        shell: bash
+        timeout-minutes: 35
+        run: |
+          set -eo pipefail
+          xcodebuild \
+            -project NextLedger.xcodeproj \
+            -scheme NextLedger \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath /tmp/nextledger-appstore-112 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee /tmp/nextledger-appstore-112-build.log
+      - name: Verify iOS app, widget extension and privacy manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$(find /tmp/nextledger-appstore-112/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = "com.nextsolution.dailyledger"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$APP/Info.plist")" = "Next Ledger"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = "1.3.84"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = "112"
+          EXT="$APP/PlugIns/NextLedgerWidgets.appex"
+          test -d "$EXT"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$EXT/Info.plist")" = "com.nextsolution.dailyledger.widgets"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :NSExtension:NSExtensionPointIdentifier' "$EXT/Info.plist")" = "com.apple.widgetkit-extension"
+          test -f "$APP/PrivacyInfo.xcprivacy"
+          test -f "$EXT/PrivacyInfo.xcprivacy"
+          plutil -lint "$APP/PrivacyInfo.xcprivacy" "$EXT/PrivacyInfo.xcprivacy"
+          echo "PASS: Build 112 App Store source compiles with iOS 26+ SDK and embedded WidgetKit extension."
+          echo "NOTE: This preflight is deliberately UNSIGNED. Archive on the developer Mac"
+          echo "      with App Store automatic signing after App Store Connect bundle ID check."
