@@ -1020,6 +1020,7 @@ struct BrowserTab: View {
     @State private var inputURL = ""
     @State private var showBookmarks = false
     @State private var showTabList = false
+    @Environment(\.colorScheme) private var scheme
     var openDownloads: () -> Void
 
     init(library: MovieLibrary, downloads: BrowserDownloadStore,
@@ -1036,9 +1037,9 @@ struct BrowserTab: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Start Page")
+                    Text("Explore NexaPlay")
                         .font(.system(size: 29, weight: .bold, design: .rounded))
-                    Text("Quick access to your saved websites")
+                    Text("Your favorite sites, one tap away")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -1046,8 +1047,8 @@ struct BrowserTab: View {
 
                 HStack(spacing: 8) {
                     Image(systemName: "star.fill")
-                        .foregroundStyle(.cyan)
-                    Text("Favorites")
+                        .foregroundStyle(NexaPalette.orange)
+                    Text("Quick Access")
                         .font(.title3.weight(.semibold))
                 }
 
@@ -1056,9 +1057,9 @@ struct BrowserTab: View {
                         Image(systemName: "bookmark")
                             .font(.system(size: 32, weight: .light))
                             .foregroundStyle(.cyan)
-                        Text("No bookmarks yet")
+                        Text("Your favorite sites appear here")
                             .font(.headline)
-                        Text("Open a website and tap the star in the toolbar to save it here.")
+                        Text("Browse a website and tap the star to add it to your start page.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -1080,7 +1081,7 @@ struct BrowserTab: View {
                                         .font(.system(size: 23, weight: .medium))
                                         .foregroundStyle(.cyan)
                                         .frame(width: 44, height: 44)
-                                        .background(Color.cyan.opacity(0.10),
+                                        .background(NexaPalette.orange.opacity(0.10),
                                                     in: RoundedRectangle(cornerRadius: 12))
                                     Spacer(minLength: 0)
                                     Text(bookmark.title)
@@ -1095,7 +1096,7 @@ struct BrowserTab: View {
                                 }
                                 .padding(14)
                                 .frame(maxWidth: .infinity, minHeight: 155, alignment: .leading)
-                                .background(.background, in: RoundedRectangle(cornerRadius: 18))
+                                .background(NexaPalette.card(scheme), in: RoundedRectangle(cornerRadius: 18))
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 18)
                                         .strokeBorder(.secondary.opacity(0.12), lineWidth: 1)
@@ -1115,14 +1116,14 @@ struct BrowserTab: View {
             .padding(.bottom, 36)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background(NexaPalette.canvas(scheme))
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 HStack(spacing: 7) {
-                    Image(systemName: "lock.shield")
+                    Image(systemName: "globe")
                         .font(.system(size: 14))
                         .foregroundStyle(.cyan)
                     TextField("Search or website address", text: $inputURL)
@@ -1155,12 +1156,15 @@ struct BrowserTab: View {
                 .foregroundStyle(.cyan)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 9)
-                .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+                .background(NexaPalette.card(scheme),
+                            in: RoundedRectangle(cornerRadius: 14))
+                .overlay(RoundedRectangle(cornerRadius: 14)
+                    .strokeBorder(NexaPalette.stroke(scheme), lineWidth: 1))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
 
                 if model.loading {
-                    ProgressView().progressViewStyle(.linear).tint(.cyan)
+                    ProgressView().progressViewStyle(.linear).tint(NexaPalette.orange)
                 }
                 if model.showingStartPage {
                     favoriteStartPage
@@ -1170,6 +1174,7 @@ struct BrowserTab: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
+                        .background(NexaPalette.canvas(scheme))
             .navigationTitle("Browser")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
