@@ -1,4 +1,4 @@
-name: MedTrack 1.1.0 Build 2 - IPA to NS Transfer
+name: MedTrack 1.2.0 Build 3 - IPA to NS Transfer
 
 on:
   push:
@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 35
     env:
       APP_NAME: MedTrack
-      FILE_NAME: MedTrack-1.1.0-b2.ipa
+      FILE_NAME: MedTrack-1.2.0-b3.ipa
       BUNDLE_ID: com.nextsolution.medtrack
-      VERSION: "1.1.0"
-      BUILD: "2"
+      VERSION: "1.2.0"
+      BUILD: "3"
       # Intel hosted runner avoids the standard macOS ARM allocation pool.
     steps:
       - name: Check out MedTrack test source
@@ -64,6 +64,14 @@ jobs:
           test -s MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
           test -s MedTrackFirstTest/MedTrack/Assets.xcassets/AppIcon.appiconset/AppIcon.png
           echo "Restored complete MedTrack app, widget, project and tests."
+          # Apply incremental Build 3 source update over the verified Build 2 archive.
+          test -s MedTrackFirstTest/medtrack-v120.patch.gz.b64
+          base64 -D -i MedTrackFirstTest/medtrack-v120.patch.gz.b64 -o "$RUNNER_TEMP/medtrack-v120.patch.gz"
+          gunzip -c "$RUNNER_TEMP/medtrack-v120.patch.gz" | patch --batch --fuzz=0 -p0 -d MedTrackFirstTest
+          python3 MedTrackFirstTest/generate_project.py
+          plutil -lint MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          grep -q "1.2.0" MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          echo "Build 3 sources applied: Archive, Widget fix, Routine insights."
 
       - name: Compile device build with Xcode
         shell: bash
@@ -103,17 +111,17 @@ jobs:
       - name: Retain IPA artifact and checksum
         uses: actions/upload-artifact@v4
         with:
-          name: MedTrack-1.1.0-b2-IPA
+          name: MedTrack-1.2.0-b3-IPA
           path: |
-            /Users/runner/work/_temp/MedTrack-1.1.0-b2.ipa
-            /Users/runner/work/_temp/MedTrack-1.1.0-b2.ipa.sha256
+            /Users/runner/work/_temp/MedTrack-1.2.0-b3.ipa
+            /Users/runner/work/_temp/MedTrack-1.2.0-b3.ipa.sha256
           if-no-files-found: error
 
       - name: Publish successful IPA to NS Transfer on main
         shell: bash
         run: |
           set -euo pipefail
-          DEST="transfer/files/MedTrack/1.1.0"
+          DEST="transfer/files/MedTrack/1.2.0"
           for ATTEMPT in 1 2 3; do
             git fetch origin main
             SITE="$RUNNER_TEMP/medtrack-site"
@@ -132,16 +140,16 @@ jobs:
           f=Path(os.environ['DEST'])/os.environ['FILE_NAME']
           blob=f.read_bytes()
           entry={
-            'id':'medtrack-1.1.0-b2-test',
-            'name':'MedTrack 1.1.0 — Persistent Reminders & Interactive Widget Test',
+            'id':'medtrack-1.2.0-b3-test',
+            'name':'MedTrack 1.2.0 — Widget Repair, Medication Archive & Routine Learning',
             'fileName':os.environ['FILE_NAME'],
             'type':'ipa',
             'platform':'iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)',
-            'version':'1.1.0 (2)',
+            'version':'1.2.0 (3)',
             'url':'https://nextjailbreak.com/'+os.environ['DEST']+'/'+os.environ['FILE_NAME'],
             'sha256':hashlib.sha256(blob).hexdigest(),
             'sizeBytes':len(blob),
-            'notes':'Follow-up alerts repeat at adjustable intervals until Taken/Skip, precise action timestamps, four-medicine widget and interactive iOS 17+ Taken/Skip buttons. iOS 16 widgets deep-link to the app. Test build is ad-hoc signed and requires TrollStore or a compatible installer; not standard App Store/ad-hoc provisioning.'
+            'notes':'Repaired widget with fallback data and four-medicine layout, Archive/Restore/Delete, local routine-learning suggestions after five consistent dose logs with user-approved reminder-time changes; retains dose history. iOS 17+ interactive widget actions and iOS 16 deep links. TrollStore test signature.'
           }
           d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
           d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -151,7 +159,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -f "$DEST/$FILE_NAME" transfer/index.json
-            git commit -m "Publish MedTrack 1.1.0 Build 2 IPA to NS Transfer"
+            git commit -m "Publish MedTrack 1.2.0 Build 3 IPA to NS Transfer"
             if git push origin HEAD:main; then
               echo "Published MedTrack on NS Transfer" >> "$GITHUB_STEP_SUMMARY"
               echo "https://nextjailbreak.com/$DEST/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
