@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - agent/next-cast-1.5.12-ui-polish-settings
+      - agent/next-cast-1.5.13-home-layout-fix
     paths:
       - "NextCast/**"
       - ".github/workflows/nextcast-build.yml"
@@ -14,7 +14,7 @@ permissions:
 
 # Never waste multiple macOS runners compiling superseded edits.
 concurrency:
-  group: nextcast-v1512-${{ github.head_ref || github.ref_name }}
+  group: nextcast-v1513-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -144,8 +144,8 @@ jobs:
           info = plistlib.loads((app / "Info.plist").read_bytes())
           assert info["CFBundleIdentifier"] == "uk.zeshanbarvi.nextcast"
           assert info["CFBundleDisplayName"] == "NexaPlay"
-          assert info["CFBundleShortVersionString"] == "1.5.12"
-          assert info["CFBundleVersion"] == "36"
+          assert info["CFBundleShortVersionString"] == "1.5.13"
+          assert info["CFBundleVersion"] == "37"
           assert (app / "Assets.car").is_file(), "Missing compiled assets"
           assert (app / "NextCast").is_file(), "Missing executable"
           print("Verified NexaPlay identity, version, bundle ID and icon assets")
@@ -159,17 +159,17 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.5.12.tipa" Payload)
-          cp NextCast-1.5.12.tipa NextCast-1.5.12.ipa
-          ls -lh NextCast-1.5.12.tipa NextCast-1.5.12.ipa
+          (cd dist && zip -qry "../NextCast-1.5.13.tipa" Payload)
+          cp NextCast-1.5.13.tipa NextCast-1.5.13.ipa
+          ls -lh NextCast-1.5.13.tipa NextCast-1.5.13.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-5-12-IPA-TIPA
+          name: NextCast-iOS16-V1-5-13-IPA-TIPA
           path: |
-            NextCast-1.5.12.tipa
-            NextCast-1.5.12.ipa
+            NextCast-1.5.13.tipa
+            NextCast-1.5.13.ipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
