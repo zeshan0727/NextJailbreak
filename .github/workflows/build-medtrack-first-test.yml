@@ -41,27 +41,25 @@ jobs:
           tar -tzf "$RUNNER_TEMP/medtrack-source.tar.gz" | grep -q 'MedTrack/MedTrackApp.swift'
           mkdir -p MedTrackFirstTest
           tar -xzf "$RUNNER_TEMP/medtrack-source.tar.gz" -C MedTrackFirstTest
-          # Repair the original project-generator bug: PBX arrays lacked comma separators.
+          # Fix missing comma separators in the original PBX project. The tarball
+          # contains the .pbxproj but not the optional project generator.
           python3 - <<'PY'
           from pathlib import Path
-          script = Path("MedTrackFirstTest/generate_project.py")
-          source = script.read_text()
-          replacements = {
-              "' '.join(ref(p,p.split(':')[-1]) for p in phases)": "', '.join(ref(p,p.split(':')[-1]) for p in phases)",
-              "' '.join(ref(dep,'Target dependency') for dep in deps)": "', '.join(ref(dep,'Target dependency') for dep in deps)",
-              "' '.join(ref(key,key.split(':')[-1]) for key in configlist)": "', '.join(ref(key,key.split(':')[-1]) for key in configlist)",
-              "' '.join(resources)": "', '.join(resources)",
-              "DEBUG_INFORMATION_FORMAT='\\\"dwarf-with-dsym\\\"'": "DEBUG_INFORMATION_FORMAT='dwarf-with-dsym'",
-          }
-          for old, new in replacements.items():
-              if old not in source:
-                  if "DEBUG_INFORMATION_FORMAT" not in old:
-                      raise SystemExit("Expected Xcode generator expression not found: " + old)
-                  continue
-              source = source.replace(old, new)
-          script.write_text(source)
+          import re
+          project = Path("MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj")
+          source = project.read_text()
+          for key in ("buildPhases", "dependencies", "buildConfigurations"):
+              expression = re.compile(r"(" + key + r"\s*=\s*\()([^)]*)(\))")
+              def fix_array(match):
+                  members = re.sub(r"(?<=\*/)\s+(?=[A-F0-9]{24}\s*/\*)", ", ", match.group(2))
+                  return match.group(1) + members + match.group(3)
+              source = expression.sub(fix_array, source)
+          source = source.replace('DEBUG_INFORMATION_FORMAT = "\\"dwarf-with-dsym\\"";',
+                                  'DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";')
+          project.write_text(source)
+          if not re.search(r'buildConfigurations = \([A-F0-9]{24} /\* Debug \*/, [A-F0-9]{24} /\* Release \*/\)', source):
+              raise SystemExit("Failed to repair project configuration arrays")
           PY
-          python3 MedTrackFirstTest/generate_project.py
           plutil -lint MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
           test -s MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
           test -s MedTrackFirstTest/MedTrack/Assets.xcassets/AppIcon.appiconset/AppIcon.png
