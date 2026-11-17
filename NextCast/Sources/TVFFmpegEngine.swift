@@ -25,12 +25,45 @@ struct TVSourceDetails {
     let duration: Double
     let audio: [TVAudioTrack]
     var supportsVideoCopy: Bool { videoCodec.lowercased() == "h264" }
+    // The fast, truly lossless MP4 remux is offered only for a tested
+    // TV-friendly pairing. A container copy cannot repair AC3/DTS audio.
+    func supportsNoReencoding(audioOrdinal: Int) -> Bool {
+        guard audio.indices.contains(audioOrdinal) else { return false }
+        return ["h264", "hevc"].contains(videoCodec.lowercased()) &&
+               audio[audioOrdinal].codec.lowercased() == "aac"
+    }
 }
 
 enum TVVideoMode: String, CaseIterable, Identifiable {
-    case automatic = "Fast / Auto"
-    case reencode = "Encode H.264"
+    case remux = "Without re-encoding"
+    case automatic = "Fast TV (copy video when possible)"
+    case gpuH264 = "GPU acceleration mode 1"
+    case gpuHEVC = "GPU acceleration mode 2"
+    case cpuMPEG4 = "CPU encoding"
     var id: String { rawValue }
+
+    var summary: String {
+        switch self {
+        case .remux:
+            return "Fastest: copy the selected original video and audio without changing quality. Available for H.264/HEVC video with AAC audio."
+        case .automatic:
+            return "Recommended for TV: copy compatible H.264 video and convert only audio to AAC, or use hardware H.264 when video conversion is necessary."
+        case .gpuH264:
+            return "VideoToolbox hardware H.264/AVC + AAC stereo. Fast encoding for most Chromecast-compatible TVs."
+        case .gpuHEVC:
+            return "VideoToolbox hardware H.265/HEVC + AAC stereo. Some TVs and older Chromecast models cannot play HEVC."
+        case .cpuMPEG4:
+            return "FFmpeg software MPEG-4 Part 2 + AAC. More CPU intensive; not universally supported on Chromecast. Software H.264 requires an encoder not bundled with the LGPL min package."
+        }
+    }
+    var expectedVideoCodec: String {
+        switch self {
+        case .remux: return "copy"
+        case .automatic, .gpuH264: return "h264"
+        case .gpuHEVC: return "hevc"
+        case .cpuMPEG4: return "mpeg4"
+        }
+    }
 }
 
 enum TVResolution: String, CaseIterable, Identifiable {
@@ -58,12 +91,37 @@ struct TVConversionOptions {
     var useFFmpeg = false
 
     var fingerprint: String {
-        "a\(audioOrdinal).v\(videoMode == .automatic ? "auto" : "h264").r\(resolution == .source ? "src" : resolution == .hd1080 ? "1080" : "720").f\(frameRate == .source ? "src" : frameRate == .fps24 ? "24" : "30").b\(videoBitrateKbps).ab\(audioBitrateKbps)"
+        "a\(audioOrdinal).v\(videoMode.expectedVideoCodec)-\(videoMode.id).r\(resolution == .source ? "src" : resolution == .hd1080 ? "1080" : "720").f\(frameRate == .source ? "src" : frameRate == .fps24 ? "24" : "30").b\(videoBitrateKbps).ab\(audioBitrateKbps)"
+            .replacingOccurrences(of: " ", with: "_")
     }
 
     func requiresVideoEncode(_ source: TVSourceDetails) -> Bool {
-        videoMode == .reencode || !source.supportsVideoCopy ||
-        resolution != .source || frameRate != .source
+        switch videoMode {
+        case .remux: return false
+        case .automatic:
+            return !source.supportsVideoCopy || resolution != .source || frameRate != .source
+        case .gpuH264, .gpuHEVC, .cpuMPEG4: return true
+        }
+    }
+
+    func expectedOutputVideoCodec(_ source: TVSourceDetails) -> String {
+        videoMode == .remux ? source.videoCodec.lowercased() : videoMode.expectedVideoCodec
+    }
+    var copiesAudio: Bool { videoMode == .remux }
+
+    func validate(with source: TVSourceDetails) -> String? {
+        guard source.audio.indices.contains(audioOrdinal) else {
+            return "Choose an available audio track."
+        }
+        if videoMode == .remux {
+            guard resolution == .source && frameRate == .source else {
+                return "Without re-encoding must keep the original resolution and frame rate."
+            }
+            guard source.supportsNoReencoding(audioOrdinal: audioOrdinal) else {
+                return "Stream copy requires H.264 or HEVC video and AAC audio to create an MP4 without re-encoding. Choose Fast TV for other sources."
+            }
+        }
+        return nil
     }
 }
 
@@ -123,10 +181,22 @@ enum TVFFmpegEngine {
                     "-map", "0:v:0", "-map", "0:a:\(audio)",
                     "-sn", "-dn", "-map_metadata", "-1", "-map_chapters", "-1"]
         if options.requiresVideoEncode(details) {
-            // H.264 VideoToolbox uses the iPhone hardware encoder where supported.
-            args += ["-c:v", "h264_videotoolbox",
-                     "-b:v", "\(max(500, options.videoBitrateKbps))k",
-                     "-pix_fmt", "yuv420p"]
+            switch options.videoMode {
+            case .cpuMPEG4:
+                // LGPL min FFmpeg has a software MPEG-4 Part 2 encoder,
+                // not GPL libx264. Do not silently claim software H.264.
+                args += ["-c:v", "mpeg4", "-b:v", "\(max(500, options.videoBitrateKbps))k",
+                         "-pix_fmt", "yuv420p"]
+            case .gpuHEVC:
+                args += ["-c:v", "hevc_videotoolbox",
+                         "-b:v", "\(max(500, options.videoBitrateKbps))k",
+                         "-pix_fmt", "yuv420p", "-tag:v", "hvc1"]
+            case .automatic, .gpuH264, .remux:
+                // VideoToolbox is the Apple hardware video encoder.
+                args += ["-c:v", "h264_videotoolbox",
+                         "-b:v", "\(max(500, options.videoBitrateKbps))k",
+                         "-pix_fmt", "yuv420p"]
+            }
             switch options.resolution {
             case .source: break
             case .hd1080:
@@ -147,10 +217,14 @@ enum TVFFmpegEngine {
             // The important fast path for MKV H.264. No video quality loss.
             args += ["-c:v", "copy"]
         }
-        args += ["-c:a", "aac",
-                 "-b:a", "\(max(96, options.audioBitrateKbps))k",
-                 "-ar", "48000", "-ac", "2",
-                 "-max_muxing_queue_size", "1024",
+        if options.copiesAudio {
+            args += ["-c:a", "copy"]
+        } else {
+            args += ["-c:a", "aac",
+                     "-b:a", "\(max(96, options.audioBitrateKbps))k",
+                     "-ar", "48000", "-ac", "2"]
+        }
+        args += ["-max_muxing_queue_size", "1024",
                  "-avoid_negative_ts", "make_zero",
                  "-movflags", "+faststart",
                  "-f", "mp4", target.path]
