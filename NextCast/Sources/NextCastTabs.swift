@@ -63,7 +63,7 @@ struct NextCastTabs: View {
                             showTVControls = true
                         } label: {
                             HStack(spacing: 9) {
-                                Image(systemName: "tv.fill").foregroundStyle(.cyan)
+                                Image(systemName: "tv.fill").foregroundStyle(NexaPalette.orange)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(movie.name).lineLimit(1).font(.caption.bold())
                                     Text(cast.castStatus).lineLimit(1).font(.caption2)
@@ -99,7 +99,7 @@ struct NextCastTabs: View {
                         tab = 2
                     } label: {
                         HStack(spacing: 8) {
-                            Image(systemName: "tv.fill").foregroundStyle(.cyan)
+                            Image(systemName: "tv.fill").foregroundStyle(NexaPalette.orange)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(webTitle).lineLimit(1).font(.caption.bold())
                                 Text(cast.castStatus).lineLimit(1).font(.caption2)
@@ -153,8 +153,10 @@ private struct Surface: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(15)
-            .background(scheme == .dark ? Color.white.opacity(0.075) : Color.black.opacity(0.045),
-                        in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(NexaPalette.card(scheme),
+                        in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 20)
+                .strokeBorder(NexaPalette.stroke(scheme), lineWidth: 1))
     }
 }
 extension View {
@@ -258,10 +260,18 @@ struct MoviesTab: View {
     @State private var showMultiPicker = false
     @State private var showSwiftUIFallback = false
     @State private var search = ""
+    @State private var libraryFilter = "All"
+    @Environment(\.colorScheme) private var scheme
     @State private var selected: Movie?
 
     private var visible: [Movie] {
-        library.movies.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) }
+        library.movies.filter { movie in
+            let matchesSearch = search.isEmpty || movie.name.localizedCaseInsensitiveContains(search)
+            let matchesFilter = libraryFilter == "All" ||
+                (libraryFilter == "Originals" && !movie.isConverted) ||
+                (libraryFilter == "Converted" && movie.isConverted)
+            return matchesSearch && matchesFilter
+        }
     }
     private var originals: [Movie] { visible.filter { !$0.isConverted } }
     private var converted: [Movie] { visible.filter(\.isConverted) }
@@ -269,7 +279,7 @@ struct MoviesTab: View {
     @ViewBuilder
     private var movieLibrarySection: some View {
         HStack {
-            Text("Movies").font(.title3.bold())
+            Text("Saved videos").font(.title3.bold())
             Spacer()
             Text("\(library.movies.count) saved")
                 .font(.caption).foregroundStyle(.secondary)
@@ -282,15 +292,15 @@ struct MoviesTab: View {
         if library.movies.isEmpty {
             VStack(spacing: 12) {
                 Image(systemName: "play.rectangle.on.rectangle")
-                    .font(.system(size: 55)).foregroundStyle(.cyan)
-                Text("No movies yet").font(.headline)
+                    .font(.system(size: 55)).foregroundStyle(NexaPalette.orange)
+                Text("Your library is empty").font(.headline)
                 Text("Import videos with Files, or download a direct video link in Downloads.")
                     .font(.subheadline).foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity).padding(26).nextSurface()
         } else if visible.isEmpty {
-            Text("No matching videos").foregroundStyle(.secondary).padding()
+            Text("No videos match your search or filter").foregroundStyle(.secondary).padding()
         } else {
             if !converted.isEmpty { convertedSection }
             if !originals.isEmpty { originalsSection }
@@ -300,7 +310,7 @@ struct MoviesTab: View {
     private var convertedSection: some View {
         VStack(alignment: .leading, spacing: 9) {
             Label("Converted Movies · \(converted.count)", systemImage: "folder.fill")
-                .font(.headline).foregroundStyle(.cyan)
+                .font(.headline).foregroundStyle(NexaPalette.orange)
             ForEach(converted) { movie in
                 MovieSwipeActionRow(onDelete: { requestDelete(movie) }) {
                     Button { selected = movie } label: {
@@ -319,7 +329,7 @@ struct MoviesTab: View {
 
     private func convertedRow(_ movie: Movie) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "tv.fill").foregroundStyle(.cyan)
+            Image(systemName: "tv.fill").foregroundStyle(NexaPalette.orange)
             VStack(alignment: .leading, spacing: 3) {
                 Text(movie.name).font(.subheadline.bold()).lineLimit(2)
                 Text("TV Ready · \(movie.fileSizeLabel)")
@@ -379,7 +389,7 @@ struct MoviesTab: View {
                 } else {
                     ZStack {
                         Color.cyan.opacity(0.1)
-                        Image(systemName: "film").font(.title2).foregroundStyle(.cyan)
+                        Image(systemName: "film").font(.title2).foregroundStyle(NexaPalette.orange)
                     }.frame(width: 93, height: 91)
                 }
             }
@@ -397,7 +407,7 @@ struct MoviesTab: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
-            Image(systemName: "play.circle.fill").font(.title2).foregroundStyle(.cyan)
+            Image(systemName: "play.circle.fill").font(.title2).foregroundStyle(NexaPalette.orange)
         }
         .nextSurface()
     }
@@ -406,18 +416,40 @@ struct MoviesTab: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("YOUR PRIVATE VIDEO LIBRARY")
-                            .font(.caption.bold()).tracking(1.8).foregroundStyle(.cyan)
-                        Text("Watch here. Cast to TV.")
-                            .font(.title2.bold())
-                        Text("Stored on this iPhone · no cloud upload")
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text("YOUR COLLECTION")
+                            .font(.caption.weight(.heavy))
+                            .tracking(1.8)
+                            .foregroundStyle(NexaPalette.orange)
+                        Text("My Library")
+                            .font(.largeTitle.weight(.bold))
+                        Text("Play, convert, and send videos to your TV.")
                             .font(.subheadline).foregroundStyle(.secondary)
-                    }.padding(.top, 5)
+                    }
+                    .padding(.top, 6)
+
+                    HStack(spacing: 8) {
+                        ForEach(["All", "Originals", "Converted"], id: \.self) { value in
+                            Button {
+                                withAnimation(.easeOut(duration: 0.18)) { libraryFilter = value }
+                            } label: {
+                                Text(value)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(libraryFilter == value ? .white : .primary)
+                                    .padding(.horizontal, 15)
+                                    .padding(.vertical, 9)
+                                    .background(libraryFilter == value ?
+                                        NexaPalette.orange : NexaPalette.card(scheme),
+                                        in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Spacer(minLength: 0)
+                    }
 
                     HStack(spacing: 12) {
                         Image(systemName: "tv")
-                            .font(.title2).foregroundStyle(.cyan)
+                            .font(.title2).foregroundStyle(NexaPalette.orange)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(cast.isConnected ? "TV connected" : "Ready to cast")
                                 .font(.subheadline.bold())
@@ -430,7 +462,7 @@ struct MoviesTab: View {
 
                     if library.isImporting {
                         HStack(spacing: 10) {
-                            ProgressView().tint(.cyan)
+                            ProgressView().tint(NexaPalette.orange)
                             Text(library.importStatus).font(.subheadline)
                         }.nextSurface()
                     }
@@ -442,7 +474,7 @@ struct MoviesTab: View {
                             .padding(.vertical, 13)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.cyan)
+                    .tint(NexaPalette.orange)
                     .foregroundStyle(.black)
                     .disabled(library.isImporting)
 
@@ -450,7 +482,7 @@ struct MoviesTab: View {
                         convertRequestedMovie = nil
                         showConverter = true
                     } label: {
-                        Label("TV Video Converter · MKV / MP4 / AAC", systemImage: "arrow.triangle.2.circlepath")
+                        Label("Media Converter", systemImage: "arrow.triangle.2.circlepath")
                             .font(.subheadline.bold())
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 9)
@@ -477,24 +509,26 @@ struct MoviesTab: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
 
-                    Text("If a cloud provider fails, use Files → On My iPhone → Next Cast → Imports, then Settings → Scan Imports. A copy is imported and the Imports inbox is cleared after success.")
+                    Text("Importing from Files preserves the originals. Existing stored videos stay in the same app container.")
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 .padding(18)
             }
-            .navigationTitle("Next Cast")
+            .background(NexaPalette.canvas(scheme))
+            .navigationTitle("Library")
             .overlay(alignment: .bottomTrailing) {
                 Button {
-                    showRemote = true
+                    showPicker = true
                 } label: {
-                    Image(systemName: "appletvremote.gen4.fill")
-                        .font(.system(size: 20, weight: .semibold))
+                    Image(systemName: "plus")
+                        .font(.system(size: 25, weight: .semibold))
                         .foregroundStyle(.white)
-                        .frame(width: 55, height: 55)
-                        .background(Color.cyan, in: Circle())
-                        .shadow(color: .black.opacity(0.22), radius: 11, y: 5)
+                        .frame(width: 58, height: 58)
+                        .background(NexaPalette.warmGradient, in: Circle())
+                        .shadow(color: NexaPalette.orange.opacity(0.3), radius: 11, y: 5)
                 }
-                .accessibilityLabel("Open TV Remote")
+                .disabled(library.isImporting)
+                .accessibilityLabel("Import video")
                 .padding(.trailing, 19).padding(.bottom, 18)
             }
             .toolbar {
@@ -572,6 +606,7 @@ struct MoviesTab: View {
 
 struct SettingsTab: View {
     @ObservedObject var library: MovieLibrary
+    @Environment(\.colorScheme) private var scheme
     @AppStorage("appearance") private var appearance = "system"
     @AppStorage("browserBlockAds") private var browserBlockAds = true
     @AppStorage("nextcast.blockPopups") private var blockPopups = true
@@ -579,14 +614,30 @@ struct SettingsTab: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    HStack(spacing: 13) {
+                        Image(systemName: "play.square.fill")
+                            .font(.system(size: 27))
+                            .foregroundStyle(.white)
+                            .frame(width: 54, height: 54)
+                            .background(NexaPalette.warmGradient,
+                                        in: RoundedRectangle(cornerRadius: 16))
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("NexaPlay").font(.title2.weight(.bold))
+                            Text("by NEXT · Personal Media Hub")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
                 Section("Appearance") {
                     Picker("Theme", selection: $appearance) {
-                        Text("Follow System").tag("system")
+                        Text("System").tag("system")
                         Text("Light").tag("light")
                         Text("Dark").tag("dark")
                     }.pickerStyle(.segmented)
                 }
-                Section("Browser protection") {
+                Section("Browser & Privacy") {
                     Toggle("Ask before opening new windows", isOn: $blockPopups)
                     Toggle("Block known ad networks", isOn: $browserBlockAds)
                     Text("When a website requests a new window, you will see its address and can Allow Once or Reject. Turning this off allows new tabs without prompting. The ad-network filter remains separate and exempts Play4U for video compatibility.")
@@ -597,7 +648,7 @@ struct SettingsTab: View {
                 Section("TV playback while locked") {
                     Toggle("Keep local movie streaming when locked",
                            isOn: $keepLocalCastWhileLocked)
-                    Text("Experimental: while you cast a local video, Next Cast uses a very quiet audio session to help the iPhone keep serving the file after locking. It consumes more battery and iOS can still suspend the app. Movie audio remains on your TV.")
+                    Text("Experimental: iOS may still suspend local TV streaming while locked. This option uses additional power.")
                         .font(.footnote).foregroundStyle(.secondary)
                     Text("For guaranteed playback after locking, stream from an always-on computer, NAS, or independent media URL.")
                         .font(.footnote).foregroundStyle(.secondary)
@@ -608,20 +659,22 @@ struct SettingsTab: View {
                     } label: {
                         Label("Scan Imports folder", systemImage: "folder.badge.plus")
                     }
-                    Text("Alternative: copy videos into On My iPhone / Next Cast / Imports from Files, then tap Scan Imports.")
+                    Text("The original Next Cast Imports folder remains available to preserve existing data.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("About") {
-                    LabeledContent("App", value: "Next Cast")
+                    LabeledContent("App", value: "NexaPlay")
                     LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown")
                     LabeledContent("Build", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown")
-                    LabeledContent("Credits", value: "Next Jailbreak – Zeshan0727")
+                    LabeledContent("Studio", value: "by NEXT")
                     LabeledContent("Playback", value: "MobileVLCKit")
                     LabeledContent("Casting", value: "Google Cast")
                     Text("Movies remain on the device. The iPhone streams bytes across your local network when casting; it is not cloud storage.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(NexaPalette.canvas(scheme))
             .navigationTitle("Settings")
         }
     }
