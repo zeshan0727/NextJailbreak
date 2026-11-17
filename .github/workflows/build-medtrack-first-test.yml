@@ -30,7 +30,7 @@ jobs:
       - name: Check out MedTrack test source
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Restore original Xcode project from verified source payload
         shell: bash
@@ -41,6 +41,28 @@ jobs:
           tar -tzf "$RUNNER_TEMP/medtrack-source.tar.gz" | grep -q 'MedTrack/MedTrackApp.swift'
           mkdir -p MedTrackFirstTest
           tar -xzf "$RUNNER_TEMP/medtrack-source.tar.gz" -C MedTrackFirstTest
+          # Repair the original project-generator bug: PBX arrays lacked comma separators.
+          python3 - <<'PY'
+          from pathlib import Path
+          script = Path("MedTrackFirstTest/generate_project.py")
+          source = script.read_text()
+          replacements = {
+              "' '.join(ref(p,p.split(':')[-1]) for p in phases)": "', '.join(ref(p,p.split(':')[-1]) for p in phases)",
+              "' '.join(ref(dep,'Target dependency') for dep in deps)": "', '.join(ref(dep,'Target dependency') for dep in deps)",
+              "' '.join(ref(key,key.split(':')[-1]) for key in configlist)": "', '.join(ref(key,key.split(':')[-1]) for key in configlist)",
+              "' '.join(resources)": "', '.join(resources)",
+              "DEBUG_INFORMATION_FORMAT='\\\"dwarf-with-dsym\\\"'": "DEBUG_INFORMATION_FORMAT='dwarf-with-dsym'",
+          }
+          for old, new in replacements.items():
+              if old not in source:
+                  if "DEBUG_INFORMATION_FORMAT" not in old:
+                      raise SystemExit("Expected Xcode generator expression not found: " + old)
+                  continue
+              source = source.replace(old, new)
+          script.write_text(source)
+          PY
+          python3 MedTrackFirstTest/generate_project.py
+          plutil -lint MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
           test -s MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
           test -s MedTrackFirstTest/MedTrack/Assets.xcassets/AppIcon.appiconset/AppIcon.png
           echo "Restored complete MedTrack app, widget, project and tests."
