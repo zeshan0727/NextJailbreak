@@ -136,7 +136,7 @@ jobs:
           v=os.environ['VERSION']
           entry={
             'id':f'nextcast-{v}',
-            'name':f'Next Cast {v} — iOS Video Player, Chromecast and Downloads',
+            'name':f'NexaPlay {v} — iOS Media Hub, Chromecast and Downloads',
             'fileName':f'NextCast-{v}.tipa',
             'type':'tipa',
             'platform':'TrollStore / iOS 16+',
@@ -144,13 +144,13 @@ jobs:
             'url':f'https://nextjailbreak.com/transfer/files/NextCast/{v}/NextCast-{v}.tipa',
             'sha256':os.environ['TIPA_SHA'],
             'sizeBytes':int(os.environ['TIPA_SIZE']),
-            'notes':'Native VLC player, local video library, Chromecast and download manager. Build verified; on-device validation required.'
+            'notes':'NexaPlay with VLC, browser, converter, Chromecast and downloads. iOS 16 build verified; on-device testing required.'
           }
           entries=[entry]
           if os.environ.get("IPA_PRESENT")=="1":
             entries.append({
               'id':f'nextcast-{v}-ipa',
-              'name':f'Next Cast {v} — IPA (TrollStore)',
+              'name':f'NexaPlay {v} — IPA (TrollStore)',
               'fileName':f'NextCast-{v}.ipa',
               'type':'ipa',
               'platform':'TrollStore / iOS 16+',
