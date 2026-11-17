@@ -496,6 +496,10 @@ final class MKVCastPreparer: ObservableObject {
                 finished(.failure(error("Selected audio track is unavailable in the movie.")))
                 return
             }
+            if let validationError = options.validate(with: source) {
+                finished(.failure(error(validationError)))
+                return
+            }
             do {
                 try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
                 let required = max(movie.fileSize, 128 * 1024 * 1024) + 128 * 1024 * 1024
@@ -513,9 +517,20 @@ final class MKVCastPreparer: ObservableObject {
                 try? FileManager.default.removeItem(at: temporary)
             }
             let reencode = options.requiresVideoEncode(source)
-            status = reencode
-                ? "Encoding H.264 video and stereo AAC audio…"
-                : "Fast MKV remux · copying H.264, encoding stereo AAC…"
+            switch options.videoMode {
+            case .remux:
+                status = "Fast remux · copying video and AAC audio without encoding…"
+            case .automatic:
+                status = reencode
+                    ? "Fast TV · hardware H.264 video and AAC audio…"
+                    : "Fast TV · copying original H.264 video, converting audio to AAC…"
+            case .gpuH264:
+                status = "Hardware acceleration 1 · encoding H.264 + AAC…"
+            case .gpuHEVC:
+                status = "Hardware acceleration 2 · encoding HEVC + AAC…"
+            case .cpuMPEG4:
+                status = "CPU mode · software MPEG-4 Part 2 + AAC…"
+            }
             hasTimeline = source.duration > 0
             let args = TVFFmpegEngine.conversionArgs(
                 source: movie.localURL, target: temporary,
@@ -539,17 +554,18 @@ final class MKVCastPreparer: ObservableObject {
                     return
                 }
                 self.isFinalizing = true
-                self.status = "Checking MP4 video and AAC audio…"
+                self.status = "Verifying output video and audio codec…"
                 TVFFmpegEngine.inspect(temporary) { result in
                     switch result {
                     case .failure(let issue):
                         try? FileManager.default.removeItem(at: temporary)
                         finished(.failure(issue))
                     case .success(let inspected):
-                        guard inspected.videoCodec.lowercased() == "h264",
+                        let expected = options.expectedOutputVideoCodec(source)
+                        guard inspected.videoCodec.lowercased() == expected,
                               inspected.audio.first?.codec.lowercased() == "aac" else {
                             try? FileManager.default.removeItem(at: temporary)
-                            finished(.failure(error("Output verification failed: expected H.264 video and AAC audio.")))
+                            finished(.failure(error("Output verification failed. Expected \(expected.uppercased()) video and AAC audio.")))
                             return
                         }
                         do {
@@ -576,7 +592,7 @@ final class MKVCastPreparer: ObservableObject {
                 if FileManager.default.fileExists(atPath: output.path) {
                     TVFFmpegEngine.inspect(output) { cached in
                         if case .success(let check) = cached,
-                           check.videoCodec.lowercased() == "h264",
+                           check.videoCodec.lowercased() == options.expectedOutputVideoCodec(source),
                            check.audio.first?.codec.lowercased() == "aac",
                            check.duration > 1 {
                             let saved = library.registerPreparedFile(output, source: movie)
