@@ -7,6 +7,8 @@ struct VideoConverterScreen: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var cast: CastController
     @StateObject private var preparer = MKVCastPreparer()
+    @StateObject private var artwork = ArtworkCache.shared
+    @Environment(\.colorScheme) private var scheme
     @State private var selected: Movie?
     @State private var ready: Movie?
     @State private var details: TVSourceDetails?
@@ -29,7 +31,7 @@ struct VideoConverterScreen: View {
         return options.requiresVideoEncode(details)
     }
 
-    private let accent = Color(red: 0.04, green: 0.40, blue: 0.98)
+    private let accent = NexaPalette.orange
 
     var body: some View {
         NavigationStack {
@@ -84,16 +86,15 @@ struct VideoConverterScreen: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(accent)
+                    .buttonStyle(NexaGradientButtonStyle())
                     .disabled(selected == nil || details == nil || inspecting)
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
                     .padding(.bottom, 12)
-                    .background(Color(uiColor: .secondarySystemGroupedBackground))
+                    .background(NexaPalette.card(scheme))
                 }
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(NexaPalette.canvas(scheme))
             .navigationTitle("Media Converter")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -104,8 +105,12 @@ struct VideoConverterScreen: View {
             .onAppear {
                 if selected == nil { selected = originals.first }
                 inspectSelected()
+                if let selected { artwork.load(selected) }
             }
-            .onChange(of: selected?.id) { _ in inspectSelected() }
+            .onChange(of: selected?.id) { _ in
+                inspectSelected()
+                if let selected { artwork.load(selected) }
+            }
             .onChange(of: options.audioOrdinal) { _ in
                 if let details, options.videoMode == .remux,
                    !details.supportsNoReencoding(audioOrdinal: options.audioOrdinal) {
@@ -125,15 +130,15 @@ struct VideoConverterScreen: View {
 
     private var introduction: some View {
         HStack(alignment: .center, spacing: 12) {
-            Image(systemName: "arrow.triangle.2.circlepath.video")
+            Image(systemName: "arrow.triangle.2.circlepath")
                 .font(.system(size: 23, weight: .medium))
                 .foregroundStyle(accent)
                 .frame(width: 54, height: 54)
                 .background(accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 16))
             VStack(alignment: .leading, spacing: 4) {
-                Text("Make your video TV-ready")
+                Text("Professional Media Converter")
                     .font(.title3.weight(.bold))
-                Text("Choose a movie, select a mode, and create an MP4.")
+                Text("Select your video and make it ready for any compatible TV.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -167,11 +172,20 @@ struct VideoConverterScreen: View {
                     }
                 } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "play.rectangle.fill")
-                            .font(.system(size: 28))
-                            .foregroundStyle(accent)
-                            .frame(width: 66, height: 60)
-                            .background(accent.opacity(0.10), in: RoundedRectangle(cornerRadius: 12))
+                        ZStack {
+                            if let selected, let image = artwork.images[selected.id] {
+                                Image(uiImage: image)
+                                    .resizable().scaledToFill()
+                                    .frame(width: 72, height: 62).clipped()
+                            } else {
+                                accent.opacity(0.12)
+                                Image(systemName: "play.rectangle.fill")
+                                    .font(.system(size: 26))
+                                    .foregroundStyle(accent)
+                            }
+                        }
+                        .frame(width: 72, height: 62)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         VStack(alignment: .leading, spacing: 5) {
                             Text(selected?.name ?? "Choose a video")
                                 .font(.subheadline.weight(.semibold))
@@ -222,9 +236,9 @@ struct VideoConverterScreen: View {
     private func encodingModePanel(_ info: TVSourceDetails) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Conversion Mode").font(.headline)
+                Text("Conversion Mode").font(.title3.weight(.bold))
                 Spacer()
-                Text("FAST TV RECOMMENDED")
+                Text("CHOOSE YOUR MODE")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(accent)
             }
