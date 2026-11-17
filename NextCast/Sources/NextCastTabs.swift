@@ -611,71 +611,98 @@ struct SettingsTab: View {
     @AppStorage("browserBlockAds") private var browserBlockAds = true
     @AppStorage("nextcast.blockPopups") private var blockPopups = true
     @AppStorage("nextcast.keepLocalCastWhileLocked") private var keepLocalCastWhileLocked = true
+
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    HStack(spacing: 13) {
-                        Image(systemName: "play.square.fill")
-                            .font(.system(size: 27))
-                            .foregroundStyle(.white)
-                            .frame(width: 54, height: 54)
-                            .background(NexaPalette.warmGradient,
-                                        in: RoundedRectangle(cornerRadius: 16))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "play.rectangle.fill")
+                            .font(.title2).foregroundStyle(.white)
+                            .frame(width: 52, height: 52)
+                            .background(NexaPalette.warmGradient, in: RoundedRectangle(cornerRadius: 15))
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("NexaPlay").font(.title2.weight(.bold))
-                            Text("by NEXT · Personal Media Hub")
-                                .font(.caption).foregroundStyle(.secondary)
+                            Text("NexaPlay").font(.title2.bold())
+                            Text("by NEXT").font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Text("v" + version).font(.caption.weight(.medium)).foregroundStyle(.secondary)
+                    }.nexaCard()
+
+                    section("APPEARANCE") {
+                        Picker("Theme", selection: $appearance) {
+                            Text("System").tag("system")
+                            Text("Light").tag("light")
+                            Text("Dark").tag("dark")
+                        }.pickerStyle(.segmented)
+                    }
+                    section("BROWSER") {
+                        Toggle(isOn: $blockPopups) {
+                            row("Ask before pop-ups", "rectangle.on.rectangle", NexaPalette.blue)
+                        }
+                        Divider()
+                        Toggle(isOn: $browserBlockAds) {
+                            row("Block ad networks", "shield.lefthalf.filled", NexaPalette.purple)
                         }
                     }
-                    .padding(.vertical, 8)
-                }
-                Section("Appearance") {
-                    Picker("Theme", selection: $appearance) {
-                        Text("System").tag("system")
-                        Text("Light").tag("light")
-                        Text("Dark").tag("dark")
-                    }.pickerStyle(.segmented)
-                }
-                Section("Browser & Privacy") {
-                    Toggle("Ask before opening new windows", isOn: $blockPopups)
-                    Toggle("Block known ad networks", isOn: $browserBlockAds)
-                    Text("When a website requests a new window, you will see its address and can Allow Once or Reject. Turning this off allows new tabs without prompting. The ad-network filter remains separate and exempts Play4U for video compatibility.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                    Text("If a video does not start, choose Browser → ⋯ → Unblock Current Page. Cast Video and Try VLC remain available.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                }
-                Section("TV playback while locked") {
-                    Toggle("Keep local movie streaming when locked",
-                           isOn: $keepLocalCastWhileLocked)
-                    Text("Experimental: iOS may still suspend local TV streaming while locked. This option uses additional power.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                    Text("For guaranteed playback after locking, stream from an always-on computer, NAS, or independent media URL.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                }
-                Section("File Imports") {
-                    Button {
-                        library.scanImports()
-                    } label: {
-                        Label("Scan Imports folder", systemImage: "folder.badge.plus")
+                    section("PLAYBACK") {
+                        Toggle(isOn: $keepLocalCastWhileLocked) {
+                            row("Stream while locked", "tv", NexaPalette.blue)
+                        }
+                        Text("Experimental · iOS may pause streaming")
+                            .font(.caption2).foregroundStyle(.secondary)
                     }
-                    Text("The original Next Cast Imports folder remains available to preserve existing data.")
-                        .font(.footnote).foregroundStyle(.secondary)
+                    section("FILES") {
+                        Button {
+                            library.scanImports()
+                        } label: {
+                            HStack {
+                                row("Scan Imports", "folder.badge.plus", NexaPalette.orange)
+                                Spacer()
+                                if library.isImporting { ProgressView() }
+                                else { Image(systemName: "chevron.right").foregroundStyle(.secondary) }
+                            }
+                            .contentShape(Rectangle())
+                        }.buttonStyle(.plain).disabled(library.isImporting)
+                    }
+                    Text("NexaPlay " + version + " (" + build + ")  ·  by NEXT")
+                        .font(.caption2).foregroundStyle(.tertiary)
+                        .frame(maxWidth: .infinity)
                 }
-                Section("About") {
-                    LabeledContent("App", value: "NexaPlay")
-                    LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown")
-                    LabeledContent("Build", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown")
-                    LabeledContent("Studio", value: "by NEXT")
-                    LabeledContent("Playback", value: "MobileVLCKit")
-                    LabeledContent("Casting", value: "Google Cast")
-                    Text("Movies remain on the device. The iPhone streams bytes across your local network when casting; it is not cloud storage.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                }
+                .padding(16)
+                .padding(.bottom, 24)
             }
-            .scrollContentBackground(.hidden)
-            .background(NexaPalette.canvas(scheme))
+            .background(NexaPalette.canvas(scheme).ignoresSafeArea())
             .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private var version: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+    }
+    private var build: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+    }
+    private func section<Content: View>(_ title: String,
+                                         @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text(title).font(.caption2.bold()).tracking(1.4)
+                .foregroundStyle(.secondary).padding(.leading, 10)
+            VStack(alignment: .leading, spacing: 12) { content() }
+                .tint(NexaPalette.orange)
+                .padding(14)
+                .background(NexaPalette.card(scheme),
+                            in: RoundedRectangle(cornerRadius: 18))
+        }
+    }
+    private func row(_ title: String, _ icon: String, _ tint: Color) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon).font(.system(size: 17))
+                .foregroundStyle(tint)
+                .frame(width: 30, height: 30)
+                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 9))
+            Text(title).font(.subheadline.weight(.medium)).foregroundStyle(.primary)
         }
     }
 }
