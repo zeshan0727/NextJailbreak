@@ -10,28 +10,51 @@ struct NextCastTabs: View {
     @StateObject private var browserDownloads = BrowserDownloadStore()
     @StateObject private var transfers = TransferStore.shared
     @State private var tab = 0
+    @State private var showDownloads = false
+    @State private var showConverter = false
+    @State private var homeMovie: Movie?
+    @AppStorage("appearance") private var appearance = "system"
     @State private var showTVControls = false
     @State private var showMiniCastBar = true
     @Environment(\.scenePhase) private var scenePhase
 
+    private var selectedColorScheme: ColorScheme? {
+        if appearance == "dark" { return .dark }
+        if appearance == "light" { return .light }
+        return nil
+    }
+
     var body: some View {
         TabView(selection: $tab) {
+            NexaHomeScreen(
+                library: library, cast: cast,
+                browse: { tab = 2 },
+                videos: { tab = 1 },
+                downloads: { showDownloads = true },
+                converter: { showConverter = true },
+                devices: { tab = 3 },
+                files: { tab = 1 },
+                settings: { tab = 4 },
+                play: { movie in homeMovie = movie }
+            )
+            .tabItem { Label("Home", systemImage: "house.fill") }.tag(0)
+
             MoviesTab(library: library, cast: cast, remote: remote)
-                .tabItem { Label("Movies", systemImage: "film.stack") }.tag(0)
-            DownloadsTab(library: library, downloads: downloads, browserDownloads: browserDownloads, transfers: transfers) {
-                tab = 0
-            }
-                .tabItem { Label("Downloads", systemImage: "arrow.down.circle") }.tag(1)
+                .tabItem { Label("Library", systemImage: "film.stack.fill") }.tag(1)
+
             BrowserTab(library: library, downloads: browserDownloads, cast: cast) {
-                tab = 1
+                showDownloads = true
             }
-                .tabItem { Label("Browser", systemImage: "globe") }.tag(2)
-            RemoteTab(remote: remote, cast: cast)
-                .tabItem { Label("Remote", systemImage: "appletvremote.gen4.fill") }.tag(3)
+            .tabItem { Label("Browser", systemImage: "globe") }.tag(2)
+
+            NexaCastDashboard(cast: cast, remote: remote)
+                .tabItem { Label("Cast", systemImage: "airplay.video") }.tag(3)
+
             SettingsTab(library: library)
-                .tabItem { Label("Settings", systemImage: "gearshape") }.tag(4)
+                .tabItem { Label("More", systemImage: "ellipsis.circle.fill") }.tag(4)
         }
-        .tint(.cyan)
+        .tint(NexaPalette.orange)
+        .preferredColorScheme(selectedColorScheme)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if let movie = cast.nowCastingMovie {
                 HStack(spacing: 10) {
@@ -101,12 +124,25 @@ struct NextCastTabs: View {
                 MoviePlayerScreen(movie: movie, cast: cast, library: library)
             }
         }
+        .sheet(item: $homeMovie) { movie in
+            MoviePlayerScreen(movie: movie, cast: cast, library: library)
+        }
+        .sheet(isPresented: $showConverter) {
+            VideoConverterScreen(library: library, cast: cast)
+        }
+        .sheet(isPresented: $showDownloads) {
+            DownloadsTab(library: library, downloads: downloads,
+                         browserDownloads: browserDownloads, transfers: transfers) {
+                showDownloads = false
+                tab = 1
+            }
+        }
         .onAppear { transfers.attach(library) }
         .onChange(of: scenePhase) { phase in
             cast.sceneDidChange(phase)
         }
         .onOpenURL { url in
-            tab = 0
+            tab = 1
             library.importVideos([url])
         }
     }
