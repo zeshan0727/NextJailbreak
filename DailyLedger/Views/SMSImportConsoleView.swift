@@ -127,9 +127,11 @@ struct SMSImportConsoleView: View {
                         Label("SMS AI Helper", systemImage: "sparkles")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
-                        Text(OpenAIService.shared.hasAPIKey ? "Ready" : "API required")
+                        Text(!SMSAIRecognitionService.hasCloudConsent
+                             ? "Consent required"
+                             : (SMSAIRecognitionService.isAvailable ? "Ready" : "API required"))
                             .font(.caption.weight(.semibold))
-                            .foregroundStyle(OpenAIService.shared.hasAPIKey ? AppTheme.green : .secondary)
+                            .foregroundStyle(SMSAIRecognitionService.isAvailable ? AppTheme.green : .secondary)
                     }
                     Text("AI starts with the latest 10 pending review messages. Clearing here removes the fetched review list and SMS AI results only; it does not delete phone messages or ledger data.")
                         .font(.caption)
