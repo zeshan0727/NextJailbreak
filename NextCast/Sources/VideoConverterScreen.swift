@@ -17,6 +17,12 @@ struct VideoConverterScreen: View {
     @State private var options = TVConversionOptions()
     @Environment(\.dismiss) private var dismiss
 
+    init(library: MovieLibrary, cast: CastController, initialMovie: Movie? = nil) {
+        self.library = library
+        self.cast = cast
+        _selected = State(initialValue: initialMovie)
+    }
+
     private var originals: [Movie] { library.movies.filter { !$0.isConverted } }
     private var requiresEncoding: Bool {
         guard let details else { return false }
