@@ -114,10 +114,15 @@ struct NexaHomeScreen: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    header
-                    hero
+            VStack(spacing: 0) {
+                header
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
+                    .padding(.bottom, 10)
+                    .background(NexaPalette.canvas(scheme))
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        hero
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Text("Your media").font(.title3.weight(.bold))
@@ -185,9 +190,10 @@ struct NexaHomeScreen: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
-                .padding(.bottom, 32)
+                .padding(.bottom, 100)
+                }
             }
-            .background(NexaPalette.canvas(scheme))
+            .background(NexaPalette.canvas(scheme).ignoresSafeArea())
             .overlay(alignment: .bottomTrailing) {
                 Button { showImportPicker = true } label: {
                     Image(systemName: "plus")
@@ -283,36 +289,71 @@ struct NexaHomeScreen: View {
         .accessibilityLabel("Featured video")
     }
 
+    /// Display a readable movie title; keep the untouched full filename in Library.
+    private func shortMovieTitle(_ fileName: String) -> String {
+        let normalized = fileName.replacingOccurrences(of: ".", with: " ")
+            .replacingOccurrences(of: "_", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let words = normalized.split(separator: " ")
+        let cutoff = words.firstIndex(where: { word in
+            let token = word.lowercased()
+            let isReleaseYear = word.count == 4 &&
+                word.allSatisfy { $0.isNumber } &&
+                (Int(word).map { (1900...2099).contains($0) } ?? false)
+            return isReleaseYear || ["1080p", "720p", "2160p", "4k", "webrip", "webdl",
+                                     "web-dl", "bluray", "h264", "h265", "x264", "x265"].contains(token)
+        })
+        let title = words.prefix(cutoff ?? words.count).joined(separator: " ")
+        return title.isEmpty ? fileName : title
+    }
+
     private func heroContent(movie: Movie?, eyebrow: String,
                              headline: String, detail: String) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            if let movie, let image = artwork.images[movie.id] {
-                Image(uiImage: image).resizable().scaledToFill()
-                    .frame(maxWidth: .infinity).frame(height: 208).clipped()
-            } else {
-                LinearGradient(colors: [NexaPalette.purple.opacity(0.9),
-                                        NexaPalette.navy, NexaPalette.orange.opacity(0.7)],
-                               startPoint: .topLeading, endPoint: .bottomTrailing)
-            }
-            LinearGradient(colors: [.clear, .black.opacity(0.77)],
-                           startPoint: .center, endPoint: .bottom)
-            VStack(alignment: .leading, spacing: 8) {
-                Text(eyebrow).font(.caption2.weight(.bold)).tracking(1.3)
-                    .foregroundStyle(.white.opacity(0.86))
-                Text(headline)
-                    .font(.title2.weight(.bold))
-                    .foregroundStyle(.white).lineLimit(2)
-                HStack(spacing: 8) {
-                    Image(systemName: "play.circle.fill").font(.title3)
-                    Text(detail).font(.subheadline)
+        GeometryReader { bounds in
+            ZStack(alignment: .bottomLeading) {
+                Group {
+                    if let movie, let image = artwork.images[movie.id] {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: bounds.size.width, height: bounds.size.height)
+                            .clipped()
+                    } else {
+                        LinearGradient(colors: [NexaPalette.purple.opacity(0.78),
+                                                NexaPalette.navy, NexaPalette.orange.opacity(0.65)],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing)
+                    }
                 }
-                .foregroundStyle(.white.opacity(0.95))
+                .frame(width: bounds.size.width, height: bounds.size.height)
+                LinearGradient(colors: [.black.opacity(0.04), .black.opacity(0.78)],
+                               startPoint: .top, endPoint: .bottom)
+                VStack(alignment: .leading, spacing: 9) {
+                    Text(eyebrow)
+                        .font(.caption2.weight(.bold))
+                        .tracking(1.3)
+                        .foregroundStyle(.white.opacity(0.87))
+                    Text(shortMovieTitle(headline))
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .minimumScaleFactor(0.82)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Label(detail, systemImage: "play.circle.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.96))
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(18)
             }
-            .padding(19)
+            .frame(width: bounds.size.width, height: bounds.size.height)
+            .clipped()
         }
-        .frame(height: 208)
-        .clipShape(RoundedRectangle(cornerRadius: 23, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 23).strokeBorder(.white.opacity(0.1), lineWidth: 1))
+        .frame(height: 190)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
+            .strokeBorder(.white.opacity(0.1), lineWidth: 1))
     }
 
     @ViewBuilder
