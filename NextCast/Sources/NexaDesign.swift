@@ -64,26 +64,24 @@ struct NexaFeatureTile: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 Image(systemName: symbol)
-                    .font(.system(size: 23, weight: .semibold))
+                    .font(.system(size: 19, weight: .semibold))
                     .foregroundStyle(tint)
-                    .frame(width: 46, height: 46)
+                    .frame(width: 38, height: 38)
                     .background(tint.opacity(0.13),
-                                in: RoundedRectangle(cornerRadius: 13))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(.primary)
-                    Text(subtitle)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                                in: RoundedRectangle(cornerRadius: 11))
+                Text(title)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
-            .frame(maxWidth: .infinity, minHeight: 105, alignment: .leading)
-            .nexaCard(inset: 14)
+            .frame(maxWidth: .infinity, minHeight: 87, alignment: .leading)
+            .nexaCard(inset: 12)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(title + ", " + subtitle)
@@ -121,9 +119,9 @@ struct NexaHomeScreen: View {
                     .padding(.bottom, 10)
                     .background(NexaPalette.canvas(scheme))
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 15) {
                         hero
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Text("Your media").font(.title3.weight(.bold))
                             Spacer()
@@ -131,8 +129,8 @@ struct NexaHomeScreen: View {
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(NexaPalette.orange)
                         }
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12),
-                                            GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10),
+                                            GridItem(.flexible(), spacing: 10)], spacing: 10) {
                             NexaFeatureTile(title: "Videos", subtitle: "My library",
                                             symbol: "play.rectangle.fill", tint: NexaPalette.purple, action: videos)
                             NexaFeatureTile(title: "Browser", subtitle: "Stream & explore",
@@ -159,14 +157,14 @@ struct NexaHomeScreen: View {
                                     .foregroundStyle(NexaPalette.orange)
                             }
                             ScrollView(.horizontal, showsIndicators: false) {
-                                LazyHStack(alignment: .top, spacing: 12) {
+                                LazyHStack(alignment: .top, spacing: 10) {
                                     ForEach(recent) { movie in
                                         Button { play(movie) } label: {
                                             VStack(alignment: .leading, spacing: 7) {
                                                 movieArtwork(movie)
                                                     .frame(width: 146, height: 90)
                                                     .clipShape(RoundedRectangle(cornerRadius: 13))
-                                                Text(movie.name)
+                                                Text(shortMovieTitle(movie.name))
                                                     .font(.caption.weight(.semibold))
                                                     .foregroundStyle(.primary)
                                                     .lineLimit(1)
@@ -190,23 +188,10 @@ struct NexaHomeScreen: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
-                .padding(.bottom, 100)
+                .padding(.bottom, 26)
                 }
             }
             .background(NexaPalette.canvas(scheme).ignoresSafeArea())
-            .overlay(alignment: .bottomTrailing) {
-                Button { showImportPicker = true } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 57, height: 57)
-                        .background(NexaPalette.warmGradient, in: Circle())
-                        .shadow(color: NexaPalette.orange.opacity(0.26), radius: 11, y: 6)
-                }
-                .disabled(library.isImporting)
-                .accessibilityLabel("Import videos")
-                .padding(.trailing, 18).padding(.bottom, 16)
-            }
             .sheet(isPresented: $showImportPicker) {
                 ReliableVideoPicker(multiple: true) { urls in
                     showImportPicker = false
@@ -250,6 +235,13 @@ struct NexaHomeScreen: View {
             } else {
                 CastButton().frame(width: 38, height: 38)
             }
+            Button { showImportPicker = true } label: {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 22, weight: .medium))
+                    .foregroundStyle(NexaPalette.orange)
+            }
+            .disabled(library.isImporting)
+            .accessibilityLabel("Import videos")
             Button(action: settings) {
                 Image(systemName: "gearshape")
                     .font(.system(size: 19, weight: .medium))
@@ -289,83 +281,105 @@ struct NexaHomeScreen: View {
         .accessibilityLabel("Featured video")
     }
 
-    /// Display a readable movie title; keep the untouched full filename in Library.
-    private func shortMovieTitle(_ fileName: String) -> String {
-        let normalized = fileName.replacingOccurrences(of: ".", with: " ")
+    /// A concise visible title. Full original filenames remain untouched in Library.
+    private func shortMovieTitle(_ name: String) -> String {
+        var value = name
+        let ext = (value as NSString).pathExtension.lowercased()
+        if ["mp4", "mkv", "avi", "mov", "m4v", "webm", "ts"].contains(ext) {
+            value = (value as NSString).deletingPathExtension
+        }
+        let words = value
+            .replacingOccurrences(of: ".", with: " ")
             .replacingOccurrences(of: "_", with: " ")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        let words = normalized.split(separator: " ")
-        let cutoff = words.firstIndex(where: { word in
+            .replacingOccurrences(of: "-", with: " ")
+            .split(whereSeparator: { $0.isWhitespace })
+        let tags = Set(["1080p", "720p", "2160p", "4k", "webdl", "webrip", "bluray",
+                        "web", "x264", "x265", "h264", "h265", "hevc", "hdrip"])
+        let stop = words.firstIndex(where: { word in
             let token = word.lowercased()
-            let isReleaseYear = word.count == 4 &&
-                word.allSatisfy { $0.isNumber } &&
-                (Int(word).map { (1900...2099).contains($0) } ?? false)
-            return isReleaseYear || ["1080p", "720p", "2160p", "4k", "webrip", "webdl",
-                                     "web-dl", "bluray", "h264", "h265", "x264", "x265"].contains(token)
-        })
-        let title = words.prefix(cutoff ?? words.count).joined(separator: " ")
-        return title.isEmpty ? fileName : title
+            let year = Int(token).map { (1900...2099).contains($0) } ?? false
+            return year || tags.contains(token)
+        }) ?? words.count
+        let clean = words.prefix(max(1, stop)).joined(separator: " ")
+        let display = clean.isEmpty ? name : clean
+        return display.count > 38 ? String(display.prefix(37)) + "…" : display
     }
 
+    /// Always draw our own clean background on the featured card. On iOS 16
+    /// ArtworkCache intentionally generates title-stamped placeholder images:
+    /// using those as a hero backdrop duplicates and overlaps the live title.
     private func heroContent(movie: Movie?, eyebrow: String,
                              headline: String, detail: String) -> some View {
-        GeometryReader { bounds in
-            ZStack(alignment: .bottomLeading) {
-                Group {
-                    if let movie, let image = artwork.images[movie.id] {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: bounds.size.width, height: bounds.size.height)
-                            .clipped()
-                    } else {
-                        LinearGradient(colors: [NexaPalette.purple.opacity(0.78),
-                                                NexaPalette.navy, NexaPalette.orange.opacity(0.65)],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing)
-                    }
-                }
-                .frame(width: bounds.size.width, height: bounds.size.height)
-                LinearGradient(colors: [.black.opacity(0.04), .black.opacity(0.78)],
-                               startPoint: .top, endPoint: .bottom)
+        ZStack {
+            LinearGradient(
+                colors: [Color(red: 0.13, green: 0.19, blue: 0.40),
+                         NexaPalette.navy,
+                         Color(red: 0.24, green: 0.13, blue: 0.23)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            )
+            HStack(alignment: .center, spacing: 8) {
                 VStack(alignment: .leading, spacing: 9) {
                     Text(eyebrow)
-                        .font(.caption2.weight(.bold))
-                        .tracking(1.3)
-                        .foregroundStyle(.white.opacity(0.87))
+                        .font(.system(size: 10, weight: .bold))
+                        .tracking(1.4)
+                        .foregroundStyle(.white.opacity(0.78))
+                        .lineLimit(1)
                     Text(shortMovieTitle(headline))
-                        .font(.title2.weight(.bold))
+                        .font(.system(size: 21, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
+                        .lineLimit(2)
                         .minimumScaleFactor(0.82)
+                        .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    Label(detail, systemImage: "play.circle.fill")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.96))
-                        .lineLimit(1)
+                    HStack(spacing: 7) {
+                        Image(systemName: "play.circle.fill")
+                        Text(detail).lineLimit(1)
+                    }
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.90))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(18)
+                Image(systemName: "play.rectangle.fill")
+                    .font(.system(size: 48, weight: .ultraLight))
+                    .foregroundStyle(.white.opacity(0.17))
+                    .frame(width: 58)
+                    .accessibilityHidden(true)
             }
-            .frame(width: bounds.size.width, height: bounds.size.height)
-            .clipped()
+            .padding(.horizontal, 17)
+            .padding(.vertical, 13)
         }
-        .frame(height: 190)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
-            .strokeBorder(.white.opacity(0.1), lineWidth: 1))
+        .frame(maxWidth: .infinity)
+        .frame(height: 156)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(.white.opacity(0.10), lineWidth: 1)
+        )
     }
 
+    /// Show a captured video frame only when AVFoundation supplied dimensions.
+    /// Older iOS 16 title-art covers are not placed behind duplicate UI titles.
     @ViewBuilder
     private func movieArtwork(_ movie: Movie) -> some View {
-        if let image = artwork.images[movie.id] {
-            Image(uiImage: image).resizable().scaledToFill()
+        if let image = artwork.images[movie.id],
+           let metadata = artwork.details[movie.id],
+           (metadata.width ?? 0) > 0 && (metadata.height ?? 0) > 0 {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 146, height: 90)
+                .clipped()
         } else {
             ZStack {
-                LinearGradient(colors: [NexaPalette.navy, NexaPalette.purple.opacity(0.75)],
-                               startPoint: .topLeading, endPoint: .bottomTrailing)
-                Image(systemName: "play.fill").foregroundStyle(.white).font(.title2)
+                LinearGradient(
+                    colors: [NexaPalette.navy, NexaPalette.purple.opacity(0.55)],
+                    startPoint: .topLeading, endPoint: .bottomTrailing
+                )
+                Image(systemName: "film.fill")
+                    .foregroundStyle(.white.opacity(0.70))
+                    .font(.title2)
             }
+            .frame(width: 146, height: 90)
         }
     }
 
