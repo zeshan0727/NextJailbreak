@@ -30,6 +30,7 @@ struct VideoConverterScreen: View {
                     sourcePanel
 
                     if let details {
+                        encodingModePanel(details)
                         Picker("Stream settings", selection: $settingsTab) {
                             Text("Video Stream").tag(0)
                             Text("Audio Stream").tag(1)
@@ -49,7 +50,8 @@ struct VideoConverterScreen: View {
                     }
 
                     Button(action: beginConversion) {
-                        Label(preparer.preparing ? "Converting…" : "Convert to TV MP4 + AAC",
+                        Label(preparer.preparing ? "Processing…" :
+                              (options.videoMode == .remux ? "Start Fast Remux" : "Start Conversion"),
                               systemImage: "arrow.triangle.2.circlepath")
                             .font(.headline).frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
@@ -78,6 +80,12 @@ struct VideoConverterScreen: View {
                 inspectSelected()
             }
             .onChange(of: selected?.id) { _ in inspectSelected() }
+            .onChange(of: options.audioOrdinal) { _ in
+                if let details, options.videoMode == .remux,
+                   !details.supportsNoReencoding(audioOrdinal: options.audioOrdinal) {
+                    options.videoMode = .automatic
+                }
+            }
             .alert("Video Converter", isPresented: Binding(
                 get: { preparer.errorMessage != nil },
                 set: { if !$0 { preparer.errorMessage = nil } }
@@ -95,7 +103,7 @@ struct VideoConverterScreen: View {
                 .font(.title3.bold()).foregroundStyle(.cyan)
             Text("Convert MKV, AVI, MOV, MP4 and other FFmpeg-readable videos into H.264 video with stereo AAC sound.")
                 .font(.subheadline)
-            Text("Fast mode keeps the original H.264 video stream without re-encoding it. Select one audio track when the source has multiple languages.")
+            Text("Choose a real processing preset below. Stream copy is fastest when the original video and AAC audio are compatible. Hardware modes use Apple VideoToolbox, and CPU mode uses FFmpeg's software MPEG-4 encoder.")
                 .font(.caption).foregroundStyle(.secondary)
         }.nextSurface()
     }
@@ -137,6 +145,71 @@ struct VideoConverterScreen: View {
         }.nextSurface()
     }
 
+
+    private func encodingModePanel(_ info: TVSourceDetails) -> some View {
+        VStack(alignment: .leading, spacing: 11) {
+            HStack {
+                Label("ENCODING TYPE", systemImage: "bolt.horizontal.circle")
+                    .font(.headline)
+                Spacer()
+                Text(options.videoMode == .remux ? "FASTEST" : "CUSTOM")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.cyan)
+            }
+            ForEach(TVVideoMode.allCases) { mode in
+                let copyAvailable = info.supportsNoReencoding(audioOrdinal: options.audioOrdinal)
+                let available = mode != .remux || copyAvailable
+                Button {
+                    options.videoMode = mode
+                    if mode == .remux {
+                        options.resolution = .source
+                        options.frameRate = .source
+                    }
+                    ready = nil
+                } label: {
+                    HStack(alignment: .top, spacing: 11) {
+                        Image(systemName: options.videoMode == mode ?
+                              "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(options.videoMode == mode ? .cyan : .secondary)
+                            .font(.system(size: 21))
+                            .padding(.top, 1)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(mode.rawValue)
+                                .font(.subheadline.bold())
+                                .foregroundStyle(.primary)
+                            Text(mode.summary)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            if !available {
+                                Text("Unavailable for selected source/audio track")
+                                    .font(.caption2.weight(.medium))
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(options.videoMode == mode ? Color.cyan.opacity(0.10) :
+                                Color.secondary.opacity(0.055),
+                                in: RoundedRectangle(cornerRadius: 14))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(options.videoMode == mode ? Color.cyan.opacity(0.65) :
+                                          Color.secondary.opacity(0.1), lineWidth: 1)
+                    }
+                }
+                .buttonStyle(.plain)
+                .disabled(preparer.preparing || !available)
+                .opacity(available ? 1 : 0.55)
+            }
+            Text("Stream copy preserves the original quality and usually finishes much faster because no frames are decoded or encoded. It cannot change resolution, frame rate, or repair incompatible codecs.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }.nextSurface()
+    }
+
     private func videoSettings(_ info: TVSourceDetails) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("VIDEO SETTINGS", systemImage: "film").font(.headline)
@@ -146,26 +219,28 @@ struct VideoConverterScreen: View {
                 Text("MP4").foregroundStyle(.secondary)
             }
             Divider()
-            Picker("Video processing", selection: $options.videoMode) {
-                ForEach(TVVideoMode.allCases) { mode in
-                    Text(mode.rawValue).tag(mode)
-                }
+            HStack {
+                Text("Video output codec")
+                Spacer()
+                Text(options.videoMode == .remux ? info.videoCodec.uppercased() :
+                     options.videoMode == .cpuMPEG4 ? "MPEG-4 Part 2" :
+                     options.videoMode == .gpuHEVC ? "HEVC (H.265)" : "H.264 / AVC")
+                    .foregroundStyle(.secondary)
             }
-            Text(options.videoMode == .automatic && info.supportsVideoCopy
-                 ? "H.264 source detected: fast lossless video stream copy."
-                 : "Unsupported video codecs will be converted using the iPhone's H.264 hardware encoder when available.")
+            Text(options.videoMode == .remux ? "Original video and AAC audio will be copied unchanged." :
+                 options.videoMode.summary)
                 .font(.caption).foregroundStyle(.secondary)
             Divider()
             Picker("Resolution", selection: $options.resolution) {
                 ForEach(TVResolution.allCases) { res in
                     Text(res.rawValue).tag(res)
                 }
-            }
+            }.disabled(options.videoMode == .remux)
             Picker("Frame rate", selection: $options.frameRate) {
                 ForEach(TVFrameRate.allCases) { rate in
                     Text(rate.rawValue).tag(rate)
                 }
-            }
+            }.disabled(options.videoMode == .remux)
             if requiresEncoding {
                 Picker("Video bitrate", selection: $options.videoBitrateKbps) {
                     Text("1,880 kbps").tag(1880)
@@ -199,24 +274,29 @@ struct VideoConverterScreen: View {
             HStack {
                 Text("Output audio codec")
                 Spacer()
-                Text("AAC-LC").foregroundStyle(.secondary)
+                Text(options.copiesAudio ? "AAC (original)" : "AAC-LC")
+                    .foregroundStyle(.secondary)
             }
             HStack {
                 Text("Channels")
                 Spacer()
-                Text("Stereo (2)").foregroundStyle(.secondary)
+                Text(options.copiesAudio ? "Original" : "Stereo (2)")
+                    .foregroundStyle(.secondary)
             }
             HStack {
                 Text("Sample rate")
                 Spacer()
-                Text("48,000 Hz").foregroundStyle(.secondary)
+                Text(options.copiesAudio ? "Original" : "48,000 Hz")
+                    .foregroundStyle(.secondary)
             }
             Picker("Audio bitrate", selection: $options.audioBitrateKbps) {
                 Text("128 kbps").tag(128)
                 Text("192 kbps · Recommended").tag(192)
                 Text("256 kbps").tag(256)
-            }
-            Text("AAC stereo is the preferred default for most Chromecast receivers.")
+            }.disabled(options.copiesAudio)
+            Text(options.copiesAudio ?
+                 "The selected AAC audio is copied bit-for-bit. Audio bitrate and channel settings do not apply." :
+                 "AAC stereo is the preferred default for most Chromecast receivers.")
                 .font(.caption).foregroundStyle(.secondary)
         }.nextSurface()
     }
@@ -254,11 +334,11 @@ struct VideoConverterScreen: View {
 
     private func readyPanel(_ movie: Movie) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("TV MP4 ready", systemImage: "checkmark.circle.fill")
+            Label("Converted MP4 ready", systemImage: "checkmark.circle.fill")
                 .font(.headline).foregroundStyle(.green)
             Text("\(movie.name) · \(movie.fileSizeLabel)")
                 .font(.subheadline).lineLimit(2)
-            Text("Saved under Movies → Converted. Next time, select this movie and cast it directly.")
+            Text("Saved under Movies → Converted. HEVC and CPU MPEG-4 outputs may not play on every TV; H.264/AAC is the recommended casting format.")
                 .font(.caption).foregroundStyle(.secondary)
             Button {
                 cast.load(movie)
@@ -275,7 +355,11 @@ struct VideoConverterScreen: View {
     }
 
     private func beginConversion() {
-        guard let movie = selected, details != nil else { return }
+        guard let movie = selected, let details else { return }
+        if let issue = options.validate(with: details) {
+            preparer.errorMessage = issue
+            return
+        }
         ready = nil
         var preset = options
         preset.useFFmpeg = true
@@ -300,6 +384,10 @@ struct VideoConverterScreen: View {
             case .success(let info):
                 details = info
                 options.audioOrdinal = 0
+                options.resolution = .source
+                options.frameRate = .source
+                options.videoMode = info.supportsNoReencoding(audioOrdinal: 0) ?
+                    .remux : .automatic
             case .failure(let error):
                 inspectionError = error.localizedDescription
             }
