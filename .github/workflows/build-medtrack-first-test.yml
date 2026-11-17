@@ -17,8 +17,8 @@ concurrency:
 
 jobs:
   build-publish:
-    runs-on: macos-15
-    timeout-minutes: 40
+    runs-on: macos-latest
+    timeout-minutes: 35
     env:
       APP_NAME: MedTrack
       FILE_NAME: MedTrack-1.0.0-b1.ipa
