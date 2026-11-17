@@ -26,6 +26,7 @@ struct DownloadsTab: View {
     @ObservedObject var browserDownloads: BrowserDownloadStore
     @ObservedObject var transfers: TransferStore
     var openMovies: () -> Void
+    @Environment(\.colorScheme) private var scheme
     @State private var refreshItem: DownloadRecord?
     @State private var newLinkText = ""
     @AppStorage("nextcast.preferBackgroundDownloads") private var preferBackgroundDownloads = false
@@ -36,8 +37,8 @@ struct DownloadsTab: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Download Manager").font(.title2.bold())
-                        Text("Reliable movie downloads · live MB/s · estimated time remaining")
+                        Text("Downloads").font(.largeTitle.weight(.bold))
+                        Text("Your offline media, always within reach")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                     VStack(spacing: 13) {
@@ -70,8 +71,8 @@ struct DownloadsTab: View {
                     }.nextSurface()
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Label("Download method", systemImage: "externaldrive.fill.badge.checkmark")
-                            .font(.subheadline.bold()).foregroundStyle(.cyan)
+                        Label("Download Options", systemImage: "externaldrive.fill.badge.checkmark")
+                            .font(.subheadline.bold()).foregroundStyle(NexaPalette.orange)
                         Toggle(isOn: $preferBackgroundDownloads) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Use iOS background downloading")
@@ -82,13 +83,13 @@ struct DownloadsTab: View {
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                         }
-                        .tint(.cyan)
+                        .tint(NexaPalette.orange)
                         Text("The selected method applies to new direct links and browser downloads. Reliable mode prevents a full transfer from being lost to a temporary-file permission failure. Background mode can use up to 3 server-approved connections.")
                             .font(.footnote).foregroundStyle(.secondary)
                     }.nextSurface()
 
                     HStack {
-                        Text("Transfers").font(.title3.bold())
+                        Text("Active & Saved Transfers").font(.title3.bold())
                         Spacer()
                         if !transfers.items.isEmpty {
                             Text("\(transfers.items.filter(\.isActive).count) active")
@@ -149,6 +150,7 @@ struct DownloadsTab: View {
                         .font(.footnote).foregroundStyle(.secondary).padding(.bottom, 10)
                 }.padding(18)
             }
+            .background(NexaPalette.canvas(scheme))
             .navigationTitle("Downloads")
             .sheet(item: $refreshItem) { item in
                 NavigationStack {
@@ -219,13 +221,13 @@ struct DownloadsTab: View {
                     Text(item.status).font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
-                if item.isActive { ProgressView().tint(.cyan) }
+                if item.isActive { ProgressView().tint(NexaPalette.orange) }
             }
             if item.isActive || item.isPaused {
                 if item.expected > 0 {
-                    ProgressView(value: item.fraction).tint(.cyan)
+                    ProgressView(value: item.fraction).tint(NexaPalette.orange)
                 } else {
-                    ProgressView().tint(.cyan)
+                    ProgressView().tint(NexaPalette.orange)
                 }
                 HStack {
                     Text("\(size(item.received)) / \(item.expected > 0 ? size(item.expected) : "Unknown")")
@@ -237,7 +239,7 @@ struct DownloadsTab: View {
                     Label(speed(item.speed), systemImage: "speedometer")
                     Spacer()
                     Label(eta(item.remaining), systemImage: "clock")
-                }.font(.caption.bold()).foregroundStyle(.cyan)
+                }.font(.caption.bold()).foregroundStyle(NexaPalette.orange)
                 HStack {
                     Text(item.mode).font(.caption2).foregroundStyle(.secondary)
                     Spacer()
