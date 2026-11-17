@@ -184,7 +184,7 @@ private struct MovieSwipeActionRow<Content: View>: View {
     var body: some View {
         ZStack {
             HStack(spacing: 0) {
-                if let onConvert {
+                if revealedOffset > 0, let onConvert {
                     Button {
                         withAnimation(.easeOut(duration: 0.18)) { revealedOffset = 0 }
                         onConvert()
@@ -199,18 +199,20 @@ private struct MovieSwipeActionRow<Content: View>: View {
                     .accessibilityLabel("Convert video")
                 }
                 Spacer(minLength: 0)
-                Button {
-                    withAnimation(.easeOut(duration: 0.18)) { revealedOffset = 0 }
-                    onDelete()
-                } label: {
+                if revealedOffset < 0 {
+                    Button {
+                        withAnimation(.easeOut(duration: 0.18)) { revealedOffset = 0 }
+                        onDelete()
+                    } label: {
                     Label("Delete", systemImage: "trash")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white)
                         .frame(width: actionWidth)
                         .frame(maxHeight: .infinity)
                 }
-                .background(Color.red)
-                .accessibilityLabel("Delete video")
+                    .background(Color.red)
+                    .accessibilityLabel("Delete video")
+                }
             }
             .frame(maxHeight: .infinity)
 
@@ -332,6 +334,7 @@ struct MoviesTab: View {
             Image(systemName: "tv.fill").foregroundStyle(NexaPalette.orange)
             VStack(alignment: .leading, spacing: 3) {
                 Text(movie.name).font(.subheadline.bold()).lineLimit(2)
+                    .truncationMode(.middle).minimumScaleFactor(0.9)
                 Text("TV Ready · \(movie.fileSizeLabel)")
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -396,7 +399,8 @@ struct MoviesTab: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             VStack(alignment: .leading, spacing: 5) {
                 Text(movie.name).font(.subheadline.bold())
-                    .lineLimit(2).foregroundStyle(.primary)
+                    .lineLimit(2).truncationMode(.middle)
+                    .minimumScaleFactor(0.9).foregroundStyle(.primary)
                 if let info = covers.details[movie.id] {
                     Text(info.durationLabel).font(.caption.bold())
                         .foregroundStyle(.secondary)
@@ -467,17 +471,6 @@ struct MoviesTab: View {
                         }.nextSurface()
                     }
 
-                    Button { showPicker = true } label: {
-                        Label("Import Video Files", systemImage: "plus.circle.fill")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 13)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(NexaPalette.orange)
-                    .foregroundStyle(.black)
-                    .disabled(library.isImporting)
-
                     Button {
                         convertRequestedMovie = nil
                         showConverter = true
@@ -492,25 +485,12 @@ struct MoviesTab: View {
 
                     movieLibrarySection
 
-                    HStack(spacing: 14) {
-                        Button { showMultiPicker = true } label: {
-                            Label("Import Multiple", systemImage: "square.stack.3d.up")
-                        }
-                        Button { showSwiftUIFallback = true } label: {
-                            Label("Alternate Picker", systemImage: "folder.badge.plus")
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .font(.subheadline)
-                    .disabled(library.isImporting)
-
                     if !library.importStatus.isEmpty && !library.isImporting {
                         Label(library.importStatus, systemImage: "info.circle")
                             .font(.caption).foregroundStyle(.secondary)
                     }
 
-                    Text("Importing from Files preserves the originals. Existing stored videos stay in the same app container.")
-                        .font(.caption).foregroundStyle(.secondary)
+
                 }
                 .padding(18)
             }
@@ -532,6 +512,33 @@ struct MoviesTab: View {
                 .padding(.trailing, 19).padding(.bottom, 18)
             }
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            showPicker = true
+                        } label: {
+                            Label("Import Video", systemImage: "plus.circle")
+                        }
+                        Button {
+                            showMultiPicker = true
+                        } label: {
+                            Label("Import Multiple", systemImage: "square.stack.3d.up")
+                        }
+                        Button {
+                            showSwiftUIFallback = true
+                        } label: {
+                            Label("Alternate File Picker", systemImage: "folder.badge.plus")
+                        }
+                        Button {
+                            showRemote = true
+                        } label: {
+                            Label("Full TV Remote", systemImage: "appletvremote.gen4")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel("Library options")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     CastButton().frame(width: 40, height: 40)
                 }
