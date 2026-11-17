@@ -48,7 +48,7 @@ struct NextCastTabs: View {
             .tabItem { Label("Browser", systemImage: "globe") }.tag(2)
 
             NexaCastDashboard(cast: cast, remote: remote)
-                .tabItem { Label("Cast", systemImage: "airplay.video") }.tag(3)
+                .tabItem { Label("Cast", systemImage: "tv") }.tag(3)
 
             SettingsTab(library: library)
                 .tabItem { Label("More", systemImage: "ellipsis.circle.fill") }.tag(4)
