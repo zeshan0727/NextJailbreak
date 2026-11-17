@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T20:08:56Z",
+  "updatedAt": "2026-11-17T20:47:30Z",
   "files": [
+    {
+      "id": "medtrack-1.2.0-b3-test",
+      "name": "MedTrack 1.2.0 — Widget Repair, Medication Archive & Routine Learning",
+      "fileName": "MedTrack-1.2.0-b3.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.0 (3)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.0/MedTrack-1.2.0-b3.ipa",
+      "sha256": "11c7acfb6bc0a4e817686f6bfeaf45143c6a9616f72162b65ca2f24435e7bcf6",
+      "sizeBytes": 611858,
+      "notes": "Repaired widget with fallback data and four-medicine layout, Archive/Restore/Delete, local routine-learning suggestions after five consistent dose logs with user-approved reminder-time changes; retains dose history. iOS 17+ interactive widget actions and iOS 16 deep links. TrollStore test signature."
+    },
     {
       "id": "medtrack-1.1.0-b2-test",
       "name": "MedTrack 1.1.0 — Persistent Reminders & Interactive Widget Test",
