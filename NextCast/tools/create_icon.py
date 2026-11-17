@@ -1,52 +1,77 @@
 #!/usr/bin/env python3
-"""Generate a 1024px Next Cast app icon with no external image services."""
+"""Generate NexaPlay's original high-resolution multicolor play icon."""
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 import math
+import json
+
 SIZE = 1024
-image = Image.new("RGBA", (SIZE, SIZE))
-p = image.load()
+im = Image.new("RGBA", (SIZE, SIZE))
+px = im.load()
+
+# Deep navy cinematic base with restrained cyan/orange ambient highlights.
 for y in range(SIZE):
     for x in range(SIZE):
-        glow = max(0, 1 - math.hypot((x - 700) / 1200, (y - 250) / 950))
-        p[x, y] = (int(6 + glow * 7), int(16 + glow * 18), int(37 + glow * 36), 255)
+        blue = max(0.0, 1.0 - math.hypot((x - 220) / 730, (y - 130) / 680))
+        orange = max(0.0, 1.0 - math.hypot((x - 950) / 660, (y - 900) / 620))
+        px[x, y] = (
+            min(255, int(7 + blue * 12 + orange * 27)),
+            min(255, int(12 + blue * 25 + orange * 9)),
+            min(255, int(31 + blue * 43 + orange * 17)),
+            255
+        )
 
-# Construct the main glossy, multicolor play tile.
-tile_mask = Image.new("L", (SIZE, SIZE))
-tiled = ImageDraw.Draw(tile_mask)
-tiled.rounded_rectangle((180, 210, 865, 773), radius=165, fill=255)
+# Mask for the continuous triangular brand ribbon, softened at each corner.
+mask = Image.new("L", (SIZE, SIZE), 0)
+d = ImageDraw.Draw(mask)
+vertices = [(309, 215), (782, 513), (309, 809), (309, 215)]
+d.line(vertices, fill=255, width=130, joint="curve")
+for x, y in vertices[:-1]:
+    d.ellipse((x - 65, y - 65, x + 65, y + 65), fill=255)
+
+# Soft ambient glow behind the crisp play outline.
+glow = Image.new("RGBA", (SIZE, SIZE), (40, 116, 255, 0))
+glow.putalpha(mask.filter(ImageFilter.GaussianBlur(66)).point(lambda a: int(a * 0.43)))
+im.alpha_composite(glow)
+
+# Gradient follows the icon's edges: cyan upper left, blue/purple at the
+# lower left, orange/red to the right, like the approved NexaPlay concept.
 color = Image.new("RGBA", (SIZE, SIZE))
-px = color.load()
-for y in range(210, 774):
-    for x in range(180, 866):
-        t = max(0, min(1, (x - 180) / 685))
-        s = max(0, min(1, (y - 210) / 564))
-        r = int((1-t)*255 + t*20)
-        g = int((1-t)*max(65, 190 - 170*s) + t*(100 + 55*s))
-        b = int((1-t)*(50 + 120*s) + t*255)
-        px[x, y] = (r, g, b, 255)
-glow = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
-glow.paste(color, (0, 0), tile_mask)
-halo = glow.filter(ImageFilter.GaussianBlur(45))
-halo.putalpha(halo.getchannel("A").point(lambda a: int(a * .65)))
-image.alpha_composite(halo)
-image.paste(color, (0, 0), tile_mask)
-d = ImageDraw.Draw(image)
-d.rounded_rectangle((179, 209, 865, 773), radius=165, outline=(190, 245, 255, 225), width=9)
-# Modern dark cutout with white-to-cyan play triangle.
-d.rounded_rectangle((352, 325, 748, 659), radius=106, fill=(7, 19, 44, 240))
-d.polygon(((474, 402), (474, 588), (642, 495)), fill=(242, 250, 255, 255))
-# Broadcast arcs, bottom-left. Distinct enough at small sizes.
-for radius, width in ((112, 35), (188, 35), (263, 35)):
-    bounds = (101-radius, 831-radius, 101+radius, 831+radius)
-    d.arc(bounds, start=270, end=360, fill=(30, 226, 255, 255), width=width)
-d.ellipse((118, 818, 164, 864), fill=(29, 222, 255, 255))
-# Export single-size universal iOS icon.
+cp = color.load()
+for y in range(SIZE):
+    for x in range(SIZE):
+        t = max(0.0, min(1.0, (x - 240) / 560))
+        vertical = max(0.0, min(1.0, (y - 205) / 600))
+        left = (
+            int(15 + 113 * vertical),
+            int(220 - 151 * vertical),
+            int(252 - 6 * vertical)
+        )
+        right = (
+            255,
+            int(136 - 75 * vertical),
+            int(11 + 49 * vertical)
+        )
+        cp[x, y] = tuple(int(left[i] * (1 - t) + right[i] * t) for i in range(3)) + (255,)
+im.paste(color, (0, 0), mask)
+
+# Inner navy film-shaped cutout creates depth and keeps the play recognisable
+# at small Home Screen sizes.
+d = ImageDraw.Draw(im)
+d.polygon([(373, 348), (643, 514), (373, 677)], fill=(11, 17, 43, 255))
+d.polygon([(425, 408), (603, 514), (425, 619)], fill=(241, 251, 255, 255))
+# Subtle, non-distracting specular highlight.
+shine = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+sd = ImageDraw.Draw(shine)
+sd.arc((245, 144, 755, 880), 190, 300, fill=(255, 255, 255, 36), width=19)
+im = Image.alpha_composite(im, shine)
+
 out = Path(__file__).resolve().parent.parent / "Assets.xcassets" / "AppIcon.appiconset"
 out.mkdir(parents=True, exist_ok=True)
-image.convert("RGB").save(out / "AppIcon.png", "PNG", optimize=True)
-(out / "Contents.json").write_text('''{
-  "images": [{"filename": "AppIcon.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"}],
-  "info": {"author": "xcode", "version": 1}
-}\n''')
-print("Created", out / "AppIcon.png")
+im.convert("RGB").save(out / "AppIcon.png", "PNG", optimize=True)
+(out / "Contents.json").write_text(json.dumps({
+    "images": [{"filename": "AppIcon.png", "idiom": "universal",
+                "platform": "ios", "size": "1024x1024"}],
+    "info": {"author": "xcode", "version": 1}
+}, indent=2) + "\n")
+print("Created NexaPlay icon:", out / "AppIcon.png")
