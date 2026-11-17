@@ -125,12 +125,98 @@ extension View {
     func nextSurface() -> some View { modifier(Surface()) }
 }
 
+/// Swipe-to-reveal actions for ScrollView/LazyVStack rows on iOS 16.
+/// The file is not deleted or converted by the gesture itself: the revealed
+/// buttons require a deliberate tap.
+private struct MovieSwipeActionRow<Content: View>: View {
+    let onDelete: () -> Void
+    let onConvert: (() -> Void)?
+    let content: Content
+    @State private var revealedOffset: CGFloat = 0
+    private let actionWidth: CGFloat = 104
+
+    init(onDelete: @escaping () -> Void,
+         onConvert: (() -> Void)? = nil,
+         @ViewBuilder content: () -> Content) {
+        self.onDelete = onDelete
+        self.onConvert = onConvert
+        self.content = content()
+    }
+
+    var body: some View {
+        ZStack {
+            HStack(spacing: 0) {
+                if let onConvert {
+                    Button {
+                        withAnimation(.easeOut(duration: 0.18)) { revealedOffset = 0 }
+                        onConvert()
+                    } label: {
+                        Label("Convert", systemImage: "arrow.triangle.2.circlepath")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: actionWidth)
+                            .frame(maxHeight: .infinity)
+                    }
+                    .background(Color.blue)
+                    .accessibilityLabel("Convert video")
+                }
+                Spacer(minLength: 0)
+                Button {
+                    withAnimation(.easeOut(duration: 0.18)) { revealedOffset = 0 }
+                    onDelete()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: actionWidth)
+                        .frame(maxHeight: .infinity)
+                }
+                .background(Color.red)
+                .accessibilityLabel("Delete video")
+            }
+            .frame(maxHeight: .infinity)
+
+            content
+                .offset(x: revealedOffset)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 18)
+                        .onChanged { value in
+                            guard abs(value.translation.width) >
+                                    abs(value.translation.height) * 1.25 else { return }
+                            let minimum: CGFloat = -actionWidth
+                            let maximum: CGFloat = onConvert == nil ? 0 : actionWidth
+                            revealedOffset = min(maximum, max(minimum, value.translation.width))
+                        }
+                        .onEnded { value in
+                            guard abs(value.translation.width) >
+                                    abs(value.translation.height) * 1.25 else { return }
+                            let target: CGFloat
+                            if value.translation.width < -50 {
+                                target = -actionWidth
+                            } else if value.translation.width > 50 && onConvert != nil {
+                                target = actionWidth
+                            } else {
+                                target = 0
+                            }
+                            withAnimation(.spring(response: 0.28, dampingFraction: 0.87)) {
+                                revealedOffset = target
+                            }
+                        }
+                )
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+}
+
 struct MoviesTab: View {
     @ObservedObject var library: MovieLibrary
     @ObservedObject var cast: CastController
     @ObservedObject var remote: RemoteControlModel
     @State private var showRemote = false
     @State private var showConverter = false
+    @State private var convertRequestedMovie: Movie?
+    @State private var pendingDeleteMovie: Movie?
+    @State private var showDeleteConfirmation = false
     @StateObject private var covers = ArtworkCache.shared
     @State private var showPicker = false
     @State private var showMultiPicker = false
@@ -151,6 +237,11 @@ struct MoviesTab: View {
             Spacer()
             Text("\(library.movies.count) saved")
                 .font(.caption).foregroundStyle(.secondary)
+        }
+        if !originals.isEmpty {
+            Text("Swipe right to convert  ·  Swipe left to delete")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
         if library.movies.isEmpty {
             VStack(spacing: 12) {
@@ -175,13 +266,15 @@ struct MoviesTab: View {
             Label("Converted Movies · \(converted.count)", systemImage: "folder.fill")
                 .font(.headline).foregroundStyle(.cyan)
             ForEach(converted) { movie in
-                Button { selected = movie } label: {
-                    convertedRow(movie)
-                }
-                .buttonStyle(.plain)
-                .contextMenu {
-                    Button(role: .destructive) { library.delete(movie) } label: {
-                        Label("Delete converted movie", systemImage: "trash")
+                MovieSwipeActionRow(onDelete: { requestDelete(movie) }) {
+                    Button { selected = movie } label: {
+                        convertedRow(movie)
+                    }
+                    .buttonStyle(.plain)
+                    .contextMenu {
+                        Button(role: .destructive) { requestDelete(movie) } label: {
+                            Label("Delete converted movie", systemImage: "trash")
+                        }
                     }
                 }
             }
@@ -205,19 +298,40 @@ struct MoviesTab: View {
     private var originalsSection: some View {
         LazyVStack(spacing: 10) {
             ForEach(originals) { movie in
-                Button { selected = movie } label: { originalRow(movie) }
-                    .buttonStyle(.plain)
-                    .onAppear { covers.load(movie) }
-                    .contextMenu {
-                        Button { covers.regenerate(movie) } label: {
-                            Label("Regenerate Cover", systemImage: "photo.on.rectangle.angled")
+                MovieSwipeActionRow(
+                    onDelete: { requestDelete(movie) },
+                    onConvert: { openConverter(for: movie) }
+                ) {
+                    Button { selected = movie } label: { originalRow(movie) }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button {
+                                openConverter(for: movie)
+                            } label: {
+                                Label("Convert Video", systemImage: "arrow.triangle.2.circlepath")
+                            }
+                            Button { covers.regenerate(movie) } label: {
+                                Label("Regenerate Cover", systemImage: "photo.on.rectangle.angled")
+                            }
+                            Button(role: .destructive) { requestDelete(movie) } label: {
+                                Label("Remove from iPhone", systemImage: "trash")
+                            }
                         }
-                        Button(role: .destructive) { library.delete(movie) } label: {
-                            Label("Remove from iPhone", systemImage: "trash")
-                        }
-                    }
+                }
+                .onAppear { covers.load(movie) }
             }
         }
+    }
+
+    private func openConverter(for movie: Movie) {
+        guard !movie.isConverted else { return }
+        convertRequestedMovie = movie
+        showConverter = true
+    }
+
+    private func requestDelete(_ movie: Movie) {
+        pendingDeleteMovie = movie
+        showDeleteConfirmation = true
     }
 
     private func originalRow(_ movie: Movie) -> some View {
@@ -296,7 +410,10 @@ struct MoviesTab: View {
                     .foregroundStyle(.black)
                     .disabled(library.isImporting)
 
-                    Button { showConverter = true } label: {
+                    Button {
+                        convertRequestedMovie = nil
+                        showConverter = true
+                    } label: {
                         Label("TV Video Converter · MKV / MP4 / AAC", systemImage: "arrow.triangle.2.circlepath")
                             .font(.subheadline.bold())
                             .frame(maxWidth: .infinity)
@@ -381,8 +498,26 @@ struct MoviesTab: View {
             .sheet(isPresented: $showRemote) {
                 RemoteTab(remote: remote, cast: cast)
             }
-            .sheet(isPresented: $showConverter) {
-                VideoConverterScreen(library: library, cast: cast)
+            .sheet(isPresented: $showConverter, onDismiss: {
+                convertRequestedMovie = nil
+            }) {
+                VideoConverterScreen(library: library, cast: cast,
+                                     initialMovie: convertRequestedMovie)
+            }
+            .confirmationDialog("Delete video?", isPresented: $showDeleteConfirmation,
+                                titleVisibility: .visible) {
+                Button("Delete from iPhone", role: .destructive) {
+                    if let movie = pendingDeleteMovie {
+                        library.delete(movie)
+                        if selected?.id == movie.id { selected = nil }
+                    }
+                    pendingDeleteMovie = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    pendingDeleteMovie = nil
+                }
+            } message: {
+                Text("Delete \(pendingDeleteMovie?.name ?? "this video")? This removes the stored file from Next Cast. Other copies and converted files are not deleted.")
             }
             .sheet(item: $selected) { movie in
                 MoviePlayerScreen(movie: movie, cast: cast, library: library)
