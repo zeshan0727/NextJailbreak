@@ -103,6 +103,7 @@ struct NexaHomeScreen: View {
     let play: (Movie) -> Void
 
     @StateObject private var artwork = ArtworkCache.shared
+    @State private var showImportPicker = false
     @Environment(\.colorScheme) private var scheme
 
     private var resumeMovie: Movie? {
@@ -187,6 +188,27 @@ struct NexaHomeScreen: View {
                 .padding(.bottom, 32)
             }
             .background(NexaPalette.canvas(scheme))
+            .overlay(alignment: .bottomTrailing) {
+                Button { showImportPicker = true } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 57, height: 57)
+                        .background(NexaPalette.warmGradient, in: Circle())
+                        .shadow(color: NexaPalette.orange.opacity(0.26), radius: 11, y: 6)
+                }
+                .disabled(library.isImporting)
+                .accessibilityLabel("Import videos")
+                .padding(.trailing, 18).padding(.bottom, 16)
+            }
+            .sheet(isPresented: $showImportPicker) {
+                ReliableVideoPicker(multiple: true) { urls in
+                    showImportPicker = false
+                    library.importVideos(urls)
+                } didCancel: {
+                    showImportPicker = false
+                }
+            }
             .toolbar(.hidden, for: .navigationBar)
         }
     }
