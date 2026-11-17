@@ -1004,6 +1004,8 @@ private struct SettingsHomeLinkLabel: View {
 
 
 private struct ModernAISettingsView: View {
+    @AppStorage(SMSAIRecognitionService.cloudConsentKey)
+    private var smsCloudAIConsent = false
     @State private var deepSeekAPIKey = ""
     @State private var deepSeekConnected = DeepSeekService.shared.hasAPIKey
     @State private var testingDeepSeek = false
@@ -1037,6 +1039,11 @@ private struct ModernAISettingsView: View {
             deepSeekConnected = DeepSeekService.shared.hasAPIKey
             if openAIConnected && openAIStatus.isEmpty { openAIStatus = "Ready for OpenAI Chat and SMS AI Helper" }
             if deepSeekConnected && deepSeekStatus.isEmpty { deepSeekStatus = "Ready for DeepSeek insights" }
+        }
+        .onChange(of: smsCloudAIConsent) { enabled in
+            if enabled {
+                Task { await SMSOpenAIAutoRecoveryCoordinator.shared.processPending() }
+            }
         }
         .alert(item: $notice) { item in
             Alert(
@@ -1264,8 +1271,17 @@ private struct ModernAISettingsView: View {
             }
 
             AIInfoRow(icon: "iphone", text: "Local Ledger Search stays on this iPhone.")
-            AIInfoRow(icon: "message.fill", text: "SMS AI Helper starts with only the latest 10 review messages for AI analysis.")
-            AIInfoRow(icon: "hand.tap.fill", text: "More SMS data requires Load 10 More inside the SMS review screen.")
+            Toggle(isOn: $smsCloudAIConsent) {
+                Label("Allow SMS Cloud AI analysis", systemImage: "hand.raised.fill")
+                    .font(.subheadline.weight(.semibold))
+            }
+            .tint(AppTheme.blue)
+            Text("OFF by default. If you enable this, the text of bank SMS messages selected for AI classification, including any amounts, merchants or account digits they contain, is sent to your connected third-party provider (OpenAI or DeepSeek). Classification is optional. You can disable access here at any time.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            AIInfoRow(icon: "message.fill", text: "The AI helper reviews pending SMS messages only when you permit cloud processing.")
+            AIInfoRow(icon: "hand.tap.fill", text: "Manual expenses, budgets and local ledger search do not require SMS Cloud AI.")
         }
         .padding(16)
         .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
