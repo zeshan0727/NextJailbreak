@@ -1,0 +1,142 @@
+name: MedTrack 1.0.0 Build 1 - IPA to NS Transfer
+
+on:
+  push:
+    branches: [medtrack-test-v1]
+    paths:
+      - "MedTrackFirstTest/**"
+      - ".github/workflows/build-medtrack-first-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: medtrack-first-test-publish
+  cancel-in-progress: false
+
+jobs:
+  build-publish:
+    runs-on: macos-15
+    timeout-minutes: 40
+    env:
+      APP_NAME: MedTrack
+      FILE_NAME: MedTrack-1.0.0-b1.ipa
+      BUNDLE_ID: com.nextsolution.medtrack
+      VERSION: "1.0.0"
+      BUILD: "1"
+    steps:
+      - name: Check out MedTrack test source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore original Xcode project from verified source payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s MedTrackFirstTest/medtrack-source.tar.gz.b64
+          base64 -D -i MedTrackFirstTest/medtrack-source.tar.gz.b64 -o "$RUNNER_TEMP/medtrack-source.tar.gz"
+          tar -tzf "$RUNNER_TEMP/medtrack-source.tar.gz" | grep -q 'MedTrack/MedTrackApp.swift'
+          mkdir -p MedTrackFirstTest
+          tar -xzf "$RUNNER_TEMP/medtrack-source.tar.gz" -C MedTrackFirstTest
+          test -s MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          test -s MedTrackFirstTest/MedTrack/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+          echo "Restored complete MedTrack app, widget, project and tests."
+
+      - name: Compile device build with Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          xcodebuild -project MedTrackFirstTest/MedTrack.xcodeproj \
+            -scheme MedTrack -configuration Release -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath "$RUNNER_TEMP/medtrack-derived" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" clean build | tee "$RUNNER_TEMP/medtrack-xcodebuild.log"
+          APP="$RUNNER_TEMP/medtrack-derived/Build/Products/Release-iphoneos/MedTrack.app"
+          test -s "$APP/MedTrack"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = "$BUNDLE_ID"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = "$VERSION"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = "$BUILD"
+          test -d "$APP/PlugIns/MedTrackWidget.appex"
+
+      - name: Package ad-hoc-signed IPA for TrollStore test devices
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/medtrack-derived/Build/Products/Release-iphoneos/MedTrack.app"
+          EXT="$APP/PlugIns/MedTrackWidget.appex"
+          codesign --force --sign - --timestamp=none --entitlements MedTrackFirstTest/MedTrackWidget/MedTrackWidget.entitlements "$EXT"
+          codesign --force --sign - --timestamp=none --entitlements MedTrackFirstTest/MedTrack/MedTrack.entitlements "$APP"
+          codesign --verify --verbose=2 "$APP"
+          codesign --verify --verbose=2 "$EXT"
+          mkdir -p "$RUNNER_TEMP/medtrack-package/Payload"
+          ditto "$APP" "$RUNNER_TEMP/medtrack-package/Payload/MedTrack.app"
+          ( cd "$RUNNER_TEMP/medtrack-package" && zip -qry "$RUNNER_TEMP/$FILE_NAME" Payload )
+          unzip -tqq "$RUNNER_TEMP/$FILE_NAME"
+          shasum -a 256 "$RUNNER_TEMP/$FILE_NAME" | awk '{print $1}' > "$RUNNER_TEMP/$FILE_NAME.sha256"
+          echo "Compiled, ad-hoc signed, and zip verified (TrollStore/jailbroken test only)." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain IPA artifact and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: MedTrack-1.0.0-b1-IPA
+          path: |
+            /Users/runner/work/_temp/MedTrack-1.0.0-b1.ipa
+            /Users/runner/work/_temp/MedTrack-1.0.0-b1.ipa.sha256
+          if-no-files-found: error
+
+      - name: Publish successful IPA to NS Transfer on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="transfer/files/MedTrack/1.0.0"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            SITE="$RUNNER_TEMP/medtrack-site"
+            if [ -e "$SITE" ]; then git worktree remove --force "$SITE" || true; fi
+            git worktree add --detach "$SITE" origin/main
+            mkdir -p "$SITE/$DEST"
+            cp "$RUNNER_TEMP/$FILE_NAME" "$SITE/$DEST/$FILE_NAME"
+            cd "$SITE"
+            export FILE_NAME DEST
+            python3 - <<'PY'
+          import json,os,hashlib
+          from datetime import datetime,timezone
+          from pathlib import Path
+          p=Path('transfer/index.json')
+          d=json.loads(p.read_text())
+          f=Path(os.environ['DEST'])/os.environ['FILE_NAME']
+          blob=f.read_bytes()
+          entry={
+            'id':'medtrack-1.0.0-b1-test',
+            'name':'MedTrack 1.0.0 — First iOS 16+ Test',
+            'fileName':os.environ['FILE_NAME'],
+            'type':'ipa',
+            'platform':'iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)',
+            'version':'1.0.0 (1)',
+            'url':'https://nextjailbreak.com/transfer/files/MedTrack/1.0.0/'+os.environ['FILE_NAME'],
+            'sha256':hashlib.sha256(blob).hexdigest(),
+            'sizeBytes':len(blob),
+            'notes':'Native SwiftUI medicine reminder and dose tracker, five editable starter medication records, reminders after user confirmation, refill counts, history, widget. Test build is ad-hoc signed and requires TrollStore or a compatible installer; not standard App Store/ad-hoc provisioning.'
+          }
+          d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
+          d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n')
+          PY
+            python3 -m json.tool transfer/index.json >/dev/null
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -f "$DEST/$FILE_NAME" transfer/index.json
+            git commit -m "Publish MedTrack 1.0.0 Build 1 IPA to NS Transfer"
+            if git push origin HEAD:main; then
+              echo "Published MedTrack on NS Transfer" >> "$GITHUB_STEP_SUMMARY"
+              echo "https://nextjailbreak.com/$DEST/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            cd "$GITHUB_WORKSPACE"
+            git worktree remove --force "$SITE" || true
+          done
+          exit 1
