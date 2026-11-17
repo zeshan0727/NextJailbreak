@@ -138,7 +138,7 @@ jobs:
             'type':'ipa',
             'platform':'iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)',
             'version':'1.1.0 (2)',
-            'url':'https://nextjailbreak.com/transfer/files/MedTrack/1.0.0/'+os.environ['FILE_NAME'],
+            'url':'https://nextjailbreak.com/'+os.environ['DEST']+'/'+os.environ['FILE_NAME'],
             'sha256':hashlib.sha256(blob).hexdigest(),
             'sizeBytes':len(blob),
             'notes':'Follow-up alerts repeat at adjustable intervals until Taken/Skip, precise action timestamps, four-medicine widget and interactive iOS 17+ Taken/Skip buttons. iOS 16 widgets deep-link to the app. Test build is ad-hoc signed and requires TrollStore or a compatible installer; not standard App Store/ad-hoc provisioning.'
