@@ -3,6 +3,37 @@
     {
       "action": "create",
       "additional_media": [],
+      "candidate_fingerprint": "tweak.solo-1.0.1-2026-11-17",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "Official Havoc page declares iOS 15.0–26.0 on rootless jailbreaks. RootHide is explicitly not officially supported; no rootful, stock-iOS, TrollStore-only, regular sideload or iOS 27 path is documented. Tweak compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "Solo 1.0.1 fixes medium-widget SpringBoard hangs, a Liquid (Gl)ass Safe Mode crash and Atria scaling. Check rootless iOS 15–26 support and recovery.",
+      "developer": "OaksTheAwesome",
+      "entry_type": "individual-tweak-update",
+      "href": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
+      "media_retrieval_status": "Havoc package and changelog text were retrievable through search, but ordinary read-only page-source and __NEXT_DATA__ retrieval returned HTTP 403. No screenshot or banner could therefore be verified and no substitute image was embedded.",
+      "modified_at": "2026-11-17T18:04:25+03:00",
+      "name": "Solo",
+      "package": "com.oakstheawesome.solo",
+      "published_at": "2026-11-17T18:04:25+03:00",
+      "quality_target": 9,
+      "release": "Solo 1.0.1 — November 17, 2026; initial Solo 1.0.0 release November 11, 2026",
+      "route": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes",
+      "source_name": "Official Solo Havoc package page, Havoc version history and developer release post",
+      "source_page_url": "https://havoc.app/package/solo",
+      "source_url": "https://havoc.app/package/solo/changes",
+      "source_visual_origin": "retrieval-blocked-havoc-source-media",
+      "title": "Solo 1.0.1 Fixes SpringBoard Hangs, Liquid Glass Safe Mode and Atria Layouts",
+      "version": "1.0.1"
+    },
+    {
+      "action": "create",
+      "additional_media": [],
       "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-shsh-449-2026-11-16",
       "category": {
         "id": "evergreen-jailbreak-guide",
@@ -11375,8 +11406,18 @@
       "published_at": "2026-11-17T12:02:39+03:00",
       "run_id": "scheduled-2026-11-17T12:02:39+03:00",
       "version": "Shadow 4.0.0 development source (latest public release 3.7.6) / Choicy 1.5.4 / vnodebypass 0.2.9"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "tweak.solo-1.0.1-2026-11-17",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
+      "package": "com.oakstheawesome.solo",
+      "published_at": "2026-11-17T18:04:25+03:00",
+      "run_id": "scheduled-2026-11-17T18:04:25+03:00",
+      "version": "1.0.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-17T12:02:39+03:00"
+  "updated_at": "2026-11-17T18:04:25+03:00"
 }
