@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - agent/next-cast-1.5.10-swipe-popup-preview
+      - agent/next-cast-1.5.11-nexaplay-premium
     paths:
       - "NextCast/**"
       - ".github/workflows/nextcast-build.yml"
@@ -14,7 +14,7 @@ permissions:
 
 # Never waste multiple macOS runners compiling superseded edits.
 concurrency:
-  group: nextcast-v1510-${{ github.head_ref || github.ref_name }}
+  group: nextcast-v1511-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
           python3 -m venv .iconvenv
           .iconvenv/bin/pip install --disable-pip-version-check pillow
 
-      - name: Generate 1024 px Next Cast app icon
+      - name: Generate 1024 px NexaPlay app icon
         run: .iconvenv/bin/python NextCast/tools/create_icon.py
 
       - name: Cache iOS dependency downloads
@@ -143,17 +143,17 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.5.10.tipa" Payload)
-          cp NextCast-1.5.10.tipa NextCast-1.5.10.ipa
-          ls -lh NextCast-1.5.10.tipa NextCast-1.5.10.ipa
+          (cd dist && zip -qry "../NextCast-1.5.11.tipa" Payload)
+          cp NextCast-1.5.11.tipa NextCast-1.5.11.ipa
+          ls -lh NextCast-1.5.11.tipa NextCast-1.5.11.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-5-10-IPA-TIPA
+          name: NextCast-iOS16-V1-5-11-IPA-TIPA
           path: |
-            NextCast-1.5.10.tipa
-            NextCast-1.5.10.ipa
+            NextCast-1.5.11.tipa
+            NextCast-1.5.11.ipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
