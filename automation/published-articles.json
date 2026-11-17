@@ -4714,30 +4714,32 @@
       ],
       "category": {
         "id": "tweak-comparison",
-        "label": "Jailbreak Detection Comparison"
+        "label": "Tweak Roundup & Comparison"
       },
-      "compat": "Shadow current source: rootful iOS 9+, rootless iOS 15+, RootHide iOS 15–17 package lanes; Choicy project: iOS 10+ with environment-specific builds; vnodebypass 0.2.9 metadata: iOS 12–14",
-      "description": "Compare Shadow, vnodebypass and Choicy by purpose, iOS range, rootless and RootHide support, setup risk and the safest troubleshooting order.",
+      "compat": "Shadow development source: rootful legacy iOS 9–13.x, rootful modern iOS 14+, rootless iOS 15+, RootHide iOS 15–17.x; Choicy 1.5.4 rootful/rootless builds; vnodebypass 0.2.9 iOS 12–14 metadata",
+      "description": "Compare Shadow’s unreleased 4.0.0 source, Choicy 1.5.4 and vnodebypass 0.2.9 by package lane, iOS range, dependencies and safest troubleshooting order.",
       "developer": "jjolano; opa334; XsF1re and ichitaso",
       "entry_type": "roundup-comparison",
       "href": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/",
       "image": "assets/articles/source-media/shadow-official-settings-icon.png",
       "media_credit": "Official Shadow settings icon from jjolano’s source repository",
       "media_source_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
-      "modified_at": "2026-10-09T08:56:13Z",
-      "name": "Shadow vs vnodebypass vs Choicy",
+      "modified_at": "2026-11-17T12:02:39+03:00",
+      "name": "Shadow vs Choicy vs vnodebypass",
       "package": "comparison.shadow-vnodebypass-choicy",
       "published_at": "2026-10-09T08:56:13Z",
       "release": "2026-10-09",
       "selection_pool": "scheduled-tweak-comparison",
       "slug": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison",
-      "source_name": "Official Shadow, Choicy, vnodebypass and RootHide repositories",
-      "source_page_url": "https://github.com/jjolano/shadow",
+      "source_name": "Official Shadow, Choicy and vnodebypass repositories",
+      "source_page_url": "https://github.com/jjolano/shadow/commit/1fb0adc461d176790b9832d9d640400621040caf",
       "source_url": "https://github.com/jjolano/shadow",
       "source_visual_origin": "official-project-icons",
       "source_visual_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
-      "title": "Shadow vs vnodebypass vs Choicy: Which Jailbreak Detection Tool Should You Try?",
-      "version": "Shadow 3.7.6 tagged / Choicy 1.5.4 source / vnodebypass 0.2.9"
+      "title": "Shadow 4.0 Source vs Choicy 1.5.4 vs vnodebypass 0.2.9: Which Fits?",
+      "version": "Shadow 4.0.0 development source (latest public release 3.7.6) / Choicy 1.5.4 / vnodebypass 0.2.9",
+      "article_sha256": "0e914e5649de78e54daa90df88dbc6d5582d4bcb4b013289e24b936229cf397e",
+      "candidate_fingerprint": "2bb701aaabda4454d9daf3dda8e3e542b688d1e21a4c63cee4cdff8677fa70bd"
     },
     {
       "article_sha256": "d1c0161400ca2107fb20856ceeed9d626b99267fb75f2c1167d284f3939893b6",
@@ -11362,8 +11364,19 @@
       "package": "guide.jailbreak.restart-types",
       "target_path": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide/",
       "version": "Dopamine 3.0.13"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "2bb701aaabda4454d9daf3dda8e3e542b688d1e21a4c63cee4cdff8677fa70bd",
+      "channel": "scheduled-tweak-comparison",
+      "href": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/",
+      "package": "comparison.shadow-vnodebypass-choicy",
+      "previous_version": "Shadow 3.7.6 tagged / Choicy 1.5.4 source / vnodebypass 0.2.9",
+      "published_at": "2026-11-17T12:02:39+03:00",
+      "run_id": "scheduled-2026-11-17T12:02:39+03:00",
+      "version": "Shadow 4.0.0 development source (latest public release 3.7.6) / Choicy 1.5.4 / vnodebypass 0.2.9"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-16T06:01:00+03:00"
+  "updated_at": "2026-11-17T12:02:39+03:00"
 }
