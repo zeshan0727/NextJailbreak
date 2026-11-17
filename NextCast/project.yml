@@ -66,9 +66,10 @@ targets:
     info:
       path: Sources/Info.plist
       properties:
-        CFBundleDisplayName: Next Cast
-        CFBundleShortVersionString: "1.5.10"
-        CFBundleVersion: "34"
+        CFBundleDisplayName: NexaPlay
+        CFBundleShortVersionString: "1.5.11"
+        CFBundleVersion: "35"
+        CADisableMinimumFrameDurationOnPhone: true
         UILaunchScreen: {}
         CFBundleDocumentTypes:
           - CFBundleTypeName: Next Cast Video
