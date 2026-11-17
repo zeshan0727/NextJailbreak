@@ -31,11 +31,12 @@ private struct SolidRemoteKeyStyle: ButtonStyle {
     }
 }
 
-/// Original Next Cast full-screen remote, designed around the actual
+/// NexaPlay compatible full-screen multi-brand remote, designed around the actual
 /// capabilities of each supported TV protocol.
 struct RemoteTab: View {
     @ObservedObject var remote: RemoteControlModel
     @ObservedObject var cast: CastController
+    @Environment(\.colorScheme) private var scheme
     @State private var showSetup = true
     @State private var showKeyboard = false
     @State private var keyboardText = ""
@@ -79,6 +80,7 @@ struct RemoteTab: View {
                 }
                 .padding(17)
             }
+            .background(NexaPalette.canvas(scheme))
             .navigationTitle("TV Remote")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -114,7 +116,7 @@ struct RemoteTab: View {
         VStack(alignment: .leading, spacing: 13) {
             HStack {
                 Image(systemName: "tv.fill")
-                    .foregroundStyle(.cyan)
+                    .foregroundStyle(NexaPalette.orange)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(ready ? displayName : "Select a TV")
                         .font(.headline)
@@ -193,7 +195,7 @@ struct RemoteTab: View {
                             .frame(maxWidth: .infinity, minHeight: 48)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.cyan)
+                    .tint(NexaPalette.orange)
                     HStack(spacing: 12) {
                     CastButton().frame(width: 44, height: 44)
                     VStack(alignment: .leading, spacing: 3) {
@@ -223,7 +225,7 @@ struct RemoteTab: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(.cyan)
+                        .tint(NexaPalette.orange)
                         .foregroundStyle(.black)
                         if remote.connected {
                             Button("Done") { showSetup = false }
@@ -430,7 +432,7 @@ struct RemoteTab: View {
                     remote.submitAndroidTVCode()
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.cyan)
+                .tint(NexaPalette.orange)
                 .frame(maxWidth: .infinity)
                 .disabled(remote.androidPIN.count != 6)
                 Text("The Android TV Remote v2 pairing service generally uses ports 6467 and 6466 over local Wi-Fi. If no code appears, check whether Android TV Remote Service is enabled/updated on the TV.")
@@ -480,7 +482,7 @@ struct RemoteTab: View {
                         .frame(height: 50)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.cyan)
+                .tint(NexaPalette.orange)
                 .disabled(keyboardText.isEmpty || keyboardText.count > 512)
 
                 Button {
