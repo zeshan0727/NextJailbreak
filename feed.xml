@@ -2,6 +2,15 @@
 <rss version="2.0">
   <channel>
     <item>
+      <title>Erosion Ends at iOS 27.3 Beta 1: worse_query Patched in Beta 2</title>
+      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
+      <pubDate>Tue, 17 Nov 2026 21:04:00 GMT</pubDate>
+      <description>Erosion supports iOS 27.3 beta 1 (24C5037i), but worse_query is patched in beta 2 (24C5049d). Check exact iOS 26–27 limits and safe next steps.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+
+    <item>
       <title>Solo 1.0.1 Fixes SpringBoard Hangs, Liquid Glass Safe Mode and Atria Layouts</title>
       <link>https://nextjailbreak.com/solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/</guid>
@@ -46,18 +55,6 @@
       <description>Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats.</description>
       <category>Evergreen Jailbreak Guide</category>
     </item>
-
-
-    <item>
-      <title>Erosion 0.3.2 Beta Source Fixes File Browser and Container Lookup</title>
-      <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</guid>
-      <pubDate>Sun, 15 Nov 2026 21:04:00 GMT</pubDate>
-      <description>Erosion 0.3.2 beta source fixes file-browser permissions, adds folder renaming and accelerates pathleak container lookup. The latest official IPA remains 0.3.1.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
-
-
 
 
     <item>
