@@ -150,6 +150,20 @@ struct WebPopupPrompt: Identifiable {
     let url: URL
     let originatingTabID: UUID
     let sourceHost: String
+
+    /// Only the preview is displayed. Keep the complete URL privately for
+    /// Allow Once, so shortened presentation never changes navigation.
+    private func shortened(_ value: String) -> String {
+        value.count > 20 ? String(value.prefix(19)) + "…" : value
+    }
+
+    var sourcePreview: String { shortened(sourceHost) }
+
+    var destinationPreview: String {
+        let host = url.host ?? url.absoluteString
+        let path = url.path == "/" ? "" : url.path
+        return shortened(host + path)
+    }
 }
 
 struct BrowserPlayingMedia: Equatable {
@@ -1297,7 +1311,7 @@ struct BrowserTab: View {
                 Button("Reject", role: .cancel) { model.rejectPopup() }
             } message: {
                 if let request = model.pendingPopup {
-                    Text("From: \(request.sourceHost)\nOpen: \(request.url.absoluteString)")
+                    Text("From: \(request.sourcePreview)\nOpen: \(request.destinationPreview)")
                 }
             }
             .alert("Browser", isPresented: Binding(
