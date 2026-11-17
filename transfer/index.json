@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T19:20:00Z",
+  "updatedAt": "2026-11-17T20:08:10Z",
   "files": [
+    {
+      "id": "medtrack-1.1.0-b2-test",
+      "name": "MedTrack 1.1.0 — Persistent Reminders & Interactive Widget Test",
+      "fileName": "MedTrack-1.1.0-b2.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.1.0 (2)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.0.0/MedTrack-1.1.0-b2.ipa",
+      "sha256": "20ba7978bc4ddfd04c433c37c506298340d8c2d8c22217ca9654073588e0738b",
+      "sizeBytes": 549035,
+      "notes": "Follow-up alerts repeat at adjustable intervals until Taken/Skip, precise action timestamps, four-medicine widget and interactive iOS 17+ Taken/Skip buttons. iOS 16 widgets deep-link to the app. Test build is ad-hoc signed and requires TrollStore or a compatible installer; not standard App Store/ad-hoc provisioning."
+    },
     {
       "id": "medtrack-1.0.0-b1-test",
       "name": "MedTrack 1.0.0 — First iOS 16+ Test",
