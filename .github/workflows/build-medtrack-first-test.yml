@@ -12,8 +12,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: medtrack-first-test-publish
-  cancel-in-progress: false
+  group: medtrack-first-test-intel-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-publish:
