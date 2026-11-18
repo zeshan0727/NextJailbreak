@@ -1,4 +1,4 @@
-name: MedTrack 1.2.2 Build 5 - Widget Extension Signing Diagnostics to NS Transfer
+name: MedTrack 1.2.3 Build 6 - Original Working Widget Restoration to NS Transfer
 
 on:
   push:
@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 35
     env:
       APP_NAME: MedTrack
-      FILE_NAME: MedTrack-1.2.2-b5.ipa
+      FILE_NAME: MedTrack-1.2.3-b6.ipa
       BUNDLE_ID: com.nextsolution.medtrack
-      VERSION: "1.2.2"
-      BUILD: "5"
+      VERSION: "1.2.3"
+      BUILD: "6"
       # Intel hosted runner avoids the standard macOS ARM allocation pool.
     steps:
       - name: Check out MedTrack test source
@@ -89,10 +89,27 @@ jobs:
           # Skip the README-only diff (older GitHub source archive has different docs).
           gzip -dc "$RUNNER_TEMP/medtrack-v122.patch.gz.b64decoded" | sed '/^--- a\/README\.md/,$d' | patch --batch --fuzz=0 -p1 -d MedTrackFirstTest
           test -s MedTrackFirstTest/MedTrack/WidgetDiagnosticsView.swift
+          # Restore the exact byte-for-byte WidgetKit source shipped in working Build 1.
+          # Unlike recent test builds, this has no AppIntents, no new widget state,
+          # and uses the original TimelineProvider, widget kind and fallback display.
+          test -s MedTrackFirstTest/WidgetBuild6/MedTrackWidget.swift
+          cp MedTrackFirstTest/WidgetBuild6/MedTrackWidget.swift MedTrackFirstTest/MedTrackWidget/MedTrackWidget.swift
+          echo "7d0956f769f82d41665abe530386dd3a933a9d3354a63b48013ded0af13ca9eb  MedTrackFirstTest/MedTrackWidget/MedTrackWidget.swift" | shasum -a 256 -c -
+          # Preserve all other 1.2.2 app changes; update version metadata only.
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('MedTrackFirstTest/generate_project.py')
+          src=p.read_text()
+          assert "'CURRENT_PROJECT_VERSION':'5'" in src
+          assert "'MARKETING_VERSION':'1.2.2'" in src
+          src=src.replace("'CURRENT_PROJECT_VERSION':'5'", "'CURRENT_PROJECT_VERSION':'6'")
+          src=src.replace("'MARKETING_VERSION':'1.2.2'", "'MARKETING_VERSION':'1.2.3'")
+          p.write_text(src)
+          PY
           python3 MedTrackFirstTest/generate_project.py
           plutil -lint MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
-          grep -q "1.2.2" MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
-          echo "Build 5: diagnostics, iOS 16 read-only widgets, archived medicines, routine insights."
+          grep -q "1.2.3" MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          echo "Build 6: original Build 1 widget restored; all recent app functions retained."
 
       - name: Compile device build with Xcode
         shell: bash
@@ -123,27 +140,19 @@ jobs:
           set -euo pipefail
           APP="$RUNNER_TEMP/medtrack-derived/Build/Products/Release-iphoneos/MedTrack.app"
           EXT="$APP/PlugIns/MedTrackWidget.appex"
-          # TrollStore-oriented widget sandbox fix. Apply the private entitlement ONLY
-          # to the embedded extension in this ad-hoc TEST IPA, never to the host app
-          # or an App Store-provisioned build.
+          # Exact Build 1 ad-hoc signing pattern for both extension and host.
+          # Do not inject private widget-only container entitlements.
+          codesign --force --sign - --timestamp=none --entitlements MedTrackFirstTest/MedTrackWidget/MedTrackWidget.entitlements "$EXT"
+          codesign --force --sign - --timestamp=none --entitlements MedTrackFirstTest/MedTrack/MedTrack.entitlements "$APP"
+          codesign -d --entitlements :- "$EXT" > "$RUNNER_TEMP/widget-b6-entitlements.plist" 2>/dev/null
           python3 - <<'PY'
-          import plistlib
+          import plistlib, os
           from pathlib import Path
-          ent = plistlib.loads(Path('MedTrackFirstTest/MedTrackWidget/MedTrackWidget.entitlements').read_bytes())
-          ent['com.apple.private.security.container-required'] = 'com.nextsolution.medtrack.widget'
-          Path('/tmp/medtrack-widget-test.entitlements').write_bytes(plistlib.dumps(ent))
+          p=plistlib.loads((Path(os.environ['RUNNER_TEMP'])/'widget-b6-entitlements.plist').read_bytes())
+          assert 'com.apple.private.security.container-required' not in p, p
+          assert 'group.com.nextsolution.medtrack' in p.get('com.apple.security.application-groups',[]), p
+          print('Original Build 1 signing restored: App Group present, no private widget sandbox entitlement')
           PY
-          codesign --force --sign - --timestamp=none --generate-entitlement-der --entitlements /tmp/medtrack-widget-test.entitlements "$EXT"
-          codesign -d --entitlements :- "$EXT" > "$RUNNER_TEMP/medtrack-widget-signed-entitlements.plist" 2>/dev/null
-          python3 - <<'PY'
-          import plistlib
-          from pathlib import Path
-          p=plistlib.loads((Path('/Users/runner/work/_temp')/'medtrack-widget-signed-entitlements.plist').read_bytes())
-          assert p['com.apple.private.security.container-required']=='com.nextsolution.medtrack.widget', p
-          assert 'group.com.nextsolution.medtrack' in p['com.apple.security.application-groups'],p
-          print('Widget-only sandbox entitlement and App Group verified in signed binary')
-          PY
-          codesign --force --sign - --timestamp=none --generate-entitlement-der --entitlements MedTrackFirstTest/MedTrack/MedTrack.entitlements "$APP"
           codesign --verify --verbose=2 "$APP"
           codesign --verify --verbose=2 "$EXT"
           mkdir -p "$RUNNER_TEMP/medtrack-package/Payload"
@@ -156,17 +165,17 @@ jobs:
       - name: Retain IPA artifact and checksum
         uses: actions/upload-artifact@v4
         with:
-          name: MedTrack-1.2.2-b5-IPA
+          name: MedTrack-1.2.3-b6-IPA
           path: |
-            /Users/runner/work/_temp/MedTrack-1.2.2-b5.ipa
-            /Users/runner/work/_temp/MedTrack-1.2.2-b5.ipa.sha256
+            /Users/runner/work/_temp/MedTrack-1.2.3-b6.ipa
+            /Users/runner/work/_temp/MedTrack-1.2.3-b6.ipa.sha256
           if-no-files-found: error
 
       - name: Publish successful IPA to NS Transfer on main
         shell: bash
         run: |
           set -euo pipefail
-          DEST="transfer/files/MedTrack/1.2.2"
+          DEST="transfer/files/MedTrack/1.2.3"
           for ATTEMPT in 1 2 3; do
             git fetch origin main
             SITE="$RUNNER_TEMP/medtrack-site"
@@ -185,16 +194,16 @@ jobs:
           f=Path(os.environ['DEST'])/os.environ['FILE_NAME']
           blob=f.read_bytes()
           entry={
-            'id':'medtrack-1.2.2-b5-test',
-            'name':'MedTrack 1.2.2 — Widget Extension Signing & Diagnostics Test',
+            'id':'medtrack-1.2.3-b6-test',
+            'name':'MedTrack 1.2.3 — Original Build 1 Widget Restored',
             'fileName':os.environ['FILE_NAME'],
             'type':'ipa',
             'platform':'iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)',
-            'version':'1.2.2 (5)',
+            'version':'1.2.3 (6)',
             'url':'https://nextjailbreak.com/'+os.environ['DEST']+'/'+os.environ['FILE_NAME'],
             'sha256':hashlib.sha256(blob).hexdigest(),
             'sizeBytes':len(blob),
-            'notes':'WidgetKit diagnostic update for iOS 16+. Widget-only container-required sandbox entitlement for TrollStore test signing, prevent widget executable dead-stripping, verify embedded binary and entitlements. In-app More > Widget diagnostics tests extension presence, App Group snapshot, and WidgetKit instances. No direct widget actions; tap to open. Archive and routine learning retained.'
+            'notes':'Restores byte-for-byte original Build 1 WidgetKit interface and original standard ad-hoc widget signing with no private sandbox entitlement. iOS 16+ small 1, medium 2, large 5 medications. Retains all current reminders, Taken/Skip timestamps, archive and restore, routine-learning, and Widget Diagnostics. Installs over prior versions without clearing the local database.'
           }
           d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
           d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -204,7 +213,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -f "$DEST/$FILE_NAME" transfer/index.json
-            git commit -m "Publish MedTrack 1.2.2 Build 5 IPA to NS Transfer"
+            git commit -m "Publish MedTrack 1.2.3 Build 6 original widget restoration IPA"
             if git push origin HEAD:main; then
               echo "Published MedTrack on NS Transfer" >> "$GITHUB_STEP_SUMMARY"
               echo "https://nextjailbreak.com/$DEST/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
