@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T15:44:44Z",
+  "updatedAt": "2026-11-18T15:46:41Z",
   "files": [
+    {
+      "id": "medtrack-1.2.4-b7-test",
+      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
+      "fileName": "MedTrack-1.2.4-b7.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.4 (7)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
+      "sha256": "75eabd4b116be299dd3de44c21cf9b145376631a3b3b96abaa4e0b3dac950fb9",
+      "sizeBytes": 596525,
+      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
+    },
     {
       "id": "medtrack-1.2.3-b6-test",
       "name": "MedTrack 1.2.3 — Original Build 1 Widget Restored",
@@ -25,18 +37,6 @@
       "sha256": "b6e162928fb13a0b674ba896b46e6895d73c612bd44c00d04ec6707a8bcffe74",
       "sizeBytes": 700481,
       "notes": "Uses confirmed-working Build 8 widget unchanged. New Health-style Today medication log with weekly date selector, pending/logged sections and Taken/Skipped recording sheets. Complete local JSON export/import, safe merge or confirmed replace with safety copy. CloudKit private-database CKAsset backup/restore app-side implementation included; iCloud entitlement and container NOT configured in this ad-hoc testing IPA. No existing medication records migrated or erased."
-    },
-    {
-      "id": "medtrack-1.2.4-b7-test",
-      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
-      "fileName": "MedTrack-1.2.4-b7.ipa",
-      "type": "ipa",
-      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
-      "version": "1.2.4 (7)",
-      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
-      "sha256": "2c972cd004b244864d2eaf70ed393e1f71eb1983e44ed8add3592380820a9173",
-      "sizeBytes": 596525,
-      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
     },
     {
       "id": "medtrack-1.2.5-b8-test",
