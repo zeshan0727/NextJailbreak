@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T11:46:10Z",
+  "updatedAt": "2026-11-18T12:31:04Z",
   "files": [
+    {
+      "id": "medtrack-1.2.4-b7-test",
+      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
+      "fileName": "MedTrack-1.2.4-b7.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.4 (7)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
+      "sha256": "2c972cd004b244864d2eaf70ed393e1f71eb1983e44ed8add3592380820a9173",
+      "sizeBytes": 596525,
+      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
+    },
     {
       "id": "medtrack-1.2.5-b8-test",
       "name": "MedTrack 1.2.5 — Four-Dose Small Widget (Working Build 3 Base)",
@@ -13,18 +25,6 @@
       "sha256": "00b161de5e9d48ccdd6672fc75525564bf71976b4771ac364add29a8d5694b65",
       "sizeBytes": 611752,
       "notes": "Based on user-confirmed working MedTrack Build 3. Small home-screen widget now shows up to 4 daily medicines, Taken in green, pending outlined blue, Skipped orange. For >4, shows last four in schedule order. Compact four-row layout removes only small-widget action buttons to keep text readable; medium/large retain iOS 17+ actions. Medication archive, reminders, history and routine learning preserved. Standard original Build 3 ad-hoc signing."
-    },
-    {
-      "id": "medtrack-1.2.4-b7-test",
-      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
-      "fileName": "MedTrack-1.2.4-b7.ipa",
-      "type": "ipa",
-      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
-      "version": "1.2.4 (7)",
-      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
-      "sha256": "d83998a12ba3435c94f745fc98cbaffcfff4d1b86bc4567fd9b0e7186bc87996",
-      "sizeBytes": 596525,
-      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
     },
     {
       "id": "medtrack-1.2.3-b6-test",
