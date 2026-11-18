@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T20:47:30Z",
+  "updatedAt": "2026-11-18T08:01:52Z",
   "files": [
+    {
+      "id": "medtrack-1.2.1-b4-test",
+      "name": "MedTrack 1.2.1 — Read-only Widget Reliability Fix",
+      "fileName": "MedTrack-1.2.1-b4.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.1 (4)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.1/MedTrack-1.2.1-b4.ipa",
+      "sha256": "665a312e0f6fe96f07c09b01f1cb995da0aa6dc5373ff5a8d5c58bf0c864e328",
+      "sizeBytes": 590970,
+      "notes": "Read-only WidgetKit extension for iOS 16+, removes AppIntents and interactive controls entirely; displays 2 medicines in Small or up to 4 in Medium/Large with a fallback even without App Group data. Tap widget to open MedTrack and mark doses. Preserves Archive/Restore/Delete and routine-learning features. Ad-hoc signed test IPA; not standard iOS signing."
+    },
     {
       "id": "medtrack-1.2.0-b3-test",
       "name": "MedTrack 1.2.0 — Widget Repair, Medication Archive & Routine Learning",
