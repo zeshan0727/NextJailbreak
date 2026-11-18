@@ -1,0 +1,236 @@
+name: MedTrack 1.3.1 Build 10 - Calendar Picker and CloudKit Crash Fix to NS Transfer
+
+on:
+  push:
+    branches: [medtrack-test-v1]
+    paths:
+      - ".github/workflows/medtrack-b10-calendar-cloud-crash.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: medtrack-b10-calendar-cloud-crash-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-publish:
+    runs-on: macos-15-intel
+    timeout-minutes: 35
+    env:
+      APP_NAME: MedTrack
+      FILE_NAME: MedTrack-1.3.1-b10.ipa
+      BUNDLE_ID: com.nextsolution.medtrack
+      VERSION: "1.3.1"
+      BUILD: "10"
+      # Intel hosted runner avoids the standard macOS ARM allocation pool.
+    steps:
+      - name: Check out MedTrack test source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Restore original Xcode project from verified source payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s MedTrackFirstTest/medtrack-source.tar.gz.b64
+          base64 -D -i MedTrackFirstTest/medtrack-source.tar.gz.b64 -o "$RUNNER_TEMP/medtrack-source.tar.gz"
+          tar -tzf "$RUNNER_TEMP/medtrack-source.tar.gz" | grep -q 'MedTrack/MedTrackApp.swift'
+          mkdir -p MedTrackFirstTest
+          tar -xzf "$RUNNER_TEMP/medtrack-source.tar.gz" -C MedTrackFirstTest
+          # Fix missing comma separators in the original PBX project. The tarball
+          # contains the .pbxproj but not the optional project generator.
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          project = Path("MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj")
+          source = project.read_text()
+          for key in ("buildPhases", "dependencies", "buildConfigurations"):
+              expression = re.compile(r"(" + key + r"\s*=\s*\()([^)]*)(\))")
+              def fix_array(match):
+                  members = re.sub(r"(?<=\*/)\s+(?=[A-F0-9]{24}\s*/\*)", ", ", match.group(2))
+                  return match.group(1) + members + match.group(3)
+              source = expression.sub(fix_array, source)
+          source = source.replace('DEBUG_INFORMATION_FORMAT = "\\"dwarf-with-dsym\\"";',
+                                  'DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";')
+          project.write_text(source)
+          if not re.search(r'buildConfigurations = \([A-F0-9]{24} /\* Debug \*/, [A-F0-9]{24} /\* Release \*/\)', source):
+              raise SystemExit("Failed to repair project configuration arrays")
+          PY
+          plutil -lint MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          test -s MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          test -s MedTrackFirstTest/MedTrack/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+          echo "Restored complete MedTrack app, widget, project and tests."
+          # Apply incremental Build 3 source update over the verified Build 2 archive.
+          test -s MedTrackFirstTest/medtrack-v120.patch.gz.b64
+          base64 -D -i MedTrackFirstTest/medtrack-v120.patch.gz.b64 -o "$RUNNER_TEMP/medtrack-v120.patch.gz"
+          gunzip -c "$RUNNER_TEMP/medtrack-v120.patch.gz" | patch --batch --fuzz=0 -p0 -d MedTrackFirstTest
+          # Targeted regression fix on confirmed-working Build 3 widget.
+          # Keep WidgetKit target, App Group, signing and all current app logic unchanged.
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('MedTrackFirstTest/MedTrackWidget/MedTrackWidget.swift')
+          source=p.read_text()
+          changes={
+              'Array(entry.summary.upcoming.prefix(family == .systemSmall ? 2 : 4))':
+                  'Array(entry.summary.upcoming.suffix(4))',
+              'VStack(alignment: .leading, spacing: family == .systemSmall ? 7 : 6)':
+                  'VStack(alignment: .leading, spacing: family == .systemSmall ? 3 : 6)',
+              '.padding(family == .systemSmall ? 9 : 12)':
+                  '.padding(family == .systemSmall ? 7 : 12)',
+              'if dose.status == nil, entry.isSynced, let id = dose.medicationID {':
+                  'if family != .systemSmall, dose.status == nil, entry.isSynced, let id = dose.medicationID {',
+              '.frame(minHeight: family == .systemSmall ? 22 : 24)':
+                  '.frame(minHeight: family == .systemSmall ? 20 : 24)',
+              '.description("Show up to four scheduled medicines. Interactive actions on iOS 17+.")':
+                  '.description("Show up to four daily medicines, Taken and pending. Actions on medium/large iOS 17+ widgets.")'
+          }
+          for old,new in changes.items():
+              if source.count(old) != 1:
+                  raise SystemExit('Unexpected widget source change: '+old)
+              source=source.replace(old,new)
+          p.write_text(source)
+          assert 'suffix(4)' in p.read_text()
+          assert 'if family != .systemSmall, dose.status == nil' in p.read_text()
+          generator=Path('MedTrackFirstTest/generate_project.py')
+          gen=generator.read_text()
+          assert gen.count("'CURRENT_PROJECT_VERSION':'3'") == 1
+          assert gen.count("'MARKETING_VERSION':'1.2.0'") == 1
+          gen=gen.replace("'CURRENT_PROJECT_VERSION':'3'", "'CURRENT_PROJECT_VERSION':'8'")
+          gen=gen.replace("'MARKETING_VERSION':'1.2.0'", "'MARKETING_VERSION':'1.2.5'")
+          generator.write_text(gen)
+          PY
+          # Build 9 source update relative to the confirmed-working Build 8 project.
+          shasum -a 256 MedTrackFirstTest/MedTrackWidget/MedTrackWidget.swift > "$RUNNER_TEMP/build8-widget.sha256"
+          test -s MedTrackFirstTest/medtrack-b9-health-cloudkit.patch.gz.b64
+          base64 -D -i MedTrackFirstTest/medtrack-b9-health-cloudkit.patch.gz.b64 -o "$RUNNER_TEMP/medtrack-b9.diff.gz"
+          gzip -dc "$RUNNER_TEMP/medtrack-b9.diff.gz" | patch --batch --fuzz=0 -p1 -d MedTrackFirstTest
+          test -s MedTrackFirstTest/MedTrack/CloudBackup.swift
+          test -s MedTrackFirstTest/MedTrack/BackupView.swift
+          shasum -a 256 -c "$RUNNER_TEMP/build8-widget.sha256"
+          # Apply focused Build 10 corrections over the unchanged Build 9 app.
+          test -s MedTrackFirstTest/medtrack-b10-calendar-cloud-crash.patch.gz.b64
+          base64 -D -i MedTrackFirstTest/medtrack-b10-calendar-cloud-crash.patch.gz.b64 -o "$RUNNER_TEMP/medtrack-b10.diff.gz"
+          gzip -dc "$RUNNER_TEMP/medtrack-b10.diff.gz" | patch --batch --fuzz=0 -p1 -d MedTrackFirstTest
+          # Continue verifying the known-good Build 8 widget was not modified.
+          shasum -a 256 -c "$RUNNER_TEMP/build8-widget.sha256"
+          # Generate a 1.3.1 (10) Xcode target; the Build 10 patch only
+          # changes UI and CloudKit guards, not the existing Core Data database.
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("MedTrackFirstTest/generate_project.py")
+          source=p.read_text()
+          assert source.count("'CURRENT_PROJECT_VERSION':'9'")==1
+          assert source.count("'MARKETING_VERSION':'1.3.0'")==1
+          p.write_text(source.replace("'CURRENT_PROJECT_VERSION':'9'", "'CURRENT_PROJECT_VERSION':'10'")
+                             .replace("'MARKETING_VERSION':'1.3.0'", "'MARKETING_VERSION':'1.3.1'"))
+          assert '<key>MedTrackCloudKitEnabled</key><false/>' in Path("MedTrackFirstTest/MedTrack/Info.plist").read_text()
+          assert 'showingCalendar = true' in Path("MedTrackFirstTest/MedTrack/TodayView.swift").read_text()
+          assert 'guard isConfigured else' in Path("MedTrackFirstTest/MedTrack/CloudBackup.swift").read_text()
+          PY
+          python3 MedTrackFirstTest/generate_project.py
+          plutil -lint MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          grep -q "1.3.1" MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          echo "Build 10: calendar picker and CloudKit entitlement guard applied; original working widget preserved."
+
+      - name: Compile device build with Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          xcodebuild -project MedTrackFirstTest/MedTrack.xcodeproj \
+            -scheme MedTrack -configuration Release -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath "$RUNNER_TEMP/medtrack-derived" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" clean build | tee "$RUNNER_TEMP/medtrack-xcodebuild.log"
+          APP="$RUNNER_TEMP/medtrack-derived/Build/Products/Release-iphoneos/MedTrack.app"
+          test -s "$APP/MedTrack"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = "$BUNDLE_ID"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = "$VERSION"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = "$BUILD"
+          test -d "$APP/PlugIns/MedTrackWidget.appex"
+          EXT="$APP/PlugIns/MedTrackWidget.appex"
+          test -s "$EXT/MedTrackWidget"
+          /usr/libexec/PlistBuddy -c 'Print :NSExtension:NSExtensionPointIdentifier' "$EXT/Info.plist" | grep -qx 'com.apple.widgetkit-extension'
+
+      - name: Package ad-hoc-signed IPA for TrollStore test devices
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/medtrack-derived/Build/Products/Release-iphoneos/MedTrack.app"
+          EXT="$APP/PlugIns/MedTrackWidget.appex"
+          codesign --force --sign - --timestamp=none --entitlements MedTrackFirstTest/MedTrackWidget/MedTrackWidget.entitlements "$EXT"
+          codesign --force --sign - --timestamp=none --entitlements MedTrackFirstTest/MedTrack/MedTrack.entitlements "$APP"
+          codesign --verify --verbose=2 "$APP"
+          codesign --verify --verbose=2 "$EXT"
+          mkdir -p "$RUNNER_TEMP/medtrack-package/Payload"
+          ditto "$APP" "$RUNNER_TEMP/medtrack-package/Payload/MedTrack.app"
+          ( cd "$RUNNER_TEMP/medtrack-package" && zip -qry "$RUNNER_TEMP/$FILE_NAME" Payload )
+          unzip -tqq "$RUNNER_TEMP/$FILE_NAME"
+          shasum -a 256 "$RUNNER_TEMP/$FILE_NAME" | awk '{print $1}' > "$RUNNER_TEMP/$FILE_NAME.sha256"
+          echo "Compiled, ad-hoc signed, and zip verified (TrollStore/jailbroken test only)." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain IPA artifact and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: MedTrack-1.3.1-b10-IPA
+          path: |
+            /Users/runner/work/_temp/MedTrack-1.3.1-b10.ipa
+            /Users/runner/work/_temp/MedTrack-1.3.1-b10.ipa.sha256
+          if-no-files-found: error
+
+      - name: Publish successful IPA to NS Transfer on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="transfer/files/MedTrack/1.3.1"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            SITE="$RUNNER_TEMP/medtrack-site"
+            if [ -e "$SITE" ]; then git worktree remove --force "$SITE" || true; fi
+            git worktree add --detach "$SITE" origin/main
+            mkdir -p "$SITE/$DEST"
+            cp "$RUNNER_TEMP/$FILE_NAME" "$SITE/$DEST/$FILE_NAME"
+            cd "$SITE"
+            export FILE_NAME DEST
+            python3 - <<'PY'
+          import json,os,hashlib
+          from datetime import datetime,timezone
+          from pathlib import Path
+          p=Path('transfer/index.json')
+          d=json.loads(p.read_text())
+          f=Path(os.environ['DEST'])/os.environ['FILE_NAME']
+          blob=f.read_bytes()
+          entry={
+            'id':'medtrack-1.3.1-b10-test',
+            'name':'MedTrack 1.3.1 — Calendar Picker and iCloud Crash Fix',
+            'fileName':os.environ['FILE_NAME'],
+            'type':'ipa',
+            'platform':'iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)',
+            'version':'1.3.1 (10)',
+            'url':'https://nextjailbreak.com/'+os.environ['DEST']+'/'+os.environ['FILE_NAME'],
+            'sha256':hashlib.sha256(blob).hexdigest(),
+            'sizeBytes':len(blob),
+            'notes':'Fixes top-right calendar icon to open graphical date picker with Select/Cancel actions; prevents crash from CKContainer.default() on iOS 16 test builds lacking CloudKit entitlement, using MedTrackCloudKitEnabled=false and disabled cloud controls until properly signed. Keeps local JSON backups, full Health-style log, all current reminders and original confirmed-working Build 8 widget. Install in-place without deleting data.'
+          }
+          d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
+          d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n')
+          PY
+            python3 -m json.tool transfer/index.json >/dev/null
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -f "$DEST/$FILE_NAME" transfer/index.json
+            git commit -m "Publish MedTrack 1.3.1 Build 10 calendar date picker and CloudKit crash fix"
+            if git push origin HEAD:main; then
+              echo "Published MedTrack on NS Transfer" >> "$GITHUB_STEP_SUMMARY"
+              echo "https://nextjailbreak.com/$DEST/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            cd "$GITHUB_WORKSPACE"
+            git worktree remove --force "$SITE" || true
+          done
+          exit 1
