@@ -1685,6 +1685,20 @@
         "sha256": "ff452150765829fed294502bbf852a2ddbeaccc257184194cc91d4df5c46e7eb"
       },
       "screenshots": []
+    },
+    "guide.ios.beta-removal": {
+      "credit_label": "Apple Support — official About-screen example from Find the software version on your iPhone, iPad or iPod touch",
+      "source_page_url": "https://support.apple.com/en-gb/109065",
+      "official_source": true,
+      "hero": {
+        "url": "https://cdsassets.apple.com/live/7WUAS350/images/ios/locale/en-gb/ios-27-iphone-17-pro-settings-general-about-software-version.png",
+        "alt": "Apple Support About screen showing iOS Version 27.0.1, iPhone 17 Pro model name and model number field",
+        "local_path": "assets/articles/source-media/apple-ios-27-about-software-version.png",
+        "git_blob_sha": "b516d4c43d13ff3eaee5434e3a880adc1a0eeeb1",
+        "sha256": "a391edd5a028641b2900374ec22527537f0521c0ada1e29e4e8dcfde5c90733d"
+      },
+      "screenshots": [],
+      "retrieval_note": "Reused the exact official 760×688 Apple Support PNG already retrieved and inspected for the device/build compatibility guide. In this guide it demonstrates the preflight version and model check; it is not evidence that the pictured firmware is jailbreakable."
     }
   },
   "updated_at": "2026-11-12"
