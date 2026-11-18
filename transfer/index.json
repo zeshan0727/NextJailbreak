@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T09:13:46Z",
+  "updatedAt": "2026-11-18T09:40:10Z",
   "files": [
+    {
+      "id": "medtrack-1.2.4-b7-test",
+      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
+      "fileName": "MedTrack-1.2.4-b7.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.4 (7)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
+      "sha256": "d83998a12ba3435c94f745fc98cbaffcfff4d1b86bc4567fd9b0e7186bc87996",
+      "sizeBytes": 596525,
+      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
+    },
     {
       "id": "medtrack-1.2.3-b6-test",
       "name": "MedTrack 1.2.3 — Original Build 1 Widget Restored",
