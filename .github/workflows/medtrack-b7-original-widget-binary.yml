@@ -90,8 +90,9 @@ jobs:
           codesign --verify --verbose=2 "$APP"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = "$BUILD"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$EXT/Info.plist")" = "$BUILD"
-          echo "ca0da72fd26c807f130a8eab1b766526e646ad5e71d1495c60310dc0ece99aee  $EXT/MedTrackWidget" | shasum -a 256 -c -
-          echo "Original widget executable preserved; nested and host signatures valid." >> "$GITHUB_STEP_SUMMARY"
+          # Resigning necessarily modifies the Mach-O embedded signature bytes.
+          # The exact original executable SHA256 was already checked before signing.
+          echo "Original compiled widget restored and both signatures valid." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Package the Build 7 IPA
         shell: bash
