@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T08:01:52Z",
+  "updatedAt": "2026-11-18T08:41:16Z",
   "files": [
+    {
+      "id": "medtrack-1.2.2-b5-test",
+      "name": "MedTrack 1.2.2 — Widget Extension Signing & Diagnostics Test",
+      "fileName": "MedTrack-1.2.2-b5.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.2 (5)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.2/MedTrack-1.2.2-b5.ipa",
+      "sha256": "7cc4603d34a7e85ac328dc2cc75f1e68dc9078af9f6a20168e65b0147ea868fb",
+      "sizeBytes": 637961,
+      "notes": "WidgetKit diagnostic update for iOS 16+. Widget-only container-required sandbox entitlement for TrollStore test signing, prevent widget executable dead-stripping, verify embedded binary and entitlements. In-app More > Widget diagnostics tests extension presence, App Group snapshot, and WidgetKit instances. No direct widget actions; tap to open. Archive and routine learning retained."
+    },
     {
       "id": "medtrack-1.2.1-b4-test",
       "name": "MedTrack 1.2.1 — Read-only Widget Reliability Fix",
