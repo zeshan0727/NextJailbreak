@@ -1,4 +1,4 @@
-name: MedTrack 1.2.0 Build 3 - IPA to NS Transfer
+name: MedTrack 1.2.1 Build 4 - Static Widgets to NS Transfer
 
 on:
   push:
@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 35
     env:
       APP_NAME: MedTrack
-      FILE_NAME: MedTrack-1.2.0-b3.ipa
+      FILE_NAME: MedTrack-1.2.1-b4.ipa
       BUNDLE_ID: com.nextsolution.medtrack
-      VERSION: "1.2.0"
-      BUILD: "3"
+      VERSION: "1.2.1"
+      BUILD: "4"
       # Intel hosted runner avoids the standard macOS ARM allocation pool.
     steps:
       - name: Check out MedTrack test source
@@ -68,10 +68,25 @@ jobs:
           test -s MedTrackFirstTest/medtrack-v120.patch.gz.b64
           base64 -D -i MedTrackFirstTest/medtrack-v120.patch.gz.b64 -o "$RUNNER_TEMP/medtrack-v120.patch.gz"
           gunzip -c "$RUNNER_TEMP/medtrack-v120.patch.gz" | patch --batch --fuzz=0 -p0 -d MedTrackFirstTest
+          # Replace the widget with a minimal iOS 16+ read-only implementation.
+          # No AppIntents, interactive buttons, or extension-side notification access.
+          test -s MedTrackFirstTest/WidgetBuild4/MedTrackWidget.swift
+          cp MedTrackFirstTest/WidgetBuild4/MedTrackWidget.swift MedTrackFirstTest/MedTrackWidget/MedTrackWidget.swift
+          ! grep -q 'import AppIntents' MedTrackFirstTest/MedTrackWidget/MedTrackWidget.swift
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("MedTrackFirstTest/generate_project.py")
+          s = p.read_text()
+          assert "'CURRENT_PROJECT_VERSION':'3'" in s
+          assert "'MARKETING_VERSION':'1.2.0'" in s
+          s = s.replace("'CURRENT_PROJECT_VERSION':'3'", "'CURRENT_PROJECT_VERSION':'4'")
+          s = s.replace("'MARKETING_VERSION':'1.2.0'", "'MARKETING_VERSION':'1.2.1'")
+          p.write_text(s)
+          PY
           python3 MedTrackFirstTest/generate_project.py
           plutil -lint MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
-          grep -q "1.2.0" MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
-          echo "Build 3 sources applied: Archive, Widget fix, Routine insights."
+          grep -q "1.2.1" MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          echo "Build 4: static widget, medication archive and routine insights preserved."
 
       - name: Compile device build with Xcode
         shell: bash
@@ -111,17 +126,17 @@ jobs:
       - name: Retain IPA artifact and checksum
         uses: actions/upload-artifact@v4
         with:
-          name: MedTrack-1.2.0-b3-IPA
+          name: MedTrack-1.2.1-b4-IPA
           path: |
-            /Users/runner/work/_temp/MedTrack-1.2.0-b3.ipa
-            /Users/runner/work/_temp/MedTrack-1.2.0-b3.ipa.sha256
+            /Users/runner/work/_temp/MedTrack-1.2.1-b4.ipa
+            /Users/runner/work/_temp/MedTrack-1.2.1-b4.ipa.sha256
           if-no-files-found: error
 
       - name: Publish successful IPA to NS Transfer on main
         shell: bash
         run: |
           set -euo pipefail
-          DEST="transfer/files/MedTrack/1.2.0"
+          DEST="transfer/files/MedTrack/1.2.1"
           for ATTEMPT in 1 2 3; do
             git fetch origin main
             SITE="$RUNNER_TEMP/medtrack-site"
@@ -140,16 +155,16 @@ jobs:
           f=Path(os.environ['DEST'])/os.environ['FILE_NAME']
           blob=f.read_bytes()
           entry={
-            'id':'medtrack-1.2.0-b3-test',
-            'name':'MedTrack 1.2.0 — Widget Repair, Medication Archive & Routine Learning',
+            'id':'medtrack-1.2.1-b4-test',
+            'name':'MedTrack 1.2.1 — Read-only Widget Reliability Fix',
             'fileName':os.environ['FILE_NAME'],
             'type':'ipa',
             'platform':'iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)',
-            'version':'1.2.0 (3)',
+            'version':'1.2.1 (4)',
             'url':'https://nextjailbreak.com/'+os.environ['DEST']+'/'+os.environ['FILE_NAME'],
             'sha256':hashlib.sha256(blob).hexdigest(),
             'sizeBytes':len(blob),
-            'notes':'Repaired widget with fallback data and four-medicine layout, Archive/Restore/Delete, local routine-learning suggestions after five consistent dose logs with user-approved reminder-time changes; retains dose history. iOS 17+ interactive widget actions and iOS 16 deep links. TrollStore test signature.'
+            'notes':'Read-only WidgetKit extension for iOS 16+, removes AppIntents and interactive controls entirely; displays 2 medicines in Small or up to 4 in Medium/Large with a fallback even without App Group data. Tap widget to open MedTrack and mark doses. Preserves Archive/Restore/Delete and routine-learning features. Ad-hoc signed test IPA; not standard iOS signing.'
           }
           d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
           d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -159,7 +174,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -f "$DEST/$FILE_NAME" transfer/index.json
-            git commit -m "Publish MedTrack 1.2.0 Build 3 IPA to NS Transfer"
+            git commit -m "Publish MedTrack 1.2.1 Build 4 IPA to NS Transfer"
             if git push origin HEAD:main; then
               echo "Published MedTrack on NS Transfer" >> "$GITHUB_STEP_SUMMARY"
               echo "https://nextjailbreak.com/$DEST/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
