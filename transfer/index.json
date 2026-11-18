@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T12:31:04Z",
+  "updatedAt": "2026-11-18T12:32:43Z",
   "files": [
+    {
+      "id": "medtrack-1.2.3-b6-test",
+      "name": "MedTrack 1.2.3 — Original Build 1 Widget Restored",
+      "fileName": "MedTrack-1.2.3-b6.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.3 (6)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.3/MedTrack-1.2.3-b6.ipa",
+      "sha256": "7d94cded5f1d4bb36a9eebd4a351bd52c2a6351a1d8c0e191a89f7c29e1f58ef",
+      "sizeBytes": 632093,
+      "notes": "Restores byte-for-byte original Build 1 WidgetKit interface and original standard ad-hoc widget signing with no private sandbox entitlement. iOS 16+ small 1, medium 2, large 5 medications. Retains all current reminders, Taken/Skip timestamps, archive and restore, routine-learning, and Widget Diagnostics. Installs over prior versions without clearing the local database."
+    },
     {
       "id": "medtrack-1.2.4-b7-test",
       "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
@@ -25,18 +37,6 @@
       "sha256": "00b161de5e9d48ccdd6672fc75525564bf71976b4771ac364add29a8d5694b65",
       "sizeBytes": 611752,
       "notes": "Based on user-confirmed working MedTrack Build 3. Small home-screen widget now shows up to 4 daily medicines, Taken in green, pending outlined blue, Skipped orange. For >4, shows last four in schedule order. Compact four-row layout removes only small-widget action buttons to keep text readable; medium/large retain iOS 17+ actions. Medication archive, reminders, history and routine learning preserved. Standard original Build 3 ad-hoc signing."
-    },
-    {
-      "id": "medtrack-1.2.3-b6-test",
-      "name": "MedTrack 1.2.3 — Original Build 1 Widget Restored",
-      "fileName": "MedTrack-1.2.3-b6.ipa",
-      "type": "ipa",
-      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
-      "version": "1.2.3 (6)",
-      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.3/MedTrack-1.2.3-b6.ipa",
-      "sha256": "7781767541d43bdf66354883ad56d94c8ff4504993e7dd0ce6708ff86e4c07b3",
-      "sizeBytes": 632093,
-      "notes": "Restores byte-for-byte original Build 1 WidgetKit interface and original standard ad-hoc widget signing with no private sandbox entitlement. iOS 16+ small 1, medium 2, large 5 medications. Retains all current reminders, Taken/Skip timestamps, archive and restore, routine-learning, and Widget Diagnostics. Installs over prior versions without clearing the local database."
     },
     {
       "id": "medtrack-1.2.2-b5-test",
