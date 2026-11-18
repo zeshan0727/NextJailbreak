@@ -1,0 +1,164 @@
+name: MedTrack 1.2.4 Build 7 - Proven Build 1 Widget Binary to NS Transfer
+
+on:
+  push:
+    branches: [medtrack-test-v1]
+    paths:
+      - "MedTrackFirstTest/**"
+      - ".github/workflows/medtrack-b7-original-widget-binary.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: medtrack-build7-original-widget-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-publish:
+    runs-on: macos-15-intel
+    timeout-minutes: 35
+    env:
+      APP_NAME: MedTrack
+      FILE_NAME: MedTrack-1.2.4-b7.ipa
+      BUNDLE_ID: com.nextsolution.medtrack
+      VERSION: "1.2.4"
+      BUILD: "7"
+      # Intel hosted runner avoids the standard macOS ARM allocation pool.
+    steps:
+      - name: Check out MedTrack test source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Fetch known working Build 1 and fully featured Build 6 IPAs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin main
+          git show origin/main:transfer/files/MedTrack/1.0.0/MedTrack-1.0.0-b1.ipa > "$RUNNER_TEMP/working-b1.ipa"
+          git show origin/main:transfer/files/MedTrack/1.2.3/MedTrack-1.2.4-b7.ipa > "$RUNNER_TEMP/latest-b6.ipa"
+          unzip -tqq "$RUNNER_TEMP/working-b1.ipa"
+          unzip -tqq "$RUNNER_TEMP/latest-b6.ipa"
+          mkdir -p "$RUNNER_TEMP/old-b1" "$RUNNER_TEMP/new-b7"
+          (cd "$RUNNER_TEMP/old-b1" && unzip -oq "$RUNNER_TEMP/working-b1.ipa")
+          (cd "$RUNNER_TEMP/new-b7" && unzip -oq "$RUNNER_TEMP/latest-b6.ipa")
+          echo "Known working Build 1 and current-feature Build 6 IPA verified."
+
+      - name: Restore exact compiled Build 1 WidgetKit program, retain newest app
+        shell: bash
+        run: |
+          set -euo pipefail
+          OLD_EXT="$RUNNER_TEMP/old-b1/Payload/MedTrack.app/PlugIns/MedTrackWidget.appex"
+          APP="$RUNNER_TEMP/new-b7/Payload/MedTrack.app"
+          EXT="$APP/PlugIns/MedTrackWidget.appex"
+          EXPECTED="ca0da72fd26c807f130a8eab1b766526e646ad5e71d1495c60310dc0ece99aee"
+          echo "$EXPECTED  $OLD_EXT/MedTrackWidget" | shasum -a 256 -c -
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = "$BUNDLE_ID"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$OLD_EXT/Info.plist")" = "$BUNDLE_ID.widget"
+          rm -rf "$EXT"
+          ditto "$OLD_EXT" "$EXT"
+          echo "$EXPECTED  $EXT/MedTrackWidget" | shasum -a 256 -c -
+          # Bump both versions to avoid mismatched host/extension metadata.
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" "$EXT/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$EXT/Info.plist"
+          echo "Build 1 compiled widget executable restored byte-for-byte" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Ad-hoc sign like Build 1 and verify nested widget executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/new-b7/Payload/MedTrack.app"
+          EXT="$APP/PlugIns/MedTrackWidget.appex"
+          OLD_EXT="$RUNNER_TEMP/old-b1/Payload/MedTrack.app/PlugIns/MedTrackWidget.appex"
+          codesign -d --entitlements :- "$OLD_EXT" > "$RUNNER_TEMP/b1-widget.entitlements" 2>/dev/null
+          codesign -d --entitlements :- "$APP" > "$RUNNER_TEMP/current-host.entitlements" 2>/dev/null
+          python3 - <<'PY'
+          import os,plistlib
+          from pathlib import Path
+          for name in ('b1-widget.entitlements','current-host.entitlements'):
+              ent=plistlib.loads((Path(os.environ['RUNNER_TEMP'])/name).read_bytes())
+              assert ent.get('com.apple.security.application-groups') == ['group.com.nextsolution.medtrack'], ent
+              assert 'com.apple.private.security.container-required' not in ent, ent
+          PY
+          codesign --force --sign - --timestamp=none --entitlements "$RUNNER_TEMP/b1-widget.entitlements" "$EXT"
+          codesign --force --sign - --timestamp=none --entitlements "$RUNNER_TEMP/current-host.entitlements" "$APP"
+          codesign --verify --verbose=2 "$EXT"
+          codesign --verify --verbose=2 "$APP"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = "$BUILD"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$EXT/Info.plist")" = "$BUILD"
+          echo "ca0da72fd26c807f130a8eab1b766526e646ad5e71d1495c60310dc0ece99aee  $EXT/MedTrackWidget" | shasum -a 256 -c -
+          echo "Original widget executable preserved; nested and host signatures valid." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Package the Build 7 IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          ( cd "$RUNNER_TEMP/new-b7" && zip -qry "$RUNNER_TEMP/$FILE_NAME" Payload )
+          unzip -tqq "$RUNNER_TEMP/$FILE_NAME"
+          shasum -a 256 "$RUNNER_TEMP/$FILE_NAME" | awk '{print $1}' > "$RUNNER_TEMP/$FILE_NAME.sha256"
+
+      - name: Retain IPA artifact and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: MedTrack-1.2.4-b7-original-widget
+          path: |
+            /Users/runner/work/_temp/MedTrack-1.2.4-b7.ipa
+            /Users/runner/work/_temp/MedTrack-1.2.4-b7.ipa.sha256
+          if-no-files-found: error
+
+      - name: Publish successful IPA to NS Transfer on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="transfer/files/MedTrack/1.2.4"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            SITE="$RUNNER_TEMP/medtrack-site"
+            if [ -e "$SITE" ]; then git worktree remove --force "$SITE" || true; fi
+            git worktree add --detach "$SITE" origin/main
+            mkdir -p "$SITE/$DEST"
+            cp "$RUNNER_TEMP/$FILE_NAME" "$SITE/$DEST/$FILE_NAME"
+            cd "$SITE"
+            export FILE_NAME DEST
+            python3 - <<'PY'
+          import json,os,hashlib
+          from datetime import datetime,timezone
+          from pathlib import Path
+          p=Path('transfer/index.json')
+          d=json.loads(p.read_text())
+          f=Path(os.environ['DEST'])/os.environ['FILE_NAME']
+          blob=f.read_bytes()
+          entry={
+            'id':'medtrack-1.2.4-b7-test',
+            'name':'MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features',
+            'fileName':os.environ['FILE_NAME'],
+            'type':'ipa',
+            'platform':'iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)',
+            'version':'1.2.4 (7)',
+            'url':'https://nextjailbreak.com/'+os.environ['DEST']+'/'+os.environ['FILE_NAME'],
+            'sha256':hashlib.sha256(blob).hexdigest(),
+            'sizeBytes':len(blob),
+            'notes':'Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required.'
+          }
+          d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
+          d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n')
+          PY
+            python3 -m json.tool transfer/index.json >/dev/null
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -f "$DEST/$FILE_NAME" transfer/index.json
+            git commit -m "Publish MedTrack 1.2.4 Build 7 exact working widget executable IPA"
+            if git push origin HEAD:main; then
+              echo "Published MedTrack on NS Transfer" >> "$GITHUB_STEP_SUMMARY"
+              echo "https://nextjailbreak.com/$DEST/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            cd "$GITHUB_WORKSPACE"
+            git worktree remove --force "$SITE" || true
+          done
+          exit 1
