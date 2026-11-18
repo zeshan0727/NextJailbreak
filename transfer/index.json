@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T09:40:10Z",
+  "updatedAt": "2026-11-18T11:46:10Z",
   "files": [
+    {
+      "id": "medtrack-1.2.5-b8-test",
+      "name": "MedTrack 1.2.5 — Four-Dose Small Widget (Working Build 3 Base)",
+      "fileName": "MedTrack-1.2.5-b8.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.5 (8)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.5/MedTrack-1.2.5-b8.ipa",
+      "sha256": "00b161de5e9d48ccdd6672fc75525564bf71976b4771ac364add29a8d5694b65",
+      "sizeBytes": 611752,
+      "notes": "Based on user-confirmed working MedTrack Build 3. Small home-screen widget now shows up to 4 daily medicines, Taken in green, pending outlined blue, Skipped orange. For >4, shows last four in schedule order. Compact four-row layout removes only small-widget action buttons to keep text readable; medium/large retain iOS 17+ actions. Medication archive, reminders, history and routine learning preserved. Standard original Build 3 ad-hoc signing."
+    },
     {
       "id": "medtrack-1.2.4-b7-test",
       "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
