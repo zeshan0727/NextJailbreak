@@ -1,4 +1,4 @@
-name: MedTrack 1.2.1 Build 4 - Static Widgets to NS Transfer
+name: MedTrack 1.2.2 Build 5 - Widget Extension Signing Diagnostics to NS Transfer
 
 on:
   push:
@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 35
     env:
       APP_NAME: MedTrack
-      FILE_NAME: MedTrack-1.2.1-b4.ipa
+      FILE_NAME: MedTrack-1.2.2-b5.ipa
       BUNDLE_ID: com.nextsolution.medtrack
-      VERSION: "1.2.1"
-      BUILD: "4"
+      VERSION: "1.2.2"
+      BUILD: "5"
       # Intel hosted runner avoids the standard macOS ARM allocation pool.
     steps:
       - name: Check out MedTrack test source
@@ -83,10 +83,15 @@ jobs:
           s = s.replace("'MARKETING_VERSION':'1.2.0'", "'MARKETING_VERSION':'1.2.1'")
           p.write_text(s)
           PY
+          # Build 5 adds in-app diagnostics and disables widget binary dead stripping.
+          test -s MedTrackFirstTest/medtrack-v122.patch.gz.b64
+          base64 -D -i MedTrackFirstTest/medtrack-v122.patch.gz.b64 -o "$RUNNER_TEMP/medtrack-v122.patch.gz.b64decoded"
+          gzip -dc "$RUNNER_TEMP/medtrack-v122.patch.gz.b64decoded" | patch --batch --fuzz=0 -p1 -d MedTrackFirstTest
+          test -s MedTrackFirstTest/MedTrack/WidgetDiagnosticsView.swift
           python3 MedTrackFirstTest/generate_project.py
           plutil -lint MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
-          grep -q "1.2.1" MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
-          echo "Build 4: static widget, medication archive and routine insights preserved."
+          grep -q "1.2.2" MedTrackFirstTest/MedTrack.xcodeproj/project.pbxproj
+          echo "Build 5: diagnostics, iOS 16 read-only widgets, archived medicines, routine insights."
 
       - name: Compile device build with Xcode
         shell: bash
@@ -105,6 +110,11 @@ jobs:
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = "$VERSION"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = "$BUILD"
           test -d "$APP/PlugIns/MedTrackWidget.appex"
+          EXT="$APP/PlugIns/MedTrackWidget.appex"
+          test -s "$EXT/MedTrackWidget"
+          /usr/libexec/PlistBuddy -c 'Print :NSExtension:NSExtensionPointIdentifier' "$EXT/Info.plist" | grep -qx 'com.apple.widgetkit-extension'
+          file "$EXT/MedTrackWidget"
+          echo "Verified that embedded widget extension binary and Info.plist exist." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Package ad-hoc-signed IPA for TrollStore test devices
         shell: bash
@@ -112,8 +122,27 @@ jobs:
           set -euo pipefail
           APP="$RUNNER_TEMP/medtrack-derived/Build/Products/Release-iphoneos/MedTrack.app"
           EXT="$APP/PlugIns/MedTrackWidget.appex"
-          codesign --force --sign - --timestamp=none --entitlements MedTrackFirstTest/MedTrackWidget/MedTrackWidget.entitlements "$EXT"
-          codesign --force --sign - --timestamp=none --entitlements MedTrackFirstTest/MedTrack/MedTrack.entitlements "$APP"
+          # TrollStore-oriented widget sandbox fix. Apply the private entitlement ONLY
+          # to the embedded extension in this ad-hoc TEST IPA, never to the host app
+          # or an App Store-provisioned build.
+          python3 - <<'PY'
+          import plistlib
+          from pathlib import Path
+          ent = plistlib.loads(Path('MedTrackFirstTest/MedTrackWidget/MedTrackWidget.entitlements').read_bytes())
+          ent['com.apple.private.security.container-required'] = 'com.nextsolution.medtrack.widget'
+          Path('/tmp/medtrack-widget-test.entitlements').write_bytes(plistlib.dumps(ent))
+          PY
+          codesign --force --sign - --timestamp=none --generate-entitlement-der --entitlements /tmp/medtrack-widget-test.entitlements "$EXT"
+          codesign -d --entitlements :- "$EXT" > "$RUNNER_TEMP/medtrack-widget-signed-entitlements.plist" 2>/dev/null
+          python3 - <<'PY'
+          import plistlib
+          from pathlib import Path
+          p=plistlib.loads((Path('/Users/runner/work/_temp')/'medtrack-widget-signed-entitlements.plist').read_bytes())
+          assert p['com.apple.private.security.container-required']=='com.nextsolution.medtrack.widget', p
+          assert 'group.com.nextsolution.medtrack' in p['com.apple.security.application-groups'],p
+          print('Widget-only sandbox entitlement and App Group verified in signed binary')
+          PY
+          codesign --force --sign - --timestamp=none --generate-entitlement-der --entitlements MedTrackFirstTest/MedTrack/MedTrack.entitlements "$APP"
           codesign --verify --verbose=2 "$APP"
           codesign --verify --verbose=2 "$EXT"
           mkdir -p "$RUNNER_TEMP/medtrack-package/Payload"
@@ -126,17 +155,17 @@ jobs:
       - name: Retain IPA artifact and checksum
         uses: actions/upload-artifact@v4
         with:
-          name: MedTrack-1.2.1-b4-IPA
+          name: MedTrack-1.2.2-b5-IPA
           path: |
-            /Users/runner/work/_temp/MedTrack-1.2.1-b4.ipa
-            /Users/runner/work/_temp/MedTrack-1.2.1-b4.ipa.sha256
+            /Users/runner/work/_temp/MedTrack-1.2.2-b5.ipa
+            /Users/runner/work/_temp/MedTrack-1.2.2-b5.ipa.sha256
           if-no-files-found: error
 
       - name: Publish successful IPA to NS Transfer on main
         shell: bash
         run: |
           set -euo pipefail
-          DEST="transfer/files/MedTrack/1.2.1"
+          DEST="transfer/files/MedTrack/1.2.2"
           for ATTEMPT in 1 2 3; do
             git fetch origin main
             SITE="$RUNNER_TEMP/medtrack-site"
@@ -155,16 +184,16 @@ jobs:
           f=Path(os.environ['DEST'])/os.environ['FILE_NAME']
           blob=f.read_bytes()
           entry={
-            'id':'medtrack-1.2.1-b4-test',
-            'name':'MedTrack 1.2.1 — Read-only Widget Reliability Fix',
+            'id':'medtrack-1.2.2-b5-test',
+            'name':'MedTrack 1.2.2 — Widget Extension Signing & Diagnostics Test',
             'fileName':os.environ['FILE_NAME'],
             'type':'ipa',
             'platform':'iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)',
-            'version':'1.2.1 (4)',
+            'version':'1.2.2 (5)',
             'url':'https://nextjailbreak.com/'+os.environ['DEST']+'/'+os.environ['FILE_NAME'],
             'sha256':hashlib.sha256(blob).hexdigest(),
             'sizeBytes':len(blob),
-            'notes':'Read-only WidgetKit extension for iOS 16+, removes AppIntents and interactive controls entirely; displays 2 medicines in Small or up to 4 in Medium/Large with a fallback even without App Group data. Tap widget to open MedTrack and mark doses. Preserves Archive/Restore/Delete and routine-learning features. Ad-hoc signed test IPA; not standard iOS signing.'
+            'notes':'WidgetKit diagnostic update for iOS 16+. Widget-only container-required sandbox entitlement for TrollStore test signing, prevent widget executable dead-stripping, verify embedded binary and entitlements. In-app More > Widget diagnostics tests extension presence, App Group snapshot, and WidgetKit instances. No direct widget actions; tap to open. Archive and routine learning retained.'
           }
           d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
           d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -174,7 +203,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -f "$DEST/$FILE_NAME" transfer/index.json
-            git commit -m "Publish MedTrack 1.2.1 Build 4 IPA to NS Transfer"
+            git commit -m "Publish MedTrack 1.2.2 Build 5 IPA to NS Transfer"
             if git push origin HEAD:main; then
               echo "Published MedTrack on NS Transfer" >> "$GITHUB_STEP_SUMMARY"
               echo "https://nextjailbreak.com/$DEST/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
