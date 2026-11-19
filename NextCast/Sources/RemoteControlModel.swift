@@ -128,8 +128,26 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
         brand = value
         address = UserDefaults.standard.string(forKey: savedHostKey + value.rawValue) ?? ""
         status = value == .cast ? "Use the Cast button to discover your Chromecast." :
-            "Enter your TV's local IP address and connect."
+            (value == .android && hasSavedAndroidTVPairing
+             ? "Saved Android TV pairing available · reconnect without a code."
+             : "Enter your TV's local IP address and connect.")
         UserDefaults.standard.set(value.rawValue, forKey: savedBrandKey)
+    }
+
+    /// Pairing approval is per TV address and uses the existing Keychain
+    /// certificate. The saved flag is not a password or PIN and survives
+    /// normal app updates with the original bundle identifier.
+    var hasSavedAndroidTVPairing: Bool {
+        guard brand == .android, let host = validatedHost(address) else { return false }
+        return UserDefaults.standard.bool(forKey: "nextcast.androidtv.paired." + host)
+    }
+
+    /// Reopen the remote without another pairing-code flow. Do not interrupt
+    /// an existing live connection or an in-flight authorization attempt.
+    func restoreSavedAndroidTVConnectionIfNeeded() {
+        guard hasSavedAndroidTVPairing,
+              !connected, !pairing, !androidPINRequired else { return }
+        connect()
     }
 
     private func validatedHost(_ text: String) -> String? {
@@ -220,7 +238,9 @@ final class RemoteControlModel: NSObject, ObservableObject, @preconcurrency URLS
                 self.status = message
                 self.alertText = message
             }
-            status = "Connecting Skyworth Android TV Remote v2…"
+            status = hasSavedAndroidTVPairing
+                ? "Restoring saved Android TV connection…"
+                : "Connecting Android TV Remote v2…"
             bridge.connect(host)
         } catch {
             pairing = false
