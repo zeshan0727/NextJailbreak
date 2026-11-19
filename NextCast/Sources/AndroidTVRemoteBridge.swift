@@ -105,17 +105,22 @@ final class AndroidTVRemoteBridge {
         guard !intentionallyDisconnected else { return }
         switch state {
         case .paired:
+            // A successful authenticated remote connection is also proof that
+            // the TV still trusts our Keychain client identity. Restore the
+            // saved flag even if an earlier version removed it on a network error.
+            UserDefaults.standard.set(true, forKey: "nextcast.androidtv.paired." + host)
             onConnected?(true)
-            onStatus?("Android TV remote paired · navigation enabled")
+            onStatus?("Android TV remote connected · saved pairing reused")
         case .error(let error):
             onConnected?(false)
-            // Some devices require pairing again after changing firmware,
-            // clearing TV Remote Service data, or changing certificates.
-            if !didRequestPairing {
-                UserDefaults.standard.removeObject(forKey: "nextcast.androidtv.paired." + host)
-                startPairing()
+            // A timeout, lost Wi-Fi connection, sleeping TV, or TLS transport
+            // error does NOT imply lost authorization. Never erase paired state
+            // and never launch code pairing automatically on remote failure.
+            // The user may explicitly choose Pair TV Again if the TV was reset.
+            if didRequestPairing {
+                onError?("Android TV connection failed after pairing: \(error). Retry connecting.")
             } else {
-                onError?("Android TV remote connection failed: \(error)")
+                onError?("Could not reconnect to Android TV: \(error). Your saved pairing is kept. Check the TV and Wi-Fi, then retry. Use Pair TV Again only if the TV forgot this iPhone.")
             }
         default: break
         }
