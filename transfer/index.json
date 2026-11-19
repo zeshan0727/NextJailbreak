@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T20:53:46Z",
+  "updatedAt": "2026-11-19T20:56:24Z",
   "files": [
+    {
+      "id": "medtrack-1.2.4-b7-test",
+      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
+      "fileName": "MedTrack-1.2.4-b7.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.4 (7)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
+      "sha256": "3b7eff7cadeee8bd0d4a2f3f9cc83f2bbc2f54d71664a70c41f167c75132992c",
+      "sizeBytes": 596525,
+      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
+    },
     {
       "id": "medtrack-1.2.3-b6-test",
       "name": "MedTrack 1.2.3 — Original Build 1 Widget Restored",
@@ -13,18 +25,6 @@
       "sha256": "4182015f7f9b6e15b2b4cf3e56c0e753cbdadefc1b936e06c7ebfec52ba7f7c0",
       "sizeBytes": 632093,
       "notes": "Restores byte-for-byte original Build 1 WidgetKit interface and original standard ad-hoc widget signing with no private sandbox entitlement. iOS 16+ small 1, medium 2, large 5 medications. Retains all current reminders, Taken/Skip timestamps, archive and restore, routine-learning, and Widget Diagnostics. Installs over prior versions without clearing the local database."
-    },
-    {
-      "id": "medtrack-1.2.4-b7-test",
-      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
-      "fileName": "MedTrack-1.2.4-b7.ipa",
-      "type": "ipa",
-      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
-      "version": "1.2.4 (7)",
-      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
-      "sha256": "c8ba9c6cf11b46a693c49c0d8d6328c0f05838de4c4f07c6c65ffe1c11d243ba",
-      "sizeBytes": 596525,
-      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
     },
     {
       "id": "next-motion-studio-0.1.0-b1",
