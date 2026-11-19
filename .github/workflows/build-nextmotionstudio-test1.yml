@@ -1,0 +1,172 @@
+name: NEXT Motion Studio — Build and Publish Test 1
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'NextMotionStudio/**'
+      - '!NextMotionStudio/build-output/**'
+      - '.github/workflows/build-nextmotionstudio-test1.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: next-motion-studio-test1
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      IPA: NEXTMotionStudio-0.1.0-b1.ipa
+      DEST: transfer/files/NEXTMotionStudio/0.1.0
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prepare Xcode and generate branded icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          if ! command -v xcodegen >/dev/null; then brew install xcodegen; fi
+          ICONS=NextMotionStudio/Assets.xcassets/AppIcon.appiconset
+          mkdir -p "$ICONS"
+          cat > "$RUNNER_TEMP/motion-icon.swift" <<'SWIFT'
+          import AppKit
+          import CoreGraphics
+          import Foundation
+          let target=CommandLine.arguments[1]
+          let image=NSImage(size:NSSize(width:1024,height:1024))
+          image.lockFocus()
+          let ctx=NSGraphicsContext.current!.cgContext
+          let colors=[CGColor(red:0.07,green:0.08,blue:0.23,alpha:1),CGColor(red:0.43,green:0.26,blue:0.89,alpha:1),CGColor(red:0.11,green:0.54,blue:0.87,alpha:1)] as CFArray
+          let grad=CGGradient(colorsSpace:CGColorSpaceCreateDeviceRGB(),colors:colors,locations:[0,0.5,1])!
+          ctx.drawLinearGradient(grad,start:CGPoint(x:0,y:0),end:CGPoint(x:1024,y:1024),options:[])
+          ctx.setFillColor(CGColor(red:1,green:1,blue:1,alpha:0.13))
+          ctx.addPath(CGPath(roundedRect:CGRect(x:164,y:164,width:696,height:696),cornerWidth:176,cornerHeight:176,transform:nil));ctx.fillPath()
+          ctx.setFillColor(CGColor(red:1,green:1,blue:1,alpha:0.97))
+          ctx.move(to:CGPoint(x:413,y:333));ctx.addLine(to:CGPoint(x:710,y:512));ctx.addLine(to:CGPoint(x:413,y:691));ctx.closePath();ctx.fillPath()
+          image.unlockFocus()
+          let rep=NSBitmapImageRep(data:image.tiffRepresentation!)!
+          try rep.representation(using:.png,properties:[:])!.write(to:URL(fileURLWithPath:target))
+          SWIFT
+          swift "$RUNNER_TEMP/motion-icon.swift" "$ICONS/AppIcon-1024.png"
+          cat > "$RUNNER_TEMP/motion-assets.py" <<'PY'
+          from pathlib import Path
+          import json,subprocess
+          root=Path('NextMotionStudio/Assets.xcassets')
+          (root/'Contents.json').write_text('{"info":{"author":"xcode","version":1}}')
+          folder=root/'AppIcon.appiconset'
+          specs=[('iphone',20,2),('iphone',20,3),('iphone',29,2),('iphone',29,3),('iphone',40,2),('iphone',40,3),('iphone',60,2),('iphone',60,3),('ipad',20,1),('ipad',20,2),('ipad',29,1),('ipad',29,2),('ipad',40,1),('ipad',40,2),('ipad',76,1),('ipad',76,2),('ipad',83.5,2)]
+          images=[]
+          for idiom,points,scale in specs:
+              size=int(points*scale)
+              name=f'{idiom}-{str(points).replace(".","_")}-{scale}x.png'
+              subprocess.run(['sips','-z',str(size),str(size),str(folder/'AppIcon-1024.png'),'--out',str(folder/name)],check=True,stdout=subprocess.DEVNULL)
+              images.append({'idiom':idiom,'size':f'{points}x{points}','scale':f'{scale}x','filename':name})
+          images.append({'idiom':'ios-marketing','size':'1024x1024','scale':'1x','filename':'AppIcon-1024.png'})
+          (folder/'Contents.json').write_text(json.dumps({'images':images,'info':{'author':'xcode','version':1}},indent=2))
+          PY
+          python3 "$RUNNER_TEMP/motion-assets.py"
+          (cd NextMotionStudio && xcodegen generate --spec project.yml)
+          test -s NextMotionStudio/NEXTMotionStudio.xcodeproj/project.pbxproj
+      - name: Compile real native iOS application
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! xcodebuild -project NextMotionStudio/NEXTMotionStudio.xcodeproj -scheme NEXTMotionStudio \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/motion-derived" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' \
+            clean build > "$RUNNER_TEMP/motion-build.log" 2>&1; then
+              grep -E -A 6 -B 2 'error:|BUILD FAILED' "$RUNNER_TEMP/motion-build.log" | tail -160 || true
+              tail -70 "$RUNNER_TEMP/motion-build.log"
+              exit 1
+          fi
+          APP="$RUNNER_TEMP/motion-derived/Build/Products/Release-iphoneos/NEXTMotionStudio.app"
+          test -s "$APP/NEXTMotionStudio"
+          echo "APP=$APP" >> "$GITHUB_ENV"
+          echo "Compiled iOS application with real executable." >> "$GITHUB_STEP_SUMMARY"
+      - name: Sign for TrollStore and validate IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          INFO="$APP/Info.plist"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$INFO")" = 'com.nextsolution.motionstudio'
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$INFO")" = '0.1.0'
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$INFO")" = '1'
+          test "$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' "$INFO")" = '16.0'
+          codesign --force --deep --sign - --timestamp=none "$APP"
+          codesign --verify --verbose=2 "$APP"
+          mkdir -p "$RUNNER_TEMP/motion-package/Payload" NextMotionStudio/build-output
+          ditto "$APP" "$RUNNER_TEMP/motion-package/Payload/NEXTMotionStudio.app"
+          (cd "$RUNNER_TEMP/motion-package" && zip -qry "$RUNNER_TEMP/$IPA" Payload)
+          unzip -tqq "$RUNNER_TEMP/$IPA"
+          python3 - "$RUNNER_TEMP/$IPA" <<'PY'
+          import sys,plistlib,zipfile
+          with zipfile.ZipFile(sys.argv[1]) as z:
+              assert z.testzip() is None
+              info=plistlib.loads(z.read('Payload/NEXTMotionStudio.app/Info.plist'))
+              assert info['CFBundleIdentifier']=='com.nextsolution.motionstudio'
+              assert info['CFBundleShortVersionString']=='0.1.0' and info['CFBundleVersion']=='1'
+              assert info['MinimumOSVersion']=='16.0'
+              exe='Payload/NEXTMotionStudio.app/NEXTMotionStudio'
+              assert exe in z.namelist() and z.getinfo(exe).file_size>10000
+          print('Verified compiled app IPA archive and metadata')
+          PY
+          cp "$RUNNER_TEMP/$IPA" NextMotionStudio/build-output/
+          shasum -a 256 "$RUNNER_TEMP/$IPA" | tee "NextMotionStudio/build-output/$IPA.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEXTMotionStudio-Test1-IPA
+          path: |
+            NextMotionStudio/build-output/NEXTMotionStudio-0.1.0-b1.ipa
+            NextMotionStudio/build-output/NEXTMotionStudio-0.1.0-b1.ipa.sha256
+          if-no-files-found: error
+      - name: Publish verified IPA to NS Transfer
+        shell: bash
+        run: |
+          set -euo pipefail
+          for ATTEMPT in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p "$DEST"
+            cp "$RUNNER_TEMP/$IPA" "$DEST/$IPA"
+            SHA=$(shasum -a 256 "$DEST/$IPA" | awk '{print $1}')
+            SIZE=$(stat -f%z "$DEST/$IPA")
+            export SHA SIZE
+            python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          from datetime import datetime,timezone
+          path=Path('transfer/index.json')
+          data=json.loads(path.read_text())
+          entry={
+              'id':'next-motion-studio-0.1.0-b1',
+              'name':'NEXT Motion Studio 0.1.0 — Video Editor and Converter Test 1',
+              'fileName':'NEXTMotionStudio-0.1.0-b1.ipa',
+              'type':'ipa',
+              'platform':'TrollStore / jailbroken iOS 16+ (ad-hoc signed; not standard Apple Distribution)',
+              'version':'0.1.0 (1)',
+              'url':'https://nextjailbreak.com/transfer/files/NEXTMotionStudio/0.1.0/NEXTMotionStudio-0.1.0-b1.ipa',
+              'sha256':os.environ['SHA'],
+              'sizeBytes':int(os.environ['SIZE']),
+              'notes':'SwiftUI editor and converter: Photos/Files import, trimming, MP4/MOV, H.264/HEVC presets, resolutions, export sharing, audio extraction. Compile verified; device testing pending.'
+          }
+          data['files']=[entry]+[x for x in data.get('files',[]) if x.get('id')!=entry['id']]
+          data['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          path.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n')
+          PY
+            python3 -m json.tool transfer/index.json >/dev/null
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -f "$DEST/$IPA" transfer/index.json
+            if ! git diff --cached --quiet; then
+              git commit -m 'Publish NEXT Motion Studio 0.1.0 Test 1 to NS Transfer'
+            fi
+            if git push origin HEAD:main; then
+              echo "NS Transfer: https://nextjailbreak.com/$DEST/$IPA" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          done
+          exit 1
