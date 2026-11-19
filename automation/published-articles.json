@@ -5411,35 +5411,6 @@
       "version": "1.1.0"
     },
     {
-      "additional_media": [],
-      "category": {
-        "id": "jailbreak-guide",
-        "label": "Jailbreak Guide"
-      },
-      "compat": "Existing Dopamine environment; use the matching TrollStore or non-TrollStore removal flow",
-      "description": "Remove the Dopamine jailbreak using its supported TrollStore or non-TrollStore flow while keeping normal apps, personal files and user data.",
-      "developer": "opa334",
-      "entry_type": "evergreen-guide",
-      "href": "remove-dopamine-jailbreak-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-      "media_credit": "Official Dopamine app icon from the 3.0.10 source tag",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-10-04T03:01:33Z",
-      "name": "Dopamine Jailbreak Removal",
-      "package": "guide.dopamine.remove-jailbreak",
-      "published_at": "2026-10-04T03:01:33Z",
-      "release": "2026-09-23",
-      "selection_pool": "official-project-evergreen",
-      "slug": "remove-dopamine-jailbreak-guide",
-      "source": "https://github.com/opa334/Dopamine/releases/tag/3.0.10",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.10/Application/Dopamine/UI/Settings/DOSettingsController.m",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-83.5%402x.png",
-      "title": "How to Remove Dopamine Jailbreak Safely Without Erasing Your iPhone",
-      "version": "3.0.10"
-    },
-    {
       "additional_media": [
         {
           "credit": "Official current lilywhite screenshot by tako3s",

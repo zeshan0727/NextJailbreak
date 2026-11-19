@@ -90,7 +90,7 @@ dpkg-query -L package.identifier</code></pre>
 
 <h2>When to restore the jailbreak environment</h2>
 <p>Stop manual repair if <code>dpkg --audit</code> reports widespread missing control data, core package tools are absent while the jailbreak is active, or every proposed fix removes the bootstrap. Use the jailbreak’s official remove or restore-environment function, then reinstall from its official source. Do not copy another device’s dpkg database or restore a damaged database over the clean environment.</p>
-<p>Dopamine users can follow the <a href="/remove-dopamine-jailbreak-guide/">safe environment-removal guide</a>. RootHide users should use the RootHide project’s own removal path rather than applying conventional <code>/var/jb</code> instructions.</p>
+<p>Dopamine users can follow the <a href="/remove-dopamine-3-jailbreak-safely-guide/">safe environment-removal guide</a>. RootHide users should use the RootHide project’s own removal path rather than applying conventional <code>/var/jb</code> instructions.</p>
 
 <h2>Frequently asked questions</h2><div class="faq-list">
 <details><summary>What is the difference between dpkg --audit and --verify?</summary><p>Audit checks the package database and incomplete install state. Verify compares installed files with stored package metadata when a checksum exists.</p></details>
