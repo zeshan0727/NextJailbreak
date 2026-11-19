@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T15:47:22Z",
+  "updatedAt": "2026-11-19T10:23:21Z",
   "files": [
+    {
+      "id": "nextcast-1.5.14",
+      "name": "NexaPlay 1.5.14 — iOS Media Hub, Chromecast and Downloads",
+      "fileName": "NextCast-1.5.14.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.14",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.5.14/NextCast-1.5.14.tipa",
+      "sha256": "1b2b6726d24af59cef121d86934738806371163c4d46b3945ef993b31d08d64d",
+      "sizeBytes": 28207367,
+      "notes": "NexaPlay with VLC, browser, converter, Chromecast and downloads. iOS 16 build verified; on-device testing required."
+    },
+    {
+      "id": "nextcast-1.5.14-ipa",
+      "name": "NexaPlay 1.5.14 — IPA (TrollStore)",
+      "fileName": "NextCast-1.5.14.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.14",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.5.14/NextCast-1.5.14.ipa",
+      "sha256": "1b2b6726d24af59cef121d86934738806371163c4d46b3945ef993b31d08d64d",
+      "sizeBytes": 28207367,
+      "notes": "Ad-hoc signed IPA for TrollStore. Not signed for standard iOS installation."
+    },
     {
       "id": "medtrack-1.3.1-b10-test",
       "name": "MedTrack 1.3.1 — Calendar Picker and iCloud Crash Fix",
