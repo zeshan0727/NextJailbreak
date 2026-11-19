@@ -1,6 +1,16 @@
 {
   "entries": [
     {
+      "action": "create",
+      "candidate_fingerprint": "comparison.infobar-1.4.0-powertrace-1.0.3b-2026-11-19",
+      "channel": "scheduled-tweak-comparison",
+      "href": "infobar-vs-powertrace-system-monitor-battery-hud-comparison/",
+      "package": "comparison.infobar-powertrace",
+      "published_at": "2026-11-19T12:02:10+03:00",
+      "run_id": "scheduled-2026-11-19T12:02:10+03:00",
+      "version": "InfoBar 1.4.0 / PowerTrace 1.0.3b"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -11463,5 +11473,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-19T06:00:26+03:00"
+  "updated_at": "2026-11-19T12:02:10+03:00"
 }
