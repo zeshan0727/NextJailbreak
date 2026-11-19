@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T20:56:24Z",
+  "updatedAt": "2026-11-19T20:58:37Z",
   "files": [
+    {
+      "id": "medtrack-1.3.2-b11-test",
+      "name": "MedTrack 1.3.2 — Custom Sounds & Original Airport / In-Flight Dings",
+      "fileName": "MedTrack-1.3.2-b11.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.3.2 (11)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.3.2/MedTrack-1.3.2-b11.ipa",
+      "sha256": "6144c7ccd04cc9d8660fab91b0f4e4069939fc5259b62dbf6a7007e1ee81e51f",
+      "sizeBytes": 1039220,
+      "notes": "Original built-in Airport Announcement Ding, In-Flight Ding, Soft Bell, Bright Alert, Calm Pulse; iPhone default and Silent. Custom sound picker in More, optional per-medication tone, play preview, import WAV/CAF/AIFF under 30 sec, and apply to initial, repeated, snoozed notifications. Original confirmed-working four-row Build 8 widget, calendar picker, Crash guard, archived records and local backup preserved. Install over previous version."
+    },
     {
       "id": "medtrack-1.2.4-b7-test",
       "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
