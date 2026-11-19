@@ -136,6 +136,8 @@ jobs:
           # The restored B10 source README differs slightly from the exported ZIP.
           # The README is the final patch section; keep every Swift/project/audio change.
           gzip -dc "$RUNNER_TEMP/medtrack-b11.patch.gz" | sed '/^--- a\/README\.md/,$d' | patch --batch --fuzz=0 -p1 -d MedTrackFirstTest
+          # Use standard-library-only synthesis on clean GitHub macOS runners.
+          cp MedTrackFirstTest/generate_notification_audio_stdlib.py MedTrackFirstTest/generate_notification_audio.py
           python3 MedTrackFirstTest/generate_notification_audio.py
           # Notification files must be physically present in the app bundle.
           for tone in airport_announcement inflight_ding soft_bell bright_alert calm_pulse; do
