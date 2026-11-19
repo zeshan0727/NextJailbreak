@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T15:54:03Z",
+  "updatedAt": "2026-11-19T20:51:39Z",
   "files": [
+    {
+      "id": "medtrack-1.2.4-b7-test",
+      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
+      "fileName": "MedTrack-1.2.4-b7.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.4 (7)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
+      "sha256": "c8ba9c6cf11b46a693c49c0d8d6328c0f05838de4c4f07c6c65ffe1c11d243ba",
+      "sizeBytes": 596525,
+      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
+    },
     {
       "id": "next-motion-studio-0.1.0-b1",
       "name": "NEXT Motion Studio 0.1.0 — Video Editor and Converter Test 1",
@@ -73,18 +85,6 @@
       "sha256": "8ec00b3fc1d61cf516dc85ed7cb3388599ea148858bf06cde91399fdc8caa620",
       "sizeBytes": 713068,
       "notes": "Fixes top-right calendar icon to open graphical date picker with Select/Cancel actions; prevents crash from CKContainer.default() on iOS 16 test builds lacking CloudKit entitlement, using MedTrackCloudKitEnabled=false and disabled cloud controls until properly signed. Keeps local JSON backups, full Health-style log, all current reminders and original confirmed-working Build 8 widget. Install in-place without deleting data."
-    },
-    {
-      "id": "medtrack-1.2.4-b7-test",
-      "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
-      "fileName": "MedTrack-1.2.4-b7.ipa",
-      "type": "ipa",
-      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
-      "version": "1.2.4 (7)",
-      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.4/MedTrack-1.2.4-b7.ipa",
-      "sha256": "75eabd4b116be299dd3de44c21cf9b145376631a3b3b96abaa4e0b3dac950fb9",
-      "sizeBytes": 596525,
-      "notes": "Contains byte-identical actual compiled widget executable from confirmed-working MedTrack 1.0.0 Build 1 (SHA256 checked), embedded within latest MedTrack 1.2.3 Build 6 app with Archive, Restore, reminder follow-ups, action timestamps and routine learning. Matching host/extension version 1.2.4 (7), original App Group and ad-hoc signing; on-device widget verification remains required."
     },
     {
       "id": "medtrack-1.2.3-b6-test",
