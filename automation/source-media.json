@@ -3,17 +3,19 @@
   "packages": {
     "org.xplo8e.liter8": {
       "credit_label": "Xplo8E — official Liter8 project repository",
-      "source_page_url": "https://github.com/Xplo8E/Liter8/commit/9bfe8fa51dea964be0122412f45abc60a0cbfa4a",
+      "source_page_url": "https://github.com/Xplo8E/Liter8/commit/8c8629e5497cfa0b469ee41d6085f54efc4e34c0",
       "official_source": true,
       "hero": {
-        "url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
-        "alt": "Official Liter8 project photo showing an iPhone 11 running Sileo beside a root SSH session on a Mac",
-        "local_path": "assets/articles/source-media/liter8-ios-27-3-beta1-official-iphone11-sileo.jpg",
-        "git_blob_sha": "03bf969e90df7e4101912f0d01b48254d0798107",
-        "sha256": "5d0cad626ec7f2889e7ad9d9c4eddcc0c772f2a746358f035b40bcce019d9f6f"
+        "url": "https://raw.githubusercontent.com/Xplo8E/Liter8/8c8629e5497cfa0b469ee41d6085f54efc4e34c0/docs/images/hero-light.png",
+        "alt": "Official Liter8 hero showing root SSH fastfetch, Sileo and TrollStore Lite on an iPhone 11 running iOS 27.2.1 build 24B156",
+        "local_path": "assets/articles/source-media/liter8-ios-27-2-1-official-hero.jpg",
+        "git_blob_sha": "a174a8b3074cffac090f8d6dea55793b9bde7680",
+        "sha256": "074cf7e72635863e52e2b2be2a3bc562246ee0e3c4490998b2fc638d08cf75fa",
+        "source_sha256": "3ce5204b72d1f18275c9c644698a629ff77ef5e93da86d6434e8ad2e60a806fe",
+        "optimization": "JPEG derivative of the official 2400×1380 PNG, quality 90, no crop or resize"
       },
       "screenshots": [],
-      "retrieval_note": "Retrieved from the exact Liter8 iOS 27.3 beta 1 merge commit. The official photo shows the project's earlier iPhone 11 iOS 27.0 Sileo and root SSH run; the article labels it as representative project evidence because no separate 27.3 interface screenshot is published."
+      "retrieval_note": "Retrieved from Liter8 commit 8c8629e and visually inspected. The official 2400×1380 PNG explicitly identifies iOS 27.2.1 build 24B156 and iPhone12,1, and shows root SSH, Sileo and TrollStore Lite. The committed JPEG is an uncropped, same-size quality-90 derivative."
     },
     "com.cysxl.atria": {
       "credit_label": "CySxL — official Atria 1.9.3 package repository",
