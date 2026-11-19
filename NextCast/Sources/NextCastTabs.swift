@@ -24,6 +24,125 @@ struct NextCastTabs: View {
         return nil
     }
 
+    // A dock is attached INSIDE each tab, rather than to TabView itself.
+    // On iOS 16, a safeAreaInset placed on TabView can push the actual tab
+    // bar below the visible screen, especially with the Cast overlay visible.
+    // Keeping the dock inside each tab reserves space ABOVE the native tab bar.
+    @ViewBuilder
+    private var castingDock: some View {
+        if cast.nowCastingMovie != nil || cast.nowCastingWebTitle != nil {
+            HStack(spacing: 9) {
+                if showMiniCastBar {
+                    HStack(spacing: 9) {
+                        Button {
+                            openCastControls()
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "tv.fill")
+                                    .foregroundStyle(NexaPalette.orange)
+                                    .font(.system(size: 19, weight: .semibold))
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(activeCastTitle)
+                                        .font(.caption.weight(.semibold))
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                    Text(cast.isPlaying ? "Playing on \(cast.tvName)" :
+                                         "Connected to \(cast.tvName)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                }
+                                Spacer(minLength: 3)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Open TV playback controls")
+
+                        Button {
+                            cast.togglePlay()
+                        } label: {
+                            Image(systemName: cast.isPlaying ? "pause.fill" : "play.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                                .frame(width: 37, height: 38)
+                        }
+                        .tint(NexaPalette.blue)
+                        .accessibilityLabel(cast.isPlaying ? "Pause casting" : "Resume casting")
+
+                        Button {
+                            withAnimation(.easeOut(duration: 0.18)) {
+                                showMiniCastBar = false
+                            }
+                        } label: {
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 16, weight: .semibold))
+                                .frame(width: 30, height: 38)
+                        }
+                        .tint(.secondary)
+                        .accessibilityLabel("Minimize TV player")
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .background(.regularMaterial,
+                                in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 17, style: .continuous)
+                        .strokeBorder(.secondary.opacity(0.13), lineWidth: 1))
+                } else {
+                    Spacer(minLength: 0)
+                    Button {
+                        withAnimation(.easeOut(duration: 0.18)) {
+                            showMiniCastBar = true
+                        }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "tv.fill")
+                                .foregroundStyle(NexaPalette.orange)
+                            Text("TV playing")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            Image(systemName: "chevron.up")
+                                .font(.caption2.weight(.bold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 14)
+                        .frame(height: 39)
+                        .background(.regularMaterial,
+                                    in: Capsule())
+                        .overlay(Capsule().strokeBorder(.secondary.opacity(0.13), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Expand TV mini-player")
+                    Button {
+                        tab = 3
+                    } label: {
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(NexaPalette.orange)
+                            .frame(width: 39, height: 39)
+                            .background(.regularMaterial, in: Circle())
+                    }
+                    .accessibilityLabel("Open Cast tab")
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
+            .frame(maxWidth: .infinity)
+            .background(Color.clear)
+        }
+    }
+
+    private var activeCastTitle: String {
+        cast.nowCastingMovie?.name ?? cast.nowCastingWebTitle ?? "TV media"
+    }
+
+    private func openCastControls() {
+        if cast.nowCastingMovie != nil {
+            showTVControls = true
+        } else {
+            tab = 3
+        }
+    }
+
     var body: some View {
         TabView(selection: $tab) {
             NexaHomeScreen(
@@ -37,88 +156,29 @@ struct NextCastTabs: View {
                 settings: { tab = 4 },
                 play: { movie in homeMovie = movie }
             )
+            .safeAreaInset(edge: .bottom, spacing: 0) { castingDock }
             .tabItem { Label("Home", systemImage: "house.fill") }.tag(0)
 
             MoviesTab(library: library, cast: cast, remote: remote)
+                .safeAreaInset(edge: .bottom, spacing: 0) { castingDock }
                 .tabItem { Label("Library", systemImage: "film.stack.fill") }.tag(1)
 
             BrowserTab(library: library, downloads: browserDownloads, cast: cast) {
                 showDownloads = true
             }
+            .safeAreaInset(edge: .bottom, spacing: 0) { castingDock }
             .tabItem { Label("Browser", systemImage: "globe") }.tag(2)
 
             NexaCastDashboard(cast: cast, remote: remote)
+                .safeAreaInset(edge: .bottom, spacing: 0) { castingDock }
                 .tabItem { Label("Cast", systemImage: "tv") }.tag(3)
 
             SettingsTab(library: library)
+                .safeAreaInset(edge: .bottom, spacing: 0) { castingDock }
                 .tabItem { Label("More", systemImage: "ellipsis.circle.fill") }.tag(4)
         }
         .tint(NexaPalette.orange)
         .preferredColorScheme(selectedColorScheme)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if let movie = cast.nowCastingMovie {
-                HStack(spacing: 10) {
-                    if showMiniCastBar {
-                        Button {
-                            showTVControls = true
-                        } label: {
-                            HStack(spacing: 9) {
-                                Image(systemName: "tv.fill").foregroundStyle(NexaPalette.orange)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(movie.name).lineLimit(1).font(.caption.bold())
-                                    Text(cast.castStatus).lineLimit(1).font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                }
-                                Spacer(minLength: 0)
-                                Image(systemName: "chevron.up")
-                            }
-                        }.buttonStyle(.plain)
-                        Button { cast.togglePlay() } label: {
-                            Image(systemName: cast.isPlaying ? "pause.fill" : "play.fill")
-                        }.accessibilityLabel(cast.isPlaying ? "Pause TV" : "Play TV")
-                        Button { showMiniCastBar = false } label: {
-                            Image(systemName: "eye.slash")
-                        }.accessibilityLabel("Hide mini player")
-                    } else {
-                        Spacer()
-                        Button {
-                            showMiniCastBar = true
-                            showTVControls = true
-                        } label: {
-                            Label("Show TV Player", systemImage: "tv.fill")
-                                .font(.caption.bold())
-                        }
-                        Spacer()
-                    }
-                }
-                .padding(.horizontal, 15).padding(.vertical, 11)
-                .background(.regularMaterial)
-            } else if let webTitle = cast.nowCastingWebTitle {
-                HStack(spacing: 12) {
-                    Button {
-                        tab = 2
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "tv.fill").foregroundStyle(NexaPalette.orange)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(webTitle).lineLimit(1).font(.caption.bold())
-                                Text(cast.castStatus).lineLimit(1).font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer(minLength: 3)
-                        }
-                    }.buttonStyle(.plain)
-                    Button { cast.togglePlay() } label: {
-                        Image(systemName: cast.isPlaying ? "pause.fill" : "play.fill")
-                    }.accessibilityLabel(cast.isPlaying ? "Pause TV" : "Play TV")
-                    Button { cast.stopRemotePlayback() } label: {
-                        Image(systemName: "stop.fill")
-                    }.accessibilityLabel("Stop web video on TV")
-                }
-                .padding(.horizontal, 15).padding(.vertical, 11)
-                .background(.regularMaterial)
-            }
-        }
         .sheet(isPresented: $showTVControls) {
             if let movie = cast.nowCastingMovie {
                 MoviePlayerScreen(movie: movie, cast: cast, library: library)
