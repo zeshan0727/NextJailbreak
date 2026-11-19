@@ -2,6 +2,10 @@
 <rss version="2.0">
   <channel>
     <item>
+<title>Solo 1.0.2 Fixes iOS 15 Crash and Atria Carousel Widgets</title><link>https://nextjailbreak.com/solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/</link><guid isPermaLink="true">https://nextjailbreak.com/solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/</guid><pubDate>Thu, 19 Nov 2026 15:00:53 GMT</pubDate><description>Solo 1.0.2 fixes an iOS 15 device-check crash and several Atria carousel-widget bugs, while adding experimental, untested iOS 14 and rootful iOS 15 support.</description><category>Individual Tweak Update</category>
+</item>
+
+    <item>
       <title>InfoBar 1.4.0 vs PowerTrace 1.0.3b: System Monitor or Battery HUD?</title>
       <link>https://nextjailbreak.com/infobar-vs-powertrace-system-monitor-battery-hud-comparison/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/infobar-vs-powertrace-system-monitor-battery-hud-comparison/</guid>
@@ -46,14 +50,7 @@
       <description>Erosion supports iOS 27.3 beta 1 (24C5037i), but worse_query is patched in beta 2 (24C5049d). Check exact iOS 26–27 limits and safe next steps.</description>
       <category>Current Jailbreak Development</category>
     </item>
-    <item>
-      <title>Solo 1.0.1 Fixes SpringBoard Hangs, Liquid Glass Safe Mode and Atria Layouts</title>
-      <link>https://nextjailbreak.com/solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/</guid>
-      <pubDate>Tue, 17 Nov 2026 15:04:25 GMT</pubDate>
-      <description>Solo 1.0.1 fixes medium-widget SpringBoard hangs, a Liquid (Gl)ass Safe Mode crash and Atria scaling. Check rootless iOS 15–26 support and recovery.</description>
-      <category>Individual Tweak Update</category>
-    </item>
+    
     <item>
       <title>Shadow 4.0 Source vs Choicy 1.5.4 vs vnodebypass 0.2.9: Which Fits?</title>
       <link>https://nextjailbreak.com/shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/</link>

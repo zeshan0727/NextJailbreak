@@ -1735,6 +1735,28 @@
         }
       ],
       "retrieval_note": "InfoBar image retrieved from the exact v1.4.0 tag. PowerTrace screenshot retrieved from the current Havoc package HTML __NEXT_DATA__ for version 1.0.3b. The existing PowerTrace banner used for social metadata was rechecked against Havoc and is byte-identical to the current official banner."
+    },
+    "com.oakstheawesome.solo": {
+      "credit_label": "OaksTheAwesome — official Solo package media from Havoc",
+      "source_page_url": "https://havoc.app/package/solo",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6af2b5ec2e43c13fc21b88be",
+        "alt": "Official Solo banner showing its iPhone Duo inspired Home Screen layout",
+        "local_path": "assets/articles/source-media/solo-1-0-2-official-banner.png",
+        "git_blob_sha": "059f6e6305b1bf010cfb450a6c39ed4e40bf256f",
+        "sha256": "7ea02ae940b94b42b513afbe34c79b89d63e5388c9582dfebe3d4ef74c4fd6a7"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6af2b5e52e43c13fc21b88b0",
+          "alt": "Official Solo Home Screen screenshot showing its carousel, media controls, weather, app grid and vertical dock",
+          "local_path": "assets/articles/source-media/solo-1-0-2-official-homescreen.png",
+          "git_blob_sha": "24758c9caa9442fe7d3d52250debbc8fa26f52e8",
+          "sha256": "1f2164924c90090fdd459cdcb1c1154a8bf8dd2f59c26ba516164f3394eaf66a"
+        }
+      ],
+      "retrieval_note": "Retrieved from current Havoc package HTML __NEXT_DATA__ on November 19, 2026, when Solo 1.0.2 was current. Both PNGs were visually inspected; the screenshot demonstrates the interface and is not evidence of compatibility on every device."
     }
   },
   "updated_at": "2026-11-19"

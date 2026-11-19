@@ -104,35 +104,43 @@
       "version": "0.3.1 official release / 0.3.2 build 1 source / iOS 27.3 beta 2 patch boundary at commit 2e118f4"
     },
     {
-      "action": "create",
-      "additional_media": [],
+      "action": "update",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/solo-1-0-2-official-homescreen.png",
+          "credit": "Official Solo Home Screen screenshot from Havoc",
+          "source_url": "https://media.havoc.app/6af2b5e52e43c13fc21b88b0"
+        }
+      ],
       "candidate_fingerprint": "tweak.solo-1.0.1-2026-11-17",
       "category": {
         "id": "individual-tweak-update",
         "label": "Individual Tweak Update"
       },
       "channel": "scheduled-individual-tweak-update",
-      "compat": "Official Havoc page declares iOS 15.0–26.0 on rootless jailbreaks. RootHide is explicitly not officially supported; no rootful, stock-iOS, TrollStore-only, regular sideload or iOS 27 path is documented. Tweak compatibility does not establish jailbreak availability for every device and firmware.",
-      "description": "Solo 1.0.1 fixes medium-widget SpringBoard hangs, a Liquid (Gl)ass Safe Mode crash and Atria scaling. Check rootless iOS 15–26 support and recovery.",
+      "compat": "Primary support is iOS 15–26 on rootless jailbreaks. Havoc metadata lists iOS 14.0–26.0.1 because 1.0.2 adds experimental, untested iOS 14 and rootful iOS 15 support. RootHide is explicitly unsupported. Package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "Solo 1.0.2 fixes an iOS 15 device-check crash and several Atria carousel-widget bugs, while adding experimental, untested iOS 14 and rootful iOS 15 support.",
       "developer": "OaksTheAwesome",
       "entry_type": "individual-tweak-update",
       "href": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
-      "media_retrieval_status": "Havoc package and changelog text were retrievable through search, but ordinary read-only page-source and __NEXT_DATA__ retrieval returned HTTP 403. No screenshot or banner could therefore be verified and no substitute image was embedded.",
-      "modified_at": "2026-11-17T18:04:25+03:00",
+      "media_retrieval_status": "Ordinary Havoc HTML retrieval succeeded. Current __NEXT_DATA__ supplied the official 1.0.2 banner and screenshot; the PNGs were inspected, hashed, embedded and committed.",
+      "modified_at": "2026-11-19T18:00:53+03:00",
       "name": "Solo",
       "package": "com.oakstheawesome.solo",
       "published_at": "2026-11-17T18:04:25+03:00",
       "quality_target": 9,
-      "release": "Solo 1.0.1 — November 17, 2026; initial Solo 1.0.0 release November 11, 2026",
+      "release": "Solo 1.0.2 — November 18, 2026 at 15:33:05 UTC",
       "route": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
       "selection_pool": "scheduled-individual-tweak-update",
       "slug": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes",
       "source_name": "Official Solo Havoc package page, Havoc version history and developer release post",
       "source_page_url": "https://havoc.app/package/solo",
       "source_url": "https://havoc.app/package/solo/changes",
-      "source_visual_origin": "retrieval-blocked-havoc-source-media",
-      "title": "Solo 1.0.1 Fixes SpringBoard Hangs, Liquid Glass Safe Mode and Atria Layouts",
-      "version": "1.0.1"
+      "source_visual_origin": "havoc-__NEXT_DATA__.content.banner-and-screenshot",
+      "title": "Solo 1.0.2 Fixes iOS 15 Crash and Atria Carousel Widgets",
+      "version": "1.0.2",
+      "previous_version": "1.0.1",
+      "image": "assets/articles/source-media/solo-1-0-2-official-banner.png"
     },
     {
       "additional_media": [
@@ -11473,5 +11481,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-19T12:02:10+03:00"
+  "updated_at": "2026-11-19T18:00:53+03:00"
 }
