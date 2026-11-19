@@ -109,7 +109,27 @@ struct RemoteTab: View {
             .sheet(isPresented: $remote.androidPINRequired) {
                 androidPairingSheet
             }
+            .onAppear {
+                // The model is a root @StateObject, so do not tear down an
+                // authenticated remote every time this sheet is reopened.
+                showSetup = !remote.connected && !remote.hasSavedAndroidTVPairing
+                remote.restoreSavedAndroidTVConnectionIfNeeded()
+            }
+            .onChange(of: remote.connected) { connected in
+                if connected { showSetup = false }
+            }
         }
+    }
+
+    private func selectTVBrand(_ brand: RemoteBrand) {
+        remote.select(brand)
+        // Respect the previously stored address. Cast discovery may report a
+        // different receiver or a stale IP and must not overwrite paired TV.
+        if remote.address.isEmpty, brand != .cast, !cast.tvIPAddress.isEmpty {
+            remote.address = cast.tvIPAddress
+        }
+        showSetup = !remote.connected && !remote.hasSavedAndroidTVPairing
+        remote.restoreSavedAndroidTVConnectionIfNeeded()
     }
 
     private var connectionPanel: some View {
@@ -136,11 +156,7 @@ struct RemoteTab: View {
                 HStack(spacing: 9) {
                     ForEach(RemoteBrand.allCases) { brand in
                         Button {
-                            remote.select(brand)
-                            if brand == .android, !cast.tvIPAddress.isEmpty {
-                                remote.address = cast.tvIPAddress
-                            }
-                            showSetup = true
+                            selectTVBrand(brand)
                         } label: {
                             HStack(spacing: 6) {
                                 Image(systemName: brand.symbol)
@@ -171,24 +187,16 @@ struct RemoteTab: View {
                     }
                     Menu {
                         Button("Skyworth / Android TV") {
-                            remote.select(.android)
-                            if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
-                            showSetup = true
+                            selectTVBrand(.android)
                         }
                         Button("Samsung Smart TV") {
-                            remote.select(.samsung)
-                            if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
-                            showSetup = true
+                            selectTVBrand(.samsung)
                         }
                         Button("LG webOS TV") {
-                            remote.select(.lg)
-                            if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
-                            showSetup = true
+                            selectTVBrand(.lg)
                         }
                         Button("Roku TV") {
-                            remote.select(.roku)
-                            if !cast.tvIPAddress.isEmpty { remote.address = cast.tvIPAddress }
-                            showSetup = true
+                            selectTVBrand(.roku)
                         }
                     } label: {
                         Label("Set Up TV Navigation Remote", systemImage: "appletvremote.gen4")
@@ -206,7 +214,7 @@ struct RemoteTab: View {
                     }
                 }
                 }
-            } else if showSetup || !remote.connected {
+            } else if showSetup || (!remote.connected && !remote.pairing) {
                 VStack(alignment: .leading, spacing: 9) {
                     HStack(spacing: 9) {
                         Image(systemName: "network")
@@ -237,11 +245,13 @@ struct RemoteTab: View {
                             .font(.footnote).foregroundStyle(.orange)
                     }
                     Text(remote.brand == .android
-                        ? "Skyworth Android TV: use the TV's IP address (Settings → Network). Android TV Remote Service must be available on the TV; approve pairing and enter its six-character code."
-                        : "Find the TV IP in its Network Settings. Some TVs require enabling mobile remote control.")
+                        ? (remote.hasSavedAndroidTVPairing
+                           ? "Saved pairing retained. Reconnect without a code; pair again only if the TV was reset."
+                           : "First connection requires the six-character code shown on TV.")
+                        : "Use your TV's local network address.")
                         .font(.caption).foregroundStyle(.secondary)
                     if remote.brand == .android && !remote.connected {
-                        Button("Pair Android TV Again") {
+                        Button("Pair TV Again (new code)") {
                             remote.retryAndroidTVPairing()
                         }
                         .font(.caption)
