@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T11:11:17Z",
+  "updatedAt": "2026-11-19T15:54:03Z",
   "files": [
+    {
+      "id": "next-motion-studio-0.1.0-b1",
+      "name": "NEXT Motion Studio 0.1.0 — Video Editor and Converter Test 1",
+      "fileName": "NEXTMotionStudio-0.1.0-b1.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / jailbroken iOS 16+ (ad-hoc signed; not standard Apple Distribution)",
+      "version": "0.1.0 (1)",
+      "url": "https://nextjailbreak.com/transfer/files/NEXTMotionStudio/0.1.0/NEXTMotionStudio-0.1.0-b1.ipa",
+      "sha256": "13fff48180c0a33731219e26a8e638c24fce84a4717744db20e407d61f26b8c3",
+      "sizeBytes": 612647,
+      "notes": "SwiftUI editor and converter: Photos/Files import, trimming, MP4/MOV, H.264/HEVC presets, resolutions, export sharing, audio extraction. Compile verified; device testing pending."
+    },
     {
       "id": "nextcast-1.5.15",
       "name": "NexaPlay 1.5.15 — iOS Media Hub, Chromecast and Downloads",
