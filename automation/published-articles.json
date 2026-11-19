@@ -1,6 +1,31 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Regram for Instagram 7.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "regram-for-instagram-7-1-update/",
+      "image": "assets/articles/source-media/regram-for-instagram-7-1-update-fc0c106b3c.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Regram-for-Instagram",
+      "modified_at": "2026-11-19T00:01:11+00:00",
+      "name": "Regram for Instagram",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-11-19T00:01:11+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/26a86a8147f4588081137cf6d19f98e4ae01d23fff05f15a2f3be3f41e613821/FouadRaheb/Regram-for-Instagram",
+      "title": "Regram for Instagram 7.1 adds Hidden Chats, playback controls and Instagram 455/456 support",
+      "version": "7.1"
+    },
+    {
       "action": "create",
       "additional_media": [],
       "candidate_fingerprint": "evergreen-guide.leave-ios-beta-jailbreak-options-apple-2026-11-18",
@@ -35,6 +60,40 @@
       "version": "Guide revision 2026-11-18 / Apple iOS-iPadOS beta removal guidance 2026-03-25"
     },
     {
+      "action": "update",
+      "additional_media": [],
+      "candidate_fingerprint": "jailbreak-development.erosion-ios27.3-beta2-worse-query-patched-2e118f4-2026-11-18",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Erosion 0.3.1 is the latest official IPA; 0.3.2 build 1 remains unreleased source. The current README supports iOS/iPadOS 27.3 beta 1 (24C5037i) and says worse_query is patched in beta 2 (24C5049d), making beta 2 and later unsupported unless a new exploit is released. iOS 26 support remains limited and excludes MobileGestalt writes.",
+      "description": "Erosion supports iOS 27.3 beta 1 (24C5037i), but worse_query is patched in beta 2 (24C5049d). Check exact iOS 26–27 limits and safe next steps.",
+      "developer": "jailbreakdotparty / Erosion team",
+      "entry_type": "jailbreak-development",
+      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
+      "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
+      "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
+      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
+      "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
+      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
+      "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
+      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "modified_at": "2026-11-18T00:04:00+03:00",
+      "name": "Erosion",
+      "package": "project.erosion",
+      "published_at": "2026-11-09T21:00:36Z",
+      "release": "Erosion 0.3.1 released November 10, 2026; 0.3.2 build 1 remains source-only; README commit 2e118f4 on November 17 documents the iOS 27.3 beta 2 patch boundary",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Official Erosion README commit 2e118f4, Erosion 0.3.2 beta source commit fb16225 and Erosion 0.3.1 release",
+      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/2e118f4e575b2cb745d9462ac445f023e09ec4da",
+      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/2e118f4e575b2cb745d9462ac445f023e09ec4da",
+      "source_visual_origin": "official-tagged-project-app-icon",
+      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "title": "Erosion Ends at iOS 27.3 Beta 1: worse_query Patched in Beta 2",
+      "version": "0.3.1 official release / 0.3.2 build 1 source / iOS 27.3 beta 2 patch boundary at commit 2e118f4"
+    },
+    {
       "action": "create",
       "additional_media": [],
       "candidate_fingerprint": "tweak.solo-1.0.1-2026-11-17",
@@ -66,6 +125,163 @@
       "version": "1.0.1"
     },
     {
+      "additional_media": [
+        {
+          "credit": "Official Choicy settings icon from opa334’s source repository",
+          "image": "assets/articles/source-media/choicy-official-settings-icon.png",
+          "source_url": "https://github.com/opa334/Choicy/blob/master/ChoicyPrefs/Resources/ChoicyIcon%403x.png"
+        },
+        {
+          "credit": "Official vnodebypass app icon from the project source",
+          "image": "assets/articles/source-media/vnodebypass-official-app-icon.png",
+          "source_url": "https://github.com/ichitaso/vnodebypass/blob/master/app/Resources/AppIcon60x60%402x.png"
+        }
+      ],
+      "article_sha256": "0e914e5649de78e54daa90df88dbc6d5582d4bcb4b013289e24b936229cf397e",
+      "candidate_fingerprint": "2bb701aaabda4454d9daf3dda8e3e542b688d1e21a4c63cee4cdff8677fa70bd",
+      "category": {
+        "id": "tweak-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Shadow development source: rootful legacy iOS 9–13.x, rootful modern iOS 14+, rootless iOS 15+, RootHide iOS 15–17.x; Choicy 1.5.4 rootful/rootless builds; vnodebypass 0.2.9 iOS 12–14 metadata",
+      "description": "Compare Shadow’s unreleased 4.0.0 source, Choicy 1.5.4 and vnodebypass 0.2.9 by package lane, iOS range, dependencies and safest troubleshooting order.",
+      "developer": "jjolano; opa334; XsF1re and ichitaso",
+      "entry_type": "roundup-comparison",
+      "href": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/",
+      "image": "assets/articles/source-media/shadow-official-settings-icon.png",
+      "media_credit": "Official Shadow settings icon from jjolano’s source repository",
+      "media_source_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
+      "modified_at": "2026-11-17T12:02:39+03:00",
+      "name": "Shadow vs Choicy vs vnodebypass",
+      "package": "comparison.shadow-vnodebypass-choicy",
+      "published_at": "2026-10-09T08:56:13Z",
+      "release": "2026-10-09",
+      "selection_pool": "scheduled-tweak-comparison",
+      "slug": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison",
+      "source_name": "Official Shadow, Choicy and vnodebypass repositories",
+      "source_page_url": "https://github.com/jjolano/shadow/commit/1fb0adc461d176790b9832d9d640400621040caf",
+      "source_url": "https://github.com/jjolano/shadow",
+      "source_visual_origin": "official-project-icons",
+      "source_visual_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
+      "title": "Shadow 4.0 Source vs Choicy 1.5.4 vs vnodebypass 0.2.9: Which Fits?",
+      "version": "Shadow 4.0.0 development source (latest public release 3.7.6) / Choicy 1.5.4 / vnodebypass 0.2.9"
+    },
+    {
+      "action": "update",
+      "additional_media": [],
+      "article_sha256": "42bcb02a88f349b7b57ab914bf25d21fd8436f6615595d83d9e337f4e85cfd74",
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-hide-unhide-developer-warning",
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Requires an official Dopamine-supported device and firmware, conventional rootless Dopamine 3.0.13, and a recoverable TrollStore-installed app. Official ranges vary by arm64e, A12/A13 and arm64 hardware; the feature does not extend jailbreak availability or guarantee detection bypass.",
+      "description": "Learn what Dopamine 3.0.13 Hide Jailbreak changes, why its developer generally cannot recommend it, and how to recover missing apps or unhide safely.",
+      "developer": "Lars Fröder (opa334)",
+      "entry_type": "evergreen-guide",
+      "href": "dopamine-hide-jailbreak-use-restore-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — exact official Dopamine icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_retrieval_status": "Reused the exact official 192×192 PNG already retrieved from Dopamine tag 3.0.13; the committed asset matches Git blob 8c1f831d43aee23aec3079608400467b9c6985fc and is embedded in article and social metadata.",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "modified_at": "2026-11-17T06:02:09+03:00",
+      "name": "Dopamine Hide Jailbreak use and restore guide",
+      "package": "guide.dopamine.hide-jailbreak",
+      "published_at": "2026-10-27T05:05:40Z",
+      "quality_target": 9,
+      "release": "Dopamine 3.0.13 released 2026-11-03T16:28:05Z; hide/unhide source and developer warning verified 2026-11-17",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "dopamine-hide-jailbreak-use-restore-guide",
+      "source_name": "Official Dopamine 3.0.13 release, source tag and developer issue guidance",
+      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/Jailbreak/DOEnvironmentManager.m",
+      "source_visual_origin": "official-project-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Hide and Unhide Dopamine 3.0.13 Jailbreak Safely",
+      "version": "Dopamine 3.0.13"
+    },
+    {
+      "action": "update",
+      "additional_media": [],
+      "article_sha256": "4ddab23f909f77e30560dda4a9478f6b06703fd0fb5d633d97bd5fa7d9597ba6",
+      "candidate_fingerprint": "development.vphone-2.17.1-ipad-pointer-accessibility-2026-11-13",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "channel": "scheduled-current-jailbreak-development",
+      "compat": "Physical Apple Silicon Mac on macOS 15+; Launchpad 2.17 can drive a 2.16.x bundle and the minimum remains 2.16.0. Existing VMs need a guest-environment update; no restore is required. VM support does not prove physical-device jailbreak availability.",
+      "description": "Update vphone to 2.17.1 safely, fix iPad pointer rotation and accessibility startup faults, audit ARM64E_X1 code, and distinguish released changes from main.",
+      "developer": "Lakr Aream",
+      "entry_type": "development",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
+      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest terminal on an Apple Silicon Mac",
+      "media_credit": "Lakr233 — official vphone demo from the 2.17.1 tagged repository",
+      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
+      "media_retrieval_status": "Official project demo is stored locally; the committed asset exactly matches Documents/demo.jpeg in tag 2.17.1 (Git blob a63a8d0f2eeff3e783b80904084b30e54d93dde7).",
+      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
+      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.17.1/Documents/demo.jpeg",
+      "modified_at": "2026-11-16T23:58:00+03:00",
+      "name": "vphone-cli setup",
+      "package": "project.vphone-cli",
+      "published_at": "2026-09-15T08:07:38+00:00",
+      "quality_target": 9,
+      "release": "vphone 2.17.1 released 2026-11-13 at 09:01 UTC from tag commit 1316940; patch fixes iPad pointer rotation and ARM64E_X1 accessibility startup faults",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
+      "source_name": "Official Lakr233/vphone-cli 2.17.1 release notes and tagged documentation",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.17.1",
+      "source_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.17.1",
+      "source_visual_origin": "official-tagged-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.17.1/Documents/demo.jpeg",
+      "title": "vphone 2.17.1 Fixes iPad Pointer Rotation and Accessibility App Crashes",
+      "version": "2.17.1"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",
+          "git_blob_sha": "3b440e1b5770bd838eed1dc14e664f4ba8c14374",
+          "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-force-quit.jpg?v=bc266b0b2",
+          "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg"
+        }
+      ],
+      "article_sha256": "cd4b1dc42ac22c93a16a9fedb58db6f36e855129997d329be336bb6dac69f8de",
+      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.8.7.5-stability-fixes-2026-11-16",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "MacStatusBar&Dock 1.8.7.5: iPad only, iPadOS 15–18, rootless jailbreak. The developer tests Dopamine and palera1n; no iPhone or separate RootHide build is documented, and package compatibility does not create jailbreak support.",
+      "description": "MacStatusBar&Dock 1.8.7.5 fixes charge controls, Stage Manager windows and crash recovery. Check iPadOS support, requirements and safe update steps.",
+      "developer": "BesiktasliSeba",
+      "entry_type": "jailbreak-development",
+      "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
+      "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-settings.jpg?v=0624fbbd2",
+      "media_alt": "Official MacStatusBar&Dock interface showing Settings in a Mac-style iPad window",
+      "media_credit": "Official MacStatusBar&Dock package depiction by BesiktasliSeba",
+      "media_git_blob_sha": "938abef9a1d77dd53b06e2b2ea23055bf7cb04c1",
+      "media_retrieval_status": "Exact official developer screenshots already stored locally and re-verified; current Havoc __NEXT_DATA__ also exposes official banner and screenshot URLs.",
+      "media_source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
+      "modified_at": "2026-11-16T15:40:00Z",
+      "name": "MacStatusBar&Dock",
+      "package": "com.besiktasliseba.macstatusbaranddock",
+      "published_at": "2026-10-04T21:04:21Z",
+      "release": "2026-11-15",
+      "selection_pool": "official-open-source-individual-update",
+      "source_name": "BesiktasliSeba official project, release ledger and Havoc page data",
+      "source_page_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
+      "source_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock/blob/main/CHANGELOG.md",
+      "source_visual_origin": "official-developer-package-depiction",
+      "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
+      "title": "MacStatusBar&Dock 1.8.7.5 Fixes Charge Limits, Stage Manager and Crash Recovery",
+      "version": "1.8.7.5"
+    },
+    {
       "action": "create",
       "additional_media": [],
       "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-shsh-449-2026-11-16",
@@ -91,6 +307,71 @@
       "source_visual_origin": "no-suitable-source-visual",
       "title": "How to Check If an iOS Version Is Still Signed with TSSChecker",
       "version": "Guide revision 2026-11-16 / TSSChecker 0.449.0 Build 449"
+    },
+    {
+      "action": "update",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/dynamicseth-1-0-2-official-notice.png",
+          "media_alt": "Official DynamicSeth screenshot showing a Happy Halloween notice expanded around the notch above the Home Screen",
+          "media_credit": "Whoops — current official DynamicSeth interface screenshot from Havoc",
+          "media_sha256": "8dfa1d4402604fed1d538d7f0f01f2f386dfd16ad82a72fd73e0b95ae2c4a449",
+          "media_source_url": "https://media.havoc.app/6ae51f0a383ab01da9212583"
+        },
+        {
+          "image": "assets/articles/source-media/dynamicseth-1-0-official-icon.png",
+          "media_alt": "Official DynamicSeth gradient app icon with a miniature Dynamic Island",
+          "media_credit": "Whoops — official DynamicSeth package icon from Havoc",
+          "media_sha256": "f6c3e16965a650d4929a3ef483e0f0f96d58f17c2fe95bbe928ea52e9e8e585d",
+          "media_source_url": "https://media.havoc.app/6ac3d3b4339342a21827d29c"
+        },
+        {
+          "image": "assets/articles/source-media/dynamicseth-1-0-official-now-playing.png",
+          "media_alt": "Official DynamicSeth screenshot showing expanded Now Playing controls above the iOS Lock Screen media player",
+          "media_credit": "Whoops — official DynamicSeth interface screenshot from Havoc",
+          "media_sha256": "c3be5f239953945204ea8410ef403c059da5c50d4cd13a2a9a51afecdd1cbf5e",
+          "media_source_url": "https://media.havoc.app/6ad7617354725d769c04a1ca"
+        },
+        {
+          "image": "assets/articles/source-media/dynamicseth-1-0-official-flashlight.png",
+          "media_alt": "Official DynamicSeth screenshot showing an expanded flashlight status panel and power button around the notch",
+          "media_credit": "Whoops — official DynamicSeth interface screenshot from Havoc",
+          "media_sha256": "9f3348878b9d3016a809e9a59b04b87aa9de9d366df415b25afe334ac2929856",
+          "media_source_url": "https://media.havoc.app/6ad7632654725d769c04aed4"
+        }
+      ],
+      "article_sha256": "93fa800bd640d7ebc5966f9277d4870281cc4f673e4dcc44d0f94e89e8dc33eb",
+      "candidate_fingerprint": "individual-update.dynamicseth-1.0.2-2026-11-15",
+      "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 15.0–26.0.1, a jailbreak requirement and Rootless support. The developer announcement claims iPhone 7–14 on iOS 15–26; the live product description explicitly reports testing on iPhones 7–13 with iOS 15–18. Native RootHide support is not claimed.",
+      "description": "DynamicSeth 1.0.2 adds iOS 26 support and Test Mode. Check iPhone 7–14 claims, Rootless limits, official test evidence and safe update steps.",
+      "developer": "Whoops",
+      "entry_type": "individual-update",
+      "href": "dynamicseth-1-0-dynamic-notch-live-activities/",
+      "image": "assets/articles/source-media/dynamicseth-1-0-2-official-banner.png",
+      "media_alt": "Official DynamicSeth banner showing a Dynamic Island-style Now Playing panel on a purple background",
+      "media_credit": "Whoops — current official DynamicSeth banner and interface screenshot from Havoc",
+      "media_retrieval_status": "Parsed Havoc's live __NEXT_DATA__ for version 1.0.2, exact release time, compatibility, banner and screenshot URLs; downloaded and visually inspected the exact 1920×1080 banner and 1125×2436 notice screenshot before commit.",
+      "media_sha256": "b552a694997da7b2a6ad05ff1d59658fb29dfc84ff506827041f64ee70068518",
+      "media_source_url": "https://media.havoc.app/6aef7f675f5ce023d12451cb",
+      "modified_at": "2026-11-15T18:00:00+03:00",
+      "name": "DynamicSeth",
+      "package": "com.whoops.dynamicseth",
+      "published_at": "2026-10-27T13:01:43Z",
+      "quality_target": 9,
+      "release": "1.0.2 (2026-11-15T09:26:16.439Z)",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "dynamicseth-1-0-dynamic-notch-live-activities",
+      "source_name": "Official DynamicSeth Havoc page, live __NEXT_DATA__, version history, package index and developer release announcement",
+      "source_page_url": "https://havoc.app/package/dynamicseth",
+      "source_url": "https://havoc.app/package/dynamicseth",
+      "source_visual_origin": "official-havoc-developer-assets",
+      "source_visual_url": "https://media.havoc.app/6aef7f675f5ce023d12451cb",
+      "title": "DynamicSeth 1.0.2 Adds iOS 26 Support and Test Mode",
+      "version": "1.0.2"
     },
     {
       "action": "create",
@@ -167,40 +448,6 @@
       "version": "Guide revision 2026-11-15 / Dopamine 3.0.13 / palera1n 3.0.0 beta 3 / TrollStore 2.1.1"
     },
     {
-      "additional_media": [],
-      "candidate_fingerprint": "jailbreak-development.erosion-ios27.3-beta2-worse-query-patched-2e118f4-2026-11-18",
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Erosion 0.3.1 is the latest official IPA; 0.3.2 build 1 remains unreleased source. The current README supports iOS/iPadOS 27.3 beta 1 (24C5037i) and says worse_query is patched in beta 2 (24C5049d), making beta 2 and later unsupported unless a new exploit is released. iOS 26 support remains limited and excludes MobileGestalt writes.",
-      "description": "Erosion supports iOS 27.3 beta 1 (24C5037i), but worse_query is patched in beta 2 (24C5049d). Check exact iOS 26–27 limits and safe next steps.",
-      "developer": "jailbreakdotparty / Erosion team",
-      "entry_type": "jailbreak-development",
-      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
-      "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
-      "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
-      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
-      "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
-      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
-      "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
-      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "modified_at": "2026-11-18T00:04:00+03:00",
-      "name": "Erosion",
-      "package": "project.erosion",
-      "published_at": "2026-11-09T21:00:36Z",
-      "release": "Erosion 0.3.1 released November 10, 2026; 0.3.2 build 1 remains source-only; README commit 2e118f4 on November 17 documents the iOS 27.3 beta 2 patch boundary",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Official Erosion README commit 2e118f4, Erosion 0.3.2 beta source commit fb16225 and Erosion 0.3.1 release",
-      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/2e118f4e575b2cb745d9462ac445f023e09ec4da",
-      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/2e118f4e575b2cb745d9462ac445f023e09ec4da",
-      "source_visual_origin": "official-tagged-project-app-icon",
-      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "title": "Erosion Ends at iOS 27.3 Beta 1: worse_query Patched in Beta 2",
-      "version": "0.3.1 official release / 0.3.2 build 1 source / iOS 27.3 beta 2 patch boundary at commit 2e118f4",
-      "action": "update"
-    },
-    {
       "action": "create",
       "additional_media": [
         "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png",
@@ -228,9 +475,9 @@
       "image": "assets/articles/source-media/pullover-pro-3-0-1-official-poster.jpg",
       "media_alt": "Official PullOver Pro artwork showing a live app pulled over another app",
       "media_credit": "Jond_ie — official PullOver Pro 3 poster and interface screenshots from the project repository",
+      "media_retrieval_status": "Downloaded and inspected the exact official 1280×720 poster and two 828×1792 project screenshots; verified their SHA-256 hashes before commit.",
       "media_sha256": "e9c74ebc64e0b62a93ba5d421d80a71e55f0eb5b68f907443d229f4b7ad37279",
       "media_source_url": "https://raw.githubusercontent.com/Jond-ie/repo/main/media/pullover-poster.jpg",
-      "media_retrieval_status": "Downloaded and inspected the exact official 1280×720 poster and two 828×1792 project screenshots; verified their SHA-256 hashes before commit.",
       "modified_at": "2026-11-14T18:18:00+03:00",
       "name": "PullOver Pro",
       "package": "com.johndie.pulloverpro-rootless",
@@ -254,6 +501,14 @@
         "assets/articles/source-media/watusi-1-0-1-sticker-studio-official.webp",
         "assets/articles/source-media/watusi-3-1-3-31-official-settings.png"
       ],
+      "additional_media_sha256": {
+        "assets/articles/source-media/watusi-1-0-1-sticker-studio-official.webp": "6a7c8c1bfacfefa2c3afdfb4036a12c128b0eef0936ff33281bebada5a23ea8f",
+        "assets/articles/source-media/watusi-3-1-3-31-official-settings.png": "e0039c7b1eafc105d6f7bd7e01de31afed77ffcbc8b40ec9a3228f639982a947"
+      },
+      "additional_media_source_urls": {
+        "assets/articles/source-media/watusi-1-0-1-sticker-studio-official.webp": "https://tweaks.fouadraheb.com/images/landing/watusi/02b-studio-cutout.webp",
+        "assets/articles/source-media/watusi-3-1-3-31-official-settings.png": "https://fouadraheb.com/images/screenshots/watusi/s1.png"
+      },
       "candidate_fingerprint": "comparison.watusi-1.0.1-vs-watusi3-1.3.31-2026-11-14",
       "category": {
         "id": "tweak-roundup-comparison",
@@ -268,9 +523,9 @@
       "image": "assets/articles/source-media/watusi-rebuilt-official-banner.png",
       "media_alt": "Official Watusi release banner showing the rebuilt WhatsApp tweak",
       "media_credit": "Fouad Raheb — official Watusi project release banner, rebuilt Watusi Sticker Studio screenshot and Watusi 3 settings screenshot",
+      "media_retrieval_status": "Downloaded the official project SVG and faithfully rasterized it to a 1280×600 PNG; downloaded the exact official product-page screenshots and verified all three local file hashes before commit.",
       "media_sha256": "2aaf747e27c77aebf26832cea792b590eb25cc8eb853310f30a51adfd9fa4fa9",
       "media_source_url": "https://raw.githubusercontent.com/FouadRaheb/Watusi-for-WhatsApp/master/images/banner-watusi-light.svg",
-      "media_retrieval_status": "Downloaded the official project SVG and faithfully rasterized it to a 1280×600 PNG; downloaded the exact official product-page screenshots and verified all three local file hashes before commit.",
       "modified_at": "2026-11-14T12:18:00+03:00",
       "name": "Watusi vs Watusi 3",
       "package": "comparison.watusi-watusi3",
@@ -286,37 +541,36 @@
       "source_visual_origin": "official-project-release-banner-and-developer-screenshots",
       "source_visual_url": "https://raw.githubusercontent.com/FouadRaheb/Watusi-for-WhatsApp/master/images/banner-watusi-light.svg",
       "title": "Watusi 1.0.1 vs Watusi 3 1.3.31: Should You Upgrade?",
-      "version": "Watusi 1.0.1 / Watusi 3 1.3.31",
-      "additional_media_sha256": {
-        "assets/articles/source-media/watusi-1-0-1-sticker-studio-official.webp": "6a7c8c1bfacfefa2c3afdfb4036a12c128b0eef0936ff33281bebada5a23ea8f",
-        "assets/articles/source-media/watusi-3-1-3-31-official-settings.png": "e0039c7b1eafc105d6f7bd7e01de31afed77ffcbc8b40ec9a3228f639982a947"
-      },
-      "additional_media_source_urls": {
-        "assets/articles/source-media/watusi-1-0-1-sticker-studio-official.webp": "https://tweaks.fouadraheb.com/images/landing/watusi/02b-studio-cutout.webp",
-        "assets/articles/source-media/watusi-3-1-3-31-official-settings.png": "https://fouadraheb.com/images/screenshots/watusi/s1.png"
-      }
+      "version": "Watusi 1.0.1 / Watusi 3 1.3.31"
     },
     {
+      "action": "update",
       "additional_media": [
         "assets/articles/source-media/roothide-bootstrap-official-icon.png"
       ],
+      "candidate_fingerprint": "guide.restart-types-dopamine-3.0.13-2026-11-14",
       "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
+      "channel": "scheduled-evergreen-jailbreak-guide",
       "compat": "Dopamine 3.0.13 documents arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. RootHide Bootstrap 2.2.1 is a separate TrollStore environment for its own documented iOS 15.0–17.0 device range.",
       "description": "Choose the right restart on Dopamine 3.0.13: compare respring, userspace reboot and full reboot, supported devices, failure symptoms and safe recovery.",
       "developer": "opa334 / RootHide team",
       "entry_type": "evergreen-jailbreak-guide",
       "href": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide/",
       "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
       "media_credit": "opa334 — official Dopamine app icon from the 3.0.13 source tag; RootHide team — official Bootstrap 2.2.1 icon used as secondary project artwork",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_retrieval_status": "Reused the exact official 192×192 Dopamine app icon already retrieved and hash-verified from the 3.0.13 source tag; the article embeds it and uses it in social metadata. The existing official RootHide Bootstrap 2.2.1 icon remains embedded as secondary source artwork.",
       "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
       "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
       "modified_at": "2026-11-14T06:08:00+03:00",
       "name": "Respring vs Userspace Reboot vs Full Reboot",
       "package": "guide.jailbreak.restart-types",
       "published_at": "2026-10-16T00:58:53Z",
+      "quality_target": 9,
       "release": "Dopamine 3.0.13 — released November 3, 2026; RootHide Bootstrap 2.2.1 remains latest official Bootstrap release",
       "selection_pool": "scheduled-evergreen-jailbreak-guide",
       "slug": "respring-vs-userspace-reboot-full-reboot-jailbreak-guide",
@@ -326,52 +580,7 @@
       "source_visual_origin": "official-tagged-repository-app-icon",
       "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
       "title": "Respring vs Userspace Reboot vs Full Reboot on Dopamine 3.0.13",
-      "version": "Dopamine 3.0.13 / RootHide Bootstrap 2.2.1",
-      "action": "update",
-      "candidate_fingerprint": "guide.restart-types-dopamine-3.0.13-2026-11-14",
-      "channel": "scheduled-evergreen-jailbreak-guide",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_retrieval_status": "Reused the exact official 192×192 Dopamine app icon already retrieved and hash-verified from the 3.0.13 source tag; the article embeds it and uses it in social metadata. The existing official RootHide Bootstrap 2.2.1 icon remains embedded as secondary source artwork.",
-      "quality_target": 9
-    },
-    {
-      "action": "update",
-      "additional_media": [],
-      "article_sha256": "4ddab23f909f77e30560dda4a9478f6b06703fd0fb5d633d97bd5fa7d9597ba6",
-      "candidate_fingerprint": "development.vphone-2.17.1-ipad-pointer-accessibility-2026-11-13",
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "channel": "scheduled-current-jailbreak-development",
-      "compat": "Physical Apple Silicon Mac on macOS 15+; Launchpad 2.17 can drive a 2.16.x bundle and the minimum remains 2.16.0. Existing VMs need a guest-environment update; no restore is required. VM support does not prove physical-device jailbreak availability.",
-      "description": "Update vphone to 2.17.1 safely, fix iPad pointer rotation and accessibility startup faults, audit ARM64E_X1 code, and distinguish released changes from main.",
-      "developer": "Lakr Aream",
-      "entry_type": "development",
-      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
-      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
-      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest terminal on an Apple Silicon Mac",
-      "media_credit": "Lakr233 — official vphone demo from the 2.17.1 tagged repository",
-      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
-      "media_retrieval_status": "Official project demo is stored locally; the committed asset exactly matches Documents/demo.jpeg in tag 2.17.1 (Git blob a63a8d0f2eeff3e783b80904084b30e54d93dde7).",
-      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
-      "media_source_url": "https://github.com/Lakr233/vphone-cli/blob/2.17.1/Documents/demo.jpeg",
-      "modified_at": "2026-11-16T23:58:00+03:00",
-      "name": "vphone-cli setup",
-      "package": "project.vphone-cli",
-      "published_at": "2026-09-15T08:07:38+00:00",
-      "quality_target": 9,
-      "release": "vphone 2.17.1 released 2026-11-13 at 09:01 UTC from tag commit 1316940; patch fixes iPad pointer rotation and ARM64E_X1 accessibility startup faults",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
-      "source_name": "Official Lakr233/vphone-cli 2.17.1 release notes and tagged documentation",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.17.1",
-      "source_url": "https://github.com/Lakr233/vphone-cli/releases/tag/2.17.1",
-      "source_visual_origin": "official-tagged-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.17.1/Documents/demo.jpeg",
-      "title": "vphone 2.17.1 Fixes iPad Pointer Rotation and Accessibility App Crashes",
-      "version": "2.17.1"
+      "version": "Dopamine 3.0.13 / RootHide Bootstrap 2.2.1"
     },
     {
       "category": {
@@ -1066,46 +1275,6 @@
       "source_visual_url": "https://github.com/5hux1n/relaxin/releases/download/v0.5.7/Relaxin-v0.5.7.ipa",
       "title": "Relaxin 0.5.7 Adds Experimental tvOS, visionOS and iOS 16.1 Support",
       "version": "0.5.7"
-    },
-    {
-      "additional_media": [
-        {
-          "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",
-          "git_blob_sha": "3b440e1b5770bd838eed1dc14e664f4ba8c14374",
-          "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-force-quit.jpg?v=bc266b0b2",
-          "source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/4-force-quit.jpg"
-        }
-      ],
-      "article_sha256": "cd4b1dc42ac22c93a16a9fedb58db6f36e855129997d329be336bb6dac69f8de",
-      "candidate_fingerprint": "individual-update.macstatusbar-dock-1.8.7.5-stability-fixes-2026-11-16",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "MacStatusBar&Dock 1.8.7.5: iPad only, iPadOS 15–18, rootless jailbreak. The developer tests Dopamine and palera1n; no iPhone or separate RootHide build is documented, and package compatibility does not create jailbreak support.",
-      "description": "MacStatusBar&Dock 1.8.7.5 fixes charge controls, Stage Manager windows and crash recovery. Check iPadOS support, requirements and safe update steps.",
-      "developer": "BesiktasliSeba",
-      "entry_type": "jailbreak-development",
-      "href": "macstatusbar-dock-1-3-5-ipad-jailbreak/",
-      "image": "assets/articles/source-media/macstatusbar-dock-1-3-5-official-settings.jpg?v=0624fbbd2",
-      "media_alt": "Official MacStatusBar&Dock interface showing Settings in a Mac-style iPad window",
-      "media_credit": "Official MacStatusBar&Dock package depiction by BesiktasliSeba",
-      "media_git_blob_sha": "938abef9a1d77dd53b06e2b2ea23055bf7cb04c1",
-      "media_retrieval_status": "Exact official developer screenshots already stored locally and re-verified; current Havoc __NEXT_DATA__ also exposes official banner and screenshot URLs.",
-      "media_source_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/",
-      "modified_at": "2026-11-16T15:40:00Z",
-      "name": "MacStatusBar&Dock",
-      "package": "com.besiktasliseba.macstatusbaranddock",
-      "published_at": "2026-10-04T21:04:21Z",
-      "release": "2026-11-15",
-      "selection_pool": "official-open-source-individual-update",
-      "source_name": "BesiktasliSeba official project, release ledger and Havoc page data",
-      "source_page_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock",
-      "source_url": "https://github.com/BesiktasliSeba/MacStatusBarAndDock/blob/main/CHANGELOG.md",
-      "source_visual_origin": "official-developer-package-depiction",
-      "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
-      "title": "MacStatusBar&Dock 1.8.7.5 Fixes Charge Limits, Stage Manager and Crash Recovery",
-      "version": "1.8.7.5"
     },
     {
       "additional_media": [
@@ -2289,108 +2458,6 @@
       "source_visual_url": "https://media.havoc.app/6a7835029e5377f2c5170dce",
       "title": "Prism 1.6.4 Adds iOS 26 Support and Fixes Control Center Launching",
       "version": "1.6.4"
-    },
-    {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/dynamicseth-1-0-2-official-notice.png",
-          "media_alt": "Official DynamicSeth screenshot showing a Happy Halloween notice expanded around the notch above the Home Screen",
-          "media_credit": "Whoops — current official DynamicSeth interface screenshot from Havoc",
-          "media_sha256": "8dfa1d4402604fed1d538d7f0f01f2f386dfd16ad82a72fd73e0b95ae2c4a449",
-          "media_source_url": "https://media.havoc.app/6ae51f0a383ab01da9212583"
-        },
-        {
-          "image": "assets/articles/source-media/dynamicseth-1-0-official-icon.png",
-          "media_alt": "Official DynamicSeth gradient app icon with a miniature Dynamic Island",
-          "media_credit": "Whoops — official DynamicSeth package icon from Havoc",
-          "media_sha256": "f6c3e16965a650d4929a3ef483e0f0f96d58f17c2fe95bbe928ea52e9e8e585d",
-          "media_source_url": "https://media.havoc.app/6ac3d3b4339342a21827d29c"
-        },
-        {
-          "image": "assets/articles/source-media/dynamicseth-1-0-official-now-playing.png",
-          "media_alt": "Official DynamicSeth screenshot showing expanded Now Playing controls above the iOS Lock Screen media player",
-          "media_credit": "Whoops — official DynamicSeth interface screenshot from Havoc",
-          "media_sha256": "c3be5f239953945204ea8410ef403c059da5c50d4cd13a2a9a51afecdd1cbf5e",
-          "media_source_url": "https://media.havoc.app/6ad7617354725d769c04a1ca"
-        },
-        {
-          "image": "assets/articles/source-media/dynamicseth-1-0-official-flashlight.png",
-          "media_alt": "Official DynamicSeth screenshot showing an expanded flashlight status panel and power button around the notch",
-          "media_credit": "Whoops — official DynamicSeth interface screenshot from Havoc",
-          "media_sha256": "9f3348878b9d3016a809e9a59b04b87aa9de9d366df415b25afe334ac2929856",
-          "media_source_url": "https://media.havoc.app/6ad7632654725d769c04aed4"
-        }
-      ],
-      "article_sha256": "93fa800bd640d7ebc5966f9277d4870281cc4f673e4dcc44d0f94e89e8dc33eb",
-      "candidate_fingerprint": "individual-update.dynamicseth-1.0.2-2026-11-15",
-      "category": {
-        "id": "tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Havoc lists iOS 15.0–26.0.1, a jailbreak requirement and Rootless support. The developer announcement claims iPhone 7–14 on iOS 15–26; the live product description explicitly reports testing on iPhones 7–13 with iOS 15–18. Native RootHide support is not claimed.",
-      "description": "DynamicSeth 1.0.2 adds iOS 26 support and Test Mode. Check iPhone 7–14 claims, Rootless limits, official test evidence and safe update steps.",
-      "developer": "Whoops",
-      "entry_type": "individual-update",
-      "href": "dynamicseth-1-0-dynamic-notch-live-activities/",
-      "image": "assets/articles/source-media/dynamicseth-1-0-2-official-banner.png",
-      "media_alt": "Official DynamicSeth banner showing a Dynamic Island-style Now Playing panel on a purple background",
-      "media_credit": "Whoops — current official DynamicSeth banner and interface screenshot from Havoc",
-      "media_retrieval_status": "Parsed Havoc's live __NEXT_DATA__ for version 1.0.2, exact release time, compatibility, banner and screenshot URLs; downloaded and visually inspected the exact 1920×1080 banner and 1125×2436 notice screenshot before commit.",
-      "media_sha256": "b552a694997da7b2a6ad05ff1d59658fb29dfc84ff506827041f64ee70068518",
-      "media_source_url": "https://media.havoc.app/6aef7f675f5ce023d12451cb",
-      "modified_at": "2026-11-15T18:00:00+03:00",
-      "name": "DynamicSeth",
-      "package": "com.whoops.dynamicseth",
-      "published_at": "2026-10-27T13:01:43Z",
-      "quality_target": 9,
-      "release": "1.0.2 (2026-11-15T09:26:16.439Z)",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "dynamicseth-1-0-dynamic-notch-live-activities",
-      "source_name": "Official DynamicSeth Havoc page, live __NEXT_DATA__, version history, package index and developer release announcement",
-      "source_page_url": "https://havoc.app/package/dynamicseth",
-      "source_url": "https://havoc.app/package/dynamicseth",
-      "source_visual_origin": "official-havoc-developer-assets",
-      "source_visual_url": "https://media.havoc.app/6aef7f675f5ce023d12451cb",
-      "title": "DynamicSeth 1.0.2 Adds iOS 26 Support and Test Mode",
-      "version": "1.0.2",
-      "action": "update"
-    },
-    {
-      "additional_media": [],
-      "article_sha256": "42bcb02a88f349b7b57ab914bf25d21fd8436f6615595d83d9e337f4e85cfd74",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-hide-unhide-developer-warning",
-      "category": {
-        "id": "jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Requires an official Dopamine-supported device and firmware, conventional rootless Dopamine 3.0.13, and a recoverable TrollStore-installed app. Official ranges vary by arm64e, A12/A13 and arm64 hardware; the feature does not extend jailbreak availability or guarantee detection bypass.",
-      "description": "Learn what Dopamine 3.0.13 Hide Jailbreak changes, why its developer generally cannot recommend it, and how to recover missing apps or unhide safely.",
-      "developer": "Lars Fröder (opa334)",
-      "entry_type": "evergreen-guide",
-      "href": "dopamine-hide-jailbreak-use-restore-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_credit": "opa334 — exact official Dopamine icon from the 3.0.13 source tag",
-      "media_retrieval_status": "Reused the exact official 192×192 PNG already retrieved from Dopamine tag 3.0.13; the committed asset matches Git blob 8c1f831d43aee23aec3079608400467b9c6985fc and is embedded in article and social metadata.",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
-      "modified_at": "2026-11-17T06:02:09+03:00",
-      "name": "Dopamine Hide Jailbreak use and restore guide",
-      "package": "guide.dopamine.hide-jailbreak",
-      "published_at": "2026-10-27T05:05:40Z",
-      "quality_target": 9,
-      "release": "Dopamine 3.0.13 released 2026-11-03T16:28:05Z; hide/unhide source and developer warning verified 2026-11-17",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "dopamine-hide-jailbreak-use-restore-guide",
-      "source_name": "Official Dopamine 3.0.13 release, source tag and developer issue guidance",
-      "source_page_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/Jailbreak/DOEnvironmentManager.m",
-      "source_visual_origin": "official-project-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "How to Hide and Unhide Dopamine 3.0.13 Jailbreak Safely",
-      "version": "Dopamine 3.0.13",
-      "action": "update",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc"
     },
     {
       "additional_media": [],
@@ -4763,48 +4830,6 @@
       "source_visual_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
       "title": "NowLyrics 1.1.2 Fixes Dynamic Island Lyrics and Improves Musixmatch Matching",
       "version": "1.1.2"
-    },
-    {
-      "additional_media": [
-        {
-          "credit": "Official Choicy settings icon from opa334’s source repository",
-          "image": "assets/articles/source-media/choicy-official-settings-icon.png",
-          "source_url": "https://github.com/opa334/Choicy/blob/master/ChoicyPrefs/Resources/ChoicyIcon%403x.png"
-        },
-        {
-          "credit": "Official vnodebypass app icon from the project source",
-          "image": "assets/articles/source-media/vnodebypass-official-app-icon.png",
-          "source_url": "https://github.com/ichitaso/vnodebypass/blob/master/app/Resources/AppIcon60x60%402x.png"
-        }
-      ],
-      "category": {
-        "id": "tweak-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "Shadow development source: rootful legacy iOS 9–13.x, rootful modern iOS 14+, rootless iOS 15+, RootHide iOS 15–17.x; Choicy 1.5.4 rootful/rootless builds; vnodebypass 0.2.9 iOS 12–14 metadata",
-      "description": "Compare Shadow’s unreleased 4.0.0 source, Choicy 1.5.4 and vnodebypass 0.2.9 by package lane, iOS range, dependencies and safest troubleshooting order.",
-      "developer": "jjolano; opa334; XsF1re and ichitaso",
-      "entry_type": "roundup-comparison",
-      "href": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/",
-      "image": "assets/articles/source-media/shadow-official-settings-icon.png",
-      "media_credit": "Official Shadow settings icon from jjolano’s source repository",
-      "media_source_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
-      "modified_at": "2026-11-17T12:02:39+03:00",
-      "name": "Shadow vs Choicy vs vnodebypass",
-      "package": "comparison.shadow-vnodebypass-choicy",
-      "published_at": "2026-10-09T08:56:13Z",
-      "release": "2026-10-09",
-      "selection_pool": "scheduled-tweak-comparison",
-      "slug": "shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison",
-      "source_name": "Official Shadow, Choicy and vnodebypass repositories",
-      "source_page_url": "https://github.com/jjolano/shadow/commit/1fb0adc461d176790b9832d9d640400621040caf",
-      "source_url": "https://github.com/jjolano/shadow",
-      "source_visual_origin": "official-project-icons",
-      "source_visual_url": "https://github.com/jjolano/shadow/blob/master/src/ShadowSettings.bundle/Resources/icon%403x.png",
-      "title": "Shadow 4.0 Source vs Choicy 1.5.4 vs vnodebypass 0.2.9: Which Fits?",
-      "version": "Shadow 4.0.0 development source (latest public release 3.7.6) / Choicy 1.5.4 / vnodebypass 0.2.9",
-      "article_sha256": "0e914e5649de78e54daa90df88dbc6d5582d4bcb4b013289e24b936229cf397e",
-      "candidate_fingerprint": "2bb701aaabda4454d9daf3dda8e3e542b688d1e21a4c63cee4cdff8677fa70bd"
     },
     {
       "article_sha256": "d1c0161400ca2107fb20856ceeed9d626b99267fb75f2c1167d284f3939893b6",
@@ -11450,8 +11475,17 @@
       "published_at": "2026-11-17T18:04:25+03:00",
       "run_id": "scheduled-2026-11-17T18:04:25+03:00",
       "version": "1.0.1"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "regram-for-instagram-7-1-update/",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-11-19T00:01:11+00:00",
+      "run_id": "44425325924",
+      "version": "7.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-17T18:04:25+03:00"
+  "updated_at": "2026-11-19T00:01:11+00:00"
 }

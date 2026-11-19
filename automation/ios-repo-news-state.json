@@ -162,11 +162,11 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-11-18T14:42:39.675524+00:00",
+      "checked_at": "2026-11-19T00:01:11+00:00",
       "package": "com.fouadraheb.regram",
-      "status": "duplicate",
-      "target_path": "regram-for-instagram-7-0-1-update/",
-      "version": "7.0.1"
+      "status": "published",
+      "target_path": "regram-for-instagram-7-1-update/",
+      "version": "7.1"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi/": {
       "checked_at": "2026-11-18T14:42:39.675524+00:00",
@@ -357,7 +357,7 @@
       "status": "failed"
     },
     "https://www.ios-repo-updates.com/repository/limneos-repo/package/net.limneos.audiorecorderxs/": {
-      "checked_at": "2026-11-18T14:42:39.675524+00:00",
+      "checked_at": "2026-11-19T00:01:11.370119+00:00",
       "package": "net.limneos.audiorecorderxs",
       "status": "duplicate",
       "target_path": "net-limneos-audiorecorderxs-update/",
@@ -3281,6 +3281,55 @@
         "com.cydiageek.morelinesnotifications: resolved source does not independently identify the discovered package"
       ],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0239918cc1859bfc016afe3c6b878c87d29922a28f7608caef",
+          "usage": {
+            "input_tokens": 23393,
+            "input_tokens_details": {
+              "cache_write_tokens": 23390,
+              "cache_write_tokens_details": {
+                "ttl_12h_tokens": 0,
+                "ttl_30m_tokens": 23390
+              },
+              "cached_tokens": 0
+            },
+            "output_tokens": 321,
+            "output_tokens_details": {
+              "reasoning_tokens": 216
+            },
+            "total_tokens": 23714
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0e25184c4d87c5d3016afe3c53e5b887d2ba4596a9fee7a8f0",
+          "usage": {
+            "input_tokens": 20955,
+            "input_tokens_details": {
+              "cache_write_tokens": 20952,
+              "cache_write_tokens_details": {
+                "ttl_12h_tokens": 0,
+                "ttl_30m_tokens": 20952
+              },
+              "cached_tokens": 0
+            },
+            "output_tokens": 2684,
+            "output_tokens_details": {
+              "reasoning_tokens": 62
+            },
+            "total_tokens": 23639
+          }
+        }
+      },
+      "at": "2026-11-19T00:01:11+00:00",
+      "package": "com.fouadraheb.regram",
+      "target_path": "regram-for-instagram-7-1-update/",
+      "version": "7.1"
     }
   ],
   "schema_version": 1

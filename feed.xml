@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
+    <title>Next Jailbreak</title>
+    <link>https://nextjailbreak.com</link>
+    <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
+    <language>en</language>
+    <item>
+      <title>Regram for Instagram 7.1 adds Hidden Chats, playback controls and Instagram 455/456 support</title>
+      <link>https://nextjailbreak.com/regram-for-instagram-7-1-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/regram-for-instagram-7-1-update/</guid>
+      <pubDate>Thu, 19 Nov 2026 00:01:11 GMT</pubDate>
+      <description>Regram for Instagram 7.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
+      <category>System &amp; Utilities</category>
+    </item>
     <item>
       <title>How to Leave an iOS Beta Without Losing Jailbreak Options</title>
       <link>https://nextjailbreak.com/leave-ios-beta-without-losing-jailbreak-options-guide/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/leave-ios-beta-without-losing-jailbreak-options-guide/</guid>
-      <pubDate>Tue, 17 Nov 2026 21:56:11 GMT</pubDate>
+      <pubDate>Wed, 18 Nov 2026 02:56:11 GMT</pubDate>
       <description>Turn off iOS beta updates or restore to public iOS safely. Understand erase, backup, signing and jailbreak consequences before leaving a beta.</description>
       <category>Evergreen Jailbreak Guide</category>
     </item>
-
     <item>
       <title>Erosion Ends at iOS 27.3 Beta 1: worse_query Patched in Beta 2</title>
       <link>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</link>
@@ -18,7 +29,6 @@
       <description>Erosion supports iOS 27.3 beta 1 (24C5037i), but worse_query is patched in beta 2 (24C5049d). Check exact iOS 26–27 limits and safe next steps.</description>
       <category>Current Jailbreak Development</category>
     </item>
-
     <item>
       <title>Solo 1.0.1 Fixes SpringBoard Hangs, Liquid Glass Safe Mode and Atria Layouts</title>
       <link>https://nextjailbreak.com/solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/</link>
@@ -27,7 +37,6 @@
       <description>Solo 1.0.1 fixes medium-widget SpringBoard hangs, a Liquid (Gl)ass Safe Mode crash and Atria scaling. Check rootless iOS 15–26 support and recovery.</description>
       <category>Individual Tweak Update</category>
     </item>
-
     <item>
       <title>Shadow 4.0 Source vs Choicy 1.5.4 vs vnodebypass 0.2.9: Which Fits?</title>
       <link>https://nextjailbreak.com/shadow-vs-vnodebypass-vs-choicy-jailbreak-detection-comparison/</link>
@@ -36,93 +45,12 @@
       <description>Compare Shadow’s unreleased 4.0.0 source, Choicy 1.5.4 and vnodebypass 0.2.9 by package lane, iOS range, dependencies and safest troubleshooting order.</description>
       <category>Tweak Roundup &amp; Comparison</category>
     </item>
-
     <item>
       <title>How to Hide and Unhide Dopamine 3.0.13 Jailbreak Safely</title>
       <link>https://nextjailbreak.com/dopamine-hide-jailbreak-use-restore-guide/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/dopamine-hide-jailbreak-use-restore-guide/</guid>
       <pubDate>Tue, 17 Nov 2026 03:02:09 GMT</pubDate>
       <description>Learn what Dopamine 3.0.13 Hide Jailbreak changes, why its developer generally cannot recommend it, and how to recover missing apps or unhide safely.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-
-
-    <item>
-      <title>MacStatusBar&amp;Dock 1.8.7.5 Fixes Charge Limits, Stage Manager and Crash Recovery</title>
-      <link>https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</guid>
-      <pubDate>Mon, 16 Nov 2026 15:40:00 GMT</pubDate>
-      <description>MacStatusBar&amp;Dock 1.8.7.5 fixes charge controls, Stage Manager windows and crash recovery. Check iPadOS support, requirements and safe update steps.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-
-    <item>
-      <title>How to Check If an iOS Version Is Still Signed with TSSChecker</title>
-      <link>https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/</guid>
-      <pubDate>Mon, 16 Nov 2026 03:01:00 GMT</pubDate>
-      <description>Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-
-
-    <item>
-      <title>DynamicSeth 1.0.2 Adds iOS 26 Support and Test Mode</title>
-      <link>https://nextjailbreak.com/dynamicseth-1-0-dynamic-notch-live-activities/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dynamicseth-1-0-dynamic-notch-live-activities/</guid>
-      <pubDate>Sun, 15 Nov 2026 15:00:00 GMT</pubDate>
-      <description>DynamicSeth 1.0.2 adds iOS 26 support and Test Mode. Check iPhone 7–14 claims, Rootless limits, official test evidence and safe update steps.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-
-
-    <item>
-      <title>PullOver Pro 3.0.1 vs Aerial 5.1: Quick Overlay or Full Stage Manager?</title>
-      <link>https://nextjailbreak.com/pullover-pro-vs-aerial-multitasking-tweak-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/pullover-pro-vs-aerial-multitasking-tweak-comparison/</guid>
-      <pubDate>Sun, 15 Nov 2026 09:07:00 GMT</pubDate>
-      <description>Compare PullOver Pro 3.0.1 and Aerial 5.1 by workflow, price, Rootless and RootHide support, iOS limits, conflicts, setup and recovery.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-
-
-    <item>
-      <title>How to Check Your iPhone Model and iOS Build Before Jailbreaking</title>
-      <link>https://nextjailbreak.com/check-iphone-model-ios-build-jailbreak-compatibility/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/check-iphone-model-ios-build-jailbreak-compatibility/</guid>
-      <pubDate>Sun, 15 Nov 2026 03:04:00 GMT</pubDate>
-      <description>Find your exact iPhone model, chip, iOS version and build before choosing Dopamine, palera1n or TrollStore. Includes current support limits and safe checks.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-
-    <item>
-      <title>PullOver Pro 3.0.1 Fixes Missing Handle After Respring on iOS 15–27</title>
-      <link>https://nextjailbreak.com/pullover-pro-3-0-1-respring-handle-fix-roothide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/pullover-pro-3-0-1-respring-handle-fix-roothide/</guid>
-      <pubDate>Sat, 14 Nov 2026 15:18:00 GMT</pubDate>
-      <description>PullOver Pro 3.0.1 fixes its missing edge handle after a respring. Check iOS 15–27, Rootless and RootHide limits, AltList, setup and recovery.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-
-    <item>
-      <title>Watusi 1.0.1 vs Watusi 3 1.3.31: Should You Upgrade?</title>
-      <link>https://nextjailbreak.com/watusi-vs-watusi-3-whatsapp-tweak-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/watusi-vs-watusi-3-whatsapp-tweak-comparison/</guid>
-      <pubDate>Sat, 14 Nov 2026 09:18:00 GMT</pubDate>
-      <description>Compare Watusi 1.0.1 and Watusi 3 1.3.31: current status, iOS requirements, licenses, features, jailbreak and TrollStore limits, and safe migration.</description>
-      <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-
-    <title>Next Jailbreak</title>
-    <link>https://nextjailbreak.com</link>
-    <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
-    <language>en</language>
-    <item>
-      <title>Respring vs Userspace Reboot vs Full Reboot on Dopamine 3.0.13</title>
-      <link>https://nextjailbreak.com/respring-vs-userspace-reboot-full-reboot-jailbreak-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/respring-vs-userspace-reboot-full-reboot-jailbreak-guide/</guid>
-      <pubDate>Sat, 14 Nov 2026 03:08:00 GMT</pubDate>
-      <description>Choose the right restart on Dopamine 3.0.13: compare respring, userspace reboot and full reboot, supported devices, failure symptoms and safe recovery.</description>
       <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
@@ -132,6 +60,70 @@
       <pubDate>Mon, 16 Nov 2026 20:58:00 GMT</pubDate>
       <description>Update vphone to 2.17.1 safely, fix iPad pointer rotation and accessibility startup faults, audit ARM64E_X1 code, and distinguish released changes from main.</description>
       <category>Current Jailbreak Development</category>
+    </item>
+    <item>
+      <title>MacStatusBar&amp;Dock 1.8.7.5 Fixes Charge Limits, Stage Manager and Crash Recovery</title>
+      <link>https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/macstatusbar-dock-1-3-5-ipad-jailbreak/</guid>
+      <pubDate>Mon, 16 Nov 2026 15:40:00 GMT</pubDate>
+      <description>MacStatusBar&amp;Dock 1.8.7.5 fixes charge controls, Stage Manager windows and crash recovery. Check iPadOS support, requirements and safe update steps.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
+      <title>How to Check If an iOS Version Is Still Signed with TSSChecker</title>
+      <link>https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/check-ios-signing-status-tsschecker-guide/</guid>
+      <pubDate>Mon, 16 Nov 2026 03:01:00 GMT</pubDate>
+      <description>Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>DynamicSeth 1.0.2 Adds iOS 26 Support and Test Mode</title>
+      <link>https://nextjailbreak.com/dynamicseth-1-0-dynamic-notch-live-activities/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/dynamicseth-1-0-dynamic-notch-live-activities/</guid>
+      <pubDate>Sun, 15 Nov 2026 15:00:00 GMT</pubDate>
+      <description>DynamicSeth 1.0.2 adds iOS 26 support and Test Mode. Check iPhone 7–14 claims, Rootless limits, official test evidence and safe update steps.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
+      <title>PullOver Pro 3.0.1 vs Aerial 5.1: Quick Overlay or Full Stage Manager?</title>
+      <link>https://nextjailbreak.com/pullover-pro-vs-aerial-multitasking-tweak-comparison/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/pullover-pro-vs-aerial-multitasking-tweak-comparison/</guid>
+      <pubDate>Sun, 15 Nov 2026 09:07:00 GMT</pubDate>
+      <description>Compare PullOver Pro 3.0.1 and Aerial 5.1 by workflow, price, Rootless and RootHide support, iOS limits, conflicts, setup and recovery.</description>
+      <category>Tweak Roundup &amp; Comparison</category>
+    </item>
+    <item>
+      <title>How to Check Your iPhone Model and iOS Build Before Jailbreaking</title>
+      <link>https://nextjailbreak.com/check-iphone-model-ios-build-jailbreak-compatibility/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/check-iphone-model-ios-build-jailbreak-compatibility/</guid>
+      <pubDate>Sun, 15 Nov 2026 03:04:00 GMT</pubDate>
+      <description>Find your exact iPhone model, chip, iOS version and build before choosing Dopamine, palera1n or TrollStore. Includes current support limits and safe checks.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+    <item>
+      <title>PullOver Pro 3.0.1 Fixes Missing Handle After Respring on iOS 15–27</title>
+      <link>https://nextjailbreak.com/pullover-pro-3-0-1-respring-handle-fix-roothide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/pullover-pro-3-0-1-respring-handle-fix-roothide/</guid>
+      <pubDate>Sat, 14 Nov 2026 15:18:00 GMT</pubDate>
+      <description>PullOver Pro 3.0.1 fixes its missing edge handle after a respring. Check iOS 15–27, Rootless and RootHide limits, AltList, setup and recovery.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
+      <title>Watusi 1.0.1 vs Watusi 3 1.3.31: Should You Upgrade?</title>
+      <link>https://nextjailbreak.com/watusi-vs-watusi-3-whatsapp-tweak-comparison/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/watusi-vs-watusi-3-whatsapp-tweak-comparison/</guid>
+      <pubDate>Sat, 14 Nov 2026 09:18:00 GMT</pubDate>
+      <description>Compare Watusi 1.0.1 and Watusi 3 1.3.31: current status, iOS requirements, licenses, features, jailbreak and TrollStore limits, and safe migration.</description>
+      <category>Tweak Roundup &amp; Comparison</category>
+    </item>
+    <item>
+      <title>Respring vs Userspace Reboot vs Full Reboot on Dopamine 3.0.13</title>
+      <link>https://nextjailbreak.com/respring-vs-userspace-reboot-full-reboot-jailbreak-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/respring-vs-userspace-reboot-full-reboot-jailbreak-guide/</guid>
+      <pubDate>Sat, 14 Nov 2026 03:08:00 GMT</pubDate>
+      <description>Choose the right restart on Dopamine 3.0.13: compare respring, userspace reboot and full reboot, supported devices, failure symptoms and safe recovery.</description>
+      <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
       <title>Watusi 1.0.1 for WhatsApp Adds Online List, Backup Fixes and iOS 26 Theme Improvements</title>
@@ -213,7 +205,6 @@
       <description>net.limneos.audiorecorderxs iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
     </item>
-    
     <item>
       <title>Regram 7.0.1 for Instagram Fixes Sideloading, Chats, Stories, and iOS 26 Issues</title>
       <link>https://nextjailbreak.com/regram-for-instagram-7-0-1-update/</link>
@@ -253,102 +244,6 @@
       <pubDate>Mon, 09 Nov 2026 09:03:23 GMT</pubDate>
       <description>Compare Stackr 1.0.1, PrimalFolderPro 1.0.1 and LegacyFolder26 1.1.0 by workflow, iOS support, privacy, price and jailbreak environment.</description>
       <category>Tweak Roundup &amp; Comparison</category>
-    </item>
-    <item>
-      <title>How to Recover Dopamine From a Bad Tweak or SpringBoard Crash Loop</title>
-      <link>https://nextjailbreak.com/dopamine-bad-tweak-crash-loop-recovery-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-bad-tweak-crash-loop-recovery-guide/</guid>
-      <pubDate>Mon, 09 Nov 2026 03:03:30 GMT</pubDate>
-      <description>Recover Dopamine 3.0.13 after Safe Mode, a bad tweak, SpringBoard crash loop or Watchdog Timeout; distinguish the iOS 17.6+ Zebra fix before removing packages.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>How to Check Jailbreak Tweak Compatibility Before Installing</title>
-      <link>https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/jailbreak-tweak-compatibility-checklist/</guid>
-      <pubDate>Sun, 08 Nov 2026 21:02:19 GMT</pubDate>
-      <description>Check jailbreak tweak package compatibility across rootful, rootless and RootHide setups, including firmware, dependencies, app versions and recovery.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Drift 1.1.0 Adds Dock Effects, Reflection and Floating Dock on iPhone</title>
-      <link>https://nextjailbreak.com/drift-1-0-0-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/drift-1-0-0-update/</guid>
-      <pubDate>Sun, 08 Nov 2026 15:07:59 GMT</pubDate>
-      <description>Drift 1.1.0 adds new dock edge and scroll effects, reflection, a position indicator and Floating Dock on iPhone. Check iOS 15–26 support and fixes.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>TrollStore vs SideStore vs AltStore Classic 2.3.1: Which IPA Installer Should You Use?</title>
-      <link>https://nextjailbreak.com/trollstore-vs-sidestore-vs-altstore/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/trollstore-vs-sidestore-vs-altstore/</guid>
-      <pubDate>Sun, 08 Nov 2026 09:00:57 GMT</pubDate>
-      <description>Compare TrollStore 2.1.1, SideStore 0.7.0-alpha and AltStore Classic 2.3.1 by iOS support, refresh rules, setup, signing limits and current fixes.</description>
-      <category>IPA Installer Comparison</category>
-    </item>
-    <item>
-      <title>How to Change Mobile and Root Passwords on Dopamine 3.0.13</title>
-      <link>https://nextjailbreak.com/change-mobile-root-password-dopamine-jailbreak-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/change-mobile-root-password-dopamine-jailbreak-guide/</guid>
-      <pubDate>Sun, 08 Nov 2026 03:03:23 GMT</pubDate>
-      <description>Change mobile and root passwords safely on Dopamine 3.0.13, understand which credential sudo uses, and troubleshoot authentication without exposing secrets.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Relaxin 0.5.7 Adds Experimental tvOS, visionOS and iOS 16.1 Support</title>
-      <link>https://nextjailbreak.com/relaxin-0-5-4-jailbreak-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/relaxin-0-5-4-jailbreak-update/</guid>
-      <pubDate>Sat, 07 Nov 2026 21:00:32 GMT</pubDate>
-      <description>Relaxin 0.5.7 adds experimental iOS 16.1, Apple TV and Vision Pro support. Check exact device ranges, official hashes, RootHide changes and recovery steps.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
-    <item>
-      <title>Dopamine vs Dopamine RootHide vs Bootstrap: Which Should You Use?</title>
-      <link>https://nextjailbreak.com/dopamine-vs-nathanlr-vs-roothide-bootstrap/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-vs-nathanlr-vs-roothide-bootstrap/</guid>
-      <pubDate>Sat, 07 Nov 2026 08:57:56 GMT</pubDate>
-      <description>Compare Dopamine 3.0.13, Dopamine RootHide 3.0.13-30, the Bootstrap migration state and NathanLR by support, packages, hashes and switching risks.</description>
-      <category>Jailbreak Comparison</category>
-    </item>
-    <item>
-      <title>How to Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30</title>
-      <link>https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/install-roothide-bootstrap-trollstore-guide/</guid>
-      <pubDate>Sat, 07 Nov 2026 02:57:22 GMT</pubDate>
-      <description>Migrate RootHide Bootstrap 2.2.2 to Dopamine RootHide 3.0.13-30 safely: compatibility checks, official hashes, unbootstrap order and troubleshooting.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
-    <item>
-      <title>Dopamine RootHide 3.0.13-30: Downloads, Support and Safe Update</title>
-      <link>https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-roothide-3-x-integration-status/</guid>
-      <pubDate>Fri, 06 Nov 2026 21:05:00 GMT</pubDate>
-      <description>Verify Dopamine RootHide 3.0.13-30 downloads, device and iOS support, changes from release 29, safe update steps and troubleshooting.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
-    <item>
-      <title>Deck 1.2.0 Adds Side-by-Side Control Center and Safer Close All Controls</title>
-      <link>https://nextjailbreak.com/deck-1-1-0-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/deck-1-1-0-update/</guid>
-      <pubDate>Fri, 06 Nov 2026 15:04:00 GMT</pubDate>
-      <description>Deck 1.2.0 adds drag-to-pin, playback-aware protection, quick actions and a separate Control Center page, with native modules on iOS 18.</description>
-      <category>Individual Tweak Update</category>
-    </item>
-    <item>
-      <title>ScreenRecordingMusic 1.1.0 Expands Recording Support to iOS 26 and Rootless Setups</title>
-      <link>https://nextjailbreak.com/screenrecordingmusic-1-0-1-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/screenrecordingmusic-1-0-1-update/</guid>
-      <pubDate>Fri, 06 Nov 2026 13:22:12 GMT</pubDate>
-      <description>ScreenRecordingMusic 1.0.1 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
-      <category>System &amp; Utilities</category>
-    </item>
-    <item>
-      <title>Dopamine 3 vs palera1n 3: Which Jailbreak Fits Your iPhone?</title>
-      <link>https://nextjailbreak.com/dopamine-vs-palera1n-jailbreak-comparison/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/dopamine-vs-palera1n-jailbreak-comparison/</guid>
-      <pubDate>Fri, 06 Nov 2026 09:00:00 GMT</pubDate>
-      <description>Compare Dopamine 3.0.13 and palera1n 3.0.0 beta 3 by supported devices, iOS range, reboot workflow, computer needs, passcode limits and release risk.</description>
-      <category>Jailbreak Comparison</category>
     </item>
   </channel>
 </rss>
