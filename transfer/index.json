@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T20:51:39Z",
+  "updatedAt": "2026-11-19T20:53:46Z",
   "files": [
+    {
+      "id": "medtrack-1.2.3-b6-test",
+      "name": "MedTrack 1.2.3 — Original Build 1 Widget Restored",
+      "fileName": "MedTrack-1.2.3-b6.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
+      "version": "1.2.3 (6)",
+      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.3/MedTrack-1.2.3-b6.ipa",
+      "sha256": "4182015f7f9b6e15b2b4cf3e56c0e753cbdadefc1b936e06c7ebfec52ba7f7c0",
+      "sizeBytes": 632093,
+      "notes": "Restores byte-for-byte original Build 1 WidgetKit interface and original standard ad-hoc widget signing with no private sandbox entitlement. iOS 16+ small 1, medium 2, large 5 medications. Retains all current reminders, Taken/Skip timestamps, archive and restore, routine-learning, and Widget Diagnostics. Installs over prior versions without clearing the local database."
+    },
     {
       "id": "medtrack-1.2.4-b7-test",
       "name": "MedTrack 1.2.4 — Proven Build 1 compiled widget + newest app features",
@@ -85,18 +97,6 @@
       "sha256": "8ec00b3fc1d61cf516dc85ed7cb3388599ea148858bf06cde91399fdc8caa620",
       "sizeBytes": 713068,
       "notes": "Fixes top-right calendar icon to open graphical date picker with Select/Cancel actions; prevents crash from CKContainer.default() on iOS 16 test builds lacking CloudKit entitlement, using MedTrackCloudKitEnabled=false and disabled cloud controls until properly signed. Keeps local JSON backups, full Health-style log, all current reminders and original confirmed-working Build 8 widget. Install in-place without deleting data."
-    },
-    {
-      "id": "medtrack-1.2.3-b6-test",
-      "name": "MedTrack 1.2.3 — Original Build 1 Widget Restored",
-      "fileName": "MedTrack-1.2.3-b6.ipa",
-      "type": "ipa",
-      "platform": "iOS 16+ · TrollStore / jailbroken testing (ad-hoc signed; not Apple Distribution)",
-      "version": "1.2.3 (6)",
-      "url": "https://nextjailbreak.com/transfer/files/MedTrack/1.2.3/MedTrack-1.2.3-b6.ipa",
-      "sha256": "d43cc3410dc0576ff7c4f54802f94711744c52753d7d81701841e21bcc706a00",
-      "sizeBytes": 632093,
-      "notes": "Restores byte-for-byte original Build 1 WidgetKit interface and original standard ad-hoc widget signing with no private sandbox entitlement. iOS 16+ small 1, medium 2, large 5 medications. Retains all current reminders, Taken/Skip timestamps, archive and restore, routine-learning, and Widget Diagnostics. Installs over prior versions without clearing the local database."
     },
     {
       "id": "medtrack-1.3.0-b9-test",
