@@ -1,8 +1,8 @@
 import SwiftUI
 import GoogleCast
 
-/// Dark, solid tactile remote keys. Haptic fires at finger-down instead
-/// of waiting for the remote command to finish on finger-up.
+/// A tactile visual press state; the controller sends haptics centrally,
+/// including the plain-style D-pad and gesture-driven touchpad.
 private struct SolidRemoteKeyStyle: ButtonStyle {
     var fill: Color = Color(red: 0.17, green: 0.19, blue: 0.23)
     var radius: CGFloat = 15
@@ -14,17 +14,15 @@ private struct SolidRemoteKeyStyle: ButtonStyle {
             .background(RoundedRectangle(cornerRadius: radius, style: .continuous)
                 .fill(fill))
             .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .strokeBorder(stroke.opacity(configuration.isPressed ? 1 : 0.8), lineWidth: 1))
-            .shadow(color: glow.opacity(configuration.isPressed ? 0.15 : 0.55),
+                .fill(configuration.isPressed ? stroke.opacity(0.32) : Color.clear))
+            .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .strokeBorder(stroke.opacity(configuration.isPressed ? 1 : 0.8),
+                              lineWidth: configuration.isPressed ? 2 : 1))
+            .shadow(color: glow.opacity(configuration.isPressed ? 0.4 : 0.55),
                     radius: configuration.isPressed ? 1 : 8,
                     y: configuration.isPressed ? 1 : 3)
             .scaleEffect(configuration.isPressed ? 0.96 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-            .onChange(of: configuration.isPressed) { pressed in
-                if pressed {
-                    UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.55)
-                }
-            }
+            .animation(.easeOut(duration: 0.10), value: configuration.isPressed)
     }
 }
 
@@ -41,6 +39,9 @@ struct RemoteTab: View {
     @AppStorage("nextcast.remote.controlLayout") private var controlLayoutRaw = NexaRemoteLayout.dpad.rawValue
     @State private var showStyleChooser = false
     @State private var showRemoteInfo = false
+    @AppStorage("nextcast.remote.hapticsEnabled") private var hapticsEnabled = true
+    @State private var lastPressedCommand: RemoteCommand?
+    @State private var commandFeedbackGeneration = 0
 
     private var visualStyle: NexaRemoteStyle {
         NexaRemoteStyle(rawValue: visualStyleRaw) ?? .modernDark
@@ -176,6 +177,7 @@ struct RemoteTab: View {
                         ForEach(NexaRemoteStyle.allCases) { choice in
                             Button {
                                 visualStyleRaw = choice.rawValue
+                                selectionHaptic()
                             } label: {
                                 NexaRemoteStyleSwatch(style: choice,
                                                     selected: visualStyle == choice)
@@ -184,11 +186,17 @@ struct RemoteTab: View {
                             .accessibilityLabel(choice.title)
                         }
                     }
-                    Label("Your selection is saved for future remote sessions.",
-                          systemImage: "checkmark.shield")
+                    Toggle(isOn: $hapticsEnabled) {
+                        Label("Remote vibration", systemImage: "iphone.radiowaves.left.and.right")
+                    }
+                    .tint(visualStyle.accent)
+                    .padding(14)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground),
+                                in: RoundedRectangle(cornerRadius: 15))
+                    Text("Your style, layout and vibration preference are saved.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                        .padding(.top, 10)
+                        .padding(.top, 4)
                 }
                 .padding(16)
             }
@@ -389,6 +397,7 @@ struct RemoteTab: View {
                         withAnimation(.easeOut(duration: 0.18)) {
                             controlLayoutRaw = mode.rawValue
                         }
+                        selectionHaptic()
                     } label: {
                         HStack(spacing: 5) {
                             Image(systemName: mode.icon)
@@ -419,6 +428,23 @@ struct RemoteTab: View {
             }
 
             selectedControlSurface
+
+            if let command = lastPressedCommand {
+                HStack(spacing: 7) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(visualStyle.accent)
+                    Text("Pressed: \(commandFeedbackLabel(command))")
+                        .foregroundStyle(visualStyle.text)
+                    Spacer(minLength: 0)
+                }
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(visualStyle.key,
+                            in: Capsule())
+                .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                .accessibilityLabel("Pressed \(commandFeedbackLabel(command))")
+            }
 
             HStack(spacing: 12) {
                 keyButton(.back, symbol: "arrow.uturn.backward", title: "Back")
@@ -502,8 +528,10 @@ struct RemoteTab: View {
                     .font(.system(size: 24, weight: .bold))
                     .foregroundStyle(visualStyle.text)
                     .frame(width: 91, height: 91)
-                    .background(visualStyle.canvas, in: Circle())
-                    .overlay(Circle().strokeBorder(visualStyle.accent, lineWidth: 2))
+                    .background(lastPressedCommand == .ok ?
+                                visualStyle.accent.opacity(0.3) : visualStyle.canvas, in: Circle())
+                    .overlay(Circle().strokeBorder(visualStyle.accent,
+                                                 lineWidth: lastPressedCommand == .ok ? 4 : 2))
                     .shadow(color: visualStyle.shadow, radius: 10)
             }
             .buttonStyle(.plain)
@@ -520,8 +548,11 @@ struct RemoteTab: View {
         Button { send(command) } label: {
             Image(systemName: symbol)
                 .font(.system(size: 26, weight: .bold))
-                .foregroundStyle(visualStyle.text)
+                .foregroundStyle(lastPressedCommand == command ?
+                                 visualStyle.accent : visualStyle.text)
                 .frame(width: 70, height: 70)
+                .background(lastPressedCommand == command ?
+                            visualStyle.accent.opacity(0.24) : Color.clear, in: Circle())
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -536,9 +567,11 @@ struct RemoteTab: View {
     private var touchSurface: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(visualStyle.key)
+                .fill(lastPressedCommand == nil ?
+                      visualStyle.key : visualStyle.accent.opacity(0.23))
                 .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .strokeBorder(visualStyle.accent.opacity(0.75), lineWidth: 1.5))
+                    .strokeBorder(visualStyle.accent.opacity(0.85),
+                                  lineWidth: lastPressedCommand == nil ? 1.5 : 3))
                 .shadow(color: visualStyle.shadow, radius: 10, y: 2)
             VStack(spacing: 13) {
                 Image(systemName: "hand.draw")
@@ -557,7 +590,6 @@ struct RemoteTab: View {
         .onTapGesture {
             guard ready && remote.brand != .cast else { return }
             send(.ok)
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
         }
         .gesture(
             DragGesture(minimumDistance: 30)
@@ -571,7 +603,6 @@ struct RemoteTab: View {
                     } else {
                         send(y > 0 ? .down : .up)
                     }
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
         )
         .opacity(ready && remote.brand != .cast ? 1 : 0.45)
@@ -614,6 +645,9 @@ struct RemoteTab: View {
             }
             .frame(maxWidth: .infinity, minHeight: 60)
             .padding(.horizontal, 3)
+            .background(lastPressedCommand == key ?
+                        visualStyle.accent.opacity(0.24) : Color.clear,
+                        in: RoundedRectangle(cornerRadius: 15))
         }
         .buttonStyle(SolidRemoteKeyStyle(fill: visualStyle.key, radius: 15,
                                          stroke: visualStyle.stroke, glow: visualStyle.shadow))
@@ -623,7 +657,54 @@ struct RemoteTab: View {
     }
 
     private func send(_ command: RemoteCommand) {
+        // The same command dispatch as previous builds. Feedback acknowledges
+        // the local tap, NOT delivery confirmation from the television.
+        if hapticsEnabled {
+            let feedback = UIImpactFeedbackGenerator(style: .medium)
+            feedback.prepare()
+            feedback.impactOccurred(intensity: 0.95)
+        }
+        commandFeedbackGeneration += 1
+        let generation = commandFeedbackGeneration
+        withAnimation(.easeOut(duration: 0.09)) {
+            lastPressedCommand = command
+        }
         remote.press(command, cast: cast)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
+            guard generation == commandFeedbackGeneration else { return }
+            withAnimation(.easeOut(duration: 0.16)) {
+                lastPressedCommand = nil
+            }
+        }
+    }
+
+    private func selectionHaptic() {
+        guard hapticsEnabled else { return }
+        let feedback = UISelectionFeedbackGenerator()
+        feedback.prepare()
+        feedback.selectionChanged()
+    }
+
+    private func commandFeedbackLabel(_ command: RemoteCommand) -> String {
+        switch command {
+        case .up: return "Up"
+        case .down: return "Down"
+        case .left: return "Left"
+        case .right: return "Right"
+        case .ok: return "OK"
+        case .back: return "Back"
+        case .home: return "Home"
+        case .playPause: return "Play / Pause"
+        case .rewind: return "Rewind"
+        case .forward: return "Forward"
+        case .volumeUp: return "Volume Up"
+        case .volumeDown: return "Volume Down"
+        case .mute: return "Mute"
+        case .power: return "Power"
+        case .channelUp: return "Channel Up"
+        case .channelDown: return "Channel Down"
+        case .info: return "Info"
+        }
     }
 
     private var androidPairingSheet: some View {
