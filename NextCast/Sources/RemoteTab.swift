@@ -6,23 +6,20 @@ import GoogleCast
 private struct SolidRemoteKeyStyle: ButtonStyle {
     var fill: Color = Color(red: 0.17, green: 0.19, blue: 0.23)
     var radius: CGFloat = 15
+    var stroke: Color = .white.opacity(0.14)
+    var glow: Color = .black.opacity(0.22)
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .background(
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .fill(fill)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .strokeBorder(.white.opacity(configuration.isPressed ? 0.08 : 0.14), lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(configuration.isPressed ? 0.06 : 0.23),
-                    radius: configuration.isPressed ? 1 : 4,
+            .background(RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(fill))
+            .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .strokeBorder(stroke.opacity(configuration.isPressed ? 1 : 0.8), lineWidth: 1))
+            .shadow(color: glow.opacity(configuration.isPressed ? 0.15 : 0.55),
+                    radius: configuration.isPressed ? 1 : 8,
                     y: configuration.isPressed ? 1 : 3)
-            .scaleEffect(configuration.isPressed ? 0.95 : 1)
-            .offset(y: configuration.isPressed ? 1 : 0)
-            .animation(.easeOut(duration: 0.10), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { pressed in
                 if pressed {
                     UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.55)
@@ -38,6 +35,21 @@ struct RemoteTab: View {
     @ObservedObject var cast: CastController
     @Environment(\.colorScheme) private var scheme
     @State private var showSetup = true
+    // Visual-only preferences. These do not touch saved TV pairing, commands,
+    // network sessions, or the existing Keychain client identity.
+    @AppStorage("nextcast.remote.visualStyle") private var visualStyleRaw = NexaRemoteStyle.modernDark.rawValue
+    @AppStorage("nextcast.remote.controlLayout") private var controlLayoutRaw = NexaRemoteLayout.dpad.rawValue
+    @State private var showStyleChooser = false
+    @State private var showRemoteInfo = false
+
+    private var visualStyle: NexaRemoteStyle {
+        NexaRemoteStyle(rawValue: visualStyleRaw) ?? .modernDark
+    }
+
+    private var controlLayout: NexaRemoteLayout {
+        NexaRemoteLayout(rawValue: controlLayoutRaw) ?? .dpad
+    }
+
     @State private var showKeyboard = false
     @State private var keyboardText = ""
     @FocusState private var keyboardFocused: Bool
@@ -50,49 +62,81 @@ struct RemoteTab: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 17) {
+                VStack(spacing: 14) {
                     connectionPanel
-                    if remote.brand != .cast && !ready {
-                        Text("Connect to a TV to enable its remote buttons.")
-                            .font(.caption).foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    if remote.brand == .cast {
-                        castNote
-                    }
                     remoteFace
                     if remote.brand != .cast {
-                        HStack(spacing: 10) {
-                            keyButton(.info, symbol: "info.circle", title: "Info")
+                        HStack(spacing: 9) {
                             keyButton(.channelDown, symbol: "minus", title: "CH −")
                             keyButton(.channelUp, symbol: "plus", title: "CH +")
                         }
-                        .padding(.horizontal, 10)
                     }
-                    Text(protocolFootnote)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 4)
-                    Text("Remote controls work only with a compatible TV on the same Wi-Fi network. No external account is required.")
-                        .font(.caption2).foregroundStyle(.tertiary)
-                        .multilineTextAlignment(.center)
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showRemoteInfo.toggle()
+                        }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "info.circle")
+                            Text("Remote compatibility")
+                            Spacer()
+                            Image(systemName: showRemoteInfo ? "chevron.up" : "chevron.down")
+                        }
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(visualStyle.secondary)
+                        .padding(12)
+                    }
+                    .buttonStyle(.plain)
+                    if showRemoteInfo {
+                        Text(protocolFootnote)
+                            .font(.caption)
+                            .foregroundStyle(visualStyle.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(13)
+                            .background(visualStyle.surface,
+                                        in: RoundedRectangle(cornerRadius: 14))
+                    }
                 }
-                .padding(17)
+                .padding(.horizontal, 15)
+                .padding(.vertical, 13)
             }
-            .background(NexaPalette.canvas(scheme))
+            .background(visualStyle.canvas.ignoresSafeArea())
             .navigationTitle("TV Remote")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showStyleChooser = true
+                    } label: {
+                        Label("Styles", systemImage: "paintpalette.fill")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .tint(visualStyle.accent)
+                    .accessibilityLabel("Choose remote appearance")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button("Connection settings", systemImage: "wifi") { showSetup.toggle() }
+                        Button {
+                            showStyleChooser = true
+                        } label: {
+                            Label("Remote Style", systemImage: "paintpalette")
+                        }
+                        Button {
+                            showSetup.toggle()
+                        } label: {
+                            Label("Connection Settings", systemImage: "wifi")
+                        }
                         if remote.brand != .cast && remote.connected {
-                            Button("Disconnect", systemImage: "xmark.circle") { remote.disconnect() }
+                            Button {
+                                remote.disconnect()
+                            } label: {
+                                Label("Disconnect", systemImage: "xmark.circle")
+                            }
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
+                    .tint(visualStyle.accent)
                 }
             }
             .alert("TV Remote", isPresented: Binding(
@@ -103,15 +147,11 @@ struct RemoteTab: View {
             } message: {
                 Text(remote.alertText ?? "")
             }
-            .sheet(isPresented: $showKeyboard) {
-                keyboardSheet
-            }
-            .sheet(isPresented: $remote.androidPINRequired) {
-                androidPairingSheet
-            }
+            .sheet(isPresented: $showKeyboard) { keyboardSheet }
+            .sheet(isPresented: $remote.androidPINRequired) { androidPairingSheet }
+            .sheet(isPresented: $showStyleChooser) { styleChooser }
             .onAppear {
-                // The model is a root @StateObject, so do not tear down an
-                // authenticated remote every time this sheet is reopened.
+                // Keep Build 39 pairing lifecycle unmodified.
                 showSetup = !remote.connected && !remote.hasSavedAndroidTVPairing
                 remote.restoreSavedAndroidTVConnectionIfNeeded()
             }
@@ -119,6 +159,49 @@ struct RemoteTab: View {
                 if connected { showSetup = false }
             }
         }
+        .preferredColorScheme(visualStyle.isLight ? .light : .dark)
+    }
+
+    private var styleChooser: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    Text("Choose your remote style")
+                        .font(.title3.bold())
+                    Text("Switch instantly. Your TV connection and button functions stay the same.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 12),
+                                        GridItem(.flexible(), spacing: 12)], spacing: 14) {
+                        ForEach(NexaRemoteStyle.allCases) { choice in
+                            Button {
+                                visualStyleRaw = choice.rawValue
+                            } label: {
+                                NexaRemoteStyleSwatch(style: choice,
+                                                    selected: visualStyle == choice)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(choice.title)
+                        }
+                    }
+                    Label("Your selection is saved for future remote sessions.",
+                          systemImage: "checkmark.shield")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 10)
+                }
+                .padding(16)
+            }
+            .navigationTitle("Remote Styles")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { showStyleChooser = false }
+                        .tint(visualStyle.accent)
+                }
+            }
+        }
+        .presentationDetents([.large])
     }
 
     private func selectTVBrand(_ brand: RemoteBrand) {
@@ -279,145 +362,260 @@ struct RemoteTab: View {
     }
 
     private var remoteFace: some View {
-        VStack(spacing: 18) {
-            HStack(spacing: 15) {
-                keyButton(.power, symbol: "power", title: "Power", tint: Color(red: 1, green: 0.35, blue: 0.38))
-                keyButton(.home, symbol: "house.fill", title: "Home")
-                keyButton(.back, symbol: "arrow.uturn.backward", title: "Back")
+        VStack(spacing: 15) {
+            HStack {
+                Text("CONTROLS")
+                    .font(.caption2.weight(.bold))
+                    .tracking(1.5)
+                    .foregroundStyle(visualStyle.secondary)
+                Spacer()
+                Button {
+                    showStyleChooser = true
+                } label: {
+                    Label(visualStyle.title, systemImage: "paintpalette")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(visualStyle.accent)
+                }
+                .buttonStyle(.plain)
             }
 
-            // Fill the available remote width with a 3 × 3 directional grid.
-            // Each key occupies a complete square cell; no layout Spacers push
-            // the buttons apart. The 5 active keys form the classic D-pad cross.
-            GeometryReader { geometry in
-                let gap: CGFloat = 7
-                let tile = max(1, (geometry.size.width - gap * 2) / 3)
-                VStack(spacing: gap) {
-                    HStack(spacing: gap) {
-                        Color.clear.frame(width: tile, height: tile)
-                            .accessibilityHidden(true)
-                        arrowButton(.up, "chevron.up", tile: tile)
-                        Color.clear.frame(width: tile, height: tile)
-                            .accessibilityHidden(true)
-                    }
-                    HStack(spacing: gap) {
-                        arrowButton(.left, "chevron.left", tile: tile)
-                        Button {
-                            send(.ok)
-                        } label: {
-                            Text("OK")
-                                .font(.system(size: max(19, tile * 0.24), weight: .bold))
-                                .foregroundStyle(.white)
-                                .frame(width: tile, height: tile)
-                                .contentShape(RoundedRectangle(cornerRadius: 20))
+            HStack(spacing: 5) {
+                ForEach(NexaRemoteLayout.allCases) { mode in
+                    Button {
+                        withAnimation(.easeOut(duration: 0.18)) {
+                            controlLayoutRaw = mode.rawValue
                         }
-                        .buttonStyle(SolidRemoteKeyStyle(
-                            fill: Color(red: 0.03, green: 0.53, blue: 0.74), radius: 20))
-                        .disabled(!ready || remote.brand == .cast)
-                        .opacity(ready && remote.brand != .cast ? 1 : 0.65)
-                        .accessibilityLabel("OK")
-                        arrowButton(.right, "chevron.right", tile: tile)
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: mode.icon)
+                                .font(.caption2)
+                            Text(mode.title)
+                                .font(.caption.weight(.semibold))
+                        }
+                        .foregroundStyle(controlLayout == mode ?
+                                         (visualStyle.isLight ? Color.white : Color.white) :
+                                         visualStyle.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(controlLayout == mode ? visualStyle.accent : .clear,
+                                    in: Capsule())
                     }
-                    HStack(spacing: gap) {
-                        Color.clear.frame(width: tile, height: tile)
-                            .accessibilityHidden(true)
-                        arrowButton(.down, "chevron.down", tile: tile)
-                        Color.clear.frame(width: tile, height: tile)
-                            .accessibilityHidden(true)
-                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(controlLayout == mode ? [.isSelected] : [])
                 }
-                .frame(width: geometry.size.width, height: geometry.size.width)
             }
-            .aspectRatio(1, contentMode: .fit)
-            .padding(7)
-            .background(Color.secondary.opacity(0.075),
-                        in: RoundedRectangle(cornerRadius: 26))
+            .padding(4)
+            .background(visualStyle.key, in: Capsule())
+
+            HStack(spacing: 12) {
+                keyButton(.power, symbol: "power", title: "Power",
+                          tint: Color(red: 1, green: 0.27, blue: 0.22))
+                keyButton(.mute, symbol: "speaker.slash.fill", title: "Mute")
+                keyButton(.info, symbol: "info.circle", title: "Info")
+            }
+
+            selectedControlSurface
+
+            HStack(spacing: 12) {
+                keyButton(.back, symbol: "arrow.uturn.backward", title: "Back")
+                keyButton(.home, symbol: "house.fill", title: "Home", tint: visualStyle.accent)
+                keyButton(.info, symbol: "line.3.horizontal", title: "Menu / Info")
+            }
+
+            HStack(spacing: 10) {
+                keyButton(.rewind, symbol: "backward.end.fill", title: "Rewind")
+                keyButton(.playPause,
+                          symbol: cast.isPlaying && remote.brand == .cast ? "pause.fill" : "playpause.fill",
+                          title: "Play / Pause", tint: visualStyle.accent)
+                keyButton(.forward, symbol: "forward.end.fill", title: "Forward")
+            }
+
+            HStack(spacing: 12) {
+                keyButton(.volumeDown, symbol: "speaker.minus.fill", title: "Vol −")
+                keyButton(.volumeUp, symbol: "speaker.plus.fill", title: "Vol +")
+                if remote.brand == .cast {
+                    Text("\(Int(cast.remoteVolume * 100))%")
+                        .font(.subheadline.monospacedDigit())
+                        .foregroundStyle(visualStyle.text)
+                        .frame(maxWidth: .infinity, minHeight: 63)
+                } else {
+                    keyButton(.mute, symbol: "speaker.slash", title: "Mute")
+                }
+            }
 
             Button {
                 keyboardText = ""
                 showKeyboard = true
             } label: {
-                Label("Keyboard · Type on TV", systemImage: "keyboard")
-                    .font(.subheadline.bold())
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, minHeight: 58)
+                HStack(spacing: 9) {
+                    Image(systemName: "keyboard")
+                        .font(.title3)
+                    Text("Open TV Keyboard")
+                        .font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                }
+                .foregroundStyle(visualStyle.text)
+                .padding(14)
             }
-            .buttonStyle(SolidRemoteKeyStyle())
+            .buttonStyle(SolidRemoteKeyStyle(fill: visualStyle.key, radius: 15,
+                                             stroke: visualStyle.stroke, glow: visualStyle.shadow))
             .disabled(!ready || remote.brand == .cast)
-            .opacity(ready && remote.brand != .cast ? 1 : 0.35)
-            .accessibilityHint("Opens the iPhone keyboard only when needed")
-
-            HStack(spacing: 18) {
-                keyButton(.rewind, symbol: "backward.end.fill", title: "Back 10s")
-                keyButton(.playPause, symbol: cast.isPlaying && remote.brand == .cast ? "pause.fill" : "playpause.fill", title: "Play / Pause")
-                keyButton(.forward, symbol: "forward.end.fill", title: "Forward 10s")
-            }
-
-            HStack(spacing: 10) {
-                VStack(spacing: 11) {
-                    Text("VOLUME").font(.caption2.bold()).tracking(1.6).foregroundStyle(.secondary)
-                    keyButton(.volumeUp, symbol: "speaker.plus.fill", title: "Vol +")
-                    keyButton(.volumeDown, symbol: "speaker.minus.fill", title: "Vol −")
-                }
-                .frame(maxWidth: .infinity)
-                VStack(spacing: 11) {
-                    Text("AUDIO").font(.caption2.bold()).tracking(1.6).foregroundStyle(.secondary)
-                    keyButton(.mute, symbol: "speaker.slash.fill", title: "Mute")
-                    if remote.brand == .cast {
-                        Text("\(Int(cast.remoteVolume * 100))%")
-                            .font(.caption.monospacedDigit())
-                            .frame(height: 56)
-                    } else {
-                        keyButton(.info, symbol: "line.3.horizontal.decrease", title: "Info")
-                    }
-                }
-                .frame(maxWidth: .infinity)
-            }
+            .opacity(ready && remote.brand != .cast ? 1 : 0.45)
         }
-        .padding(13)
-        .background(.secondary.opacity(0.035), in: RoundedRectangle(cornerRadius: 28))
-        .overlay {
-            RoundedRectangle(cornerRadius: 28).strokeBorder(.secondary.opacity(0.10))
+        .padding(14)
+        .background(visualStyle.surface,
+                    in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous)
+            .strokeBorder(visualStyle.stroke, lineWidth: 1))
+    }
+
+    @ViewBuilder
+    private var selectedControlSurface: some View {
+        switch controlLayout {
+        case .dpad: dpadWheel
+        case .touchpad: touchSurface
+        case .keys: quickKeys
         }
     }
 
-    private func arrowButton(_ key: RemoteCommand, _ symbol: String,
-                             tile: CGFloat) -> some View {
-        Button { send(key) } label: {
-            Image(systemName: symbol)
-                .font(.system(size: max(25, min(42, tile * 0.34)), weight: .bold))
-                .frame(width: tile, height: tile)
-                .foregroundStyle(.white)
-                .contentShape(RoundedRectangle(cornerRadius: 20))
+    private var dpadWheel: some View {
+        ZStack {
+            Circle()
+                .fill(visualStyle.key)
+                .overlay(Circle().strokeBorder(visualStyle.stroke,
+                                             lineWidth: visualStyle == .neon ? 2.5 : 1))
+                .shadow(color: visualStyle.shadow, radius: visualStyle == .neon ? 18 : 6, y: 4)
+
+            wheelButton(.up, symbol: "chevron.up", x: 0, y: -91)
+            wheelButton(.left, symbol: "chevron.left", x: -91, y: 0)
+            wheelButton(.right, symbol: "chevron.right", x: 91, y: 0)
+            wheelButton(.down, symbol: "chevron.down", x: 0, y: 91)
+
+            Button { send(.ok) } label: {
+                Text("OK")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(visualStyle.text)
+                    .frame(width: 91, height: 91)
+                    .background(visualStyle.canvas, in: Circle())
+                    .overlay(Circle().strokeBorder(visualStyle.accent, lineWidth: 2))
+                    .shadow(color: visualStyle.shadow, radius: 10)
+            }
+            .buttonStyle(.plain)
+            .disabled(!ready || remote.brand == .cast)
+            .opacity(ready && remote.brand != .cast ? 1 : 0.45)
+            .accessibilityLabel("OK")
         }
-        .buttonStyle(SolidRemoteKeyStyle(radius: 20))
+        .frame(width: 270, height: 270)
+        .frame(maxWidth: .infinity)
+    }
+
+    private func wheelButton(_ command: RemoteCommand, symbol: String,
+                             x: CGFloat, y: CGFloat) -> some View {
+        Button { send(command) } label: {
+            Image(systemName: symbol)
+                .font(.system(size: 26, weight: .bold))
+                .foregroundStyle(visualStyle.text)
+                .frame(width: 70, height: 70)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .offset(x: x, y: y)
         .disabled(!ready || remote.brand == .cast)
-        .opacity(ready && remote.brand != .cast ? 1 : 0.65)
-        .accessibilityLabel(key.rawValue.capitalized)
+        .opacity(ready && remote.brand != .cast ? 1 : 0.45)
+        .accessibilityLabel(command.rawValue.capitalized)
+    }
+
+    /// These gestures translate only into the SAME already-supported
+    /// D-pad/OK commands. No TV protocol or pairing behavior is changed.
+    private var touchSurface: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(visualStyle.key)
+                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .strokeBorder(visualStyle.accent.opacity(0.75), lineWidth: 1.5))
+                .shadow(color: visualStyle.shadow, radius: 10, y: 2)
+            VStack(spacing: 13) {
+                Image(systemName: "hand.draw")
+                    .font(.system(size: 38, weight: .light))
+                    .foregroundStyle(visualStyle.accent)
+                Text("Touch to navigate")
+                    .font(.headline)
+                    .foregroundStyle(visualStyle.text)
+                Text("Swipe directions  ·  Tap for OK")
+                    .font(.caption)
+                    .foregroundStyle(visualStyle.secondary)
+            }
+        }
+        .frame(height: 250)
+        .contentShape(RoundedRectangle(cornerRadius: 24))
+        .onTapGesture {
+            guard ready && remote.brand != .cast else { return }
+            send(.ok)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
+        .gesture(
+            DragGesture(minimumDistance: 30)
+                .onEnded { movement in
+                    guard ready && remote.brand != .cast else { return }
+                    let x = movement.translation.width
+                    let y = movement.translation.height
+                    guard max(abs(x), abs(y)) >= 32 else { return }
+                    if abs(x) > abs(y) {
+                        send(x > 0 ? .right : .left)
+                    } else {
+                        send(y > 0 ? .down : .up)
+                    }
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+        )
+        .opacity(ready && remote.brand != .cast ? 1 : 0.45)
+        .accessibilityLabel("TV touchpad. Swipe to navigate, tap to select.")
+    }
+
+    private var quickKeys: some View {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10),
+                            GridItem(.flexible(), spacing: 10),
+                            GridItem(.flexible(), spacing: 10)], spacing: 10) {
+            keyButton(.volumeDown, symbol: "speaker.minus.fill", title: "Vol −")
+            keyButton(.volumeUp, symbol: "speaker.plus.fill", title: "Vol +")
+            keyButton(.mute, symbol: "speaker.slash.fill", title: "Mute")
+            keyButton(.home, symbol: "house.fill", title: "Home")
+            keyButton(.back, symbol: "arrow.uturn.backward", title: "Back")
+            keyButton(.info, symbol: "info.circle", title: "Info")
+            keyButton(.power, symbol: "power", title: "Power")
+            keyButton(.channelDown, symbol: "minus", title: "CH −")
+            keyButton(.channelUp, symbol: "plus", title: "CH +")
+        }
+        .padding(.vertical, 9)
     }
 
     private func keyButton(_ key: RemoteCommand, symbol: String, title: String,
-                           tint: Color = .cyan) -> some View {
+                           tint: Color? = nil) -> some View {
         let unsupported = remote.brand == .cast &&
-            ![RemoteCommand.playPause, .rewind, .forward, .volumeUp, .volumeDown, .mute].contains(key)
+            ![RemoteCommand.playPause, .rewind, .forward, .volumeUp,
+              .volumeDown, .mute].contains(key)
         return Button { send(key) } label: {
-            VStack(spacing: 7) {
+            VStack(spacing: 6) {
                 Image(systemName: symbol)
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(tint)
-                    .frame(height: 29)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(tint ?? visualStyle.text)
+                    .frame(height: 26)
                 Text(title)
-                    .font(.caption2.bold())
-                    .foregroundStyle(.white)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(visualStyle.text)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .frame(maxWidth: .infinity, minHeight: 68)
-            .padding(6)
+            .frame(maxWidth: .infinity, minHeight: 60)
+            .padding(.horizontal, 3)
         }
-        .buttonStyle(SolidRemoteKeyStyle())
+        .buttonStyle(SolidRemoteKeyStyle(fill: visualStyle.key, radius: 15,
+                                         stroke: visualStyle.stroke, glow: visualStyle.shadow))
         .disabled(!ready || unsupported)
-        .opacity((ready && !unsupported) ? 1 : 0.35)
+        .opacity(ready && !unsupported ? 1 : 0.4)
+        .accessibilityLabel(title)
     }
 
     private func send(_ command: RemoteCommand) {
