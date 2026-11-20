@@ -5078,29 +5078,39 @@
     },
     {
       "category": {
-        "id": "customization",
-        "label": "Customization"
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
       },
-      "compat": "Havoc lists iOS 16.0–16.7.16 and rootless support; the developer describes Dopamine testing, does not support iPad, and warns that Dynamic Island iPhones are not optimized",
-      "description": "LockScreenRestore 1.9.4 lets music artwork open the playing app, makes the date follow Text Size, and refines the Focus pill on rootless iOS 16 jailbreaks.",
+      "compat": "Official package metadata enforces iOS 16.0–16.7.16, rootless iphoneos-arm64 and a compatible tweak-injection provider. The developer documents tests on iPhone 13 Pro/iOS 16.1.1 and iPhone 12 Pro/iOS 16.5 plus user reports on iPhone X, iPhone 11 and iPhone 8 Plus; Dynamic Island models and iOS 17+ are unsupported.",
+      "description": "LockScreenRestore 1.9.6 fixes landscape wallpaper coverage and blocks unsupported iOS 17 installs. Check exact iOS 16 devices, limits and safe update steps.",
       "entry_type": "individual-update",
       "href": "lockscreenrestore-1-8-2-update/",
       "image": "assets/articles/source-media/lockscreenrestore-1-9-4-official-banner.jpg",
       "media_credit": "Official LockScreenRestore banner by aronsz26",
       "media_source_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
-      "modified_at": "2026-10-07T13:02:18Z",
+      "modified_at": "2026-11-20T18:00:00+03:00",
       "name": "LockScreenRestore",
       "package": "com.aronsz26.lockscreenrestore",
       "published_at": "2026-09-28T18:52:07+00:00",
       "quality_target": 9,
       "selection_pool": "scheduled-individual-update",
-      "source_name": "Official Havoc listing and GitHub release",
+      "source_name": "Official LockScreenRestore GitHub release, tagged source and live Havoc package data",
       "source_page_url": "https://havoc.app/package/lockscreenrstr",
-      "source_url": "https://github.com/aronsz26/LockScreenRestore/releases/tag/v1.9.4",
-      "source_visual_origin": "official-havoc-banner",
+      "source_url": "https://github.com/aronsz26/LockScreenRestore/releases/tag/v1.9.6",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshot",
       "source_visual_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
-      "title": "LockScreenRestore 1.9.4 Makes Music Artwork Tappable and Refines the iOS 15 Date Layout",
-      "version": "1.9.4"
+      "title": "LockScreenRestore 1.9.6 Blocks iOS 17 Installs and Fixes Landscape Wallpaper",
+      "version": "1.9.6",
+      "action": "update",
+      "article_sha256": "e79bf9522289a80137a1c7744b842c9d9b10250079322b9a333ac83a0044b6a3",
+      "candidate_fingerprint": "individual-update.lockscreenrestore-1.9.6-2026-11-20",
+      "channel": "scheduled-individual-tweak-update",
+      "media_alt": "Official LockScreenRestore artwork showing its iOS 15-style Lock Screen on three iPhones",
+      "media_retrieval_status": "Re-read the live Havoc HTML and __NEXT_DATA__ package data for version 1.9.6, downloaded the official banner and music-player screenshot, visually inspected them, and verified they are byte-for-byte identical to the committed source-media files.",
+      "media_sha256": "303577adb8967f515c41630fe85ce9b60d8392547fbca846b1d91cf002fc60d0",
+      "previous_version": "1.9.4",
+      "release": "GitHub release November 14, 2026; Havoc update November 18, 2026",
+      "run_id": "scheduled-2026-11-20T15:00:00Z"
     },
     {
       "additional_media": [
@@ -11524,8 +11534,19 @@
       "published_at": "2026-11-19T00:01:11+00:00",
       "run_id": "44425325924",
       "version": "7.1"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "individual-update.lockscreenrestore-1.9.6-2026-11-20",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "lockscreenrestore-1-8-2-update/",
+      "package": "com.aronsz26.lockscreenrestore",
+      "previous_version": "1.9.4",
+      "published_at": "2026-11-20T18:00:00+03:00",
+      "run_id": "scheduled-2026-11-20T15:00:00Z",
+      "version": "1.9.6"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-19T18:00:53+03:00"
+  "updated_at": "2026-11-20T18:00:00+03:00"
 }

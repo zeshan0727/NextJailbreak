@@ -538,16 +538,21 @@
         "url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
         "alt": "Official LockScreenRestore banner showing the iOS 15-style clock, music player and notifications on three iPhones",
         "local_path": "assets/articles/source-media/lockscreenrestore-1-9-4-official-banner.jpg",
-        "git_blob_sha": "9b3daeaef54e24271c501d8a3aba2a772f7bd297"
+        "git_blob_sha": "9b3daeaef54e24271c501d8a3aba2a772f7bd297",
+        "sha256": "303577adb8967f515c41630fe85ce9b60d8392547fbca846b1d91cf002fc60d0"
       },
       "screenshots": [
         {
           "url": "https://media.havoc.app/6ac0f7b8058feb85f94fabb3",
           "alt": "Official LockScreenRestore screenshot showing the iOS 15-style music player with large artwork, transport controls and a volume slider",
           "local_path": "assets/articles/source-media/lockscreenrestore-1-9-4-official-music-player.png",
-          "git_blob_sha": "ca5d1b07e817ec49aa9c43cc5d8112cbe1288041"
+          "git_blob_sha": "ca5d1b07e817ec49aa9c43cc5d8112cbe1288041",
+          "sha256": "c04f1ec03b34321d46f23a0e7c2a31703b28ca690182c071179a3871fd5dcd79"
         }
-      ]
+      ],
+      "retrieval_status": "Re-read the live Havoc HTML and __NEXT_DATA__ pageProps.info for LockScreenRestore 1.9.6 on 2026-11-20; downloaded both official assets and verified exact byte-for-byte matches with the committed files.",
+      "verified_version": "1.9.6",
+      "verified_at": "2026-11-20T18:00:00+03:00"
     },
     "com.blacknoisy.prism": {
       "credit_label": "blacknoisy — official Prism Havoc listing",
@@ -1787,5 +1792,5 @@
       "retrieval_note": "Retrieved both live Havoc package pages, inspected __NEXT_DATA__ pageProps.content.screenshots/banner and current 1.2.3 metadata, downloaded and visually inspected the exact official PNG assets, then created faithful JPEG derivatives for the site."
     }
   },
-  "updated_at": "2026-11-20T12:00:32+03:00"
+  "updated_at": "2026-11-20T18:00:00+03:00"
 }
