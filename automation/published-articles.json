@@ -2,6 +2,51 @@
   "entries": [
     {
       "action": "create",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/bezelify-lite-1-2-3-official-settings.jpg",
+          "media_credit": "T4MAG0 — official Bezelify Lite settings screenshot from Havoc",
+          "media_sha256": "e7666e65bd7cc39e5df5bda49f6b30822960e937bb7dd537c70689bff2dbb198",
+          "media_source_url": "https://media.havoc.app/6af6b074724b1d4898374a4f"
+        }
+      ],
+      "article_sha256": "1f8b457bd621129fcc925b4309c87eae698e3f648f3c91246e480ca0896f7735",
+      "candidate_fingerprint": "comparison.bezelify-lite-1.2.3-pro-1.2.3-2026-11-20",
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "channel": "scheduled-tweak-roundup-comparison",
+      "compat": "Both Havoc packages list iOS 15.0–18.5 and rootless support; the developer changelog also states RootHide. A compatible device, firmware and jailbreak are still required.",
+      "description": "Compare Bezelify Lite and Pro 1.2.3 by price, screenshot frames, editor, video and GIF tools, iOS support, privacy, upgrade path and recovery.",
+      "developer": "T4MAG0",
+      "entry_type": "comparison",
+      "href": "bezelify-lite-vs-pro-screenshot-tweak-comparison/",
+      "image": "assets/articles/source-media/bezelify-pro-1-2-3-official-banner.jpg",
+      "media_alt": "Official Bezelify Pro banner showing its screenshot framing, editor and video features",
+      "media_credit": "T4MAG0 — official Bezelify Pro Havoc banner and Bezelify Lite settings screenshot",
+      "media_retrieval_status": "Retrieved the live Havoc HTML and inspected __NEXT_DATA__ pageProps.content.screenshots/banner, downloaded the exact official assets, visually inspected them, and committed faithful JPEG derivatives.",
+      "media_sha256": "d85dcafc243ca1ddcc92310f9d1f01fcfe89fe0f5a805688ad834173bcd55891",
+      "media_source_url": "https://media.havoc.app/6af2036ef82ee9a0270850b0",
+      "modified_at": "2026-11-20T12:00:32+03:00",
+      "name": "Bezelify Lite vs Pro",
+      "package": "comparison.bezelify-lite-pro",
+      "published_at": "2026-11-20T12:00:32+03:00",
+      "quality_target": 9,
+      "release": "Bezelify Lite 1.2.3 and Bezelify Pro 1.2.3 — November 16, 2026",
+      "route": "bezelify-lite-vs-pro-screenshot-tweak-comparison/",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "bezelify-lite-vs-pro-screenshot-tweak-comparison",
+      "source_name": "Official live Bezelify Lite and Pro Havoc product pages, embedded package data, screenshots and version histories",
+      "source_page_url": "https://havoc.app/package/bezelifypro",
+      "source_url": "https://havoc.app/package/bezelifylite",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshot",
+      "source_visual_url": "https://media.havoc.app/6af2036ef82ee9a0270850b0",
+      "title": "Bezelify Lite 1.2.3 vs Pro 1.2.3: Is the $4.99 Upgrade Worth It?",
+      "version": "Bezelify Lite 1.2.3 / Bezelify Pro 1.2.3"
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "comparison.infobar-1.4.0-powertrace-1.0.3b-2026-11-19",
       "channel": "scheduled-tweak-comparison",
       "href": "infobar-vs-powertrace-system-monitor-battery-hud-comparison/",

@@ -1759,7 +1759,33 @@
         }
       ],
       "retrieval_note": "Retrieved from current Havoc package HTML __NEXT_DATA__ on November 19, 2026, when Solo 1.0.2 was current. Both PNGs were visually inspected; the screenshot demonstrates the interface and is not evidence of compatibility on every device."
+    },
+    "comparison.bezelify-lite-pro": {
+      "credit_label": "T4MAG0 — official Bezelify Pro banner and Bezelify Lite settings screenshot from Havoc",
+      "source_page_url": "https://havoc.app/package/bezelifypro",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6af2036ef82ee9a0270850b0",
+        "alt": "Official Bezelify Pro banner showing its screenshot framing, editor and video features",
+        "local_path": "assets/articles/source-media/bezelify-pro-1-2-3-official-banner.jpg",
+        "git_blob_sha": "1038c5ef2a2e5e1dc90a02ba5ad31247d665ed1b",
+        "sha256": "d85dcafc243ca1ddcc92310f9d1f01fcfe89fe0f5a805688ad834173bcd55891",
+        "source_sha256": "ad777a2682cafd060a518ae0ddc8110eef0ddc179a0036cc0f356570a11f40fc",
+        "optimization": "JPEG derivative of the official 1920×1080 Havoc PNG, quality 88, no crop or resize"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6af6b074724b1d4898374a4f",
+          "alt": "Official Bezelify Lite settings screenshot showing automatic framing enabled and Pro controls locked",
+          "local_path": "assets/articles/source-media/bezelify-lite-1-2-3-official-settings.jpg",
+          "git_blob_sha": "4a0b98a72f28e34c417d2c568d815821d2e1177d",
+          "sha256": "e7666e65bd7cc39e5df5bda49f6b30822960e937bb7dd537c70689bff2dbb198",
+          "source_sha256": "d348d53ae2a77f52111ac12e63015c292a1d9635b795c0d0486f4a0f71c1512d",
+          "optimization": "JPEG derivative resized proportionally from the official 1647×2945 Havoc PNG to 900×1609, quality 85"
+        }
+      ],
+      "retrieval_note": "Retrieved both live Havoc package pages, inspected __NEXT_DATA__ pageProps.content.screenshots/banner and current 1.2.3 metadata, downloaded and visually inspected the exact official PNG assets, then created faithful JPEG derivatives for the site."
     }
   },
-  "updated_at": "2026-11-19"
+  "updated_at": "2026-11-20T12:00:32+03:00"
 }
