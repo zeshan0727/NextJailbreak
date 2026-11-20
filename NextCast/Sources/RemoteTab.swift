@@ -429,23 +429,6 @@ struct RemoteTab: View {
 
             selectedControlSurface
 
-            if let command = lastPressedCommand {
-                HStack(spacing: 7) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(visualStyle.accent)
-                    Text("Pressed: \(commandFeedbackLabel(command))")
-                        .foregroundStyle(visualStyle.text)
-                    Spacer(minLength: 0)
-                }
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 7)
-                .background(visualStyle.key,
-                            in: Capsule())
-                .transition(.opacity.combined(with: .scale(scale: 0.96)))
-                .accessibilityLabel("Pressed \(commandFeedbackLabel(command))")
-            }
-
             HStack(spacing: 12) {
                 keyButton(.back, symbol: "arrow.uturn.backward", title: "Back")
                 keyButton(.home, symbol: "house.fill", title: "Home", tint: visualStyle.accent)
@@ -683,28 +666,6 @@ struct RemoteTab: View {
         let feedback = UISelectionFeedbackGenerator()
         feedback.prepare()
         feedback.selectionChanged()
-    }
-
-    private func commandFeedbackLabel(_ command: RemoteCommand) -> String {
-        switch command {
-        case .up: return "Up"
-        case .down: return "Down"
-        case .left: return "Left"
-        case .right: return "Right"
-        case .ok: return "OK"
-        case .back: return "Back"
-        case .home: return "Home"
-        case .playPause: return "Play / Pause"
-        case .rewind: return "Rewind"
-        case .forward: return "Forward"
-        case .volumeUp: return "Volume Up"
-        case .volumeDown: return "Volume Down"
-        case .mute: return "Mute"
-        case .power: return "Power"
-        case .channelUp: return "Channel Up"
-        case .channelDown: return "Channel Down"
-        case .info: return "Info"
-        }
     }
 
     private var androidPairingSheet: some View {
