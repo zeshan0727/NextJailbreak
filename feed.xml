@@ -2,6 +2,14 @@
 <rss version="2.0">
   <channel>
     <item>
+      <title>How to Install OpenSSH and Transfer Files with SFTP on Dopamine</title>
+      <link>https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</guid>
+      <pubDate>Fri, 20 Nov 2026 03:00:00 GMT</pubDate>
+      <description>Install Procursus OpenSSH on Dopamine 3.0.13, transfer files safely with SFTP or SCP, understand rootless paths, add SSH keys and fix connection or permission errors.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
+<item>
       <title>iOS 27.2.1 Jailbreak Status: Liter8 Works on iPhone 11—With Major Limits</title>
       <link>https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/ios-27-2-rc-jailbreak-status-update/</guid>
@@ -210,14 +218,6 @@
       <pubDate>Thu, 12 Nov 2026 08:55:39 GMT</pubDate>
       <description>Compare the project-recommended LiveContainer nightly 20261108 with Feather 2.9.0 by release stability, app model, certificates, App IDs, extensions, notifications, JIT and isolation.</description>
       <category>IPA Installer Comparison</category>
-    </item>
-    <item>
-      <title>How to Install OpenSSH on Dopamine 3.0.13 Safely</title>
-      <link>https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/install-openssh-dopamine-rootless-jailbreak-guide/</guid>
-      <pubDate>Thu, 12 Nov 2026 03:02:00 GMT</pubDate>
-      <description>Install OpenSSH on Dopamine 3.0.13 safely, connect as mobile over a trusted LAN, add an SSH key, troubleshoot access and remove the server cleanly.</description>
-      <category>Evergreen Jailbreak Guide</category>
     </item>
     <item>
       <title>AudioRecorder XS Adds Ringtone Support and a Built-In Audio Editor</title>

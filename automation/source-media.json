@@ -57,7 +57,7 @@
         "sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6"
       },
       "screenshots": [],
-      "retrieval_note": "Reused the exact official 192×192 PNG already retrieved and verified from the Dopamine 3.0.13 source tag. Dopamine and Procursus do not publish a dedicated OpenSSH setup screenshot."
+      "retrieval_note": "Reused the exact official 192×192 PNG already retrieved, inspected and committed from the Dopamine 3.0.13 source tag. Dopamine and Procursus do not publish a dedicated OpenSSH or SFTP walkthrough image; the guide does not fabricate one."
     },
     "project.erosion": {
       "credit_label": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
