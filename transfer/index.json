@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T20:59:06Z",
+  "updatedAt": "2026-11-20T10:28:00Z",
   "files": [
+    {
+      "id": "nextcast-1.5.16",
+      "name": "NexaPlay 1.5.16 — iOS Media Hub, Chromecast and Downloads",
+      "fileName": "NextCast-1.5.16.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.16",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.5.16/NextCast-1.5.16.tipa",
+      "sha256": "d1978d1a54ba791dbc31f01d7a47fe0b5fdeb66554b09cf3e2aa7032b5fe9ab3",
+      "sizeBytes": 28285143,
+      "notes": "NexaPlay with VLC, browser, converter, Chromecast and downloads. iOS 16 build verified; on-device testing required."
+    },
+    {
+      "id": "nextcast-1.5.16-ipa",
+      "name": "NexaPlay 1.5.16 — IPA (TrollStore)",
+      "fileName": "NextCast-1.5.16.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.16",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.5.16/NextCast-1.5.16.ipa",
+      "sha256": "d1978d1a54ba791dbc31f01d7a47fe0b5fdeb66554b09cf3e2aa7032b5fe9ab3",
+      "sizeBytes": 28285143,
+      "notes": "Ad-hoc signed IPA for TrollStore. Not signed for standard iOS installation."
+    },
     {
       "id": "medtrack-1.2.3-b6-test",
       "name": "MedTrack 1.2.3 — Original Build 1 Widget Restored",
