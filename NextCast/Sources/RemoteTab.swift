@@ -219,7 +219,7 @@ struct RemoteTab: View {
         VStack(alignment: .leading, spacing: 13) {
             HStack {
                 Image(systemName: "tv.fill")
-                    .foregroundStyle(NexaPalette.orange)
+                    .foregroundStyle(visualStyle.accent)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(ready ? displayName : "Select a TV")
                         .font(.headline)
@@ -249,7 +249,7 @@ struct RemoteTab: View {
                             .foregroundStyle(remote.brand == brand ? Color.white : Color.primary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 11)
-                            .background(remote.brand == brand ? Color.cyan : Color.secondary.opacity(0.10),
+                            .background(remote.brand == brand ? visualStyle.accent : visualStyle.key,
                                         in: Capsule())
                         }
                         .buttonStyle(.plain)
@@ -286,7 +286,7 @@ struct RemoteTab: View {
                             .frame(maxWidth: .infinity, minHeight: 48)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(NexaPalette.orange)
+                    .tint(visualStyle.accent)
                     HStack(spacing: 12) {
                     CastButton().frame(width: 44, height: 44)
                     VStack(alignment: .leading, spacing: 3) {
@@ -316,7 +316,7 @@ struct RemoteTab: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(NexaPalette.orange)
+                        .tint(visualStyle.accent)
                         .foregroundStyle(.black)
                         if remote.connected {
                             Button("Done") { showSetup = false }
@@ -343,7 +343,11 @@ struct RemoteTab: View {
                 }
             }
         }
-        .nextSurface()
+        .padding(15)
+        .background(visualStyle.surface,
+                    in: RoundedRectangle(cornerRadius: 21, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 21, style: .continuous)
+            .strokeBorder(visualStyle.stroke, lineWidth: 1))
     }
 
     private var displayName: String {
