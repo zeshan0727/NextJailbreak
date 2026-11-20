@@ -2,6 +2,35 @@
   "entries": [
     {
       "action": "create",
+      "candidate_fingerprint": "jailbreak-development.tims-cooked-socket-fd-reuse-correction-2026-11-20",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "channel": "scheduled-current-jailbreak-development",
+      "compat": "Research scope is arm64e on iOS 27.0 and 27.0.1. No device support, kernel read/write, PAC/SPTM bypass, jailbreak or installable end-user tool is established.",
+      "description": "Tims‑Cooked’s November 20 review says earlier iOS 27 socket events can be explained by file-descriptor reuse. See what is confirmed, unproven and required next.",
+      "entry_type": "jailbreak-development",
+      "href": "tims-cooked-ios-27-socket-uaf-correction/",
+      "modified_at": "2026-11-21T00:00:13+03:00",
+      "name": "Tims Cooked",
+      "package": "research.tims-cooked",
+      "published_at": "2026-11-21T00:00:13+03:00",
+      "quality_target": 9,
+      "release": "November 20, 2026 source correction and static-only checkpoint",
+      "route": "tims-cooked-ios-27-socket-uaf-correction/",
+      "run_id": "scheduled-2026-11-20T21:00:13Z",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "tims-cooked-ios-27-socket-uaf-correction",
+      "source_name": "Official Tims-Cooked repository, correction note, current-status ledger and checkpoint release",
+      "source_page_url": "https://github.com/ramonburf/Tims-Cooked",
+      "source_url": "https://github.com/ramonburf/Tims-Cooked/blob/main/research-updates/2026-11-20-socket-fd-reuse-erratum.md",
+      "title": "Tims‑Cooked Retracts iOS 27 Socket-UAF Claim: What the Evidence Now Shows",
+      "version": "November 20, 2026 evidence correction",
+      "visual_status": "No correction-specific screenshot or release artwork; generic repository cards and unrelated analysis frames were intentionally not used."
+    },
+    {
+      "action": "create",
       "additional_media": [
         {
           "image": "assets/articles/source-media/bezelify-lite-1-2-3-official-settings.jpg",
@@ -11545,8 +11574,18 @@
       "published_at": "2026-11-20T18:00:00+03:00",
       "run_id": "scheduled-2026-11-20T15:00:00Z",
       "version": "1.9.6"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "jailbreak-development.tims-cooked-socket-fd-reuse-correction-2026-11-20",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "tims-cooked-ios-27-socket-uaf-correction/",
+      "package": "research.tims-cooked",
+      "published_at": "2026-11-21T00:00:13+03:00",
+      "run_id": "scheduled-2026-11-20T21:00:13Z",
+      "version": "November 20, 2026 evidence correction"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-20T18:00:00+03:00"
+  "updated_at": "2026-11-21T00:00:13+03:00"
 }

@@ -2,6 +2,15 @@
 <rss version="2.0">
   <channel>
     <item>
+      <title>Tims‑Cooked Retracts iOS 27 Socket-UAF Claim: What the Evidence Now Shows</title>
+      <link>https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</guid>
+      <pubDate>Fri, 20 Nov 2026 21:00:13 GMT</pubDate>
+      <description>Tims‑Cooked’s November 20 review says earlier iOS 27 socket events can be explained by file-descriptor reuse. See what is confirmed, unproven and required next.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+
+    <item>
       <title>LockScreenRestore 1.9.6 Blocks iOS 17 Installs and Fixes Landscape Wallpaper</title>
       <link>https://nextjailbreak.com/lockscreenrestore-1-8-2-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/lockscreenrestore-1-8-2-update/</guid>
