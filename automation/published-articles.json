@@ -3013,41 +3013,36 @@
       "version": "Official guide revision 2026-10-25 / palera1n rootless flow"
     },
     {
-      "additional_media": [
-        {
-          "credit": "Source visual from github.com",
-          "image": "assets/articles/source-media/palera1n-3-0-0-beta-2-gui-dfu-fixes-detail-b8ad42813f.png",
-          "image_url": "https://opengraph.githubassets.com/8696974cc13c7691ed71889df3af88bb03a172a7b7c0cc714e395ff3865cede7/palera1n/palera1n/releases/tag/v3.0.0-beta.2",
-          "origin": "og:image",
-          "source_host": "github.com",
-          "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.2"
-        }
-      ],
       "category": {
-        "id": "jailbreak",
-        "label": "Jailbreak"
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
       },
-      "description": "palera1n 3.0.0 beta 3 adds a recovery-mode CLI DFU helper, experimental Linux AppImages with GUI, a macOS Liquid Glass icon and corrected CLI credits.",
+      "description": "Beta 4 fixes a timing-attack privilege-escalation issue in Linux GUI builds introduced in beta 3. Check pre-release status, official artifacts and A8–A11 limits.",
       "entry_type": "source-news",
       "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
       "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
-      "media_credit": "palera1n team — official beta 3 GUI screenshot from the tagged source",
-      "media_retrieval_status": "Retrieved from the official v3.0.0-beta.3 tagged repository, inspected, stored locally and embedded in the article and social metadata.",
+      "media_credit": "palera1n team — official GUI screenshot; identical Git blob in beta 3 and beta 4 tags, illustrating the interface rather than the security fix",
+      "media_retrieval_status": "Reused the existing official GUI screenshot. Confirmed the same Git blob 235a0b859af9093e5dac26aa8d3e22d9011a84cb at both the v3.0.0-beta.3 and v3.0.0-beta.4 tags; the committed image remains embedded in the article and social metadata.",
       "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
-      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
-      "modified_at": "2026-10-25T00:58:24Z",
+      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.4/.github/demo.png",
+      "modified_at": "2026-11-22T00:04:53+03:00",
       "name": "palera1n",
-      "package": "palera1n-gui-beta2",
+      "package": "palera1n-3.0.0-beta.4",
       "published_at": "2026-09-22T06:21:05+00:00",
       "quality_target": 9,
-      "selection_pool": "user-authorized-six-article-batch-20260921",
-      "source_name": "github.com",
-      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
-      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "palera1n official GitHub release, tagged fix commit and project documentation",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
+      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
       "source_visual_origin": "official-tagged-repository-screenshot",
-      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
-      "title": "palera1n 3.0.0 Beta 3 Adds Linux AppImages and a CLI DFU Helper",
-      "version": "3.0.0-beta.3"
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
+      "title": "palera1n 3.0.0 Beta 4 Fixes Linux GUI Privilege-Escalation Flaw",
+      "version": "3.0.0-beta.4",
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.palera1n-3.0.0-beta.4-linux-gui-pkexec-fix-2026-11-22",
+      "compat": "A8–A11 and listed Apple T2 hardware only; official manual lists iOS/iPadOS/tvOS 15–26 and bridgeOS 5–10, with specific device requirements; A11 passcode restrictions apply. Beta 4 does not expand compatibility.",
+      "developer": "palera1n team",
+      "release": "v3.0.0-beta.4 latest pre-release (2026-11-21); v2.4 latest stable (2026-07-27)"
     },
     {
       "additional_media": [],
@@ -11705,8 +11700,19 @@
       "published_at": "2026-11-21T18:02:51+03:00",
       "run_id": "scheduled-2026-11-21T15:02:51Z",
       "version": "1.2.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.palera1n-3.0.0-beta.4-linux-gui-pkexec-fix-2026-11-22",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
+      "package": "palera1n-3.0.0-beta.4",
+      "previous_version": "3.0.0-beta.3",
+      "published_at": "2026-11-22T00:04:53+03:00",
+      "run_id": "scheduled-2026-11-22T00:04:53+03:00",
+      "version": "3.0.0-beta.4"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-21T18:02:51+03:00"
+  "updated_at": "2026-11-22T00:04:53+03:00"
 }

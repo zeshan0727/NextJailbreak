@@ -2,6 +2,15 @@
 <rss version="2.0">
   <channel>
     <item>
+      <title>palera1n 3.0.0 Beta 4 Fixes Linux GUI Privilege-Escalation Flaw</title>
+      <link>https://nextjailbreak.com/palera1n-3-0-0-beta-2-gui-dfu-fixes/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/palera1n-3-0-0-beta-2-gui-dfu-fixes/</guid>
+      <pubDate>Sat, 21 Nov 2026 21:04:53 GMT</pubDate>
+      <description>Beta 4 fixes a timing-attack privilege-escalation issue in Linux GUI builds introduced in beta 3. Check pre-release status, official artifacts and A8–A11 limits.</description>
+      <category>Current Jailbreak Development</category>
+    </item>
+
+    <item>
       <title>Tethera 1.2.0 Adds Hotspot Widgets, Monthly Caps and Wi-Fi Automation</title>
       <link>https://nextjailbreak.com/tethera-1-2-0-hotspot-widget-monthly-allowance-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/tethera-1-2-0-hotspot-widget-monthly-allowance-update/</guid>
