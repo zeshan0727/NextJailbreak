@@ -42,9 +42,15 @@ struct Movie: Codable, Identifiable, Equatable {
     var castCompatible: Bool {
         ["mp4", "m4v", "webm", "mov", "ts", "m2ts"].contains(localURL.pathExtension.lowercased())
     }
+    /// Allows an unchanged MKV file to be offered to a Cast receiver as an
+    /// experimental direct stream. This does not imply receiver compatibility.
+    var canAttemptDirectCast: Bool {
+        castCompatible || localURL.pathExtension.lowercased() == "mkv"
+    }
     var mimeType: String {
         switch localURL.pathExtension.lowercased() {
         case "mp4", "m4v": return "video/mp4"
+        case "mkv": return "video/x-matroska"
         case "mov": return "video/quicktime"
         case "webm": return "video/webm"
         case "ts", "m2ts": return "video/mp2t"
@@ -285,7 +291,13 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 guard let self, self.pendingCastMovie != nil,
                       self.expectedStreamID == streamID else { return }
                 self.didReceiveMediaGET = true
-                self.castStatus = "TV requested movie bytes · starting playback…"
+                if self.pendingCastMovie?.format == "MKV" {
+                    self.castStatus = "TV requested original MKV bytes · checking playback…"
+                    NextCastPlaybackLog.shared.append("cast-mkv-http-get",
+                        "stream=\(streamID.uuidString) mode=original")
+                } else {
+                    self.castStatus = "TV requested movie bytes · starting playback…"
+                }
             }
         }
         attachIfConnected()
@@ -308,8 +320,8 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
             errorMessage = castStatus
             return
         }
-        guard movie.castCompatible else {
-            errorMessage = "The TV cannot directly decode this container. Play it on iPhone, or use MP4 (H.264/AAC) for Chromecast. MKV playback on iPhone is supported."
+        guard movie.canAttemptDirectCast else {
+            errorMessage = "This container cannot be sent directly to the selected Cast receiver. Use TV-compatible MP4 preparation instead."
             return
         }
         streamAttempt += 1
@@ -322,7 +334,14 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
         activeLoadRequest = nil
         expectedMediaURL = nil
         expectedStreamID = nil
-        castStatus = "Preparing local video stream…"
+        let isOriginalMKV = movie.format == "MKV"
+        castStatus = isOriginalMKV
+            ? "Preparing original MKV stream · no conversion…"
+            : "Preparing local video stream…"
+        if isOriginalMKV {
+            NextCastPlaybackLog.shared.append("cast-mkv-direct",
+                "mode=original mime=\(movie.mimeType) bytes=\(movie.fileSize) receiver=\(tvModelName)")
+        }
         server.makeURL(for: movie) { [weak self] result in
             guard let self, self.streamAttempt == attempt else { return }
             switch result {
@@ -345,7 +364,9 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                 self.localStreamLoaded = true
                 self.hasStartedTVPlayback = false
                 self.lockStreamKeeper.setCasting(true)
-                self.castStatus = "Sending video URL to \(self.tvName)…"
+                self.castStatus = isOriginalMKV
+                    ? "Sending original MKV to \(self.tvName) · no conversion…"
+                    : "Sending video URL to \(self.tvName)…"
                 self.expectedMediaURL = mediaURL
                 self.expectedStreamID = UUID(uuidString: mediaURL.lastPathComponent)
                 let request = client.loadMedia(info)
@@ -358,9 +379,15 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
                     try? await Task.sleep(nanoseconds: 30_000_000_000)
                     guard let self, self.streamAttempt == attempt,
                           self.pendingCastMovie != nil else { return }
-                    self.castStatus = self.didReceiveMediaGET
-                        ? "TV received video but did not start playback. Check TV media session."
-                        : "TV did not request the video from the iPhone. Check Wi-Fi/client isolation."
+                    if isOriginalMKV {
+                        self.castStatus = self.didReceiveMediaGET
+                            ? "TV received the original MKV but did not start playback. This receiver may not support Matroska or one of its codecs."
+                            : "TV did not request the original MKV. Check Wi-Fi/client isolation."
+                    } else {
+                        self.castStatus = self.didReceiveMediaGET
+                            ? "TV received video but did not start playback. Check TV media session."
+                            : "TV did not request the video from the iPhone. Check Wi-Fi/client isolation."
+                    }
                     self.errorMessage = self.castStatus
                     self.pendingCastMovie = nil
                 }
@@ -433,7 +460,11 @@ final class CastController: NSObject, ObservableObject, GCKSessionManagerListene
 
     func request(_ request: GCKRequest, didFailWithError error: GCKError) {
         guard activeLoadRequest === request else { return }
-        castStatus = "Chromecast rejected the video: " + error.localizedDescription
+        if pendingCastMovie?.format == "MKV" {
+            castStatus = "This Cast receiver rejected the original MKV stream. Try TV-compatible MP4 preparation for this receiver."
+        } else {
+            castStatus = "Chromecast rejected the video: " + error.localizedDescription
+        }
         errorMessage = castStatus
         NextCastPlaybackLog.shared.append("cast-load-failed", "code=\(error.code)")
         pendingWebTitle = nil
