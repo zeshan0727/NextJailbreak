@@ -8011,6 +8011,35 @@
       "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
       "title": "How to Uninstall TrollStore Safely—and Choose Whether to Keep Apps",
       "version": "2.1.1"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "individual-update.tethera-1.2.0-hotspot-widgets-monthly-allowance-2026-11-21",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc package metadata lists iOS 15.0–26.0.1, jailbreak required and rootless support. The widget requires iOS 16.1+. The Wi-Fi connection-retention fix specifically requires a jailbreak that injects tweaks into the Wi-Fi service, such as Dopamine. A prior 1.1.0 changelog mentions a RootHide-Patcher-converted install fix; do not treat that as blanket RootHide or rootful support.",
+      "description": "Tethera 1.2.0 adds Home and Lock Screen hotspot widgets, monthly data caps, Wi-Fi departure automation and IPv6 controls. Check iOS and jailbreak limits.",
+      "developer": "AADiOS",
+      "entry_type": "individual-tweak-update",
+      "href": "tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
+      "media_retrieval_status": "Official Havoc package HTML and __NEXT_DATA__ media retrieval returned HTTP 403 during review; no screenshot or banner was embedded.",
+      "modified_at": "2026-11-21T18:02:51+03:00",
+      "name": "Tethera",
+      "package": "com.aadios.tethera",
+      "published_at": "2026-11-21T18:02:51+03:00",
+      "quality_target": 9,
+      "release": "Tethera 1.2.0 is the newest entry in Havoc's version history checked 2026-11-21; Havoc showed '4 days ago' while iOS Repo Updates groups the package update under 2026-11-16.",
+      "route": "/tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "tethera-1-2-0-hotspot-widget-monthly-allowance-update",
+      "source_name": "Official Havoc package listing and version history; AADiOS developer site; iOS Repo Updates date cross-check",
+      "source_page_url": "https://havoc.app/package/tethera",
+      "source_url": "https://havoc.app/package/tethera/changes",
+      "source_secondary_url": "https://www.ios-repo-updates.com/repository/havoc/",
+      "title": "Tethera 1.2.0 Adds Hotspot Widgets, Monthly Caps and Wi-Fi Automation",
+      "version": "1.2.0"
     }
   ],
   "events": [
@@ -11666,8 +11695,18 @@
       "published_at": "2026-11-21T06:00:51+03:00",
       "run_id": "scheduled-2026-11-21T03:00:51Z",
       "version": "Guide revision 2026-11-21 / Dopamine 3.0.13"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "individual-update.tethera-1.2.0-hotspot-widgets-monthly-allowance-2026-11-21",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
+      "package": "com.aadios.tethera",
+      "published_at": "2026-11-21T18:02:51+03:00",
+      "run_id": "scheduled-2026-11-21T15:02:51Z",
+      "version": "1.2.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-21T06:00:51+03:00"
+  "updated_at": "2026-11-21T18:02:51+03:00"
 }
