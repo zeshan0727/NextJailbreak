@@ -2,6 +2,41 @@
   "entries": [
     {
       "action": "create",
+      "candidate_fingerprint": "evergreen-guide.jailbreak-tethering-types-2026-11-21",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "compat": "Definitions verified against current Dopamine 3.x, palera1n, Liter8 and TrollStore primary documentation. Tool support still depends on exact device, chip, iOS build and installation method.",
+      "description": "Understand tethered, semi-tethered, semi-untethered and untethered jailbreaks, with current Dopamine, palera1n and Liter8 examples and recovery steps.",
+      "entry_type": "evergreen-guide",
+      "href": "tethered-vs-semi-tethered-vs-semi-untethered-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine 3.0.13 source tag",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "modified_at": "2026-11-21T06:00:51+03:00",
+      "name": "Jailbreak tethering types",
+      "package": "guide.jailbreak.tethering-types",
+      "published_at": "2026-11-21T06:00:51+03:00",
+      "quality_target": 9,
+      "release": "Guide revision November 21, 2026",
+      "route": "tethered-vs-semi-tethered-vs-semi-untethered-jailbreak-guide/",
+      "run_id": "scheduled-2026-11-21T03:00:51Z",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "tethered-vs-semi-tethered-vs-semi-untethered-jailbreak-guide",
+      "source_name": "Official Dopamine, palera1n, Liter8 and TrollStore documentation",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.x/README.md",
+      "source_url": "https://docs.palera.in/installing-palera1n/",
+      "source_visual_origin": "official-dopamine-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "Tethered vs Semi-Tethered vs Semi-Untethered Jailbreaks: What Happens After Reboot",
+      "version": "Guide revision 2026-11-21 / Dopamine 3.0.13"
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "jailbreak-development.tims-cooked-socket-fd-reuse-correction-2026-11-20",
       "category": {
         "id": "current-jailbreak-development",
@@ -11584,8 +11619,18 @@
       "published_at": "2026-11-21T00:00:13+03:00",
       "run_id": "scheduled-2026-11-20T21:00:13Z",
       "version": "November 20, 2026 evidence correction"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "evergreen-guide.jailbreak-tethering-types-2026-11-21",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "tethered-vs-semi-tethered-vs-semi-untethered-jailbreak-guide/",
+      "package": "guide.jailbreak.tethering-types",
+      "published_at": "2026-11-21T06:00:51+03:00",
+      "run_id": "scheduled-2026-11-21T03:00:51Z",
+      "version": "Guide revision 2026-11-21 / Dopamine 3.0.13"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-21T00:00:13+03:00"
+  "updated_at": "2026-11-21T06:00:51+03:00"
 }

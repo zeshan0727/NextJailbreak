@@ -1790,7 +1790,21 @@
         }
       ],
       "retrieval_note": "Retrieved both live Havoc package pages, inspected __NEXT_DATA__ pageProps.content.screenshots/banner and current 1.2.3 metadata, downloaded and visually inspected the exact official PNG assets, then created faithful JPEG derivatives for the site."
+    },
+    "guide.jailbreak.tethering-types": {
+      "credit_label": "opa334 — official Dopamine 3.0.13 source tag",
+      "source_page_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+        "alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+        "local_path": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+        "git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+        "sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6"
+      },
+      "screenshots": [],
+      "retrieval_note": "Reused the exact official 192×192 PNG already retrieved, inspected and committed from the Dopamine 3.0.13 source tag. It illustrates the current semi-untethered example; no fabricated taxonomy graphic was created."
     }
   },
-  "updated_at": "2026-11-20T18:00:00+03:00"
+  "updated_at": "2026-11-21T06:00:51+03:00"
 }
