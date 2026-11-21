@@ -183,7 +183,7 @@ struct MoviePlayerScreen: View {
                         }
                         Button(broadcast ? "Playing on TV" :
                                castPreparer.preparing ? "Preparing TV MP4…" :
-                               movie.format == "MKV" ? "Prepare MKV & Cast" : "Play on TV") {
+                               movie.format == "MKV" ? "Prepare TV MP4 & Cast" : "Play on TV") {
                             requestedCast = true
                             expectedCastMovieID = nil
                             if cast.isConnected { playOnTV() }
@@ -235,7 +235,9 @@ struct MoviePlayerScreen: View {
                             }
                         }
                         if cast.isConnected && !broadcast {
-                            Button("Cast original immediately (no conversion)") {
+                            Button(movie.format == "MKV"
+                                   ? "Cast Original MKV · No Conversion"
+                                   : "Cast original immediately (no conversion)") {
                                 requestedCast = false
                                 expectedCastMovieID = nil
                                 if castPreparer.preparing { castPreparer.cancel() }
@@ -248,7 +250,9 @@ struct MoviePlayerScreen: View {
                                 requestedCast = true
                             }
                             .buttonStyle(.bordered)
-                            Text("Instant streaming. Some TV receivers cannot play the original audio codec, so sound may be missing.")
+                            Text(movie.format == "MKV"
+                                 ? "Streams the untouched MKV from your iPhone over Wi-Fi. No re-encoding or remuxing."
+                                 : "Instant streaming. Some TV receivers cannot play the original audio codec, so sound may be missing.")
                                 .font(.caption2).foregroundStyle(.secondary)
                         }
                         if cast.isConnected && (requestedCast || broadcast) {
@@ -272,7 +276,7 @@ struct MoviePlayerScreen: View {
                             }
                         }
                         if movie.format == "MKV" {
-                            Text("MKV is prepared as TV-compatible MP4 using the new FFmpeg conversion engine. The video is copied without quality loss when it is already H.264; audio becomes AAC stereo.")
+                            Text("Direct MKV playback depends on the receiver. Google's default Cast receiver does not list Matroska as a supported container, so it may reject the original file. Use Prepare TV MP4 & Cast if direct playback fails.")
                                 .font(.caption).foregroundStyle(.orange)
                         } else if !movie.castCompatible {
                             Text("MPEG, MKV, AVI and other supported containers are converted into TV MP4. Unsupported video codecs require H.264 re-encoding.")
