@@ -67,8 +67,8 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: NexaPlay
-        CFBundleShortVersionString: "1.5.18"
-        CFBundleVersion: "42"
+        CFBundleShortVersionString: "1.5.19"
+        CFBundleVersion: "43"
         CADisableMinimumFrameDurationOnPhone: true
         UILaunchScreen: {}
         CFBundleDocumentTypes:
