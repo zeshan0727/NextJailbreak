@@ -2,6 +2,10 @@ name: Build iOS App
 on:
   push:
     branches: ['**']
+    paths:
+      - 'project.yml'
+      - 'QuickNotes/**'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 permissions:
   contents: write

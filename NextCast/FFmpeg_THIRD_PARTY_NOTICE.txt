@@ -1,0 +1,17 @@
+Next Cast — FFmpeg / FFmpegKit third-party notice
+
+The conversion engine uses FFmpeg 8.1.2 (min, non-GPL build) via FFmpegKit
+and its corresponding dynamic XCFramework libraries.
+
+Upstream project: https://github.com/arthenica/ffmpeg-kit-next
+Prebuilt redistribution:
+https://github.com/sk3llo/ffmpeg_kit_flutter/releases/tag/8.1.2-min
+
+FFmpeg is licensed primarily under LGPL 2.1 or later. FFmpegKit uses LGPL 3.0
+for its non-GPL variant. Exact upstream license texts and build recipes are
+available from the respective open-source repositories.
+
+These libraries are dynamically linked. The source movie is never uploaded;
+all demuxing, decoding, encoding and remuxing occurs on the device.
+
+Next Cast does not copy third-party application binaries, artwork or UI assets.
