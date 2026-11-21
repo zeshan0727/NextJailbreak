@@ -70,10 +70,15 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           p = Path("Sources/MoviePlayerScreen.swift").read_text()
+          c = Path("Sources/NextCastApp.swift").read_text()
           assert "if movie.isConverted {" in p and "cast.load(movie)" in p
           assert "receiverID == expectedCastMovieID" in p
+          assert "Cast Original MKV" in p and "No re-encoding or remuxing." in p
+          assert "movie.canAttemptDirectCast" in c
+          assert 'case "mkv": return "video/x-matroska"' in c
+          assert "cast-mkv-direct" in c and "cast-mkv-http-get" in c
           assert "requestedCast && cast.nowCastingMovie != nil" not in p
-          print("Verified converted movie direct Cast and request correlation")
+          print("Verified unchanged MKV HTTP Cast path, Matroska MIME, diagnostics and existing Cast request correlation")
           PY
           xcodegen generate
           pod install --no-repo-update
