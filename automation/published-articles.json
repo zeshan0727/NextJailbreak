@@ -2,6 +2,43 @@
   "entries": [
     {
       "action": "create",
+      "candidate_fingerprint": "comparison.package-converters-roothide-patcher-vs-derootifier-2026-11-21",
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "channel": "scheduled-tweak-roundup-comparison",
+      "compat": "RootHide Patcher converts eligible conventional rootless packages for RootHide; Derootifier converts eligible legacy/rootful packages for conventional rootless environments. Neither creates jailbreak availability or guarantees tweak compatibility.",
+      "description": "Compare RootHide Patcher 2.1.4 and Derootifier 1.3 by conversion direction, package architecture, jailbreak environment, dependencies, limits and recovery.",
+      "entry_type": "comparison",
+      "href": "roothide-patcher-vs-derootifier-package-converter-comparison/",
+      "image": "assets/articles/source-media/roothide-patcher-2-1-4-official-icon.png",
+      "media_alt": "Official RootHide Patcher app icon from the project source repository",
+      "media_credit": "RootHide and palera1n — official project source assets",
+      "media_source_url": "https://github.com/roothide/RootHidePatcher/blob/master/derootifier-2-modified.png",
+      "modified_at": "2026-11-21T12:03:16+03:00",
+      "name": "RootHide Patcher vs Derootifier",
+      "package": "comparison.roothide-patcher-derootifier",
+      "published_at": "2026-11-21T12:03:16+03:00",
+      "quality_target": 9,
+      "release": "RootHide Patcher 2.1.4 / Derootifier 1.3",
+      "route": "roothide-patcher-vs-derootifier-package-converter-comparison/",
+      "run_id": "scheduled-2026-11-21T09:03:16Z",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "roothide-patcher-vs-derootifier-package-converter-comparison",
+      "source_name": "Official RootHide Patcher and palera1n Derootifier repositories",
+      "source_page_url": "https://github.com/roothide/RootHidePatcher",
+      "source_url": "https://github.com/palera1n/Derootifier",
+      "source_visual_origin": "official-project-icons",
+      "source_visual_url": "https://raw.githubusercontent.com/roothide/RootHidePatcher/master/derootifier-2-modified.png",
+      "title": "RootHide Patcher 2.1.4 vs Derootifier 1.3: Which Package Converter Do You Need?",
+      "version": "RootHide Patcher 2.1.4 / Derootifier 1.3",
+      "secondary_image": "assets/articles/source-media/derootifier-1-3-official-icon.png",
+      "secondary_media_alt": "Official Derootifier arm64e app icon from the palera1n project repository",
+      "secondary_media_source_url": "https://github.com/palera1n/Derootifier/blob/master/derootifier-2-modified.png"
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "evergreen-guide.jailbreak-tethering-types-2026-11-21",
       "category": {
         "id": "evergreen-jailbreak-guide",

@@ -1804,7 +1804,27 @@
       },
       "screenshots": [],
       "retrieval_note": "Reused the exact official 192×192 PNG already retrieved, inspected and committed from the Dopamine 3.0.13 source tag. It illustrates the current semi-untethered example; no fabricated taxonomy graphic was created."
+    },
+    "comparison.roothide-patcher-derootifier": {
+      "credit_label": "RootHide and palera1n — official project source assets",
+      "source_page_url": "https://github.com/roothide/RootHidePatcher",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/roothide/RootHidePatcher/master/derootifier-2-modified.png",
+        "alt": "Official RootHide Patcher app icon from the project source repository",
+        "local_path": "assets/articles/source-media/roothide-patcher-2-1-4-official-icon.png",
+        "git_blob_sha": "e00c047229745b07d8c76ee638c5e433987aaaa6"
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/palera1n/Derootifier/master/derootifier-2-modified.png",
+          "alt": "Official Derootifier arm64e app icon from the palera1n project repository",
+          "local_path": "assets/articles/source-media/derootifier-1-3-official-icon.png",
+          "source_page_url": "https://github.com/palera1n/Derootifier/blob/master/derootifier-2-modified.png",
+          "git_blob_sha": "ccc77484ce2fd56960df606ad89f17f3a140d46b"
+        }
+      ]
     }
   },
-  "updated_at": "2026-11-21T06:00:51+03:00"
+  "updated_at": "2026-11-21T12:03:16+03:00"
 }
