@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
+    <item><title>Liter8 0.3.1 Fixes Keychain Persistence; iOS 27.3 Beta 2 v2 Is Not Listed</title><link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link><guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid><pubDate>Sun, 22 Nov 2026 20:55:55 GMT</pubDate><description>Liter8 0.3.1 fixes keychain persistence; the November 22 main merge hardens host-side file operations. The current iOS 27.3 beta 2 v2 build is not listed by the project.</description><category>Current Jailbreak Development</category></item>
+
     <item><title>Soko 1.2.0 Brings the Depth Effect to Bottom Lock Screen Widgets</title><link>https://nextjailbreak.com/soko-1-1-0-lock-screen-widgets-roothide-update/</link><guid isPermaLink="true">https://nextjailbreak.com/soko-1-1-0-lock-screen-widgets-roothide-update/</guid><pubDate>Sun, 22 Nov 2026 15:00:00 GMT</pubDate><description>Soko 1.2.0 keeps wallpaper Depth Effect working with bottom Lock Screen widgets, fixes editor, swipe and notification layout issues, and ships separate rootful, rootless and RootHide packages for jailbroken iOS 16–18.7.9.</description><category>Individual Tweak Update</category></item>
     <item>
       <title>vphone-cli Setup Guide: Run a Virtual iPhone on Apple Silicon</title>
@@ -252,14 +254,7 @@
       <description>Watusi 3 for WhatsApp 1.3.31 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.</description>
       <category>System &amp; Utilities</category>
     </item>
-    <item>
-      <title>Liter8 Adds iOS 27.3 Beta 1 Support for iPhone 11—With Major Limits</title>
-      <link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid>
-      <pubDate>Thu, 12 Nov 2026 21:02:07 GMT</pubDate>
-      <description>Liter8 now boots iOS 27.3 beta 1 on a reviewed iPhone 11 with Sileo and tfp0. Check the erase-restore, tethered-boot, signing and unsupported-feature limits first.</description>
-      <category>Current Jailbreak Development</category>
-    </item>
+    
     <item>
       <title>Atria 1.9.3 Adds Native RootHide Support and Custom App Library Categories</title>
       <link>https://nextjailbreak.com/atria-1-9-3-roothide-app-library-categories/</link>

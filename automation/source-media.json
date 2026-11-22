@@ -14,8 +14,27 @@
         "source_sha256": "3ce5204b72d1f18275c9c644698a629ff77ef5e93da86d6434e8ad2e60a806fe",
         "optimization": "JPEG derivative of the official 2400×1380 PNG, quality 90, no crop or resize"
       },
-      "screenshots": [],
-      "retrieval_note": "Retrieved from Liter8 commit 8c8629e and visually inspected. The official 2400×1380 PNG explicitly identifies iOS 27.2.1 build 24B156 and iPhone12,1, and shows root SSH, Sileo and TrollStore Lite. The committed JPEG is an uncropped, same-size quality-90 derivative."
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
+          "alt": "Official Liter8 project photo showing an iPhone 11 with Sileo beside a root SSH session on a Mac; representative project imagery, not a beta 2 test result.",
+          "local_path": "assets/articles/source-media/liter8-ios-27-3-beta1-official-iphone11-sileo.jpg",
+          "git_blob_sha": "03bf969e90df7e4101912f0d01b48254d0798107",
+          "sha256": "5d0cad626ec7f2889e7ad9d9c4eddcc0c772f2a746358f035b40bcce019d9f6f",
+          "source_commit": "9bfe8fa51dea964be0122412f45abc60a0cbfa4a",
+          "context": "Official project photo showing an earlier iPhone 11 iOS 27.0 Sileo and root SSH test; representative imagery, not evidence of the iOS 27.3 beta 1 or beta 2 build."
+        }
+      ],
+      "retrieval_note": "Retrieved from Liter8 commit 8c8629e and visually inspected. The official 2400×1380 PNG explicitly identifies iOS 27.2.1 build 24B156 and iPhone12,1, and shows root SSH, Sileo and TrollStore Lite. The committed JPEG is an uncropped, same-size quality-90 derivative. The official iPhone11-sileo.jpg project photo is registered separately and is used with a caption identifying it as an earlier iOS 27.0 test, not a beta 1 or beta 2 screenshot. Current release and support facts are tracked against v0.3.1, main commit 4863c50 and Apple's 24C5049f release.",
+      "latest_project_state": {
+        "latest_tag": "v0.3.1",
+        "latest_tag_date": "2026-11-14",
+        "latest_tag_url": "https://github.com/Xplo8E/Liter8/releases/tag/v0.3.1",
+        "latest_main_commit": "4863c50656efadc92655031e8b39eeda167c6738",
+        "latest_main_commit_date": "2026-11-22T08:54:21Z",
+        "current_apple_beta": "iOS 27.3 beta 2 v2 (24C5049f), 2026-11-19",
+        "liter8_support_note": "Current README lists iOS 27.3 beta 1 (24C5037i) on iPhone 11 only; beta 2 v2 is not listed. Builds outside the table can be extracted for research, but make-cfw, restore, boot and provision refuse them."
+      }
     },
     "com.cysxl.atria": {
       "credit_label": "CySxL — official Atria 1.9.3 package repository",
