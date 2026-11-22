@@ -1825,6 +1825,38 @@
           "git_blob_sha": "ccc77484ce2fd56960df606ad89f17f3a140d46b"
         }
       ]
+    },
+    "moe.waru.soko": {
+      "credit_label": "waruhachi — official Soko 1.2.0 source repository",
+      "source_page_url": "https://github.com/waruhachi/Soko/releases/tag/1.2.0",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Banner.jpeg",
+        "alt": "Official Soko banner showing two iPhone Lock Screens with widgets positioned at the bottom",
+        "local_path": "assets/articles/source-media/soko-1-2-0-official-banner.jpeg",
+        "git_blob_sha": "c3f583e802afdd1710d300173f6cc91fe191f67c"
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Editor.png",
+          "alt": "Official Soko Lock Screen editor screenshot showing the bottom widget row and the swipe gesture for moving it",
+          "local_path": "assets/articles/source-media/soko-1-2-0-official-editor.png",
+          "git_blob_sha": "4bbee252b9f79b500501c25f1c6b3e5f6fcef675"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Layouts.png",
+          "alt": "Official Soko screenshot comparing Lock Screen widgets positioned at the top and bottom on separate wallpapers",
+          "local_path": "assets/articles/source-media/soko-1-2-0-official-layouts.png",
+          "git_blob_sha": "146a09af89a87b936f14dfc2db15240a706baf98"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Notifications.png",
+          "alt": "Official Soko screenshot showing notifications and Now Playing above the bottom Lock Screen widgets",
+          "local_path": "assets/articles/source-media/soko-1-2-0-official-notifications.png",
+          "git_blob_sha": "84d24347a0f09c6bdb5a314e936e2027a7eacb81"
+        }
+      ],
+      "retrieval_note": "The four image assets were retrieved from the exact official 1.2.0 GitHub tag, decoded and visually inspected before embedding. The official Havoc package HTML and its __NEXT_DATA__ pageProps media fields returned HTTP 403 during this run, so no Havoc-hosted image was used."
     }
   },
   "updated_at": "2026-11-21T12:03:16+03:00"

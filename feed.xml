@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
+    <item><title>Soko 1.2.0 Brings the Depth Effect to Bottom Lock Screen Widgets</title><link>https://nextjailbreak.com/soko-1-1-0-lock-screen-widgets-roothide-update/</link><guid isPermaLink="true">https://nextjailbreak.com/soko-1-1-0-lock-screen-widgets-roothide-update/</guid><pubDate>Sun, 22 Nov 2026 15:00:00 GMT</pubDate><description>Soko 1.2.0 keeps wallpaper Depth Effect working with bottom Lock Screen widgets, fixes editor, swipe and notification layout issues, and ships separate rootful, rootless and RootHide packages for jailbroken iOS 16–18.7.9.</description><category>Individual Tweak Update</category></item>
     <item>
       <title>vphone-cli Setup Guide: Run a Virtual iPhone on Apple Silicon</title>
       <link>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</link>
