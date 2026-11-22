@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-kernel",
+      "name": "DUCK",
+      "version": "1.0",
+      "build": "1.0",
+      "platform": "iPhone",
+      "minimumOS": "iOS 14.0+",
+      "bundleId": "com.nextsolution.kernel",
+      "icon": "/install/icons/com-nextsolution-kernel-c13b0a8750e1.png",
+      "manifest": "/install/com-nextsolution-kernel.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-kernel/1.0/com-nextsolution-kernel-1.0-1.0.ipa",
+      "sha256": "c13b0a8750e15158d3344701d2def03378761fa1d9469c70165ec30be55a8637",
+      "sizeBytes": 7974831,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-medtrack",
       "name": "MedTrack",
       "version": "1.3.1",
@@ -595,5 +616,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-11-18"
+  "updated": "2026-11-22"
 }
