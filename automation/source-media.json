@@ -1910,7 +1910,7 @@
         "package_repository_commit": "03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3",
         "package_repository_commit_date": "2026-11-16T17:53:25Z",
         "firmware_range": "iOS 15.0–18.x (rootless; package dependency <19.0)",
-        "support_note": "iOS 16–17 adapter remains experimental; one tester report on iOS 18.7.1. AOD is experimental. TrollStore alone is not sufficient."
+        "support_note": "iOS 16–18 adapter compatibility remains experimental; one tester report on iOS 18.7.1. One limited RootHide beta report exists for iPhone X / iOS 16.1.2 / RootHide 2.4.9.27, not a stable 1.2.0 guarantee. No rootful package is published. AOD is experimental. TrollStore alone is not sufficient."
       }
     }
   },

@@ -17,8 +17,8 @@
         "label": "Individual Tweak Update"
       },
       "channel": "scheduled-individual-tweak-update",
-      "compat": "Developer release v1.2.0 lists rootless iOS 15–18; package metadata declares firmware >=15.0 and <19.0, arm64 and arm64e binaries, mobilesubstrate >=0.9.5000 and PreferenceLoader. README labels iOS 16–17 experimental and cites one tester report on iOS 18.7.1. Rootful and RootHide-specific support are not documented; TrollStore alone is not enough. A compatible jailbreak with tweak injection is required.",
-      "description": "NextClock 1.2.0 adds per-wallpaper image clock packs, animated preview, favorite-pack switching and date-font controls. Check rootless iOS 15–18 support, experimental iOS 16–17 behavior and Always-On Display limits.",
+      "compat": "Developer release v1.2.0 lists rootless iOS 15–18; package metadata declares firmware >=15.0 and <19.0, arm64 and arm64e binaries, mobilesubstrate >=0.9.5000 and PreferenceLoader. README labels iOS 16–18 experimental and cites one tester report on iOS 18.7.1. It also records one limited RootHide beta report on iPhone X / iOS 16.1.2 / RootHide 2.4.9.27, not a stable 1.2.0 guarantee. No rootful package is published; TrollStore alone is not enough. A compatible jailbreak with tweak injection is required.",
+      "description": "NextClock 1.2.0 adds per-wallpaper image clock packs, animated preview, favorite-pack switching and date-font controls. Check rootless iOS 15–18 limits, experimental iOS 16–18 behavior and Always-On Display caveats.",
       "developer": "RAtnik00",
       "entry_type": "individual-tweak-update",
       "href": "nextclock-1-2-0-per-wallpaper-clock-packs-live-preview-aod-update/",
