@@ -580,15 +580,15 @@
       "version": "PullOver Pro 3.0.1 / Aerial 5.1"
     },
     {
-      "action": "create",
+      "action": "update",
       "additional_media": [],
-      "candidate_fingerprint": "evergreen-guide.iphone-model-ios-build-jailbreak-compatibility-2026-11-15",
+      "candidate_fingerprint": "evergreen-guide.iphone-model-ios-build-jailbreak-compatibility-2026-11-23",
       "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
-      "compat": "Identification guide for iPhone and iPad. Current project baselines: Dopamine 3.0.13, palera1n 3.0.0 beta 3, TrollStore 2.1.1 and Erosion 0.3.1. Project availability still depends on exact hardware, firmware and sometimes build.",
-      "description": "Find your exact iPhone model, chip, iOS version and build before choosing Dopamine, palera1n or TrollStore. Includes current support limits and safe checks.",
+      "compat": "Current project matrix checked 2026-11-23: Dopamine 3.0.13 has no iOS 27 range; palera1n 2.4 is stable and 3.0.0 beta 4 is prerelease for A8–A11/T2 only; TrollStore 2.1.1 is limited to 14.0b2–16.6.1, 16.7 RC 20H18 and 17.0; Erosion 0.3.1 is the latest official IPA (0.3.2 beta 1 is source-only) and ends at 27.3 beta 1 build 24C5037i with worse_query patched from 24C5049d; Liter8 0.3.1 marks only standard iPhone 11 on 24C5037i as run and refuses unlisted builds.",
+      "description": "Updated: identify your exact iPhone model, chip, iOS version and build, then compare current official Dopamine, palera1n, TrollStore, Erosion and Liter8 support boundaries—including iOS 27.3 beta 2 v2 build 24C5049f.",
       "developer": "Next Jailbreak editorial; Apple and primary project documentation",
       "entry_type": "evergreen-jailbreak-guide",
       "href": "check-iphone-model-ios-build-jailbreak-compatibility/",
@@ -599,19 +599,19 @@
       "media_retrieval_status": "Retrieved directly from the Apple Support CDN, inspected locally as the exact 760×688 PNG and embedded without alteration.",
       "media_sha256": "a391edd5a028641b2900374ec22527537f0521c0ada1e29e4e8dcfde5c90733d",
       "media_source_url": "https://support.apple.com/en-gb/109065",
-      "modified_at": "2026-11-15T06:04:00+03:00",
+      "modified_at": "2026-11-23T06:00:00+03:00",
       "name": "Jailbreak compatibility pre-check",
       "package": "guide.jailbreak.model-build-compatibility",
       "published_at": "2026-11-15T06:04:00+03:00",
-      "release": "Guide revision 2026-11-15",
+      "release": "Guide revision 2026-11-23; Dopamine 3.0.13; palera1n 2.4 stable / 3.0.0 beta 4 prerelease; TrollStore 2.1.1; Erosion 0.3.1 official IPA (0.3.2 beta 1 source-only); Liter8 0.3.1; Apple iOS 27.3 beta 2 v2 build 24C5049f dated 2026-11-19.",
       "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "source_name": "Apple device-identification instructions plus current Dopamine, palera1n and TrollStore primary documentation",
-      "source_page_url": "https://support.apple.com/en-gb/109065",
-      "source_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/Exploits/momentarius/Info.plist",
+      "source_name": "Apple Support and Apple Developer release page; official Dopamine, palera1n, TrollStore, Erosion and Liter8 release notes and tagged/current device documentation",
+      "source_page_url": "https://developer.apple.com/news/releases/?id=11192026a",
+      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
       "source_visual_origin": "official-apple-support-screenshot",
       "source_visual_url": "https://cdsassets.apple.com/live/7WUAS350/images/ios/locale/en-gb/ios-27-iphone-17-pro-settings-general-about-software-version.png",
       "title": "How to Check Your iPhone Model and iOS Build Before Jailbreaking",
-      "version": "Guide revision 2026-11-15 / Dopamine 3.0.13 / palera1n 3.0.0 beta 3 / TrollStore 2.1.1"
+      "version": "Guide revision 2026-11-23 / Dopamine 3.0.13 / palera1n 2.4 stable + 3.0.0 beta 4 prerelease / TrollStore 2.1.1 / Erosion 0.3.1 (0.3.2 source-only) / Liter8 0.3.1"
     },
     {
       "action": "create",
@@ -11739,8 +11739,19 @@
       "published_at": "2026-11-22T18:00:00+03:00",
       "run_id": "scheduled-2026-11-22T15:00:00Z",
       "version": "1.2.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "evergreen-guide.iphone-model-ios-build-jailbreak-compatibility-2026-11-23",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "check-iphone-model-ios-build-jailbreak-compatibility/",
+      "package": "guide.jailbreak.model-build-compatibility",
+      "previous_version": "Dopamine 3.0.13 / palera1n 3.0.0 beta 3 / TrollStore 2.1.1 / Erosion 0.3.1",
+      "published_at": "2026-11-23T06:00:00+03:00",
+      "run_id": "scheduled-2026-11-23T06:00:00+03:00",
+      "version": "Guide revision 2026-11-23 / Dopamine 3.0.13 / palera1n 2.4 stable + 3.0.0 beta 4 prerelease / TrollStore 2.1.1 / Erosion 0.3.1 (0.3.2 source-only) / Liter8 0.3.1"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-22T18:00:00+03:00"
+  "updated_at": "2026-11-23T06:00:00+03:00"
 }

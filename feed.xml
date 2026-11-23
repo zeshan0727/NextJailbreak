@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
+    <lastBuildDate>Mon, 23 Nov 2026 03:00:00 GMT</lastBuildDate>
+    <item>
+      <title>How to Check Your iPhone Model and iOS Build Before Jailbreaking</title>
+      <link>https://nextjailbreak.com/check-iphone-model-ios-build-jailbreak-compatibility/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/check-iphone-model-ios-build-jailbreak-compatibility/</guid>
+      <pubDate>Mon, 23 Nov 2026 03:00:00 GMT</pubDate>
+      <description>Updated November 23: check exact model, chip, iOS build and current official support limits for Dopamine, palera1n, TrollStore, Erosion and Liter8, including iOS 27.3 beta build exceptions.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
     <item><title>Liter8 0.3.1 Fixes Keychain Persistence; iOS 27.3 Beta 2 v2 Is Not Listed</title><link>https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</link><guid isPermaLink="true">https://nextjailbreak.com/ios-27-jailbreak-status-security-fixes-usbliter8/</guid><pubDate>Sun, 22 Nov 2026 20:55:55 GMT</pubDate><description>Liter8 0.3.1 fixes keychain persistence; the November 22 main merge hardens host-side file operations. The current iOS 27.3 beta 2 v2 build is not listed by the project.</description><category>Current Jailbreak Development</category></item>
 
     <item><title>Soko 1.2.0 Brings the Depth Effect to Bottom Lock Screen Widgets</title><link>https://nextjailbreak.com/soko-1-1-0-lock-screen-widgets-roothide-update/</link><guid isPermaLink="true">https://nextjailbreak.com/soko-1-1-0-lock-screen-widgets-roothide-update/</guid><pubDate>Sun, 22 Nov 2026 15:00:00 GMT</pubDate><description>Soko 1.2.0 keeps wallpaper Depth Effect working with bottom Lock Screen widgets, fixes editor, swipe and notification layout issues, and ships separate rootful, rootless and RootHide packages for jailbroken iOS 16–18.7.9.</description><category>Individual Tweak Update</category></item>
@@ -190,14 +199,7 @@
       <description>Compare PullOver Pro 3.0.1 and Aerial 5.1 by workflow, price, Rootless and RootHide support, iOS limits, conflicts, setup and recovery.</description>
       <category>Tweak Roundup &amp; Comparison</category>
     </item>
-    <item>
-      <title>How to Check Your iPhone Model and iOS Build Before Jailbreaking</title>
-      <link>https://nextjailbreak.com/check-iphone-model-ios-build-jailbreak-compatibility/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/check-iphone-model-ios-build-jailbreak-compatibility/</guid>
-      <pubDate>Sun, 15 Nov 2026 03:04:00 GMT</pubDate>
-      <description>Find your exact iPhone model, chip, iOS version and build before choosing Dopamine, palera1n or TrollStore. Includes current support limits and safe checks.</description>
-      <category>Evergreen Jailbreak Guide</category>
-    </item>
+    
     <item>
       <title>PullOver Pro 3.0.1 Fixes Missing Handle After Respring on iOS 15–27</title>
       <link>https://nextjailbreak.com/pullover-pro-3-0-1-respring-handle-fix-roothide/</link>
