@@ -2,6 +2,60 @@
   "entries": [
     {
       "action": "create",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/nextclock-1-2-0-official-pack-selector.png",
+          "media_alt": "Official NextClock pack selector screenshot listing Anime, CRT, Pixel and Sakura digit styles",
+          "media_credit": "RAtnik00 — official NextClock APT repository depiction screenshot",
+          "media_source_url": "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/assets/nextclock/06-packs.png",
+          "media_git_blob_sha": "da0e6b86434a7c2ad7b85746ffb1bb0949f725db"
+        }
+      ],
+      "candidate_fingerprint": "individual-update.nextclock-1.2.0-per-wallpaper-packs-live-preview-2026-11-23",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "Developer release v1.2.0 lists rootless iOS 15–18; package metadata declares firmware >=15.0 and <19.0, arm64 and arm64e binaries, mobilesubstrate >=0.9.5000 and PreferenceLoader. README labels iOS 16–17 experimental and cites one tester report on iOS 18.7.1. Rootful and RootHide-specific support are not documented; TrollStore alone is not enough. A compatible jailbreak with tweak injection is required.",
+      "description": "NextClock 1.2.0 adds per-wallpaper image clock packs, animated preview, favorite-pack switching and date-font controls. Check rootless iOS 15–18 support, experimental iOS 16–17 behavior and Always-On Display limits.",
+      "developer": "RAtnik00",
+      "entry_type": "individual-tweak-update",
+      "href": "nextclock-1-2-0-per-wallpaper-clock-packs-live-preview-aod-update/",
+      "image": "assets/articles/source-media/nextclock-1-2-0-official-settings.png",
+      "media_alt": "Official NextClock settings screenshot showing the Enabled switch, selected Pixel pack, animation mode, Low Power Mode option and layout controls",
+      "media_credit": "RAtnik00 — official NextClock APT repository depiction settings screenshot",
+      "media_git_blob_sha": "66f83ac43dc843a9c335d47fdc87ff244e4837b6",
+      "media_retrieval_status": "Retrieved and visually inspected the exact official 04-settings.png and 06-packs.png files from the developer's APT repository at commit 03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3. These are established depiction screenshots, not captures of the redesigned 1.2.0 editor; captions state that limitation. Direct read-only retrieval of the Havoc package page, changes page and page data returned HTTP 403, so no Havoc media was used.",
+      "media_source_url": "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/assets/nextclock/04-settings.png",
+      "modified_at": "2026-11-23T18:00:00+03:00",
+      "name": "NextClock",
+      "package": "com.ratnik00.nextclock",
+      "published_at": "2026-11-23T18:00:00+03:00",
+      "quality_target": 9,
+      "release": "NextClock 1.2.0 stable — published 2026-11-13T18:11:26Z; latest stable GitHub release and developer APT package index checked 2026-11-23",
+      "route": "/nextclock-1-2-0-per-wallpaper-clock-packs-live-preview-aod-update/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "nextclock-1-2-0-per-wallpaper-clock-packs-live-preview-aod-update",
+      "source_name": "RAtnik00 official NextClock v1.2.0 GitHub release, tagged source and developer APT repository",
+      "source_page_url": "https://github.com/RAtnik00/NextClock/releases/tag/v1.2.0",
+      "source_url": "https://github.com/RAtnik00/NextClock/releases/tag/v1.2.0",
+      "source_visual_origin": "official-developer-apt-repository-depiction-screenshots",
+      "source_visual_url": "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/assets/nextclock/04-settings.png",
+      "title": "NextClock 1.2.0 Adds Per-Wallpaper Clock Packs, Live Preview and Experimental AOD",
+      "version": "1.2.0",
+      "previous_version": "1.1.1",
+      "additional_source_urls": [
+        "https://github.com/RAtnik00/NextClock/tree/v1.2.0",
+        "https://github.com/RAtnik00/NextClock/blob/v1.2.0/README.md",
+        "https://github.com/RAtnik00/NextClock/blob/v1.2.0/BETA-1.2.md",
+        "https://github.com/RAtnik00/repo/commit/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3",
+        "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/depictions/nextclock/depiction.json",
+        "https://ratnik00.github.io/repo/"
+      ]
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "comparison.package-converters-roothide-patcher-vs-derootifier-2026-11-21",
       "category": {
         "id": "tweak-roundup-comparison",
@@ -11768,8 +11822,18 @@
       "published_at": "2026-11-23T12:02:27+03:00",
       "run_id": "scheduled-2026-11-23T09:02:27Z",
       "version": "PullOver Pro 3.0.1 / Aerial 5.1 / PanoramicView 1.0.15"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "individual-update.nextclock-1.2.0-per-wallpaper-packs-live-preview-2026-11-23",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "nextclock-1-2-0-per-wallpaper-clock-packs-live-preview-aod-update/",
+      "package": "com.ratnik00.nextclock",
+      "published_at": "2026-11-23T18:00:00+03:00",
+      "run_id": "scheduled-2026-11-23T15:00:00Z",
+      "version": "1.2.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-23T12:02:27+03:00"
+  "updated_at": "2026-11-23T18:00:00+03:00"
 }

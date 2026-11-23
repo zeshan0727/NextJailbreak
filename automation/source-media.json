@@ -1876,7 +1876,43 @@
         }
       ],
       "retrieval_note": "The four image assets were retrieved from the exact official 1.2.0 GitHub tag, decoded and visually inspected before embedding. The official Havoc package HTML and its __NEXT_DATA__ pageProps media fields returned HTTP 403 during this run, so no Havoc-hosted image was used."
+    },
+    "com.ratnik00.nextclock": {
+      "credit_label": "RAtnik00 — official NextClock project and APT repository",
+      "source_page_url": "https://github.com/RAtnik00/NextClock/releases/tag/v1.2.0",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/RAtnik00/repo/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/assets/nextclock/04-settings.png",
+        "alt": "Official NextClock settings screenshot showing the Enabled switch, selected Pixel pack, animation mode, Low Power Mode option and layout controls",
+        "local_path": "assets/articles/source-media/nextclock-1-2-0-official-settings.png",
+        "git_blob_sha": "66f83ac43dc843a9c335d47fdc87ff244e4837b6",
+        "source_blob_sha": "66f83ac43dc843a9c335d47fdc87ff244e4837b6",
+        "source_commit": "03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3",
+        "context": "Official developer depiction settings capture; established settings surface, not the redesigned 1.2.0 editor."
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/RAtnik00/repo/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/assets/nextclock/06-packs.png",
+          "alt": "Official NextClock pack selector screenshot listing Anime, CRT, Pixel and Sakura digit styles",
+          "local_path": "assets/articles/source-media/nextclock-1-2-0-official-pack-selector.png",
+          "git_blob_sha": "da0e6b86434a7c2ad7b85746ffb1bb0949f725db",
+          "source_blob_sha": "da0e6b86434a7c2ad7b85746ffb1bb0949f725db",
+          "source_commit": "03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3",
+          "context": "Official pack-selector capture; illustrates selector UI, not a complete stable 1.2.0 pack inventory."
+        }
+      ],
+      "retrieval_note": "Both original PNGs were fetched from the official RAtnik00/repo main tree at commit 03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3, decoded and visually inspected before publication. Captions identify them as established depiction captures rather than screenshots of the redesigned 1.2.0 editor. Havoc package HTML, changes and page data returned HTTP 403; no Havoc image was used.",
+      "latest_project_state": {
+        "latest_stable_tag": "v1.2.0",
+        "latest_stable_release_date": "2026-11-13",
+        "latest_stable_release_url": "https://github.com/RAtnik00/NextClock/releases/tag/v1.2.0",
+        "latest_prerelease": "v1.2.0-beta10",
+        "package_repository_commit": "03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3",
+        "package_repository_commit_date": "2026-11-16T17:53:25Z",
+        "firmware_range": "iOS 15.0–18.x (rootless; package dependency <19.0)",
+        "support_note": "iOS 16–17 adapter remains experimental; one tester report on iOS 18.7.1. AOD is experimental. TrollStore alone is not sufficient."
+      }
     }
   },
-  "updated_at": "2026-11-21T12:03:16+03:00"
+  "updated_at": "2026-11-23T18:00:00+03:00"
 }
