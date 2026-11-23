@@ -546,38 +546,45 @@
         "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png",
         "assets/articles/source-media/aerial-official-split-stage-interface.jpg"
       ],
-      "candidate_fingerprint": "comparison.pullover-pro-3.0.1-vs-aerial-5.1-2026-11-15",
+      "candidate_fingerprint": "comparison.pullover-pro-aerial-panoramicview-2026-11-23",
       "category": {
         "id": "tweak-roundup-comparison",
         "label": "Tweak Roundup & Comparison"
       },
       "channel": "scheduled-tweak-roundup-comparison",
-      "compat": "PullOver Pro declares iOS 15–27 with Rootless and RootHide packages. Aerial is Rootless; Havoc metadata lists iOS 15.0–26.0.1 while its description says 15.0–17.7.10. A compatible jailbreak is required.",
-      "description": "Compare PullOver Pro 3.0.1 and Aerial 5.1 by workflow, price, Rootless and RootHide support, iOS limits, conflicts, setup and recovery.",
-      "developer": "c1d3r / Jond_ie; Aerial developer via Havoc",
+      "compat": "PullOver Pro lists iOS 15–27 with Rootless and RootHide and needs AltList; PanoramicView lists iOS 15.0–26.0.1, Dopamine, Rootless and RootHide, but excludes Home-button iPhones, iPhone Duo and iPad; Aerial is Rootless, with Havoc metadata 15.0–26.0.1 but description 15.0–17.7.10. All require a compatible jailbreak.",
+      "description": "Compare a free single-app overlay, two full-size paired apps and Stage Manager-style windows. Check exact iOS/device limits, RootHide support, prices and conflict caveats.",
+      "developer": "c1d3r / Jond_ie; uzra; 82flex",
       "entry_type": "comparison",
       "href": "pullover-pro-vs-aerial-multitasking-tweak-comparison/",
       "image": "assets/articles/source-media/aerial-5-1-official-banner.png",
       "media_alt": "Official Aerial banner with its colorful A logo and the text Stage Manager redesigned for iOS",
       "media_credit": "Aerial developer via Havoc; Jond_ie official PullOver Pro project repository",
-      "media_retrieval_status": "Reused four exact official developer/project assets already retrieved, inspected, hash-verified and registered in the publication manifest by the source articles; the comparison embeds one official asset from each project.",
+      "media_retrieval_status": "The official Aerial banner/interface and PullOver Pro project poster/overlay are reused unchanged. Direct read-only retrieval of the PanoramicView Havoc page HTML and __NEXT_DATA__ returned HTTP 403, so no PanoramicView screenshot, banner or icon could be verified or embedded.",
       "media_source_url": "https://media.havoc.app/6913433dd707490685941f1d",
-      "modified_at": "2026-11-15T12:07:00+03:00",
-      "name": "PullOver Pro vs Aerial",
-      "package": "comparison.pulloverpro-aerial",
+      "modified_at": "2026-11-23T12:02:27+03:00",
+      "name": "PullOver Pro vs Aerial vs PanoramicView",
+      "package": "comparison.pulloverpro-aerial-panoramicview",
       "published_at": "2026-11-15T12:07:00+03:00",
       "quality_target": 9,
-      "release": "PullOver Pro 3.0.1 — November 12, 2026; Aerial 5.1 — October 22, 2026",
+      "release": "PullOver Pro 3.0.1 — November 12, 2026; Aerial 5.1 — October 22, 2026; PanoramicView 1.0.15 — November 22, 2026 (initial release)",
       "route": "pullover-pro-vs-aerial-multitasking-tweak-comparison/",
       "selection_pool": "scheduled-tweak-roundup-comparison",
       "slug": "pullover-pro-vs-aerial-multitasking-tweak-comparison",
-      "source_name": "Official PullOver Pro project depiction and repository; Aerial live Havoc product page and version history",
-      "source_page_url": "https://havoc.app/package/aerial",
+      "source_name": "Official PullOver Pro project depiction/repository plus Aerial and PanoramicView Havoc product pages and version histories",
+      "source_page_url": "https://havoc.app/package/panoramic",
       "source_url": "https://jond-ie.github.io/repo/depictions/com.johndie.pulloverpro-rootless.html",
       "source_visual_origin": "official-project-overlay-and-havoc-developer-banner-interface",
       "source_visual_url": "https://media.havoc.app/6913433dd707490685941f1d",
-      "title": "PullOver Pro 3.0.1 vs Aerial 5.1: Quick Overlay or Full Stage Manager?",
-      "version": "PullOver Pro 3.0.1 / Aerial 5.1"
+      "title": "PullOver Pro 3.0.1 vs Aerial 5.1 vs PanoramicView 1.0.15: Which Multitasking Style Fits?",
+      "version": "PullOver Pro 3.0.1 / Aerial 5.1 / PanoramicView 1.0.15",
+      "additional_source_urls": [
+        "https://github.com/Jond-ie/pulloverpro",
+        "https://havoc.app/package/aerial",
+        "https://havoc.app/package/aerial/changes",
+        "https://havoc.app/package/panoramic"
+      ],
+      "previous_version": "PullOver Pro 3.0.1 / Aerial 5.1"
     },
     {
       "action": "update",
@@ -11750,8 +11757,19 @@
       "published_at": "2026-11-23T06:00:00+03:00",
       "run_id": "scheduled-2026-11-23T06:00:00+03:00",
       "version": "Guide revision 2026-11-23 / Dopamine 3.0.13 / palera1n 2.4 stable + 3.0.0 beta 4 prerelease / TrollStore 2.1.1 / Erosion 0.3.1 (0.3.2 source-only) / Liter8 0.3.1"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "comparison.pullover-pro-aerial-panoramicview-2026-11-23",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "pullover-pro-vs-aerial-multitasking-tweak-comparison/",
+      "package": "comparison.pulloverpro-aerial-panoramicview",
+      "previous_version": "PullOver Pro 3.0.1 / Aerial 5.1",
+      "published_at": "2026-11-23T12:02:27+03:00",
+      "run_id": "scheduled-2026-11-23T09:02:27Z",
+      "version": "PullOver Pro 3.0.1 / Aerial 5.1 / PanoramicView 1.0.15"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-23T06:00:00+03:00"
+  "updated_at": "2026-11-23T12:02:27+03:00"
 }
