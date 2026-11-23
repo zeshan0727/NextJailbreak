@@ -134,26 +134,26 @@
         "label": "Current Jailbreak Development"
       },
       "channel": "scheduled-current-jailbreak-development",
-      "compat": "Static disassembly targets iPhone14,2 iOS 27.0 build 24A5390f, compared with 24B119. Ordinary-app IOServiceOpen, client mode, callback/client-free ordering and memory-safety impact remain unverified; no device method test, kernel read/write, exploit or jailbreak.",
-      "description": "A November 22 exact-build review maps iOS 27 IOSurface notification dispatch, but ordinary-app reachability, memory corruption and a jailbreak remain unproven.",
+      "compat": "Static disassembly and chained-fixup analysis target iPhone14,2 iOS 27.0 build 24A5390f. Plain OSNumber cannot pass the IOSurfacePlaneInfo OSArray-or-subclass lookup. The visible n>3 rejection follows 24*n and 32*n allocation requests; no input-to-count chain, ordinary-app reachability, memory-safety effect, exploit, kernel primitive or jailbreak is established.",
+      "description": "A November 23 exact-build trace confirms IOSurfacePlaneInfo requires OSArray or a subclass, ruling out a plain OSNumber path while leaving count validation and exploitability unresolved.",
       "entry_type": "jailbreak-development",
       "href": "tims-cooked-ios-27-socket-uaf-correction/",
-      "modified_at": "2026-11-23T00:23:02+03:00",
+      "modified_at": "2026-11-23T23:44:20+03:00",
       "name": "Tims Cooked iOS 27 IOSurface research",
       "package": "research.tims-cooked",
       "published_at": "2026-11-21T00:00:13+03:00",
       "quality_target": 9,
-      "release": "November 22, 2026 IOSurface notification-dispatch static review; November 20 socket fd-reuse correction",
+      "release": "November 23, 2026 IOSurfacePlaneInfo OSArray class-gate static analysis; November 22 dispatch mapping; November 20 socket fd-reuse correction",
       "route": "tims-cooked-ios-27-socket-uaf-correction/",
       "run_id": "scheduled-2026-11-22T21:23:02Z",
       "selection_pool": "scheduled-current-jailbreak-development",
       "slug": "tims-cooked-ios-27-socket-uaf-correction",
-      "source_name": "Official Tims-Cooked README, November 22 IOSurface notification-dispatch and client-construction notes, and November 20 socket fd-reuse correction",
-      "source_page_url": "https://github.com/ramonburf/Tims-Cooked/commit/4d47ee144da10433fe255938795449baaf3429fb",
-      "source_url": "https://github.com/ramonburf/Tims-Cooked/blob/main/research-updates/2026-11-22-iosurface-notify-dispatch.md",
-      "title": "Tims‑Cooked Maps iOS 27 IOSurface Dispatch, But No Exploit Is Established",
-      "version": "iOS 27.0 (24A5390f) target / 24B119 comparison / IOSurface dispatch static mapping",
-      "visual_status": "No source screenshot or release artwork documents the IOSurface static mapping; the repository harness icon and unrelated analysis frames were not used."
+      "source_name": "Official Tims-Cooked README, November 23 IOSurfacePlaneInfo class-gate note, November 22 IOSurface dispatch notes, and November 20 socket fd-reuse correction",
+      "source_page_url": "https://github.com/ramonburf/Tims-Cooked/commit/f0a0a2e94eebf2fb3691206b1a8a178620053854",
+      "source_url": "https://github.com/ramonburf/Tims-Cooked/blob/main/research-updates/2026-11-23-iosurface-planeinfo-class-gate.md",
+      "title": "Tims‑Cooked Traces iOS 27 IOSurface OSArray Gate — No Exploit Yet",
+      "version": "iOS 27.0 build 24A5390f target / IOSurfacePlaneInfo OSArray-or-subclass lookup gate / static analysis only",
+      "visual_status": "No suitable original visual documents the IOSurfacePlaneInfo class-gate finding. The official repository's analysis contact sheet and AGXProbe app icon are unrelated; no article image or substitute artwork is embedded."
     },
     {
       "action": "create",
@@ -11832,8 +11832,19 @@
       "published_at": "2026-11-23T18:00:00+03:00",
       "run_id": "scheduled-2026-11-23T15:00:00Z",
       "version": "1.2.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.tims-cooked-iosurface-planeinfo-osarray-gate-2026-11-23",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "tims-cooked-ios-27-socket-uaf-correction/",
+      "package": "research.tims-cooked",
+      "previous_version": "iOS 27.0 (24A5390f) target / 24B119 comparison / IOSurface dispatch static mapping",
+      "published_at": "2026-11-23T23:44:20+03:00",
+      "run_id": "scheduled-2026-11-23T20:44:20Z",
+      "version": "iOS 27.0 build 24A5390f target / IOSurfacePlaneInfo OSArray-or-subclass lookup gate / static analysis only"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-23T18:00:00+03:00"
+  "updated_at": "2026-11-23T23:44:20+03:00"
 }

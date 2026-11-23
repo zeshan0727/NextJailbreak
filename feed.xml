@@ -59,11 +59,11 @@
     </item>
 
     <item>
-      <title>Tims‑Cooked Maps iOS 27 IOSurface Dispatch, But No Exploit Is Established</title>
+      <title>Tims‑Cooked Traces iOS 27 IOSurface OSArray Gate — No Exploit Yet</title>
       <link>https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</guid>
-      <pubDate>Sun, 22 Nov 2026 21:23:02 GMT</pubDate>
-      <description>A November 22 exact-build review maps iOS 27 IOSurface notification dispatch, but ordinary-app reachability, memory corruption and a jailbreak remain unproven.</description>
+      <pubDate>Mon, 23 Nov 2026 20:44:20 GMT</pubDate>
+      <description>A November 23 exact-build trace confirms IOSurfacePlaneInfo requires OSArray or a subclass, ruling out a plain OSNumber path while leaving count validation and exploitability unresolved.</description>
       <category>Current Jailbreak Development</category>
     </item>
 
