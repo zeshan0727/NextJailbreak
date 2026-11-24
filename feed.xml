@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <lastBuildDate>Tue, 24 Nov 2026 15:39:25 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 24 Nov 2026 21:00:23 GMT</lastBuildDate>
 <item><title>Tinge 26 1.0.3 Adds Adaptive Badge Threshold and Cleaner Color Controls</title><link>https://nextjailbreak.com/tinge-26-1-0-3-adaptive-badge-threshold-update/</link><guid isPermaLink="true">https://nextjailbreak.com/tinge-26-1-0-3-adaptive-badge-threshold-update/</guid><pubDate>Tue, 24 Nov 2026 15:39:25 GMT</pubDate><description>Tinge 26 1.0.3 adds a Darken / Lighten Threshold for adaptive Home Screen badge text and borders, sets explicit first-launch slider defaults, and shows static color pickers only when Static is selected. Check the separate RootHide and standard-rootless packages and the limited published test record.</description><category>Individual Tweak Update</category></item>
 
 <item><title>CarBridge 2.1.0 vs CarCast 1.2: iOS 18 Support Changes the CarPlay Choice</title><link>https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</guid><pubDate>Tue, 24 Nov 2026 09:00:00 GMT</pubDate><description>Havoc announced CarBridge 2.1.0 with iOS 18 support and improved app-switching stability. Compare it with CarCast 1.2, Airaw requirements, tested jailbreaks and the still-unpublished CarBridge point-build matrix.</description><category>Tweak Roundup &amp; Comparison</category></item>
@@ -66,11 +66,11 @@
     </item>
 
     <item>
-      <title>Tims‑Cooked Traces iOS 27 IOSurface OSArray Gate — No Exploit Yet</title>
+      <title>Tims‑Cooked Closes One iOS 27 IOSurface Parser Route — No Exploit Yet</title>
       <link>https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</guid>
-      <pubDate>Mon, 23 Nov 2026 20:44:20 GMT</pubDate>
-      <description>A November 23 exact-build trace confirms IOSurfacePlaneInfo requires OSArray or a subclass, ruling out a plain OSNumber path while leaving count validation and exploitability unresolved.</description>
+      <pubDate>Tue, 24 Nov 2026 21:00:23 GMT</pubDate>
+      <description>A November 24 exact-build static audit finds the iOS 27 IOSurface binary parser cannot seed a non-null collection parent through its explicit direct or callback paths. The separate text-parser route, ordinary-app reachability and exploitability remain unresolved.</description>
       <category>Current Jailbreak Development</category>
     </item>
 
