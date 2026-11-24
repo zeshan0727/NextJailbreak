@@ -5807,29 +5807,45 @@
     {
       "category": {
         "id": "jailbreak-guide",
-        "label": "Jailbreak Guide"
+        "label": "Evergreen Jailbreak Guide"
       },
-      "compat": "iOS 14.0 beta 2–16.6.1; iOS 16.7 RC (20H18); iOS 17.0",
-      "description": "Use the official TrollStore compatibility boundaries and installation-method matrix to choose TrollInstallerX, TrollHelperOTA, TrollRestore or another supported path.",
+      "compat": "TrollStore 2.1.1 README lists iOS 14.0 beta 2–16.6.1, iOS 16.7 RC (20H18) and iOS 17.0. The current iOS CFW Guide installer matrix additionally lists TrollRestore for iOS/iPadOS 15.8.7–15.8.8 on A8 and A9–A11; A12–A17/M1–M2 is Not Applicable. Dopamine issue #773 records the KFD puaf_landa patch on 15.8.7, so TrollStore installation must not be mistaken for jailbreak availability. TrollRestore requires a computer and Find My disabled during the modified-backup restore.",
+      "description": "Choose the correct TrollStore installer by exact iOS build and chip. Updated Nov 24 with the TrollRestore route for supported 15.8.7–15.8.8 devices.",
       "developer": "opa334",
       "entry_type": "evergreen-guide",
       "href": "trollstore-installation-method-guide/",
       "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
-      "media_credit": "Official TrollStore app icon by opa334",
-      "media_source_url": "https://github.com/opa334/TrollStore/blob/main/TrollStore/Resources/AppIcon76x76%402x.png",
-      "modified_at": "2026-10-02T02:56:51Z",
+      "media_credit": "opa334 — official TrollStore 2.1.1 source tag",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "modified_at": "2026-11-24T06:00:00+03:00",
       "name": "TrollStore",
       "published_at": "2026-10-02T02:56:51Z",
-      "release": "2026-04-01",
-      "selection_pool": "official-project-evergreen",
+      "release": "Latest official TrollStore release 2.1.1 (2026-04-01); device-specific TrollRestore matrix rechecked 2026-11-24",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
       "slug": "trollstore-installation-method-guide",
       "source": "https://github.com/opa334/TrollStore",
       "sourceImage": "https://github.com/opa334/TrollStore/blob/main/TrollStore/Resources/AppIcon76x76%402x.png",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/opa334/TrollStore",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/main/TrollStore/Resources/AppIcon76x76%402x.png",
+      "source_name": "opa334 TrollStore 2.1.1 README and release; current iOS CFW Guide installer matrix; JJTech0130 TrollRestore; opa334 Dopamine issue #773",
+      "source_page_url": "https://ios.cfw.guide/installing-trollstore/",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
       "title": "How to Install TrollStore in 2026: Choose the Right Method for Your iPhone",
-      "version": "2.1.1"
+      "version": "TrollStore 2.1.1 / TrollRestore 1.0 / installer matrix checked 2026-11-24",
+      "action": "update",
+      "candidate_fingerprint": "evergreen-guide.trollstore-installer-matrix-15-8-7-15-8-8-2026-11-24",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "run_id": "scheduled-2026-11-24T03:00:00Z",
+      "source_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "additional_source_urls": [
+        "https://github.com/opa334/TrollStore/blob/2.1.1/README.md",
+        "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+        "https://ios.cfw.guide/installing-trollstore/",
+        "https://ios.cfw.guide/installing-trollstore-trollrestore/",
+        "https://github.com/JJTech0130/TrollRestore",
+        "https://github.com/opa334/Dopamine/issues/773"
+      ],
+      "media_git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+      "media_alt": "Official TrollStore app icon from the opa334 TrollStore 2.1.1 source tag",
+      "source_visual_origin": "official-trollstore-app-icon"
     },
     {
       "category": {
@@ -11843,8 +11859,19 @@
       "published_at": "2026-11-23T23:44:20+03:00",
       "run_id": "scheduled-2026-11-23T20:44:20Z",
       "version": "iOS 27.0 build 24A5390f target / IOSurfacePlaneInfo OSArray-or-subclass lookup gate / static analysis only"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "evergreen-guide.trollstore-installer-matrix-15-8-7-15-8-8-2026-11-24",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "trollstore-installation-method-guide/",
+      "package": "com.opa334.TrollStore",
+      "previous_version": "TrollStore 2.1.1 / install matrix checked 2026-10-02",
+      "published_at": "2026-11-24T06:00:00+03:00",
+      "run_id": "scheduled-2026-11-24T03:00:00Z",
+      "version": "TrollStore 2.1.1 / TrollRestore 1.0 / installer matrix checked 2026-11-24"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-23T23:44:20+03:00"
+  "updated_at": "2026-11-24T06:00:00+03:00"
 }
