@@ -5456,7 +5456,7 @@
         "label": "Tweak Roundup & Comparison"
       },
       "compat": "Triggr: iOS 15–27 on Rootless or RootHide; named real-device tests through iOS 18.6.2 and virtual RootHide checks on iOS 18.6.2, 26.6.2 and 27.0.1. RemoteCompanion: iOS 14–17 with partial iOS 26 support; Rootless, Rootful and RootHide; v4.5.0 includes targeted iOS 18 and 26 fixes. Jailbreak availability remains device/build-specific.",
-      "description": "Compare Triggr 2.1.0 and RemoteCompanion 4.5.0 by triggers, automation logic, CLI, web access, privacy and jailbreak compatibility across Rootless, RootHide and Rootful.",
+      "description": "Compare Triggr 2.1.0 and RemoteCompanion 4.5.0 by triggers, automation, remote control, privacy, firmware and jailbreak-environment support.",
       "developer": "Jond-ie and saihgupr",
       "entry_type": "tweak-comparison",
       "href": "triggr-1-0-4-activator-automation-dopamine/",
