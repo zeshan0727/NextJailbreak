@@ -4207,35 +4207,53 @@
     },
     {
       "additional_media": [
-        "assets/articles/source-media/carcast-1-2-official-settings.jpg"
+        {
+          "image": "assets/articles/source-media/carcast-1-2-official-settings.jpg",
+          "media_alt": "Official CarCast 1.2 settings screenshot showing installed apps that can be added to or removed from the CarPlay Home screen",
+          "media_credit": "Dcsyhi — official CarCast 1.2 settings screenshot from Chariz",
+          "media_source_url": "https://cdn.chariz.cloud/asset/carcast/f8GbQK6NvWspeXr8A8AU5kKEP_OKww1f/assets/ER4PPUds01SAE7LmnoZmXLc2qZKjniv1A8XUEv3D6ixt9oggDYoeF8aWVOWqNIgix2PngnKbrCuafcG1d2R8nw.jpg",
+          "media_git_blob_sha": "1a56dc0ab811f6bece7dadd573784dffe452c4bd",
+          "media_retrieval_status": "Official image link opened from the Chariz CarCast product page and visually inspected; the same existing asset remains embedded in the article."
+        }
       ],
       "category": {
         "id": "tweak-roundup-comparison",
         "label": "Tweak Roundup & Comparison"
       },
-      "compat": "CarBridge 2.0.15: official iOS 13.0–16.7.16 listing with rootless support. CarCast 1.2: official iOS 17, 18 and 26 listing, rootless tested environments, Airaw required. Jailbreak availability still depends on device and exact firmware.",
-      "description": "Compare CarBridge 2.0.15 and CarCast 1.2 by supported iOS versions, jailbreak requirements, Airaw dependency, price, features and CarPlay limitations.",
+      "compat": "CarBridge 2.1.0: Havoc Marketplace announced iOS 18 support and improved app-switching stability on 2026-11-24, but the announcement does not state the exact point-build range or jailbreak-environment flag; the package page/changes HTML was blocked and indexed metadata remains older. CarCast 1.2: Chariz confirms iOS 17, 18 and 26, excludes iOS 16 or earlier, requires Airaw, and lists rootless tests on Dopamine/NathanLR. CarBridge and CarCast must not be installed together. A package compatibility claim does not prove a public jailbreak exists for every device/build.",
+      "description": "Havoc says CarBridge 2.1.0 adds iOS 18 and improves app switching. Compare it with CarCast 1.2, Airaw requirements, tested jailbreaks and compatibility caveats.",
       "developer": "leftyfl1p; Dcsyhi",
       "entry_type": "comparison",
       "href": "carbridge-vs-carcast-carplay-tweak-comparison/",
       "image": "assets/articles/source-media/carbridge-2-0-15-official-carplay-home.png",
-      "media_credit": "leftyfl1p/Havoc — official CarBridge CarPlay home screenshot; Dcsyhi/Chariz — official CarCast 1.2 settings screenshot",
+      "media_credit": "leftyfl1p/Havoc — official CarBridge depiction screenshot from the earlier listing, not a 2.1.0 capture; Dcsyhi/Chariz — official CarCast 1.2 settings screenshot",
       "media_sha256": "cf727ed9b45ec393a6b174f67a3b0a088185ef621be7a7c4c5c52fea51d8e10b",
       "media_source_url": "https://media.havoc.app/6393d53afb3fac29d26b95e2",
-      "modified_at": "2026-10-16T09:00:31Z",
+      "modified_at": "2026-11-24T12:00:00+03:00",
       "name": "CarBridge vs CarCast",
       "package": "comparison.carbridge-carcast",
       "published_at": "2026-10-16T09:00:31Z",
-      "release": "CarBridge 2.0.15 (2025-02-23) / CarCast 1.2 (2026)",
+      "release": "CarBridge 2.1.0 announced 2026-11-24 (iOS 18 support; improved app-switching stability) / CarCast 1.2 / Airaw 1.7.1",
       "selection_pool": "scheduled-tweak-roundup-comparison",
       "slug": "carbridge-vs-carcast-carplay-tweak-comparison",
-      "source_name": "Official Havoc, Chariz and Dcsyhi product pages",
+      "source_name": "Havoc Marketplace official account and CarBridge FAQ; Dcsyhi/Chariz official CarCast and Airaw product pages",
       "source_page_url": "https://havoc.app/package/carbridge",
-      "source_url": "https://chariz.com/buy/carcast",
-      "source_visual_origin": "official-marketplace-screenshots",
+      "source_url": "https://x.com/HavocRepo",
+      "source_visual_origin": "official-havoc-and-chariz-product-depiction-assets",
       "source_visual_url": "https://media.havoc.app/6393d53afb3fac29d26b95e2",
-      "title": "CarBridge vs CarCast: Which CarPlay Tweak Fits Your Jailbreak?",
-      "version": "CarBridge 2.0.15 / CarCast 1.2"
+      "title": "CarBridge 2.1.0 vs CarCast 1.2: iOS 18 Support Changes the CarPlay Choice",
+      "version": "CarBridge 2.1.0 announcement / CarCast 1.2 / Airaw 1.7.1",
+      "additional_source_urls": [
+        "https://teapawt.net/HavocRepo",
+        "https://havoc.app/package/carbridge/changes",
+        "https://carbridge.app/faq",
+        "https://chariz.com/buy/carcast/",
+        "https://chariz.com/buy/airaw/"
+      ],
+      "candidate_fingerprint": "comparison.carbridge-2.1.0-carcast-1.2-ios18-2026-11-24",
+      "run_id": "scheduled-2026-11-24T09:00:00Z",
+      "media_alt": "Official CarBridge CarPlay home-screen depiction from an earlier Havoc listing; not a 2.1.0 release capture",
+      "media_retrieval_status": "Retained the previously committed official CarBridge Havoc depiction image and the official CarCast 1.2 Chariz settings screenshot. The CarBridge image is explicitly captioned as an earlier depiction, not a 2.1.0 capture. On 2026-11-24 the Havoc package/changes HTML and media endpoint could not be retrieved (HTTP 403/internal error), so __NEXT_DATA__ screenshots/banner could not be inspected. The CarCast image was inspected from the Chariz product page image link. Public Next Jailbreak image endpoints were not accessible through the read-only web check."
     },
     {
       "additional_media": [],
