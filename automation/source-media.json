@@ -939,16 +939,20 @@
     },
     "com.johndie.triggr": {
       "credit_label": "Jond-ie — official Triggr project repository",
-      "source_page_url": "https://github.com/Jond-ie/triggr",
+      "source_page_url": "https://jond-ie.github.io/repo/triggr/",
       "official_source": true,
       "hero": {
-        "url": "https://raw.githubusercontent.com/Jond-ie/triggr/8508c66d24fcb66e494192646fb40bcad5823b19/screenshots/1-main.png",
-        "alt": "Triggr 1.0.4 app showing trigger categories"
+        "url": "https://raw.githubusercontent.com/Jond-ie/repo/4ca9413394a7c274c8e19d3b7517945cddf05a8e/screenshots/triggr/1-main.png",
+        "alt": "Official Triggr main screen showing assigned side-button, volume and Action Button triggers",
+        "local_path": "assets/articles/source-media/triggr-2-1-0-official-main.png",
+        "git_blob_sha": "de5ca3f18c2072ddad28c0b059dbf6b4b89b42c0"
       },
       "screenshots": [
         {
-          "url": "https://raw.githubusercontent.com/Jond-ie/triggr/8508c66d24fcb66e494192646fb40bcad5823b19/screenshots/4-statusbar.png",
-          "alt": "Triggr 1.0.4 status-bar trigger list"
+          "url": "https://raw.githubusercontent.com/Jond-ie/repo/4ca9413394a7c274c8e19d3b7517945cddf05a8e/screenshots/triggr/12-ifelse.png",
+          "alt": "Official Triggr If and Otherwise action sequence with charging condition, spoken battery level and time, and Grayscale toggle",
+          "local_path": "assets/articles/source-media/triggr-2-1-0-official-if-otherwise.png",
+          "git_blob_sha": "2b1020e845b7fbae03b47b30cb291b911fcd9795"
         }
       ],
       "icon": {
@@ -1912,7 +1916,26 @@
         "firmware_range": "iOS 15.0–18.x (rootless; package dependency <19.0)",
         "support_note": "iOS 16–18 adapter compatibility remains experimental; one tester report on iOS 18.7.1. One limited RootHide beta report exists for iPhone X / iOS 16.1.2 / RootHide 2.4.9.27, not a stable 1.2.0 guarantee. No rootful package is published. AOD is experimental. TrollStore alone is not sufficient."
       }
+    },
+    "com.saihgupr.remotecompanion": {
+      "credit_label": "saihgupr — official RemoteCompanion repository",
+      "source_page_url": "https://github.com/saihgupr/RemoteCompanion",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/saihgupr/RemoteCompanion/404dd82175fe70f5b31bf45eeeb12c0dbb32c724/images/4.5.0/new-trigger-picker.png",
+        "alt": "Official RemoteCompanion 4.5.0 New Trigger picker with NFC, Wi-Fi, Bluetooth, Audio Output, app and notification triggers",
+        "local_path": "assets/articles/source-media/remotecompanion-4-5-0-official-trigger-picker.png",
+        "git_blob_sha": "2a39677bbc01d1ee044a1b311616d69933be1911"
+      },
+      "screenshots": [
+        {
+          "url": "https://raw.githubusercontent.com/saihgupr/RemoteCompanion/404dd82175fe70f5b31bf45eeeb12c0dbb32c724/images/4.5.0/settings-webui.png",
+          "alt": "Official RemoteCompanion 4.5.0 settings screen showing Web UI access, integrations and add-ons",
+          "local_path": "assets/articles/source-media/remotecompanion-4-5-0-official-settings-webui.png",
+          "git_blob_sha": "ce25b131ae6662512de022b1871da21cfddb7c6f"
+        }
+      ]
     }
   },
-  "updated_at": "2026-11-23T18:00:00+03:00"
+  "updated_at": "2026-11-24T09:00:00Z"
 }
