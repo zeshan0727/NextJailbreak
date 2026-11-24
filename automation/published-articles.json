@@ -8165,6 +8165,48 @@
       "source_secondary_url": "https://www.ios-repo-updates.com/repository/havoc/",
       "title": "Tethera 1.2.0 Adds Hotspot Widgets, Monthly Caps and Wi-Fi Automation",
       "version": "1.2.0"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "individual-update.tinge-26-1.0.3-adaptive-badge-threshold-2026-11-24",
+      "channel": "scheduled-individual-tweak-update",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "The developer describes Tinge 26 as an iOS 26 port. The v1.0.3 release supplies iphoneos-arm64 for standard rootless and iphoneos-arm64e for RootHide; RootHide users install the native arm64e package directly without Patcher. README dependencies: PreferenceLoader, a Substrate-compatible loader and libcolorpicker; RootHide also needs rootless-compat. The repository release notes record one earlier test on iPhone 11 Pro Max / iOS 26.0.1 / Dopamine 3 RootHide; other devices, other builds and standard-rootless on-device testing are not confirmed. No rootful or TrollStore-only package is documented.",
+      "description": "Tinge 26 1.0.3 adds adaptive badge threshold controls on iOS 26. Check its RootHide and rootless packages, dependencies and limited device-testing record.",
+      "developer": "sahinkaa (Tinge 26 port; original Tinge by P2KDev)",
+      "entry_type": "individual-tweak-update",
+      "href": "tinge-26-1-0-3-adaptive-badge-threshold-update/",
+      "image": "assets/articles/source-media/tinge-26-1-0-3-official-settings.png",
+      "media_alt": "Official Tinge 26 v1.0.3 settings screenshot showing four-app notification badge live preview, the Darken / Lighten Threshold slider, adaptive text controls and border settings.",
+      "media_credit": "sahinkaa — official Tinge 26 v1.0.3 GitHub release screenshot",
+      "media_git_blob_sha": "a89786855d7179f30e5588ddb14cfbbf3617dc79",
+      "media_retrieval_status": "Retrieved the original 1242×2577 PNG from the official v1.0.3 release commit 880b34b401829883dbce02ae57dfe8cdf9eb3b63, decoded and visually inspected it, then embedded it unchanged. No matching Havoc/Chariz package page was surfaced in targeted search; a guessed Havoc package route was inaccessible, so no Havoc package metadata is asserted.",
+      "media_source_url": "https://raw.githubusercontent.com/sahinkaa/Tinge26/880b34b401829883dbce02ae57dfe8cdf9eb3b63/assets/Tinge26-Settings-v1.0.3.png",
+      "modified_at": "2026-11-24T18:39:25+03:00",
+      "name": "Tinge 26",
+      "package": "com.sahinkaa.tinge26",
+      "published_at": "2026-11-24T18:39:25+03:00",
+      "quality_target": 9,
+      "release": "Tinge 26 v1.0.3 published 2026-11-24T10:42:10Z; latest stable release returned by the official GitHub Releases endpoint. Adds Darken / Lighten Threshold (default 60), first-launch defaults 60/66/1.5 pt/30, double-tap slider resets, Text Color rename and Static-only color pickers.",
+      "route": "/tinge-26-1-0-3-adaptive-badge-threshold-update/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "tinge-26-1-0-3-adaptive-badge-threshold-update",
+      "source_name": "sahinkaa official Tinge26 GitHub v1.0.3 release, README and RELEASE_NOTES.md",
+      "source_page_url": "https://github.com/sahinkaa/Tinge26/releases/tag/v1.0.3",
+      "source_url": "https://github.com/sahinkaa/Tinge26/releases/tag/v1.0.3",
+      "source_visual_origin": "official-github-release-screenshot",
+      "source_visual_url": "https://raw.githubusercontent.com/sahinkaa/Tinge26/880b34b401829883dbce02ae57dfe8cdf9eb3b63/assets/Tinge26-Settings-v1.0.3.png",
+      "title": "Tinge 26 1.0.3 Adds Adaptive Badge Threshold and Cleaner Color Controls",
+      "version": "1.0.3",
+      "previous_version": "1.0.2",
+      "additional_source_urls": [
+        "https://github.com/sahinkaa/Tinge26/blob/main/README.md",
+        "https://github.com/sahinkaa/Tinge26/blob/main/RELEASE_NOTES.md",
+        "https://github.com/sahinkaa/Tinge26/commit/880b34b401829883dbce02ae57dfe8cdf9eb3b63"
+      ]
     }
   ],
   "events": [
@@ -11906,8 +11948,18 @@
       "published_at": "2026-11-24T06:00:00+03:00",
       "run_id": "scheduled-2026-11-24T03:00:00Z",
       "version": "TrollStore 2.1.1 / TrollRestore 1.0 / installer matrix checked 2026-11-24"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "individual-update.tinge-26-1.0.3-adaptive-badge-threshold-2026-11-24",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "tinge-26-1-0-3-adaptive-badge-threshold-update/",
+      "package": "com.sahinkaa.tinge26",
+      "published_at": "2026-11-24T18:39:25+03:00",
+      "run_id": "scheduled-2026-11-24T18:00:00+03:00",
+      "version": "1.0.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-24T06:00:00+03:00"
+  "updated_at": "2026-11-24T15:39:25Z"
 }

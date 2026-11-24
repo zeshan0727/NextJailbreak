@@ -1935,7 +1935,32 @@
           "git_blob_sha": "ce25b131ae6662512de022b1871da21cfddb7c6f"
         }
       ]
+    },
+    "com.sahinkaa.tinge26": {
+      "credit_label": "sahinkaa — official Tinge 26 v1.0.3 GitHub release",
+      "source_page_url": "https://github.com/sahinkaa/Tinge26/releases/tag/v1.0.3",
+      "official_source": true,
+      "hero": {
+        "url": "https://raw.githubusercontent.com/sahinkaa/Tinge26/880b34b401829883dbce02ae57dfe8cdf9eb3b63/assets/Tinge26-Settings-v1.0.3.png",
+        "alt": "Official Tinge 26 v1.0.3 settings screenshot showing four-app notification badge live preview, the Darken / Lighten Threshold slider, adaptive text controls and border settings.",
+        "local_path": "assets/articles/source-media/tinge-26-1-0-3-official-settings.png",
+        "git_blob_sha": "a89786855d7179f30e5588ddb14cfbbf3617dc79",
+        "source_blob_sha": "a89786855d7179f30e5588ddb14cfbbf3617dc79",
+        "source_commit": "880b34b401829883dbce02ae57dfe8cdf9eb3b63",
+        "context": "Original 1242×2577 Tinge 26 v1.0.3 settings screenshot showing the four-app live badge preview, Darken / Lighten Threshold and adaptive text/border controls. Retrieved unchanged from the exact release commit and visually inspected."
+      },
+      "screenshots": [],
+      "retrieval_note": "The original PNG was retrieved from the official sahinkaa/Tinge26 v1.0.3 release commit 880b34b401829883dbce02ae57dfe8cdf9eb3b63, decoded and visually inspected before embedding. The targeted search did not surface a Havoc or Chariz package page; the guessed Havoc slug was inaccessible, so no Havoc HTML or __NEXT_DATA__ media was used. The GitHub release and README are the verified primary distribution and feature sources.",
+      "latest_project_state": {
+        "latest_stable_tag": "v1.0.3",
+        "latest_stable_release_date": "2026-11-24",
+        "latest_stable_release_url": "https://github.com/sahinkaa/Tinge26/releases/tag/v1.0.3",
+        "release_commit": "880b34b401829883dbce02ae57dfe8cdf9eb3b63",
+        "project_firmware_scope": "iOS 26 (project README scope; no full device/build matrix published)",
+        "package_variants": "Standard rootless iphoneos-arm64; RootHide iphoneos-arm64e installed directly without Patcher",
+        "testing_note": "Current RELEASE_NOTES.md records an earlier iPhone 11 Pro Max / iOS 26.0.1 / Dopamine 3 RootHide test; other devices, other builds and standard-rootless on-device testing are not confirmed in those notes."
+      }
     }
   },
-  "updated_at": "2026-11-24T09:00:00Z"
+  "updated_at": "2026-11-24T15:39:25Z"
 }

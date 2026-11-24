@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <lastBuildDate>Tue, 24 Nov 2026 09:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 24 Nov 2026 15:39:25 GMT</lastBuildDate>
+<item><title>Tinge 26 1.0.3 Adds Adaptive Badge Threshold and Cleaner Color Controls</title><link>https://nextjailbreak.com/tinge-26-1-0-3-adaptive-badge-threshold-update/</link><guid isPermaLink="true">https://nextjailbreak.com/tinge-26-1-0-3-adaptive-badge-threshold-update/</guid><pubDate>Tue, 24 Nov 2026 15:39:25 GMT</pubDate><description>Tinge 26 1.0.3 adds a Darken / Lighten Threshold for adaptive Home Screen badge text and borders, sets explicit first-launch slider defaults, and shows static color pickers only when Static is selected. Check the separate RootHide and standard-rootless packages and the limited published test record.</description><category>Individual Tweak Update</category></item>
+
 <item><title>CarBridge 2.1.0 vs CarCast 1.2: iOS 18 Support Changes the CarPlay Choice</title><link>https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</link><guid isPermaLink="true">https://nextjailbreak.com/carbridge-vs-carcast-carplay-tweak-comparison/</guid><pubDate>Tue, 24 Nov 2026 09:00:00 GMT</pubDate><description>Havoc announced CarBridge 2.1.0 with iOS 18 support and improved app-switching stability. Compare it with CarCast 1.2, Airaw requirements, tested jailbreaks and the still-unpublished CarBridge point-build matrix.</description><category>Tweak Roundup &amp; Comparison</category></item>
 <item><title>Triggr 2.1.0 vs RemoteCompanion 4.5.0: Which Activator Alternative Fits?</title><link>https://nextjailbreak.com/triggr-1-0-4-activator-automation-dopamine/</link><guid isPermaLink="true">https://nextjailbreak.com/triggr-1-0-4-activator-automation-dopamine/</guid><pubDate>Tue, 24 Nov 2026 09:00:00 GMT</pubDate><description>Compare Triggr 2.1.0 and RemoteCompanion 4.5.0 by triggers, automation, remote control, privacy, firmware and jailbreak-environment support.</description><category>Tweak Roundup &amp; Comparison</category></item>
 
