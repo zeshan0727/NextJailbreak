@@ -83,3 +83,14 @@ check(roundTrip.customPeriod == nil, "old backup defaults to calendar month")
 customPlan.customPeriod = nil
 check(customPlan.reportInterval(for: day(2027, 1, 15), calendar: calendar).start == day(2027, 1, 1), "return to calendar month")
 print("Build 114 custom period persistence and inclusive dates passed.")
+
+let repeated = FixedPlanItem(kind: .expense, title: "Loan", amount: 500,
+    firstCycle: day(2026, 11, 1), durationCycles: 3, dueDay: 25)
+var transitionPlan = MonthlyFixedBudget(items: [repeated])
+transitionPlan.customPeriod = CustomBudgetPeriod(start: day(2026, 11, 1), end: day(2026, 12, 30), calendar: calendar)
+let repetitions = transitionPlan.occurrences(.expense, for: day(2026, 12, 1), calendar: calendar)
+check(repetitions.map(\.dueDate) == [day(2026, 11, 25), day(2026, 12, 25)], "60-day range includes both installment dates")
+check(transitionPlan.reportTotal(.expense, for: day(2026, 12, 1), calendar: calendar) == 1000, "both installment amounts included")
+transitionPlan.customPeriod = CustomBudgetPeriod(start: day(2026, 12, 26), end: day(2027, 2, 28), calendar: calendar)
+check(transitionPlan.occurrences(.expense, for: day(2027, 2, 1), calendar: calendar).count == 1, "expired installments excluded; only January due date is inside range")
+print("Build 114 recurring installment occurrence checks passed.")
