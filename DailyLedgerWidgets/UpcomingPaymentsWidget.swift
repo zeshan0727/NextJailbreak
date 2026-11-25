@@ -93,7 +93,7 @@ private struct NextLedgerUpcomingPaymentsView: View {
     }
     private var currency: String { snapshot?.currency ?? "QAR" }
     private var closingLabel: String {
-        snapshot?.closeDay.formatted(.dateTime.day().month(.abbreviated)) ?? "25th"
+        snapshot?.closeDay.formatted(.dateTime.day().month(.abbreviated)) ?? "Month end"
     }
 
     var body: some View {
