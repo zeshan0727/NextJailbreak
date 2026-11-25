@@ -91,7 +91,7 @@ struct BudgetPerformanceReportView: View {
     @State private var selectedRecordedCategory: BudgetRecordedCategory?
 
     private var activeExpenses: [FixedPlanItem] {
-        store.fixedBudget.activeItems(.expense, in: cycleStart)
+        store.fixedBudget.reportItems(.expense, for: cycleStart)
     }
 
     private var result: BudgetPerformanceResult {
