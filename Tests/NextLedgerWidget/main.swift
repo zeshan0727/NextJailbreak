@@ -146,3 +146,13 @@ for (year, month, closingDay) in [(2027, 2, 28), (2028, 2, 29), (2026, 12, 31)] 
         "day 31 correctly clamps to actual month end")
 }
 print("Build 113 widget month-end and February checks passed.")
+
+var customPlan = plan
+customPlan.customPeriod = CustomBudgetPeriod(start: date(2026, 11, 26), end: date(2026, 12, 31), calendar: calendar)
+let customWidget = UpcomingPaymentPlanner.snapshot(plan: customPlan, fixedSpending: [:],
+    currency: "QAR", asOf: date(2027, 1, 2), calendar: calendar)
+assertWidget(customWidget.isCustomPeriod == true, "widget uses saved custom dates")
+assertWidget(customWidget.isCurrent(on: date(2027, 1, 2)), "manual range remains selected after close")
+assertWidget(calendar.component(.day, from: customWidget.closeDay) == 31, "custom widget closes on selected last day")
+assertWidget(customWidget.payments.contains { $0.title == "Air Ticket" && calendar.component(.day, from: $0.dueDate) == 31 }, "unscheduled bill uses custom closing date")
+print("Build 114 custom widget period passed.")
