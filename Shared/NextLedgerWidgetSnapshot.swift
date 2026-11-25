@@ -31,7 +31,7 @@ struct UpcomingPaymentsWidgetSnapshot: Codable, Equatable {
     let version: Int
     let generatedAt: Date
     let cycleStart: Date
-    /// Exclusive end, the 26th at midnight in the local calendar.
+    /// Exclusive end, the first day of the next month at local midnight.
     let nextCycleStart: Date
     let currency: String
     let payments: [UpcomingWidgetPayment]
@@ -41,6 +41,8 @@ struct UpcomingPaymentsWidgetSnapshot: Codable, Equatable {
     }
 
     func isCurrent(on date: Date = Date()) -> Bool {
+        Calendar.current.component(.day, from: cycleStart) == 1 &&
+        Calendar.current.component(.day, from: nextCycleStart) == 1 &&
         cycleStart <= date && date < nextCycleStart
     }
 
