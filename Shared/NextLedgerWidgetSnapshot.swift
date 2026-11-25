@@ -9,6 +9,7 @@ struct UpcomingWidgetPayment: Codable, Identifiable, Equatable {
     let remaining: Decimal
     let dueDate: Date
     let hasSpecifiedDueDay: Bool
+    var occurrenceID: String { id.uuidString + ":" + String(dueDate.timeIntervalSince1970) }
 
     func daysUntilDue(on today: Date = Date(), calendar: Calendar = .current) -> Int {
         calendar.dateComponents([.day], from: calendar.startOfDay(for: today),
