@@ -76,10 +76,12 @@ private enum PerformancePage: String, CaseIterable, Identifiable {
 /// delegated to the existing BudgetPerformanceEngine and LedgerStore.
 struct BudgetPerformanceReportView: View {
     @EnvironmentObject private var store: LedgerStore
-    @State private var cycleStart: Date
+    @State private var browsedCycle: Date
+    @State private var showPeriodEditor = false
+    private var cycleStart: Date { store.fixedBudget.reportPlanMonth(for: browsedCycle) }
 
     init(initialCycle: Date = BudgetCycle.start(containing: Date())) {
-        _cycleStart = State(initialValue: initialCycle)
+        _browsedCycle = State(initialValue: initialCycle)
     }
     @State private var selectedPage: PerformancePage = .overview
     @State private var performanceMode: PerformanceMode = .actual
@@ -146,6 +148,15 @@ struct BudgetPerformanceReportView: View {
         .navigationTitle("Budget Performance")
         .navigationBarTitleDisplayMode(.inline)
         .tint(PerformanceStyle.indigo)
+        .sheet(isPresented: $showPeriodEditor) {
+            BudgetPeriodEditor(plan: store.fixedBudget, cycle: browsedCycle) { selected in
+                var updated = store.fixedBudget
+                updated.customPeriod = selected
+                store.saveFixedBudget(updated)
+                showAllTransactions = false
+                showAssignedTransactions = false
+            }
+        }
         .sheet(item: $selectedRecordedCategory) { category in
             let ids = Set(result.expenses.filter {
                 $0.bucket == .other &&
@@ -166,19 +177,33 @@ struct BudgetPerformanceReportView: View {
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .tracking(1.6)
                     .foregroundStyle(PerformanceStyle.indigo)
-                Text(BudgetCycle.title(start: cycleStart))
+                Text(store.fixedBudget.reportTitle(for: cycleStart))
                     .font(.system(.title3, design: .rounded, weight: .bold))
                     .foregroundStyle(PerformanceStyle.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
-                Text("Calendar month · \(store.currencyCode)")
+                Text("\(store.fixedBudget.customPeriod == nil ? "Calendar month" : "Saved custom period") · \(store.currencyCode)")
                     .font(.caption)
                     .foregroundStyle(PerformanceStyle.secondary)
             }
             Spacer(minLength: 6)
             HStack(spacing: 8) {
-                cycleButton("chevron.left", offset: -1, label: "Previous budget cycle")
-                cycleButton("chevron.right", offset: 1, label: "Next budget cycle")
+                if store.fixedBudget.customPeriod == nil {
+                    cycleButton("chevron.left", offset: -1, label: "Previous budget cycle")
+                }
+                Button {
+                    showPeriodEditor = true
+                } label: {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 18, weight: .semibold))
+                        .frame(width: 39, height: 39)
+                        .background(PerformanceStyle.surface, in: RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Choose budget start and closing dates")
+                if store.fixedBudget.customPeriod == nil {
+                    cycleButton("chevron.right", offset: 1, label: "Next budget cycle")
+                }
             }
         }
         .padding(.vertical, 4)
@@ -186,7 +211,7 @@ struct BudgetPerformanceReportView: View {
 
     private func cycleButton(_ icon: String, offset: Int, label: String) -> some View {
         Button {
-            cycleStart = BudgetCycle.shifted(cycleStart, by: offset)
+            browsedCycle = BudgetCycle.shifted(browsedCycle, by: offset)
             showAllTransactions = false
             showAssignedTransactions = false
         } label: {
