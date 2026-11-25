@@ -44,7 +44,6 @@ struct SettingsView: View {
     @AppStorage("DailyLedgerAppearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("DailyLedgerVisualTheme") private var visualTheme = AppVisualTheme.glass.rawValue
     @State private var showingSMSStatus = true
-    @AppStorage("AccountingPeriodStartDay") private var accountingPeriodStartDay = 26
     @AppStorage("AccountingPeriodLockEnabled") private var accountingPeriodLockEnabled = false
     @AppStorage("AccountingPeriodLockThroughTimestamp") private var accountingPeriodLockThroughTimestamp = 0.0
 
@@ -132,15 +131,8 @@ struct SettingsView: View {
                 Section {
                     NavigationLink {
                         SettingsSectionPage(title: "Accounting Period") {
-                        Stepper(value: $accountingPeriodStartDay, in: 1...28) {
-                            HStack {
-                                Text("Period Start Day")
-                                Spacer()
-                                Text(ordinalDay(accountingPeriodStartDay))
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        LabeledContent("Default Cycle", value: accountingPeriodLabel)
+                        LabeledContent("Period Start", value: "1st of every month")
+                        LabeledContent("Period Close", value: "Last day of month")
                         Divider()
                         Toggle("Enable Period Lock", isOn: accountingPeriodLockBinding)
                         if accountingPeriodLockEnabled {
@@ -158,7 +150,7 @@ struct SettingsView: View {
                         }
                         }
                     } label: {
-                        SettingsHomeLinkLabel(title: "Accounting Period", subtitle: "Cycle start and period lock", icon: "calendar.badge.clock", tint: AppTheme.blue)
+                        SettingsHomeLinkLabel(title: "Accounting Period", subtitle: "Calendar month and period lock", icon: "calendar.badge.clock", tint: AppTheme.blue)
                     }
                 }
 
@@ -480,29 +472,6 @@ struct SettingsView: View {
                     .timeIntervalSince1970
             }
         )
-    }
-
-    private var accountingPeriodLabel: String {
-        if accountingPeriodStartDay == 1 {
-            return "1st → Month End"
-        }
-        return "\(ordinalDay(accountingPeriodStartDay)) → \(ordinalDay(accountingPeriodStartDay - 1))"
-    }
-
-    private func ordinalDay(_ day: Int) -> String {
-        let suffix: String
-        switch day % 100 {
-        case 11, 12, 13:
-            suffix = "th"
-        default:
-            switch day % 10 {
-            case 1: suffix = "st"
-            case 2: suffix = "nd"
-            case 3: suffix = "rd"
-            default: suffix = "th"
-            }
-        }
-        return "\(day)\(suffix)"
     }
 
     private func currencyLabel(_ code: String) -> String {
