@@ -51,7 +51,7 @@ final class LedgerStore: ObservableObject {
     var currencyCode: String { settings.currencyCode }
 
     func performanceSnapshot(for cycle: Date) -> BudgetPerformanceResult {
-        let normalized = BudgetCycle.start(containing: cycle)
+        let normalized = fixedBudget.reportPlanMonth(for: cycle)
         let today = Calendar.current.startOfDay(for: Date())
         if let cache = performanceCache,
            cache.cycle == normalized,
