@@ -142,7 +142,7 @@ struct FixedBudgetDashboardView: View {
         .alert("Budget Overview", isPresented: $showBudgetNotice) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Current salary-month: \(BudgetCycle.title(start: displayedCycle)). Active income: \(money(income)). Fixed expenses: \(money(expenses)).")
+            Text("Current budget month: \(BudgetCycle.title(start: displayedCycle)). Active income: \(money(income)). Fixed expenses: \(money(expenses)).")
         }
         .alert("Budget Plan Saved", isPresented: $appliedNotice) {
             Button("OK", role: .cancel) {}
@@ -297,7 +297,7 @@ struct FixedBudgetDashboardView: View {
                 Text("Cycle: \(BudgetCycle.title(start: displayedCycle))")
                     .font(.system(size: 12.5, weight: .medium))
                     .foregroundStyle(.white.opacity(0.94))
-                Text("Your month runs from the 26th to the 25th.")
+                Text("Your budget runs from the 1st to the last day of each month.")
                     .font(.system(size: 10.3))
                     .foregroundStyle(.white.opacity(0.70))
             }
@@ -744,11 +744,11 @@ private struct FixedPlanItemEditor: View {
         _amountText = State(initialValue: item.map {
             NSDecimalNumber(decimal: $0.amount).stringValue
         } ?? "")
-        _firstCycle = State(initialValue: item?.firstCycle ?? Date())
+        _firstCycle = State(initialValue: item.map { BudgetCycle.storedStart($0.firstCycle) } ?? Date())
         _isLimited = State(initialValue: item?.durationCycles != nil)
         _duration = State(initialValue: item?.durationCycles ?? 1)
         _hasDueDate = State(initialValue: item?.dueDay != nil)
-        _dueDay = State(initialValue: item?.dueDay ?? 25)
+        _dueDay = State(initialValue: item?.dueDay ?? 31)
     }
 
     private var decimalAmount: Decimal? {
@@ -777,7 +777,7 @@ private struct FixedPlanItemEditor: View {
             } header: {
                 Text("Recurrence")
             } footer: {
-                Text("Each cycle runs from the 26th to the following 25th. Limited entries automatically stop when the selected cycles finish.")
+                Text("Each cycle runs from the 1st through the last day of the month. Limited entries automatically stop when the selected cycles finish.")
             }
             if kind == .expense {
                 Section {
@@ -795,7 +795,7 @@ private struct FixedPlanItemEditor: View {
                 } footer: {
                     Text(hasDueDate
                          ? "The widget uses this day each month (clamped for shorter months)."
-                         : "Without a due date, the widget lists payment as due by cycle close on the 25th.")
+                         : "Without a due date, the widget lists payment as due by the last day of the month.")
                 }
             }
         }
