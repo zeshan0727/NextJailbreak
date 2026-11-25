@@ -85,19 +85,19 @@ struct FixedBudgetDashboardView: View {
     }
 
     private var plan: MonthlyFixedBudget { store.fixedBudget }
-    private var income: Decimal { plan.total(.income, in: displayedCycle) }
-    private var expenses: Decimal { plan.total(.expense, in: displayedCycle) }
+    private var income: Decimal { plan.reportTotal(.income, for: displayedCycle) }
+    private var expenses: Decimal { plan.reportTotal(.expense, for: displayedCycle) }
     private var available: Decimal { income - expenses }
     private var currency: String { store.currencyCode }
     private var safeAvailable: Decimal { max(Decimal.zero, available) }
     private var allocated: Int { Int(grocery + fuel + eatOut) }
     private var validAllocations: Bool { allocated <= 100 }
-    private var incomes: [FixedPlanItem] { plan.activeItems(.income, in: displayedCycle) }
+    private var incomes: [FixedPlanItem] { plan.reportItems(.income, for: displayedCycle) }
     private var shortExpenses: [FixedPlanItem] {
-        plan.activeItems(.expense, in: displayedCycle).filter { $0.durationCycles != nil }
+        plan.reportItems(.expense, for: displayedCycle).filter { $0.durationCycles != nil }
     }
     private var longExpenses: [FixedPlanItem] {
-        plan.activeItems(.expense, in: displayedCycle).filter { $0.durationCycles == nil }
+        plan.reportItems(.expense, for: displayedCycle).filter { $0.durationCycles == nil }
     }
     private var visibleExpenses: [FixedPlanItem] {
         switch filter {
@@ -373,7 +373,7 @@ struct FixedBudgetDashboardView: View {
                         Text(item.title).font(.system(size: 10.5, weight: .medium))
                             .lineLimit(1)
                         Spacer(minLength: 0)
-                        Text(money(item.amount))
+                        Text(money(plan.occurrences(item.kind, for: displayedCycle).filter { $0.item.id == item.id }.reduce(Decimal.zero) { $0 + $1.item.amount }))
                             .font(.system(size: 10.2, weight: .bold))
                             .foregroundStyle(LedgerBudgetStyle.green)
                             .minimumScaleFactor(0.7)
@@ -532,7 +532,7 @@ struct FixedBudgetDashboardView: View {
                 }
             }
             Spacer(minLength: 3)
-            Text(money(item.amount))
+            Text(money(plan.occurrences(item.kind, for: displayedCycle).filter { $0.item.id == item.id }.reduce(Decimal.zero) { $0 + $1.item.amount }))
                 .font(.system(size: 11.5, weight: .bold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.74)
@@ -798,7 +798,7 @@ private struct FixedPlanItemEditor: View {
             } footer: {
                 Text("Each cycle runs from the 1st through the last day of the month. Limited entries automatically stop when the selected cycles finish.")
             }
-            if kind == .expense {
+            if kind == .expense || kind == .income {
                 Section {
                     Toggle("Specify monthly payment due date", isOn: $hasDueDate)
                     if hasDueDate {
@@ -833,7 +833,7 @@ private struct FixedPlanItemEditor: View {
                                          amount: amount,
                                          firstCycle: BudgetCycle.start(containing: firstCycle),
                                          durationCycles: isLimited ? duration : nil,
-                                         dueDay: kind == .expense && hasDueDate ? dueDay : nil))
+                                         dueDay: hasDueDate ? dueDay : nil))
                     dismiss()
                 }
                 .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -883,7 +883,7 @@ struct BudgetPeriodEditor: View {
                         }
                     }
                     Section {
-                        Text("Transactions are included by their actual dates. Fixed monthly plans and allocations use the closing month, once; amounts and installment schedules are not rewritten.")
+                        Text("Transactions are included by their actual dates. Every monthly due date inside the selected period is counted separately. Unspecified due dates use month end. Variable allocation percentages use the closing month.")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
