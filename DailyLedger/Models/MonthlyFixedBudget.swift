@@ -103,6 +103,11 @@ struct FixedPlanItem: Identifiable, Codable, Equatable {
     }
 }
 
+struct FixedPlanOccurrence {
+    let item: FixedPlanItem
+    let dueDate: Date
+}
+
 struct SavedCycleBudget: Codable, Equatable {
     var cycleStart: Date
     var groceryPercent: Int
@@ -218,8 +223,8 @@ struct MonthlyFixedBudget: Codable, Equatable {
         customPeriod?.interval(calendar: calendar) ?? BudgetCycle.interval(start: cycle, calendar: calendar)
     }
 
-    /// Fixed monthly commitments and saved percentages remain tied to the
-    /// closing month, even when the transaction-report window spans months.
+    /// Saved variable allocation percentages are selected by closing month.
+    /// Fixed commitments are expanded independently by scheduled date.
     func reportPlanMonth(for cycle: Date, calendar: Calendar = .current) -> Date {
         BudgetCycle.start(containing: customPeriod?.end ?? cycle, calendar: calendar)
     }
@@ -228,6 +233,41 @@ struct MonthlyFixedBudget: Codable, Equatable {
         let range = reportInterval(for: cycle, calendar: calendar)
         let last = calendar.date(byAdding: .day, value: -1, to: range.end) ?? range.end
         return "\(range.start.formatted(.dateTime.day().month(.abbreviated).year())) – \(last.formatted(.dateTime.day().month(.abbreviated).year()))"
+    }
+
+    /// One occurrence for each active monthly due date inside the exact range.
+    /// Missing due days use the actual month end, not the arbitrary range end.
+    func occurrences(_ kind: FixedPlanKind, for cycle: Date,
+                     calendar: Calendar = .current) -> [FixedPlanOccurrence] {
+        let range = reportInterval(for: cycle, calendar: calendar)
+        var month = BudgetCycle.start(containing: range.start, calendar: calendar)
+        var result: [FixedPlanOccurrence] = []
+        while month < range.end {
+            let days = calendar.range(of: .day, in: .month, for: month)!.count
+            for item in items where item.kind == kind && item.isActive(in: month, calendar: calendar) {
+                let day = min(days, max(1, item.dueDay ?? days))
+                let due = calendar.date(byAdding: .day, value: day - 1, to: month)!
+                if due >= range.start && due < range.end {
+                    result.append(FixedPlanOccurrence(item: item, dueDate: due))
+                }
+            }
+            month = BudgetCycle.shifted(month, by: 1, calendar: calendar)
+        }
+        return result.sorted {
+            if $0.dueDate != $1.dueDate { return $0.dueDate < $1.dueDate }
+            return $0.item.id.uuidString < $1.item.id.uuidString
+        }
+    }
+
+    func reportItems(_ kind: FixedPlanKind, for cycle: Date) -> [FixedPlanItem] {
+        let ids = Set(occurrences(kind, for: cycle).map { $0.item.id })
+        return items.filter { ids.contains($0.id) }
+            .sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+    }
+
+    func reportTotal(_ kind: FixedPlanKind, for cycle: Date,
+                     calendar: Calendar = .current) -> Decimal {
+        occurrences(kind, for: cycle, calendar: calendar).reduce(.zero) { $0 + $1.item.amount }
     }
 
     func savedAllocation(in cycle: Date) -> SavedCycleBudget? {
