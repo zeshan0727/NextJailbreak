@@ -27,6 +27,16 @@ enum PlaybackHistory {
     static func clear(_ id: UUID) {
         UserDefaults.standard.removeObject(forKey: key(id))
     }
+
+    static func prune(keeping ids: Set<UUID>) {
+        let prefix = "nextcast.playback."
+        let defaults = UserDefaults.standard
+        for name in defaults.dictionaryRepresentation().keys where name.hasPrefix(prefix) {
+            guard let id = UUID(uuidString: String(name.dropFirst(prefix.count))),
+                  !ids.contains(id) else { continue }
+            defaults.removeObject(forKey: name)
+        }
+    }
 }
 
 struct MoviePlayerScreen: View {
@@ -406,7 +416,7 @@ struct MoviePlayerScreen: View {
     }
 
     private func persistPlayback() {
-        if !broadcast {
+        if !broadcast && library.movies.contains(movie) {
             PlaybackHistory.save(player.currentTime, duration: player.duration, id: movie.id)
         }
     }
