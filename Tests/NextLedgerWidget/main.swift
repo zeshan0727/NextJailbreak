@@ -156,3 +156,16 @@ assertWidget(customWidget.isCurrent(on: date(2027, 1, 2)), "manual range remains
 assertWidget(calendar.component(.day, from: customWidget.closeDay) == 31, "custom widget closes on selected last day")
 assertWidget(customWidget.payments.contains { $0.title == "Air Ticket" && calendar.component(.day, from: $0.dueDate) == 31 }, "unscheduled bill uses custom closing date")
 print("Build 114 custom widget period passed.")
+
+let doubleLoan = FixedPlanItem(kind: .expense, title: "Two monthly installments", amount: 500,
+    firstCycle: date(2026, 11, 1), durationCycles: 3, dueDay: 15)
+var doublePlan = MonthlyFixedBudget(items: [doubleLoan])
+doublePlan.customPeriod = CustomBudgetPeriod(start: date(2026, 11, 1), end: date(2026, 12, 30), calendar: calendar)
+let doubleWidget = UpcomingPaymentPlanner.snapshot(plan: doublePlan, fixedSpending: [:],
+    currency: "QAR", asOf: date(2026, 12, 1), calendar: calendar)
+assertWidget(doubleWidget.payments.count == 2, "both recurring due dates displayed separately")
+assertWidget(Set(doubleWidget.payments.map(\.occurrenceID)).count == 2, "distinct widget identity for each occurrence")
+let paidWidget = UpcomingPaymentPlanner.snapshot(plan: doublePlan, fixedSpending: [doubleLoan.id: 600],
+    currency: "QAR", asOf: date(2026, 12, 1), calendar: calendar)
+assertWidget(paidWidget.payments.count == 1 && paidWidget.payments.first?.remaining == 400, "600 paid applied once across two 500 installments")
+print("Build 114 multiple due-date and paid installment widget checks passed.")
