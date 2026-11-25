@@ -228,15 +228,21 @@ extension View {
 /// buttons require a deliberate tap.
 private struct MovieSwipeActionRow<Content: View>: View {
     let onDelete: () -> Void
+    let onOpen: () -> Void
     let onConvert: (() -> Void)?
     let content: Content
     @State private var revealedOffset: CGFloat = 0
+    @State private var dragStartOffset: CGFloat = 0
+    @State private var isDragging = false
+    @State private var lastSwipeEnded = Date.distantPast
     private let actionWidth: CGFloat = 104
 
     init(onDelete: @escaping () -> Void,
+         onOpen: @escaping () -> Void,
          onConvert: (() -> Void)? = nil,
          @ViewBuilder content: () -> Content) {
         self.onDelete = onDelete
+        self.onOpen = onOpen
         self.onConvert = onConvert
         self.content = content()
     }
@@ -255,6 +261,7 @@ private struct MovieSwipeActionRow<Content: View>: View {
                             .frame(width: actionWidth)
                             .frame(maxHeight: .infinity)
                     }
+                    .buttonStyle(.plain)
                     .background(Color.blue)
                     .accessibilityLabel("Convert video")
                 }
@@ -270,6 +277,7 @@ private struct MovieSwipeActionRow<Content: View>: View {
                         .frame(width: actionWidth)
                         .frame(maxHeight: .infinity)
                 }
+                    .buttonStyle(.plain)
                     .background(Color.red)
                     .accessibilityLabel("Delete video")
                 }
@@ -277,23 +285,32 @@ private struct MovieSwipeActionRow<Content: View>: View {
             .frame(maxHeight: .infinity)
 
             content
+                .contentShape(Rectangle())
+                .onTapGesture { openOrClose() }
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction { openOrClose() }
                 .offset(x: revealedOffset)
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 18)
                         .onChanged { value in
                             guard abs(value.translation.width) >
                                     abs(value.translation.height) * 1.25 else { return }
+                            if !isDragging {
+                                dragStartOffset = revealedOffset
+                                isDragging = true
+                            }
                             let minimum: CGFloat = -actionWidth
                             let maximum: CGFloat = onConvert == nil ? 0 : actionWidth
-                            revealedOffset = min(maximum, max(minimum, value.translation.width))
+                            revealedOffset = min(maximum, max(minimum, dragStartOffset + value.translation.width))
                         }
                         .onEnded { value in
-                            guard abs(value.translation.width) >
-                                    abs(value.translation.height) * 1.25 else { return }
+                            guard isDragging else { return }
+                            isDragging = false
+                            lastSwipeEnded = Date()
                             let target: CGFloat
-                            if value.translation.width < -50 {
+                            if revealedOffset < -50 {
                                 target = -actionWidth
-                            } else if value.translation.width > 50 && onConvert != nil {
+                            } else if revealedOffset > 50 && onConvert != nil {
                                 target = actionWidth
                             } else {
                                 target = 0
@@ -305,6 +322,15 @@ private struct MovieSwipeActionRow<Content: View>: View {
                 )
         }
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private func openOrClose() {
+        guard !isDragging, Date().timeIntervalSince(lastSwipeEnded) > 0.25 else { return }
+        if revealedOffset != 0 {
+            withAnimation(.easeOut(duration: 0.18)) { revealedOffset = 0 }
+            return
+        }
+        onOpen()
     }
 }
 
@@ -374,11 +400,9 @@ struct MoviesTab: View {
             Label("Converted Movies · \(converted.count)", systemImage: "folder.fill")
                 .font(.headline).foregroundStyle(NexaPalette.orange)
             ForEach(converted) { movie in
-                MovieSwipeActionRow(onDelete: { requestDelete(movie) }) {
-                    Button { selected = movie } label: {
-                        convertedRow(movie)
-                    }
-                    .buttonStyle(.plain)
+                MovieSwipeActionRow(onDelete: { requestDelete(movie) },
+                                    onOpen: { openMovie(movie) }) {
+                    convertedRow(movie)
                     .contextMenu {
                         Button(role: .destructive) { requestDelete(movie) } label: {
                             Label("Delete converted movie", systemImage: "trash")
@@ -409,10 +433,10 @@ struct MoviesTab: View {
             ForEach(originals) { movie in
                 MovieSwipeActionRow(
                     onDelete: { requestDelete(movie) },
+                    onOpen: { openMovie(movie) },
                     onConvert: { openConverter(for: movie) }
                 ) {
-                    Button { selected = movie } label: { originalRow(movie) }
-                        .buttonStyle(.plain)
+                    originalRow(movie)
                         .contextMenu {
                             Button {
                                 openConverter(for: movie)
@@ -438,7 +462,14 @@ struct MoviesTab: View {
         showConverter = true
     }
 
+    private func openMovie(_ movie: Movie) {
+        guard !showDeleteConfirmation, pendingDeleteMovie == nil,
+              library.movies.contains(movie) else { return }
+        selected = movie
+    }
+
     private func requestDelete(_ movie: Movie) {
+        guard selected == nil, library.movies.contains(movie) else { return }
         pendingDeleteMovie = movie
         showDeleteConfirmation = true
     }
@@ -645,8 +676,11 @@ struct MoviesTab: View {
                                 titleVisibility: .visible) {
                 Button("Delete from iPhone", role: .destructive) {
                     if let movie = pendingDeleteMovie {
-                        library.delete(movie)
-                        if selected?.id == movie.id { selected = nil }
+                        if cast.nowCastingMovie?.id == movie.id || cast.pendingCastMovie?.id == movie.id {
+                            library.errorMessage = "Stop casting this video before deleting it."
+                        } else {
+                            library.delete(movie)
+                        }
                     }
                     pendingDeleteMovie = nil
                 }
