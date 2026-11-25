@@ -66,7 +66,9 @@ private struct BudgetCircle: View {
 struct FixedBudgetDashboardView: View {
     @EnvironmentObject private var store: LedgerStore
     @Environment(\.dismiss) private var dismiss
-    @State private var displayedCycle = BudgetCycle.start(containing: Date())
+    @State private var browsedCycle = BudgetCycle.start(containing: Date())
+    @State private var showPeriodEditor = false
+    private var displayedCycle: Date { plan.reportPlanMonth(for: browsedCycle) }
     @State private var grocery = 45.0
     @State private var fuel = 25.0
     @State private var eatOut = 15.0
@@ -142,12 +144,12 @@ struct FixedBudgetDashboardView: View {
         .alert("Budget Overview", isPresented: $showBudgetNotice) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Current budget month: \(BudgetCycle.title(start: displayedCycle)). Active income: \(money(income)). Fixed expenses: \(money(expenses)).")
+            Text("Current budget month: \(plan.reportTitle(for: displayedCycle)). Active income: \(money(income)). Fixed expenses: \(money(expenses)).")
         }
         .alert("Budget Plan Saved", isPresented: $appliedNotice) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Grocery, Fuel and Eat Out allocations were saved for \(BudgetCycle.title(start: displayedCycle)).")
+            Text("Grocery, Fuel and Eat Out allocations were saved for \(plan.reportTitle(for: displayedCycle)).")
         }
         .fullScreenCover(isPresented: $showPerformance) {
             NavigationStack {
@@ -164,7 +166,16 @@ struct FixedBudgetDashboardView: View {
                     }
             }
         }
+        .sheet(isPresented: $showPeriodEditor) {
+            BudgetPeriodEditor(plan: plan, cycle: browsedCycle) { selected in
+                var updated = store.fixedBudget
+                updated.customPeriod = selected
+                store.saveFixedBudget(updated)
+                loadAllocations()
+            }
+        }
         .onAppear(perform: loadAllocations)
+        .onChange(of: plan.customPeriod) { _ in loadAllocations() }
         .onChange(of: displayedCycle) { _ in loadAllocations() }
     }
 
@@ -294,30 +305,38 @@ struct FixedBudgetDashboardView: View {
                 Text("Monthly Budget")
                     .font(.system(size: 21, weight: .bold))
                     .foregroundStyle(.white)
-                Text("Cycle: \(BudgetCycle.title(start: displayedCycle))")
+                Text("Cycle: \(plan.reportTitle(for: displayedCycle))")
                     .font(.system(size: 12.5, weight: .medium))
                     .foregroundStyle(.white.opacity(0.94))
-                Text("Your budget runs from the 1st to the last day of each month.")
+                Text(plan.customPeriod == nil ? "Calendar month · tap dates to change" : "Custom period · saved until changed")
                     .font(.system(size: 10.3))
                     .foregroundStyle(.white.opacity(0.70))
             }
             Spacer(minLength: 1)
             HStack(spacing: 6) {
-                Button {
-                    displayedCycle = BudgetCycle.shifted(displayedCycle, by: -1)
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .frame(width: 19, height: 40)
+                if plan.customPeriod == nil {
+                    Button {
+                        browsedCycle = BudgetCycle.shifted(browsedCycle, by: -1)
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .frame(width: 19, height: 40)
+                    }
                 }
-                Text(BudgetCycle.title(start: displayedCycle))
-                    .font(.system(size: 10, weight: .semibold))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
                 Button {
-                    displayedCycle = BudgetCycle.shifted(displayedCycle, by: 1)
+                    showPeriodEditor = true
                 } label: {
-                    Image(systemName: "chevron.right")
-                        .frame(width: 19, height: 40)
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 20, weight: .semibold))
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel("Choose budget start and closing dates")
+                if plan.customPeriod == nil {
+                    Button {
+                        browsedCycle = BudgetCycle.shifted(browsedCycle, by: 1)
+                    } label: {
+                        Image(systemName: "chevron.right")
+                            .frame(width: 19, height: 40)
+                    }
                 }
             }
             .buttonStyle(.plain)
@@ -819,6 +838,72 @@ private struct FixedPlanItemEditor: View {
                 }
                 .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                           || decimalAmount == nil || (decimalAmount ?? 0) <= 0)
+            }
+        }
+    }
+}
+
+
+/// One editor shared by both budget screens. Cancel is non-mutating.
+struct BudgetPeriodEditor: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var custom: Bool
+    @State private var start: Date
+    @State private var end: Date
+    let onSave: (CustomBudgetPeriod?) -> Void
+
+    init(plan: MonthlyFixedBudget, cycle: Date, onSave: @escaping (CustomBudgetPeriod?) -> Void) {
+        let range = plan.reportInterval(for: cycle)
+        _custom = State(initialValue: plan.customPeriod != nil)
+        _start = State(initialValue: range.start)
+        _end = State(initialValue: Calendar.current.date(byAdding: .day, value: -1, to: range.end) ?? range.start)
+        self.onSave = onSave
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("Period type", selection: $custom) {
+                        Text("Calendar month").tag(false)
+                        Text("Custom dates").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                } footer: {
+                    Text(custom ? "Your selected dates remain active until you change them." :
+                        "Automatically follow the first and last day of each month.")
+                }
+                if custom {
+                    Section("Budget period (inclusive)") {
+                        DatePicker("Start date", selection: $start, displayedComponents: .date)
+                        DatePicker("Closing date", selection: $end, displayedComponents: .date)
+                        if CustomBudgetPeriod(start: start, end: end) == nil {
+                            Label("Closing date must not be before the start date.", systemImage: "exclamationmark.triangle")
+                                .foregroundStyle(.red)
+                        }
+                    }
+                    Section {
+                        Text("Transactions are included by their actual dates. Fixed monthly plans and allocations use the closing month, once; amounts and installment schedules are not rewritten.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .navigationTitle("Budget Period")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        let period = CustomBudgetPeriod(start: start, end: end)
+                        guard !custom || period != nil else { return }
+                        onSave(custom ? period : nil)
+                        dismiss()
+                    }
+                    .disabled(custom && CustomBudgetPeriod(start: start, end: end) == nil)
+                }
             }
         }
     }
