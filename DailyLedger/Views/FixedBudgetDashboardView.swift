@@ -513,7 +513,8 @@ struct FixedBudgetDashboardView: View {
     }
 
     private func expenseRow(_ item: FixedPlanItem) -> some View {
-        HStack(spacing: 8) {
+        let occurrences = plan.occurrences(.expense, for: displayedCycle).filter { $0.item.id == item.id }
+        return HStack(spacing: 8) {
             BudgetCircle(symbol: expenseSymbol(item.title),
                          color: expenseColor(item.title),
                          size: 34)
@@ -521,6 +522,14 @@ struct FixedBudgetDashboardView: View {
                 Text(item.title)
                     .font(.system(size: 11.5, weight: .bold))
                     .lineLimit(1)
+                if plan.customPeriod != nil {
+                    Text(occurrences.map { $0.dueDate.formatted(.dateTime.day().month(.abbreviated)) }.joined(separator: " · "))
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(LedgerBudgetStyle.muted)
+                    Text("\(occurrences.count) payment(s) in period")
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(LedgerBudgetStyle.muted)
+                }
                 if let count = item.durationCycles {
                     Text("\(item.elapsedCycles(through: displayedCycle)) / \(count) months")
                         .font(.system(size: 9.5))
