@@ -221,6 +221,8 @@ let customReport = BudgetPerformanceEngine.build(plan: customPlan, cycleStart: c
                spend(UUID(), 400, "Grocery", day(2026, 12, 1))],
     currencyCode: "QAR", asOf: day(2026, 12, 2), calendar: calendar)
 check(customReport.actualSpent == 500, "manual range includes both boundaries and excludes surrounding days")
-check(customReport.totalBudget == 9000, "monthly fixed income and expenses not duplicated across custom range")
+check(customReport.totalBudget == 18000, "two monthly income and expense occurrences within the custom period")
 check(customReport.expenses.count == 2, "custom date range does not duplicate transactions")
 print("Build 114 custom performance range passed.")
+
+check(customReport.lines.first { $0.id == "fixed:" + rent.id.uuidString }?.budget == 5000, "two 2500 rent installments included")
