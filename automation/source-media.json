@@ -1988,7 +1988,41 @@
           "source_page_url": "https://havoc.app/package/closeall"
         }
       ]
+    },
+    "com.82flex.panoramicview": {
+      "credit_label": "82flex — official PanoramicView 1.1.0 Havoc artwork and interface",
+      "source_page_url": "https://havoc.app/package/panoramic",
+      "official_source": true,
+      "hero": {
+        "url": "https://media.havoc.app/6afc1453336c140b62dba764",
+        "alt": "Official PanoramicView banner showing two full-size iPhone apps paired on a vertically extended canvas",
+        "local_path": "assets/articles/source-media/panoramicview-1-1-0-official-banner.png",
+        "git_blob_sha": "9389858c4430cdc6547c6e7062c10fa634be442d",
+        "sha256": "1529ae297b4a78b1bb7437c2eed3a530448f2431bd622321e3518d02c0261003",
+        "width": 1600,
+        "height": 900
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6afc0fb3336c140b62db86d8",
+          "alt": "Official PanoramicView interface showing two full-size apps stacked on one extended iPhone canvas",
+          "local_path": "assets/articles/source-media/panoramicview-1-1-0-official-pair.png",
+          "git_blob_sha": "eda8bbcebfea00059cb4f72ed9a0d912d7d2e27e",
+          "sha256": "1e102b793a1e1ec80286b4774eac4ec90aa124082a5955a3f3e73128b2389ea0",
+          "width": 1320,
+          "height": 2868
+        }
+      ],
+      "retrieval_note": "Retrieved from the ordinary Havoc package HTML and __NEXT_DATA__ pageProps content for version 1.1.0; both PNGs were downloaded unchanged and visually inspected.",
+      "latest_project_state": {
+        "version": "1.1.0",
+        "published_at": "2026-11-25T05:29:51.910Z",
+        "package_id": "com.82flex.panoramicview",
+        "firmware_scope": "Havoc metadata iOS 15.0–26.0.1",
+        "jailbreak_environment": "Dopamine; Rootless and RootHide",
+        "device_scope": "Regular iPhone including Home-button models; iPhone Duo and iPad unsupported"
+      }
     }
   },
-  "updated_at": "2026-11-25T11:56:15+03:00"
+  "updated_at": "2026-11-25T18:00:00+03:00"
 }
