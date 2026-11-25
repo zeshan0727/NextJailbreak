@@ -2,6 +2,44 @@
   "entries": [
     {
       "action": "create",
+      "candidate_fingerprint": "comparison.app-switcher-deck-killx-closeall-2026-11-25",
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "channel": "scheduled-tweak-roundup-comparison",
+      "compat": "Deck 1.2.0 supports iOS 15.0–18.7 with rootful and rootless builds; KillX Pro Neo 3.0.1 supports rootless iOS 15.0–26.0.1 on iPhone but not iPadOS; CloseAll 1.0 is rootless and its live structured metadata lists iOS 15.0–18.7.5.",
+      "description": "Compare Deck, KillX Pro Neo and CloseAll by App Switcher design, Close All safety, iOS support, jailbreak environment, device limits, price and recovery.",
+      "entry_type": "comparison",
+      "href": "deck-vs-killx-pro-neo-vs-closeall-app-switcher-comparison/",
+      "image": "assets/articles/source-media/deck-1-1-0-update-ed4a6526a6.jpg",
+      "media_alt": "Official Deck artwork showing grid and carousel App Switcher layouts",
+      "media_credit": "Official Deck, KillX Pro Neo and CloseAll source artwork",
+      "media_source_url": "https://chariz.com/buy/deck",
+      "modified_at": "2026-11-25T11:56:15+03:00",
+      "name": "Deck vs KillX Pro Neo vs CloseAll",
+      "package": "comparison.deck-killx-closeall",
+      "published_at": "2026-11-25T11:56:15+03:00",
+      "quality_target": 9,
+      "release": "Deck 1.2.0 / KillX Pro Neo 3.0.1 / CloseAll 1.0",
+      "route": "deck-vs-killx-pro-neo-vs-closeall-app-switcher-comparison/",
+      "run_id": "scheduled-2026-11-25T08:56:15Z",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "deck-vs-killx-pro-neo-vs-closeall-app-switcher-comparison",
+      "source_name": "Official Chariz, Havoc and CloseAll project sources",
+      "source_page_url": "https://chariz.com/buy/deck",
+      "source_url": "https://havoc.app/package/killxproneo",
+      "source_visual_origin": "official-package-artwork-and-screenshots",
+      "source_visual_url": "https://img.chariz.cloud/sileo-banner/deck.jpg",
+      "secondary_image": "assets/articles/source-media/killx-pro-neo-3-0-update-005bcce4b8.png",
+      "secondary_media_source_url": "https://havoc.app/package/killxproneo",
+      "tertiary_image": "assets/articles/source-media/closeall-1-0-official-app-switcher.png",
+      "tertiary_media_source_url": "https://media.havoc.app/64727bf4106f70eb25226691",
+      "title": "Deck 1.2.0 vs KillX Pro Neo 3.0.1 vs CloseAll 1.0: Which App Switcher Tweak Fits?",
+      "version": "Deck 1.2.0 / KillX Pro Neo 3.0.1 / CloseAll 1.0"
+    },
+    {
+      "action": "create",
       "additional_media": [
         {
           "image": "assets/articles/source-media/nextclock-1-2-0-official-pack-selector.png",

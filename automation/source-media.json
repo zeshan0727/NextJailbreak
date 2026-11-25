@@ -1960,7 +1960,35 @@
         "package_variants": "Standard rootless iphoneos-arm64; RootHide iphoneos-arm64e installed directly without Patcher",
         "testing_note": "Current RELEASE_NOTES.md records an earlier iPhone 11 Pro Max / iOS 26.0.1 / Dopamine 3 RootHide test; other devices, other builds and standard-rootless on-device testing are not confirmed in those notes."
       }
+    },
+    "comparison.deck-killx-closeall": {
+      "credit_label": "Official Deck, KillX Pro Neo and CloseAll package artwork",
+      "source_page_url": "https://chariz.com/buy/deck",
+      "official_source": true,
+      "hero": {
+        "url": "https://img.chariz.cloud/sileo-banner/deck.jpg",
+        "alt": "Official Deck artwork showing grid and carousel App Switcher layouts",
+        "local_path": "assets/articles/source-media/deck-1-1-0-update-ed4a6526a6.jpg",
+        "git_blob_sha": "ced835686f16819caebc7442f154c466ee0fefae"
+      },
+      "screenshots": [
+        {
+          "url": "https://media.havoc.app/6a9755504c91ad8dbe8ebb21",
+          "alt": "Official KillX Pro Neo settings screen showing Close button styles and Music Detection controls",
+          "local_path": "assets/articles/source-media/killx-pro-neo-3-0-update-005bcce4b8.png",
+          "git_blob_sha": "7e64ebfc73b20072485fa401d824c13ed4d0b0b0",
+          "source_page_url": "https://havoc.app/package/killxproneo"
+        },
+        {
+          "url": "https://media.havoc.app/64727bf4106f70eb25226691",
+          "alt": "Official CloseAll App Switcher screenshot showing locked cards and the Close button",
+          "local_path": "assets/articles/source-media/closeall-1-0-official-app-switcher.png",
+          "git_blob_sha": "dd6688efc4bb4b73f3e350aece590d00d7ecc5fd",
+          "sha256": "1b2aae20ef119798f500b10bf9d9481e873ce2d7507ef2faa81373942bf8d627",
+          "source_page_url": "https://havoc.app/package/closeall"
+        }
+      ]
     }
   },
-  "updated_at": "2026-11-24T15:39:25Z"
+  "updated_at": "2026-11-25T11:56:15+03:00"
 }
