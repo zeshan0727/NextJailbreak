@@ -35,7 +35,7 @@ enum UpcomingPaymentPlanner {
                 return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
             }
         return UpcomingPaymentsWidgetSnapshot(
-            version: 1,
+            version: 2,
             generatedAt: asOf,
             cycleStart: interval.start,
             nextCycleStart: interval.end,
