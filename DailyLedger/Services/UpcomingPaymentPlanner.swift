@@ -11,29 +11,21 @@ enum UpcomingPaymentPlanner {
         asOf: Date = Date(),
         calendar: Calendar = .current
     ) -> UpcomingPaymentsWidgetSnapshot {
-        let cycleStart = plan.reportPlanMonth(for: asOf, calendar: calendar)
         let interval = plan.reportInterval(for: asOf, calendar: calendar)
-        let close = calendar.date(byAdding: .day, value: -1, to: interval.end)!
-        let items: [UpcomingWidgetPayment] = plan
-            .activeItems(.expense, in: cycleStart)
-            .compactMap { item in
-                let outstanding = max(Decimal.zero, item.amount - fixedSpending[item.id, default: 0])
+        // Apply recorded fixed spending to the earliest scheduled occurrence
+        // first, without counting a payment more than once.
+        var remainingPaid = fixedSpending
+        let items: [UpcomingWidgetPayment] = plan.occurrences(.expense, for: asOf, calendar: calendar)
+            .compactMap { occurrence in
+                let item = occurrence.item
+                let applied = min(item.amount, max(.zero, remainingPaid[item.id, default: 0]))
+                remainingPaid[item.id, default: 0] -= applied
+                let outstanding = item.amount - applied
                 guard outstanding > 0 else { return nil }
-                let due = dueDate(item: item, cycleStart: cycleStart, close: close,
-                                  calendar: calendar)
-                // A fixed due date outside the selected range is not an upcoming payment.
-                guard due >= interval.start && due < interval.end else { return nil }
                 return UpcomingWidgetPayment(
-                    id: item.id,
-                    title: item.title,
-                    remaining: outstanding,
-                    dueDate: due,
-                    hasSpecifiedDueDay: item.dueDay != nil
+                    id: item.id, title: item.title, remaining: outstanding,
+                    dueDate: occurrence.dueDate, hasSpecifiedDueDay: item.dueDay != nil
                 )
-            }
-            .sorted {
-                if $0.dueDate != $1.dueDate { return $0.dueDate < $1.dueDate }
-                return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
             }
         return UpcomingPaymentsWidgetSnapshot(
             version: 3,
