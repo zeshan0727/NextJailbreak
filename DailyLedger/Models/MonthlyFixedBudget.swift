@@ -1,16 +1,21 @@
 import Foundation
 
-/// The personal budget month starts on the 26th and ends on the 25th (inclusive).
+/// Calendar-month budgeting: first day inclusive, next month's first day exclusive.
 enum BudgetCycle {
     static func start(containing date: Date, calendar: Calendar = .current) -> Date {
-        let startOfDay = calendar.startOfDay(for: date)
-        let components = calendar.dateComponents([.year, .month], from: startOfDay)
-        let thisMonth26 = calendar.date(from: DateComponents(
-            year: components.year, month: components.month, day: 26
-        ))!
-        return startOfDay >= thisMonth26
-            ? thisMonth26
-            : calendar.date(byAdding: .month, value: -1, to: thisMonth26)!
+        calendar.dateInterval(of: .month, for: date)!.start
+    }
+
+    /// Older builds saved the 26th as the anchor of a salary cycle closing
+    /// in the following month. Interpret that anchor as its closing month.
+    /// New saved anchors are always the first; raw legacy dates remain intact.
+    /// Never use this conversion for actual transaction dates.
+    static func storedStart(_ date: Date, calendar: Calendar = .current) -> Date {
+        let month = start(containing: date, calendar: calendar)
+        if calendar.component(.day, from: date) == 26 {
+            return calendar.date(byAdding: .month, value: 1, to: month)!
+        }
+        return month
     }
 
     static func shifted(_ start: Date, by months: Int, calendar: Calendar = .current) -> Date {
@@ -48,12 +53,12 @@ struct FixedPlanItem: Identifiable, Codable, Equatable {
     /// nil means ongoing; a positive value ends after exactly that many cycles.
     var durationCycles: Int?
     /// Optional actual monthly due-day (1...31); nil means due by the cycle
-    /// close on the 25th, not a fabricated installment date.
+    /// close at month end, not a fabricated installment date.
     var dueDay: Int? = nil
 
     func isActive(in cycle: Date, calendar: Calendar = .current) -> Bool {
         let month = BudgetCycle.start(containing: cycle, calendar: calendar)
-        let first = BudgetCycle.start(containing: firstCycle, calendar: calendar)
+        let first = BudgetCycle.storedStart(firstCycle, calendar: calendar)
         guard month >= first else { return false }
         guard let durationCycles else { return true }
         guard durationCycles > 0 else { return false }
@@ -62,7 +67,7 @@ struct FixedPlanItem: Identifiable, Codable, Equatable {
     }
 
     func elapsedCycles(through cycle: Date, calendar: Calendar = .current) -> Int {
-        let first = BudgetCycle.start(containing: firstCycle, calendar: calendar)
+        let first = BudgetCycle.storedStart(firstCycle, calendar: calendar)
         let current = BudgetCycle.start(containing: cycle, calendar: calendar)
         let components = calendar.dateComponents([.month], from: first, to: current)
         return max(0, (components.month ?? 0) + 1)
@@ -70,7 +75,7 @@ struct FixedPlanItem: Identifiable, Codable, Equatable {
 
     func finalDay(calendar: Calendar = .current) -> Date? {
         guard let durationCycles, durationCycles > 0 else { return nil }
-        let nextCycle = BudgetCycle.shifted(firstCycle, by: durationCycles, calendar: calendar)
+        let nextCycle = BudgetCycle.shifted(BudgetCycle.storedStart(firstCycle, calendar: calendar), by: durationCycles, calendar: calendar)
         return calendar.date(byAdding: .day, value: -1, to: nextCycle)
     }
 }
@@ -184,8 +189,8 @@ struct MonthlyFixedBudget: Codable, Equatable {
 
     func savedAllocation(in cycle: Date) -> SavedCycleBudget? {
         let start = BudgetCycle.start(containing: cycle)
-        return cycleAllocations.first {
-            BudgetCycle.start(containing: $0.cycleStart) == start
+        return cycleAllocations.last {
+            BudgetCycle.storedStart($0.cycleStart) == start
         }
     }
 
@@ -221,12 +226,7 @@ struct MonthlyFixedBudget: Codable, Equatable {
         let saved = SavedCycleBudget(
             cycleStart: start, groceryPercent: grocery, fuelPercent: fuel, eatOutPercent: eatOut
         )
-        if let index = cycleAllocations.firstIndex(where: {
-            BudgetCycle.start(containing: $0.cycleStart) == start
-        }) {
-            cycleAllocations[index] = saved
-        } else {
-            cycleAllocations.append(saved)
-        }
+        cycleAllocations.removeAll { BudgetCycle.storedStart($0.cycleStart) == start }
+        cycleAllocations.append(saved)
     }
 }
