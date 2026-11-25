@@ -69,3 +69,17 @@ oldPlan.setAllocation(grocery: 50, fuel: 20, eatOut: 10, cycle: day(2026, 11, 30
 check(oldPlan.cycleAllocations.count == 1, "no duplicate allocation after month transition")
 check(oldPlan.savedAllocation(in: day(2026, 11, 1))?.groceryPercent == 50, "updated calendar allocation")
 print("Build 113 calendar month and legacy anchor migration passed.")
+
+var customPlan = plan
+customPlan.customPeriod = CustomBudgetPeriod(start: day(2026, 11, 26), end: day(2026, 12, 31), calendar: calendar)
+let customRange = customPlan.reportInterval(for: day(2027, 1, 15), calendar: calendar)
+check(customRange.start == day(2026, 11, 26), "manual start survives beyond selected period")
+check(customRange.end == day(2027, 1, 1), "closing date is inclusive")
+check(customPlan.reportPlanMonth(for: day(2026, 11, 26), calendar: calendar) == day(2026, 12, 1), "fixed plans use closing month once")
+check(CustomBudgetPeriod(start: day(2026, 12, 1), end: day(2026, 11, 30), calendar: calendar) == nil, "reject reversed dates")
+let customRestored = try JSONDecoder().decode(MonthlyFixedBudget.self, from: JSONEncoder().encode(customPlan))
+check(customRestored == customPlan, "custom date selection survives backup and restore")
+check(roundTrip.customPeriod == nil, "old backup defaults to calendar month")
+customPlan.customPeriod = nil
+check(customPlan.reportInterval(for: day(2027, 1, 15), calendar: calendar).start == day(2027, 1, 1), "return to calendar month")
+print("Build 114 custom period persistence and inclusive dates passed.")
