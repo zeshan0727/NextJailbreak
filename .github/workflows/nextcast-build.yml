@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - agent/next-cast-1.5.20-fast-delete
+      - agent/next-cast-1.5.21-browser-zoom-touchpad
     paths:
       - "NextCast/**"
       - ".github/workflows/nextcast-build.yml"
@@ -14,7 +14,7 @@ permissions:
 
 # Never waste multiple macOS runners compiling superseded edits.
 concurrency:
-  group: nextcast-v1520-${{ github.head_ref || github.ref_name }}
+  group: nextcast-v1521-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -87,7 +87,16 @@ jobs:
           assert "ArtworkCache.shared.remove(movie.id)" in c and "PlaybackHistory.clear(movie.id)" in c
           assert "removedIDs.contains(movie.id)" in a and "library.beginConversion(movie)" in m
           assert "library.endConversion" in m
-          print("Verified MKV Cast path and source-level deletion, swipe, cache and conversion guards")
+          b = Path("Sources/BrowserTab.swift").read_text()
+          r = Path("Sources/RemoteTab.swift").read_text()
+          assert "view.pageZoom = CGFloat(bounded) / 100" in b
+          assert "minimumPageZoom = 50" in b and "maximumPageZoom = 200" in b
+          assert "model.setPageZoom(100)" in b and "newPage.webView.pageZoom = oldPage.webView.pageZoom" in b
+          assert "RemoteTouchInput(enabled:" in r and "UIPanGestureRecognizer" in r
+          assert "shouldBeRequiredToFailBy" in r and "scroll.panGestureRecognizer" in r
+          assert "padTap.require(toFail: padPan)" in r
+          assert "DragGesture(minimumDistance: 30)" not in r
+          print("Verified source-level zoom, isolated touchpad, MKV Cast and deletion safeguards")
           PY
           xcodegen generate
           pod install --no-repo-update
@@ -158,8 +167,8 @@ jobs:
           info = plistlib.loads((app / "Info.plist").read_bytes())
           assert info["CFBundleIdentifier"] == "uk.zeshanbarvi.nextcast"
           assert info["CFBundleDisplayName"] == "NexaPlay"
-          assert info["CFBundleShortVersionString"] == "1.5.20"
-          assert info["CFBundleVersion"] == "44"
+          assert info["CFBundleShortVersionString"] == "1.5.21"
+          assert info["CFBundleVersion"] == "45"
           assert (app / "Assets.car").is_file(), "Missing compiled assets"
           assert (app / "NextCast").is_file(), "Missing executable"
           print("Verified NexaPlay identity, version, bundle ID and icon assets")
@@ -173,17 +182,17 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.5.20.tipa" Payload)
-          cp NextCast-1.5.20.tipa NextCast-1.5.20.ipa
-          ls -lh NextCast-1.5.20.tipa NextCast-1.5.20.ipa
+          (cd dist && zip -qry "../NextCast-1.5.21.tipa" Payload)
+          cp NextCast-1.5.21.tipa NextCast-1.5.21.ipa
+          ls -lh NextCast-1.5.21.tipa NextCast-1.5.21.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-5-20-IPA-TIPA
+          name: NextCast-iOS16-V1-5-21-IPA-TIPA
           path: |
-            NextCast-1.5.20.tipa
-            NextCast-1.5.20.ipa
+            NextCast-1.5.21.tipa
+            NextCast-1.5.21.ipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
