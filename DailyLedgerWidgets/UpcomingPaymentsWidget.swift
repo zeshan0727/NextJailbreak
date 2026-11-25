@@ -21,7 +21,7 @@ private struct UpcomingPaymentsProvider: TimelineProvider {
         UpcomingPaymentsEntry(
             date: Date(),
             snapshot: UpcomingPaymentsWidgetSnapshot(
-                version: 2, generatedAt: Date(),
+                version: 3, generatedAt: Date(),
                 cycleStart: Calendar.current.startOfDay(for: Date()),
                 nextCycleStart: Calendar.current.date(byAdding: .day, value: 12, to: Date())!,
                 currency: "QAR",
