@@ -34,7 +34,7 @@ private struct RemoteTouchInput: UIViewRepresentable {
     var onCommand: (RemoteCommand) -> Void
 
     func makeUIView(context: Context) -> RemoteTouchInputView {
-        let view = RemoteTouchInputView()
+        let view = RemoteTouchInputView(frame: .zero)
         view.enabled = enabled
         view.onCommand = onCommand
         return view
