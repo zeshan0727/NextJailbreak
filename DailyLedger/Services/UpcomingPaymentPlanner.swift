@@ -44,8 +44,7 @@ enum UpcomingPaymentPlanner {
         )
     }
 
-    /// For 26th–25th cycles, days 26–31 belong to the starting month and
-    /// days 1–25 belong to the next month. Months with fewer days clamp.
+    /// All due days belong to the selected calendar month. Short months clamp.
     static func dueDate(
         item: FixedPlanItem,
         cycleStart: Date,
@@ -53,13 +52,7 @@ enum UpcomingPaymentPlanner {
         calendar: Calendar = .current
     ) -> Date {
         guard let day = item.dueDay, (1...31).contains(day) else { return close }
-        let monthAnchor: Date
-        if day >= 26 {
-            monthAnchor = cycleStart
-        } else {
-            monthAnchor = calendar.date(byAdding: .month, value: 1, to: cycleStart)!
-        }
-        let monthComponents = calendar.dateComponents([.year, .month], from: monthAnchor)
+        let monthComponents = calendar.dateComponents([.year, .month], from: cycleStart)
         let first = calendar.date(from: DateComponents(
             year: monthComponents.year, month: monthComponents.month, day: 1
         ))!
