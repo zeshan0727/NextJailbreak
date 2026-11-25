@@ -184,15 +184,16 @@ enum BudgetPerformanceEngine {
         asOf: Date = Date(),
         calendar: Calendar = .current
     ) -> BudgetPerformanceResult {
-        let interval = BudgetCycle.interval(start: cycleStart, calendar: calendar)
-        let fixed = plan.activeItems(.expense, in: interval.start)
-        let saved = plan.savedAllocation(in: interval.start)
+        let interval = plan.reportInterval(for: cycleStart, calendar: calendar)
+        let planMonth = plan.reportPlanMonth(for: cycleStart, calendar: calendar)
+        let fixed = plan.activeItems(.expense, in: planMonth)
+        let saved = plan.savedAllocation(in: planMonth)
         let percentages = (
             grocery: saved?.groceryPercent ?? plan.groceryPercent,
             fuel: saved?.fuelPercent ?? plan.fuelPercent,
             eatOut: saved?.eatOutPercent ?? plan.eatOutPercent
         )
-        let available = max(Decimal.zero, plan.available(in: interval.start))
+        let available = max(Decimal.zero, plan.available(in: planMonth))
         let otherPercent = max(0, 100 - percentages.grocery - percentages.fuel - percentages.eatOut)
 
         var collected: [BudgetPerformanceBucket: Decimal] = [:]
