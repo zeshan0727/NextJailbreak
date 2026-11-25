@@ -291,6 +291,10 @@ final class MKVCastPreparer: ObservableObject {
                  options: TVConversionOptions = TVConversionOptions(),
                  completion: @escaping (Movie) -> Void) {
         guard !preparing else { return }
+        guard library.beginConversion(movie) else {
+            errorMessage = "This movie is unavailable, being deleted, or already converting."
+            return
+        }
         if options.useFFmpeg ||
             !NativeCastCompatibility.containers.contains(movie.localURL.pathExtension.lowercased()) {
             prepareUsingFFmpeg(movie, library: library, options: options,
@@ -359,6 +363,7 @@ final class MKVCastPreparer: ObservableObject {
             }
             func finish(_ movie: Movie?, _ issue: String?, _ success: String) {
                 DispatchQueue.main.async { [weak self] in
+                    defer { library.endConversion(sourceMovie.id) }
                     guard let self else { return }
                     self.monitor?.invalidate()
                     self.monitor = nil
@@ -448,6 +453,7 @@ final class MKVCastPreparer: ObservableObject {
                                     completion: @escaping (Movie) -> Void) {
         guard !preparing else { return }
         guard FileManager.default.fileExists(atPath: movie.localURL.path) else {
+            library.endConversion(movie.id)
             errorMessage = "Original movie file is missing. Re-import it from Files."
             return
         }
@@ -468,6 +474,7 @@ final class MKVCastPreparer: ObservableObject {
         let output = folder.appendingPathComponent(name)
         let temporary = folder.appendingPathComponent(name + ".building.mp4")
         func finished(_ result: Result<Movie, Error>) {
+            defer { library.endConversion(movie.id) }
             self.preparing = false
             self.ffmpegIsRunning = false
             self.isFinalizing = false
