@@ -11,8 +11,8 @@ enum UpcomingPaymentPlanner {
         asOf: Date = Date(),
         calendar: Calendar = .current
     ) -> UpcomingPaymentsWidgetSnapshot {
-        let cycleStart = BudgetCycle.start(containing: asOf, calendar: calendar)
-        let interval = BudgetCycle.interval(start: cycleStart, calendar: calendar)
+        let cycleStart = plan.reportPlanMonth(for: asOf, calendar: calendar)
+        let interval = plan.reportInterval(for: asOf, calendar: calendar)
         let close = calendar.date(byAdding: .day, value: -1, to: interval.end)!
         let items: [UpcomingWidgetPayment] = plan
             .activeItems(.expense, in: cycleStart)
@@ -21,6 +21,7 @@ enum UpcomingPaymentPlanner {
                 guard outstanding > 0 else { return nil }
                 let due = dueDate(item: item, cycleStart: cycleStart, close: close,
                                   calendar: calendar)
+                // A fixed due date outside the selected range is not an upcoming payment.
                 guard due >= interval.start && due < interval.end else { return nil }
                 return UpcomingWidgetPayment(
                     id: item.id,
@@ -35,12 +36,13 @@ enum UpcomingPaymentPlanner {
                 return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
             }
         return UpcomingPaymentsWidgetSnapshot(
-            version: 2,
+            version: 3,
             generatedAt: asOf,
             cycleStart: interval.start,
             nextCycleStart: interval.end,
             currency: currency,
-            payments: items
+            payments: items,
+            isCustomPeriod: plan.customPeriod?.interval(calendar: calendar) != nil
         )
     }
 
