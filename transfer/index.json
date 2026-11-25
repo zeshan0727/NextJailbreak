@@ -1,7 +1,31 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-21T19:24:21Z",
+  "updatedAt": "2026-11-25T19:23:44Z",
   "files": [
+    {
+      "id": "nextcast-1.5.20",
+      "name": "NexaPlay 1.5.20 — iOS Media Hub, Chromecast and Downloads",
+      "fileName": "NextCast-1.5.20.tipa",
+      "type": "tipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.20",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.5.20/NextCast-1.5.20.tipa",
+      "sha256": "841c72feba90fb4386e9e299656512d7aad5f6f5efbba97bf1fae2d4ab750c34",
+      "sizeBytes": 28309006,
+      "notes": "NexaPlay with VLC, browser, converter, Chromecast and downloads. iOS 16 build verified; on-device testing required."
+    },
+    {
+      "id": "nextcast-1.5.20-ipa",
+      "name": "NexaPlay 1.5.20 — IPA (TrollStore)",
+      "fileName": "NextCast-1.5.20.ipa",
+      "type": "ipa",
+      "platform": "TrollStore / iOS 16+",
+      "version": "1.5.20",
+      "url": "https://nextjailbreak.com/transfer/files/NextCast/1.5.20/NextCast-1.5.20.ipa",
+      "sha256": "841c72feba90fb4386e9e299656512d7aad5f6f5efbba97bf1fae2d4ab750c34",
+      "sizeBytes": 28309006,
+      "notes": "Ad-hoc signed IPA for TrollStore. Not signed for standard iOS installation."
+    },
     {
       "id": "nextcast-1.5.19",
       "name": "NexaPlay 1.5.19 — iOS Media Hub, Chromecast and Downloads",
