@@ -77,6 +77,11 @@ final class MovieLibrary: ObservableObject {
     @Published var isImporting = false
     @Published var importStatus = ""
     private let fileQueue = DispatchQueue(label: "uk.zeshanbarvi.nextcast.import", qos: .userInitiated)
+    private let deletionQueue = DispatchQueue(label: "uk.zeshanbarvi.nextcast.delete", qos: .utility)
+    private var pendingDeletions: [Movie] = []
+    private var deletionsInFlight = Set<UUID>()
+    private var activeConversionSources = Set<UUID>()
+    private var deletionJournal: URL { Self.folder.appendingPathComponent("pending-deletions.json") }
 
     static var folder: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -99,10 +104,34 @@ final class MovieLibrary: ObservableObject {
             if FileManager.default.fileExists(atPath: manifest.path) {
                 movies = try JSONDecoder().decode([Movie].self, from: Data(contentsOf: manifest))
             }
+            if FileManager.default.fileExists(atPath: deletionJournal.path) {
+                pendingDeletions = try JSONDecoder().decode([Movie].self, from: Data(contentsOf: deletionJournal))
+            }
+            let pendingIDs = Set(pendingDeletions.map(\.id))
+            movies.removeAll { pendingIDs.contains($0.id) }
             recoverPreparedFiles()
             movies.removeAll { !FileManager.default.fileExists(atPath: $0.localURL.path) }
             movies.sort { $0.importedAt > $1.importedAt }
-            try? JSONEncoder().encode(movies).write(to: manifest, options: .atomic)
+            try JSONEncoder().encode(movies).write(to: manifest, options: .atomic)
+            // No conversion survives process termination. Remove only known
+            // unfinished output names that are not registered library items.
+            let savedNames = Set(movies.map(\.fileName))
+            let convertedFolder = Self.convertedFolder
+            deletionQueue.async {
+                let fm = FileManager.default
+                let files = (try? fm.contentsOfDirectory(at: convertedFolder, includingPropertiesForKeys: nil)) ?? []
+                for url in files {
+                    let name = url.lastPathComponent
+                    guard !savedNames.contains("Converted/" + name),
+                          UUID(uuidString: name.components(separatedBy: ".").first ?? "") != nil,
+                          name.hasSuffix(".nativebuilding.mp4") || name.hasSuffix(".building.mp4") else { continue }
+                    try? fm.removeItem(at: url)
+                }
+            }
+            let validIDs = Set(movies.map(\.id))
+            ArtworkCache.shared.prune(keeping: validIDs)
+            PlaybackHistory.prune(keeping: validIDs)
+            for movie in pendingDeletions { scheduleDeletion(movie) }
         } catch {
             errorMessage = "Library load failed: \(error.localizedDescription)"
         }
@@ -122,9 +151,10 @@ final class MovieLibrary: ObservableObject {
         }
         let files = (try? fm.contentsOfDirectory(at: Self.convertedFolder,
                                                   includingPropertiesForKeys: nil)) ?? []
-        for url in files where url.pathExtension.lowercased() == "mp4" {
+        for url in files where url.lastPathComponent.hasSuffix(".native.cast.mp4") {
             let relative = "Converted/" + url.lastPathComponent
-            guard !movies.contains(where: { $0.fileName == relative }),
+            guard !pendingDeletions.contains(where: { $0.fileName == relative }),
+                  !movies.contains(where: { $0.fileName == relative }),
                   let size = ((try? fm.attributesOfItem(atPath: url.path)[.size]) as? NSNumber)?.int64Value,
                   size > 4096 else { continue }
             let sourceID = url.lastPathComponent.components(separatedBy: ".").first ?? ""
@@ -229,17 +259,102 @@ final class MovieLibrary: ObservableObject {
         importVideos(urls.filter { VideoFormats.supported($0) })
     }
 
-    func delete(_ movie: Movie) {
-        do {
-            try FileManager.default.removeItem(at: movie.localURL)
-            movies.removeAll { $0.id == movie.id }
-            persist()
-        } catch { errorMessage = error.localizedDescription }
+    func beginConversion(_ movie: Movie) -> Bool {
+        guard movies.contains(movie), !activeConversionSources.contains(movie.id),
+              !pendingDeletions.contains(where: { $0.id == movie.id }) else { return false }
+        activeConversionSources.insert(movie.id)
+        return true
     }
 
-    private func persist() {
-        do { try JSONEncoder().encode(movies).write(to: manifest, options: .atomic) }
-        catch { errorMessage = "Cannot save library: \(error.localizedDescription)" }
+    func endConversion(_ id: UUID) {
+        activeConversionSources.remove(id)
+    }
+
+    func delete(_ movie: Movie) {
+        guard movies.contains(movie) else { return }
+        let sourceID = UUID(uuidString: movie.localURL.lastPathComponent.components(separatedBy: ".").first ?? "")
+        guard !activeConversionSources.contains(movie.id),
+              sourceID.map({ !activeConversionSources.contains($0) }) ?? true else {
+            errorMessage = "Wait for the conversion to finish or cancel it before deleting this video."
+            return
+        }
+        // Journal first: a crash or forced quit cannot resurrect a deleted
+        // converted movie through the legacy recovery scan.
+        pendingDeletions.append(movie)
+        do {
+            try JSONEncoder().encode(pendingDeletions).write(to: deletionJournal, options: .atomic)
+        } catch {
+            pendingDeletions.removeAll { $0.id == movie.id }
+            errorMessage = "Cannot queue deletion: \(error.localizedDescription)"
+            return
+        }
+        movies.removeAll { $0.id == movie.id }
+        persist()
+        ArtworkCache.shared.remove(movie.id)
+        PlaybackHistory.clear(movie.id)
+        scheduleDeletion(movie)
+    }
+
+    private func scheduleDeletion(_ movie: Movie) {
+        guard deletionsInFlight.insert(movie.id).inserted else { return }
+        let url = movie.localURL
+        let convertedFolder = Self.convertedFolder
+        let savedNames = Set(movies.map(\.fileName))
+        let sourcePrefix = movie.id.uuidString + "."
+        let isConverted = movie.isConverted
+        let sharedFile = savedNames.contains(movie.fileName)
+        deletionQueue.async { [weak self] in
+            let fm = FileManager.default
+            var failures: [String] = []
+            func removeIfPresent(_ item: URL) {
+                do { try fm.removeItem(at: item) }
+                catch {
+                    if (error as NSError).code != NSFileNoSuchFileError &&
+                        (error as NSError).code != NSFileReadNoSuchFileError {
+                        failures.append(error.localizedDescription)
+                    }
+                }
+            }
+            if !sharedFile { removeIfPresent(url) }
+            if !isConverted {
+                let files = (try? fm.contentsOfDirectory(at: convertedFolder, includingPropertiesForKeys: nil)) ?? []
+                for item in files {
+                    let name = item.lastPathComponent
+                    guard name.hasPrefix(sourcePrefix),
+                          !savedNames.contains("Converted/" + name),
+                          name.hasSuffix(".nativebuilding.mp4") || name.hasSuffix(".building.mp4") else { continue }
+                    removeIfPresent(item)
+                }
+            }
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.deletionsInFlight.remove(movie.id)
+                guard failures.isEmpty else {
+                    self.errorMessage = "Video removed from library, but storage cleanup will retry on next launch: " + failures.joined(separator: "; ")
+                    return
+                }
+                // Keep the journal until the manifest is durably saved.
+                guard self.persist() else { return }
+                let remaining = self.pendingDeletions.filter { $0.id != movie.id }
+                do {
+                    try JSONEncoder().encode(remaining).write(to: self.deletionJournal, options: .atomic)
+                    self.pendingDeletions = remaining
+                } catch {
+                    self.errorMessage = "Deletion cleanup journal will retry on next launch."
+                }
+            }
+        }
+    }
+
+    @discardableResult
+    private func persist() -> Bool {
+        do {
+            try JSONEncoder().encode(movies).write(to: manifest, options: .atomic)
+            return true
+        } catch {
+            errorMessage = "Cannot save library: \(error.localizedDescription)"
+            return false
+        }
     }
 }
 
