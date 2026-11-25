@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - agent/next-cast-1.5.19-direct-mkv-cast
+      - agent/next-cast-1.5.20-fast-delete
     paths:
       - "NextCast/**"
       - ".github/workflows/nextcast-build.yml"
@@ -14,7 +14,7 @@ permissions:
 
 # Never waste multiple macOS runners compiling superseded edits.
 concurrency:
-  group: nextcast-v1519-${{ github.head_ref || github.ref_name }}
+  group: nextcast-v1520-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -78,7 +78,16 @@ jobs:
           assert 'case "mkv": return "video/x-matroska"' in c
           assert "cast-mkv-direct" in c and "cast-mkv-http-get" in c
           assert "requestedCast && cast.nowCastingMovie != nil" not in p
-          print("Verified unchanged MKV HTTP Cast path, Matroska MIME, diagnostics and existing Cast request correlation")
+          t = Path("Sources/NextCastTabs.swift").read_text()
+          a = Path("Sources/ArtworkCache.swift").read_text()
+          m = Path("Sources/MKVCastPreparer.swift").read_text()
+          assert "onOpen: { openMovie(movie) }" in t and "openOrClose()" in t
+          assert "Button { selected = movie }" not in t
+          assert "pending-deletions.json" in c and "deletionQueue.async" in c
+          assert "ArtworkCache.shared.remove(movie.id)" in c and "PlaybackHistory.clear(movie.id)" in c
+          assert "removedIDs.contains(movie.id)" in a and "library.beginConversion(movie)" in m
+          assert "library.endConversion" in m
+          print("Verified MKV Cast path and source-level deletion, swipe, cache and conversion guards")
           PY
           xcodegen generate
           pod install --no-repo-update
@@ -149,8 +158,8 @@ jobs:
           info = plistlib.loads((app / "Info.plist").read_bytes())
           assert info["CFBundleIdentifier"] == "uk.zeshanbarvi.nextcast"
           assert info["CFBundleDisplayName"] == "NexaPlay"
-          assert info["CFBundleShortVersionString"] == "1.5.19"
-          assert info["CFBundleVersion"] == "43"
+          assert info["CFBundleShortVersionString"] == "1.5.20"
+          assert info["CFBundleVersion"] == "44"
           assert (app / "Assets.car").is_file(), "Missing compiled assets"
           assert (app / "NextCast").is_file(), "Missing executable"
           print("Verified NexaPlay identity, version, bundle ID and icon assets")
@@ -164,17 +173,17 @@ jobs:
           mkdir -p dist/Payload
           ditto "$APP" dist/Payload/NextCast.app
           codesign --force --deep --sign - --timestamp=none dist/Payload/NextCast.app
-          (cd dist && zip -qry "../NextCast-1.5.19.tipa" Payload)
-          cp NextCast-1.5.19.tipa NextCast-1.5.19.ipa
-          ls -lh NextCast-1.5.19.tipa NextCast-1.5.19.ipa
+          (cd dist && zip -qry "../NextCast-1.5.20.tipa" Payload)
+          cp NextCast-1.5.20.tipa NextCast-1.5.20.ipa
+          ls -lh NextCast-1.5.20.tipa NextCast-1.5.20.ipa
 
       - name: Upload TIPA and build log
         uses: actions/upload-artifact@v4
         with:
-          name: NextCast-iOS16-V1-5-19-IPA-TIPA
+          name: NextCast-iOS16-V1-5-20-IPA-TIPA
           path: |
-            NextCast-1.5.19.tipa
-            NextCast-1.5.19.ipa
+            NextCast-1.5.20.tipa
+            NextCast-1.5.20.ipa
             NextCast/nextcast-build.log
           if-no-files-found: error
           retention-days: 30
