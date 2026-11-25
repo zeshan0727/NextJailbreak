@@ -16,7 +16,7 @@ struct BudgetCategoryExpensesView: View {
     }
 
     private var activePlans: [FixedPlanItem] {
-        store.fixedBudget.activeItems(.expense, in: cycleStart)
+        store.fixedBudget.reportItems(.expense, for: cycleStart)
     }
 
     var body: some View {
@@ -30,7 +30,7 @@ struct BudgetCategoryExpensesView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(categoryName)
                                 .font(.headline)
-                            Text("\(records.count) transactions · \(BudgetCycle.title(start: cycleStart))")
+                            Text("\(records.count) transactions · \(store.fixedBudget.reportTitle(for: cycleStart))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
