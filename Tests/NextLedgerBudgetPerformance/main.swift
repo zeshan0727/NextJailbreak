@@ -211,3 +211,16 @@ let lastDay = BudgetPerformanceEngine.build(plan: importedPlan, cycleStart: cycl
     currencyCode: "QAR", asOf: day(2026, 11, 2), calendar: calendar)
 check(lastDay.actualSpent == 10, "October includes the 31st but excludes November 1st")
 print("Build 113 month-end spending boundaries passed.")
+
+var customPlan = importedPlan
+customPlan.customPeriod = CustomBudgetPeriod(start: day(2026, 10, 26), end: day(2026, 11, 30), calendar: calendar)
+let customReport = BudgetPerformanceEngine.build(plan: customPlan, cycleStart: cycle,
+    expenses: [spend(UUID(), 100, "Grocery", day(2026, 10, 25)),
+               spend(UUID(), 200, "Grocery", day(2026, 10, 26)),
+               spend(UUID(), 300, "Grocery", day(2026, 11, 30)),
+               spend(UUID(), 400, "Grocery", day(2026, 12, 1))],
+    currencyCode: "QAR", asOf: day(2026, 12, 2), calendar: calendar)
+check(customReport.actualSpent == 500, "manual range includes both boundaries and excludes surrounding days")
+check(customReport.totalBudget == 9000, "monthly fixed income and expenses not duplicated across custom range")
+check(customReport.expenses.count == 2, "custom date range does not duplicate transactions")
+print("Build 114 custom performance range passed.")
