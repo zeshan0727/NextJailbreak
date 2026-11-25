@@ -171,7 +171,7 @@ struct BudgetPerformanceReportView: View {
                     .foregroundStyle(PerformanceStyle.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
-                Text("26th – 25th · \(store.currencyCode)")
+                Text("Calendar month · \(store.currencyCode)")
                     .font(.caption)
                     .foregroundStyle(PerformanceStyle.secondary)
             }
