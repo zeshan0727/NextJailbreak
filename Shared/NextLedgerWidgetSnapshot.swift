@@ -41,8 +41,7 @@ struct UpcomingPaymentsWidgetSnapshot: Codable, Equatable {
     }
 
     func isCurrent(on date: Date = Date()) -> Bool {
-        Calendar.current.component(.day, from: cycleStart) == 1 &&
-        Calendar.current.component(.day, from: nextCycleStart) == 1 &&
+        version == 2 &&
         cycleStart <= date && date < nextCycleStart
     }
 
@@ -61,7 +60,7 @@ enum UpcomingPaymentsWidgetStorage {
     /// iOS 16 users swipe the Home Screen stack, not inside an individual widget.
     static let secondWidgetKind = "NextLedgerUpcomingPaymentTwo"
     static let thirdWidgetKind = "NextLedgerUpcomingPaymentThree"
-    static let relativeFilename = "nextledger-upcoming-widget-v1.json"
+    static let relativeFilename = "nextledger-upcoming-widget-v2.json"
 
     static func fileURL() -> URL? {
         FileManager.default
