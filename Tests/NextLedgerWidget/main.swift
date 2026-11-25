@@ -10,7 +10,7 @@ func assertWidget(_ condition: @autoclosure () -> Bool, _ message: String) {
 }
 
 let today = date(2026, 11, 12)
-let first = date(2026, 10, 26)
+let first = date(2026, 11, 1)
 let loan = FixedPlanItem(kind: .expense, title: "CBQ Loan", amount: 2044.67,
                          firstCycle: first, durationCycles: nil, dueDay: 18)
 let airTicket = FixedPlanItem(kind: .expense, title: "Air Ticket", amount: 900,
@@ -20,7 +20,7 @@ let internet = FixedPlanItem(kind: .expense, title: "Internet", amount: 320,
 let settled = FixedPlanItem(kind: .expense, title: "Settled Payment", amount: 200,
                             firstCycle: first, durationCycles: nil, dueDay: 16)
 let future = FixedPlanItem(kind: .expense, title: "Future Plan", amount: 800,
-                           firstCycle: date(2026, 11, 26), durationCycles: nil, dueDay: 2)
+                           firstCycle: date(2026, 12, 1), durationCycles: nil, dueDay: 2)
 let income = FixedPlanItem(kind: .income, title: "Salary", amount: 9000,
                            firstCycle: first, durationCycles: nil)
 let plan = MonthlyFixedBudget(items: [loan, airTicket, internet, settled, future, income])
@@ -38,8 +38,8 @@ assertWidget(sample.payments.first?.remaining == 1000, "partially paid loan show
 assertWidget(sample.payments.last?.remaining == 900, "unpaid ticket remains outstanding")
 assertWidget(sample.payments.last?.hasSpecifiedDueDay == false,
              "unscheduled ticket is due BY close, not an invented exact date")
-assertWidget(calendar.component(.day, from: sample.payments.last!.dueDate) == 25,
-             "unscheduled fixed expense is due by the 25th")
+assertWidget(calendar.component(.day, from: sample.payments.last!.dueDate) == 30,
+             "unscheduled fixed expense is due by November 30")
 assertWidget(sample.payments.first?.deadlineLabel(on: today, calendar: calendar) == "Due in 6 days",
              "due in six days from 12 November")
 assertWidget(!sample.payments.contains(where: { $0.title == "Settled Payment" }),
@@ -55,16 +55,16 @@ let overdue = FixedPlanItem(kind: .expense, title: "Past Due", amount: 100,
                             firstCycle: first, durationCycles: nil, dueDay: 30)
 let overdueDate = UpcomingPaymentPlanner.dueDate(item: overdue, cycleStart: first,
                                                   close: sample.closeDay, calendar: calendar)
-assertWidget(calendar.component(.month, from: overdueDate) == 10 &&
+assertWidget(calendar.component(.month, from: overdueDate) == 11 &&
              calendar.component(.day, from: overdueDate) == 30,
-             "due-day 30 belongs to starting October")
+             "due-day 30 belongs to current November")
 let nextMonthDate = UpcomingPaymentPlanner.dueDate(item: internet, cycleStart: first,
                                                     close: sample.closeDay, calendar: calendar)
 assertWidget(calendar.component(.month, from: nextMonthDate) == 11 &&
              calendar.component(.day, from: nextMonthDate) == 22,
-             "due day 22 belongs to following November")
+             "due day 22 belongs to current November")
 
-let shorterMonthCycle = date(2026, 11, 26)
+let shorterMonthCycle = date(2026, 11, 1)
 let day31 = FixedPlanItem(kind: .expense, title: "Max Day", amount: 100,
                           firstCycle: shorterMonthCycle, durationCycles: nil, dueDay: 31)
 let shortEnd = BudgetCycle.interval(start: shorterMonthCycle, calendar: calendar)
@@ -89,10 +89,10 @@ let encodedSnapshot = try JSONEncoder().encode(sample)
 let decodedSnapshot = try JSONDecoder().decode(UpcomingPaymentsWidgetSnapshot.self,
                                                from: encodedSnapshot)
 assertWidget(decodedSnapshot == sample, "widget's minimal shared JSON round-trips")
-assertWidget(sample.isCurrent(on: today), "this salary cycle is current")
-assertWidget(!sample.isCurrent(on: date(2026, 11, 26)), "stale widget refreshes after period close")
+assertWidget(sample.isCurrent(on: today), "this calendar month is current")
+assertWidget(!sample.isCurrent(on: date(2026, 12, 1)), "stale widget refreshes after period close")
 
-print("Build 110 widget tests passed: 3 sizes' payload, actual paid/unpaid, optional due day, 26–25 cycle, shorter months, iCloud legacy decoding.")
+print("Build 110 widget tests passed: 3 sizes' payload, actual paid/unpaid, optional due day, calendar month, shorter months, iCloud legacy decoding.")
 
 // Build 111: page selection is widget-only and does not modify the ledger,
 // upcoming payment order, the snapshot JSON or the iCloud backup.
@@ -116,7 +116,7 @@ assertWidget(UpcomingWidgetPager.displayIndex(selectedIndex: 999,
     staticOffset: 1, count: 0) == 0, "no empty-list index or division by zero")
 let nextCycle = UpcomingPaymentPlanner.snapshot(
     plan: plan, fixedSpending: [:],
-    currency: "QAR", asOf: date(2026, 11, 28), calendar: calendar
+    currency: "QAR", asOf: date(2026, 12, 1), calendar: calendar
 )
 defaults.set(sample.cycleStart.timeIntervalSince1970, forKey: "NextLedger.WidgetPage.CycleV1")
 defaults.set(2, forKey: "NextLedger.WidgetPage.IndexV1")
@@ -134,3 +134,15 @@ assertWidget(restoredAfterPaging == restoredBeforePaging,
 defaults.removePersistentDomain(forName: "nextledger-widget-pager-build111-tests")
 print("Build 111 widgets: iOS17 paging, iOS16 stack offsets, wraparound and cycle reset passed.")
 
+
+for (year, month, closingDay) in [(2027, 2, 28), (2028, 2, 29), (2026, 12, 31)] {
+    let monthStart = date(year, month, 1)
+    let item = FixedPlanItem(kind: .expense, title: "End of month", amount: 100,
+                             firstCycle: monthStart, durationCycles: nil, dueDay: 31)
+    let monthSnapshot = UpcomingPaymentPlanner.snapshot(plan: MonthlyFixedBudget(items: [item]),
+        fixedSpending: [:], currency: "QAR", asOf: monthStart, calendar: calendar)
+    assertWidget(monthSnapshot.payments.count == 1, "scheduled month-end bill remains visible")
+    assertWidget(calendar.component(.day, from: monthSnapshot.payments[0].dueDate) == closingDay,
+        "day 31 correctly clamps to actual month end")
+}
+print("Build 113 widget month-end and February checks passed.")
