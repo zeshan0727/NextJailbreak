@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import GoogleCast
 
 /// A tactile visual press state; the controller sends haptics centrally,
@@ -23,6 +24,121 @@ private struct SolidRemoteKeyStyle: ButtonStyle {
                     y: configuration.isPressed ? 1 : 3)
             .scaleEffect(configuration.isPressed ? 0.96 : 1)
             .animation(.easeOut(duration: 0.10), value: configuration.isPressed)
+    }
+}
+
+/// A native hit-tested touch surface, independent of SwiftUI's enclosing
+/// vertical ScrollView. Only gestures beginning inside this view are claimed.
+private struct RemoteTouchInput: UIViewRepresentable {
+    var enabled: Bool
+    var onCommand: (RemoteCommand) -> Void
+
+    func makeUIView(context: Context) -> RemoteTouchInputView {
+        let view = RemoteTouchInputView()
+        view.enabled = enabled
+        view.onCommand = onCommand
+        return view
+    }
+
+    func updateUIView(_ uiView: RemoteTouchInputView, context: Context) {
+        uiView.enabled = enabled
+        uiView.onCommand = onCommand
+    }
+}
+
+private final class RemoteTouchInputView: UIView, UIGestureRecognizerDelegate {
+    var enabled = false {
+        didSet {
+            accessibilityTraits = enabled ? [.button] : [.button, .notEnabled]
+        }
+    }
+    var onCommand: ((RemoteCommand) -> Void)?
+
+    private lazy var padPan: UIPanGestureRecognizer = {
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        pan.minimumNumberOfTouches = 1
+        pan.maximumNumberOfTouches = 1
+        pan.cancelsTouchesInView = true
+        pan.delegate = self
+        return pan
+    }()
+    private lazy var padTap: UITapGestureRecognizer = {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        tap.delegate = self
+        return tap
+    }()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        isOpaque = false
+        isUserInteractionEnabled = true
+        addGestureRecognizer(padPan)
+        addGestureRecognizer(padTap)
+        padTap.require(toFail: padPan)
+        isAccessibilityElement = true
+        accessibilityLabel = "TV touchpad"
+        accessibilityHint = "Swipe to navigate, tap to select."
+        accessibilityTraits = [.button, .notEnabled]
+        accessibilityCustomActions = [
+            UIAccessibilityCustomAction(name: "Up", target: self, selector: #selector(accessibilityUp)),
+            UIAccessibilityCustomAction(name: "Down", target: self, selector: #selector(accessibilityDown)),
+            UIAccessibilityCustomAction(name: "Left", target: self, selector: #selector(accessibilityLeft)),
+            UIAccessibilityCustomAction(name: "Right", target: self, selector: #selector(accessibilityRight))
+        ]
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not supported") }
+
+    // The parent scroll pan must wait for the pad pan to fail. This dynamic
+    // relationship is evaluated only for gestures sharing the same touch,
+    // so swiping anywhere outside the pad still scrolls the remote normally.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard gestureRecognizer === padPan,
+              let scroll = otherGestureRecognizer.view as? UIScrollView,
+              otherGestureRecognizer === scroll.panGestureRecognizer,
+              isDescendant(of: scroll) else { return false }
+        return true
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        false
+    }
+
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        UIBezierPath(roundedRect: bounds, cornerRadius: 24).contains(point)
+    }
+
+    @objc private func handlePan(_ pan: UIPanGestureRecognizer) {
+        guard pan.state == .ended, enabled else { return }
+        let movement = pan.translation(in: self)
+        let x = movement.x
+        let y = movement.y
+        guard max(abs(x), abs(y)) >= 24 else { return }
+        if abs(x) > abs(y) {
+            onCommand?(x > 0 ? .right : .left)
+        } else {
+            onCommand?(y > 0 ? .down : .up)
+        }
+    }
+
+    @objc private func handleTap(_ tap: UITapGestureRecognizer) {
+        guard tap.state == .ended, enabled else { return }
+        onCommand?(.ok)
+    }
+
+    override func accessibilityActivate() -> Bool { performAccessibleCommand(.ok) }
+    @objc private func accessibilityUp() -> Bool { performAccessibleCommand(.up) }
+    @objc private func accessibilityDown() -> Bool { performAccessibleCommand(.down) }
+    @objc private func accessibilityLeft() -> Bool { performAccessibleCommand(.left) }
+    @objc private func accessibilityRight() -> Bool { performAccessibleCommand(.right) }
+
+    private func performAccessibleCommand(_ command: RemoteCommand) -> Bool {
+        guard enabled else { return false }
+        onCommand?(command)
+        return true
     }
 }
 
@@ -569,27 +685,14 @@ struct RemoteTab: View {
             }
         }
         .frame(height: 250)
-        .contentShape(RoundedRectangle(cornerRadius: 24))
-        .onTapGesture {
-            guard ready && remote.brand != .cast else { return }
-            send(.ok)
+        .accessibilityHidden(true)
+        .overlay {
+            RemoteTouchInput(enabled: ready && remote.brand != .cast) { command in
+                guard ready && remote.brand != .cast else { return }
+                send(command)
+            }
         }
-        .gesture(
-            DragGesture(minimumDistance: 30)
-                .onEnded { movement in
-                    guard ready && remote.brand != .cast else { return }
-                    let x = movement.translation.width
-                    let y = movement.translation.height
-                    guard max(abs(x), abs(y)) >= 32 else { return }
-                    if abs(x) > abs(y) {
-                        send(x > 0 ? .right : .left)
-                    } else {
-                        send(y > 0 ? .down : .up)
-                    }
-                }
-        )
         .opacity(ready && remote.brand != .cast ? 1 : 0.45)
-        .accessibilityLabel("TV touchpad. Swipe to navigate, tap to select.")
     }
 
     private var quickKeys: some View {
