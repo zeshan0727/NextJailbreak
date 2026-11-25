@@ -36,6 +36,29 @@ enum BudgetCycle {
     }
 }
 
+/// User-selected inclusive dates. This is a reporting period, not a change
+/// to the dates of transactions or the duration of monthly installments.
+struct CustomBudgetPeriod: Codable, Equatable {
+    let start: Date
+    let end: Date
+
+    init?(start: Date, end: Date, calendar: Calendar = .current) {
+        let first = calendar.startOfDay(for: start)
+        let last = calendar.startOfDay(for: end)
+        guard first <= last else { return nil }
+        self.start = first
+        self.end = last
+    }
+
+    func interval(calendar: Calendar = .current) -> DateInterval? {
+        let first = calendar.startOfDay(for: start)
+        let last = calendar.startOfDay(for: end)
+        guard first <= last,
+              let exclusive = calendar.date(byAdding: .day, value: 1, to: last) else { return nil }
+        return DateInterval(start: first, end: exclusive)
+    }
+}
+
 enum FixedPlanKind: String, Codable, CaseIterable, Identifiable {
     case income
     case expense
@@ -117,6 +140,7 @@ struct MonthlyFixedBudget: Codable, Equatable {
     var groceryPercent: Int = 45
     var fuelPercent: Int = 25
     var eatOutPercent: Int = 15
+    var customPeriod: CustomBudgetPeriod? = nil
     var appliedCycle: Date?
     var cycleAllocations: [SavedCycleBudget] = []
     /// Financial transaction UUID → explicit classification. Existing
@@ -143,7 +167,7 @@ struct MonthlyFixedBudget: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case items, groceryPercent, fuelPercent, eatOutPercent
-        case appliedCycle, cycleAllocations, spendAssignments, pendingBudgetReviewIDs
+        case appliedCycle, cycleAllocations, spendAssignments, pendingBudgetReviewIDs, customPeriod
     }
 
     init(from decoder: Decoder) throws {
@@ -152,6 +176,7 @@ struct MonthlyFixedBudget: Codable, Equatable {
         groceryPercent = try c.decodeIfPresent(Int.self, forKey: .groceryPercent) ?? 45
         fuelPercent = try c.decodeIfPresent(Int.self, forKey: .fuelPercent) ?? 25
         eatOutPercent = try c.decodeIfPresent(Int.self, forKey: .eatOutPercent) ?? 15
+        customPeriod = try c.decodeIfPresent(CustomBudgetPeriod.self, forKey: .customPeriod)
         appliedCycle = try c.decodeIfPresent(Date.self, forKey: .appliedCycle)
         cycleAllocations = try c.decodeIfPresent([SavedCycleBudget].self, forKey: .cycleAllocations) ?? []
         spendAssignments = try c.decodeIfPresent([UUID: BudgetSpendAssignment].self,
@@ -170,6 +195,7 @@ struct MonthlyFixedBudget: Codable, Equatable {
         try c.encode(groceryPercent, forKey: .groceryPercent)
         try c.encode(fuelPercent, forKey: .fuelPercent)
         try c.encode(eatOutPercent, forKey: .eatOutPercent)
+        try c.encodeIfPresent(customPeriod, forKey: .customPeriod)
         try c.encodeIfPresent(appliedCycle, forKey: .appliedCycle)
         try c.encode(cycleAllocations, forKey: .cycleAllocations)
         // Serialize pending status as an existing .outside budget kind for
@@ -186,6 +212,23 @@ struct MonthlyFixedBudget: Codable, Equatable {
                      forKey: .pendingBudgetReviewIDs)
     }
 
+
+    /// The custom range stays active until explicitly replaced or cleared.
+    func reportInterval(for cycle: Date, calendar: Calendar = .current) -> DateInterval {
+        customPeriod?.interval(calendar: calendar) ?? BudgetCycle.interval(start: cycle, calendar: calendar)
+    }
+
+    /// Fixed monthly commitments and saved percentages remain tied to the
+    /// closing month, even when the transaction-report window spans months.
+    func reportPlanMonth(for cycle: Date, calendar: Calendar = .current) -> Date {
+        BudgetCycle.start(containing: customPeriod?.end ?? cycle, calendar: calendar)
+    }
+
+    func reportTitle(for cycle: Date, calendar: Calendar = .current) -> String {
+        let range = reportInterval(for: cycle, calendar: calendar)
+        let last = calendar.date(byAdding: .day, value: -1, to: range.end) ?? range.end
+        return "\(range.start.formatted(.dateTime.day().month(.abbreviated).year())) – \(last.formatted(.dateTime.day().month(.abbreviated).year()))"
+    }
 
     func savedAllocation(in cycle: Date) -> SavedCycleBudget? {
         let start = BudgetCycle.start(containing: cycle)
