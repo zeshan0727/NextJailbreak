@@ -252,6 +252,7 @@ private struct MovieSwipeActionRow<Content: View>: View {
             HStack(spacing: 0) {
                 if revealedOffset > 0, let onConvert {
                     Button {
+                        lastSwipeEnded = Date()
                         withAnimation(.easeOut(duration: 0.18)) { revealedOffset = 0 }
                         onConvert()
                     } label: {
@@ -268,6 +269,7 @@ private struct MovieSwipeActionRow<Content: View>: View {
                 Spacer(minLength: 0)
                 if revealedOffset < 0 {
                     Button {
+                        lastSwipeEnded = Date()
                         withAnimation(.easeOut(duration: 0.18)) { revealedOffset = 0 }
                         onDelete()
                     } label: {
@@ -463,8 +465,7 @@ struct MoviesTab: View {
     }
 
     private func openMovie(_ movie: Movie) {
-        guard !showDeleteConfirmation, pendingDeleteMovie == nil,
-              library.movies.contains(movie) else { return }
+        guard !showDeleteConfirmation, library.movies.contains(movie) else { return }
         selected = movie
     }
 
