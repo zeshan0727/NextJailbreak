@@ -34,6 +34,7 @@ final class ArtworkCache: NSObject, ObservableObject {
 
     private var queued: [Movie] = []
     private var queuedIDs = Set<UUID>()
+    private var removedIDs = Set<UUID>()
     private var activeMovie: Movie?
     private var lastMetadata = VideoDetails()
     private let worker = DispatchQueue(label: "nextcast.artwork.one-at-a-time", qos: .utility)
@@ -55,6 +56,7 @@ final class ArtworkCache: NSObject, ObservableObject {
     }
 
     func load(_ movie: Movie) {
+        guard !removedIDs.contains(movie.id) else { return }
         if images[movie.id] != nil || queuedIDs.contains(movie.id) || activeMovie?.id == movie.id {
             return
         }
@@ -72,10 +74,36 @@ final class ArtworkCache: NSObject, ObservableObject {
         beginNext()
     }
 
+    func remove(_ id: UUID) {
+        removedIDs.insert(id)
+        queued.removeAll { $0.id == id }
+        queuedIDs.remove(id)
+        images.removeValue(forKey: id)
+        details.removeValue(forKey: id)
+        let urls = [artURL(id), detailURL(id)]
+        worker.async {
+            for url in urls { try? FileManager.default.removeItem(at: url) }
+        }
+    }
+
+    func prune(keeping ids: Set<UUID>) {
+        let folder = Self.folder
+        worker.async {
+            let fm = FileManager.default
+            let files = (try? fm.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? []
+            for url in files {
+                guard ["jpg", "json"].contains(url.pathExtension.lowercased()),
+                      let id = UUID(uuidString: url.deletingPathExtension().lastPathComponent),
+                      !ids.contains(id) else { continue }
+                try? fm.removeItem(at: url)
+            }
+        }
+    }
+
     func regenerate(_ movie: Movie) {
         // Give the user a recovery route if the source was temporarily
         // unavailable or a previous thumbnail was a black frame.
-        guard activeMovie?.id != movie.id else { return }
+        guard !removedIDs.contains(movie.id), activeMovie?.id != movie.id else { return }
         images.removeValue(forKey: movie.id)
         details.removeValue(forKey: movie.id)
         try? FileManager.default.removeItem(at: artURL(movie.id))
@@ -149,6 +177,11 @@ final class ArtworkCache: NSObject, ObservableObject {
     }
 
     private func finish(_ movie: Movie, image: UIImage, metadata: VideoDetails) {
+        guard !removedIDs.contains(movie.id) else {
+            activeMovie = nil
+            beginNext()
+            return
+        }
         images[movie.id] = image
         details[movie.id] = metadata
         if let data = image.jpegData(compressionQuality: 0.77) {
