@@ -186,14 +186,17 @@ enum BudgetPerformanceEngine {
     ) -> BudgetPerformanceResult {
         let interval = plan.reportInterval(for: cycleStart, calendar: calendar)
         let planMonth = plan.reportPlanMonth(for: cycleStart, calendar: calendar)
-        let fixed = plan.activeItems(.expense, in: planMonth)
+        let occurrences = plan.occurrences(.expense, for: cycleStart, calendar: calendar)
+        let fixedTotals = Dictionary(grouping: occurrences, by: { $0.item.id })
+            .mapValues { $0.reduce(Decimal.zero) { $0 + $1.item.amount } }
+        let fixed = plan.items.filter { fixedTotals[$0.id] != nil }
         let saved = plan.savedAllocation(in: planMonth)
         let percentages = (
             grocery: saved?.groceryPercent ?? plan.groceryPercent,
             fuel: saved?.fuelPercent ?? plan.fuelPercent,
             eatOut: saved?.eatOutPercent ?? plan.eatOutPercent
         )
-        let available = max(Decimal.zero, plan.available(in: planMonth))
+        let available = max(Decimal.zero, plan.reportTotal(.income, for: cycleStart, calendar: calendar) - plan.reportTotal(.expense, for: cycleStart, calendar: calendar))
         let otherPercent = max(0, 100 - percentages.grocery - percentages.fuel - percentages.eatOut)
 
         var collected: [BudgetPerformanceBucket: Decimal] = [:]
@@ -248,7 +251,7 @@ enum BudgetPerformanceEngine {
             return BudgetPerformanceLine(
                 id: "fixed:" + item.id.uuidString,
                 title: item.title,
-                budget: item.amount,
+                budget: fixedTotals[item.id, default: 0],
                 spent: collected[bucket, default: 0]
             )
         }
