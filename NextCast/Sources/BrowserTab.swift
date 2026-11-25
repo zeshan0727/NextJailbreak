@@ -424,6 +424,26 @@ final class BrowserStore: ObservableObject {
         pages.first { $0.id == selectedID }
     }
     var activeWebView: WKWebView? { active?.webView }
+
+    // WKWebView.pageZoom is available on iOS 14+. Unlike JavaScript CSS
+    // transforms or recreating the web view, it preserves the live page.
+    static let minimumPageZoom = 50
+    static let maximumPageZoom = 200
+    static let pageZoomStep = 25
+    var pageZoomPercent: Int {
+        Int(((activeWebView?.pageZoom ?? 1) * 100).rounded())
+    }
+
+    func setPageZoom(_ percent: Int) {
+        guard !showingStartPage, let view = activeWebView else { return }
+        let bounded = min(Self.maximumPageZoom, max(Self.minimumPageZoom, percent))
+        view.pageZoom = CGFloat(bounded) / 100
+        objectWillChange.send()
+    }
+
+    func changePageZoom(by delta: Int) {
+        setPageZoom(pageZoomPercent + delta)
+    }
     var showingStartPage: Bool {
         guard let selectedID else { return false }
         return startPageIDs.contains(selectedID)
@@ -505,6 +525,7 @@ final class BrowserStore: ObservableObject {
             (oldPage.webView.url ?? URL(string: oldPage.address) ?? URL(string: "about:blank")!)
         oldPage.webView.stopLoading()
         let newPage = BrowserPage(store: self, url: url)
+        newPage.webView.pageZoom = oldPage.webView.pageZoom
         pages[index] = newPage
         startPageIDs.remove(id)
         if wasStartPage { startPageIDs.insert(newPage.id) }
@@ -1206,6 +1227,29 @@ struct BrowserTab: View {
                     Menu {
                         Toggle("Ask before opening new windows", isOn: $blockPopups)
                         Toggle("Block ad networks", isOn: $blockAds)
+                        Menu {
+                            Button {
+                                model.changePageZoom(by: -BrowserStore.pageZoomStep)
+                            } label: {
+                                Label("Zoom Out", systemImage: "minus.magnifyingglass")
+                            }
+                            .disabled(model.pageZoomPercent <= BrowserStore.minimumPageZoom)
+                            Button {
+                                model.setPageZoom(100)
+                            } label: {
+                                Label("Reset to 100%", systemImage: "arrow.counterclockwise")
+                            }
+                            .disabled(model.pageZoomPercent == 100)
+                            Button {
+                                model.changePageZoom(by: BrowserStore.pageZoomStep)
+                            } label: {
+                                Label("Zoom In", systemImage: "plus.magnifyingglass")
+                            }
+                            .disabled(model.pageZoomPercent >= BrowserStore.maximumPageZoom)
+                        } label: {
+                            Label("Page Zoom · \(model.pageZoomPercent)%", systemImage: "textformat.size")
+                        }
+                        .disabled(model.showingStartPage || model.activeWebView == nil)
                         Button("Reload Page", systemImage: "arrow.clockwise") {
                             model.activeWebView?.reload()
                         }
