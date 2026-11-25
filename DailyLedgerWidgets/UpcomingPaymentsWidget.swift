@@ -233,7 +233,7 @@ private struct NextLedgerUpcomingPaymentsView: View {
                 if payments.isEmpty {
                     emptyState
                 } else {
-                    ForEach(Array(payments.prefix(3))) { item in
+                    ForEach(Array(payments.prefix(3)), id: \.occurrenceID) { item in
                         HStack(spacing: 7) {
                             Image(systemName: symbol(for: item.title))
                                 .foregroundStyle(WidgetPalette.blue)
@@ -256,7 +256,7 @@ private struct NextLedgerUpcomingPaymentsView: View {
                                 .lineLimit(1)
                         }
                         .frame(maxHeight: .infinity)
-                        if item.id != payments.prefix(3).last?.id {
+                        if item.occurrenceID != payments.prefix(3).last?.occurrenceID {
                             Rectangle().fill(WidgetPalette.blue.opacity(0.12))
                                 .frame(height: 1)
                         }
@@ -299,7 +299,7 @@ private struct NextLedgerUpcomingPaymentsView: View {
                 if payments.isEmpty {
                     emptyState
                 } else {
-                    ForEach(Array(payments.prefix(5))) { payment in
+                    ForEach(Array(payments.prefix(5)), id: \.occurrenceID) { payment in
                         HStack(spacing: 10) {
                             Image(systemName: symbol(for: payment.title))
                                 .font(.system(size: 17, weight: .semibold))
@@ -323,7 +323,7 @@ private struct NextLedgerUpcomingPaymentsView: View {
                                 .minimumScaleFactor(0.7)
                         }
                         .frame(maxWidth: .infinity, minHeight: 44)
-                        if payment.id != payments.prefix(5).last?.id {
+                        if payment.occurrenceID != payments.prefix(5).last?.occurrenceID {
                             Rectangle().fill(WidgetPalette.blue.opacity(0.12)).frame(height: 1)
                         }
                     }
