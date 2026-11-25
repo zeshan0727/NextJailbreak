@@ -2466,7 +2466,6 @@ private struct BalanceReconciliationReportView: View {
 
 private struct LoanSummaryComparisonView: View {
     @EnvironmentObject private var store: LedgerStore
-    @AppStorage("AccountingPeriodStartDay") private var accountingPeriodStartDay = 26
     @AppStorage("LoanSummaryUseAccountingPeriod") private var useAccountingPeriod = true
     @AppStorage("LoanSummaryCustomStart") private var storedStart = 0.0
     @AppStorage("LoanSummaryCustomEnd") private var storedEnd = 0.0
@@ -2573,11 +2572,7 @@ private struct LoanSummaryComparisonView: View {
                 applyCurrentAccountingPeriod()
             }
         }
-        .onChange(of: accountingPeriodStartDay) { _ in
-            if useAccountingPeriod {
-                applyCurrentAccountingPeriod()
-            }
-        }
+
     }
 
     private var currentInterval: DateInterval {
@@ -2642,29 +2637,10 @@ private struct LoanSummaryComparisonView: View {
     }
 
     private var currentAccountingPeriod: DateInterval {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let startDay = min(max(accountingPeriodStartDay, 1), 28)
-        let todayDay = calendar.component(.day, from: today)
-        let monthAnchor = todayDay >= startDay
-            ? today
-            : calendar.date(byAdding: .month, value: -1, to: today) ?? today
-        let components = calendar.dateComponents([.year, .month], from: monthAnchor)
-        let start = calendar.date(from: DateComponents(
-            year: components.year,
-            month: components.month,
-            day: startDay
-        )) ?? today
-        let end = calendar.date(byAdding: .month, value: 1, to: start) ?? start
-        return DateInterval(start: start, end: end)
+        BudgetCycle.interval(start: Date())
     }
 
-    private var accountingPeriodLabel: String {
-        if accountingPeriodStartDay == 1 {
-            return "1st–Month End"
-        }
-        return "\(ordinalDay(accountingPeriodStartDay))–\(ordinalDay(accountingPeriodStartDay - 1))"
-    }
+    private var accountingPeriodLabel: String { "1st–Month End" }
 
     private var loanAccounts: [LedgerAccount] {
         store.accounts.filter {
