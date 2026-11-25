@@ -116,15 +116,23 @@ final class MovieLibrary: ObservableObject {
             // No conversion survives process termination. Remove only known
             // unfinished output names that are not registered library items.
             let savedNames = Set(movies.map(\.fileName))
-            let convertedFolder = Self.convertedFolder
+            let fm = FileManager.default
+            let cleanupFolder = Self.folder.appendingPathComponent(".Cleanup", isDirectory: true)
+            try? fm.createDirectory(at: cleanupFolder, withIntermediateDirectories: true)
+            let files = (try? fm.contentsOfDirectory(at: Self.convertedFolder, includingPropertiesForKeys: nil)) ?? []
+            for url in files {
+                let name = url.lastPathComponent
+                guard !savedNames.contains("Converted/" + name),
+                      UUID(uuidString: name.components(separatedBy: ".").first ?? "") != nil,
+                      name.hasSuffix(".nativebuilding.mp4") || name.hasSuffix(".building.mp4") else { continue }
+                // Same-volume rename isolates abandoned files before a new
+                // conversion can reuse the original temporary filename.
+                try? fm.moveItem(at: url, to: cleanupFolder.appendingPathComponent(UUID().uuidString))
+            }
             deletionQueue.async {
                 let fm = FileManager.default
-                let files = (try? fm.contentsOfDirectory(at: convertedFolder, includingPropertiesForKeys: nil)) ?? []
-                for url in files {
-                    let name = url.lastPathComponent
-                    guard !savedNames.contains("Converted/" + name),
-                          UUID(uuidString: name.components(separatedBy: ".").first ?? "") != nil,
-                          name.hasSuffix(".nativebuilding.mp4") || name.hasSuffix(".building.mp4") else { continue }
+                let files = (try? fm.contentsOfDirectory(at: cleanupFolder, includingPropertiesForKeys: nil)) ?? []
+                for url in files where UUID(uuidString: url.lastPathComponent) != nil {
                     try? fm.removeItem(at: url)
                 }
             }
@@ -260,8 +268,9 @@ final class MovieLibrary: ObservableObject {
     }
 
     func beginConversion(_ movie: Movie) -> Bool {
+        let prefix = "Converted/" + movie.id.uuidString + "."
         guard movies.contains(movie), !activeConversionSources.contains(movie.id),
-              !pendingDeletions.contains(where: { $0.id == movie.id }) else { return false }
+              !pendingDeletions.contains(where: { $0.id == movie.id || $0.fileName.hasPrefix(prefix) }) else { return false }
         activeConversionSources.insert(movie.id)
         return true
     }
