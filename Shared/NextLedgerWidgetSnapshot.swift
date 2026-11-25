@@ -35,14 +35,15 @@ struct UpcomingPaymentsWidgetSnapshot: Codable, Equatable {
     let nextCycleStart: Date
     let currency: String
     let payments: [UpcomingWidgetPayment]
+    var isCustomPeriod: Bool? = nil
 
     var totalOutstanding: Decimal {
         payments.reduce(.zero) { $0 + $1.remaining }
     }
 
     func isCurrent(on date: Date = Date()) -> Bool {
-        version == 2 &&
-        cycleStart <= date && date < nextCycleStart
+        version == 3 && cycleStart < nextCycleStart &&
+        (isCustomPeriod == true || (cycleStart <= date && date < nextCycleStart))
     }
 
     var closeDay: Date {
@@ -60,7 +61,7 @@ enum UpcomingPaymentsWidgetStorage {
     /// iOS 16 users swipe the Home Screen stack, not inside an individual widget.
     static let secondWidgetKind = "NextLedgerUpcomingPaymentTwo"
     static let thirdWidgetKind = "NextLedgerUpcomingPaymentThree"
-    static let relativeFilename = "nextledger-upcoming-widget-v2.json"
+    static let relativeFilename = "nextledger-upcoming-widget-v3.json"
 
     static func fileURL() -> URL? {
         FileManager.default
@@ -88,6 +89,7 @@ enum UpcomingPaymentsWidgetStorage {
            old.cycleStart == snapshot.cycleStart,
            old.nextCycleStart == snapshot.nextCycleStart,
            old.currency == snapshot.currency,
+           old.isCustomPeriod == snapshot.isCustomPeriod,
            old.payments == snapshot.payments {
             return false
         }
