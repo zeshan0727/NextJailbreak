@@ -3063,32 +3063,43 @@
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
-      "compat": "palera1n is limited to the project's documented checkm8 hardware scope. The official iPhone guide covers A11 and earlier devices on iOS 15.0+, with major passcode/SEP and erase requirements for A11 on iOS 16.",
-      "description": "Install palera1n on a supported iOS 16 iPhone using Mac, Linux or Windows with palen1x. Check A11 passcode limits, USB setup, DFU mode and Sileo.",
+      "compat": "The official iPhone guide covers A11 and earlier devices on iOS 15.0+; the project README lists iPhone 6s through iPhone X plus specified iPads/iPod touch 7 and separate Apple T2 hardware. A12+ iPhones are not listed. A11 passcode/SEP restrictions apply; A11 devices on iOS 16 with previous passcode use must be erased. Beta 4 does not expand hardware support or confirm iOS 27.",
+      "description": "Choose palera1n 2.4 stable or 3.0.0-beta.4, verify A8–A11 device and A11 passcode limits, then follow the official Mac, Linux or palen1x setup.",
       "developer": "palera1n team / iOS Guide contributors",
       "entry_type": "guide",
       "href": "how-to-jailbreak/",
       "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
-      "media_alt": "Official palera1n graphical interface showing a connected iPhone 7 on iOS 15.7 with Quick Mode and Start controls",
-      "media_credit": "palera1n team — official GUI screenshot from the v3.0.0-beta.3 tagged source",
+      "media_alt": "Official palera1n GUI showing an iPhone 7 on iOS 15.7 with Quick Mode and Start controls",
+      "media_credit": "palera1n team — official GUI screenshot from the v3.0.0-beta.4 tagged source; identical image blob to beta 3, interface depiction only",
       "media_git_blob_sha": "235a0b859af9093e5dac26aa8d3e22d9011a84cb",
-      "media_retrieval_status": "Exact official tagged-source screenshot already preserved locally; embedded in the article, homepage/tutorial cards and social metadata.",
+      "media_retrieval_status": "Reused the existing original 1184×920 PNG. The official v3.0.0-beta.4 tag contains the same Git blob 235a0b859af9093e5dac26aa8d3e22d9011a84cb as beta 3; the screenshot depicts the GUI only and is not evidence of the beta 4 security fix.",
       "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
-      "media_source_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
-      "modified_at": "2026-10-25T04:57:24Z",
-      "name": "palera1n iOS 16 installation guide",
+      "media_source_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
+      "modified_at": "2026-11-25T06:00:00+03:00",
+      "name": "palera1n installation and release-track guide",
       "package": "guide.palera1n.ios16.install",
       "published_at": "2024-10-28T00:00:00Z",
       "quality_target": 9,
       "selection_pool": "scheduled-evergreen-jailbreak-guide",
       "slug": "how-to-jailbreak",
-      "source_name": "Official palera1n installation guide and palen1x guide",
+      "source_name": "Official palera1n installation guide, palen1x guide, palera1n and palen1x release records, and project README",
       "source_page_url": "https://docs.palera.in/installing-palera1n/",
       "source_url": "https://docs.palera.in/using-palen1x/",
       "source_visual_origin": "official-tagged-repository-screenshot-reused",
-      "source_visual_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
-      "title": "How to Jailbreak iOS 16 with palera1n on Mac, Linux or Windows",
-      "version": "Official guide revision 2026-10-25 / palera1n rootless flow"
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
+      "title": "How to Jailbreak with palera1n: Stable 2.4 vs 3.0 Beta 4",
+      "version": "2.4 stable / 3.0.0-beta.4 pre-release",
+      "release": "palera1n v2.4 latest stable (published 2026-07-27); v3.0.0-beta.4 latest pre-release (published 2026-11-21); palen1x v2.4 stable (2026-07-30) and v3.0.0-beta.4 pre-release (2026-11-21)",
+      "candidate_fingerprint": "evergreen-guide.palera1n-stable-2-4-v3-beta4-device-host-guide-2026-11-25",
+      "additional_source_urls": [
+        "https://github.com/palera1n/palera1n/blob/main/README.md",
+        "https://github.com/palera1n/palera1n/releases/tag/v2.4",
+        "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
+        "https://github.com/palera1n/palen1x/releases/tag/v2.4",
+        "https://github.com/palera1n/palen1x/releases/tag/v3.0.0-beta.4",
+        "https://docs.palera.in/installing-palera1n/",
+        "https://docs.palera.in/using-palen1x/"
+      ]
     },
     {
       "category": {
@@ -11961,5 +11972,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-25T00:00:23+03:00"
+  "updated_at": "2026-11-25T03:00:00Z"
 }
