@@ -540,31 +540,32 @@
       "version": "1.8.7.5"
     },
     {
-      "action": "create",
+      "action": "update",
       "additional_media": [],
-      "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-shsh-449-2026-11-16",
+      "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-cryptex-450-2026-11-26",
       "category": {
         "id": "evergreen-jailbreak-guide",
         "label": "Evergreen Jailbreak Guide"
       },
-      "compat": "TSSChecker Build 449 provides official Windows x86_64, macOS arm64/x86_64 and multiple Linux assets. A status check does not establish jailbreak availability or guarantee a future restore; device-specific tickets and compatible nonce, SEP, baseband and Cryptex conditions remain separate requirements.",
-      "description": "Use TSSChecker 449 to check Apple firmware-signing status safely. Learn exact device and build inputs, OTA differences, SHSH limits and restore caveats.",
+      "compat": "TSSChecker Build 450 provides official Windows x86_64, macOS arm64/x86_64 and multiple Linux assets. Its merged patch broadens custom Cryptex tag selection beyond manifest keys containing Rap. A signing-status result does not establish jailbreak availability or a future restore; reusable tickets still require correct device/nonce values and compatible SEP, baseband and Cryptex conditions.",
+      "description": "Use TSSChecker Build 450 to check iOS signing safely, understand its Cryptex-request fix, verify official downloads and separate signing status from usable SHSH restores.",
       "developer": "1Conan / TSSChecker contributors; FutureRestore contributors",
       "entry_type": "evergreen-jailbreak-guide",
       "href": "check-ios-signing-status-tsschecker-guide/",
-      "media_retrieval_status": "No suitable original source visual was available: the official TSSChecker repository and Build 449 release provide command-line binaries, source files and a CI badge, but no app interface screenshot, release artwork or project image appropriate for editorial embedding.",
-      "modified_at": "2026-11-16T06:01:00+03:00",
+      "media_retrieval_status": "No suitable original source visual is available: the official TSSChecker Build 450 release, tagged repository and merged PR provide command-line binaries, text documentation and source code, but no app screenshot, release artwork or project image. No substitute image is embedded.",
+      "modified_at": "2026-11-26T06:00:00+03:00",
       "name": "iOS signing status with TSSChecker",
       "package": "guide.ios.signing-status-tsschecker",
       "published_at": "2026-11-16T06:01:00+03:00",
-      "release": "TSSChecker Build 449 released November 16, 2026 at 01:54:51 UTC; FutureRestore v194 remains officially deprecated in favor of nightlies",
+      "release": "TSSChecker Build 450 released November 17, 2026 at 11:54:43 UTC; fixes Cryptex blob request tag selection. FutureRestore v194 remains officially deprecated in favor of nightlies.",
       "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "source_name": "Official TSSChecker Build 449 release and source documentation; FutureRestore official warning and README; Apple Support",
-      "source_page_url": "https://github.com/1Conan/tsschecker/releases/tag/449",
-      "source_url": "https://github.com/1Conan/tsschecker/blob/1672165f5894fb7f9698555d15aa3d667c3c1a2b/README.md",
+      "source_name": "Official TSSChecker Build 450 release, tagged README and merged Cryptex fix; FutureRestore official warning and README; Apple Support",
+      "source_page_url": "https://github.com/1Conan/tsschecker/releases/tag/450",
+      "source_url": "https://github.com/1Conan/tsschecker/blob/4d9a7875bb6c175e841fc0c16b6d0bcd040324f0/README.md",
       "source_visual_origin": "no-suitable-source-visual",
       "title": "How to Check If an iOS Version Is Still Signed with TSSChecker",
-      "version": "Guide revision 2026-11-16 / TSSChecker 0.449.0 Build 449"
+      "version": "Guide revision 2026-11-26 / TSSChecker Build 450 commit 4d9a7875",
+      "run_id": "scheduled-2026-11-26T03:00:00Z"
     },
     {
       "action": "update",
