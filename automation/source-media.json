@@ -1128,17 +1128,17 @@
     },
     "comparison.dopamine-palera1n": {
       "credit_label": "opa334 and palera1n team — exact official tagged project assets",
-      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
       "secondary_source_page_urls": [
         "https://github.com/opa334/Dopamine/releases/tag/3.0.13"
       ],
       "official_source": true,
       "hero": {
-        "url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
+        "url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
         "alt": "Official palera1n 3 graphical interface connected to an iPhone 7 on iOS 15.7",
         "local_path": "assets/articles/source-media/palera1n-v3-official-demo.png",
         "git_blob_sha": "235a0b859af9093e5dac26aa8d3e22d9011a84cb",
-        "retrieval_status": "The beta 3 tag moved the image under .github but retained the exact beta 2 Git blob already stored locally."
+        "retrieval_status": "Verified against the official beta 4 tag on 2026-11-26; GitHub returned the same blob SHA 235a0b859af9093e5dac26aa8d3e22d9011a84cb already stored locally."
       },
       "screenshots": [
         {
@@ -2024,5 +2024,5 @@
       }
     }
   },
-  "updated_at": "2026-11-25T18:00:00+03:00"
+  "updated_at": "2026-11-26T12:00:00+03:00"
 }

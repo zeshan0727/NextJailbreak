@@ -1717,9 +1717,9 @@
     {
       "additional_media": [
         {
-          "credit": "Official Dopamine app icon from the 3.0.10 source tag",
-          "image": "assets/articles/source-media/dopamine-3-0-10-official-app-icon.png",
-          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.10/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
+          "credit": "Official Dopamine app icon from the 3.0.13 source tag",
+          "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
         }
       ],
       "category": {
@@ -1727,27 +1727,31 @@
         "label": "Jailbreak Comparison"
       },
       "compat": "Dopamine: official arm64e, A12/A13 and arm64 firmware ranges; palera1n: A8–A11 and listed T2 devices",
-      "description": "Compare Dopamine 3.0.13 and palera1n 3.0.0 beta 3 by supported devices, iOS range, reboot workflow, computer needs, passcode limits and release risk.",
+      "description": "Compare Dopamine 3.0.13 with palera1n 3.0 Beta 4 and stable 2.4 by device support, reboot workflow, computer needs, A11 limits and release risk.",
       "developer": "opa334; palera1n team",
       "entry_type": "roundup-comparison",
       "href": "dopamine-vs-palera1n-jailbreak-comparison/",
       "image": "assets/articles/source-media/palera1n-v3-official-demo.png",
-      "media_credit": "Official palera1n 3 demonstration image; the beta 3 tag uses the same Git blob as beta 2",
-      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.3/.github/demo.png",
-      "modified_at": "2026-11-06T09:00:00Z",
+      "media_credit": "Official palera1n 3 demonstration image from the beta 4 tag; Git blob SHA 235a0b859af9093e5dac26aa8d3e22d9011a84cb is unchanged from beta 3",
+      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.4/.github/demo.png",
+      "modified_at": "2026-11-26T12:00:00+03:00",
       "name": "Dopamine 3 vs palera1n 3",
       "package": "comparison.dopamine-palera1n",
       "published_at": "2026-10-04T08:57:29Z",
-      "release": "Dopamine 3.0.13 (2026-11-03) / palera1n 3.0.0 beta 3 (2026-10-18)",
+      "release": "Dopamine 3.0.13 (2026-11-03) / palera1n 3.0.0 beta 4 (2026-11-21, prerelease) / palera1n 2.4 (2026-07-27, stable)",
       "selection_pool": "official-project-comparison",
       "slug": "dopamine-vs-palera1n-jailbreak-comparison",
-      "source": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
       "source_name": "GitHub",
-      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.3",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
       "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.3/.github/demo.png",
-      "title": "Dopamine 3 vs palera1n 3: Which Jailbreak Fits Your iPhone?",
-      "version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.3"
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
+      "title": "Dopamine 3.0.13 vs palera1n 3.0 Beta 4: Which Jailbreak Fits?",
+      "version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.4 / palera1n stable 2.4",
+      "action": "update",
+      "candidate_fingerprint": "roundup-comparison.dopamine-3.0.13-palera1n-3.0-beta4-stable2.4-2026-11-26",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "previous_version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.3"
     },
     {
       "category": {
@@ -12010,8 +12014,19 @@
       "published_at": "2026-11-24T18:39:25+03:00",
       "run_id": "scheduled-2026-11-24T18:00:00+03:00",
       "version": "1.0.3"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "roundup-comparison.dopamine-3.0.13-palera1n-3.0-beta4-stable2.4-2026-11-26",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "dopamine-vs-palera1n-jailbreak-comparison/",
+      "package": "comparison.dopamine-palera1n",
+      "previous_version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.3",
+      "published_at": "2026-11-26T12:00:00+03:00",
+      "run_id": "scheduled-2026-11-26T12:00:00+03:00",
+      "version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.4 / palera1n stable 2.4"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-25T03:00:00Z"
+  "updated_at": "2026-11-26T12:00:00+03:00"
 }
