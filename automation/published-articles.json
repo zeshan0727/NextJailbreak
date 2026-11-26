@@ -310,13 +310,13 @@
     {
       "action": "update",
       "additional_media": [],
-      "candidate_fingerprint": "jailbreak-development.erosion-ios27.3-beta2-worse-query-patched-2e118f4-2026-11-18",
+      "candidate_fingerprint": "jailbreak-development.erosion-file-browser-cache-container-hash-ramp-642c5d7-2026-11-26",
       "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
-      "compat": "Erosion 0.3.1 is the latest official IPA; 0.3.2 build 1 remains unreleased source. The current README supports iOS/iPadOS 27.3 beta 1 (24C5037i) and says worse_query is patched in beta 2 (24C5049d), making beta 2 and later unsupported unless a new exploit is released. iOS 26 support remains limited and excludes MobileGestalt writes.",
-      "description": "Erosion supports iOS 27.3 beta 1 (24C5037i), but worse_query is patched in beta 2 (24C5049d). Check exact iOS 26–27 limits and safe next steps.",
+      "compat": "Erosion 0.3.1 remains the latest official IPA. November 26 commits through 642c5d7 are source-only and do not expand firmware support: iOS/iPadOS 26.0–26.6.2 remains limited with no MobileGestalt writes; 27.0–27.2.1 and 27.3 beta 1 (24C5037i) are documented; worse_query is patched from 27.3 beta 2 (24C5049d).",
+      "description": "Three November 26 source commits add automatic container-hash retries and file-browser caching. The official IPA remains 0.3.1, and firmware support has not expanded.",
       "developer": "jailbreakdotparty / Erosion team",
       "entry_type": "jailbreak-development",
       "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
@@ -327,19 +327,19 @@
       "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
       "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
       "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "modified_at": "2026-11-18T00:04:00+03:00",
+      "modified_at": "2026-11-26T21:00:00Z",
       "name": "Erosion",
       "package": "project.erosion",
       "published_at": "2026-11-09T21:00:36Z",
-      "release": "Erosion 0.3.1 released November 10, 2026; 0.3.2 build 1 remains source-only; README commit 2e118f4 on November 17 documents the iOS 27.3 beta 2 patch boundary",
+      "release": "Erosion 0.3.1 released November 10, 2026 and remains the latest official IPA; November 26 commits 6839afa, c5bfe93 and 642c5d7 are unreleased source changes",
       "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Official Erosion README commit 2e118f4, Erosion 0.3.2 beta source commit fb16225 and Erosion 0.3.1 release",
-      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/2e118f4e575b2cb745d9462ac445f023e09ec4da",
-      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/2e118f4e575b2cb745d9462ac445f023e09ec4da",
+      "source_name": "Official Erosion November 26 source commits through 642c5d7, current README and Erosion 0.3.1 release",
+      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/642c5d7f46a7273f9280fc83d2c449b60bc9adfd",
+      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/642c5d7f46a7273f9280fc83d2c449b60bc9adfd",
       "source_visual_origin": "official-tagged-project-app-icon",
       "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "title": "Erosion Ends at iOS 27.3 Beta 1: worse_query Patched in Beta 2",
-      "version": "0.3.1 official release / 0.3.2 build 1 source / iOS 27.3 beta 2 patch boundary at commit 2e118f4"
+      "title": "Erosion Source Adds File Browser Caching; 0.3.1 Is Still Latest",
+      "version": "0.3.1 official release / unreleased development source through commit 642c5d7 / iOS 27.3 beta 2 patch boundary unchanged"
     },
     {
       "action": "update",
