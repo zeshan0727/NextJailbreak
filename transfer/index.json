@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T21:47:56Z",
+  "updatedAt": "2026-11-27T22:04:04Z",
   "files": [
+    {
+      "id": "notify-island-1.0.6-visual-studio-roothide",
+      "name": "Notify Island 1.0.6 — Visual Studio",
+      "fileName": "NotifyIsland_1.0.6_VisualStudio_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.6",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.6/NotifyIsland_1.0.6_VisualStudio_RootHide.deb",
+      "sha256": "32d38afd5a408b4fc7fa16c319103f3ffa31c3cb2d982caec75b68c3ea852e57",
+      "sizeBytes": 51460,
+      "notes": "Device-test build; visual Studio settings, full-range vertical placement and pop/retract animation. Preserves 1.0.5 notification logic. Compilation and static checks only; test on iOS 16.0 RootHide. Rollback: reinstall Notify Island 1.0.5 Test 2."
+    },
     {
       "id": "notify-island-1.0.5-test2-roothide",
       "name": "Notify Island 1.0.5 — Test 2",
