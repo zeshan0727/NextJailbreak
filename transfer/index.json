@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T22:30:46Z",
+  "updatedAt": "2026-11-27T22:44:43Z",
   "files": [
+    {
+      "id": "notify-island-1.0.9-inline-actions-roothide",
+      "name": "Notify Island 1.0.9 — Inline Actions",
+      "fileName": "NotifyIsland_1.0.9_InlineActions_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.9",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.9/NotifyIsland_1.0.9_InlineActions_RootHide.deb",
+      "sha256": "54eec9849ec4d509f0290515b45c54f4fc8605815c9dc14437ea7d0d8d226d09",
+      "sizeBytes": 74760,
+      "notes": "Device-test build; original-request dispatcher and inline reply where supported, adjustable corner rounding, shuffled installed-app previews. No synthetic live actions; iOS authentication retained. Compile/static checks only; verify on iOS 16.0. Rollback: reinstall 1.0.8 Adaptive Actions."
+    },
     {
       "id": "notify-island-1.0.8-adaptive-actions-roothide",
       "name": "Notify Island 1.0.8 — Adaptive Actions",
