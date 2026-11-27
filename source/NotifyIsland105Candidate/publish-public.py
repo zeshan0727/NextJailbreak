@@ -57,7 +57,10 @@ for i,line in enumerate(lines):
             if path.is_file(): lines[i]=f" {sha(path,digests[mode])} {path.stat().st_size:16d} {parts[2]}"
 rel.write_text("\n".join(lines)+"\n")
 # Add a single product feature to the existing public repository page.
-page=root/"repo/index.html"; html=page.read_text(); marker='<!-- notify-island-public-release -->'
+page=root/"repo/index.html"; html=page.read_text()
+html=html.replace("sileo://source/https://nextjailbreak.com/","sileo://source/https://repo.nextjailbreak.com/").replace("source=https://nextjailbreak.com/","source=https://repo.nextjailbreak.com/").replace("zbra://sources/add/https://nextjailbreak.com/","zbra://sources/add/https://repo.nextjailbreak.com/").replace("Repository URL: <strong>https://nextjailbreak.com/</strong>","Repository URL: <strong>https://repo.nextjailbreak.com/</strong>")
+page.write_text(html)
+marker='<!-- notify-island-public-release -->'
 if marker not in html:
     # Insert within main, directly before its closing element.
     check("</main>" in html,"Repository page layout not recognized")

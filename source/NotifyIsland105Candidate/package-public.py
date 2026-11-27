@@ -21,7 +21,7 @@ runtime_hash=sha(stage/lib)
 # Only user-facing Preferences binary and its icon change.
 check({"arm64","arm64e"}<=set(run("lipo","-archs",prefs).split()),"Preferences slices missing")
 check("BY NEXT JAILBREAK" in run("strings","-a",prefs),"Brand marker missing")
-check("1.0.17" in run("strings","-a",prefs),"Release marker missing")
+check("Version 1.0.17 - RootHide" in run("strings","-a",prefs),"Release marker missing")
 check("/System/Library/PrivateFrameworks/Preferences.framework/Preferences" in run("otool","-L",prefs),"Preferences linkage mismatch")
 shutil.copy2(prefs,stage/bundle/"NotifyIslandPrefs")
 (stage/bundle/"NotifyIslandPrefs").chmod(0o755)
