@@ -40,6 +40,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 @interface NIStudioPreview : UIView
 @property(nonatomic) CGFloat position;
 @property(nonatomic) NSInteger mode;
+@property(nonatomic) NSInteger shape;
 @property(nonatomic,strong) UIView *phone;
 @property(nonatomic,strong) UIView *cutout;
 @property(nonatomic,strong) UIView *tile;
@@ -69,12 +70,15 @@ static UIColor *NIStyleColor(NSInteger mode) {
     CGFloat h = MAX(1.0,self.bounds.size.height-16), w=MIN(h*.49,self.bounds.size.width-16);
     self.phone.frame=CGRectMake((self.bounds.size.width-w)/2,8,w,h);
     self.cutout.frame=CGRectMake((w-45)/2,9,45,12);
-    BOOL docked=self.position<=.015;
+    BOOL docked=self.position<=.015 && self.shape<2;
     CGFloat th=34, minY=24, maxY=MAX(minY,h-th-14);
-    self.tile.frame=docked?CGRectMake(9,7,w-18,52):CGRectMake(9,minY+(maxY-minY)*self.position,w-18,th);
+    CGFloat margin=self.shape==2?17:(self.shape==3?12:9);
+    self.tile.frame=docked?CGRectMake(9,7,w-18,52):CGRectMake(margin,minY+(maxY-minY)*self.position,w-2*margin,th);
     self.tile.backgroundColor=NIStyleColor(self.mode);
     self.sample.textColor=self.mode==2?UIColor.blackColor:UIColor.whiteColor;
     self.dockCap.hidden=!docked;
+    self.tile.layer.borderWidth=(!docked && self.shape==3)?1:0;
+    self.tile.layer.borderColor=[UIColor colorWithWhite:1 alpha:.4].CGColor;
     if (docked) {
         CGFloat tw=self.tile.bounds.size.width, c=tw/2, l=c-25, r=c+25;
         UIBezierPath *p=[UIBezierPath bezierPath];
@@ -87,11 +91,25 @@ static UIColor *NIStyleColor(NSInteger mode) {
         [p addLineToPoint:CGPointMake(0,25)]; [p addQuadCurveToPoint:CGPointMake(9,16) controlPoint:CGPointMake(0,16)];
         [p addLineToPoint:CGPointMake(l-4,16)]; [p addQuadCurveToPoint:CGPointMake(l,12) controlPoint:CGPointMake(l,16)];
         [p addLineToPoint:CGPointMake(l,7)]; [p addQuadCurveToPoint:CGPointMake(l+7,0) controlPoint:CGPointMake(l,0)]; [p closePath];
+        if (self.shape==1) {
+            p=[UIBezierPath bezierPath];
+            [p moveToPoint:CGPointMake(l+7,0)]; [p addLineToPoint:CGPointMake(r-7,0)];
+            [p addQuadCurveToPoint:CGPointMake(r,7) controlPoint:CGPointMake(r,0)];
+            [p addLineToPoint:CGPointMake(r,10)];
+            [p addCurveToPoint:CGPointMake(tw-12,16) controlPoint1:CGPointMake(r,16) controlPoint2:CGPointMake(tw-12,16)];
+            [p addQuadCurveToPoint:CGPointMake(tw,28) controlPoint:CGPointMake(tw,16)];
+            [p addLineToPoint:CGPointMake(tw,39)]; [p addQuadCurveToPoint:CGPointMake(tw-13,52) controlPoint:CGPointMake(tw,52)];
+            [p addLineToPoint:CGPointMake(13,52)]; [p addQuadCurveToPoint:CGPointMake(0,39) controlPoint:CGPointMake(0,52)];
+            [p addLineToPoint:CGPointMake(0,28)]; [p addQuadCurveToPoint:CGPointMake(12,16) controlPoint:CGPointMake(0,16)];
+            [p addCurveToPoint:CGPointMake(l,10) controlPoint1:CGPointMake(12,16) controlPoint2:CGPointMake(l,16)];
+            [p addLineToPoint:CGPointMake(l,7)]; [p addQuadCurveToPoint:CGPointMake(l+7,0) controlPoint:CGPointMake(l,0)]; [p closePath];
+        }
         self.tile.layer.cornerRadius=0; self.dockMask.frame=self.tile.bounds; self.dockMask.path=p.CGPath; self.tile.layer.mask=self.dockMask;
         self.dockCap.frame=CGRectMake(0,0,tw,19);
         self.sample.frame=CGRectMake(7,21,tw-14,29);
     } else {
-        self.tile.layer.mask=nil; self.tile.layer.cornerRadius=10;
+        self.tile.layer.mask=nil; self.tile.layer.cornerRadius=self.shape==2?17:12;
+        self.tile.layer.cornerCurve=kCACornerCurveContinuous;
         self.sample.frame=CGRectInset(self.tile.bounds,7,2);
     }
 }
@@ -144,6 +162,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 @property(nonatomic,strong) UILabel *positionValue;
 @property(nonatomic,strong) UILabel *durationValue;
 @property(nonatomic,strong) NSArray<UIButton *> *styleButtons;
+@property(nonatomic,strong) NSArray<UIButton *> *shapeButtons;
 @property(nonatomic,strong) NSArray<UIButton *> *positionButtons;
 @property(nonatomic,strong) UISwitch *animationSwitch;
 @property(nonatomic,strong) UISwitch *masterSwitch;
@@ -215,6 +234,17 @@ static UIColor *NIStyleColor(NSInteger mode) {
     NSMutableArray *positions=[NSMutableArray new]; NSArray *titles=@[@"Island",@"Middle",@"Bottom"];
     for (NSInteger i=0;i<3;i++) [positions addObject:[self button:titles[i] action:@selector(positionTapped:) tag:i]];
     _positionButtons=[positions copy]; UIStackView *pr=NIRow(positions); pr.distribution=UIStackViewDistributionFillEqually; [_stack addArrangedSubview:pr];
+    [_stack addArrangedSubview:NILabel(@"Island style",16,UIFontWeightSemibold)];
+    NSArray *shapeNames=@[@"Classic",@"Fluid",@"Capsule",@"Floating"];
+    NSMutableArray *shapes=[NSMutableArray new];
+    for (NSInteger i=0;i<4;i++) {
+        UIButton *b=[self button:shapeNames[i] action:@selector(shapeTapped:) tag:i];
+        b.titleLabel.adjustsFontSizeToFitWidth=YES;
+        b.titleLabel.minimumScaleFactor=.7;
+        [shapes addObject:b];
+    }
+    _shapeButtons=[shapes copy]; UIStackView *shapeRow=NIRow(shapes);
+    shapeRow.distribution=UIStackViewDistributionFillEqually; [_stack addArrangedSubview:shapeRow];
     [_stack addArrangedSubview:NILabel(@"Appearance",16,UIFontWeightSemibold)];
     NSMutableArray *styles=[NSMutableArray new]; NSArray *names=@[@"Black",@"Dark",@"Light",@"Glass"];
     for (NSInteger i=0;i<4;i++) {
@@ -252,7 +282,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     [self addDetail:size title:@"Expanded width" key:@"NotificationIslandExpandedWidth" fallback:@405 min:190 max:425 percentage:NO];
     [self addDetail:size title:@"Expanded height" key:@"NotificationIslandExpandedHeight" fallback:@150 min:125 max:240 percentage:NO];
     [self addDetail:size title:@"Side offset" key:@"NotificationIslandHorizontalOffset" fallback:@0 min:-140 max:140 percentage:NO];
-    UILabel *note=NILabel(@"Island placement stays centered. Double-tap expanded notifications to dismiss. App actions use the original request. Reply inside the island when supported; previews use shuffled installed apps.",12,UIFontWeightRegular);
+    UILabel *note=NILabel(@"Classic and Fluid connect to the island; Capsule and Floating sit below it. Double-tap to dismiss. Reply opens a keyboard-ready composer.",12,UIFontWeightRegular);
     note.textColor=UIColor.secondaryLabelColor; [_stack addArrangedSubview:note];
     [self refresh];
     return self;
@@ -269,6 +299,13 @@ static UIColor *NIStyleColor(NSInteger mode) {
     }
 }
 - (void)updateStyle {
+    for (UIButton *b in self.shapeButtons) {
+        BOOL selected=b.tag==self.preview.shape;
+        b.backgroundColor=selected?[UIColor.systemBlueColor colorWithAlphaComponent:.14]:UIColor.tertiarySystemGroupedBackgroundColor;
+        b.layer.borderWidth=selected?2:1;
+        b.layer.borderColor=(selected?UIColor.systemBlueColor:UIColor.separatorColor).CGColor;
+        b.accessibilityTraits=UIAccessibilityTraitButton|(selected?UIAccessibilityTraitSelected:0);
+    }
     for (UIButton *b in self.styleButtons) {
         BOOL selected=b.tag==self.preview.mode;
         b.layer.borderWidth=selected?3:1;
@@ -280,6 +317,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 - (void)refresh {
     self.positionSlider.value=MIN(1,MAX(0,NIValue(@"NotificationIslandVerticalPosition",@0).floatValue));
     self.preview.mode=MIN(3,MAX(0,NIValue(@"NotificationIslandAppearanceMode",@0).integerValue));
+    self.preview.shape=MIN(3,MAX(0,NIValue(@"NotificationIslandShapeStyle",@1).integerValue));
     self.durationSlider.value=MIN(30,MAX(2,NIValue(@"NotificationIslandDismissTime",NIValue(@"NotificationIslandDuration",@6)).floatValue));
     self.animationSwitch.on=NIValue(@"NotificationIslandAnimationEnabled",@YES).boolValue;
     self.masterSwitch.on=NIValue(@"NotificationIslandEnabled",@YES).boolValue;
@@ -291,6 +329,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 - (void)positionChanged:(UISlider *)sender { [self updatePosition]; if (!sender.tracking) [self commitPosition:sender]; }
 - (void)commitPosition:(UISlider *)sender { NIWrite(@"NotificationIslandVerticalPosition",@(sender.value)); }
 - (void)positionTapped:(UIButton *)sender { [self.positionSlider setValue:sender.tag*.5 animated:YES]; [self updatePosition]; [self commitPosition:self.positionSlider]; }
+- (void)shapeTapped:(UIButton *)sender { self.preview.shape=sender.tag; [self updateStyle]; NIWrite(@"NotificationIslandShapeStyle",@(sender.tag)); }
 - (void)styleTapped:(UIButton *)sender { self.preview.mode=sender.tag; [self updateStyle]; NIWrite(@"NotificationIslandAppearanceMode",@(sender.tag)); }
 - (void)durationChanged:(UISlider *)sender { self.durationValue.text=[NSString stringWithFormat:@"%.0f sec",sender.value]; if (!sender.tracking) [self commitDuration:sender]; }
 - (void)commitDuration:(UISlider *)sender { NIWrite(@"NotificationIslandDismissTime",@((NSInteger)lroundf(sender.value))); }

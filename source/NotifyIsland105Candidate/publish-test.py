@@ -2,13 +2,13 @@
 import datetime, hashlib, json, shutil, sys
 from pathlib import Path
 repo, deb=map(Path,sys.argv[1:3])
-dest=repo/"transfer/files/NotifyIsland/1.0.9"/deb.name
+dest=repo/"transfer/files/NotifyIsland/1.0.10"/deb.name
 dest.parent.mkdir(parents=True,exist_ok=True)
 shutil.copy2(deb,dest)
 index=repo/"transfer/index.json"
 data=json.loads(index.read_text())
-id="notify-island-1.0.9-inline-actions-roothide"
+id="notify-island-1.0.10-island-studio-roothide"
 data["files"]=[x for x in data.get("files",[]) if x.get("id")!=id]
-data["files"].insert(0,dict(id=id,name="Notify Island 1.0.9 — Inline Actions",fileName=dest.name,type="deb",platform="RootHide / iOS 16+",version="1.0.9",url="https://nextjailbreak.com/"+dest.relative_to(repo).as_posix(),sha256=hashlib.sha256(dest.read_bytes()).hexdigest(),sizeBytes=dest.stat().st_size,notes="Device-test build; original-request dispatcher and inline reply where supported, adjustable corner rounding, shuffled installed-app previews. No synthetic live actions; iOS authentication retained. Compile/static checks only; verify on iOS 16.0. Rollback: reinstall 1.0.8 Adaptive Actions."))
+data["files"].insert(0,dict(id=id,name="Notify Island 1.0.10 — Island Studio",fileName=dest.name,type="deb",platform="RootHide / iOS 16+",version="1.0.10",url="https://nextjailbreak.com/"+dest.relative_to(repo).as_posix(),sha256=hashlib.sha256(dest.read_bytes()).hexdigest(),sizeBytes=dest.stat().st_size,notes="Device-test build; dedicated key-window reply composer, Classic/Fluid/Capsule/Floating styles, live settings preview. Preserves original-request actions, rounding and shuffle. Compile/static checks only; verify iOS 16.0 keyboard and reply delivery. Rollback: reinstall 1.0.9 Inline Actions."))
 data["updatedAt"]=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds").replace("+00:00","Z")
 index.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n")
