@@ -13,12 +13,12 @@
         },
         {
           "class": "DepictionMarkdownView",
-          "markdown": "**BY NEXT JAILBREAK**\n\nCustom Dynamic Island notifications with five shapes: Classic, Fluid, Capsule, Floating and Full Cover.\n\n- Live reply composer for supported original notification actions\n- Separate Compact and Expanded settings\n- Adjustable blur, opacity, rounding, animation and positioning\n- Shuffled local test notifications\n\nRootHide only. Tested on iOS 16.0; other devices and OS versions may differ."
+          "markdown": "**BY NEXT JAILBREAK**\n\nCustom Dynamic Island notifications with five shapes: Classic, Fluid, Capsule, Floating and Full Cover.\n\n- Live reply composer for supported original notification actions\n- Swipe down to dismiss compact notifications\n- Separate Compact and Expanded settings\n- Adjustable blur, opacity, rounding, animation and positioning\n- Shuffled local test notifications\n\nRootHide only. Tested on iOS 16.0; other devices and OS versions may differ."
         },
         {
           "class": "DepictionTableTextView",
           "title": "Version",
-          "text": "1.0.17"
+          "text": "1.0.18"
         },
         {
           "class": "DepictionTableTextView",
@@ -41,6 +41,14 @@
       "class": "DepictionStackView",
       "tabname": "Changelog",
       "views": [
+        {
+          "class": "DepictionHeaderView",
+          "title": "1.0.18"
+        },
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "Swipe down on a compact notification to dismiss its overlay. Existing tap, double-tap, hold and reply actions are unchanged. No additional settings."
+        },
         {
           "class": "DepictionHeaderView",
           "title": "1.0.17"
