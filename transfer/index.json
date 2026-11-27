@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T22:44:43Z",
+  "updatedAt": "2026-11-27T22:54:32Z",
   "files": [
+    {
+      "id": "notify-island-1.0.10-island-studio-roothide",
+      "name": "Notify Island 1.0.10 — Island Studio",
+      "fileName": "NotifyIsland_1.0.10_IslandStudio_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.10",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.10/NotifyIsland_1.0.10_IslandStudio_RootHide.deb",
+      "sha256": "5eeff876b40a61c401b474136151c3b6d78ce9a85d8f6e00233d217a188664bc",
+      "sizeBytes": 85348,
+      "notes": "Device-test build; dedicated key-window reply composer, Classic/Fluid/Capsule/Floating styles, live settings preview. Preserves original-request actions, rounding and shuffle. Compile/static checks only; verify iOS 16.0 keyboard and reply delivery. Rollback: reinstall 1.0.9 Inline Actions."
+    },
     {
       "id": "notify-island-1.0.9-inline-actions-roothide",
       "name": "Notify Island 1.0.9 — Inline Actions",
