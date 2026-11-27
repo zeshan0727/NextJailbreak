@@ -1,4 +1,4 @@
-name: Notify Island 1.0.16 Composer Studio build
+name: Notify Island 1.0.17 Next Jailbreak public release
 on:
   push:
     branches: [agent/notify-island-1.0.5-candidate]
@@ -9,38 +9,28 @@ permissions:
   contents: write
 concurrency:
   group: notify-island-105
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
-  compile:
+  release:
     runs-on: macos-15
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - name: Install tools
-        run: brew install dpkg ldid xz
-      - name: Prepare and lint sources
+        run: |
+          brew install dpkg ldid xz zstd
+          python3 -m venv "$RUNNER_TEMP/ni-venv"
+          "$RUNNER_TEMP/ni-venv/bin/pip" install pillow
+      - name: Fetch approved release and branding assets
         run: |
           set -euo pipefail
-          P=source/NotifyIsland105Candidate
-          python3 "$P/compile-fix.py"
-          python3 "$P/layout-date.py"
-          python3 "$P/prepare-v450.py"
-          python3 "$P/prepare-v105.py"
-          python3 "$P/prepare-v106.py"
-          python3 "$P/prepare-v107.py"
-          python3 "$P/prepare-v108.py"
-          python3 "$P/prepare-v109.py"
-          python3 "$P/prepare-v110.py"
-          python3 "$P/prepare-v111.py"
-          python3 "$P/prepare-v112.py"
-          python3 "$P/prepare-v113.py"
-          python3 "$P/prepare-v114.py"
-          python3 "$P/prepare-v115.py"
-          python3 "$P/prepare-v116.py"
-          python3 -m py_compile "$P/package-test.py" "$P/publish-test.py"
-          for f in "$P"/prefs/Resources/*.plist "$P"/NextAuraNotificationIsland.plist; do plutil -lint "$f"; done
-          grep -q '1.0.16 Composer Studio loaded' "$P/NotificationIsland.xm"
-      - name: Compile RootHide candidate with iOS 16.5 Preferences SDK
+          git fetch origin main
+          git show origin/main:transfer/files/NotifyIsland/1.0.16/NotifyIsland_1.0.16_ComposerStudio_RootHide.deb > "$RUNNER_TEMP/approved.deb"
+          git show origin/main:assets/brand/next-jailbreak-mark-1024.png > "$RUNNER_TEMP/brand.png"
+          git show origin/main:icons/nextaura/notification-island.png > "$RUNNER_TEMP/old-icon.png"
+          echo '36dcdcaee57ab9600fbf5ac08591204fbbdb7361c415537bb68adb8df9b5ee82  '"$RUNNER_TEMP/approved.deb" | shasum -a 256 -c -
+          python3 -m py_compile source/NotifyIsland105Candidate/package-public.py source/NotifyIsland105Candidate/publish-public.py
+      - name: Compile branded Preferences only
         run: |
           set -euo pipefail
           P="$GITHUB_WORKSPACE/source/NotifyIsland105Candidate"
@@ -50,45 +40,40 @@ jobs:
           git -C "$RUNNER_TEMP/theos-rh" checkout --detach 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
           git -C "$RUNNER_TEMP/theos-rh" submodule update --init --recursive --depth 1
           export THEOS="$RUNNER_TEMP/theos-rh" THEOS_PACKAGE_SCHEME=roothide
-          mkdir -p build-candidate "$THEOS/sdks"
+          mkdir -p build-release "$THEOS/sdks"
           SDK="$THEOS/sdks/iPhoneOS16.5.sdk"
           if ! test -f "$SDK/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd"; then
             curl -fL --retry 3 https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz -o "$RUNNER_TEMP/ni-sdk.tar.xz"
             tar -xJf "$RUNNER_TEMP/ni-sdk.tar.xz" -C "$THEOS/sdks"
           fi
           test -f "$SDK/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd"
-          make -C "$P" clean all FINALPACKAGE=1 2>&1 | tee build-candidate/runtime.log
-          D="$(find "$P/.theos/obj" -type f -name NextAuraNotificationIsland.dylib -print | while IFS= read -r f; do if lipo -archs "$f" | grep -qw arm64e && lipo -archs "$f" | grep -qw arm64; then echo "$f"; fi; done | head -1)"
-          test -n "$D"
-          cp "$D" build-candidate/NextAuraNotificationIsland.dylib
-          make -C "$P/prefs" clean all FINALPACKAGE=1 2>&1 | tee build-candidate/preferences.log
+          make -C "$P/prefs" clean all FINALPACKAGE=1 2>&1 | tee build-release/preferences.log
           D="$(find "$P/prefs/.theos/obj" -type f -name NotifyIslandPrefs -print | while IFS= read -r f; do if lipo -archs "$f" | grep -qw arm64e && lipo -archs "$f" | grep -qw arm64; then echo "$f"; fi; done | head -1)"
           test -n "$D"
-          cp "$D" build-candidate/NotifyIslandPrefs
-          cp "$P/NotificationIsland.xm" build-candidate/
-          cp -R "$P/prefs/Resources" build-candidate/
-      - name: Assemble and verify isolated RootHide DEB
+          cp "$D" build-release/NotifyIslandPrefs
+      - name: Assemble and validate public release
         run: |
           set -euo pipefail
-          python3 source/NotifyIsland105Candidate/package-test.py "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/build-candidate" "$RUNNER_TEMP"
-          cat build-candidate/SHA256SUMS.txt
+          "$RUNNER_TEMP/ni-venv/bin/python" source/NotifyIsland105Candidate/package-public.py "$RUNNER_TEMP/approved.deb" build-release/NotifyIslandPrefs "$RUNNER_TEMP/brand.png" "$RUNNER_TEMP/old-icon.png" build-release
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: NotifyIsland-116-ComposerStudio-RootHide
-          path: build-candidate/
-      - name: Publish verified device-test build to NS Transfer
+          name: NotifyIsland-117-Public-RootHide
+          path: build-release/
+      - name: Publish Sileo index and official website
         run: |
           set -euo pipefail
-          DEB="$GITHUB_WORKSPACE/build-candidate/NotifyIsland_1.0.16_ComposerStudio_RootHide.deb"
-          test -s "$DEB"
-          git fetch origin main
-          git worktree add --detach "$RUNNER_TEMP/ni-transfer" origin/main
-          python3 "$GITHUB_WORKSPACE/source/NotifyIsland105Candidate/publish-test.py" "$RUNNER_TEMP/ni-transfer" "$DEB"
-          cd "$RUNNER_TEMP/ni-transfer"
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add transfer/index.json transfer/files/NotifyIsland/1.0.16/NotifyIsland_1.0.16_ComposerStudio_RootHide.deb
-          git diff --cached --quiet && exit 0
-          git commit -m 'Publish Notify Island 1.0.16 Composer Studio RootHide to NS Transfer'
-          git push origin HEAD:main
+          SOURCE="$GITHUB_WORKSPACE/source/NotifyIsland105Candidate"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            W="$RUNNER_TEMP/ni-public-$attempt"
+            git worktree add --detach "$W" origin/main
+            python3 "$SOURCE/publish-public.py" "$W" "$GITHUB_WORKSPACE/build-release" "$SOURCE"
+            git -C "$W" config user.name "Next Jailbreak Build Bot"
+            git -C "$W" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git -C "$W" add debfiles/NotifyIsland_1.0.17_RootHide.deb Packages Packages.gz Packages.bz2 Packages.xz Packages.zst Release icons/notify-island.png depictions/notify-island.html depictions/notify-island.json repo/index.html
+            if git -C "$W" diff --cached --quiet; then exit 0; fi
+            git -C "$W" commit -m "Release Notify Island 1.0.17 by Next Jailbreak"
+            if git -C "$W" push origin HEAD:main; then exit 0; fi
+          done
+          exit 1

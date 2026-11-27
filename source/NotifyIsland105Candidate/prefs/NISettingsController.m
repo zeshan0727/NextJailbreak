@@ -216,7 +216,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
         [_stack.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:20],
         [_stack.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:-20]
     ]];
-    [_stack addArrangedSubview:NILabel(@"Island Studio",24,UIFontWeightBold)];
+
     _masterSwitch=[UISwitch new];
     _masterSwitch.accessibilityLabel=@"Enable Notify Island";
     [_masterSwitch addTarget:self action:@selector(masterChanged:) forControlEvents:UIControlEventValueChanged];
@@ -224,6 +224,25 @@ static UIColor *NIStyleColor(NSInteger mode) {
     master.layoutMargins=UIEdgeInsetsMake(10,12,10,12); master.layoutMarginsRelativeArrangement=YES;
     master.backgroundColor=UIColor.secondarySystemGroupedBackgroundColor; master.layer.cornerRadius=14;
     [_stack addArrangedSubview:master];
+    UIView *brand=[UIView new]; brand.backgroundColor=[UIColor colorWithRed:.055 green:.085 blue:.115 alpha:1];
+    brand.layer.cornerRadius=18; brand.layer.cornerCurve=kCACornerCurveContinuous;
+    UIImageView *brandIcon=[[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:@"NextAura-notification-island" ofType:@"png"]]];
+    brandIcon.contentMode=UIViewContentModeScaleAspectFit; brandIcon.translatesAutoresizingMaskIntoConstraints=NO;
+    UILabel *product=NILabel(@"Notify Island",23,UIFontWeightBold); product.textColor=UIColor.whiteColor;
+    UILabel *publisher=NILabel(@"BY NEXT JAILBREAK",11,UIFontWeightBold); publisher.textColor=[UIColor colorWithRed:.30 green:.87 blue:.83 alpha:1];
+    UILabel *release=NILabel(@"1.0.17  ·  RootHide",12,UIFontWeightMedium); release.textColor=[UIColor colorWithWhite:.72 alpha:1];
+    UIStackView *brandText=[[UIStackView alloc] initWithArrangedSubviews:@[product,publisher,release]];
+    brandText.axis=UILayoutConstraintAxisVertical; brandText.spacing=3;
+    UIStackView *brandRow=NIRow(@[brandIcon,brandText]); brandRow.translatesAutoresizingMaskIntoConstraints=NO;
+    brandRow.spacing=12; [brand addSubview:brandRow];
+    [NSLayoutConstraint activateConstraints:@[
+        [brandIcon.widthAnchor constraintEqualToConstant:54], [brandIcon.heightAnchor constraintEqualToConstant:54],
+        [brandRow.leadingAnchor constraintEqualToAnchor:brand.leadingAnchor constant:14],
+        [brandRow.trailingAnchor constraintEqualToAnchor:brand.trailingAnchor constant:-14],
+        [brandRow.topAnchor constraintEqualToAnchor:brand.topAnchor constant:14],
+        [brandRow.bottomAnchor constraintEqualToAnchor:brand.bottomAnchor constant:-14]
+    ]];
+    [_stack addArrangedSubview:brand];
     UILabel *sub=NILabel(@"Dock to the Dynamic Island or drag to a detached position.",13,UIFontWeightRegular);
     sub.textColor=UIColor.secondaryLabelColor; [_stack addArrangedSubview:sub];
     _preview=[NIStudioPreview new]; [_preview.heightAnchor constraintEqualToConstant:226].active=YES; [_stack addArrangedSubview:_preview];
@@ -293,6 +312,10 @@ static UIColor *NIStyleColor(NSInteger mode) {
     [self addToggle:behavior title:@"Landscape support" key:@"NotificationIslandLandscapeEnabled"];
     UILabel *note=NILabel(@"Full Cover uses one full-width rounded rectangle from top to bottom, with no narrowed cap. Select it to snap to Island position. Double-tap to dismiss; Reply opens the composer.",12,UIFontWeightRegular);
     note.textColor=UIColor.secondaryLabelColor; [_stack addArrangedSubview:note];
+    UIButton *website=[self button:@"nextjailbreak.com" action:@selector(openWebsite) tag:0];
+    [website setTitleColor:UIColor.systemTealColor forState:UIControlStateNormal];
+    website.layer.borderColor=UIColor.separatorColor.CGColor;
+    [_stack addArrangedSubview:website];
     [self refresh];
     return self;
 }
@@ -352,6 +375,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 - (void)commitDuration:(UISlider *)sender { NIWrite(@"NotificationIslandDismissTime",@((NSInteger)lroundf(sender.value))); }
 - (void)masterChanged:(UISwitch *)sender { NIWrite(@"NotificationIslandEnabled",@(sender.on)); }
 - (void)animationChanged:(UISwitch *)sender { NIWrite(@"NotificationIslandAnimationEnabled",@(sender.on)); }
+- (void)openWebsite { NSURL *url=[NSURL URLWithString:@"https://nextjailbreak.com/depictions/notify-island.html"]; if (url) [UIApplication.sharedApplication openURL:url options:@{} completionHandler:nil]; }
 - (void)testTapped { CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.nextsolution.unlockvibrate/test-dynamic-island-suite"), NULL, NULL, true); }
 @end
 
