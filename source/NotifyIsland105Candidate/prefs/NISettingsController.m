@@ -233,7 +233,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     [_stack addArrangedSubview:_durationSlider];
     _animationSwitch=[UISwitch new]; [_animationSwitch addTarget:self action:@selector(animationChanged:) forControlEvents:UIControlEventValueChanged];
     [_stack addArrangedSubview:NIRow(@[NILabel(@"Island animation",16,UIFontWeightSemibold),[UIView new],_animationSwitch])];
-    UIButton *test=[self button:@"Send test notification" action:@selector(testTapped) tag:0];
+    UIButton *test=[self button:@"Shuffle test notification" action:@selector(testTapped) tag:0];
     test.backgroundColor=UIColor.systemBlueColor; [test setTitleColor:UIColor.whiteColor forState:UIControlStateNormal]; test.layer.borderWidth=0;
     [_stack addArrangedSubview:test];
     _detailSliders=[NSMutableArray new]; _detailSwitches=[NSMutableArray new];
@@ -241,6 +241,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     [self addDetail:look title:@"Blur" key:@"NotificationIslandBlurStrength" fallback:@.55 min:.20 max:1 percentage:YES];
     [self addDetail:look title:@"Opacity" key:@"NotificationIslandBackgroundOpacity" fallback:@.98 min:.55 max:1 percentage:YES];
     [self addDetail:look title:@"Text size" key:@"NotificationIslandTextScale" fallback:@1 min:.8 max:1.35 percentage:YES];
+    [self addDetail:look title:@"Corner rounding" key:@"NotificationIslandCornerRadius" fallback:@32 min:16 max:40 percentage:NO];
     UIStackView *behavior=[self detailGroup:@"Behavior"];
     [self addToggle:behavior title:@"Replace stock banner" key:@"NotificationIslandReplaceStockBanner"];
     [self addToggle:behavior title:@"Landscape support" key:@"NotificationIslandLandscapeEnabled"];
@@ -251,7 +252,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     [self addDetail:size title:@"Expanded width" key:@"NotificationIslandExpandedWidth" fallback:@405 min:190 max:425 percentage:NO];
     [self addDetail:size title:@"Expanded height" key:@"NotificationIslandExpandedHeight" fallback:@150 min:125 max:240 percentage:NO];
     [self addDetail:size title:@"Side offset" key:@"NotificationIslandHorizontalOffset" fallback:@0 min:-140 max:140 percentage:NO];
-    UILabel *note=NILabel(@"Island placement stays centered. Double-tap expanded notifications to dismiss. App actions require authentication; replies use the original iOS interface.",12,UIFontWeightRegular);
+    UILabel *note=NILabel(@"Island placement stays centered. Double-tap expanded notifications to dismiss. App actions use the original request. Reply inside the island when supported; previews use shuffled installed apps.",12,UIFontWeightRegular);
     note.textColor=UIColor.secondaryLabelColor; [_stack addArrangedSubview:note];
     [self refresh];
     return self;

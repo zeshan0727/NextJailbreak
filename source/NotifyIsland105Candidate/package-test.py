@@ -44,9 +44,9 @@ control=stage/"DEBIAN/control"
 fields={
     "Package":"com.nextsolution.nextaura.notification-island",
     "Name":"Notify Island",
-    "Version":"1.0.8",
+    "Version":"1.0.9",
     "Architecture":"iphoneos-arm64e",
-    "Description":"Notify Island 1.0.8 Adaptive Actions device-test build. Compact visual controls, double tap dismissal, guarded native notification actions; device validation required.",
+    "Description":"Notify Island 1.0.9 Inline Actions device-test build. Inline reply, guarded original-request actions, adjustable rounding, shuffled local previews; device validation required.",
     "Maintainer":"Next Jailbreak",
     "Author":"Next Jailbreak",
     "Section":"Tweaks",
@@ -65,7 +65,7 @@ for p in (libs/"NextAuraNotificationIsland.dylib",bundle/"NotifyIslandPrefs"):
     run("ldid","-S",p)
     check(bool(run("ldid","-e",p)) or p.stat().st_size>0,"Signing check failed")
 check("/System/Library/PrivateFrameworks/Preferences.framework/Preferences" in run("otool","-L",bundle/"NotifyIslandPrefs"),"Settings framework install-name mismatch")
-check("1.0.8 Adaptive Actions loaded" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Runtime marker missing")
+check("1.0.9 Inline Actions loaded" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Runtime marker missing")
 check("NIStudioHeader" in run("strings","-a",bundle/"NotifyIslandPrefs"),"Studio controller missing")
 check("NotificationIslandVerticalPosition" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Position key missing")
 check("NotificationIslandAnimationEnabled" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Animation key missing")
@@ -76,16 +76,16 @@ check(not any(item.get("cell")=="PSLinkCell" for item in root["items"]),"Root st
 keys=[item["key"] for item in root["items"] if "key" in item]
 check(len(keys)==len(set(keys)) and "NotificationIslandEnabled" not in keys,"Duplicate or misplaced control")
 prefstrings=run("strings","-a",bundle/"NotifyIslandPrefs")
-for key in ["NotificationIslandBlurStrength","NotificationIslandBackgroundOpacity","NotificationIslandTextScale","NotificationIslandReplaceStockBanner","NotificationIslandLandscapeEnabled","NotificationIslandCompactWidth","NotificationIslandCompactHeight","NotificationIslandExpandedWidth","NotificationIslandExpandedHeight","NotificationIslandHorizontalOffset","NotificationIslandNativeActions"]:
+for key in ["NotificationIslandBlurStrength","NotificationIslandBackgroundOpacity","NotificationIslandTextScale","NotificationIslandReplaceStockBanner","NotificationIslandLandscapeEnabled","NotificationIslandCompactWidth","NotificationIslandCompactHeight","NotificationIslandExpandedWidth","NotificationIslandExpandedHeight","NotificationIslandHorizontalOffset","NotificationIslandNativeActions","NotificationIslandCornerRadius"]:
     check(key in prefstrings,"Missing compact settings key: "+key)
-for marker in ["doubleTapDismiss:","nativeActionTapped:","presentLongLookAnimated:completion:","_askDelegateToExecuteAction:withParameters:animated:"]:
+for marker in ["doubleTapDismiss:","nativeActionTapped:","submitReply","destination:executeAction:forNotificationRequest:requestAuthentication:withParameters:completion:","_askDelegateToExecuteAction:withParameters:animated:"]:
     check(marker in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Missing action marker: "+marker)
 check("masterChanged:" in run("strings","-a",bundle/"NotifyIslandPrefs"),"Master switch missing")
 for p in bundle.glob("*.plist"):
     data=plistlib.load(open(p,"rb"))
     for item in data.get("items",[]):
         if "key" in item: check(item.get("get")=="readPreferenceValue:" and item.get("set")=="setPreferenceValue:specifier:","Missing read/write selectors in "+p.name)
-out=build/"NotifyIsland_1.0.8_AdaptiveActions_RootHide.deb"
+out=build/"NotifyIsland_1.0.9_InlineActions_RootHide.deb"
 run("dpkg-deb","--root-owner-group","-Zxz","-b",stage,out)
 for k in ["Package","Version","Architecture","Depends","Conflicts","Replaces","Provides"]: check(run("dpkg-deb","-f",out,k)==fields[k],"Control mismatch: "+k)
 verify=temp/"notify-verify"; shutil.rmtree(verify,ignore_errors=True)
