@@ -102,9 +102,18 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         monitor.pathUpdateHandler = { [weak self] path in DispatchQueue.main.async { self?.online = path.status == .satisfied } }
         monitor.start(queue: DispatchQueue(label: "nextchat.network"))
         refreshFiles()
+        if !(UserDefaults.standard.object(forKey: "preferSystemBrowserV4") as? Bool ?? true) { startEmbeddedIfNeeded() }
+    }
+    func startEmbeddedIfNeeded() {
+        guard web.url == nil, !web.isLoading else { return }
         let restore = UserDefaults.standard.object(forKey: "restore") as? Bool ?? true
-        if restore, let raw = UserDefaults.standard.string(forKey: "lastChat"), let url = URL(string: raw), chatPage(url) { open(url) }
-        else { open(homeURL) }
+        if restore { resume() } else { open(homeURL) }
+    }
+    func prepareSystemBrowser() {
+        closePopup()
+        web.stopLoading()
+        loginHelp = false
+        notice = nil
     }
     deinit { monitor.cancel() }
     func open(_ url: URL) { guard chatPage(url) else { return }; web.load(URLRequest(url: url)) }
@@ -469,10 +478,10 @@ struct SettingsView: View {
                     Text(browser.diagnostic).font(.caption).textSelection(.enabled)
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (3)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (4)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (3)")
+                    LabeledContent("Version", value: "1.0.0 (4)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -498,10 +507,24 @@ struct RootView: View {
     @State private var inactiveSince: Date?
     @State private var bookmarkSearch = ""
     @State private var pendingRoute: String?
-    @AppStorage("launchBrowserMode") private var launchBrowserMode = false
+    @AppStorage("preferSystemBrowserV4") private var launchBrowserMode = true
     @State private var confirmResetLogin = false
     @State private var didLaunchBrowser = false
     private func tap() { if haptics { UIImpactFeedbackGenerator(style: .soft).impactOccurred() } }
+    private func showBrowser() {
+        guard !appLock || !locked else { pendingRoute = "resume"; return }
+        browser.prepareSystemBrowser()
+        didLaunchBrowser = true
+        panel = .browserMode
+    }
+    private func startPreferredMode() {
+        guard !appLock || !locked else { return }
+        if launchBrowserMode {
+            if !didLaunchBrowser && panel == nil { showBrowser() }
+        } else {
+            browser.startEmbeddedIfNeeded()
+        }
+    }
     private func unlock() {
         guard appLock, !authenticating else { return }
         let context = LAContext()
@@ -509,17 +532,43 @@ struct RootView: View {
         guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else { browser.notice = "Device authentication unavailable."; return }
         authenticating = true
         context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: "Unlock Next Chat") { ok,_ in
-            DispatchQueue.main.async { authenticating = false; if ok { locked = false; if let route = pendingRoute { pendingRoute = nil; handle(route) } } }
+            DispatchQueue.main.async { authenticating = false; if ok { locked = false; if let route = pendingRoute { pendingRoute = nil; handle(route) } else { startPreferredMode() } } }
         }
     }
     private func handle(_ route: String) {
         guard !appLock || !locked else { pendingRoute = route; return }
-        switch route { case "new": browser.newChat(); case "resume": browser.resume(); case "downloads": panel = .downloads; case "prompts": panel = .prompts; default: break }
+        switch route {
+        case "new": if launchBrowserMode { showBrowser() } else { browser.newChat() }
+        case "resume": if launchBrowserMode { showBrowser() } else { browser.resume() }
+        case "downloads": didLaunchBrowser = true; panel = .downloads
+        case "prompts": didLaunchBrowser = true; panel = .prompts
+        default: break
+        }
     }
     var body: some View {
         VStack(spacing: 0) {
             if !browser.online { Text("Offline · reconnect to continue").font(.caption).frame(maxWidth: .infinity).padding(6).background(.orange.opacity(0.15)) }
-            if let popup = browser.popup {
+            if launchBrowserMode {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            Image(systemName: "bubble.left.and.bubble.right.fill").font(.system(size: 30, weight: .semibold))
+                            Text("Next Chat").font(.largeTitle.bold())
+                            Spacer()
+                            Button { panel = .settings } label: { Image(systemName: "gearshape").font(.title2) }.accessibilityLabel("Settings")
+                        }
+                        Text("Your ChatGPT account").font(.title2.bold())
+                        Text("Open your existing conversations, projects and subscription in the secure system browser.").foregroundStyle(.secondary)
+                        Button { tap(); showBrowser() } label: {
+                            Label("Open ChatGPT", systemImage: "arrow.up.right.square").frame(maxWidth: .infinity).padding(.vertical, 10)
+                        }.buttonStyle(.borderedProminent)
+                        Button { panel = .downloads } label: { Label("Native downloads", systemImage: "arrow.down.circle") }
+                        Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
+                        Button { launchBrowserMode = false; browser.startEmbeddedIfNeeded() } label: { Label("Switch to direct mode", systemImage: "rectangle.on.rectangle") }
+                        Text("Direct mode uses a separate session. Google sign-in is supported in Browser mode, not direct mode. Browser downloads and history are managed by the browser and website.").font(.footnote).foregroundStyle(.secondary)
+                    }.padding(24).frame(maxWidth: 600)
+                }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let popup = browser.popup {
                 HStack {
                     Image(systemName: "lock.shield")
                     Text(browser.popupHost).font(.caption)
@@ -530,6 +579,7 @@ struct RootView: View {
             } else {
                 WebSurface(browser: browser).frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            if !launchBrowserMode {
             if browser.loading { ProgressView().progressViewStyle(.linear) }
             Divider()
             HStack(spacing: 18) {
@@ -545,13 +595,14 @@ struct RootView: View {
                     Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
                     Button { browser.web.reload() } label: { Label("Reload", systemImage: "arrow.clockwise") }
                     Button { browser.restartLogin() } label: { Label("Restart sign-in", systemImage: "person.crop.circle.badge.exclamationmark") }
-                    Button { browser.closePopup(); panel = .browserMode } label: { Label("Browser mode", systemImage: "globe") }
-                    Toggle(isOn: $launchBrowserMode) { Label("Launch in browser mode", systemImage: "globe") }
+                    Button { showBrowser() } label: { Label("Browser mode", systemImage: "globe") }
+                    Button { launchBrowserMode = true; showBrowser() } label: { Label("Make Browser mode default", systemImage: "globe") }
                     Button { confirmResetLogin = true } label: { Label("Reset embedded sign-in", systemImage: "arrow.counterclockwise") }
                     Button { browser.safari() } label: { Label("Open in Safari", systemImage: "safari") }
                     Button { panel = .settings } label: { Label("Settings", systemImage: "gearshape") }
                 } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("More")
             }.font(.system(size: 21, weight: .medium)).padding(.horizontal, 22).padding(.vertical, 11).background(.ultraThinMaterial)
+            }
         }
         .preferredColorScheme(appearance == "Dark" ? .dark : appearance == "Light" ? .light : nil)
         .sheet(item: $panel) { sheet in
@@ -585,9 +636,9 @@ struct RootView: View {
         }
         .confirmationDialog("Complete sign-in in one browser", isPresented: $browser.loginHelp, titleVisibility: .visible) {
             Button("Restart sign-in in Next Chat") { browser.restartLogin() }
-            Button("Browser mode (separate session)") { browser.closePopup(); panel = .browserMode }
+            Button("Browser mode (separate session)") { showBrowser() }
             Button("Reset embedded sign-in") { confirmResetLogin = true }
-            Button("Always start in browser mode") { launchBrowserMode = true; browser.closePopup(); panel = .browserMode }
+            Button("Always start in browser mode") { launchBrowserMode = true; showBrowser() }
             Button("Open ChatGPT in Safari") { browser.safariLogin() }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -602,14 +653,15 @@ struct RootView: View {
         }
         .onAppear {
             if !appLock { locked = false }
-            if launchBrowserMode && !appLock && !didLaunchBrowser { didLaunchBrowser = true; panel = .browserMode }
+            if !appLock { startPreferredMode() }
         }
-        .onChange(of: appLock) { value in locked = value; if value { panel = nil; unlock() } }
+        .onChange(of: appLock) { value in locked = value; if value { panel = nil; didLaunchBrowser = false; unlock() } }
+        .onChange(of: launchBrowserMode) { value in if !value { browser.startEmbeddedIfNeeded() } }
         .onChange(of: scenePhase) { phase in
-            if phase == .background { if privacy && panel != .browserMode { panel = nil }; inactiveSince = Date(); if appLock && lockDelay == 0 { panel = nil; locked = true } }
+            if phase == .background { if privacy && panel != .browserMode { panel = nil }; inactiveSince = Date(); if appLock && lockDelay == 0 { panel = nil; locked = true; didLaunchBrowser = false } }
             if phase == .active, let date = inactiveSince {
                 inactiveSince = nil
-                if appLock && Date().timeIntervalSince(date) >= Double(lockDelay) { panel = nil; locked = true }
+                if appLock && Date().timeIntervalSince(date) >= Double(lockDelay) { panel = nil; locked = true; didLaunchBrowser = false }
             }
         }
         .onOpenURL { url in if url.scheme == "nextchat" { handle(url.host ?? "") } }
