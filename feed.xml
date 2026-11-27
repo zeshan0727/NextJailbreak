@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <lastBuildDate>Fri, 27 Nov 2026 15:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 27 Nov 2026 21:00:00 GMT</lastBuildDate>
 <item>
       <title>WorkTweaks 7.0 Adds Save Vault, Diagnostics and Wi-Fi File Sharing</title>
       <link>https://nextjailbreak.com/worktweaks-7-0-save-vault-diagnostics-update/</link>
@@ -124,11 +124,11 @@
     </item>
 
     <item>
-      <title>Tims‑Cooked iOS 27 Probe Finds ANE Reachability, No decmpfs Readback</title>
+      <title>Tims‑Cooked iOS 27 OOL Audit Narrows a Conditional Map Write</title>
       <link>https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</guid>
-      <pubDate>Wed, 25 Nov 2026 21:00:00 GMT</pubDate>
-      <description>A November 25 test on iPhone18,1 and iOS 27.0.1 opens one ANE service but gets no data-bearing decmpfs readback. See the exact limits, device scope and why this is not an exploit.</description>
+      <pubDate>Fri, 27 Nov 2026 21:00:00 GMT</pubDate>
+      <description>The November 26 source audit traces a conditional map-field write and cleanup path on one exact iOS 27.0 build—without proving runtime execution, a UAF, exploit or jailbreak.</description>
       <category>Current Jailbreak Development</category>
     </item>
 

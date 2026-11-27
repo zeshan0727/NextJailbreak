@@ -283,32 +283,32 @@
     },
     {
       "action": "update",
-      "candidate_fingerprint": "jailbreak-development.tims-cooked-ios27-device-probe-batch-2026-11-25",
+      "candidate_fingerprint": "jailbreak-development.tims-cooked-ios27-ool-map-audit-2026-11-26",
       "category": {
         "id": "current-jailbreak-development",
         "label": "Current Jailbreak Development"
       },
       "channel": "scheduled-current-jailbreak-development",
-      "compat": "Bounded signed-app test only: iPhone18,1 / iOS 27.0.1 build 24A446. The self-memory result is userland-only; ANE establishes one service open without a selector call; tested sandbox-local decmpfs routes produced no data-bearing readback and did not prove decoder entry. No claim is made for other devices or firmware. Memory corruption, kernel read/write, exploit and jailbreak availability remain unproven.",
-      "description": "A November 25 test on iPhone18,1 and iOS 27.0.1 opens one ANE service but gets no data-bearing decmpfs readback. See the exact limits, device scope and why this is not an exploit.",
+      "compat": "Exact-build static analysis only: iPhone14,2 / iOS 27.0 build 24A5390f. The November 26 notes trace a conditional OOL map-field write, error cleanup and getter consumer, but do not establish runtime execution, final destruction, a dangling reference, UAF, OOB, kernel read/write, exploit or jailbreak availability. No new IPA was published.",
+      "description": "Tims-Cooked’s November 26 iOS 27 audit traces a conditional OOL map-field write and cleanup path. See the exact build, evidence limits and why no exploit exists.",
       "entry_type": "jailbreak-development",
       "href": "tims-cooked-ios-27-socket-uaf-correction/",
-      "modified_at": "2026-11-26T00:00:00+03:00",
+      "modified_at": "2026-11-28T00:00:00+03:00",
       "name": "Tims Cooked iOS 27 IOSurface research",
       "package": "research.tims-cooked",
       "published_at": "2026-11-21T00:00:13+03:00",
       "quality_target": 9,
-      "release": "November 25, 2026 documentation checkpoint: bounded iPhone18,1 / iOS 27.0.1 device-probe results; no new app binary",
+      "release": "November 26, 2026 documentation checkpoint: exact-build IOSurface OOL marshalling and map-field audit; no new app binary",
       "route": "tims-cooked-ios-27-socket-uaf-correction/",
-      "run_id": "scheduled-2026-11-25T21:00:00Z",
+      "run_id": "scheduled-2026-11-27T21:00:00Z",
       "selection_pool": "scheduled-current-jailbreak-development",
       "slug": "tims-cooked-ios-27-socket-uaf-correction",
-      "source_name": "Official Tims-Cooked November 25 commit, device-probe research note and release notes",
-      "source_page_url": "https://github.com/ramonburf/Tims-Cooked/commit/0b2aefa5df28fbf8a70b2706553566e20d384c7a",
-      "source_url": "https://github.com/ramonburf/Tims-Cooked/blob/0b2aefa5df28fbf8a70b2706553566e20d384c7a/research-updates/2026-11-25-device-probe-batch.md",
-      "title": "Tims‑Cooked iOS 27 Probe Finds ANE Reachability, No decmpfs Readback",
-      "version": "iPhone18,1 / iOS 27.0.1 build 24A446 / bounded signed-app batch / documentation-only checkpoint",
-      "visual_status": "No suitable original source visual documents the November 25 device-probe results. The official checkpoint contains text measurements only; the repository's existing F1 contact sheet and AGXProbe icon are unrelated. No article image or substitute artwork is embedded."
+      "source_name": "Official Tims-Cooked November 26 commit and exact-build OOL audit notes",
+      "source_page_url": "https://github.com/ramonburf/Tims-Cooked/commit/2a79ef1",
+      "source_url": "https://github.com/ramonburf/Tims-Cooked/blob/2a79ef1/research-updates/2026-11-26-ool-status4-map-publication-24A5390f.md",
+      "title": "Tims‑Cooked iOS 27 OOL Audit Narrows a Conditional Map Write",
+      "version": "iPhone14,2 / iOS 27.0 build 24A5390f / exact-build static OOL audit / documentation-only checkpoint",
+      "visual_status": "No suitable original source visual documents the November 26 OOL control-flow and object-lifetime audit. The official checkpoint contains text and disassembly findings only; the repository's F1 contact sheet and AGXProbe icon do not depict this result. No article image or substitute artwork is embedded."
     },
     {
       "action": "create",
@@ -12172,8 +12172,19 @@
       "published_at": "2026-11-27T18:00:00+03:00",
       "run_id": "scheduled-2026-11-27T15:00:00Z",
       "version": "7.0"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.tims-cooked-ios27-ool-map-audit-2026-11-26",
+      "channel": "scheduled-current-jailbreak-development",
+      "href": "tims-cooked-ios-27-socket-uaf-correction/",
+      "package": "research.tims-cooked",
+      "previous_version": "iPhone18,1 / iOS 27.0.1 build 24A446 / bounded signed-app batch / documentation-only checkpoint",
+      "published_at": "2026-11-28T00:00:00+03:00",
+      "run_id": "scheduled-2026-11-27T21:00:00Z",
+      "version": "iPhone14,2 / iOS 27.0 build 24A5390f / exact-build static OOL audit / documentation-only checkpoint"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-27T18:00:00+03:00"
+  "updated_at": "2026-11-28T00:00:00+03:00"
 }
