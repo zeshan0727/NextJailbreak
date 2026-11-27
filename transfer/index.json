@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-25T20:48:02Z",
+  "updatedAt": "2026-11-27T21:47:56Z",
   "files": [
+    {
+      "id": "notify-island-1.0.5-test2-roothide",
+      "name": "Notify Island 1.0.5 — Test 2",
+      "fileName": "NotifyIsland_1.0.5_Test2_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.5",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.5/NotifyIsland_1.0.5_Test2_RootHide.deb",
+      "sha256": "2c9d96706892ad53842b7736ffbb1e99b1b6b6403777376b96c335c3ebf53a59",
+      "sizeBytes": 39724,
+      "notes": "Device-test build; compilation and static package checks only. Isolated Settings bundle; replaces old island-only runtime. Face ID preview, iOS preview policy, landscape and notification delivery require iOS 16.0 device testing. Rollback: remove this test and reinstall Notify Island 1.0.4 with original runtime via Sileo."
+    },
     {
       "id": "nextcast-1.5.21",
       "name": "NexaPlay 1.5.21 — iOS Media Hub, Chromecast and Downloads",
