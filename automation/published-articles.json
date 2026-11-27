@@ -2,6 +2,47 @@
   "entries": [
     {
       "action": "create",
+      "candidate_fingerprint": "individual-update.worktweaks-7.0-save-vault-diagnostics-2026-11-27",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual App Update"
+      },
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "WorkTweaks 7.0 is a no-jailbreak unsigned IPA. The official build table lists partial App Data and Airlift support on specified iOS 18.0 and iOS 26.0–26.7.2 builds, and full support on specified iOS 27 builds through 27.2.1 plus 27.3 beta 1 build 24C5037i. iOS 27.3 beta 2 build 24C5049d and later are unsupported. Battery & Thermal and Jetsam & Crash are blocked on iOS 27.0.1.",
+      "description": "WorkTweaks 7.0 adds Save Vault, diagnostics, Wi-Fi sharing and editors. Check exact iOS 18–27 support, signing methods, removed tools and recovery steps.",
+      "developer": "Adnan",
+      "entry_type": "individual-app-update",
+      "href": "worktweaks-7-0-save-vault-diagnostics-update/",
+      "image": "assets/articles/source-media/worktweaks-7-0-official-icon.webp",
+      "media_alt": "Official blue WorkTweaks icon with Mobile Gestalt and WT Tweaks lettering",
+      "media_credit": "adnan120hz/WorkTweaks — official v7.0 project icon, resized and optimized to WebP without changing the artwork",
+      "media_retrieval_status": "Retrieved the exact official icon-rounded.png from the WorkTweaks v7.0 tag through read-only GitHub access, decoded and visually inspected it, then stored an optimized WebP derivative. The official repository and release expose no project interface screenshot suitable for this update, so no fabricated UI image was used.",
+      "media_source_url": "https://github.com/adnan120hz/WorkTweaks/blob/v7.0/icon-rounded.png",
+      "modified_at": "2026-11-27T18:00:00+03:00",
+      "name": "WorkTweaks",
+      "package": "app.worktweaks",
+      "published_at": "2026-11-27T18:00:00+03:00",
+      "quality_target": 9,
+      "release": "WorkTweaks 7.0 — released 2026-11-27; official release page displays 10:25",
+      "route": "worktweaks-7-0-save-vault-diagnostics-update/",
+      "run_id": "scheduled-2026-11-27T15:00:00Z",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "worktweaks-7-0-save-vault-diagnostics-update",
+      "source_name": "Official WorkTweaks v7.0 release, tagged source, README and commit history",
+      "source_page_url": "https://github.com/adnan120hz/WorkTweaks/releases/tag/v7.0",
+      "source_url": "https://github.com/adnan120hz/WorkTweaks/releases/tag/v7.0",
+      "source_visual_origin": "official-project-app-icon",
+      "source_visual_url": "https://github.com/adnan120hz/WorkTweaks/blob/v7.0/icon-rounded.png",
+      "title": "WorkTweaks 7.0 Adds Save Vault, Diagnostics and Wi-Fi File Sharing",
+      "version": "7.0",
+      "previous_version": "6.1",
+      "additional_source_urls": [
+        "https://github.com/adnan120hz/WorkTweaks/tree/v7.0",
+        "https://github.com/adnan120hz/WorkTweaks/blob/v7.0/README.md"
+      ]
+    },
+    {
+      "action": "create",
       "additional_media": [
         {
           "image": "assets/articles/source-media/marktheme-0-3-3-official-home.webp",
@@ -12121,8 +12162,18 @@
       "published_at": "2026-11-27T12:00:00+03:00",
       "run_id": "scheduled-2026-11-27T09:00:00Z",
       "version": "SnowBoard 1.5.37-Beta4-rootless / LumenBoard 1.2.1 / MarkTheme 0.3.3"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "individual-update.worktweaks-7.0-save-vault-diagnostics-2026-11-27",
+      "channel": "scheduled-individual-tweak-update",
+      "href": "worktweaks-7-0-save-vault-diagnostics-update/",
+      "package": "app.worktweaks",
+      "published_at": "2026-11-27T18:00:00+03:00",
+      "run_id": "scheduled-2026-11-27T15:00:00Z",
+      "version": "7.0"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-27T12:00:00+03:00"
+  "updated_at": "2026-11-27T18:00:00+03:00"
 }
