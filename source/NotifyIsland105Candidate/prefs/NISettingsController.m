@@ -70,7 +70,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     CGFloat h = MAX(1.0,self.bounds.size.height-16), w=MIN(h*.49,self.bounds.size.width-16);
     self.phone.frame=CGRectMake((self.bounds.size.width-w)/2,8,w,h);
     self.cutout.frame=CGRectMake((w-45)/2,9,45,12);
-    BOOL docked=self.position<=.015 && self.shape<2;
+    BOOL docked=self.position<=.015 && (self.shape<2 || self.shape==4);
     CGFloat th=34, minY=24, maxY=MAX(minY,h-th-14);
     CGFloat margin=self.shape==2?17:(self.shape==3?12:9);
     self.tile.frame=docked?CGRectMake(9,7,w-18,52):CGRectMake(margin,minY+(maxY-minY)*self.position,w-2*margin,th);
@@ -104,8 +104,23 @@ static UIColor *NIStyleColor(NSInteger mode) {
             [p addCurveToPoint:CGPointMake(l,10) controlPoint1:CGPointMake(12,16) controlPoint2:CGPointMake(l,16)];
             [p addLineToPoint:CGPointMake(l,7)]; [p addQuadCurveToPoint:CGPointMake(l+7,0) controlPoint:CGPointMake(l,0)]; [p closePath];
         }
+        if (self.shape==4) {
+            CGFloat half=MIN(tw*.5-.5,34.0), left=c-half, right=c+half, top=7, shoulder=18, edge=24, bottom=13;
+            p=[UIBezierPath bezierPath];
+            [p moveToPoint:CGPointMake(left+top,0)]; [p addLineToPoint:CGPointMake(right-top,0)];
+            [p addQuadCurveToPoint:CGPointMake(right,top) controlPoint:CGPointMake(right,0)];
+            [p addCurveToPoint:CGPointMake(tw,edge) controlPoint1:CGPointMake(right,shoulder) controlPoint2:CGPointMake(tw,shoulder)];
+            [p addLineToPoint:CGPointMake(tw,52-bottom)];
+            [p addQuadCurveToPoint:CGPointMake(tw-bottom,52) controlPoint:CGPointMake(tw,52)];
+            [p addLineToPoint:CGPointMake(bottom,52)];
+            [p addQuadCurveToPoint:CGPointMake(0,52-bottom) controlPoint:CGPointMake(0,52)];
+            [p addLineToPoint:CGPointMake(0,edge)];
+            [p addCurveToPoint:CGPointMake(left,top) controlPoint1:CGPointMake(0,shoulder) controlPoint2:CGPointMake(left,shoulder)];
+            [p addQuadCurveToPoint:CGPointMake(left+top,0) controlPoint:CGPointMake(left,0)]; [p closePath];
+        }
         self.tile.layer.cornerRadius=0; self.dockMask.frame=self.tile.bounds; self.dockMask.path=p.CGPath; self.tile.layer.mask=self.dockMask;
-        self.dockCap.frame=CGRectMake(0,0,tw,19);
+        if (self.shape==4) { self.dockCap.frame=CGRectMake(c-25,1,50,14); self.dockCap.layer.cornerRadius=7; }
+        else { self.dockCap.frame=CGRectMake(0,0,tw,19); self.dockCap.layer.cornerRadius=0; }
         self.sample.frame=CGRectMake(7,21,tw-14,29);
     } else {
         self.tile.layer.mask=nil; self.tile.layer.cornerRadius=self.shape==2?17:12;
@@ -235,16 +250,19 @@ static UIColor *NIStyleColor(NSInteger mode) {
     for (NSInteger i=0;i<3;i++) [positions addObject:[self button:titles[i] action:@selector(positionTapped:) tag:i]];
     _positionButtons=[positions copy]; UIStackView *pr=NIRow(positions); pr.distribution=UIStackViewDistributionFillEqually; [_stack addArrangedSubview:pr];
     [_stack addArrangedSubview:NILabel(@"Island style",16,UIFontWeightSemibold)];
-    NSArray *shapeNames=@[@"Classic",@"Fluid",@"Capsule",@"Floating"];
+    NSArray *shapeNames=@[@"Classic",@"Fluid",@"Capsule",@"Floating",@"Full Cover"];
     NSMutableArray *shapes=[NSMutableArray new];
-    for (NSInteger i=0;i<4;i++) {
+    for (NSInteger i=0;i<5;i++) {
         UIButton *b=[self button:shapeNames[i] action:@selector(shapeTapped:) tag:i];
         b.titleLabel.adjustsFontSizeToFitWidth=YES;
         b.titleLabel.minimumScaleFactor=.7;
         [shapes addObject:b];
     }
-    _shapeButtons=[shapes copy]; UIStackView *shapeRow=NIRow(shapes);
+    _shapeButtons=[shapes copy];
+    UIStackView *shapeRow=NIRow([shapes subarrayWithRange:NSMakeRange(0,3)]);
     shapeRow.distribution=UIStackViewDistributionFillEqually; [_stack addArrangedSubview:shapeRow];
+    UIStackView *shapeRow2=NIRow([shapes subarrayWithRange:NSMakeRange(3,2)]);
+    shapeRow2.distribution=UIStackViewDistributionFillEqually; [_stack addArrangedSubview:shapeRow2];
     [_stack addArrangedSubview:NILabel(@"Appearance",16,UIFontWeightSemibold)];
     NSMutableArray *styles=[NSMutableArray new]; NSArray *names=@[@"Black",@"Dark",@"Light",@"Glass"];
     for (NSInteger i=0;i<4;i++) {
@@ -282,7 +300,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     [self addDetail:size title:@"Expanded width" key:@"NotificationIslandExpandedWidth" fallback:@405 min:190 max:425 percentage:NO];
     [self addDetail:size title:@"Expanded height" key:@"NotificationIslandExpandedHeight" fallback:@150 min:125 max:240 percentage:NO];
     [self addDetail:size title:@"Side offset" key:@"NotificationIslandHorizontalOffset" fallback:@0 min:-140 max:140 percentage:NO];
-    UILabel *note=NILabel(@"Classic and Fluid connect to the island; Capsule and Floating sit below it. Double-tap to dismiss. Reply opens a keyboard-ready composer.",12,UIFontWeightRegular);
+    UILabel *note=NILabel(@"Full Cover wraps the entire aperture in one continuous shape. Select it to snap to Island position. Double-tap to dismiss; Reply opens the composer.",12,UIFontWeightRegular);
     note.textColor=UIColor.secondaryLabelColor; [_stack addArrangedSubview:note];
     [self refresh];
     return self;
@@ -317,7 +335,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 - (void)refresh {
     self.positionSlider.value=MIN(1,MAX(0,NIValue(@"NotificationIslandVerticalPosition",@0).floatValue));
     self.preview.mode=MIN(3,MAX(0,NIValue(@"NotificationIslandAppearanceMode",@0).integerValue));
-    self.preview.shape=MIN(3,MAX(0,NIValue(@"NotificationIslandShapeStyle",@1).integerValue));
+    self.preview.shape=MIN(4,MAX(0,NIValue(@"NotificationIslandShapeStyle",@1).integerValue));
     self.durationSlider.value=MIN(30,MAX(2,NIValue(@"NotificationIslandDismissTime",NIValue(@"NotificationIslandDuration",@6)).floatValue));
     self.animationSwitch.on=NIValue(@"NotificationIslandAnimationEnabled",@YES).boolValue;
     self.masterSwitch.on=NIValue(@"NotificationIslandEnabled",@YES).boolValue;
@@ -329,7 +347,15 @@ static UIColor *NIStyleColor(NSInteger mode) {
 - (void)positionChanged:(UISlider *)sender { [self updatePosition]; if (!sender.tracking) [self commitPosition:sender]; }
 - (void)commitPosition:(UISlider *)sender { NIWrite(@"NotificationIslandVerticalPosition",@(sender.value)); }
 - (void)positionTapped:(UIButton *)sender { [self.positionSlider setValue:sender.tag*.5 animated:YES]; [self updatePosition]; [self commitPosition:self.positionSlider]; }
-- (void)shapeTapped:(UIButton *)sender { self.preview.shape=sender.tag; [self updateStyle]; NIWrite(@"NotificationIslandShapeStyle",@(sender.tag)); }
+- (void)shapeTapped:(UIButton *)sender {
+    self.preview.shape=sender.tag;
+    if (sender.tag==4) {
+        [self.positionSlider setValue:0 animated:YES];
+        [self updatePosition];
+        [self commitPosition:self.positionSlider];
+    }
+    [self updateStyle]; NIWrite(@"NotificationIslandShapeStyle",@(sender.tag));
+}
 - (void)styleTapped:(UIButton *)sender { self.preview.mode=sender.tag; [self updateStyle]; NIWrite(@"NotificationIslandAppearanceMode",@(sender.tag)); }
 - (void)durationChanged:(UISlider *)sender { self.durationValue.text=[NSString stringWithFormat:@"%.0f sec",sender.value]; if (!sender.tracking) [self commitDuration:sender]; }
 - (void)commitDuration:(UISlider *)sender { NIWrite(@"NotificationIslandDismissTime",@((NSInteger)lroundf(sender.value))); }
