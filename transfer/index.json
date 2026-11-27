@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T23:25:20Z",
+  "updatedAt": "2026-11-27T23:27:21Z",
   "files": [
+    {
+      "id": "notify-island-1.0.16-composer-studio-roothide",
+      "name": "Notify Island 1.0.16 — Composer Studio",
+      "fileName": "NotifyIsland_1.0.16_ComposerStudio_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.16",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.16/NotifyIsland_1.0.16_ComposerStudio_RootHide.deb",
+      "sha256": "36dcdcaee57ab9600fbf5ac08591204fbbdb7361c415537bb68adb8df9b5ee82",
+      "sizeBytes": 91572,
+      "notes": "Device-test build; removes duplicate visible inline input, uses fixed-layout dedicated composer with native input callbacks, document-range preview and character count. Compact and Expanded settings grouped separately; shared appearance remains shared. Preserves original-request Send and Full Cover. Compile/static checks only; verify iOS 16.0. Rollback: reinstall 1.0.15 Content Text."
+    },
     {
       "id": "next-chat-1.0.0-build1",
       "name": "Next Chat Advanced 1.0.0 - Build 1",
