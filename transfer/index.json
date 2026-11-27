@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T22:54:32Z",
+  "updatedAt": "2026-11-27T22:58:52Z",
   "files": [
+    {
+      "id": "notify-island-1.0.12-full-cover-plus-roothide",
+      "name": "Notify Island 1.0.12 — Full Cover Plus",
+      "fileName": "NotifyIsland_1.0.12_FullCoverPlus_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.12",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.12/NotifyIsland_1.0.12_FullCoverPlus_RootHide.deb",
+      "sha256": "f6e1d55166ffda0f61e0f5c3f646ebfc1b157df9bee7caed9e24e0398848b6cb",
+      "sizeBytes": 86800,
+      "notes": "Device-test build; corrected Full Cover shape uses a single full-width rounded rectangle without a narrow top or shoulders, automatically selects Island position and includes matching preview. Retains dedicated keyboard composer, prior styles, rounding and shuffle. Compile/static checks only; verify on iOS 16.0. Rollback: reinstall 1.0.9 Inline Actions or 1.0.10 if available."
+    },
     {
       "id": "notify-island-1.0.10-island-studio-roothide",
       "name": "Notify Island 1.0.10 — Island Studio",
