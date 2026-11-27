@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>title</key><string>Appearance</string><key>items</key><array>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Style</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Background</string>
+			<key>validTitles</key><array><string>Black</string><string>Dark Blur</string><string>Light Blur</string><string>Glass</string></array>
+			<key>validValues</key><array><integer>0</integer><integer>1</integer><integer>2</integer><integer>3</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandAppearanceMode</string>
+			<key>default</key><integer>0</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Blur</string>
+			<key>validTitles</key><array><string>Soft</string><string>Balanced</string><string>Strong</string></array>
+			<key>validValues</key><array><real>0.25</real><real>0.55</real><real>0.9</real></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandBlurStrength</string>
+			<key>default</key><real>0.55</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Opacity</string>
+			<key>validTitles</key><array><string>Airy</string><string>Balanced</string><string>Solid</string></array>
+			<key>validValues</key><array><real>0.72</real><real>0.86</real><real>0.98</real></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandBackgroundOpacity</string>
+			<key>default</key><real>0.98</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Text Size</string>
+			<key>validTitles</key><array><string>Small</string><string>Normal</string><string>Large</string></array>
+			<key>validValues</key><array><real>0.9</real><real>1.0</real><real>1.15</real></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandTextScale</string>
+			<key>default</key><real>1.0</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+</array></dict></plist>

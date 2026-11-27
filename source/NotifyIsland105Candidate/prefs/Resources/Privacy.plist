@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>title</key><string>Lock Screen &amp; Privacy</string><key>items</key><array>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Notification Previews</string><key>footerText</key><string>Content is hidden when authentication is required. After successful authentication, the preview can appear while the Cover Sheet remains visible. Unknown authentication state keeps content private.</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Notification History</string><key>footerText</key><string>Notifications remain in the original lock-screen list. Dismissing the island does not clear the notification.</string></dict>
+</array></dict></plist>

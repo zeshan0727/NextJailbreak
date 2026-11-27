@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>title</key><string>Notify Island</string><key>items</key><array>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Notify Island</string></dict>
+		<dict>
+			<key>cell</key><string>PSSwitchCell</string>
+			<key>label</key><string>Enabled</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandEnabled</string>
+			<key>default</key><true/>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+<dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Preview Notification</string><key>action</key><string>testDynamicIslandSuite:</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Settings</string></dict>
+<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Appearance</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Appearance</string></dict>
+<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Notification Behavior</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Behavior</string></dict>
+<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Lock Screen &amp; Privacy</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Privacy</string></dict>
+<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Landscape Mode</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Landscape</string></dict>
+<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Advanced Settings</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Advanced</string></dict>
+</array></dict></plist>

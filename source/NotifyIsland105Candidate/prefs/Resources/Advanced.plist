@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>title</key><string>Advanced Settings</string><key>items</key><array>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Compact Card</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Width</string>
+			<key>validTitles</key><array><string>Slim</string><string>Default</string><string>Wide</string></array>
+			<key>validValues</key><array><integer>285</integer><integer>330</integer><integer>390</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandCompactWidth</string>
+			<key>default</key><integer>330</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Height</string>
+			<key>validTitles</key><array><string>Low</string><string>Default</string><string>Tall</string></array>
+			<key>validValues</key><array><integer>58</integer><integer>68</integer><integer>82</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandCompactHeight</string>
+			<key>default</key><integer>68</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Position</string>
+			<key>validTitles</key><array><string>High</string><string>Island</string><string>Low</string></array>
+			<key>validValues</key><array><integer>34</integer><integer>48</integer><integer>66</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandCompactY</string>
+			<key>default</key><integer>48</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Expanded Card</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Width</string>
+			<key>validTitles</key><array><string>Compact</string><string>Default</string><string>Edge</string></array>
+			<key>validValues</key><array><integer>340</integer><integer>405</integer><integer>425</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandExpandedWidth</string>
+			<key>default</key><integer>405</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Height</string>
+			<key>validTitles</key><array><string>Short</string><string>Default</string><string>Roomy</string></array>
+			<key>validValues</key><array><integer>130</integer><integer>150</integer><integer>185</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandExpandedHeight</string>
+			<key>default</key><integer>150</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Position</string>
+			<key>validTitles</key><array><string>High</string><string>Island</string><string>Low</string></array>
+			<key>validValues</key><array><integer>34</integer><integer>48</integer><integer>66</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandExpandedY</string>
+			<key>default</key><integer>48</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Alignment</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Horizontal Offset</string>
+			<key>validTitles</key><array><string>Left</string><string>Center</string><string>Right</string></array>
+			<key>validValues</key><array><integer>-28</integer><integer>0</integer><integer>28</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandHorizontalOffset</string>
+			<key>default</key><integer>0</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+</array></dict></plist>

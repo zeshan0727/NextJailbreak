@@ -1,0 +1,49 @@
+name: Notify Island 1.0.5 candidate build
+on:
+  push:
+    branches: [agent/notify-island-1.0.5-candidate]
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: brew install dpkg ldid xz
+      - name: Prepare and lint sources
+        run: |
+          set -euo pipefail
+          P=source/NotifyIsland105Candidate
+          python3 "$P/compile-fix.py"
+          python3 "$P/layout-date.py"
+          python3 "$P/prepare-v450.py"
+          python3 "$P/prepare-v105.py"
+          for f in "$P"/prefs/Resources/*.plist "$P"/NextAuraNotificationIsland.plist; do plutil -lint "$f"; done
+          grep -q '1.0.5 candidate loaded' "$P/NotificationIsland.xm"
+      - name: Compile RootHide candidate
+        run: |
+          set -euo pipefail
+          P="$GITHUB_WORKSPACE/source/NotifyIsland105Candidate"
+          git init "$RUNNER_TEMP/theos-rh"
+          git -C "$RUNNER_TEMP/theos-rh" remote add origin https://github.com/roothide/theos.git
+          git -C "$RUNNER_TEMP/theos-rh" fetch --depth 1 origin 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
+          git -C "$RUNNER_TEMP/theos-rh" checkout --detach 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
+          git -C "$RUNNER_TEMP/theos-rh" submodule update --init --recursive --depth 1
+          export THEOS="$RUNNER_TEMP/theos-rh" THEOS_PACKAGE_SCHEME=roothide
+          mkdir -p build-candidate
+          make -C "$P" clean all FINALPACKAGE=1 2>&1 | tee build-candidate/runtime.log
+          make -C "$P/prefs" clean all FINALPACKAGE=1 2>&1 | tee build-candidate/preferences.log
+          D="$(find "$P/.theos" -type f -name NextAuraNotificationIsland.dylib -print | sort | tail -1)"
+          test -n "$D"
+          cp "$D" build-candidate/NextAuraNotificationIsland.dylib
+          find "$P/prefs/.theos" -type f -name NotifyIslandPrefs -print | head -1 | xargs -I '{}' cp '{}' build-candidate/NotifyIslandPrefs
+          test -s build-candidate/NotifyIslandPrefs
+          cp "$P/NotificationIsland.xm" build-candidate/
+          cp -R "$P/prefs/Resources" build-candidate/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: NotifyIsland-105-CANDIDATE-NOT-INSTALLABLE
+          path: build-candidate/

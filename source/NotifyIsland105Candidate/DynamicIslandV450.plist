@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>title</key>
+	<string>Notification Island</string>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key><string>PSGroupCell</string>
+			<key>label</key><string>Notification Island</string>
+			<key>footerText</key><string>A compact notification card that keeps private message content hidden while your iPhone is locked.</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSwitchCell</string>
+			<key>label</key><string>Enable Notification Island</string>
+			<key>description</key><string>Replaces the normal top banner with the NextAura notification card.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandEnabled</string>
+			<key>default</key><true/>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+
+		<dict>
+			<key>cell</key><string>PSGroupCell</string>
+			<key>label</key><string>Appearance</string>
+			<key>footerText</key><string>Quick presets make the card easy to tune without dealing with raw visual controls.</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Background Style</string>
+			<key>validTitles</key><array><string>Black</string><string>Dark Blur</string><string>Light Blur</string><string>Glass</string></array>
+			<key>validValues</key><array><integer>0</integer><integer>1</integer><integer>2</integer><integer>3</integer></array>
+			<key>description</key><string>Choose stock black, dark blur, light blur, or a thin glass material.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandAppearanceMode</string>
+			<key>default</key><integer>0</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Blur Strength</string>
+			<key>validTitles</key><array><string>Soft</string><string>Balanced</string><string>Strong</string></array>
+			<key>validValues</key><array><real>0.25</real><real>0.55</real><real>0.9</real></array>
+			<key>description</key><string>Controls how dense the blur material looks behind the notification.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandBlurStrength</string>
+			<key>default</key><real>0.55</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Surface Density</string>
+			<key>validTitles</key><array><string>Airy</string><string>Balanced</string><string>Solid</string></array>
+			<key>validValues</key><array><real>0.72</real><real>0.86</real><real>0.98</real></array>
+			<key>description</key><string>Adjusts the black or tint density layered over the selected background.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandBackgroundOpacity</string>
+			<key>default</key><real>0.98</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+
+		<dict>
+			<key>cell</key><string>PSGroupCell</string>
+			<key>label</key><string>Timing</string>
+			<key>footerText</key><string>Auto-dismiss only closes this presentation; it does not delete the notification from Notification Center.</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Auto Dismiss</string>
+			<key>validTitles</key><array><string>3s</string><string>5s</string><string>8s</string><string>12s</string><string>20s</string></array>
+			<key>validValues</key><array><integer>3</integer><integer>5</integer><integer>8</integer><integer>12</integer><integer>20</integer></array>
+			<key>description</key><string>Sets how long the Notification Island stays on screen before hiding itself.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandDismissTime</string>
+			<key>default</key><integer>8</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+
+		<dict>
+			<key>cell</key><string>PSGroupCell</string>
+			<key>label</key><string>Compact Card</string>
+			<key>footerText</key><string>These presets control the small notification shown before you tap to expand it.</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Width</string>
+			<key>validTitles</key><array><string>Slim</string><string>Default</string><string>Wide</string></array>
+			<key>validValues</key><array><integer>285</integer><integer>330</integer><integer>390</integer></array>
+			<key>description</key><string>Changes the compact card width while keeping it centered safely on screen.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandCompactWidth</string>
+			<key>default</key><integer>330</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Height</string>
+			<key>validTitles</key><array><string>Low</string><string>Default</string><string>Tall</string></array>
+			<key>validValues</key><array><integer>58</integer><integer>68</integer><integer>82</integer></array>
+			<key>description</key><string>Changes the compact card height and the amount of message text space.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandCompactHeight</string>
+			<key>default</key><integer>68</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Vertical Position</string>
+			<key>validTitles</key><array><string>High</string><string>Island</string><string>Low</string></array>
+			<key>validValues</key><array><integer>34</integer><integer>48</integer><integer>66</integer></array>
+			<key>description</key><string>Moves the compact card higher or lower around the Dynamic Island area.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandCompactY</string>
+			<key>default</key><integer>48</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+
+		<dict>
+			<key>cell</key><string>PSGroupCell</string>
+			<key>label</key><string>Expanded Card</string>
+			<key>footerText</key><string>Expanded mode shows the full title, message and the Open / Dismiss actions.</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Width</string>
+			<key>validTitles</key><array><string>Compact</string><string>Default</string><string>Edge</string></array>
+			<key>validValues</key><array><integer>340</integer><integer>405</integer><integer>425</integer></array>
+			<key>description</key><string>Sets how wide the expanded notification becomes after you tap it.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandExpandedWidth</string>
+			<key>default</key><integer>405</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Height</string>
+			<key>validTitles</key><array><string>Short</string><string>Default</string><string>Roomy</string></array>
+			<key>validValues</key><array><integer>130</integer><integer>150</integer><integer>185</integer></array>
+			<key>description</key><string>Controls vertical space for message content and action buttons.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandExpandedHeight</string>
+			<key>default</key><integer>150</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Vertical Position</string>
+			<key>validTitles</key><array><string>High</string><string>Island</string><string>Low</string></array>
+			<key>validValues</key><array><integer>34</integer><integer>48</integer><integer>66</integer></array>
+			<key>description</key><string>Moves the expanded card higher or lower without changing its size.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandExpandedY</string>
+			<key>default</key><integer>48</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+
+		<dict>
+			<key>cell</key><string>PSGroupCell</string>
+			<key>label</key><string>Finishing</string>
+			<key>footerText</key><string>Small presentation choices for alignment and readability.</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Horizontal Position</string>
+			<key>validTitles</key><array><string>Left</string><string>Center</string><string>Right</string></array>
+			<key>validValues</key><array><integer>-28</integer><integer>0</integer><integer>28</integer></array>
+			<key>description</key><string>Fine-tunes the whole card slightly left, centered, or right.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandHorizontalOffset</string>
+			<key>default</key><integer>0</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Text Size</string>
+			<key>validTitles</key><array><string>Small</string><string>Normal</string><string>Large</string></array>
+			<key>validValues</key><array><real>0.9</real><real>1.0</real><real>1.15</real></array>
+			<key>description</key><string>Changes notification text size without altering the card dimensions.</string>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandTextScale</string>
+			<key>default</key><real>1.0</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		</dict>
+
+		<dict>
+			<key>cell</key><string>PSGroupCell</string>
+			<key>label</key><string>Live Preview</string>
+			<key>footerText</key><string>Open one preview, then change any option above. The visible test card updates immediately without respring.</string>
+		</dict>
+		<dict>
+			<key>cell</key><string>PSButtonCell</string>
+			<key>label</key><string>Test Notification Island</string>
+			<key>action</key><string>testDynamicIslandSuite:</string>
+			<key>description</key><string>Shows a local Messages-style sample so you can tune the card before waiting for a real notification.</string>
+		</dict>
+	</array>
+</dict>
+</plist>
