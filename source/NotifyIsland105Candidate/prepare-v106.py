@@ -127,6 +127,7 @@ r'''        if (NANAnimating) {
             NANIslandView.userInteractionEnabled = YES;
         }
         if (!CGRectEqualToRect(target, NANIslandView.frame)) {''')
+rep("scheduledTimerWithTimeInterval:60.0 repeats:NO block:^(__unused NSTimer *timer) { NANAnimateDismiss(); }","scheduledTimerWithTimeInterval:NANDismissInterval() repeats:NO block:^(__unused NSTimer *timer) { NANAnimateDismiss(); }")
 rep("1.0.5 candidate loaded","1.0.6 Visual Studio loaded")
 p.write_text(s)
 print("Prepared Notify Island 1.0.6 Visual Studio runtime.")
