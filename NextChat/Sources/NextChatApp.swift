@@ -158,7 +158,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         let sanitized = (suggestedFilename as NSString).lastPathComponent
         let name = sanitized.isEmpty || sanitized == "." || sanitized == ".." ? "Download" : sanitized
         var dest = folder.appendingPathComponent(name)
-        if fm.fileExists(atPath: dest.path) || destinations.values.contains(dest) { dest = folder.appendingPathComponent(UUID().uuidString.prefix(8) + "-" + name) }
+        if fm.fileExists(atPath: dest.path) || destinations.values.contains(dest) { dest = folder.appendingPathComponent(String(UUID().uuidString.prefix(8)) + "-" + name) }
         destinations[id] = dest
         if let i = active.firstIndex(where: { $0.id == id }) { active[i].name = name }
         completionHandler(dest)
@@ -418,13 +418,13 @@ struct RootView: View {
                 Button { tap(); browser.newChat() } label: { Image(systemName: "square.and.pencil") }.accessibilityLabel("New chat")
                 Button { tap(); panel = .downloads } label: { Image(systemName: "arrow.down.circle") }.accessibilityLabel("Downloads")
                 Menu {
-                    Button("Resume conversation", systemImage: "clock") { browser.resume() }
-                    Button("Save current page", systemImage: "bookmark") { browser.savePage() }
-                    Button("Saved conversations", systemImage: "books.vertical") { panel = .bookmarks }
-                    Button("Prompt tools", systemImage: "text.bubble") { panel = .prompts }
-                    Button("Reload", systemImage: "arrow.clockwise") { browser.web.reload() }
-                    Button("Open in Safari", systemImage: "safari") { browser.safari() }
-                    Button("Settings", systemImage: "gearshape") { panel = .settings }
+                    Button { browser.resume() } label: { Label("Resume conversation", systemImage: "clock") }
+                    Button { browser.savePage() } label: { Label("Save current page", systemImage: "bookmark") }
+                    Button { panel = .bookmarks } label: { Label("Saved conversations", systemImage: "books.vertical") }
+                    Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
+                    Button { browser.web.reload() } label: { Label("Reload", systemImage: "arrow.clockwise") }
+                    Button { browser.safari() } label: { Label("Open in Safari", systemImage: "safari") }
+                    Button { panel = .settings } label: { Label("Settings", systemImage: "gearshape") }
                 } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("More")
             }.font(.system(size: 21, weight: .medium)).padding(.horizontal, 22).padding(.vertical, 11).background(.ultraThinMaterial)
         }
@@ -461,7 +461,7 @@ struct RootView: View {
         .onAppear { if !appLock { locked = false } }
         .onChange(of: appLock) { value in locked = value; if value { panel = nil; unlock() } }
         .onChange(of: scenePhase) { phase in
-            if phase == .background { inactiveSince = Date(); if appLock && lockDelay == 0 { panel = nil; locked = true } }
+            if phase == .background { if privacy { panel = nil }; inactiveSince = Date(); if appLock && lockDelay == 0 { panel = nil; locked = true } }
             if phase == .active, let date = inactiveSince {
                 inactiveSince = nil
                 if appLock && Date().timeIntervalSince(date) >= Double(lockDelay) { panel = nil; locked = true }
