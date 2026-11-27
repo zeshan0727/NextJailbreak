@@ -11,7 +11,7 @@
 			<key>key</key><string>NotificationIslandCompactWidth</string>
 			<key>default</key><integer>330</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
 			<key>label</key><string>Height</string>
@@ -21,7 +21,7 @@
 			<key>key</key><string>NotificationIslandCompactHeight</string>
 			<key>default</key><integer>68</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
 			<key>label</key><string>Position</string>
@@ -31,7 +31,7 @@
 			<key>key</key><string>NotificationIslandCompactY</string>
 			<key>default</key><integer>48</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Expanded Card</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
@@ -42,7 +42,7 @@
 			<key>key</key><string>NotificationIslandExpandedWidth</string>
 			<key>default</key><integer>405</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
 			<key>label</key><string>Height</string>
@@ -52,7 +52,7 @@
 			<key>key</key><string>NotificationIslandExpandedHeight</string>
 			<key>default</key><integer>150</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
 			<key>label</key><string>Position</string>
@@ -62,7 +62,7 @@
 			<key>key</key><string>NotificationIslandExpandedY</string>
 			<key>default</key><integer>48</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Alignment</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
@@ -73,5 +73,5 @@
 			<key>key</key><string>NotificationIslandHorizontalOffset</string>
 			<key>default</key><integer>0</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 </array></dict></plist>

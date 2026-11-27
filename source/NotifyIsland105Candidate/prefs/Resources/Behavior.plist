@@ -12,5 +12,5 @@
 			<key>key</key><string>NotificationIslandDismissTime</string>
 			<key>default</key><integer>8</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 </array></dict></plist>

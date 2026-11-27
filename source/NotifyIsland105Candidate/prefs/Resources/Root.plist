@@ -9,7 +9,7 @@
 			<key>key</key><string>NotificationIslandEnabled</string>
 			<key>default</key><true/>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 <dict><key>cell</key><string>PSButtonCell</string><key>label</key><string>Preview Notification</string><key>action</key><string>testDynamicIslandSuite:</string></dict>
 <dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Settings</string></dict>
 <dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Appearance</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Appearance</string></dict>

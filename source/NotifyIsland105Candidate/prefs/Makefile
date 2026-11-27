@@ -1,5 +1,5 @@
 ARCHS = arm64 arm64e
-TARGET = iphone:clang:latest:16.0
+TARGET = iphone:clang:16.5:16.0
 THEOS_PACKAGE_SCHEME ?= roothide
 include $(THEOS)/makefiles/common.mk
 BUNDLE_NAME = NotifyIslandPrefs

@@ -11,7 +11,7 @@
 			<key>key</key><string>NotificationIslandAppearanceMode</string>
 			<key>default</key><integer>0</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
 			<key>label</key><string>Blur</string>
@@ -21,7 +21,7 @@
 			<key>key</key><string>NotificationIslandBlurStrength</string>
 			<key>default</key><real>0.55</real>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
 			<key>label</key><string>Opacity</string>
@@ -31,7 +31,7 @@
 			<key>key</key><string>NotificationIslandBackgroundOpacity</string>
 			<key>default</key><real>0.98</real>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 		<dict>
 			<key>cell</key><string>PSSegmentCell</string>
 			<key>label</key><string>Text Size</string>
@@ -41,5 +41,5 @@
 			<key>key</key><string>NotificationIslandTextScale</string>
 			<key>default</key><real>1.0</real>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
-		</dict>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 </array></dict></plist>
