@@ -28,7 +28,7 @@ struct LocalFile: Identifiable {
 }
 struct PendingDownload: Identifiable {
     let id: ObjectIdentifier
-    let name: String
+    var name: String
     var progress: Double
 }
 final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
