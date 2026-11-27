@@ -1,0 +1,55 @@
+{
+  "class": "DepictionTabView",
+  "tintColor": "#13B8B3",
+  "headerImage": "https://nextjailbreak.com/assets/brand/next-jailbreak-mark-1024.png",
+  "tabs": [
+    {
+      "class": "DepictionStackView",
+      "tabname": "Details",
+      "views": [
+        {
+          "class": "DepictionHeaderView",
+          "title": "Notify Island"
+        },
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "**BY NEXT JAILBREAK**\n\nCustom Dynamic Island notifications with five shapes: Classic, Fluid, Capsule, Floating and Full Cover.\n\n- Live reply composer for supported original notification actions\n- Separate Compact and Expanded settings\n- Adjustable blur, opacity, rounding, animation and positioning\n- Shuffled local test notifications\n\nRootHide only. Tested on iOS 16.0; other devices and OS versions may differ."
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Version",
+          "text": "1.0.17"
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Developer",
+          "text": "Next Jailbreak"
+        },
+        {
+          "class": "DepictionTableTextView",
+          "title": "Compatibility",
+          "text": "RootHide · iOS 16+"
+        },
+        {
+          "class": "DepictionTableButtonView",
+          "title": "Official website",
+          "action": "https://nextjailbreak.com/depictions/notify-island.html"
+        }
+      ]
+    },
+    {
+      "class": "DepictionStackView",
+      "tabname": "Changelog",
+      "views": [
+        {
+          "class": "DepictionHeaderView",
+          "title": "1.0.17"
+        },
+        {
+          "class": "DepictionMarkdownView",
+          "markdown": "First public release with Next Jailbreak branding. Preserves the user-approved 1.0.16 runtime, live reply composer, grouped settings, and Full Cover."
+        }
+      ]
+    }
+  ]
+}

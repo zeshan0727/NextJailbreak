@@ -1,9 +1,9 @@
 Origin: Next Jailbreak
 Label: Next Jailbreak Repo
 Suite: stable
-Version: 1.1.16
+Version: 1.1.17
 Codename: nextsolution
-Date: Sat, 29 Aug 2026 19:53:08 UTC
+Date: Fri, 27 Nov 2026 23:41:59 GMT
 Architectures: iphoneos-arm64 iphoneos-arm64e
 Components: main
 Description: Next Jailbreak applications and premium tweaks for RootHide and rootless jailbreaks
