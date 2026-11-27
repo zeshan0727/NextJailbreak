@@ -1,0 +1,92 @@
+name: Publish Next Chat Build 1 to NS Transfer
+on:
+  push:
+    branches: [agent/next-chat-advanced]
+    paths: ['.github/workflows/publish-next-chat-build1.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: next-chat-build1-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/download-artifact@v4
+        with:
+          name: NextChat-Advanced-Build1
+          run-id: '46081472206'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/nextchat-input
+      - name: Verify and ad-hoc sign existing test build
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/nextchat-input"
+          shasum -a 256 -c NextChat_1.0.0_Build1.sha256
+          unzip -tqq NextChat_1.0.0_Build1.ipa
+          mkdir -p "$RUNNER_TEMP/nextchat-package"
+          ditto -x -k NextChat_1.0.0_Build1.ipa "$RUNNER_TEMP/nextchat-package"
+          cd "$RUNNER_TEMP/nextchat-package"
+          APP=Payload/NextChat.app
+          test -s "$APP/NextChat"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = com.nextsolution.chat
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = 1.0.0
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = 1
+          codesign --force --sign - --timestamp=none --generate-entitlement-der "$APP/PlugIns/NextChatWidgets.appex"
+          codesign --force --sign - --timestamp=none --generate-entitlement-der "$APP"
+          codesign --verify --deep --strict "$APP"
+          zip -qry "$RUNNER_TEMP/NextChat_1.0.0_Build1.ipa" Payload
+          unzip -tqq "$RUNNER_TEMP/NextChat_1.0.0_Build1.ipa"
+      - name: Publish verified IPA and index entry
+        run: |
+          set -euo pipefail
+          RELEASE_DIR=transfer/files/NextChat/1.0.0
+          FILE_NAME=NextChat_1.0.0_Build1.ipa
+          for ATTEMPT in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p "$RELEASE_DIR"
+            cp "$RUNNER_TEMP/$FILE_NAME" "$RELEASE_DIR/$FILE_NAME"
+            (cd "$RELEASE_DIR" && shasum -a 256 "$FILE_NAME" > "$FILE_NAME.sha256")
+            export SHA256=$(shasum -a 256 "$RELEASE_DIR/$FILE_NAME" | awk '{print $1}')
+            export SIZE=$(stat -f%z "$RELEASE_DIR/$FILE_NAME")
+            python3 - <<'PY'
+          import os,json
+          from datetime import datetime,timezone
+          from pathlib import Path
+          p=Path('transfer/index.json')
+          d=json.loads(p.read_text())
+          entry={
+            'id':'next-chat-1.0.0-build1',
+            'name':'Next Chat Advanced 1.0.0 - Build 1',
+            'fileName':'NextChat_1.0.0_Build1.ipa',
+            'type':'ipa',
+            'platform':'iOS 16+ / TrollStore (ad-hoc signed)',
+            'version':'1.0.0 (1)',
+            'url':'https://nextjailbreak.com/transfer/files/NextChat/1.0.0/NextChat_1.0.0_Build1.ipa',
+            'sha256':os.environ['SHA256'],
+            'sizeBytes':int(os.environ['SIZE']),
+            'notes':'Unofficial ChatGPT web companion. Compiled test build; physical-device login and widgets not verified. Not Apple Distribution signed.'
+          }
+          d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
+          d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
+          p.write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n')
+          PY
+            python3 -m json.tool transfer/index.json >/dev/null
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -f "$RELEASE_DIR/$FILE_NAME" "$RELEASE_DIR/$FILE_NAME.sha256" transfer/index.json
+            if ! git diff --cached --quiet; then git commit -m 'Publish Next Chat Advanced 1.0.0 Build 1 IPA'; fi
+            if git push origin HEAD:main; then
+              echo "Published: https://nextjailbreak.com/$RELEASE_DIR/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          done
+          exit 1
