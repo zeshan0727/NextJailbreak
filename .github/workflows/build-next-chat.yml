@@ -1,0 +1,54 @@
+name: Build Next Chat Advanced
+on:
+  workflow_dispatch:
+  push:
+    branches: [agent/next-chat-advanced]
+    paths: ['NextChat/**', '.github/workflows/build-next-chat.yml']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: |
+          brew install xcodegen
+          python3 -m venv "$RUNNER_TEMP/nextchat-venv"
+          "$RUNNER_TEMP/nextchat-venv/bin/pip" install Pillow
+      - name: Generate Xcode project and icon
+        working-directory: NextChat
+        run: |
+          "$RUNNER_TEMP/nextchat-venv/bin/python" generate_icon.py
+          xcodegen generate
+      - name: Compile app and widget for iOS 16
+        working-directory: NextChat
+        run: |
+          set -o pipefail
+          xcodebuild -project NextChat.xcodeproj -scheme NextChat -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tee "$RUNNER_TEMP/nextchat-build.log"
+      - name: Package unsigned test IPA
+        working-directory: NextChat
+        run: |
+          APP=build/Build/Products/Release-iphoneos/NextChat.app
+          test -f "$APP/NextChat"
+          test -d "$APP/PlugIns/NextChatWidgets.appex"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload NextChat_1.0.0_Build1.ipa
+          shasum -a 256 NextChat_1.0.0_Build1.ipa > NextChat_1.0.0_Build1.sha256
+      - name: Upload test package
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextChat-Advanced-Build1
+          path: |
+            NextChat/NextChat_1.0.0_Build1.ipa
+            NextChat/NextChat_1.0.0_Build1.sha256
+          if-no-files-found: error
+      - name: Upload compile log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NextChat-compile-log
+          path: ${{ runner.temp }}/nextchat-build.log
+          if-no-files-found: ignore
