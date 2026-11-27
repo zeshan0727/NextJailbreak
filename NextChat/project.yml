@@ -1,0 +1,59 @@
+name: NextChat
+options:
+  bundleIdPrefix: com.nextsolution
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    TARGETED_DEVICE_FAMILY: "1,2"
+targets:
+  NextChat:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+      - Assets.xcassets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.chat
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Next Chat
+        UILaunchScreen: {}
+        NSFaceIDUsageDescription: Authenticate to unlock Next Chat.
+        NSMicrophoneUsageDescription: Dictate a draft or use supported website audio.
+        NSSpeechRecognitionUsageDescription: Transcribe a draft you choose to dictate.
+        NSCameraUsageDescription: Attach a photo when requested.
+        NSPhotoLibraryUsageDescription: Choose photos to attach.
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        CFBundleURLTypes:
+          - CFBundleURLName: com.nextsolution.chat
+            CFBundleURLSchemes: [nextchat]
+    dependencies:
+      - target: NextChatWidgets
+        embed: true
+  NextChatWidgets:
+    type: app-extension
+    platform: iOS
+    sources: [Widgets]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nextsolution.chat.widgets
+        APPLICATION_EXTENSION_API_ONLY: YES
+    info:
+      path: WidgetInfo.plist
+      properties:
+        CFBundleDisplayName: Next Chat Widgets
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+schemes:
+  NextChat:
+    build:
+      targets:
+        NextChat: all
