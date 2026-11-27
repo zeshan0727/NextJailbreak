@@ -230,7 +230,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     brandIcon.contentMode=UIViewContentModeScaleAspectFit; brandIcon.translatesAutoresizingMaskIntoConstraints=NO;
     UILabel *product=NILabel(@"Notify Island",23,UIFontWeightBold); product.textColor=UIColor.whiteColor;
     UILabel *publisher=NILabel(@"BY NEXT JAILBREAK",11,UIFontWeightBold); publisher.textColor=[UIColor colorWithRed:.30 green:.87 blue:.83 alpha:1];
-    UILabel *release=NILabel(@"Version 1.0.17 - RootHide",12,UIFontWeightMedium); release.textColor=[UIColor colorWithWhite:.72 alpha:1];
+    UILabel *release=NILabel(@"Version 1.0.18 - RootHide",12,UIFontWeightMedium); release.textColor=[UIColor colorWithWhite:.72 alpha:1];
     UIStackView *brandText=[[UIStackView alloc] initWithArrangedSubviews:@[product,publisher,release]];
     brandText.axis=UILayoutConstraintAxisVertical; brandText.spacing=3;
     UIStackView *brandRow=NIRow(@[brandIcon,brandText]); brandRow.translatesAutoresizingMaskIntoConstraints=NO;
