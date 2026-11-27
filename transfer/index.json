@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T23:08:58Z",
+  "updatedAt": "2026-11-27T23:18:57Z",
   "files": [
+    {
+      "id": "notify-island-1.0.15-content-text-roothide",
+      "name": "Notify Island 1.0.15 — Content Text",
+      "fileName": "NotifyIsland_1.0.15_ContentText_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.15",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.15/NotifyIsland_1.0.15_ContentText_RootHide.deb",
+      "sha256": "4bf52c606f26f6809205f1e3fb847bf1f854e44b4d746f6d5b5e25712e78b6e6",
+      "sizeBytes": 94792,
+      "notes": "Device-test build; independent in-field bitmap renderer observes the actual reply buffer, with active-composer-only timer fallback; adds compact message-body size 75–150% only; app name, icon and timestamp stay fixed. Preserves working keyboard, original-request Send, alignment, Full Cover and shuffle. Compile/static checks only; verify on iOS 16.0. Rollback: reinstall 1.0.13 Reply Visibility."
+    },
     {
       "id": "notify-island-1.0.13-reply-visibility-roothide",
       "name": "Notify Island 1.0.13 — Reply Visibility",
