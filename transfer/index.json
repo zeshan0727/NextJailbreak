@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T22:04:04Z",
+  "updatedAt": "2026-11-27T22:15:51Z",
   "files": [
+    {
+      "id": "notify-island-1.0.7-island-integration-roothide",
+      "name": "Notify Island 1.0.7 — Island Integration",
+      "fileName": "NotifyIsland_1.0.7_IslandIntegration_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.7",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.7/NotifyIsland_1.0.7_IslandIntegration_RootHide.deb",
+      "sha256": "de68dc6e6f60a954b0df1ffd640e1142d5d76d538138d62d39bbad2b7e5dacdb",
+      "sizeBytes": 55072,
+      "notes": "Device-test build; single-page Studio settings with master switch on top, aperture-aware docked card and protected text layout. Preserves 1.0.6 delivery and animation. Compile and static checks only; test on iOS 16.0 RootHide. Rollback: reinstall 1.0.6 Visual Studio."
+    },
     {
       "id": "notify-island-1.0.6-visual-studio-roothide",
       "name": "Notify Island 1.0.6 — Visual Studio",
