@@ -1,4 +1,4 @@
-name: Notify Island 1.0.13 Reply Visibility build
+name: Notify Island 1.0.14 Live Draft build
 on:
   push:
     branches: [agent/notify-island-1.0.5-candidate]
@@ -34,9 +34,10 @@ jobs:
           python3 "$P/prepare-v111.py"
           python3 "$P/prepare-v112.py"
           python3 "$P/prepare-v113.py"
+          python3 "$P/prepare-v114.py"
           python3 -m py_compile "$P/package-test.py" "$P/publish-test.py"
           for f in "$P"/prefs/Resources/*.plist "$P"/NextAuraNotificationIsland.plist; do plutil -lint "$f"; done
-          grep -q '1.0.13 Reply Visibility loaded' "$P/NotificationIsland.xm"
+          grep -q '1.0.14 Live Draft loaded' "$P/NotificationIsland.xm"
       - name: Compile RootHide candidate with iOS 16.5 Preferences SDK
         run: |
           set -euo pipefail
@@ -72,12 +73,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: NotifyIsland-113-ReplyVisibility-RootHide
+          name: NotifyIsland-114-LiveDraft-RootHide
           path: build-candidate/
       - name: Publish verified device-test build to NS Transfer
         run: |
           set -euo pipefail
-          DEB="$GITHUB_WORKSPACE/build-candidate/NotifyIsland_1.0.13_ReplyVisibility_RootHide.deb"
+          DEB="$GITHUB_WORKSPACE/build-candidate/NotifyIsland_1.0.14_LiveDraft_RootHide.deb"
           test -s "$DEB"
           git fetch origin main
           git worktree add --detach "$RUNNER_TEMP/ni-transfer" origin/main
@@ -85,7 +86,7 @@ jobs:
           cd "$RUNNER_TEMP/ni-transfer"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add transfer/index.json transfer/files/NotifyIsland/1.0.13/NotifyIsland_1.0.13_ReplyVisibility_RootHide.deb
+          git add transfer/index.json transfer/files/NotifyIsland/1.0.14/NotifyIsland_1.0.14_LiveDraft_RootHide.deb
           git diff --cached --quiet && exit 0
-          git commit -m 'Publish Notify Island 1.0.13 Reply Visibility RootHide to NS Transfer'
+          git commit -m 'Publish Notify Island 1.0.14 Live Draft RootHide to NS Transfer'
           git push origin HEAD:main
