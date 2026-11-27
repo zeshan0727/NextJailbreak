@@ -277,7 +277,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     UIStackView *look=[self detailGroup:@"Appearance details"];
     [self addDetail:look title:@"Blur" key:@"NotificationIslandBlurStrength" fallback:@.55 min:.20 max:1 percentage:YES];
     [self addDetail:look title:@"Opacity" key:@"NotificationIslandBackgroundOpacity" fallback:@.98 min:.55 max:1 percentage:YES];
-    [self addDetail:look title:@"Compact text" key:@"NotificationIslandCompactTextScale" fallback:NIValue(@"NotificationIslandTextScale",@1) min:.75 max:1.50 percentage:YES];
+    [self addDetail:look title:@"Compact content" key:@"NotificationIslandCompactTextScale" fallback:NIValue(@"NotificationIslandTextScale",@1) min:.75 max:1.50 percentage:YES];
     [self addDetail:look title:@"Expanded text" key:@"NotificationIslandTextScale" fallback:@1 min:.8 max:1.35 percentage:YES];
     [self addDetail:look title:@"Corner rounding" key:@"NotificationIslandCornerRadius" fallback:@32 min:16 max:40 percentage:NO];
     UIStackView *behavior=[self detailGroup:@"Behavior"];
