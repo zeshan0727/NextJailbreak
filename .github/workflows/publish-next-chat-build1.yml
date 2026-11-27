@@ -37,6 +37,8 @@ jobs:
           APP=Payload/NextChat.app
           test -s "$APP/NextChat"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = com.nextsolution.chat
+          /usr/libexec/PlistBuddy -c 'Set :CFBundleShortVersionString 1.0.0' "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c 'Set :CFBundleShortVersionString 1.0.0' "$APP/PlugIns/NextChatWidgets.appex/Info.plist"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = 1.0.0
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = 1
           codesign --force --sign - --timestamp=none --generate-entitlement-der "$APP/PlugIns/NextChatWidgets.appex"
