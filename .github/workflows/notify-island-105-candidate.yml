@@ -1,4 +1,4 @@
-name: Notify Island 1.0.6 Visual Studio build
+name: Notify Island 1.0.7 Island Integration build
 on:
   push:
     branches: [agent/notify-island-1.0.5-candidate]
@@ -27,9 +27,10 @@ jobs:
           python3 "$P/prepare-v450.py"
           python3 "$P/prepare-v105.py"
           python3 "$P/prepare-v106.py"
+          python3 "$P/prepare-v107.py"
           python3 -m py_compile "$P/package-test.py" "$P/publish-test.py"
           for f in "$P"/prefs/Resources/*.plist "$P"/NextAuraNotificationIsland.plist; do plutil -lint "$f"; done
-          grep -q '1.0.6 Visual Studio loaded' "$P/NotificationIsland.xm"
+          grep -q '1.0.7 Island Integration loaded' "$P/NotificationIsland.xm"
       - name: Compile RootHide candidate with iOS 16.5 Preferences SDK
         run: |
           set -euo pipefail
@@ -65,12 +66,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: NotifyIsland-106-VisualStudio-RootHide
+          name: NotifyIsland-107-IslandIntegration-RootHide
           path: build-candidate/
       - name: Publish verified device-test build to NS Transfer
         run: |
           set -euo pipefail
-          DEB="$GITHUB_WORKSPACE/build-candidate/NotifyIsland_1.0.6_VisualStudio_RootHide.deb"
+          DEB="$GITHUB_WORKSPACE/build-candidate/NotifyIsland_1.0.7_IslandIntegration_RootHide.deb"
           test -s "$DEB"
           git fetch origin main
           git worktree add --detach "$RUNNER_TEMP/ni-transfer" origin/main
@@ -78,7 +79,7 @@ jobs:
           cd "$RUNNER_TEMP/ni-transfer"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add transfer/index.json transfer/files/NotifyIsland/1.0.6/NotifyIsland_1.0.6_VisualStudio_RootHide.deb
+          git add transfer/index.json transfer/files/NotifyIsland/1.0.7/NotifyIsland_1.0.7_IslandIntegration_RootHide.deb
           git diff --cached --quiet && exit 0
-          git commit -m 'Publish Notify Island 1.0.6 Visual Studio RootHide to NS Transfer'
+          git commit -m 'Publish Notify Island 1.0.7 Island Integration RootHide to NS Transfer'
           git push origin HEAD:main

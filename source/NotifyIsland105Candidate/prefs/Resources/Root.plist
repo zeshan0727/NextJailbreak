@@ -1,20 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict><key>title</key><string>Notify Island</string><key>items</key><array>
-<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Notify Island</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Appearance details</string></dict>
+
 		<dict>
-			<key>cell</key><string>PSSwitchCell</string>
-			<key>label</key><string>Enabled</string>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Blur</string>
+			<key>validTitles</key><array><string>Soft</string><string>Balanced</string><string>Strong</string></array>
+			<key>validValues</key><array><real>0.25</real><real>0.55</real><real>0.9</real></array>
 			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
-			<key>key</key><string>NotificationIslandEnabled</string>
-			<key>default</key><true/>
+			<key>key</key><string>NotificationIslandBlurStrength</string>
+			<key>default</key><real>0.55</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Opacity</string>
+			<key>validTitles</key><array><string>Airy</string><string>Balanced</string><string>Solid</string></array>
+			<key>validValues</key><array><real>0.72</real><real>0.86</real><real>0.98</real></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandBackgroundOpacity</string>
+			<key>default</key><real>0.98</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Text Size</string>
+			<key>validTitles</key><array><string>Small</string><string>Normal</string><string>Large</string></array>
+			<key>validValues</key><array><real>0.9</real><real>1.0</real><real>1.15</real></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandTextScale</string>
+			<key>default</key><real>1.0</real>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Presentation</string><key>footerText</key><string>The island replaces a confirmed transient banner only. Notification history remains native.</string></dict>
+<dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Replace Stock Banner</string><key>key</key><string>NotificationIslandReplaceStockBanner</string><key>defaults</key><string>com.nextsolution.unlockvibrate</string><key>default</key><true/><key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Adaptive Layout</string><key>footerText</key><string>The card is centered within the safe area. The stock banner remains available if the island cannot be presented safely.</string></dict>
+<dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Show in Landscape</string><key>key</key><string>NotificationIslandLandscapeEnabled</string><key>defaults</key><string>com.nextsolution.unlockvibrate</string><key>default</key><true/><key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Compact Card</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Width</string>
+			<key>validTitles</key><array><string>Slim</string><string>Default</string><string>Wide</string></array>
+			<key>validValues</key><array><integer>285</integer><integer>330</integer><integer>390</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandCompactWidth</string>
+			<key>default</key><integer>330</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Height</string>
+			<key>validTitles</key><array><string>Low</string><string>Default</string><string>Tall</string></array>
+			<key>validValues</key><array><integer>58</integer><integer>68</integer><integer>82</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandCompactHeight</string>
+			<key>default</key><integer>68</integer>
 			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
 		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
 
-<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>More settings</string></dict>
-<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Fine-tune appearance</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Appearance</string></dict>
-<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Notification Behavior</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Behavior</string></dict>
-<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Lock Screen &amp; Privacy</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Privacy</string></dict>
-<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Landscape Mode</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Landscape</string></dict>
-<dict><key>cell</key><string>PSLinkCell</string><key>label</key><string>Advanced Settings</string><key>detail</key><string>NISettingsPageController</string><key>NIPage</key><string>Advanced</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Expanded Card</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Width</string>
+			<key>validTitles</key><array><string>Compact</string><string>Default</string><string>Edge</string></array>
+			<key>validValues</key><array><integer>340</integer><integer>405</integer><integer>425</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandExpandedWidth</string>
+			<key>default</key><integer>405</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Height</string>
+			<key>validTitles</key><array><string>Short</string><string>Default</string><string>Roomy</string></array>
+			<key>validValues</key><array><integer>130</integer><integer>150</integer><integer>185</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandExpandedHeight</string>
+			<key>default</key><integer>150</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Detached alignment</string><key>footerText</key><string>Island placement always stays centered on the physical cutout.</string></dict>
+		<dict>
+			<key>cell</key><string>PSSegmentCell</string>
+			<key>label</key><string>Horizontal Offset</string>
+			<key>validTitles</key><array><string>Left</string><string>Center</string><string>Right</string></array>
+			<key>validValues</key><array><integer>-28</integer><integer>0</integer><integer>28</integer></array>
+			<key>defaults</key><string>com.nextsolution.unlockvibrate</string>
+			<key>key</key><string>NotificationIslandHorizontalOffset</string>
+			<key>default</key><integer>0</integer>
+			<key>PostNotification</key><string>com.nextsolution.unlockvibrate/preferences.changed</string>
+		<key>get</key><string>readPreferenceValue:</string><key>set</key><string>setPreferenceValue:specifier:</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Notification Previews</string><key>footerText</key><string>Content is hidden when authentication is required. After successful authentication, the preview can appear while the Cover Sheet remains visible. Unknown authentication state keeps content private.</string></dict>
+<dict><key>cell</key><string>PSGroupCell</string><key>label</key><string>Notification History</string><key>footerText</key><string>Notifications remain in the original lock-screen list. Dismissing the island does not clear the notification.</string></dict>
 </array></dict></plist>

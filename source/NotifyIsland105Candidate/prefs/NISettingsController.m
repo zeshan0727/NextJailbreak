@@ -44,6 +44,8 @@ static UIColor *NIStyleColor(NSInteger mode) {
 @property(nonatomic,strong) UIView *cutout;
 @property(nonatomic,strong) UIView *tile;
 @property(nonatomic,strong) UILabel *sample;
+@property(nonatomic,strong) CAShapeLayer *dockMask;
+@property(nonatomic,strong) UIView *dockCap;
 @end
 @implementation NIStudioPreview
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -56,6 +58,8 @@ static UIColor *NIStyleColor(NSInteger mode) {
     _tile = [UIView new]; _tile.layer.cornerRadius = 10; _tile.clipsToBounds = YES;
     _sample = NILabel(@"Messages\nNew notification", 10, UIFontWeightSemibold);
     _sample.textColor = UIColor.whiteColor;
+    _dockCap=[UIView new]; _dockCap.backgroundColor=UIColor.blackColor; _dockCap.hidden=YES; [_tile addSubview:_dockCap];
+    _dockMask=[CAShapeLayer layer];
     [_tile addSubview:_sample]; [_phone addSubview:_cutout]; [_phone addSubview:_tile]; [self addSubview:_phone];
     self.isAccessibilityElement = YES; self.accessibilityLabel=@"Notification placement preview";
     return self;
@@ -65,11 +69,31 @@ static UIColor *NIStyleColor(NSInteger mode) {
     CGFloat h = MAX(1.0,self.bounds.size.height-16), w=MIN(h*.49,self.bounds.size.width-16);
     self.phone.frame=CGRectMake((self.bounds.size.width-w)/2,8,w,h);
     self.cutout.frame=CGRectMake((w-45)/2,9,45,12);
+    BOOL docked=self.position<=.015;
     CGFloat th=34, minY=24, maxY=MAX(minY,h-th-14);
-    self.tile.frame=CGRectMake(9,minY+(maxY-minY)*self.position,w-18,th);
+    self.tile.frame=docked?CGRectMake(9,7,w-18,52):CGRectMake(9,minY+(maxY-minY)*self.position,w-18,th);
     self.tile.backgroundColor=NIStyleColor(self.mode);
     self.sample.textColor=self.mode==2?UIColor.blackColor:UIColor.whiteColor;
-    self.sample.frame=CGRectInset(self.tile.bounds,7,2);
+    self.dockCap.hidden=!docked;
+    if (docked) {
+        CGFloat tw=self.tile.bounds.size.width, c=tw/2, l=c-25, r=c+25;
+        UIBezierPath *p=[UIBezierPath bezierPath];
+        [p moveToPoint:CGPointMake(l+7,0)]; [p addLineToPoint:CGPointMake(r-7,0)];
+        [p addQuadCurveToPoint:CGPointMake(r,7) controlPoint:CGPointMake(r,0)];
+        [p addLineToPoint:CGPointMake(r,12)]; [p addQuadCurveToPoint:CGPointMake(r+4,16) controlPoint:CGPointMake(r,16)];
+        [p addLineToPoint:CGPointMake(tw-9,16)]; [p addQuadCurveToPoint:CGPointMake(tw,25) controlPoint:CGPointMake(tw,16)];
+        [p addLineToPoint:CGPointMake(tw,42)]; [p addQuadCurveToPoint:CGPointMake(tw-10,52) controlPoint:CGPointMake(tw,52)];
+        [p addLineToPoint:CGPointMake(10,52)]; [p addQuadCurveToPoint:CGPointMake(0,42) controlPoint:CGPointMake(0,52)];
+        [p addLineToPoint:CGPointMake(0,25)]; [p addQuadCurveToPoint:CGPointMake(9,16) controlPoint:CGPointMake(0,16)];
+        [p addLineToPoint:CGPointMake(l-4,16)]; [p addQuadCurveToPoint:CGPointMake(l,12) controlPoint:CGPointMake(l,16)];
+        [p addLineToPoint:CGPointMake(l,7)]; [p addQuadCurveToPoint:CGPointMake(l+7,0) controlPoint:CGPointMake(l,0)]; [p closePath];
+        self.tile.layer.cornerRadius=0; self.dockMask.frame=self.tile.bounds; self.dockMask.path=p.CGPath; self.tile.layer.mask=self.dockMask;
+        self.dockCap.frame=CGRectMake(0,0,tw,19);
+        self.sample.frame=CGRectMake(7,21,tw-14,29);
+    } else {
+        self.tile.layer.mask=nil; self.tile.layer.cornerRadius=10;
+        self.sample.frame=CGRectInset(self.tile.bounds,7,2);
+    }
 }
 @end
 @interface NIStudioHeader : UIView
@@ -82,6 +106,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 @property(nonatomic,strong) NSArray<UIButton *> *styleButtons;
 @property(nonatomic,strong) NSArray<UIButton *> *positionButtons;
 @property(nonatomic,strong) UISwitch *animationSwitch;
+@property(nonatomic,strong) UISwitch *masterSwitch;
 - (void)refresh;
 @end
 @implementation NIStudioHeader
@@ -106,10 +131,17 @@ static UIColor *NIStyleColor(NSInteger mode) {
         [_stack.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:-20]
     ]];
     [_stack addArrangedSubview:NILabel(@"Island Studio",24,UIFontWeightBold)];
-    UILabel *sub=NILabel(@"Choose a style and slide the notification to any position.",13,UIFontWeightRegular);
+    _masterSwitch=[UISwitch new];
+    _masterSwitch.accessibilityLabel=@"Enable Notify Island";
+    [_masterSwitch addTarget:self action:@selector(masterChanged:) forControlEvents:UIControlEventValueChanged];
+    UIStackView *master=NIRow(@[NILabel(@"Enable Notify Island",17,UIFontWeightSemibold),[UIView new],_masterSwitch]);
+    master.layoutMargins=UIEdgeInsetsMake(10,12,10,12); master.layoutMarginsRelativeArrangement=YES;
+    master.backgroundColor=UIColor.secondarySystemGroupedBackgroundColor; master.layer.cornerRadius=14;
+    [_stack addArrangedSubview:master];
+    UILabel *sub=NILabel(@"Dock to the Dynamic Island or drag to a detached position.",13,UIFontWeightRegular);
     sub.textColor=UIColor.secondaryLabelColor; [_stack addArrangedSubview:sub];
     _preview=[NIStudioPreview new]; [_preview.heightAnchor constraintEqualToConstant:226].active=YES; [_stack addArrangedSubview:_preview];
-    _positionValue=NILabel(@"Top",13,UIFontWeightMedium); _positionValue.textColor=UIColor.secondaryLabelColor; _positionValue.textAlignment=NSTextAlignmentRight;
+    _positionValue=NILabel(@"Island",13,UIFontWeightMedium); _positionValue.textColor=UIColor.secondaryLabelColor; _positionValue.textAlignment=NSTextAlignmentRight;
     [_positionValue setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
     [_stack addArrangedSubview:NIRow(@[NILabel(@"Vertical position",16,UIFontWeightSemibold),_positionValue])];
     _positionSlider=[UISlider new]; _positionSlider.minimumValue=0; _positionSlider.maximumValue=1;
@@ -117,7 +149,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     [_positionSlider addTarget:self action:@selector(positionChanged:) forControlEvents:UIControlEventValueChanged];
     [_positionSlider addTarget:self action:@selector(commitPosition:) forControlEvents:UIControlEventTouchUpInside|UIControlEventTouchUpOutside|UIControlEventTouchCancel];
     [_stack addArrangedSubview:_positionSlider];
-    NSMutableArray *positions=[NSMutableArray new]; NSArray *titles=@[@"Top",@"Middle",@"Bottom"];
+    NSMutableArray *positions=[NSMutableArray new]; NSArray *titles=@[@"Island",@"Middle",@"Bottom"];
     for (NSInteger i=0;i<3;i++) [positions addObject:[self button:titles[i] action:@selector(positionTapped:) tag:i]];
     _positionButtons=[positions copy]; UIStackView *pr=NIRow(positions); pr.distribution=UIStackViewDistributionFillEqually; [_stack addArrangedSubview:pr];
     [_stack addArrangedSubview:NILabel(@"Appearance",16,UIFontWeightSemibold)];
@@ -146,7 +178,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 }
 - (void)updatePosition {
     CGFloat v=self.positionSlider.value; self.preview.position=v;
-    self.positionValue.text=v<.01?@"Top":v>.99?@"Bottom":fabs(v-.5)<.01?@"Middle":[NSString stringWithFormat:@"%.0f%%",v*100];
+    self.positionValue.text=v<.01?@"Island":v>.99?@"Bottom":fabs(v-.5)<.01?@"Middle":[NSString stringWithFormat:@"%.0f%%",v*100];
     [self.preview setNeedsLayout];
     for (UIButton *b in self.positionButtons) {
         BOOL selected=fabs(v-b.tag*.5)<.01;
@@ -169,6 +201,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     self.preview.mode=MIN(3,MAX(0,NIValue(@"NotificationIslandAppearanceMode",@0).integerValue));
     self.durationSlider.value=MIN(30,MAX(2,NIValue(@"NotificationIslandDismissTime",NIValue(@"NotificationIslandDuration",@6)).floatValue));
     self.animationSwitch.on=NIValue(@"NotificationIslandAnimationEnabled",@YES).boolValue;
+    self.masterSwitch.on=NIValue(@"NotificationIslandEnabled",@YES).boolValue;
     [self updatePosition]; [self updateStyle];
     self.durationValue.text=[NSString stringWithFormat:@"%.0f sec",self.durationSlider.value];
 }
@@ -178,6 +211,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
 - (void)styleTapped:(UIButton *)sender { self.preview.mode=sender.tag; [self updateStyle]; NIWrite(@"NotificationIslandAppearanceMode",@(sender.tag)); }
 - (void)durationChanged:(UISlider *)sender { self.durationValue.text=[NSString stringWithFormat:@"%.0f sec",sender.value]; if (!sender.tracking) [self commitDuration:sender]; }
 - (void)commitDuration:(UISlider *)sender { NIWrite(@"NotificationIslandDismissTime",@((NSInteger)lroundf(sender.value))); }
+- (void)masterChanged:(UISwitch *)sender { NIWrite(@"NotificationIslandEnabled",@(sender.on)); }
 - (void)animationChanged:(UISwitch *)sender { NIWrite(@"NotificationIslandAnimationEnabled",@(sender.on)); }
 - (void)testTapped { CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFSTR("com.nextsolution.unlockvibrate/test-dynamic-island-suite"), NULL, NULL, true); }
 @end

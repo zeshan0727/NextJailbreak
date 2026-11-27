@@ -44,16 +44,16 @@ control=stage/"DEBIAN/control"
 fields={
     "Package":"com.nextsolution.nextaura.notification-island",
     "Name":"Notify Island",
-    "Version":"1.0.6",
+    "Version":"1.0.7",
     "Architecture":"iphoneos-arm64e",
-    "Description":"Notify Island 1.0.6 Visual Studio device-test build. Visual settings, normalized placement and island animation; on-device validation required.",
+    "Description":"Notify Island 1.0.7 Island Integration device-test build. Single-page settings and aperture-aware layout; on-device validation required.",
     "Maintainer":"Next Jailbreak",
     "Author":"Next Jailbreak",
     "Section":"Tweaks",
     "Depends":"firmware (>= 16.0), preferenceloader, mobilesubstrate",
     "Conflicts":"com.nextsolution.unlockvibrate, com.nextsolution.nextaura.runtime.island",
     "Replaces":"com.nextsolution.nextaura.runtime.island",
-    "Provides":"com.nextsolution.nextaura.runtime.island (= 1.0.2)",
+    "Provides":"com.nextsolution.nextaura.runtime.island (= 1.0.3)",
     "Priority":"optional",
     "Homepage":"https://nextjailbreak.com/",
     "Icon":"https://nextjailbreak.com/icons/nextaura/notification-island.png",
@@ -65,20 +65,23 @@ for p in (libs/"NextAuraNotificationIsland.dylib",bundle/"NotifyIslandPrefs"):
     run("ldid","-S",p)
     check(bool(run("ldid","-e",p)) or p.stat().st_size>0,"Signing check failed")
 check("/System/Library/PrivateFrameworks/Preferences.framework/Preferences" in run("otool","-L",bundle/"NotifyIslandPrefs"),"Settings framework install-name mismatch")
-check("1.0.6 Visual Studio loaded" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Runtime marker missing")
+check("1.0.7 Island Integration loaded" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Runtime marker missing")
 check("NIStudioHeader" in run("strings","-a",bundle/"NotifyIslandPrefs"),"Studio controller missing")
 check("NotificationIslandVerticalPosition" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Position key missing")
 check("NotificationIslandAnimationEnabled" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Animation key missing")
 info=plistlib.load(open(bundle/"Info.plist","rb"))
 check(info["CFBundleExecutable"]=="NotifyIslandPrefs" and info["NSPrincipalClass"]=="NISettingsController","Bundle metadata mismatch")
 root=plistlib.load(open(bundle/"Root.plist","rb"))
-for item in root["items"]:
-    if item.get("cell")=="PSLinkCell": check((bundle/(item["NIPage"]+".plist")).is_file(),"Missing subpage")
+check(not any(item.get("cell")=="PSLinkCell" for item in root["items"]),"Root still contains submenus")
+keys=[item["key"] for item in root["items"] if "key" in item]
+check(len(keys)==len(set(keys)) and "NotificationIslandEnabled" not in keys,"Duplicate or misplaced control")
+check({"NotificationIslandBlurStrength","NotificationIslandBackgroundOpacity","NotificationIslandTextScale","NotificationIslandReplaceStockBanner","NotificationIslandLandscapeEnabled","NotificationIslandCompactWidth","NotificationIslandCompactHeight","NotificationIslandExpandedWidth","NotificationIslandExpandedHeight","NotificationIslandHorizontalOffset"}<=set(keys),"Missing flattened settings")
+check("masterChanged:" in run("strings","-a",bundle/"NotifyIslandPrefs"),"Master switch missing")
 for p in bundle.glob("*.plist"):
     data=plistlib.load(open(p,"rb"))
     for item in data.get("items",[]):
         if "key" in item: check(item.get("get")=="readPreferenceValue:" and item.get("set")=="setPreferenceValue:specifier:","Missing read/write selectors in "+p.name)
-out=build/"NotifyIsland_1.0.6_VisualStudio_RootHide.deb"
+out=build/"NotifyIsland_1.0.7_IslandIntegration_RootHide.deb"
 run("dpkg-deb","--root-owner-group","-Zxz","-b",stage,out)
 for k in ["Package","Version","Architecture","Depends","Conflicts","Replaces","Provides"]: check(run("dpkg-deb","-f",out,k)==fields[k],"Control mismatch: "+k)
 verify=temp/"notify-verify"; shutil.rmtree(verify,ignore_errors=True)
