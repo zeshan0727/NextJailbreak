@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T23:27:21Z",
+  "updatedAt": "2026-11-27T23:33:29Z",
   "files": [
+    {
+      "id": "next-chat-1.0.0-build2",
+      "name": "Next Chat Advanced 1.0.0 - Build 2",
+      "fileName": "NextChat_1.0.0_Build2.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ / TrollStore (ad-hoc signed)",
+      "version": "1.0.0 (2)",
+      "url": "https://nextjailbreak.com/transfer/files/NextChat/1.0.0/NextChat_1.0.0_Build2.ipa",
+      "sha256": "4cb87f8a303cf2e07925371bf931052dec115d70d6a35ed8d8c5b04c32a3b97c",
+      "sizeBytes": 265894,
+      "notes": "Unofficial ChatGPT web companion. Authentication navigation recovery and browser fallback. Physical-device login still requires testing. Not Apple Distribution signed."
+    },
     {
       "id": "notify-island-1.0.16-composer-studio-roothide",
       "name": "Notify Island 1.0.16 — Composer Studio",
