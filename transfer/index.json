@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T23:18:57Z",
+  "updatedAt": "2026-11-27T23:25:20Z",
   "files": [
+    {
+      "id": "next-chat-1.0.0-build1",
+      "name": "Next Chat Advanced 1.0.0 - Build 1",
+      "fileName": "NextChat_1.0.0_Build1.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ / TrollStore (ad-hoc signed)",
+      "version": "1.0.0 (1)",
+      "url": "https://nextjailbreak.com/transfer/files/NextChat/1.0.0/NextChat_1.0.0_Build1.ipa",
+      "sha256": "1c4d6da1add46dc683575f4e2dc4f56626dfd9119c53ef306a450c788714a0ed",
+      "sizeBytes": 250511,
+      "notes": "Unofficial ChatGPT web companion. Compiled test build; physical-device login and widgets not verified. Not Apple Distribution signed."
+    },
     {
       "id": "notify-island-1.0.15-content-text-roothide",
       "name": "Notify Island 1.0.15 — Content Text",
