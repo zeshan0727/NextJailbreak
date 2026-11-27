@@ -5,8 +5,8 @@ from datetime import datetime,timezone
 from email.utils import format_datetime
 from pathlib import Path
 root, output, source = map(Path,sys.argv[1:4])
-package="com.nextsolution.nextaura.notification-island"; version="1.0.17"; arch="iphoneos-arm64e"
-filename="NotifyIsland_1.0.17_RootHide.deb"
+package="com.nextsolution.nextaura.notification-island"; version="1.0.18"; arch="iphoneos-arm64e"
+filename="NotifyIsland_1.0.18_RootHide.deb"
 deb=output/filename
 def check(ok,msg):
     if not ok: raise SystemExit(msg)
@@ -59,6 +59,7 @@ rel.write_text("\n".join(lines)+"\n")
 # Add a single product feature to the existing public repository page.
 page=root/"repo/index.html"; html=page.read_text()
 html=html.replace("sileo://source/https://nextjailbreak.com/","sileo://source/https://repo.nextjailbreak.com/").replace("source=https://nextjailbreak.com/","source=https://repo.nextjailbreak.com/").replace("zbra://sources/add/https://nextjailbreak.com/","zbra://sources/add/https://repo.nextjailbreak.com/").replace("Repository URL: <strong>https://nextjailbreak.com/</strong>","Repository URL: <strong>https://repo.nextjailbreak.com/</strong>")
+html=html.replace("Custom Dynamic Island notifications. Version 1.0.17 for RootHide.","Custom Dynamic Island notifications. Version 1.0.18 for RootHide. Swipe down on compact notifications to dismiss.")
 page.write_text(html)
 marker='<!-- notify-island-public-release -->'
 if marker not in html:
@@ -66,7 +67,7 @@ if marker not in html:
     check("</main>" in html,"Repository page layout not recognized")
     card=marker+'''
 <section class="section" aria-label="Notify Island">
-<div class="section-head"><span class="eyebrow">Next Jailbreak · Tweaks</span><h2>Notify Island</h2><p>Custom Dynamic Island notifications. Version 1.0.17 for RootHide.</p></div>
+<div class="section-head"><span class="eyebrow">Next Jailbreak · Tweaks</span><h2>Notify Island</h2><p>Custom Dynamic Island notifications. Version 1.0.18 for RootHide.</p></div>
 <article class="card"><img src="/icons/notify-island.png" alt="Notify Island" width="72" height="72" style="border-radius:16px"><h3>Five styles. Your notifications.</h3><p>Full Cover, Classic, Fluid, Capsule and Floating, with separate compact and expanded settings and replies for supported apps.</p><div class="actions"><a class="button primary" href="sileo://package/com.nextsolution.nextaura.notification-island">Open in Sileo</a><a class="button" href="/depictions/notify-island.html">Details</a></div></article>
 </section>
 '''
