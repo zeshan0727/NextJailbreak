@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T22:58:52Z",
+  "updatedAt": "2026-11-27T23:08:58Z",
   "files": [
+    {
+      "id": "notify-island-1.0.13-reply-visibility-roothide",
+      "name": "Notify Island 1.0.13 — Reply Visibility",
+      "fileName": "NotifyIsland_1.0.13_ReplyVisibility_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.13",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.13/NotifyIsland_1.0.13_ReplyVisibility_RootHide.deb",
+      "sha256": "68ef0dcbc2649d2ccbb12650daa0d0e3807862f76996450dbafca7c6636fe8e6",
+      "sizeBytes": 88468,
+      "notes": "Device-test build; app icon aligns with app name and time in compact/expanded headers; explicit high-contrast reply text and live draft mirror of the actual input buffer. Preserves keyboard and original-request Send action, Full Cover shape, settings and shuffle. Compile/static checks only; verify on iOS 16.0. Rollback: reinstall 1.0.12 Full Cover Plus."
+    },
     {
       "id": "notify-island-1.0.12-full-cover-plus-roothide",
       "name": "Notify Island 1.0.12 — Full Cover Plus",
