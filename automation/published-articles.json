@@ -2,6 +2,48 @@
   "entries": [
     {
       "action": "create",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/marktheme-0-3-3-official-home.webp",
+          "media_alt": "Official MarkTheme home screen showing the active Oxyg3n icon theme and the system-default option",
+          "media_credit": "Hmmzzz/MarkTheme — official interface screenshot from commit 63b9d83e587a9289afc6b339317caff82f693342",
+          "media_source_url": "https://github.com/Hmmzzz/MarkTheme/blob/63b9d83e587a9289afc6b339317caff82f693342/screenshots/home.png"
+        }
+      ],
+      "candidate_fingerprint": "comparison.theme-engines-snowboard-lumenboard-marktheme-2026-11-27",
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "channel": "scheduled-tweak-roundup-comparison",
+      "compat": "SnowBoard's official page lists iOS 7.0–17.6 and version 1.5.37-Beta4-rootless; LumenBoard 1.2.1 publishes separate conventional rootless and RootHide packages for iOS 17–26; MarkTheme 0.3.3 publishes separate rootless and RootHide packages, supports iOS 17.x–18.x, does not support iOS 16 or rootful, and requires uikittools plus ElleKit 1.2 or later.",
+      "description": "Compare SnowBoard, LumenBoard 1.2.1 and MarkTheme 0.3.3 by iOS support, rootless and RootHide packages, theme formats, features and safe recovery.",
+      "entry_type": "comparison",
+      "href": "snowboard-vs-lumenboard-vs-marktheme-theme-engine-comparison/",
+      "image": "assets/articles/source-media/lumenboard-1-2-1-official-banner.webp",
+      "media_alt": "Official LumenBoard banner describing rootless, RootHide and SnowBoard theme support",
+      "media_credit": "xsxs18-dev/LumenBoard — official project banner from commit 9b13a6f0d6f1f43458967bf086c888a972b533f3",
+      "media_source_url": "https://github.com/xsxs18-dev/LumenBoard/blob/9b13a6f0d6f1f43458967bf086c888a972b533f3/.github/banner.png",
+      "modified_at": "2026-11-27T12:00:00+03:00",
+      "name": "SnowBoard vs LumenBoard vs MarkTheme",
+      "package": "comparison.snowboard-lumenboard-marktheme",
+      "published_at": "2026-11-27T12:00:00+03:00",
+      "quality_target": 9,
+      "release": "SnowBoard 1.5.37-Beta4-rootless / LumenBoard 1.2.1 / MarkTheme 0.3.3",
+      "route": "snowboard-vs-lumenboard-vs-marktheme-theme-engine-comparison/",
+      "run_id": "scheduled-2026-11-27T09:00:00Z",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "snowboard-vs-lumenboard-vs-marktheme-theme-engine-comparison",
+      "source_name": "Official SparkDev, Havoc, LumenBoard and MarkTheme project sources",
+      "source_page_url": "https://havoc.app/package/lumenboard",
+      "source_url": "https://github.com/Hmmzzz/MarkTheme/releases/tag/v0.3.3",
+      "source_visual_origin": "official-project-banner-and-interface-screenshot",
+      "source_visual_url": "https://github.com/xsxs18-dev/LumenBoard/blob/9b13a6f0d6f1f43458967bf086c888a972b533f3/.github/banner.png",
+      "title": "SnowBoard vs LumenBoard 1.2.1 vs MarkTheme 0.3.3: Which iOS Theme Engine Fits?",
+      "version": "SnowBoard 1.5.37-Beta4-rootless / LumenBoard 1.2.1 / MarkTheme 0.3.3"
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "evergreen-guide.reset-nugget-mobilegestalt-before-erosion-2026-11-27",
       "category": {
         "id": "jailbreak",
@@ -12069,8 +12111,18 @@
       "published_at": "2026-11-27T06:00:00+03:00",
       "run_id": "scheduled-2026-11-27T03:00:00Z",
       "version": "Nugget 7.4.1 / Erosion 0.3.1"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "comparison.theme-engines-snowboard-lumenboard-marktheme-2026-11-27",
+      "channel": "scheduled-tweak-roundup-comparison",
+      "href": "snowboard-vs-lumenboard-vs-marktheme-theme-engine-comparison/",
+      "package": "comparison.snowboard-lumenboard-marktheme",
+      "published_at": "2026-11-27T12:00:00+03:00",
+      "run_id": "scheduled-2026-11-27T09:00:00Z",
+      "version": "SnowBoard 1.5.37-Beta4-rootless / LumenBoard 1.2.1 / MarkTheme 0.3.3"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-27T06:00:00+03:00"
+  "updated_at": "2026-11-27T12:00:00+03:00"
 }
