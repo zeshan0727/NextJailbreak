@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T23:40:16Z",
+  "updatedAt": "2026-11-27T23:52:06Z",
   "files": [
+    {
+      "id": "notify-island-1.0.18-compact-swipe-roothide",
+      "name": "Notify Island 1.0.18 — Compact Swipe",
+      "fileName": "NotifyIsland_1.0.18_CompactSwipe_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.18",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.18/NotifyIsland_1.0.18_CompactSwipe_RootHide.deb",
+      "sha256": "b1ac910cb291a6596be1e8eb649b15821e650f85106ab8871761133083877f7f",
+      "sizeBytes": 108748,
+      "notes": "Device-test build: downward swipe dismisses only compact notification overlays. Existing tap, expanded double tap, hold, reply composer and Next Jailbreak branding preserved. No new gesture settings. Rollback: 1.0.17 public release."
+    },
     {
       "id": "next-chat-1.0.0-build3",
       "name": "Next Chat Advanced 1.0.0 - Build 3",
