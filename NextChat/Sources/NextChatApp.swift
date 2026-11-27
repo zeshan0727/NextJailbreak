@@ -17,6 +17,22 @@ private func chatPage(_ url: URL?) -> Bool {
     guard let url, url.scheme == "https", url.host?.lowercased() == "chatgpt.com" else { return false }
     return true
 }
+private let loginURL = URL(string: "https://chatgpt.com/auth/login")!
+private func authPage(_ url: URL?) -> Bool {
+    guard let url, official(url), let host = url.host?.lowercased() else { return false }
+    return host.hasPrefix("auth.") || host.hasPrefix("auth0.") || host.hasPrefix("login.") || url.path.hasPrefix("/auth") || url.path.hasPrefix("/api/auth") || url.path.hasPrefix("/oauth")
+}
+private func identityProvider(_ url: URL) -> Bool {
+    guard url.scheme == "https", let host = url.host?.lowercased() else { return false }
+    return ["accounts.google.com","appleid.apple.com","account.apple.com","login.microsoftonline.com","login.live.com","account.live.com"].contains(host)
+}
+private func browserStart(_ url: URL?) -> URL {
+    guard let url, chatPage(url), !authPage(url) else { return homeURL }
+    var parts = URLComponents(url: url, resolvingAgainstBaseURL: false)
+    parts?.query = nil
+    parts?.fragment = nil
+    return parts?.url ?? homeURL
+}
 struct SavedLink: Codable, Identifiable {
     var id = UUID()
     let title: String
@@ -32,6 +48,9 @@ struct PendingDownload: Identifiable {
     var progress: Double
 }
 final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
+    @Published var loginHelp = false
+    @Published var popup: WKWebView?
+    @Published var popupHost = "auth.openai.com"
     @Published var loading = false
     @Published var canBack = false
     @Published var canForward = false
@@ -87,12 +106,26 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     }
     deinit { monitor.cancel() }
     func open(_ url: URL) { guard chatPage(url) else { return }; web.load(URLRequest(url: url)) }
-    func newChat() { open(homeURL) }
+    func newChat() { closePopup(); open(homeURL) }
+    func restartLogin() {
+        closePopup()
+        loginHelp = false
+        web.stopLoading()
+        web.load(URLRequest(url: loginURL, cachePolicy: .reloadIgnoringLocalCacheData))
+    }
+    func closePopup() {
+        popup?.stopLoading()
+        popup?.navigationDelegate = nil
+        popup?.uiDelegate = nil
+        popup = nil
+        popupHost = "auth.openai.com"
+    }
     func resume() {
         if let raw = UserDefaults.standard.string(forKey: "lastChat"), let url = URL(string: raw), chatPage(url) { open(url) }
         else { newChat() }
     }
-    func safari() { UIApplication.shared.open(chatPage(current) ? current! : homeURL) }
+    func safari() { UIApplication.shared.open(browserStart(current)) }
+    func safariLogin() { closePopup(); loginHelp = false; UIApplication.shared.open(homeURL) }
     func savePage() {
         guard let current, chatPage(current), current.path != "/" else { notice = "Open a conversation before saving it."; return }
         if bookmarks.contains(where: { $0.url == current }) { notice = "Already saved."; return }
@@ -101,6 +134,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     func removeBookmark(_ id: UUID) { bookmarks.removeAll { $0.id == id }; persistBookmarks() }
     private func persistBookmarks() { if let data = try? JSONEncoder().encode(bookmarks) { UserDefaults.standard.set(data, forKey: "bookmarks") } }
     func clearCache(all: Bool) {
+        if all { closePopup(); web.stopLoading() }
         let types: Set<String> = all ? WKWebsiteDataStore.allWebsiteDataTypes() : [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache]
         web.configuration.websiteDataStore.removeData(ofTypes: types, modifiedSince: .distantPast) { [weak self] in
             if all { UserDefaults.standard.removeObject(forKey: "lastChat"); self?.newChat() }
@@ -117,18 +151,47 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             decisionHandler(.allow); return
         }
         decisionHandler(.cancel)
-        if ["http","https"].contains(url.scheme ?? "") { UIApplication.shared.open(url); notice = "Opened externally. Safari and Next Chat have separate sessions." }
+        // Never export a partially completed login or OAuth callback to another cookie store.
+        if identityProvider(url) || authPage(action.sourceFrame.request.url) || authPage(webView.url) {
+            DispatchQueue.main.async { [weak self] in self?.loginHelp = true }
+        } else if action.navigationType == .linkActivated, ["http","https"].contains(url.scheme ?? "") {
+            UIApplication.shared.open(url)
+        }
     }
     func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         let attachment = (response.response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Disposition")?.lowercased().contains("attachment") ?? false
         decisionHandler(!response.canShowMIMEType || attachment ? .download : .allow)
     }
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        if action.targetFrame == nil, let url = action.request.url {
-            if official(url) { webView.load(action.request) }
-            else if url.scheme == "https" || url.scheme == "http" { UIApplication.shared.open(url) }
+        guard action.targetFrame == nil, let url = action.request.url else { return nil }
+        if identityProvider(url) || (!official(url) && url.absoluteString != "about:blank" && authPage(webView.url)) {
+            DispatchQueue.main.async { [weak self] in self?.loginHelp = true }
+            return nil
         }
+        if official(url) || url.absoluteString == "about:blank" {
+            guard popup == nil else { return nil }
+            // Preserve WebKit's supplied configuration and window.opener semantics.
+            let child = WKWebView(frame: .zero, configuration: configuration)
+            child.navigationDelegate = self
+            child.uiDelegate = self
+            child.scrollView.keyboardDismissMode = .interactive
+            popupHost = url.host ?? "Official sign-in"
+            popup = child
+            return child
+        }
+        if action.navigationType == .linkActivated, ["http","https"].contains(url.scheme ?? "") { UIApplication.shared.open(url) }
         return nil
+    }
+    func webViewDidClose(_ webView: WKWebView) {
+        if webView === popup { closePopup() }
+    }
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        if webView === popup { popupHost = webView.url?.host ?? "Official sign-in" }
+    }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        if authPage(webView.url), webView.url?.path.lowercased().contains("error") == true {
+            loginHelp = true
+        }
     }
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { notice = "Web content stopped. Reload to recover your session." }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { report(error) }
@@ -191,6 +254,19 @@ struct WebSurface: UIViewRepresentable {
     let browser: Browser
     func makeUIView(context: Context) -> WKWebView { browser.web }
     func updateUIView(_ uiView: WKWebView, context: Context) {}
+}
+struct PopupSurface: UIViewRepresentable {
+    let web: WKWebView
+    func makeUIView(context: Context) -> WKWebView { web }
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
+}
+struct SafariSurface: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        let controller = SFSafariViewController(url: homeURL)
+        controller.dismissButtonStyle = .done
+        return controller
+    }
+    func updateUIViewController(_ controller: SFSafariViewController, context: Context) {}
 }
 struct Preview: UIViewControllerRepresentable {
     let url: URL
@@ -360,11 +436,12 @@ struct SettingsView: View {
                 Section("Connection") {
                     LabeledContent("Network", value: browser.online ? "Available" : "Offline")
                     Button("Reload ChatGPT") { browser.web.reload(); dismiss() }
-                    Button("Open in Safari") { browser.safari() }
-                    ShareLink(item: "Next Chat 1.0.0 (1)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    Button("Restart sign-in") { browser.restartLogin(); dismiss() }
+                    Button("Open in Safari") { browser.safariLogin() }
+                    ShareLink(item: "Next Chat 1.0.0 (2)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (1)")
+                    LabeledContent("Version", value: "1.0.0 (2)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -375,7 +452,7 @@ struct SettingsView: View {
         }
     }
 }
-enum Panel: String, Identifiable { case settings, downloads, prompts, bookmarks; var id: String { rawValue } }
+enum Panel: String, Identifiable { case settings, downloads, prompts, bookmarks, browserMode; var id: String { rawValue } }
 struct RootView: View {
     @StateObject private var browser = Browser()
     @AppStorage("appearance") private var appearance = "System"
@@ -408,7 +485,17 @@ struct RootView: View {
     var body: some View {
         VStack(spacing: 0) {
             if !browser.online { Text("Offline · reconnect to continue").font(.caption).frame(maxWidth: .infinity).padding(6).background(.orange.opacity(0.15)) }
-            WebSurface(browser: browser).frame(maxWidth: .infinity, maxHeight: .infinity)
+            if let popup = browser.popup {
+                HStack {
+                    Image(systemName: "lock.shield")
+                    Text(browser.popupHost).font(.caption)
+                    Spacer()
+                    Button("Close") { browser.closePopup() }
+                }.padding(12)
+                PopupSurface(web: popup).id(ObjectIdentifier(popup)).frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                WebSurface(browser: browser).frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
             if browser.loading { ProgressView().progressViewStyle(.linear) }
             Divider()
             HStack(spacing: 18) {
@@ -423,6 +510,8 @@ struct RootView: View {
                     Button { panel = .bookmarks } label: { Label("Saved conversations", systemImage: "books.vertical") }
                     Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
                     Button { browser.web.reload() } label: { Label("Reload", systemImage: "arrow.clockwise") }
+                    Button { browser.restartLogin() } label: { Label("Restart sign-in", systemImage: "person.crop.circle.badge.exclamationmark") }
+                    Button { browser.closePopup(); panel = .browserMode } label: { Label("Browser mode", systemImage: "globe") }
                     Button { browser.safari() } label: { Label("Open in Safari", systemImage: "safari") }
                     Button { panel = .settings } label: { Label("Settings", systemImage: "gearshape") }
                 } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("More")
@@ -434,6 +523,7 @@ struct RootView: View {
             case .settings: SettingsView(browser: browser)
             case .downloads: DownloadsView(browser: browser)
             case .prompts: PromptTools()
+            case .browserMode: SafariSurface().ignoresSafeArea()
             case .bookmarks:
                 NavigationStack {
                     List {
@@ -456,6 +546,14 @@ struct RootView: View {
                     }
                 }.accessibilityAddTraits(.isModal)
             }
+        }
+        .confirmationDialog("Complete sign-in in one browser", isPresented: $browser.loginHelp, titleVisibility: .visible) {
+            Button("Restart sign-in in Next Chat") { browser.restartLogin() }
+            Button("Browser mode (separate session)") { browser.closePopup(); panel = .browserMode }
+            Button("Open ChatGPT in Safari") { browser.safariLogin() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Some sign-in providers require a system browser. Start at chatgpt.com and finish in that same browser. Safari login does not automatically sign in the embedded view.")
         }
         .alert("Next Chat", isPresented: Binding(get: { browser.notice != nil && (!appLock || !locked) }, set: { if !$0 { browser.notice = nil } })) { Button("OK", role: .cancel) { browser.notice = nil } } message: { Text(browser.notice ?? "") }
         .onAppear { if !appLock { locked = false } }
