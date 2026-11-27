@@ -76,7 +76,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     self.tile.frame=docked?CGRectMake(9,7,w-18,52):CGRectMake(margin,minY+(maxY-minY)*self.position,w-2*margin,th);
     self.tile.backgroundColor=NIStyleColor(self.mode);
     self.sample.textColor=self.mode==2?UIColor.blackColor:UIColor.whiteColor;
-    self.dockCap.hidden=!docked;
+    self.dockCap.hidden=!docked || (self.shape==4 && self.mode==0);
     self.tile.layer.borderWidth=(!docked && self.shape==3)?1:0;
     self.tile.layer.borderColor=[UIColor colorWithWhite:1 alpha:.4].CGColor;
     if (docked) {
@@ -105,18 +105,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
             [p addLineToPoint:CGPointMake(l,7)]; [p addQuadCurveToPoint:CGPointMake(l+7,0) controlPoint:CGPointMake(l,0)]; [p closePath];
         }
         if (self.shape==4) {
-            CGFloat half=MIN(tw*.5-.5,34.0), left=c-half, right=c+half, top=7, shoulder=18, edge=24, bottom=13;
-            p=[UIBezierPath bezierPath];
-            [p moveToPoint:CGPointMake(left+top,0)]; [p addLineToPoint:CGPointMake(right-top,0)];
-            [p addQuadCurveToPoint:CGPointMake(right,top) controlPoint:CGPointMake(right,0)];
-            [p addCurveToPoint:CGPointMake(tw,edge) controlPoint1:CGPointMake(right,shoulder) controlPoint2:CGPointMake(tw,shoulder)];
-            [p addLineToPoint:CGPointMake(tw,52-bottom)];
-            [p addQuadCurveToPoint:CGPointMake(tw-bottom,52) controlPoint:CGPointMake(tw,52)];
-            [p addLineToPoint:CGPointMake(bottom,52)];
-            [p addQuadCurveToPoint:CGPointMake(0,52-bottom) controlPoint:CGPointMake(0,52)];
-            [p addLineToPoint:CGPointMake(0,edge)];
-            [p addCurveToPoint:CGPointMake(left,top) controlPoint1:CGPointMake(0,shoulder) controlPoint2:CGPointMake(left,shoulder)];
-            [p addQuadCurveToPoint:CGPointMake(left+top,0) controlPoint:CGPointMake(left,0)]; [p closePath];
+            p=[UIBezierPath bezierPathWithRoundedRect:self.tile.bounds cornerRadius:12.0];
         }
         self.tile.layer.cornerRadius=0; self.dockMask.frame=self.tile.bounds; self.dockMask.path=p.CGPath; self.tile.layer.mask=self.dockMask;
         if (self.shape==4) { self.dockCap.frame=CGRectMake(c-25,1,50,14); self.dockCap.layer.cornerRadius=7; }
@@ -300,7 +289,7 @@ static UIColor *NIStyleColor(NSInteger mode) {
     [self addDetail:size title:@"Expanded width" key:@"NotificationIslandExpandedWidth" fallback:@405 min:190 max:425 percentage:NO];
     [self addDetail:size title:@"Expanded height" key:@"NotificationIslandExpandedHeight" fallback:@150 min:125 max:240 percentage:NO];
     [self addDetail:size title:@"Side offset" key:@"NotificationIslandHorizontalOffset" fallback:@0 min:-140 max:140 percentage:NO];
-    UILabel *note=NILabel(@"Full Cover wraps the entire aperture in one continuous shape. Select it to snap to Island position. Double-tap to dismiss; Reply opens the composer.",12,UIFontWeightRegular);
+    UILabel *note=NILabel(@"Full Cover uses one full-width rounded rectangle from top to bottom, with no narrowed cap. Select it to snap to Island position. Double-tap to dismiss; Reply opens the composer.",12,UIFontWeightRegular);
     note.textColor=UIColor.secondaryLabelColor; [_stack addArrangedSubview:note];
     [self refresh];
     return self;
