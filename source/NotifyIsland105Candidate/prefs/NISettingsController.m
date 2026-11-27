@@ -96,6 +96,46 @@ static UIColor *NIStyleColor(NSInteger mode) {
     }
 }
 @end
+@interface NICompactSlider : UIView
+@property(nonatomic,copy) NSString *key;
+@property(nonatomic,strong) NSNumber *fallback;
+@property(nonatomic,strong) UISlider *slider;
+@property(nonatomic,strong) UILabel *valueLabel;
+@property(nonatomic) BOOL percentage;
+- (instancetype)initWithTitle:(NSString *)title key:(NSString *)key fallback:(NSNumber *)fallback min:(float)min max:(float)max percentage:(BOOL)percentage;
+- (void)refresh;
+@end
+@implementation NICompactSlider
+- (instancetype)initWithTitle:(NSString *)title key:(NSString *)key fallback:(NSNumber *)fallback min:(float)min max:(float)max percentage:(BOOL)percentage {
+    if (!(self=[super initWithFrame:CGRectZero])) return nil;
+    _key=[key copy]; _fallback=fallback; _percentage=percentage;
+    UILabel *label=NILabel(title,14,UIFontWeightMedium);
+    label.adjustsFontSizeToFitWidth=YES; label.minimumScaleFactor=.8;
+    [label.widthAnchor constraintEqualToConstant:110].active=YES;
+    _slider=[UISlider new]; _slider.minimumValue=min; _slider.maximumValue=max; _slider.accessibilityLabel=title;
+    [_slider addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
+    [_slider addTarget:self action:@selector(commit:) forControlEvents:UIControlEventTouchUpInside|UIControlEventTouchUpOutside|UIControlEventTouchCancel];
+    [_slider setContentHuggingPriority:UILayoutPriorityDefaultLow forAxis:UILayoutConstraintAxisHorizontal];
+    _valueLabel=NILabel(@"",12,UIFontWeightMedium); _valueLabel.textColor=UIColor.secondaryLabelColor;
+    _valueLabel.textAlignment=NSTextAlignmentRight;
+    [_valueLabel.widthAnchor constraintEqualToConstant:46].active=YES;
+    UIStackView *row=NIRow(@[label,_slider,_valueLabel]); row.translatesAutoresizingMaskIntoConstraints=NO; row.spacing=6;
+    [self addSubview:row];
+    [NSLayoutConstraint activateConstraints:@[[row.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],[row.trailingAnchor constraintEqualToAnchor:self.trailingAnchor],[row.topAnchor constraintEqualToAnchor:self.topAnchor],[row.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],[self.heightAnchor constraintGreaterThanOrEqualToConstant:40]]];
+    [self refresh]; return self;
+}
+- (void)updateValue { self.valueLabel.text=[NSString stringWithFormat:@"%.0f%@",self.percentage?self.slider.value*100:self.slider.value,self.percentage?@"%":@""]; }
+- (void)refresh { self.slider.value=NIValue(self.key,self.fallback).floatValue; [self updateValue]; }
+- (void)changed:(UISlider *)sender { [self updateValue]; if (!sender.tracking) [self commit:sender]; }
+- (void)commit:(UISlider *)sender { NIWrite(self.key,self.percentage?@(roundf(sender.value*100)/100):@((NSInteger)lroundf(sender.value))); }
+@end
+
+@interface NICompactSwitch : UISwitch
+@property(nonatomic,copy) NSString *preferenceKey;
+@end
+@implementation NICompactSwitch
+@end
+
 @interface NIStudioHeader : UIView
 @property(nonatomic,strong) UIStackView *stack;
 @property(nonatomic,strong) NIStudioPreview *preview;
@@ -107,9 +147,32 @@ static UIColor *NIStyleColor(NSInteger mode) {
 @property(nonatomic,strong) NSArray<UIButton *> *positionButtons;
 @property(nonatomic,strong) UISwitch *animationSwitch;
 @property(nonatomic,strong) UISwitch *masterSwitch;
+@property(nonatomic,strong) NSMutableArray<NICompactSlider *> *detailSliders;
+@property(nonatomic,strong) NSMutableArray<NICompactSwitch *> *detailSwitches;
 - (void)refresh;
 @end
 @implementation NIStudioHeader
+- (UIStackView *)detailGroup:(NSString *)title {
+    UILabel *heading=NILabel(title,15,UIFontWeightSemibold);
+    [_stack addArrangedSubview:heading];
+    UIStackView *group=[UIStackView new]; group.axis=UILayoutConstraintAxisVertical; group.spacing=2;
+    group.layoutMargins=UIEdgeInsetsMake(6,12,6,12); group.layoutMarginsRelativeArrangement=YES;
+    group.backgroundColor=UIColor.secondarySystemGroupedBackgroundColor; group.layer.cornerRadius=14;
+    [_stack addArrangedSubview:group]; return group;
+}
+- (void)addDetail:(UIStackView *)group title:(NSString *)title key:(NSString *)key fallback:(NSNumber *)fallback min:(float)min max:(float)max percentage:(BOOL)percentage {
+    NICompactSlider *slider=[[NICompactSlider alloc] initWithTitle:title key:key fallback:fallback min:min max:max percentage:percentage];
+    [self.detailSliders addObject:slider]; [group addArrangedSubview:slider];
+}
+- (void)addToggle:(UIStackView *)group title:(NSString *)title key:(NSString *)key {
+    NICompactSwitch *toggle=[NICompactSwitch new]; toggle.preferenceKey=key;
+    toggle.accessibilityLabel=title; toggle.on=NIValue(key,@YES).boolValue;
+    [toggle addTarget:self action:@selector(detailToggle:) forControlEvents:UIControlEventValueChanged];
+    UIStackView *r=NIRow(@[NILabel(title,14,UIFontWeightMedium),[UIView new],toggle]);
+    [r.heightAnchor constraintGreaterThanOrEqualToConstant:44].active=YES;
+    [self.detailSwitches addObject:toggle]; [group addArrangedSubview:r];
+}
+- (void)detailToggle:(NICompactSwitch *)sender { NIWrite(sender.preferenceKey,@(sender.on)); }
 - (UIButton *)button:(NSString *)title action:(SEL)action tag:(NSInteger)tag {
     UIButton *b=[UIButton buttonWithType:UIButtonTypeSystem];
     [b setTitle:title forState:UIControlStateNormal]; b.tag=tag;
@@ -173,6 +236,23 @@ static UIColor *NIStyleColor(NSInteger mode) {
     UIButton *test=[self button:@"Send test notification" action:@selector(testTapped) tag:0];
     test.backgroundColor=UIColor.systemBlueColor; [test setTitleColor:UIColor.whiteColor forState:UIControlStateNormal]; test.layer.borderWidth=0;
     [_stack addArrangedSubview:test];
+    _detailSliders=[NSMutableArray new]; _detailSwitches=[NSMutableArray new];
+    UIStackView *look=[self detailGroup:@"Appearance details"];
+    [self addDetail:look title:@"Blur" key:@"NotificationIslandBlurStrength" fallback:@.55 min:.20 max:1 percentage:YES];
+    [self addDetail:look title:@"Opacity" key:@"NotificationIslandBackgroundOpacity" fallback:@.98 min:.55 max:1 percentage:YES];
+    [self addDetail:look title:@"Text size" key:@"NotificationIslandTextScale" fallback:@1 min:.8 max:1.35 percentage:YES];
+    UIStackView *behavior=[self detailGroup:@"Behavior"];
+    [self addToggle:behavior title:@"Replace stock banner" key:@"NotificationIslandReplaceStockBanner"];
+    [self addToggle:behavior title:@"Landscape support" key:@"NotificationIslandLandscapeEnabled"];
+    [self addToggle:behavior title:@"App notification actions" key:@"NotificationIslandNativeActions"];
+    UIStackView *size=[self detailGroup:@"Card size & alignment"];
+    [self addDetail:size title:@"Compact width" key:@"NotificationIslandCompactWidth" fallback:@330 min:190 max:425 percentage:NO];
+    [self addDetail:size title:@"Compact height" key:@"NotificationIslandCompactHeight" fallback:@68 min:58 max:110 percentage:NO];
+    [self addDetail:size title:@"Expanded width" key:@"NotificationIslandExpandedWidth" fallback:@405 min:190 max:425 percentage:NO];
+    [self addDetail:size title:@"Expanded height" key:@"NotificationIslandExpandedHeight" fallback:@150 min:125 max:240 percentage:NO];
+    [self addDetail:size title:@"Side offset" key:@"NotificationIslandHorizontalOffset" fallback:@0 min:-140 max:140 percentage:NO];
+    UILabel *note=NILabel(@"Island placement stays centered. Double-tap expanded notifications to dismiss. App actions require authentication; replies use the original iOS interface.",12,UIFontWeightRegular);
+    note.textColor=UIColor.secondaryLabelColor; [_stack addArrangedSubview:note];
     [self refresh];
     return self;
 }
@@ -202,6 +282,8 @@ static UIColor *NIStyleColor(NSInteger mode) {
     self.durationSlider.value=MIN(30,MAX(2,NIValue(@"NotificationIslandDismissTime",NIValue(@"NotificationIslandDuration",@6)).floatValue));
     self.animationSwitch.on=NIValue(@"NotificationIslandAnimationEnabled",@YES).boolValue;
     self.masterSwitch.on=NIValue(@"NotificationIslandEnabled",@YES).boolValue;
+    for (NICompactSlider *slider in self.detailSliders) [slider refresh];
+    for (NICompactSwitch *toggle in self.detailSwitches) toggle.on=NIValue(toggle.preferenceKey,@YES).boolValue;
     [self updatePosition]; [self updateStyle];
     self.durationValue.text=[NSString stringWithFormat:@"%.0f sec",self.durationSlider.value];
 }
