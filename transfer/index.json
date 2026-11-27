@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T22:15:51Z",
+  "updatedAt": "2026-11-27T22:30:46Z",
   "files": [
+    {
+      "id": "notify-island-1.0.8-adaptive-actions-roothide",
+      "name": "Notify Island 1.0.8 — Adaptive Actions",
+      "fileName": "NotifyIsland_1.0.8_AdaptiveActions_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.8",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.8/NotifyIsland_1.0.8_AdaptiveActions_RootHide.deb",
+      "sha256": "39e63536f7a749ee2ef399328b6f81674b87445e2b60be18d7631db5c6c30f16",
+      "sizeBytes": 68676,
+      "notes": "Device-test build; compact single-page Studio controls, expanded double-tap dismissal, real app-defined action buttons with native quick-reply handoff when available. Guarded live-controller execution; unsupported contexts fall back to Notification Center. No fabricated medication actions. Compile/static checks only; verify on iOS 16.0. Rollback: reinstall 1.0.7 Island Integration."
+    },
     {
       "id": "notify-island-1.0.7-island-integration-roothide",
       "name": "Notify Island 1.0.7 — Island Integration",
