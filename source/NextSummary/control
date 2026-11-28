@@ -1,6 +1,6 @@
 Package: com.nextjailbreak.nextsummary
 Name: Next Summary
-Version: 0.1.1
+Version: 0.1.2
 Architecture: iphoneos-arm64e
 Description: Opt-in AI summaries for Notification Center on iOS 16.
 Maintainer: Next Jailbreak
