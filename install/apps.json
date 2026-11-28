@@ -2,7 +2,7 @@
   "apps": [
     {
       "id": "com-nextsolution-aspire",
-      "name": "Aspire Maintenance",
+      "name": "Aspire",
       "version": "1.2.3",
       "build": "16",
       "platform": "iPhone",
