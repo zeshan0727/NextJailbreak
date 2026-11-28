@@ -2,6 +2,42 @@
   "entries": [
     {
       "action": "create",
+      "additional_media": [
+        {"credit": "eknv/Havoc — official SideDock banner", "path": "assets/articles/source-media/sidedock-1-0-1-official-banner.png", "sha256": "289423c3c37a96de6c3b35a8180300f919f40dbe41fa5cec48b0b56b0ead748e", "source_url": "https://media.havoc.app/6acdd37d6e6af822fe19efc0"},
+        {"credit": "Antony .M/Chariz — official Drift promotional banner", "path": "assets/articles/source-media/drift-1-0-0-update-702c52ab05.jpg", "sha256": "64a4e2e87b5fdbc94b03fe20e794c34667954132f4a47cdb1cdd4e7d60c0de11", "source_url": "https://img.chariz.cloud/sileo-banner/drift.jpg"}
+      ],
+      "candidate_fingerprint": "roundup-comparison.sidedock-1.0.1-floatingdockxvi-2.3-drift-1.1.0-2026-11-28",
+      "category": {"id": "tweak-roundup-comparison", "label": "Tweak Roundup & Comparison"},
+      "channel": "scheduled-tweak-roundup-comparison",
+      "compat": "SideDock 1.0.1 lists rootless iOS 17.0–18.7.9 and names Dopamine and palera1n; FloatingDockXVI 2.3 lists iOS 15.0–16.7.4 with rootless support and earlier Dopamine support; Drift 1.1.0 lists jailbroken iOS 15.0–26.0 but publishes no jailbreak-environment matrix. Package ranges do not establish jailbreak availability for every device.",
+      "description": "Compare SideDock 1.0.1, FloatingDockXVI 2.3 and Drift 1.1.0 by dock style, iOS range, jailbreak environment, price, conflicts and recovery.",
+      "entry_type": "comparison",
+      "href": "sidedock-vs-floatingdockxvi-vs-drift-dock-tweak-comparison/",
+      "image": "assets/articles/source-media/floatingdockxvi-2-3-official-banner.png",
+      "media_alt": "Official FloatingDockXVI banner showing an iPad-style floating Dock with recent apps and an App Library folder on iPhone",
+      "media_credit": "ETHN/Havoc — official FloatingDockXVI product banner",
+      "media_sha256": "4db36ae58cc9abd0b210f9501c12b076e3c88840b817eeab8fb936ede3c77536",
+      "media_source_url": "https://media.havoc.app/639a2eb12814b75306363eee",
+      "modified_at": "2026-11-28T12:00:00+03:00",
+      "name": "SideDock vs FloatingDockXVI vs Drift",
+      "package": "comparison.dock-tweaks.sidedock-floatingdockxvi-drift",
+      "published_at": "2026-11-28T12:00:00+03:00",
+      "quality_target": 9,
+      "release": "SideDock 1.0.1 / FloatingDockXVI 2.3 / Drift 1.1.0",
+      "route": "sidedock-vs-floatingdockxvi-vs-drift-dock-tweak-comparison/",
+      "run_id": "scheduled-2026-11-28T09:00:00Z",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "sidedock-vs-floatingdockxvi-vs-drift-dock-tweak-comparison",
+      "source_name": "Official SideDock and FloatingDockXVI Havoc listings, FloatingDockXVI source repository and Drift Chariz listing",
+      "source_page_url": "https://havoc.app/package/floatingdockxvi",
+      "source_url": "https://github.com/nahtedetihw/FloatingDockXVI",
+      "source_visual_origin": "official-havoc-product-banner",
+      "source_visual_url": "https://media.havoc.app/639a2eb12814b75306363eee",
+      "title": "SideDock 1.0.1 vs FloatingDockXVI 2.3 vs Drift 1.1.0: Which Dock Tweak Fits?",
+      "version": "SideDock 1.0.1 / FloatingDockXVI 2.3 / Drift 1.1.0"
+    },
+    {
+      "action": "create",
       "additional_source_urls": [
         "https://support.apple.com/guide/iphone/understand-iphone-battery-usage-health-iphd453d043a/27/ios/27",
         "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Settings/DOSettingsController.m",
@@ -12237,5 +12273,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-28T06:00:00+03:00"
+  "updated_at": "2026-11-28T12:00:00+03:00"
 }
