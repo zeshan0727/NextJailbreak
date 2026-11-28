@@ -8,7 +8,7 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = NextAuraNotificationIsland
 NextAuraNotificationIsland_FILES = NotificationIsland.xm
 NextAuraNotificationIsland_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-nullability-completeness -Wno-unused-function
-NextAuraNotificationIsland_FRAMEWORKS = UIKit Foundation CoreMotion
+NextAuraNotificationIsland_FRAMEWORKS = UIKit Foundation
 NextAuraNotificationIsland_LDFLAGS = -Wl,-segalign,4000
 
 include $(THEOS_MAKE_PATH)/tweak.mk
