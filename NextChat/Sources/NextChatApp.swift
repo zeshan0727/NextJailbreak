@@ -7,6 +7,7 @@ import AVFoundation
 import QuickLook
 import Network
 import UIKit
+import UserNotifications
 
 private let homeURL = URL(string: "https://chatgpt.com/")!
 private func official(_ url: URL?) -> Bool {
@@ -79,6 +80,38 @@ struct LocalFile: Identifiable {
         ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
     }
 }
+// Local-only notifications. No account credentials, message text or remote push service.
+private enum ChatNotices {
+    static var enabled: Bool { UserDefaults.standard.bool(forKey: "nextNoticesEnabled") }
+    static func option(_ key: String, default value: Bool = true) -> Bool {
+        UserDefaults.standard.object(forKey: key) as? Bool ?? value
+    }
+    static func post(_ title: String, _ body: String, route: String, category: String, force: Bool = false, delay: TimeInterval? = nil) {
+        guard enabled, force || option(category) else { return }
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.userInfo = ["nextRoute": route]
+        if option("nextNoticesSound") { content.sound = .default }
+        let trigger = delay.map { UNTimeIntervalNotificationTrigger(timeInterval: max(1, $0), repeats: false) }
+        let request = UNNotificationRequest(identifier: "nextchat-" + UUID().uuidString, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error { NSLog("Next Chat local notification failed: %@", (error as NSError).domain) }
+        }
+    }
+    static func download(saved: Bool) {
+        post(saved ? "Download complete" : "Download failed",
+             saved ? "Your file is available in Downloads." : "Open Next Chat to retry the download.",
+             route: "downloads", category: saved ? "nextNoticesDownloads" : "nextNoticesFailures")
+    }
+}
+private final class ReplyNoticeBridge: NSObject, WKScriptMessageHandler {
+    weak var browser: Browser?
+    init(_ browser: Browser) { self.browser = browser }
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        browser?.receiveReplyNotice(message)
+    }
+}
 struct PendingDownload: Identifiable {
     let id: ObjectIdentifier
     var name: String
@@ -106,6 +139,8 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private var attachmentAttempts: [ObjectIdentifier: UUID] = [:]
     private var attachmentPopupParents: [ObjectIdentifier: WKWebView] = [:]
     private var recentDownloadGestures: [ObjectIdentifier: Date] = [:]
+    private var seenReplyNotices: [String] = []
+    private var cancelledDownloads: Set<ObjectIdentifier> = []
     @Published var diagnostic = "No navigation error recorded."
     @Published var resetInProgress = false
     @Published var popup: WKWebView?
@@ -170,6 +205,85 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         controller.add(LocalDownloadBridge(self), contentWorld: .defaultClient, name: "nextLocalFile")
         controller.addUserScript(WKUserScript(source: Self.localDownloadScript, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .defaultClient))
         controller.addUserScript(WKUserScript(source: Self.detachedDownloadScript, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
+        controller.add(ReplyNoticeBridge(self), contentWorld: .defaultClient, name: "nextReplyNotice")
+        controller.addUserScript(WKUserScript(source: Self.replyNoticeScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .defaultClient))
+    }
+    // Best-effort DOM observation: no message text, network interception or internal API calls.
+    // Observe stop/send UI and a new assistant turn; do not report a manually stopped response.
+    private static let replyNoticeScript = #"""
+    (() => {
+      if (location.protocol !== 'https:' || location.hostname !== 'chatgpt.com') return;
+      const stopSelector = 'button[data-testid="stop-button"],button[aria-label="Stop generating"],button[aria-label="Stop streaming"]';
+      const sendSelector = 'button[data-testid="send-button"],button[aria-label="Send prompt"],button[aria-label="Send message"]';
+      const assistantSelector = '[data-message-author-role="assistant"]';
+      let state = null, scheduled = false, stable = null, baseline = 0, previousPath = location.pathname, lastSubmit = 0;
+      const chatPath = p => /^(\/c\/[^/]+|\/g\/[^/]+(?:\/[^/]+)*\/c\/[^/]+)\/?$/.test(p);
+      const assistantCount = () => document.querySelectorAll(assistantSelector).length;
+      const stopPresent = () => !!document.querySelector(stopSelector);
+      const sendPresent = () => !!document.querySelector(sendSelector);
+      const forget = () => { clearTimeout(stable); stable = null; state = null; };
+      document.addEventListener('click', event => {
+        if (!event.isTrusted) return;
+        const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+        if (target?.closest(stopSelector)) { if (state) state.cancelled = true; return; }
+        if (target?.closest(sendSelector)) lastSubmit = Date.now();
+      }, true);
+      document.addEventListener('keydown', event => {
+        if (event.isTrusted && event.key === 'Enter' && !event.shiftKey && !event.isComposing &&
+            (event.target?.isContentEditable || event.target?.tagName === 'TEXTAREA')) lastSubmit = Date.now();
+      }, true);
+      const inspect = () => {
+        scheduled = false;
+        const path = location.pathname;
+        if (path !== previousPath) {
+          if (state && previousPath === '/' && chatPath(path)) state.path = path;
+          else { forget(); baseline = assistantCount(); lastSubmit = 0; }
+          previousPath = path;
+        }
+        const count = assistantCount();
+        if (stopPresent()) {
+          clearTimeout(stable); stable = null;
+          if (!state) state = {path, baseline: Math.min(baseline, count), id: Date.now() + '-' + Math.random().toString(36).slice(2), cancelled: false, submitted: Date.now() - lastSubmit < 120000};
+          return;
+        }
+        if (!state) { baseline = count; return; }
+        if (state.cancelled) { forget(); baseline = count; return; }
+        if (!sendPresent() || !chatPath(path) || count <= state.baseline || !navigator.onLine) return;
+        if (stable !== null) return;
+        const candidate = state;
+        stable = setTimeout(() => {
+          stable = null;
+          if (state !== candidate || candidate.cancelled || stopPresent() || !sendPresent() ||
+              location.pathname !== candidate.path || !navigator.onLine || assistantCount() <= candidate.baseline) return;
+          window.webkit?.messageHandlers?.nextReplyNotice?.postMessage({id: candidate.id, path: candidate.path});
+          forget(); baseline = assistantCount();
+        }, 1800);
+      };
+      const queue = () => {
+        if (scheduled) return;
+        scheduled = true;
+        setTimeout(inspect, 350);
+      };
+      const observer = new MutationObserver(queue);
+      observer.observe(document.documentElement, {childList:true,subtree:true,attributes:true,attributeFilter:['data-testid','aria-label','disabled']});
+      window.addEventListener('pageshow', queue);
+      window.addEventListener('popstate', queue);
+      document.addEventListener('visibilitychange', queue);
+      baseline = assistantCount(); queue();
+    })();
+    """#
+    fileprivate func receiveReplyNotice(_ message: WKScriptMessage) {
+        guard message.name == "nextReplyNotice", message.frameInfo.isMainFrame,
+              message.frameInfo.securityOrigin.protocol == "https", message.frameInfo.securityOrigin.host == "chatgpt.com",
+              let view = message.webView, liveViews.contains(where: { $0 === view }),
+              let url = conversationURL(view.url),
+              let body = message.body as? [String: String], let id = body["id"], id.count < 100,
+              body["path"] == url.path, !seenReplyNotices.contains(id) else { return }
+        seenReplyNotices.append(id)
+        if seenReplyNotices.count > 100 { seenReplyNotices.removeFirst() }
+        guard view !== web || UIApplication.shared.applicationState != .active || ChatNotices.option("nextNoticesVisibleReply", default: false) else { return }
+        ChatNotices.post("Reply ready", "A conversation may have finished responding.",
+                         route: "conversation:" + url.absoluteString, category: "nextNoticesReplies")
     }
     // Some web clients generate a download anchor off-DOM and call click().
     // Attach it briefly so the standard DOM download listener can see the event.
@@ -277,9 +391,11 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             refreshFiles()
             downloadDiagnostic = "Browser-generated attachment saved."
             downloadMessage = "Download saved"
+            ChatNotices.download(saved: true)
         } catch {
             downloadDiagnostic = "Unable to save browser-generated attachment."
             notice = "Download could not be saved. Check available device storage and retry."
+            ChatNotices.download(saved: false)
         }
     }
     private func observeActive() {
@@ -826,15 +942,19 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     }
     private func finish(_ download: WKDownload, failed: Bool) {
         let id = ObjectIdentifier(download)
+        guard transfers[id] != nil else { return }
+        let cancelled = cancelledDownloads.remove(id) != nil
         if failed, let url = destinations[id] { try? fm.removeItem(at: url) }
         active.removeAll { $0.id == id }; transfers[id] = nil; destinations[id] = nil; progressObservers[id] = nil
         if let view = downloadViews.removeValue(forKey: id) { releaseFileView(view) }
         refreshFiles()
         if failed { notice = "Download failed. Reopen the original link to retry. \(downloadDiagnostic)" }
         else { downloadDiagnostic = "Download saved."; downloadMessage = "Download saved" }
+        if !cancelled { ChatNotices.download(saved: !failed) }
     }
     func cancel(_ id: ObjectIdentifier) {
         guard let download = transfers[id] else { return }
+        cancelledDownloads.insert(id)
         download.cancel { [weak self] _ in DispatchQueue.main.async { self?.finish(download, failed: true); self?.notice = "Download cancelled." } }
     }
     func refreshFiles() {
@@ -1250,6 +1370,71 @@ struct DownloadsView: View {
         }.onAppear { browser.refreshFiles() }
     }
 }
+struct NotificationSettings: View {
+    @AppStorage("nextNoticesEnabled") private var enabled = false
+    @AppStorage("nextNoticesReplies") private var replies = true
+    @AppStorage("nextNoticesDownloads") private var downloads = true
+    @AppStorage("nextNoticesFailures") private var failures = false
+    @AppStorage("nextNoticesVisibleReply") private var visibleReplies = false
+    @AppStorage("nextNoticesSound") private var sound = true
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var permission = UNAuthorizationStatus.notDetermined
+    @State private var status = ""
+    private var allowed: Bool { [.authorized, .provisional, .ephemeral].contains(permission) }
+    private func refresh() {
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async { permission = settings.authorizationStatus }
+        }
+    }
+    private func request() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, _ in
+            DispatchQueue.main.async {
+                enabled = granted
+                status = granted ? "Notifications enabled." : "Allow notifications in iOS Settings to continue."
+                refresh()
+            }
+        }
+    }
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Enable notifications", isOn: Binding(get: { enabled }, set: { value in
+                    if !value {
+                        enabled = false
+                        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+                        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+                    } else if allowed { enabled = true }
+                    else if permission == .notDetermined { request() }
+                    else { UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!) }
+                }))
+                LabeledContent("iOS permission", value: allowed ? "Allowed" : permission == .denied ? "Not allowed" : "Not requested")
+                if permission == .denied {
+                    Button("Open iOS Settings") { UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!) }
+                }
+            } footer: { Text("Local notifications only. No message text is included in alerts.") }
+            Section("Notify me about") {
+                Toggle("Reply ready (experimental)", isOn: $replies)
+                Toggle("Replies in the current chat", isOn: $visibleReplies).disabled(!replies)
+                Toggle("Download completed", isOn: $downloads)
+                Toggle("Download failed", isOn: $failures)
+                Toggle("Notification sound", isOn: $sound)
+            }.disabled(!enabled || !allowed)
+            Section {
+                Button("Send test notification") {
+                    ChatNotices.post("Next Chat notifications", "Your local notifications are working.", route: "downloads", category: "nextNoticesDownloads", force: true, delay: 2)
+                    status = "Test notification requested."
+                }.disabled(!enabled || !allowed)
+                if !status.isEmpty { Text(status).font(.caption).foregroundStyle(.secondary) }
+            } footer: {
+                Text("Reply detection works only while the embedded web page is running. iOS may suspend the app in the background. This is not ChatGPT account-wide push notification support.")
+            }
+        }
+        .navigationTitle("Notifications")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear { refresh() }
+        .onChange(of: scenePhase) { phase in if phase == .active { refresh() } }
+    }
+}
 struct SettingsView: View {
     @ObservedObject var browser: Browser
     @AppStorage("haptics") private var haptics = true
@@ -1322,6 +1507,7 @@ struct SettingsView: View {
                     } label: { tile("Controls & gestures", "Navigation, haptics and links", "hand.tap", .blue) }
                 }
                 Section("App") {
+                    NavigationLink { NotificationSettings() } label: { tile("Notifications", "Replies, downloads and sounds", "bell.badge", .red) }
                     NavigationLink {
                         destination("Privacy") {
                 Section("Privacy") {
@@ -1361,7 +1547,7 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (16)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (17)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
 
                         }
@@ -1369,7 +1555,7 @@ struct SettingsView: View {
                     NavigationLink {
                         destination("About") {
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (16)")
+                    LabeledContent("Version", value: "1.0.0 (17)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -1452,6 +1638,15 @@ struct RootView: View {
     }
     private func handle(_ route: String) {
         guard !appLock || !locked else { pendingRoute = route; return }
+        if route.hasPrefix("conversation:"),
+           let url = URL(string: String(route.dropFirst("conversation:".count))),
+           let safe = conversationURL(url) {
+            sidebarOpen = false
+            panel = nil
+            if launchBrowserMode { UIApplication.shared.open(safe) }
+            else { browser.open(safe) }
+            return
+        }
         switch route {
         case "new": if launchBrowserMode { showBrowser() } else { browser.newChat() }
         case "resume": if launchBrowserMode { showBrowser() } else { browser.resume() }
@@ -1685,7 +1880,8 @@ struct RootView: View {
         }
         .onAppear {
             if !appLock { locked = false }
-            if !appLock { startPreferredMode() }
+            if let route = AppDelegate.takeNotificationRoute() { handle(route) }
+            else if !appLock { startPreferredMode() }
         }
         .onChange(of: appLock) { value in locked = value; if value { sidebarOpen = false; panel = nil; didLaunchBrowser = false; unlock() } }
         .onChange(of: launchBrowserMode) { value in sidebarOpen = false; controlsExpanded = false; if !value { browser.startEmbeddedIfNeeded() } }
@@ -1700,11 +1896,39 @@ struct RootView: View {
         }
         .onOpenURL { url in if url.scheme == "nextchat" { handle(url.host ?? "") } }
         .onReceive(NotificationCenter.default.publisher(for: .nextChatShortcut)) { note in if let route = note.object as? String { handle(route) } }
+        .onReceive(NotificationCenter.default.publisher(for: .nextChatNoticeRoute)) { _ in
+            if let route = AppDelegate.takeNotificationRoute() { handle(route) }
+        }
     }
 }
-extension Notification.Name { static let nextChatShortcut = Notification.Name("NextChatShortcut") }
-final class AppDelegate: NSObject, UIApplicationDelegate {
+extension Notification.Name {
+    static let nextChatShortcut = Notification.Name("NextChatShortcut")
+    static let nextChatNoticeRoute = Notification.Name("NextChatNoticeRoute")
+}
+final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    private static var pendingNoticeRoute: String?
+    static func takeNotificationRoute() -> String? {
+        defer { pendingNoticeRoute = nil }
+        return pendingNoticeRoute
+    }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        guard ChatNotices.enabled else { completionHandler([]); return }
+        completionHandler(ChatNotices.option("nextNoticesSound") ? [.banner, .list, .sound] : [.banner, .list])
+    }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void) {
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier,
+           let route = response.notification.request.content.userInfo["nextRoute"] as? String {
+            DispatchQueue.main.async {
+                Self.pendingNoticeRoute = route
+                NotificationCenter.default.post(name: .nextChatNoticeRoute, object: nil)
+                completionHandler()
+            }
+        } else { completionHandler() }
+    }
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
         application.shortcutItems = [
             UIApplicationShortcutItem(type: "new", localizedTitle: "New chat", localizedSubtitle: nil, icon: UIApplicationShortcutIcon(systemImageName: "square.and.pencil")),
             UIApplicationShortcutItem(type: "resume", localizedTitle: "Resume chat", localizedSubtitle: nil, icon: UIApplicationShortcutIcon(systemImageName: "clock")),
