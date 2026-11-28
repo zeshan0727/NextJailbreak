@@ -99,10 +99,17 @@ private enum ChatNotices {
             if let error { NSLog("Next Chat local notification failed: %@", (error as NSError).domain) }
         }
     }
-    static func download(saved: Bool) {
-        post(saved ? "Download complete" : "Download failed",
-             saved ? "Your file is available in Downloads." : "Open Next Chat to retry the download.",
-             route: "downloads", category: saved ? "nextNoticesDownloads" : "nextNoticesFailures")
+    // Remove legacy download alerts from Build 17 without touching reply notifications.
+    static func removeLegacyDownloadAlerts() {
+        let center = UNUserNotificationCenter.current()
+        center.getPendingNotificationRequests { requests in
+            let ids = requests.filter { ($0.content.userInfo["nextRoute"] as? String) == "downloads" }.map(\.identifier)
+            if !ids.isEmpty { center.removePendingNotificationRequests(withIdentifiers: ids) }
+        }
+        center.getDeliveredNotifications { notices in
+            let ids = notices.filter { ($0.request.content.userInfo["nextRoute"] as? String) == "downloads" }.map { $0.request.identifier }
+            if !ids.isEmpty { center.removeDeliveredNotifications(withIdentifiers: ids) }
+        }
     }
 }
 private final class ReplyNoticeBridge: NSObject, WKScriptMessageHandler {
@@ -140,7 +147,6 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private var attachmentPopupParents: [ObjectIdentifier: WKWebView] = [:]
     private var recentDownloadGestures: [ObjectIdentifier: Date] = [:]
     private var seenReplyNotices: [String] = []
-    private var cancelledDownloads: Set<ObjectIdentifier> = []
     @Published var diagnostic = "No navigation error recorded."
     @Published var resetInProgress = false
     @Published var popup: WKWebView?
@@ -391,11 +397,9 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             refreshFiles()
             downloadDiagnostic = "Browser-generated attachment saved."
             downloadMessage = "Download saved"
-            ChatNotices.download(saved: true)
         } catch {
             downloadDiagnostic = "Unable to save browser-generated attachment."
             notice = "Download could not be saved. Check available device storage and retry."
-            ChatNotices.download(saved: false)
         }
     }
     private func observeActive() {
@@ -943,18 +947,15 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private func finish(_ download: WKDownload, failed: Bool) {
         let id = ObjectIdentifier(download)
         guard transfers[id] != nil else { return }
-        let cancelled = cancelledDownloads.remove(id) != nil
         if failed, let url = destinations[id] { try? fm.removeItem(at: url) }
         active.removeAll { $0.id == id }; transfers[id] = nil; destinations[id] = nil; progressObservers[id] = nil
         if let view = downloadViews.removeValue(forKey: id) { releaseFileView(view) }
         refreshFiles()
         if failed { notice = "Download failed. Reopen the original link to retry. \(downloadDiagnostic)" }
         else { downloadDiagnostic = "Download saved."; downloadMessage = "Download saved" }
-        if !cancelled { ChatNotices.download(saved: !failed) }
     }
     func cancel(_ id: ObjectIdentifier) {
         guard let download = transfers[id] else { return }
-        cancelledDownloads.insert(id)
         download.cancel { [weak self] _ in DispatchQueue.main.async { self?.finish(download, failed: true); self?.notice = "Download cancelled." } }
     }
     func refreshFiles() {
@@ -1373,8 +1374,6 @@ struct DownloadsView: View {
 struct NotificationSettings: View {
     @AppStorage("nextNoticesEnabled") private var enabled = false
     @AppStorage("nextNoticesReplies") private var replies = true
-    @AppStorage("nextNoticesDownloads") private var downloads = true
-    @AppStorage("nextNoticesFailures") private var failures = false
     @AppStorage("nextNoticesVisibleReply") private var visibleReplies = false
     @AppStorage("nextNoticesSound") private var sound = true
     @Environment(\.scenePhase) private var scenePhase
@@ -1398,7 +1397,7 @@ struct NotificationSettings: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Enable notifications", isOn: Binding(get: { enabled }, set: { value in
+                Toggle("Enable reply notifications", isOn: Binding(get: { enabled }, set: { value in
                     if !value {
                         enabled = false
                         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
@@ -1415,13 +1414,11 @@ struct NotificationSettings: View {
             Section("Notify me about") {
                 Toggle("Reply ready (experimental)", isOn: $replies)
                 Toggle("Replies in the current chat", isOn: $visibleReplies).disabled(!replies)
-                Toggle("Download completed", isOn: $downloads)
-                Toggle("Download failed", isOn: $failures)
                 Toggle("Notification sound", isOn: $sound)
             }.disabled(!enabled || !allowed)
             Section {
                 Button("Send test notification") {
-                    ChatNotices.post("Next Chat notifications", "Your local notifications are working.", route: "downloads", category: "nextNoticesDownloads", force: true, delay: 2)
+                    ChatNotices.post("Next Chat notifications", "Your local notifications are working.", route: "resume", category: "nextNoticesReplies", force: true, delay: 2)
                     status = "Test notification requested."
                 }.disabled(!enabled || !allowed)
                 if !status.isEmpty { Text(status).font(.caption).foregroundStyle(.secondary) }
@@ -1507,7 +1504,7 @@ struct SettingsView: View {
                     } label: { tile("Controls & gestures", "Navigation, haptics and links", "hand.tap", .blue) }
                 }
                 Section("App") {
-                    NavigationLink { NotificationSettings() } label: { tile("Notifications", "Replies, downloads and sounds", "bell.badge", .red) }
+                    NavigationLink { NotificationSettings() } label: { tile("Notifications", "AI responses and sounds", "bell.badge", .red) }
                     NavigationLink {
                         destination("Privacy") {
                 Section("Privacy") {
@@ -1547,7 +1544,7 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (17)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (18)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
 
                         }
@@ -1555,7 +1552,7 @@ struct SettingsView: View {
                     NavigationLink {
                         destination("About") {
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (17)")
+                    LabeledContent("Version", value: "1.0.0 (18)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -1913,13 +1910,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        guard ChatNotices.enabled else { completionHandler([]); return }
+        guard ChatNotices.enabled, (notification.request.content.userInfo["nextRoute"] as? String) != "downloads" else { completionHandler([]); return }
         completionHandler(ChatNotices.option("nextNoticesSound") ? [.banner, .list, .sound] : [.banner, .list])
     }
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void) {
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier,
-           let route = response.notification.request.content.userInfo["nextRoute"] as? String {
+           let route = response.notification.request.content.userInfo["nextRoute"] as? String, route != "downloads" {
             DispatchQueue.main.async {
                 Self.pendingNoticeRoute = route
                 NotificationCenter.default.post(name: .nextChatNoticeRoute, object: nil)
@@ -1929,6 +1926,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        ChatNotices.removeLegacyDownloadAlerts()
         application.shortcutItems = [
             UIApplicationShortcutItem(type: "new", localizedTitle: "New chat", localizedSubtitle: nil, icon: UIApplicationShortcutIcon(systemImageName: "square.and.pencil")),
             UIApplicationShortcutItem(type: "resume", localizedTitle: "Resume chat", localizedSubtitle: nil, icon: UIApplicationShortcutIcon(systemImageName: "clock")),
