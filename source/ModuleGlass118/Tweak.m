@@ -41,10 +41,14 @@ static char MGVolumeFillMaskKey;
 static char MGVolumeFillImageKey;
 static char MGConnectivityOriginalBackgroundColorKey;
 static char MGConnectivityOriginalLayerBackgroundColorKey;
-static char MGExpansionSuspendedKey;
-static char MGExpansionGenerationKey;
-static char MGExpansionTransitionActiveKey;
-static char MGCompactResumeScheduledKey;
+static char MGCompactSizeKey;
+static char MGApplyInProgressKey;
+static char MGLayoutPendingKey;
+static BOOL MGDeferredImageReload = NO;
+static CFTimeInterval MGTransitionStarted = 0;
+static CFTimeInterval MGCompactSince = 0;
+static void MGStartQuarantine(NSString *source);
+static void MGRefreshAll(NSString *source, BOOL forceReloadImages);
 
 static void (*MGOrigLabelSetText)(UILabel *, SEL, NSString *);
 static void (*MGOrigLabelSetAttributedText)(UILabel *, SEL, NSAttributedString *);
@@ -461,7 +465,8 @@ static void MGRestoreVolumeColorPresentation(UIView *root) {
     if (!root) return;
     for (UIView *child in [root.subviews copy]) {
         if (child.tag == MGVolumeIconOverlayTag || child.tag == MGVolumePercentageOverlayTag) {
-            [child removeFromSuperview];
+            if (MGGlobalTransitionQuarantine) child.hidden = YES;
+            else [child removeFromSuperview];
             continue;
         }
         MGRestoreVolumeColorPresentation(child);
@@ -1003,7 +1008,7 @@ static BOOL MGSubtreeContainsForegroundControl(UIView *view, UIImageView *custom
 
 static BOOL MGIsModuleSizedBlurVisual(UIView *view, UIView *root, UIImageView *customImage) {
     if (!view || !root || view == root || view == customImage || view.tag == MGImageTag || view.hidden) return NO;
-    if ([customImage isDescendantOfView:view]) return NO;
+    if ([customImage isDescendantOfView:view] || view.gestureRecognizers.count > 0) return NO;
     if ([view isKindOfClass:UIControl.class] || [view isKindOfClass:UILabel.class] ||
         [view isKindOfClass:UIImageView.class] || [view isKindOfClass:UIButton.class]) return NO;
     NSString *name = NSStringFromClass(view.class).lowercaseString ?: @"";
@@ -1112,7 +1117,7 @@ static void MGSliderSetValue(id self, SEL _cmd, CGFloat value) {
     if (MGGlobalTransitionQuarantine) return;
     if (![self isKindOfClass:UIView.class]) return;
     UIImageView *imageView=objc_getAssociatedObject(self, &MGVolumeFillImageKey);
-    if ([imageView isKindOfClass:UIImageView.class] && imageView.superview) MGApplySliderFillMask(imageView, (UIView *)self);
+    if ([imageView isKindOfClass:UIImageView.class] && imageView.superview && imageView.window && !imageView.hidden) MGApplySliderFillMask(imageView, (UIView *)self);
 }
 
 
@@ -1199,7 +1204,7 @@ static void MGSetTaggedImagesHiddenRecursive(UIView *root, BOOL hidden) {
             view.hidden = hidden;
             continue;
         }
-        if (view.tag == MGVolumeIconOverlayTag) {
+        if (view.tag == MGVolumeIconOverlayTag || view.tag == MGVolumePercentageOverlayTag || view.tag == MGSliderShellTag) {
             view.hidden = hidden;
             continue;
         }
@@ -1208,9 +1213,8 @@ static void MGSetTaggedImagesHiddenRecursive(UIView *root, BOOL hidden) {
 }
 
 static void MGSuspendControllerVisualsNonDestructive(id controller, NSString *source) {
-    if (!controller || ![controller respondsToSelector:@selector(view)]) return;
-    UIView *root=nil;
-    @try { root=[controller view]; } @catch (__unused NSException *e) { return; }
+    if (![controller isKindOfClass:UIViewController.class]) return;
+    UIView *root=((UIViewController *)controller).viewIfLoaded;
     if (!root) return;
 
     // CRITICAL: never add/remove UIKit views while Apple's Control Center expansion
@@ -1238,70 +1242,58 @@ static void MGQuarantineAllTrackedControllers(NSString *source) {
     if (MGVerboseDiagnosticsEnabled()) MGLog(@"transition-global-quarantine source=%@ controllers=%lu generation=%lu", source?:@"<nil>", (unsigned long)controllers.count, (unsigned long)MGGlobalTransitionGeneration);
 }
 
-static BOOL MGExpansionSuspended(id controller) {
-    return [objc_getAssociatedObject(controller,&MGExpansionSuspendedKey) boolValue];
+// Only loaded, attached module views participate in recovery. Never load a view
+// as a side effect of a transition or a lock-screen notification.
+static UIView *MGVisibleRoot(id controller) {
+    if (![controller isKindOfClass:UIViewController.class]) return nil;
+    UIView *root=((UIViewController *)controller).viewIfLoaded;
+    if (!root.window || root.window.hidden || root.window.alpha < 0.01) return nil;
+    for (UIView *v=root; v && v!=root.window; v=v.superview) {
+        if (v.hidden || v.alpha < 0.01) return nil;
+    }
+    if (CGRectGetWidth(root.bounds)<=1 || CGRectGetHeight(root.bounds)<=1) return nil;
+    return root;
 }
 
-static NSUInteger MGExpansionGeneration(id controller) {
-    return [objc_getAssociatedObject(controller,&MGExpansionGenerationKey) unsignedIntegerValue];
+static BOOL MGGeometryExpanded(id controller, UIView *root) {
+    if (!root) return NO;
+    if (MGIsExpanded(root)) return YES;
+    NSValue *baseline=objc_getAssociatedObject(controller,&MGCompactSizeKey);
+    if (!baseline || !MGGlobalTransitionQuarantine) return NO;
+    CGSize old=baseline.CGSizeValue, now=root.bounds.size;
+    CGFloat oldLong=MAX(old.width,old.height), newLong=MAX(now.width,now.height);
+    CGFloat oldShort=MIN(old.width,old.height), newShort=MIN(now.width,now.height);
+    return (newLong>oldLong*1.45 && newLong>oldLong+44) ||
+           (newShort>oldShort*1.45 && newShort>oldShort+44);
 }
 
-static NSUInteger MGAdvanceExpansionGeneration(id controller) {
-    NSUInteger generation=MGExpansionGeneration(controller)+1;
-    objc_setAssociatedObject(controller,&MGExpansionGenerationKey,@(generation),OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    objc_setAssociatedObject(controller,&MGCompactResumeScheduledKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    return generation;
+static BOOL MGNativeExpanded(id controller) {
+    // Optional native state, queried only when it has the expected BOOL ABI.
+    SEL sel=NSSelectorFromString(@"isExpanded");
+    if (![controller respondsToSelector:sel]) return NO;
+    NSMethodSignature *sig=[controller methodSignatureForSelector:sel];
+    if (!sig || sig.numberOfArguments!=2 || sig.methodReturnLength!=sizeof(BOOL)) return NO;
+    const char *t=sig.methodReturnType;
+    if (!t || (t[0]!='B' && t[0]!='c')) return NO;
+    return ((BOOL (*)(id,SEL))[controller methodForSelector:sel])(controller,sel);
 }
 
-static BOOL MGExpansionTransitionActive(id controller) {
-    return [objc_getAssociatedObject(controller,&MGExpansionTransitionActiveKey) boolValue];
+static BOOL MGHasNativeCoordinator(id controller) {
+    for (UIViewController *vc=controller; vc; vc=vc.parentViewController) {
+        if (vc.transitionCoordinator) return YES;
+    }
+    return NO;
 }
 
-static void MGSetExpansionTransitionActive(id controller, BOOL active) {
-    if (!controller) return;
-    objc_setAssociatedObject(controller,&MGExpansionTransitionActiveKey,@(active),OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-static void MGBeginExpansionSuspension(id controller, NSString *source) {
-    if (!controller || MGExpansionSuspended(controller)) return;
-    objc_setAssociatedObject(controller,&MGExpansionSuspendedKey,@YES,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    objc_setAssociatedObject(controller,&MGLastDiagnosticKey,nil,OBJC_ASSOCIATION_COPY_NONATOMIC);
-    // Never structurally mutate Apple's hierarchy at transition start. Removing a
-    // custom image/shell here can invalidate Control Center's expansion snapshot and
-    // leave the module/container stuck after lock/unlock. Hide in place instead.
-    MGSuspendControllerVisualsNonDestructive(controller,source);
-}
-
-static void MGClearExpansionSuspension(id controller) {
-    if (!controller) return;
-    objc_setAssociatedObject(controller,&MGExpansionSuspendedKey,@NO,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    objc_setAssociatedObject(controller,&MGLastDiagnosticKey,nil,OBJC_ASSOCIATION_COPY_NONATOMIC);
-}
-
-static BOOL MGControllerGeometryExpanded(id controller, UIView **rootOut) {
-    if (!controller || ![controller respondsToSelector:@selector(view)]) return YES;
-    UIView *root=nil;
-    @try { root=[controller view]; } @catch (__unused NSException *e) { return YES; }
-    if (rootOut) *rootOut=root;
-    return MGIsExpanded(root);
-}
-
-static void MGApplyController(id controller, NSString *source) {
-    if (!controller || ![controller respondsToSelector:@selector(view)]) return;
-    UIView *root = [controller view];
-    if (!root) return;
-
-    // Parent and child CC controllers do not always receive the same expansion
-    // callback. The global gate is intentionally checked before any restore,
-    // traversal, insertion, masking, or suppression work.
+static void MGApplyControllerNow(id controller, NSString *source) {
     if (MGGlobalTransitionQuarantine) return;
-    if (MGExpansionSuspended(controller)) return;
-    if (MGIsExpanded(root)) {
-        // Geometry fallback for expansion paths that do not call viewWillTransitionToSize:.
-        // Suspend non-destructively once, then the renderer becomes completely passive.
-        MGBeginExpansionSuspension(controller,@"expanded-geometry-fallback");
+    UIView *root=MGVisibleRoot(controller);
+    if (!root) return;
+    if (MGGeometryExpanded(controller,root) || MGNativeExpanded(controller)) {
+        MGStartQuarantine(@"expanded-layout-fallback");
         return;
     }
+    objc_setAssociatedObject(controller,&MGCompactSizeKey,[NSValue valueWithCGSize:root.bounds.size],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     NSArray<NSString *> *candidates = nil;
     NSString *slot = MGSlotForController(controller, &candidates);
@@ -1310,25 +1302,11 @@ static void MGApplyController(id controller, NSString *source) {
     MGRestoreBrightnessLayers(root.layer);
     MGRestoreModuleBlurVisuals(root);
     MGRestoreConnectivityActiveBackgrounds(root);
-    BOOL expanded = MGIsExpanded(root);
     BOOL enabled = MGBoolPreference(@"CCModuleBackgroundsEnabled", YES);
     CGFloat opacity = MIN(1.0, MAX(0.0, MGFloatPreference(@"CCModuleBackgroundOpacity", 1.0)));
     BOOL removeBlur = MGBoolPreference(@"CCModuleRemoveBlur", NO);
     NSString *path = [MGBackgroundDirectory stringByAppendingPathComponent:[slot stringByAppendingString:@".jpg"]];
     BOOL exists = [NSFileManager.defaultManager fileExistsAtPath:path];
-
-    if (expanded) {
-        BOOL sliderSlot = [slot isEqualToString:@"brightness"] || [slot isEqualToString:@"volume"];
-        if (sliderSlot) {
-            UIView *slider = MGFindSliderView(root);
-            if (slider) objc_setAssociatedObject(slider, &MGVolumeFillImageKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-            MGRemoveSliderShells(root);
-        }
-        MGRemoveTaggedImages(root, nil);
-        NSString *sig = [NSString stringWithFormat:@"expanded|%@|%.0fx%.0f", slot, CGRectGetWidth(root.bounds), CGRectGetHeight(root.bounds)];
-        MGDiagnosticOnce(controller, sig, [NSString stringWithFormat:@"expanded-bypass source=%@ controller=%@ slot=%@ frame=%@ candidates=%@", source, NSStringFromClass([controller class]), slot, NSStringFromCGRect(root.frame), candidates]);
-        return;
-    }
 
     BOOL volumeIconApplied = NO;
     NSString *volumeIconClass = @"<none>";
@@ -1373,7 +1351,8 @@ static void MGApplyController(id controller, NSString *source) {
     if (!imageView.superview) {
         if (anchor && anchor.superview == parent) [parent insertSubview:imageView aboveSubview:anchor];
         else [parent insertSubview:imageView atIndex:0];
-    } else if (anchor && anchor.superview == parent) {
+    } else if (anchor && anchor.superview == parent &&
+               [parent.subviews indexOfObjectIdenticalTo:imageView] < [parent.subviews indexOfObjectIdenticalTo:anchor]) {
         [parent insertSubview:imageView aboveSubview:anchor];
     }
 
@@ -1432,22 +1411,40 @@ static void MGApplyController(id controller, NSString *source) {
                       source, NSStringFromClass([controller class]), candidates, slot, path, exists, enabled, imageView.image != nil, removeBlur, (unsigned long)blurSuppressed, blurSuppressedClasses, opacity, strategy, NSStringFromClass(root.class), NSStringFromCGRect(root.frame), NSStringFromClass(parent.class), anchor ? NSStringFromClass(anchor.class) : @"<none>", anchor ? NSStringFromCGRect(anchor.frame) : @"<none>", cornerSource.layer.cornerRadius, NSStringFromCGRect(imageView.frame), (unsigned long)parent.subviews.count, imageView, (unsigned long)imageFirstSuppressed, imageFirstSuppressedClasses, volumeIconColorEnabled, volumeIconApplied, volumeIconColorHex, volumeIconClass, NSStringFromCGRect(volumeIconFrame), volumePercentageApplied, volumePercentageClass, NSStringFromCGRect(volumePercentageFrame), volumePercentageText, volumeFillValue, glow, glowIntensity, glowWidth]);
 }
 
+static void MGApplyController(id controller, NSString *source) {
+    if (!controller || MGGlobalTransitionQuarantine ||
+        [objc_getAssociatedObject(controller,&MGApplyInProgressKey) boolValue]) return;
+    objc_setAssociatedObject(controller,&MGApplyInProgressKey,@YES,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    @try { MGApplyControllerNow(controller,source); }
+    @finally { objc_setAssociatedObject(controller,&MGApplyInProgressKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC); }
+}
+
 static void MGTrackAndApply(id controller, NSString *source) {
     if (!controller) return;
     @synchronized (MGControllers) { [MGControllers addObject:controller]; }
-    MGApplyController(controller, source);
+    MGPostLayoutRecovery(controller, source);
 }
 
 static void MGRefreshAll(NSString *source, BOOL forceReloadImages) {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (MGGlobalTransitionQuarantine) {
-            if (MGVerboseDiagnosticsEnabled()) MGLog(@"refresh-deferred-transition-quarantine source=%@", source?:@"<nil>");
+            MGDeferredImageReload |= forceReloadImages;
             return;
         }
+        BOOL reload=forceReloadImages || MGDeferredImageReload;
+        MGDeferredImageReload=NO;
         NSArray *controllers = nil;
         @synchronized (MGControllers) { controllers = MGControllers.allObjects; }
         for (id controller in controllers) {
-            if (forceReloadImages && [controller respondsToSelector:@selector(view)]) MGRemoveTaggedImages([controller view], nil);
+            if (MGGlobalTransitionQuarantine) { MGDeferredImageReload |= reload; break; }
+            UIView *root=MGVisibleRoot(controller);
+            if (!root) continue;
+            if (MGGeometryExpanded(controller,root) || MGNativeExpanded(controller)) {
+                MGDeferredImageReload |= reload;
+                MGStartQuarantine(@"refresh-expanded-fallback");
+                break;
+            }
+            if (reload) MGRemoveTaggedImages(root,nil);
             objc_setAssociatedObject(controller, &MGLastDiagnosticKey, nil, OBJC_ASSOCIATION_COPY_NONATOMIC);
             MGApplyController(controller, source);
         }
@@ -1474,139 +1471,94 @@ static void MGContentLayout(id self, SEL _cmd) {
     MGPostLayoutRecovery(self, @"CCUIContentModuleContainerViewController.layout");
 }
 
-static BOOL MGHasTransitionCoordinator(id controller) {
-    return [controller isKindOfClass:UIViewController.class] && ((UIViewController *)controller).transitionCoordinator!=nil;
-}
-
-static void MGResumeCompactAttempt(id controller, NSUInteger generation, NSString *source, NSUInteger attempt);
-
-static void MGScheduleStableCompactResume(id controller, NSUInteger generation, NSString *source) {
-    if (!controller || generation!=MGExpansionGeneration(controller)) return;
-    NSNumber *scheduled=objc_getAssociatedObject(controller,&MGCompactResumeScheduledKey);
-    if (scheduled && scheduled.unsignedIntegerValue==generation) return;
-    objc_setAssociatedObject(controller,&MGCompactResumeScheduledKey,@(generation),OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    MGResumeCompactAttempt(controller,generation,source,0);
-}
-
-static void MGResumeCompactAttempt(id controller, NSUInteger generation, NSString *source, NSUInteger attempt) {
-    __weak id weakController=controller;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.12*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
-        id strongController=weakController;
-        if (!strongController || generation!=MGExpansionGeneration(strongController)) return;
-        NSNumber *scheduled=objc_getAssociatedObject(strongController,&MGCompactResumeScheduledKey);
-        if (!scheduled || scheduled.unsignedIntegerValue!=generation) return;
-
-        UIView *root=nil;
-        BOOL expanded=MGControllerGeometryExpanded(strongController,&root);
-        BOOL busy=MGExpansionTransitionActive(strongController) || MGHasTransitionCoordinator(strongController);
-        if (!expanded && !busy) {
-            objc_setAssociatedObject(strongController,&MGCompactResumeScheduledKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-            MGClearExpansionSuspension(strongController);
-            @synchronized (MGControllers) { [MGControllers addObject:strongController]; }
-            MGApplyController(strongController,source);
-            if (MGVerboseDiagnosticsEnabled()) MGLog(@"compact-resume source=%@ controller=%@ frame=%@ generation=%lu",source?:@"<nil>",NSStringFromClass([strongController class]),NSStringFromCGRect(root.frame),(unsigned long)generation);
+// Quarantine is a session, not a one-shot transition callback. A single poll
+// chain observes the actual attached geometry until native compact mode is
+// stable. Stale completion blocks cannot re-enable the renderer.
+static void MGRecoveryTick(NSUInteger generation) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.20*NSEC_PER_SEC)),dispatch_get_main_queue(), ^{
+        if (!MGGlobalTransitionQuarantine || generation!=MGGlobalTransitionGeneration) return;
+        NSArray *controllers=nil;
+        @synchronized (MGControllers) { controllers=MGControllers.allObjects; }
+        BOOL visible=NO, expanded=NO, coordinator=NO;
+        for (id controller in controllers) {
+            UIView *root=MGVisibleRoot(controller);
+            if (!root) continue;
+            visible=YES;
+            expanded |= MGGeometryExpanded(controller,root) || MGNativeExpanded(controller);
+            coordinator |= MGHasNativeCoordinator(controller);
+        }
+        CFTimeInterval now=CACurrentMediaTime(), age=now-MGTransitionStarted;
+        // A missing/cancelled coordinator completion must not permanently
+        // suspend compact rendering. Do not touch any views while expanded.
+        BOOL safe=(!visible || !expanded) && age>=0.65 && (!coordinator || age>=2.5);
+        if (!safe) MGCompactSince=0;
+        else if (MGCompactSince==0) MGCompactSince=now;
+        if (safe && now-MGCompactSince>=0.24) {
+            MGGlobalTransitionQuarantine=NO;
+            MGCompactSince=0;
+            if (MGVerboseDiagnosticsEnabled()) MGLog(@"session-resume generation=%lu visible=%d age=%.2f",(unsigned long)generation,visible,age);
+            MGRefreshAll(@"session-compact-recovery",NO);
             return;
         }
-
-        if (!expanded && attempt<7) {
-            MGResumeCompactAttempt(strongController,generation,source,attempt+1);
-            return;
-        }
-        objc_setAssociatedObject(strongController,&MGCompactResumeScheduledKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        MGRecoveryTick(generation);
     });
 }
 
-static void MGTransitionWatchdog(id controller, NSUInteger generation, NSString *source) {
-    __weak id weakController=controller;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(1.20*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
-        id strongController=weakController;
-        if (!strongController || generation!=MGExpansionGeneration(strongController) || !MGExpansionTransitionActive(strongController)) return;
-        if (MGHasTransitionCoordinator(strongController)) return;
-        MGSetExpansionTransitionActive(strongController,NO);
-        if (MGVerboseDiagnosticsEnabled()) MGLog(@"transition-watchdog source=%@ controller=%@ generation=%lu",source?:@"<nil>",NSStringFromClass([strongController class]),(unsigned long)generation);
-        MGScheduleStableCompactResume(strongController,generation,@"transition-watchdog-compact-recovery");
-    });
-}
-
-static void MGFinishGlobalTransition(NSUInteger globalGeneration, NSString *source) {
-    if (globalGeneration != MGGlobalTransitionGeneration) return;
-    MGGlobalTransitionQuarantine = NO;
-    if (MGVerboseDiagnosticsEnabled()) MGLog(@"transition-global-resume source=%@ generation=%lu", source?:@"<nil>", (unsigned long)globalGeneration);
-    MGRefreshAll(source ?: @"transition-global-resume", NO);
-}
-
-static void MGScheduleGlobalTransitionWatchdog(id controller, NSUInteger globalGeneration, NSString *source) {
-    __weak id weakController = controller;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(2.0*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
-        if (!MGGlobalTransitionQuarantine || globalGeneration != MGGlobalTransitionGeneration) return;
-        id strongController = weakController;
-        if (strongController && MGHasTransitionCoordinator(strongController)) return;
-        if (MGVerboseDiagnosticsEnabled()) MGLog(@"transition-global-watchdog source=%@ generation=%lu", source?:@"<nil>", (unsigned long)globalGeneration);
-        MGFinishGlobalTransition(globalGeneration, @"transition-global-watchdog");
-    });
-}
-
-static void MGFinishTransition(id controller, NSUInteger generation, NSString *source) {
-    if (!controller || generation!=MGExpansionGeneration(controller)) return;
-    MGSetExpansionTransitionActive(controller,NO);
-    MGScheduleStableCompactResume(controller,generation,source);
-}
-
-static void MGRegisterTransitionCompletion(id controller, id coordinator, NSUInteger generation, NSUInteger globalGeneration, NSString *source) {
-    __weak id weakController=controller;
-    if (coordinator && [coordinator respondsToSelector:@selector(animateAlongsideTransition:completion:)]) {
-        [coordinator animateAlongsideTransition:nil completion:^(__unused id context){
-            id strongController=weakController;
-            if (strongController) MGFinishTransition(strongController,generation,source);
-            MGFinishGlobalTransition(globalGeneration,source);
-        }];
-    } else {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.55*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
-            id strongController=weakController;
-            if (strongController) MGFinishTransition(strongController,generation,source);
-            MGFinishGlobalTransition(globalGeneration,source);
-        });
-    }
-    MGTransitionWatchdog(controller,generation,source);
-    MGScheduleGlobalTransitionWatchdog(controller,globalGeneration,source);
-}
-
-static void MGHandleWillTransition(id controller, CGSize size, id coordinator, NSString *source) {
-    if (!controller) return;
-    NSUInteger generation=MGAdvanceExpansionGeneration(controller);
-    NSUInteger globalGeneration=++MGGlobalTransitionGeneration;
+static void MGStartQuarantine(NSString *source) {
+    BOOL wasQuarantined=MGGlobalTransitionQuarantine;
     MGGlobalTransitionQuarantine=YES;
-    // Quarantine every tracked renderer BEFORE Apple's original transition method
-    // runs. This catches child controllers (notably Volume and Connectivity) whose
-    // layout/value callbacks can continue while a parent container owns expansion.
-    MGQuarantineAllTrackedControllers(source);
-    MGSetExpansionTransitionActive(controller,YES);
-    MGBeginExpansionSuspension(controller,source);
-    if (MGVerboseDiagnosticsEnabled()) MGLog(@"transition-begin source=%@ controller=%@ target=%@ generation=%lu globalGeneration=%lu",source?:@"<nil>",NSStringFromClass([controller class]),NSStringFromCGSize(size),(unsigned long)generation,(unsigned long)globalGeneration);
-    MGRegisterTransitionCompletion(controller,coordinator,generation,globalGeneration,[source stringByAppendingString:@"-complete"]);
+    MGTransitionStarted=CACurrentMediaTime();
+    MGCompactSince=0;
+    NSUInteger generation=++MGGlobalTransitionGeneration;
+    if (!wasQuarantined) {
+        // Hide in place, restore only values previously changed by Module Glass.
+        // No view removal, reparenting, mask updates or transition registration.
+        [UIView performWithoutAnimation:^{ MGQuarantineAllTrackedControllers(source); }];
+    }
+    MGRecoveryTick(generation);
 }
 
 static void MGModuleWillTransition(id self,SEL c,CGSize size,id coordinator) {
-    MGHandleWillTransition(self,size,coordinator,@"module-size-transition");
+    @synchronized (MGControllers) { [MGControllers addObject:self]; }
+    MGStartQuarantine(@"module-size-transition");
     if(MGOrigModuleWillTransition) MGOrigModuleWillTransition(self,c,size,coordinator);
 }
 static void MGContentWillTransition(id self,SEL c,CGSize size,id coordinator) {
-    MGHandleWillTransition(self,size,coordinator,@"content-size-transition");
+    @synchronized (MGControllers) { [MGControllers addObject:self]; }
+    MGStartQuarantine(@"content-size-transition");
     if(MGOrigContentWillTransition) MGOrigContentWillTransition(self,c,size,coordinator);
 }
 
 static void MGPostLayoutRecovery(id controller, NSString *source) {
     if (!controller) return;
     @synchronized (MGControllers) { [MGControllers addObject:controller]; }
-    if (MGExpansionSuspended(controller)) {
-        UIView *root=nil;
-        BOOL expanded=MGControllerGeometryExpanded(controller,&root);
-        if (!expanded && !MGExpansionTransitionActive(controller) && !MGHasTransitionCoordinator(controller)) {
-            MGScheduleStableCompactResume(controller,MGExpansionGeneration(controller),source);
-        }
+    if (MGGlobalTransitionQuarantine) return;
+    UIView *root=MGVisibleRoot(controller);
+    if (!root) return;
+    if (MGGeometryExpanded(controller,root) || MGNativeExpanded(controller) || MGHasNativeCoordinator(controller)) {
+        MGStartQuarantine(@"layout-native-transition");
         return;
     }
-    MGApplyController(controller,source);
+    // Never mutate a module synchronously inside Apple's layout call stack.
+    if ([objc_getAssociatedObject(controller,&MGApplyInProgressKey) boolValue] ||
+        [objc_getAssociatedObject(controller,&MGLayoutPendingKey) boolValue]) return;
+    objc_setAssociatedObject(controller,&MGLayoutPendingKey,@YES,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    __weak id weakController=controller;
+    NSUInteger generation=MGGlobalTransitionGeneration;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        id strongController=weakController;
+        if (!strongController) return;
+        objc_setAssociatedObject(strongController,&MGLayoutPendingKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        if (generation!=MGGlobalTransitionGeneration || MGGlobalTransitionQuarantine) return;
+        MGApplyController(strongController,source);
+    });
+}
+
+static void MGLockComplete(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // Invalidate queued work and let actual window visibility decide recovery.
+        MGStartQuarantine(@"screen-lock");
+    });
 }
 
 static IMP MGInstallLocalHook(Class cls,SEL sel,IMP hook) {
@@ -1660,13 +1612,14 @@ __attribute__((constructor)) static void MGInit(void) {
         MSHookMessageEx(UILabel.class, @selector(setTextColor:), (IMP)MGLabelSetTextColor, (IMP *)&MGOrigLabelSetTextColor);
 
         CFNotificationCenterRef darwin = CFNotificationCenterGetDarwinNotifyCenter();
+        CFNotificationCenterAddObserver(darwin, NULL, MGLockComplete, CFSTR("com.apple.springboard.lockcomplete"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
         CFNotificationCenterAddObserver(darwin, NULL, MGPrefsChanged, CFSTR("com.nextsolution.unlockvibrate/preferences.changed"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
         CFNotificationCenterAddObserver(darwin, NULL, MGPrefsChanged, CFSTR("com.nextsolution.moduleglass/license.changed"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
         CFNotificationCenterAddObserver(darwin, NULL, MGPrefsChanged, CFSTR("preferences.changed"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
         CFNotificationCenterAddObserver(darwin, NULL, MGPrefsChanged, CFSTR("com.nextsolution.nextlog/control.changed"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 
         [NSFileManager.defaultManager createDirectoryAtPath:MGBackgroundDirectory withIntermediateDirectories:YES attributes:nil error:nil];
-        MGLog(@"ModuleGlassRuntime 1.1.15 External Host Isolation Renderer loaded SpringBoard=%@ prefsEnabled=%d licenseActive=%d", NSBundle.mainBundle.bundleIdentifier, MGBoolPreference(@"CCModuleBackgroundsEnabled", YES), MGLicenseActiveCached);
+        MGLog(@"ModuleGlassRuntime 1.1.20 Expansion Session Recovery loaded SpringBoard=%@ prefsEnabled=%d licenseActive=%d", NSBundle.mainBundle.bundleIdentifier, MGBoolPreference(@"CCModuleBackgroundsEnabled", YES), MGLicenseActiveCached);
         MGLog(@"Glyph-safe stretch runtime with shared Brightness/Volume slider pattern process=%@ pid=%d dlopen=%p moduleClass=%@ contentClass=%@ sliderClass=%@", NSProcessInfo.processInfo.processName, getpid(), handle, moduleClass, contentClass, sliderClass);
         MGLog(@"diagnostic-control active=%d prefsDomain=%@ backgroundDirectory=%@ log=%@", MGVerboseDiagnosticsEnabled(), (__bridge NSString *)MGPrefsDomain, MGBackgroundDirectory, MGLogPath);
     }

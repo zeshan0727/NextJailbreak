@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare one independently built Module Glass 1.1.19 package variant."""
+"""Prepare one independently built Module Glass 1.1.20 package variant."""
 
 from pathlib import Path
 import plistlib
@@ -9,7 +9,7 @@ import sys
 from generate_preferences import CATEGORIES, EXPECTED_SLOTS, build_preferences
 
 
-VERSION = "1.1.19"
+VERSION = "1.1.20"
 RUNTIME_PACKAGE = "com.nextsolution.nextaura.runtime.ccbackgrounds"
 
 
@@ -103,15 +103,15 @@ replacements = {
     "Architecture": architecture,
     "Description": (
         "Premium Control Center styling with independently selected module images, blur, opacity, glow, "
-        "and Volume glyph color controls. Version 1.1.19 introduces categorized native settings and "
-        "Next Jailbreak branding while preserving the validated renderer and live $1 lifetime activation."
+        "and Volume glyph color controls. Version 1.1.20 retains categorized native settings and "
+        "Next Jailbreak branding while improving expansion and collapse recovery and live $1 lifetime activation."
     ),
     "Maintainer": "Next Jailbreak",
     "Author": "Next Jailbreak - Zeeshan Barvi",
     "Provides": f"{RUNTIME_PACKAGE} (= {VERSION})",
-    "Conflicts": f"{RUNTIME_PACKAGE} (<= 1.1.18), com.nextsolution.unlockvibrate",
-    "Breaks": f"{RUNTIME_PACKAGE} (<= 1.1.18)",
-    "Replaces": f"{RUNTIME_PACKAGE} (<= 1.1.18)",
+    "Conflicts": f"{RUNTIME_PACKAGE} (<= 1.1.19), com.nextsolution.unlockvibrate",
+    "Breaks": f"{RUNTIME_PACKAGE} (<= 1.1.19)",
+    "Replaces": f"{RUNTIME_PACKAGE} (<= 1.1.19)",
 }
 for field, value in replacements.items():
     pattern = rf"(?m)^{re.escape(field)}:.*$"
