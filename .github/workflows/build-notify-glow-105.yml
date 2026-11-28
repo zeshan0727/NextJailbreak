@@ -1,0 +1,53 @@
+name: Notify Glow 1.0.5 RootHide test
+on:
+  push:
+    branches: [agent/notify-glow-1.0.5-test]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    if: github.ref == 'refs/heads/agent/notify-glow-1.0.5-test' || github.head_ref == 'agent/notify-glow-1.0.5-test'
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover and validate source
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/glow"
+          cat build-input/notify-glow-105/part*.b64 | base64 -D > "$RUNNER_TEMP/glow.tar.gz"
+          echo "489b597191726f2e37bbd8b58d3bd2706198dcf1377491a1addcfb622a432244  $RUNNER_TEMP/glow.tar.gz" | shasum -a 256 -c
+          tar -xzf "$RUNNER_TEMP/glow.tar.gz" -C "$RUNNER_TEMP/glow"
+          cp icons/nextaura/notification-glow.png "$RUNNER_TEMP/glow/category/prefs/icon.png"
+          cd "$RUNNER_TEMP/glow"
+          python3 validate.py
+      - name: Install toolchain
+        run: |
+          brew install dpkg ldid xz
+          git init "$RUNNER_TEMP/theos"
+          git -C "$RUNNER_TEMP/theos" remote add origin https://github.com/roothide/theos.git
+          git -C "$RUNNER_TEMP/theos" fetch --depth 1 origin 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
+          git -C "$RUNNER_TEMP/theos" checkout --detach FETCH_HEAD
+          git -C "$RUNNER_TEMP/theos" submodule update --init --recursive --depth 1
+      - name: Compile and package
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/glow"
+          THEOS="$RUNNER_TEMP/theos" bash build.sh 2>&1 | tee "$RUNNER_TEMP/glow-build.log"
+          for f in output/*.deb; do
+            dpkg-deb -I "$f"
+            dpkg-deb -c "$f"
+          done
+          test "$(find output -name '*.deb' | wc -l | tr -d ' ')" = 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: NotifyGlow-1.0.5-RootHide-test
+          path: |
+            ${{ runner.temp }}/glow/output/*.deb
+            ${{ runner.temp }}/glow-build.log
+          if-no-files-found: warn
