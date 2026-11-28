@@ -9,12 +9,16 @@ def one(a,b):
  s=s.replace(a,b,1)
 one('static void UVNGReloadPreferences(void) {','''static BOOL UVNGFloatingEnabled;
 static CGFloat UVNGFloatingSize, UVNGFloatingSensitivity, UVNGFloatingBounce, UVNGFloatingGlow;
+static CGFloat UVNGFloatingSpeed, UVNGFloatingSmoothness, UVNGFloatingRotation;
 static void UVNGReloadPreferences(void) {''')
 one('    UVNGIconSize = UVNGFloat(','''    UVNGFloatingEnabled = UVNGBool(@"NotificationGlowFloatingEnabled", NO);
     UVNGFloatingSize = UVNGFloat(@"NotificationGlowFloatingSize", 52, 28, 84);
     UVNGFloatingSensitivity = UVNGFloat(@"NotificationGlowFloatingSensitivity", 1.0, .2, 2.0);
     UVNGFloatingBounce = UVNGFloat(@"NotificationGlowFloatingBounce", .72, .05, .98);
     UVNGFloatingGlow = UVNGFloat(@"NotificationGlowFloatingGlow", .65, 0, 1);
+    UVNGFloatingSpeed = UVNGFloat(@"NotificationGlowFloatingSpeed", 1.0, .25, 2.0);
+    UVNGFloatingSmoothness = UVNGFloat(@"NotificationGlowFloatingSmoothness", .65, 0, 1);
+    UVNGFloatingRotation = UVNGFloat(@"NotificationGlowFloatingRotation", .75, 0, 1.5);
     UVNGIconSize = UVNGFloat(''')
 # Source is kept in the same translation unit so the existing helper functions are reused.
 one('static void UVNGNotificationObserved(id controller) {','''#include "NGFloating.inc"
@@ -101,9 +105,9 @@ one('        %init(UVNGHooks);','''        %init(UVNGHooks);
         if(NGFVoidMethod(dispatchClass,@selector(withdrawNotificationWithRequest:),3)){
             %init(NGFWithdraw);
         }
-        NSLog(@"[NotifyGlow 1.0.7] Floating engine ready; dispatcher hook=%d",NGFDispatcherHooked);''')
+        NSLog(@"[NotifyGlow 1.0.8] Floating engine ready; dispatcher hook=%d",NGFDispatcherHooked);''')
 one('            (__bridge NSString *)UVNGStop\n','            (__bridge NSString *)UVNGStop,\n            (__bridge NSString *)UVNGTestFloating,\n            (__bridge NSString *)UVNGStopFloating\n')
-s=s.replace('NotifyGlow 1.0.6','NotifyGlow 1.0.7')
+s=s.replace('NotifyGlow 1.0.6','NotifyGlow 1.0.8')
 rt.write_text(s)
 make=base/'runtime/Makefile'
 make.write_text(make.read_text().replace('AudioToolbox CoreFoundation','AudioToolbox CoreMotion CoreFoundation'))
@@ -116,23 +120,44 @@ def slider(label,key,default,lo,hi):
  return pref('PSSliderCell',label,key,default,min=lo,max=hi,showValue=True)
 idx=next(i for i,x in enumerate(items) if x.get('label')=='Position')
 items[idx:idx]=[
- dict(cell='PSGroupCell',label='FLOATING ICONS',footerText='Full-screen gravity physics. Real app icons, grouped counters, up to 120 Hz where supported. Hidden while locked. Tap for notification access.'),
+ dict(cell='PSGroupCell',label='FLOATING ICONS',footerText='Independent full-screen drift and tilt response, with collision avoidance. Adjust speed and smoothness separately. Rotation keeps the counter upright. Up to 120 Hz where supported.'),
  pref('PSSwitchCell','Floating mode','Enabled',False),
  slider('Floating icon size (pt)','Size',52,28,84),
  slider('Movement sensitivity','Sensitivity',1,.2,2),
  slider('Bouncing intensity','Bounce',.72,.05,.98),
  slider('Floating glow intensity','Glow',.65,0,1),
+ slider('Floating speed','Speed',1,.25,2),
+ slider('Motion smoothness','Smoothness',.65,0,1),
+ slider('Icon rotation speed','Rotation',.75,0,1.5),
  dict(cell='PSButtonCell',label='Test full-screen floating icons',action='test:',event='com.nextsolution.notifyglow/test-floating'),
  dict(cell='PSButtonCell',label='Stop floating preview',action='test:',event='com.nextsolution.notifyglow/stop-floating'),
 ]
 f.write_bytes(plistlib.dumps(d))
+# PSSliderCell on iOS 16 ignores the label in the visual cell. Give each
+# slider its own native section header, including existing controls on every page.
+for page in prefs.glob('*.plist'):
+ data=plistlib.loads(page.read_bytes())
+ if not isinstance(data,dict) or not isinstance(data.get('items'),list): continue
+ labeled=[]
+ for item in data['items']:
+  if item.get('cell')=='PSSliderCell':
+   label=item.get('label') or item.get('key','Adjustment')
+   if label.startswith('NotificationGlow'):
+    import re
+    label=re.sub(r'(?<=[a-z])(?=[A-Z])',' ',label[len('NotificationGlow'):])
+   labeled.append(dict(cell='PSGroupCell',label=label))
+  labeled.append(item)
+ data['items']=labeled
+ page.write_bytes(plistlib.dumps(data))
+ for i,item in enumerate(labeled):
+  if item.get('cell')=='PSSliderCell': assert i>0 and labeled[i-1].get('cell')=='PSGroupCell' and labeled[i-1].get('label'),page.name
 for f in [prefs/'Info.plist',prefs/'Root.plist',prefs/'NGController.m',base/'runtime/control',base/'category/control']:
- s=f.read_text().replace('1.0.6','1.0.7')
- if f.name=='control':s=s.replace('1.0.2','1.0.3').replace('1.0.5 animation engine','1.0.7 floating icon animation engine')
+ s=f.read_text().replace('1.0.6','1.0.8')
+ if f.name=='control':s=s.replace('1.0.2','1.0.4').replace('1.0.5 animation engine','1.0.8 floating icon animation engine')
  f.write_text(s)
 # Original validator sees the new event strings and keys from included source.
 v=base/'validate.py'
-t=v.read_text().replace("runtime=(base/'runtime/NotificationGlow.xm').read_text();","runtime=(base/'runtime/NotificationGlow.xm').read_text()+(base/'runtime/NGFloating.inc').read_text();").replace('runtime.glow (>= 1.0.2)','runtime.glow (>= 1.0.3)')
+t=v.read_text().replace("runtime=(base/'runtime/NotificationGlow.xm').read_text();","runtime=(base/'runtime/NotificationGlow.xm').read_text()+(base/'runtime/NGFloating.inc').read_text();").replace('runtime.glow (>= 1.0.2)','runtime.glow (>= 1.0.4)')
 v.write_text(t)
 assert 'CoreMotion' in make.read_text()
 assert 'CAFrameRateRangeMake' in (base/'runtime/NGFloating.inc').read_text()

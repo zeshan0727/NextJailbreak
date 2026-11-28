@@ -1,4 +1,4 @@
-// Notify Glow - Next Jailbreak | Floating Icon Engine 1.0.7
+// Notify Glow - Next Jailbreak | Floating Icon Engine 1.0.8
 #import <CoreMotion/CoreMotion.h>
 #import <objc/runtime.h>
 #import <notify.h>
@@ -78,10 +78,16 @@ static BOOL NGFModeAllowed(void) {
 @property(nonatomic,strong) NSMutableOrderedSet<NSString *> *keys;
 @property(nonatomic,strong) NSMutableDictionary<NSString *,NSDate *> *dates;
 @property(nonatomic,strong) UIButton *button;
+@property(nonatomic,strong) UIView *rotor;
 @property(nonatomic,strong) UIImageView *image;
 @property(nonatomic,strong) UILabel *badge;
 @property(nonatomic) CGPoint pos;
 @property(nonatomic) CGPoint vel;
+@property(nonatomic) CGFloat heading;
+@property(nonatomic) CGFloat phase;
+@property(nonatomic) CGFloat turnBias;
+@property(nonatomic) CGFloat angle;
+@property(nonatomic) CGFloat spin;
 @property(nonatomic) BOOL held;
 @property(nonatomic) BOOL preview;
 @end
@@ -236,7 +242,9 @@ static BOOL NGFModeAllowed(void) {
     CGFloat d=self.diameter>0?self.diameter:UVNGFloatingSize;
     b.button.bounds=CGRectMake(0,0,d,d);b.button.center=b.pos;
     b.button.backgroundColor=UIColor.clearColor;
-    b.image.frame=b.button.bounds;b.image.alpha=UVNGIconOpacity;
+    b.rotor.bounds=b.button.bounds;b.rotor.center=CGPointMake(d/2,d/2);
+    b.image.frame=b.rotor.bounds;b.image.alpha=UVNGIconOpacity;
+    if(UVNGFloatingRotation<=.001){b.angle=0;b.rotor.transform=CGAffineTransformIdentity;}
     b.image.layer.cornerRadius=UVNGIconShape==2?d/2:d*.23;
     b.image.clipsToBounds=YES;
     UIColor *c=UVNGColorForIdentifier(b.section);
@@ -263,7 +271,8 @@ static BOOL NGFModeAllowed(void) {
     b.image=[[UIImageView alloc]initWithImage:im?:[UIImage systemImageNamed:UVNGSymbolForIdentifier(section)]];
     b.image.userInteractionEnabled=NO;b.image.contentMode=UIViewContentModeScaleAspectFit;
     b.image.tintColor=UVNGColorForIdentifier(section);
-    [b.button addSubview:b.image];
+    b.rotor=[UIView new];b.rotor.userInteractionEnabled=NO;b.rotor.clipsToBounds=NO;
+    [b.rotor addSubview:b.image];[b.button addSubview:b.rotor];
     b.badge=[UILabel new];b.badge.userInteractionEnabled=NO;b.badge.textAlignment=NSTextAlignmentCenter;
     b.badge.font=[UIFont systemFontOfSize:11 weight:UIFontWeightBold];b.badge.textColor=UIColor.whiteColor;
     b.badge.backgroundColor=UIColor.systemRedColor;b.badge.clipsToBounds=YES;
@@ -273,9 +282,28 @@ static BOOL NGFModeAllowed(void) {
     [b.button addTarget:self action:@selector(releaseBall:) forControlEvents:UIControlEventTouchCancel|UIControlEventTouchUpOutside];
     [b.button addTarget:self action:@selector(tap:) forControlEvents:UIControlEventTouchUpInside];
     CGSize size=self.window?self.window.bounds.size:UIScreen.mainScreen.bounds.size;
-    CGFloat spread=MAX(1,size.width-UVNGFloatingSize*2);
-    b.pos=CGPointMake(UVNGFloatingSize+arc4random_uniform((uint32_t)spread),size.height*.28+arc4random_uniform((uint32_t)MAX(1,size.height*.4)));
-    b.vel=CGPointMake((NSInteger)arc4random_uniform(301)-150,(NSInteger)arc4random_uniform(241)-120);
+    // Spawn at distributed positions and independently seeded directions.
+    CGFloat unit=(CGFloat)arc4random_uniform(10000)/10000.0;
+    CGFloat unit2=(CGFloat)arc4random_uniform(10000)/10000.0;
+    b.heading=unit*2*M_PI;
+    b.phase=unit2*2*M_PI;
+    b.turnBias=(arc4random_uniform(2)?1:-1)*(.13+.26*unit2);
+    b.spin=(arc4random_uniform(2)?1:-1)*(.55+unit*.85);
+    CGFloat margin=UVNGFloatingSize*.74+4;
+    b.pos=CGPointMake(margin+unit*MAX(1,size.width-2*margin),
+                      margin+unit2*MAX(1,size.height-2*margin));
+    // Best-of-eight candidate positions keeps new icons away from occupied space.
+    CGFloat best=-1;
+    for(NSUInteger i=0;i<8;i++){
+        CGPoint q=CGPointMake(margin+arc4random_uniform(10000)/10000.0*MAX(1,size.width-2*margin),
+                              margin+arc4random_uniform(10000)/10000.0*MAX(1,size.height-2*margin));
+        CGFloat nearest=CGFLOAT_MAX;
+        for(NGFFloatBall *other in self.balls){CGFloat dx=q.x-other.pos.x,dy=q.y-other.pos.y;nearest=MIN(nearest,dx*dx+dy*dy);}
+        if(nearest>best){best=nearest;b.pos=q;}
+        if(nearest>pow(UVNGFloatingSize*2.5,2))break;
+    }
+    CGFloat initial=155*UVNGFloatingSpeed;
+    b.vel=CGPointMake(cos(b.heading)*initial,sin(b.heading)*initial);
     self.groups[group]=b;
     [self.window.rootViewController.view addSubview:b.button];
     return b;
@@ -495,38 +523,80 @@ static CGFloat NGFClamp(CGFloat x,CGFloat lo,CGFloat hi){return MIN(MAX(x,lo),MA
     }
     if(!m&&!self.motion.accelerometerData){gx=0;gy=.35;}
     if(!isfinite(gx)||!isfinite(gy)){gx=0;gy=0;}
-    CGFloat smooth=1-exp(-dt*14);
+    CGFloat smooth=1-exp(-dt*(24-20*UVNGFloatingSmoothness));
     self.filteredGravity=CGPointMake(self.filteredGravity.x+(NGFClamp(gx,-2,2)-self.filteredGravity.x)*smooth,self.filteredGravity.y+(NGFClamp(gy,-2,2)-self.filteredGravity.y)*smooth);
-    CGFloat rad=self.diameter/2+2, restitution=UVNGFloatingBounce;
-    // Full window coordinates (not safe-area or bottom strip); only the icon radius is inset.
+    // Zero-gravity drift + bounded tilt bias: no common downward force that
+    // traps every icon on the same edge. Each icon has its own heading and spin.
+    CGFloat rad=self.diameter*(UVNGFloatingRotation>.001?.70:.50)+3;
+    CGFloat restitution=UVNGFloatingBounce;
+    CGFloat cruise=155*UVNGFloatingSpeed;
+    CGFloat gLength=hypot(self.filteredGravity.x,self.filteredGravity.y);
+    CGFloat gScale=gLength>1?1/gLength:1;
+    CGFloat tiltX=self.filteredGravity.x*gScale,tiltY=self.filteredGravity.y*gScale;
+    CGFloat tiltStrength=MIN(.78,.38*UVNGFloatingSensitivity);
     NSInteger sub=MAX(1,(NSInteger)ceil(dt*120));CGFloat h=dt/sub;
     NSArray<NGFFloatBall *> *balls=self.balls;NSUInteger count=balls.count;
+    CGFloat inset=MIN(68,MIN(size.width,size.height)*.15);
     for(NSInteger z=0;z<sub;z++){
-        CGFloat drag=exp(-h*1.25);
+        CGFloat blend=1-exp(-h*(10-7.2*UVNGFloatingSmoothness));
         for(NGFFloatBall *b in balls){
             if(b.held)continue;
             CGPoint v=b.vel,p=b.pos;
-            v.x=(v.x+self.filteredGravity.x*950*UVNGFloatingSensitivity*h)*drag;
-            v.y=(v.y+self.filteredGravity.y*950*UVNGFloatingSensitivity*h)*drag;
-            CGFloat speed=hypot(v.x,v.y);if(speed>1250){v.x*=1250/speed;v.y*=1250/speed;}
+            b.phase=remainder(b.phase+h*(.35+fabs(b.turnBias)),2*M_PI);
+            b.heading=remainder(b.heading+h*(b.turnBias+.27*sin(b.phase)),2*M_PI);
+            CGFloat tx=cos(b.heading)+tiltStrength*tiltX;
+            CGFloat ty=sin(b.heading)+tiltStrength*tiltY;
+            CGFloat wallX=0,wallY=0;
+            if(p.x<rad+inset)wallX=NGFClamp((rad+inset-p.x)/inset,0,1);
+            else if(p.x>size.width-rad-inset)wallX=-NGFClamp((p.x-(size.width-rad-inset))/inset,0,1);
+            if(p.y<rad+inset)wallY=NGFClamp((rad+inset-p.y)/inset,0,1);
+            else if(p.y>size.height-rad-inset)wallY=-NGFClamp((p.y-(size.height-rad-inset))/inset,0,1);
+            tx+=wallX*2.7;ty+=wallY*2.7;
+            // If pointing into a wall, reflect the personal heading too,
+            // so the icon doesn't get stuck re-seeking the same edge.
+            if(fabs(wallX)>.55&&cos(b.heading)*wallX<0)b.heading=atan2(sin(b.heading),-cos(b.heading));
+            if(fabs(wallY)>.55&&sin(b.heading)*wallY<0)b.heading=atan2(-sin(b.heading),cos(b.heading));
+            if(count>1&&count<=48){
+                for(NGFFloatBall *other in balls){
+                    if(other==b)continue;
+                    CGFloat dx=p.x-other.pos.x,dy=p.y-other.pos.y;
+                    CGFloat dist2=dx*dx+dy*dy,range=rad*3.5;
+                    if(dist2>=range*range||dist2<.001)continue;
+                    CGFloat d=sqrt(dist2),force=(1-d/range)*1.25;
+                    tx+=dx/d*force;ty+=dy/d*force;
+                }
+            }
+            CGFloat norm=hypot(tx,ty);
+            if(norm<.08){tx=cos(b.heading);ty=sin(b.heading);norm=1;}
+            CGFloat desired=cruise*(.88+.12*sin(b.phase));
+            v.x+=(tx/norm*desired-v.x)*blend;
+            v.y+=(ty/norm*desired-v.y)*blend;
             p.x+=v.x*h;p.y+=v.y*h;
-            if(p.x<rad){p.x=rad;if(v.x<0)v.x=-v.x*restitution;}
-            if(p.x>size.width-rad){p.x=size.width-rad;if(v.x>0)v.x=-v.x*restitution;}
-            if(p.y<rad){p.y=rad;if(v.y<0)v.y=-v.y*restitution;}
-            if(p.y>size.height-rad){p.y=size.height-rad;if(v.y>0)v.y=-v.y*restitution;}
-            if(fabs(v.x)<1)v.x=0;if(fabs(v.y)<1)v.y=0;
+            if(p.x<rad){p.x=rad;if(v.x<0)v.x=-v.x*restitution;b.heading=atan2(v.y,MAX(1,v.x));}
+            if(p.x>size.width-rad){p.x=size.width-rad;if(v.x>0)v.x=-v.x*restitution;b.heading=atan2(v.y,MIN(-1,v.x));}
+            if(p.y<rad){p.y=rad;if(v.y<0)v.y=-v.y*restitution;b.heading=atan2(MAX(1,v.y),v.x);}
+            if(p.y>size.height-rad){p.y=size.height-rad;if(v.y>0)v.y=-v.y*restitution;b.heading=atan2(MIN(-1,v.y),v.x);}
             b.pos=p;b.vel=v;
+            CGFloat gyro=isfinite(r.z)?NGFClamp(r.z,-3,3):0;
+            b.angle=remainder(b.angle+h*(b.spin+gyro*.25)*UVNGFloatingRotation,2*M_PI);
         }
+        // Separate touching icons and exchange momentum. Personal drift remains
+        // independent after the impact, rather than aligning all velocities.
         for(NSUInteger i=0;i<count;i++)for(NSUInteger j=i+1;j<count;j++){
             NGFFloatBall *a=balls[i],*b=balls[j];if(a.held&&b.held)continue;
             CGPoint ap=a.pos,bp=b.pos,av=a.vel,bv=b.vel;
-            CGFloat dx=bp.x-ap.x,dy=bp.y-ap.y,d2=dx*dx+dy*dy,minDist=rad*2+3;
+            CGFloat dx=bp.x-ap.x,dy=bp.y-ap.y,d2=dx*dx+dy*dy,minDist=rad*2+2;
             if(d2>=minDist*minDist)continue;
             CGFloat d=sqrt(MAX(.0001,d2)),nx=d2<.0001?1:dx/d,ny=d2<.0001?0:dy/d;
             CGFloat overlap=minDist-d,wa=a.held?0:(b.held?1:.5),wb=b.held?0:(a.held?1:.5);
             ap.x-=nx*overlap*wa;ap.y-=ny*overlap*wa;bp.x+=nx*overlap*wb;bp.y+=ny*overlap*wb;
             CGFloat rel=(bv.x-av.x)*nx+(bv.y-av.y)*ny;
-            if(rel<0){CGFloat impulse=-(1+restitution)*rel;av.x-=impulse*wa*nx;av.y-=impulse*wa*ny;bv.x+=impulse*wb*nx;bv.y+=impulse*wb*ny;}
+            if(rel<0){
+                CGFloat impulse=-(1+restitution)*rel;
+                av.x-=impulse*wa*nx;av.y-=impulse*wa*ny;bv.x+=impulse*wb*nx;bv.y+=impulse*wb*ny;
+                if(!a.held&&hypot(av.x,av.y)>10)a.heading=atan2(av.y,av.x);
+                if(!b.held&&hypot(bv.x,bv.y)>10)b.heading=atan2(bv.y,bv.x);
+            }
             a.pos=ap;a.vel=av;b.pos=bp;b.vel=bv;
         }
     }
@@ -534,6 +604,7 @@ static CGFloat NGFClamp(CGFloat x,CGFloat lo,CGFloat hi){return MIN(MAX(x,lo),MA
     for(NGFFloatBall *b in balls){
         b.pos=CGPointMake(NGFClamp(b.pos.x,rad,size.width-rad),NGFClamp(b.pos.y,rad,size.height-rad));
         b.button.center=b.pos;
+        if(UVNGFloatingRotation>.001)b.rotor.transform=CGAffineTransformMakeRotation(b.angle);
     }
     [CATransaction commit];
 }
