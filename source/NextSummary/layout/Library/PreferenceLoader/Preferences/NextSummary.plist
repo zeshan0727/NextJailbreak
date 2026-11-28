@@ -1,0 +1,1 @@
+{ entry = { bundle = NextSummaryPrefs; cell = PSLinkCell; label = "Next Summary"; isController = 1; detail = NSUPrefsController; }; }
