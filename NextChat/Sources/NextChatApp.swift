@@ -158,18 +158,22 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         canBack = web.canGoBack
         canForward = web.canGoForward
         observations = [
-            web.observe(\.isLoading, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; self.loading = w.isLoading } },
-            web.observe(\.canGoBack, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; self.canBack = w.canGoBack } },
-            web.observe(\.canGoForward, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; self.canForward = w.canGoForward } },
+            web.observe(\.isLoading, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; if self.loading != w.isLoading { self.loading = w.isLoading } } },
+            web.observe(\.canGoBack, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; if self.canBack != w.canGoBack { self.canBack = w.canGoBack } } },
+            web.observe(\.canGoForward, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; if self.canForward != w.canGoForward { self.canForward = w.canGoForward } } },
             web.observe(\.url, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async {
                 guard let self, self.web === w else { return }
+                guard self.current != w.url else { return }
                 self.current = w.url
                 if let url = conversationURL(w.url) { UserDefaults.standard.set(url.absoluteString, forKey: "lastChat") }
                 self.scheduleRecent()
             } },
             web.observe(\.title, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async {
                 guard let self, self.web === w else { return }
-                self.pageTitle = w.title ?? "ChatGPT"; self.scheduleRecent()
+                let title = w.title ?? "ChatGPT"
+                guard self.pageTitle != title else { return }
+                self.pageTitle = title
+                self.scheduleRecent()
             } }
         ]
         if let url = conversationURL(web.url) { UserDefaults.standard.set(url.absoluteString, forKey: "lastChat") }
@@ -569,6 +573,39 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         do { try fm.moveItem(at: file.url, to: folder.appendingPathComponent(safe)); refreshFiles() } catch { notice = "Unable to rename file." }
     }
 }
+// Keep live pages attached, but resize only the visible page during keyboard transitions.
+final class LiveChatContainer: UIView {
+    private weak var visiblePage: WKWebView?
+    func reconcile(_ pages: [WKWebView], active: WKWebView) {
+        let keep = Set(pages.map { ObjectIdentifier($0) })
+        for child in subviews where !keep.contains(ObjectIdentifier(child)) { child.removeFromSuperview() }
+        for page in pages where page.superview !== self {
+            page.autoresizingMask = []
+            page.frame = bounds
+            page.isHidden = page !== active
+            page.accessibilityElementsHidden = page !== active
+            addSubview(page)
+        }
+        guard visiblePage !== active || active.isHidden else { return }
+        // No separate visibility animation when restoring an existing conversation.
+        UIView.performWithoutAnimation {
+            for page in pages {
+                let hidden = page !== active
+                if page.isHidden != hidden { page.isHidden = hidden }
+                if page.accessibilityElementsHidden != hidden { page.accessibilityElementsHidden = hidden }
+            }
+            if active.frame != bounds { active.frame = bounds }
+            if subviews.last !== active { bringSubviewToFront(active) }
+            visiblePage = active
+        }
+        setNeedsLayout()
+    }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // Inactive tabs keep their previous viewport and live document state.
+        if let page = visiblePage, page.frame != bounds { page.frame = bounds }
+    }
+}
 struct WebSurface: UIViewRepresentable {
     let browser: Browser
     let onLeftEdge: () -> Void
@@ -594,24 +631,10 @@ struct WebSurface: UIViewRepresentable {
         }
     }
     func makeCoordinator() -> Coordinator { Coordinator(self) }
-    private func sync(_ container: UIView) {
-        let keep = Set(browser.liveViews.map { ObjectIdentifier($0) })
-        for child in container.subviews where !keep.contains(ObjectIdentifier(child)) { child.removeFromSuperview() }
-        for view in browser.liveViews {
-            if view.superview !== container {
-                view.frame = container.bounds
-                view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                container.addSubview(view)
-            }
-            view.isHidden = view !== browser.web
-            view.accessibilityElementsHidden = view !== browser.web
-        }
-        container.bringSubviewToFront(browser.web)
-    }
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
+    func makeUIView(context: Context) -> LiveChatContainer {
+        let view = LiveChatContainer(frame: .zero)
         view.clipsToBounds = true
-        sync(view)
+        view.reconcile(browser.liveViews, active: browser.web)
         for edge in [UIRectEdge.left, UIRectEdge.right] {
             let gesture = UIScreenEdgePanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.edgeMoved(_:)))
             gesture.edges = edge
@@ -622,12 +645,12 @@ struct WebSurface: UIViewRepresentable {
         }
         return view
     }
-    func updateUIView(_ uiView: UIView, context: Context) {
-        sync(uiView)
+    func updateUIView(_ uiView: LiveChatContainer, context: Context) {
+        uiView.reconcile(browser.liveViews, active: browser.web)
         context.coordinator.onLeftEdge = onLeftEdge
         context.coordinator.onRightEdge = onRightEdge
     }
-    static func dismantleUIView(_ uiView: UIView, coordinator: Coordinator) {
+    static func dismantleUIView(_ uiView: LiveChatContainer, coordinator: Coordinator) {
         for gesture in coordinator.edges { uiView.removeGestureRecognizer(gesture) }
         coordinator.edges.removeAll()
     }
@@ -989,10 +1012,10 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (10)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (11)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (10)")
+                    LabeledContent("Version", value: "1.0.0 (11)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -1174,16 +1197,24 @@ struct RootView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !launchBrowserMode && browser.popup == nil {
-                VStack(spacing: 0) {
-                    if browser.loading { ProgressView().progressViewStyle(.linear) }
-                    if controlsExpanded {
-                        expandedControls.transition(.move(edge: .trailing).combined(with: .opacity))
-                    } else {
-                        collapsedControls.transition(.opacity)
+                ZStack(alignment: .top) {
+                    // Keep keyboard layout independent of page loading state.
+                    Group {
+                        if controlsExpanded {
+                            expandedControls.transition(.move(edge: .trailing).combined(with: .opacity))
+                        } else {
+                            collapsedControls.transition(.opacity)
+                        }
+                    }
+                    if browser.loading {
+                        ProgressView().progressViewStyle(.linear)
+                            .frame(height: 2)
+                            .allowsHitTesting(false)
+                            .accessibilityLabel("Loading")
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .background(.regularMaterial)
+                .background(Color(uiColor: .secondarySystemBackground))
                 .clipped()
             }
         }
