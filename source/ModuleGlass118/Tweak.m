@@ -20,6 +20,20 @@ static NSInteger const MGVolumePercentageOverlayTag = 0x4D475650;
 static NSInteger const MGSliderShellTag = 0x4D475353;
 
 static NSHashTable *MGControllers;
+static NSHashTable<CALayer *> *MGSliderLayers;
+static NSHashTable<UIView *> *MGNativeTintViews;
+static char MGSliderLayerKey, MGSliderSizeKey, MGSliderScreenKey, MGSliderImagePathKey;
+static char MGNativeIconImageKey, MGNativeIconTintKey, MGNativeIconAppliedImageKey;
+static char MGSliderStableRectKey, MGSliderStableTimeKey;
+static void MGDetachSliderLayer(UIView *slider);
+static void MGDetachSliderLayers(void) {
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    for (CALayer *layer in MGSliderLayers.allObjects) {
+        layer.hidden=YES;
+        [layer removeFromSuperlayer];
+    }
+    [CATransaction commit];
+}
 static NSHashTable<UIImageView *> *MGOwnedOverlays;
 static char MGOverlayOwnerKey;
 static char MGCompactRectKey;
@@ -305,15 +319,22 @@ static UIView *MGFindNativeBackground(UIView *root) {
     return nil;
 }
 
+static BOOL MGIsNativeSlider(UIView *view) {
+    if (!view) return NO;
+    Class cls=NSClassFromString(@"CCUIContinuousSliderView");
+    return (cls && [view isKindOfClass:cls]) || MGClassNameContains(view,@[@"continuousslider"]);
+}
 static UIView *MGFindSliderView(UIView *root) {
-    if (!root) return nil;
-    if (MGClassNameContains(root, @[@"continuousslider", @"slider"])) return root;
+    if (!root || root.hidden || root.tag==MGImageTag) return nil;
+    if (MGIsNativeSlider(root)) return root;
     for (UIView *view in root.subviews) {
-        if (view.tag == MGImageTag) continue;
-        UIView *found = MGFindSliderView(view);
+        UIView *found=MGFindSliderView(view);
         if (found) return found;
     }
     return nil;
+}
+static BOOL MGIsSliderSlot(NSString *slot) {
+    return [slot isEqualToString:@"brightness"] || [slot isEqualToString:@"volume"];
 }
 
 // Image-first helpers validated on Volume and now shared by all mapped compact modules.
@@ -519,6 +540,17 @@ static void MGRestoreVolumeColorPresentation(UIView *root) {
         MGRestoreVolumeColorPresentation(child);
     }
     if ([root isKindOfClass:UIImageView.class]) {
+        UIImageView *iv=(UIImageView *)root;
+        UIImage *original=objc_getAssociatedObject(iv,&MGNativeIconImageKey);
+        UIImage *applied=objc_getAssociatedObject(iv,&MGNativeIconAppliedImageKey);
+        UIColor *tint=objc_getAssociatedObject(iv,&MGNativeIconTintKey);
+        if (original) {
+            if (iv.image==applied) iv.image=original;
+            if (tint) iv.tintColor=tint;
+            objc_setAssociatedObject(iv,&MGNativeIconImageKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            objc_setAssociatedObject(iv,&MGNativeIconAppliedImageKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            objc_setAssociatedObject(iv,&MGNativeIconTintKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
         NSNumber *savedAlpha = objc_getAssociatedObject(root, &MGVolumeOriginalIconAlphaKey);
         if (savedAlpha) {
             root.alpha = savedAlpha.doubleValue;
@@ -597,40 +629,19 @@ static UIImageView *MGFindVolumeIcon(UIView *slider) {
 }
 
 static BOOL MGApplyVolumeIconTint(UIView *slider, UIColor *color, NSString **outClass, CGRect *outFrame) {
-    if (!slider || !color) return NO;
     UIImageView *icon=MGFindVolumeIcon(slider);
-    if (!icon || !icon.image || !icon.superview) return NO;
-
-    NSNumber *storedAlpha=objc_getAssociatedObject(icon, &MGVolumeOriginalIconAlphaKey);
-    CGFloat sourceAlpha=storedAlpha ? storedAlpha.doubleValue : icon.alpha;
-    if (!storedAlpha) {
-        objc_setAssociatedObject(icon, &MGVolumeOriginalIconAlphaKey, @(icon.alpha), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-
-    UIImageView *overlay=[[MGOwnedImageView alloc] initWithFrame:CGRectZero];
-    overlay.tag=MGVolumeIconOverlayTag;
-    overlay.userInteractionEnabled=NO;
-    overlay.backgroundColor=UIColor.clearColor;
-    overlay.image=[icon.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    overlay.tintColor=color;
-    overlay.contentMode=icon.contentMode;
-    overlay.clipsToBounds=icon.clipsToBounds;
-    overlay.bounds=icon.bounds;
-    overlay.center=icon.center;
-    overlay.transform=icon.transform;
-    overlay.alpha=sourceAlpha;
-    overlay.hidden=icon.hidden;
-    overlay.layer.cornerRadius=icon.layer.cornerRadius;
-    overlay.layer.masksToBounds=icon.layer.masksToBounds;
-    MGRegisterOverlay(overlay,nil,icon.superview);
-    [icon.superview insertSubview:overlay aboveSubview:icon];
-    objc_setAssociatedObject(icon, &MGVolumeIconOverlayKey, overlay, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
-    // Keep Apple's image/state alive but make only the native pixels transparent.
-    icon.alpha=0.0;
-
-    if (outClass) *outClass=[NSString stringWithFormat:@"%@+overlay", NSStringFromClass(icon.class) ?: @"UIImageView"];
-    if (outFrame) *outFrame=[overlay convertRect:overlay.bounds toView:slider];
+    if (!icon || !icon.image || !color) return NO;
+    // Never hide the Apple glyph or add a sibling view to its hierarchy.
+    UIImage *original=icon.image;
+    objc_setAssociatedObject(icon,&MGNativeIconImageKey,original,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(icon,&MGNativeIconTintKey,icon.tintColor,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    UIImage *tinted=[original imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    icon.image=tinted;
+    icon.tintColor=color;
+    objc_setAssociatedObject(icon,&MGNativeIconAppliedImageKey,tinted,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [MGNativeTintViews addObject:icon];
+    if (outClass) *outClass=NSStringFromClass(icon.class);
+    if (outFrame) *outFrame=[icon convertRect:icon.bounds toView:slider];
     return YES;
 }
 
@@ -740,6 +751,7 @@ static BOOL MGApplyVolumePercentageTint(UIView *slider, UIColor *color, NSString
         objc_setAssociatedObject(label, &MGVolumeOriginalPercentageAttributedKey, [label.attributedText copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     objc_setAssociatedObject(label, &MGVolumePercentageColorKey, color, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [MGNativeTintViews addObject:label];
 
     if (label.attributedText.length) {
         NSAttributedString *colored=MGAttributedStringWithColor(label.attributedText, color);
@@ -1057,6 +1069,8 @@ static BOOL MGSubtreeContainsForegroundControl(UIView *view, UIImageView *custom
 static BOOL MGIsModuleSizedBlurVisual(UIView *view, UIView *root, UIImageView *customImage) {
     if (!view || !root || view == root || view == customImage || view.tag == MGImageTag || view.hidden) return NO;
     if ([customImage isDescendantOfView:view] || view.gestureRecognizers.count > 0) return NO;
+    if (MGFindSliderView(view)) return NO;
+    for (UIView *v=view; v && v!=root; v=v.superview) if (MGIsNativeSlider(v)) return NO;
     if ([view isKindOfClass:UIControl.class] || [view isKindOfClass:UILabel.class] ||
         [view isKindOfClass:UIImageView.class] || [view isKindOfClass:UIButton.class]) return NO;
     NSString *name = NSStringFromClass(view.class).lowercaseString ?: @"";
@@ -1157,6 +1171,76 @@ static CGFloat MGApplySliderFillMask(UIImageView *imageView, UIView *slider) {
     return value;
 }
 
+// Own only a CALayer. Apple retains all native slider views, controls, fill,
+// masks, visibility, alpha, and gestures in both compact and expanded modes.
+static void MGDetachSliderLayer(UIView *slider) {
+    CALayer *layer=objc_getAssociatedObject(slider,&MGSliderLayerKey);
+    if (!layer) return;
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    layer.hidden=YES;
+    [layer removeFromSuperlayer];
+    [CATransaction commit];
+}
+static void MGUpdateDedicatedSliderMask(UIView *slider, CALayer *layer) {
+    if (!slider || !layer) return;
+    CGFloat value=MGSliderNormalizedValue(slider);
+    CGFloat w=CGRectGetWidth(slider.bounds), h=CGRectGetHeight(slider.bounds);
+    if (w<=1 || h<=1 || !isfinite(value)) { layer.hidden=YES; return; }
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    layer.frame=slider.bounds;
+    layer.cornerRadius=MIN(w,h)*0.5;
+    layer.masksToBounds=YES;
+    CAShapeLayer *mask=[layer.mask isKindOfClass:CAShapeLayer.class] ? (CAShapeLayer *)layer.mask : [CAShapeLayer layer];
+    CGFloat fill=h*value;
+    mask.frame=layer.bounds;
+    mask.fillColor=UIColor.blackColor.CGColor;
+    UIBezierPath *path=fill<=0.5 ? [UIBezierPath bezierPath] :
+        [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0,h-fill,w,fill) cornerRadius:MIN(w,fill)*0.5];
+    mask.path=path.CGPath;
+    layer.mask=mask;
+    layer.hidden=NO;
+    [CATransaction commit];
+}
+static BOOL MGRenderDedicatedSlider(UIView *slider, NSString *path, CGFloat opacity) {
+    if (!slider || !slider.window) return NO;
+    CALayer *layer=objc_getAssociatedObject(slider,&MGSliderLayerKey);
+    if (!layer) {
+        layer=[CALayer layer];
+        layer.name=@"ModuleGlassOwnedSliderImage";
+        layer.contentsGravity=kCAGravityResize;
+        objc_setAssociatedObject(slider,&MGSliderLayerKey,layer,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [MGSliderLayers addObject:layer];
+    }
+    NSString *loaded=objc_getAssociatedObject(layer,&MGSliderImagePathKey);
+    if (![loaded isEqualToString:path] || !layer.contents) {
+        UIImage *image=[UIImage imageWithContentsOfFile:path];
+        if (!image.CGImage) { MGDetachSliderLayer(slider); return NO; }
+        layer.contents=(__bridge id)image.CGImage;
+        objc_setAssociatedObject(layer,&MGSliderImagePathKey,path,OBJC_ASSOCIATION_COPY_NONATOMIC);
+    }
+    // Place above native fill/background layers, below the first actual glyph
+    // or text branch. Never change native layer ordering or visibility.
+    CALayer *foreground=nil;
+    for (UIView *child in slider.subviews) {
+        if (child.hidden || child.layer.superlayer!=slider.layer) continue;
+        if (MGVolumeSubtreeHasForeground(child)) { foreground=child.layer; break; }
+    }
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    if (layer.superlayer!=slider.layer) {
+        [layer removeFromSuperlayer];
+        if (foreground) [slider.layer insertSublayer:layer below:foreground];
+        else [slider.layer addSublayer:layer];
+    } else if (foreground &&
+               [slider.layer.sublayers indexOfObjectIdenticalTo:layer] > [slider.layer.sublayers indexOfObjectIdenticalTo:foreground]) {
+        [layer removeFromSuperlayer];
+        [slider.layer insertSublayer:layer below:foreground];
+    }
+    layer.opacity=opacity;
+    [CATransaction commit];
+    MGUpdateDedicatedSliderMask(slider,layer);
+    return !layer.hidden;
+}
+
 static void MGSliderSetValue(id self, SEL _cmd, CGFloat value) {
     if (MGOrigSliderSetValue) MGOrigSliderSetValue(self, _cmd, value);
     // Never touch our image mask while Apple is animating an expansion/collapse.
@@ -1164,6 +1248,8 @@ static void MGSliderSetValue(id self, SEL _cmd, CGFloat value) {
     // the parent container owns the actual expansion transition.
     if (MGGlobalTransitionQuarantine) return;
     if (![self isKindOfClass:UIView.class]) return;
+    CALayer *sliderLayer=objc_getAssociatedObject(self,&MGSliderLayerKey);
+    if (sliderLayer.superlayer==((UIView *)self).layer && !sliderLayer.hidden) MGUpdateDedicatedSliderMask((UIView *)self,sliderLayer);
     UIImageView *imageView=objc_getAssociatedObject(self, &MGVolumeFillImageKey);
     if ([imageView isKindOfClass:MGOwnedImageView.class] && imageView.superview && imageView.window && !imageView.hidden && ((MGOwnedImageView *)imageView).mgExpectedHost==imageView.superview) MGApplySliderFillMask(imageView, (UIView *)self);
 }
@@ -1270,7 +1356,10 @@ static void MGSuspendControllerVisualsNonDestructive(id controller, NSString *so
     // properties and hide our already-existing overlays in place.
     MGSetTaggedImagesHiddenRecursive(root, YES);
     UIView *slider = MGFindSliderView(root);
-    if (slider) objc_setAssociatedObject(slider, &MGVolumeFillImageKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (slider) {
+        MGDetachSliderLayer(slider);
+        objc_setAssociatedObject(slider, &MGVolumeFillImageKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
     MGRestoreVolumeColorPresentation(root);
     MGRestoreVolumeVisuals(root);
     MGRestoreBrightnessLayers(root.layer);
@@ -1346,6 +1435,12 @@ static BOOL MGNativeExpanded(id controller) {
 
 static void MGMarkRecovery(id controller) {
     if (!controller) return;
+    UIView *root=[controller isKindOfClass:UIViewController.class] ? ((UIViewController *)controller).viewIfLoaded : nil;
+    UIView *slider=MGFindSliderView(root);
+    if (slider) {
+        MGDetachSliderLayer(slider);
+        MGRestoreVolumeColorPresentation(slider);
+    }
     if (![objc_getAssociatedObject(controller,&MGRecoveryPendingKey) boolValue]) {
         objc_setAssociatedObject(controller,&MGRecoveryPendingKey,@YES,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         objc_setAssociatedObject(controller,&MGRecoveryCandidateRectKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -1353,8 +1448,42 @@ static void MGMarkRecovery(id controller) {
         MGHideControllerOverlays(controller);
     }
 }
+static BOOL MGSliderCompactEligible(id controller, UIView *root, UIView *slider, BOOL requireStable) {
+    if (!slider || !slider.window || slider.window!=root.window) return NO;
+    CGRect rect=MGWindowRect(slider);
+    if (CGRectIsNull(rect) || MGSizeLooksExpanded(root.bounds.size)) return NO;
+    CGSize screen=UIScreen.mainScreen.bounds.size;
+    CGFloat shortScreen=MIN(screen.width,screen.height), longScreen=MAX(screen.width,screen.height);
+    CGFloat w=rect.size.width,h=rect.size.height;
+    // Five-column and standard compact sliders fit these bounds; the expanded
+    // native control is substantially taller. Use size, not stale screen position.
+    if (w>shortScreen*0.37 || h>longScreen*0.43) return NO;
+    NSValue *oldSize=objc_getAssociatedObject(slider,&MGSliderSizeKey);
+    NSValue *oldScreen=objc_getAssociatedObject(slider,&MGSliderScreenKey);
+    BOOL sameScreen=oldSize && oldScreen && CGSizeEqualToSize(oldScreen.CGSizeValue,screen);
+    BOOL sameSize=sameScreen && fabs(w-oldSize.CGSizeValue.width)<=MAX(10,oldSize.CGSizeValue.width*0.22) &&
+        fabs(h-oldSize.CGSizeValue.height)<=MAX(10,oldSize.CGSizeValue.height*0.22);
+    if (sameScreen && !sameSize &&
+        (w>oldSize.CGSizeValue.width*1.35+10 || h>oldSize.CGSizeValue.height*1.35+10)) return NO;
+    if (MGNativeExpanded(controller) && !sameSize) return NO;
+    BOOL pending=[objc_getAssociatedObject(controller,&MGRecoveryPendingKey) boolValue];
+    if (pending && requireStable) {
+        NSValue *candidate=objc_getAssociatedObject(slider,&MGSliderStableRectKey);
+        CFTimeInterval now=CACurrentMediaTime();
+        if (!candidate || !MGRectNear(rect,candidate.CGRectValue,3,3)) {
+            objc_setAssociatedObject(slider,&MGSliderStableRectKey,[NSValue valueWithCGRect:rect],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            objc_setAssociatedObject(slider,&MGSliderStableTimeKey,@(now),OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            return NO;
+        }
+        if (now-[objc_getAssociatedObject(slider,&MGSliderStableTimeKey) doubleValue]<0.22) return NO;
+    }
+    return YES;
+}
 static BOOL MGCompactEligible(id controller, UIView *root, BOOL requireStable) {
-    if (!root || MGGeometryExpanded(controller,root)) return NO;
+    if (!root) return NO;
+    NSString *slot=MGSlotForController(controller,NULL);
+    if (MGIsSliderSlot(slot)) return MGSliderCompactEligible(controller,root,MGFindSliderView(root),requireStable);
+    if (MGGeometryExpanded(controller,root)) return NO;
     CGRect rect=MGWindowRect(root);
     if (CGRectIsNull(rect)) return NO;
     CGRect screen=root.window.bounds;
@@ -1428,6 +1557,28 @@ static void MGApplyControllerNow(id controller, NSString *source) {
             volumePercentageApplied = MGApplyVolumePercentageTint(volumeSlider, volumeColor, &volumePercentageClass, &volumePercentageFrame, &volumePercentageText);
         }
     }
+
+    // Brightness and Volume use only the actual continuous slider's own layer
+    // geometry; the generic module host search can select a transient expanded
+    // background or the current value-dependent native fill.
+    if (MGIsSliderSlot(slot)) {
+        UIView *slider=MGFindSliderView(root);
+        if (!slider) return;
+        CGRect sliderRect=MGWindowRect(slider);
+        objc_setAssociatedObject(slider,&MGSliderSizeKey,[NSValue valueWithCGSize:sliderRect.size],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(slider,&MGSliderScreenKey,[NSValue valueWithCGSize:UIScreen.mainScreen.bounds.size],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(slider,&MGSliderStableRectKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(slider,&MGSliderStableTimeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        MGRemoveTaggedImages(root,nil);
+        if (enabled && exists) {
+            BOOL drawn=MGRenderDedicatedSlider(slider,path,opacity);
+            MGDiagnosticOnce(controller,[NSString stringWithFormat:@"%@|dedicated|%@|%d",slot,NSStringFromCGRect(sliderRect),drawn],
+                [NSString stringWithFormat:@"slider-layer slot=%@ rect=%@ drawn=%d value=%.3f",slot,NSStringFromCGRect(sliderRect),drawn,MGSliderNormalizedValue(slider)]);
+        } else MGDetachSliderLayer(slider);
+        return;
+    }
+    // Avoid applying generic alpha/overlay rules to an unidentified slider.
+    if (MGFindSliderView(root)) return;
 
     if (!enabled || !exists) {
         BOOL sliderSlot = [slot isEqualToString:@"brightness"] || [slot isEqualToString:@"volume"];
@@ -1568,7 +1719,12 @@ static void MGRefreshAll(NSString *source, BOOL forceReloadImages) {
                 MGStartRecoverySweep();
                 continue;
             }
-            if (reload) MGRemoveTaggedImages(root,nil);
+            if (reload) {
+                MGRemoveTaggedImages(root,nil);
+                UIView *slider=MGFindSliderView(root);
+                CALayer *layer=objc_getAssociatedObject(slider,&MGSliderLayerKey);
+                if (layer) { layer.contents=nil; objc_setAssociatedObject(layer,&MGSliderImagePathKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC); }
+            }
             objc_setAssociatedObject(controller, &MGLastDiagnosticKey, nil, OBJC_ASSOCIATION_COPY_NONATOMIC);
             MGApplyController(controller, source);
         }
@@ -1647,6 +1803,8 @@ static void MGStartQuarantine(NSString *source) {
         [UIView performWithoutAnimation:^{
             MGQuarantineAllTrackedControllers(source);
             MGDetachAllOwnedOverlays();
+            MGDetachSliderLayers();
+            for (UIView *v in MGNativeTintViews.allObjects) MGRestoreVolumeColorPresentation(v);
         }];
     }
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.85*NSEC_PER_SEC)),dispatch_get_main_queue(), ^{
@@ -1731,6 +1889,8 @@ __attribute__((constructor)) static void MGInit(void) {
     @autoreleasepool {
         MGControllers = [NSHashTable weakObjectsHashTable];
         MGOwnedOverlays = [NSHashTable weakObjectsHashTable];
+        MGSliderLayers = [NSHashTable weakObjectsHashTable];
+        MGNativeTintViews = [NSHashTable weakObjectsHashTable];
         MGLoadLicenseState();
         void *handle = dlopen("/System/Library/PrivateFrameworks/ControlCenterUI.framework/ControlCenterUI", RTLD_LAZY);
         Class moduleClass = NSClassFromString(@"CCUIModuleContainerViewController");
@@ -1760,7 +1920,7 @@ __attribute__((constructor)) static void MGInit(void) {
         CFNotificationCenterAddObserver(darwin, NULL, MGPrefsChanged, CFSTR("com.nextsolution.nextlog/control.changed"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 
         [NSFileManager.defaultManager createDirectoryAtPath:MGBackgroundDirectory withIntermediateDirectories:YES attributes:nil error:nil];
-        MGLog(@"ModuleGlassRuntime 1.1.21 Owned Overlay Recovery loaded SpringBoard=%@ prefsEnabled=%d licenseActive=%d", NSBundle.mainBundle.bundleIdentifier, MGBoolPreference(@"CCModuleBackgroundsEnabled", YES), MGLicenseActiveCached);
+        MGLog(@"ModuleGlassRuntime 1.1.22 Native Slider Isolation loaded SpringBoard=%@ prefsEnabled=%d licenseActive=%d", NSBundle.mainBundle.bundleIdentifier, MGBoolPreference(@"CCModuleBackgroundsEnabled", YES), MGLicenseActiveCached);
         MGLog(@"Glyph-safe stretch runtime with shared Brightness/Volume slider pattern process=%@ pid=%d dlopen=%p moduleClass=%@ contentClass=%@ sliderClass=%@", NSProcessInfo.processInfo.processName, getpid(), handle, moduleClass, contentClass, sliderClass);
         MGLog(@"diagnostic-control active=%d prefsDomain=%@ backgroundDirectory=%@ log=%@", MGVerboseDiagnosticsEnabled(), (__bridge NSString *)MGPrefsDomain, MGBackgroundDirectory, MGLogPath);
     }
