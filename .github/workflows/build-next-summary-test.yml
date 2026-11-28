@@ -42,7 +42,7 @@ jobs:
           dpkg-deb -c "$deb" > "$RUNNER_TEMP/contents.txt"
           grep -q NextSummary.dylib "$RUNNER_TEMP/contents.txt"
           grep -q NextSummaryPrefs.bundle/NextSummaryPrefs "$RUNNER_TEMP/contents.txt"
-          test "$(dpkg-deb -f "$deb" Version)" = 0.1.3
+          test "$(dpkg-deb -f "$deb" Version)" = 0.1.4
           verify="$(mktemp -d)"
           dpkg-deb -x "$deb" "$verify"
           prefs="$(find "$verify" -type d -name NextSummaryPrefs.bundle -print -quit)"
@@ -57,10 +57,12 @@ jobs:
           grep -q NSUPrefsController "$RUNNER_TEMP/prefs-symbols.txt"
           grep -q NSUAppPicker "$RUNNER_TEMP/prefs-symbols.txt"
           grep -q openAppPicker "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q selectAllApps "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q deselectAllApps "$RUNNER_TEMP/prefs-symbols.txt"
           grep -q "Select installed apps" "$prefs/Root.plist"
           lipo "$prefs/NextSummaryPrefs" -verify_arch arm64 arm64e
           mkdir -p "$RUNNER_TEMP/next-summary"
-          cp "$deb" "$RUNNER_TEMP/next-summary/NextSummary_0.1.3_RootHide.deb"
+          cp "$deb" "$RUNNER_TEMP/next-summary/NextSummary_0.1.4_RootHide.deb"
           shasum -a 256 "$RUNNER_TEMP/next-summary/"*.deb
       - uses: actions/upload-artifact@v4
         with:
