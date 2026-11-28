@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-28T13:45:30Z",
+  "updatedAt": "2026-11-28T15:06:56Z",
   "files": [
+    {
+      "id": "next-chat-1.0.0-build14",
+      "name": "Next Chat Advanced 1.0.0 - Build 14",
+      "fileName": "NextChat_1.0.0_Build14.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ / TrollStore (ad-hoc signed)",
+      "version": "1.0.0 (14)",
+      "url": "https://nextjailbreak.com/transfer/files/NextChat/1.0.0/NextChat_1.0.0_Build14.ipa",
+      "sha256": "f05be566bee446d852b09725f4cc0a63024b3aadc58cf2a9d8b7425f9e8785bd",
+      "sizeBytes": 481426,
+      "notes": "Unofficial ChatGPT web companion. Improved attachment routing, browser-generated blob/data downloads, shared WebKit session and invalid-response checks. Unresolved sandbox references require website resolution. Build 13 menu cleanup retained. Physical-device login still requires testing. Not Apple Distribution signed."
+    },
     {
       "id": "next-chat-1.0.0-build13",
       "name": "Next Chat Advanced 1.0.0 - Build 13",
