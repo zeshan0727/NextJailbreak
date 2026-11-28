@@ -126,7 +126,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         super.init()
         web.navigationDelegate = self
         web.uiDelegate = self
-        web.allowsBackForwardNavigationGestures = true
+        web.allowsBackForwardNavigationGestures = false
         web.scrollView.keyboardDismissMode = .interactive
         web.isOpaque = false
         if let data = UserDefaults.standard.data(forKey: "bookmarks"),
@@ -467,8 +467,50 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
 }
 struct WebSurface: UIViewRepresentable {
     let browser: Browser
-    func makeUIView(context: Context) -> WKWebView { browser.web }
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
+    let onLeftEdge: () -> Void
+    let onRightEdge: () -> Void
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var onLeftEdge: () -> Void
+        var onRightEdge: () -> Void
+        var edges: [UIScreenEdgePanGestureRecognizer] = []
+        init(_ parent: WebSurface) {
+            onLeftEdge = parent.onLeftEdge
+            onRightEdge = parent.onRightEdge
+        }
+        @objc func edgeMoved(_ gesture: UIScreenEdgePanGestureRecognizer) {
+            guard gesture.state == .ended, let view = gesture.view else { return }
+            let delta = gesture.translation(in: view)
+            guard abs(delta.x) > 36, abs(delta.x) > abs(delta.y) else { return }
+            if gesture.edges == .left && delta.x > 0 { onLeftEdge() }
+            if gesture.edges == .right && delta.x < 0 { onRightEdge() }
+        }
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard let view = gestureRecognizer.view as? WKWebView else { return false }
+            return otherGestureRecognizer === view.scrollView.panGestureRecognizer
+        }
+    }
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+    func makeUIView(context: Context) -> WKWebView {
+        let view = browser.web
+        view.allowsBackForwardNavigationGestures = false
+        for edge in [UIRectEdge.left, UIRectEdge.right] {
+            let gesture = UIScreenEdgePanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.edgeMoved(_:)))
+            gesture.edges = edge
+            gesture.delegate = context.coordinator
+            gesture.cancelsTouchesInView = false
+            view.addGestureRecognizer(gesture)
+            context.coordinator.edges.append(gesture)
+        }
+        return view
+    }
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        context.coordinator.onLeftEdge = onLeftEdge
+        context.coordinator.onRightEdge = onRightEdge
+    }
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        for gesture in coordinator.edges { uiView.removeGestureRecognizer(gesture) }
+        coordinator.edges.removeAll()
+    }
 }
 struct PopupSurface: UIViewRepresentable {
     let web: WKWebView
@@ -754,6 +796,7 @@ struct SettingsView: View {
     @AppStorage("haptics") private var haptics = true
     @AppStorage("restore") private var restore = true
     @AppStorage("externalLinkMode") private var externalLinkMode = "In-app browser"
+    @AppStorage("leftEdgeAction") private var leftEdgeAction = "Conversations"
     @AppStorage("recordRecentChats") private var recordRecentChats = true
     @AppStorage("appLock") private var appLock = false
     @AppStorage("privacy") private var privacy = true
@@ -767,6 +810,11 @@ struct SettingsView: View {
                     Picker("Appearance", selection: $appearance) { ForEach(["System","Light","Dark"], id: \.self) { Text($0) } }
                     Toggle("Haptics", isOn: $haptics)
                     Toggle("Restore last conversation", isOn: $restore)
+                    Picker("Left edge swipe", selection: $leftEdgeAction) {
+                        Text("Open conversations").tag("Conversations")
+                        Text("Disabled").tag("Disabled")
+                    }
+                    Text("Swipe inward from the right edge or tap the bottom-right handle to show native controls.").font(.caption).foregroundStyle(.secondary)
                     Picker("Website links", selection: $externalLinkMode) {
                         Text("In-app browser").tag("In-app browser")
                         Text("Safari").tag("Safari")
@@ -796,10 +844,10 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (8)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (9)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (8)")
+                    LabeledContent("Version", value: "1.0.0 (9)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -821,6 +869,8 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var panel: Panel?
     @State private var externalStart: URL?
+    @State private var controlsExpanded = false
+    @AppStorage("leftEdgeAction") private var leftEdgeAction = "Conversations"
     @State private var locked = true
     @State private var authenticating = false
     @State private var inactiveSince: Date?
@@ -831,6 +881,17 @@ struct RootView: View {
     @State private var showDirectLoginHelp = false
     @State private var didLaunchBrowser = false
     private func tap() { if haptics { UIImpactFeedbackGenerator(style: .soft).impactOccurred() } }
+    private func setControls(_ expanded: Bool) {
+        guard !launchBrowserMode, browser.popup == nil, !appLock || !locked else { return }
+        if controlsExpanded != expanded {
+            tap()
+            withAnimation(.easeInOut(duration: 0.22)) { controlsExpanded = expanded }
+        }
+    }
+    private func leftEdge() {
+        guard !launchBrowserMode, browser.popup == nil, panel == nil, !appLock || !locked else { return }
+        if leftEdgeAction == "Conversations" { tap(); controlsExpanded = false; panel = .bookmarks }
+    }
     private func showBrowser() {
         guard !appLock || !locked else { pendingRoute = "resume"; return }
         browser.prepareSystemBrowser()
@@ -865,6 +926,71 @@ struct RootView: View {
         default: break
         }
     }
+    private var collapsedControls: some View {
+        HStack(spacing: 0) {
+            Spacer(minLength: 0)
+            Button { setControls(true) } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "chevron.left").font(.system(size: 10, weight: .semibold))
+                    Image(systemName: "ellipsis").font(.system(size: 15, weight: .semibold))
+                    if !browser.active.isEmpty { Circle().fill(Color.accentColor).frame(width: 6, height: 6) }
+                }
+                .padding(.horizontal, 12)
+                .frame(height: 22)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Show Next Chat controls")
+            .simultaneousGesture(DragGesture(minimumDistance: 12).onEnded { value in
+                if value.translation.width < -20 && abs(value.translation.width) > abs(value.translation.height) { setControls(true) }
+            })
+        }.padding(.horizontal, 8)
+    }
+    private var expandedControls: some View {
+        HStack(spacing: 3) {
+            Button { tap(); controlsExpanded = false; panel = .bookmarks } label: {
+                Image(systemName: "books.vertical").frame(minWidth: 44, minHeight: 44)
+            }.accessibilityLabel("Conversations")
+            Button { tap(); controlsExpanded = false; panel = .prompts } label: {
+                Image(systemName: "text.bubble").frame(minWidth: 44, minHeight: 44)
+            }.accessibilityLabel("Prompt studio")
+            Button { tap(); controlsExpanded = false; browser.newChat() } label: {
+                Image(systemName: "square.and.pencil").frame(minWidth: 44, minHeight: 44)
+            }.accessibilityLabel("New chat")
+            Button { tap(); controlsExpanded = false; panel = .downloads } label: {
+                Image(systemName: "arrow.down.circle").overlay(alignment: .topTrailing) {
+                    if !browser.active.isEmpty { Circle().fill(Color.accentColor).frame(width: 7, height: 7) }
+                }.frame(minWidth: 44, minHeight: 44)
+            }.accessibilityLabel("Downloads")
+                Menu {
+                    Button { browser.resume() } label: { Label("Resume conversation", systemImage: "clock") }
+                    Button { browser.savePage() } label: { Label("Save current page", systemImage: "bookmark") }
+                    Button { panel = .bookmarks } label: { Label("Saved conversations", systemImage: "books.vertical") }
+                    Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
+                    Button { browser.web.reload() } label: { Label("Reload", systemImage: "arrow.clockwise") }
+                    Button { browser.restartLogin() } label: { Label("Restart sign-in", systemImage: "person.crop.circle.badge.exclamationmark") }
+                    Button { showDirectLoginHelp = true } label: { Label("Direct mode login help", systemImage: "questionmark.circle") }
+                    Button { showBrowser() } label: { Label("Browser mode", systemImage: "globe") }
+                    Button { launchBrowserMode = true; showBrowser() } label: { Label("Make Browser mode default", systemImage: "globe") }
+                    Button { confirmResetLogin = true } label: { Label("Reset embedded sign-in", systemImage: "arrow.counterclockwise") }
+                    Button { browser.safari() } label: { Label("Open in Safari", systemImage: "safari") }
+                    Button { panel = .settings } label: { Label("Settings", systemImage: "gearshape") }
+                } label: { Image(systemName: "ellipsis.circle").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("More")
+
+            Spacer(minLength: 0)
+            Button { setControls(false) } label: {
+                Image(systemName: "chevron.right").frame(minWidth: 44, minHeight: 44)
+            }.accessibilityLabel("Hide Next Chat controls")
+        }
+        .font(.system(size: 20, weight: .medium))
+        .padding(.horizontal, 8)
+        .frame(height: 46)
+        .contentShape(Rectangle())
+        .simultaneousGesture(DragGesture(minimumDistance: 18).onEnded { value in
+            if value.translation.width > 36 && abs(value.translation.width) > abs(value.translation.height) { setControls(false) }
+        })
+        .overlay(alignment: .top) { Divider() }
+    }
     var body: some View {
         VStack(spacing: 0) {
             if !browser.online { Text("Offline · reconnect to continue").font(.caption).frame(maxWidth: .infinity).padding(6).background(.orange.opacity(0.15)) }
@@ -897,42 +1023,23 @@ struct RootView: View {
                 }.padding(12)
                 PopupSurface(web: popup).id(ObjectIdentifier(popup)).frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                WebSurface(browser: browser).frame(maxWidth: .infinity, maxHeight: .infinity)
+                WebSurface(browser: browser, onLeftEdge: { leftEdge() }, onRightEdge: { setControls(true) })
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !launchBrowserMode {
+            if !launchBrowserMode && browser.popup == nil {
                 VStack(spacing: 0) {
-                if browser.loading { ProgressView().progressViewStyle(.linear) }
-                Divider()
-                HStack(spacing: 12) {
-                Button { tap(); browser.web.goBack() } label: { Image(systemName: "chevron.left") }.disabled(!browser.canBack).accessibilityLabel("Back")
-                Button { tap(); browser.web.goForward() } label: { Image(systemName: "chevron.right") }.disabled(!browser.canForward).accessibilityLabel("Forward")
-                Spacer(minLength: 0)
-                Button { tap(); panel = .bookmarks } label: { Image(systemName: "books.vertical") }.accessibilityLabel("Conversations")
-                Button { tap(); panel = .prompts } label: { Image(systemName: "text.bubble") }.accessibilityLabel("Prompt studio")
-                Button { tap(); browser.newChat() } label: { Image(systemName: "square.and.pencil") }.accessibilityLabel("New chat")
-                Button { tap(); panel = .downloads } label: {
-                    Image(systemName: "arrow.down.circle").overlay(alignment: .topTrailing) {
-                        if !browser.active.isEmpty { Circle().fill(Color.accentColor).frame(width: 7, height: 7) }
+                    if browser.loading { ProgressView().progressViewStyle(.linear) }
+                    if controlsExpanded {
+                        expandedControls.transition(.move(edge: .trailing).combined(with: .opacity))
+                    } else {
+                        collapsedControls.transition(.opacity)
                     }
-                }.accessibilityLabel("Downloads")
-                Menu {
-                    Button { browser.resume() } label: { Label("Resume conversation", systemImage: "clock") }
-                    Button { browser.savePage() } label: { Label("Save current page", systemImage: "bookmark") }
-                    Button { panel = .bookmarks } label: { Label("Saved conversations", systemImage: "books.vertical") }
-                    Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
-                    Button { browser.web.reload() } label: { Label("Reload", systemImage: "arrow.clockwise") }
-                    Button { browser.restartLogin() } label: { Label("Restart sign-in", systemImage: "person.crop.circle.badge.exclamationmark") }
-                    Button { showDirectLoginHelp = true } label: { Label("Direct mode login help", systemImage: "questionmark.circle") }
-                    Button { showBrowser() } label: { Label("Browser mode", systemImage: "globe") }
-                    Button { launchBrowserMode = true; showBrowser() } label: { Label("Make Browser mode default", systemImage: "globe") }
-                    Button { confirmResetLogin = true } label: { Label("Reset embedded sign-in", systemImage: "arrow.counterclockwise") }
-                    Button { browser.safari() } label: { Label("Open in Safari", systemImage: "safari") }
-                    Button { panel = .settings } label: { Label("Settings", systemImage: "gearshape") }
-                } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("More")
-                }.font(.system(size: 21, weight: .medium)).padding(.horizontal, 22).frame(height: 46)
-                }.fixedSize(horizontal: false, vertical: true).background(.regularMaterial)
+                }
+                .frame(maxWidth: .infinity)
+                .background(.regularMaterial)
+                .clipped()
             }
         }
         .preferredColorScheme(appearance == "Dark" ? .dark : appearance == "Light" ? .light : nil)
@@ -1008,7 +1115,8 @@ struct RootView: View {
             if !appLock { startPreferredMode() }
         }
         .onChange(of: appLock) { value in locked = value; if value { panel = nil; didLaunchBrowser = false; unlock() } }
-        .onChange(of: launchBrowserMode) { value in if !value { browser.startEmbeddedIfNeeded() } }
+        .onChange(of: launchBrowserMode) { value in controlsExpanded = false; if !value { browser.startEmbeddedIfNeeded() } }
+        .onChange(of: panel) { value in if value != nil { controlsExpanded = false } }
         .onChange(of: scenePhase) { phase in
             if phase == .background { if privacy && panel != .browserMode { panel = nil }; inactiveSince = Date(); if appLock && lockDelay == 0 { panel = nil; locked = true; didLaunchBrowser = false } }
             if phase == .active, let date = inactiveSince {
