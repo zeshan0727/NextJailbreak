@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-28T13:34:41Z",
+  "updatedAt": "2026-11-28T13:38:20Z",
   "files": [
+    {
+      "id": "notify-island-1.0.21-clean-island-roothide",
+      "name": "Notify Island 1.0.21 — Clean Island",
+      "fileName": "NotifyIsland_1.0.21_CleanIsland_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.21",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.21/NotifyIsland_1.0.21_CleanIsland_RootHide.deb",
+      "sha256": "3d310fb57947559047c329270fde8401f90ca934be2665a8c781ffcc5e9be79e",
+      "sizeBytes": 109408,
+      "notes": "Clean Notify Island test build. Removes Motion Bubbles and its settings completely; keeps separate faster Open, banner lifecycle fix, all approved gestures, replies and branding. Rollback: 1.0.19."
+    },
     {
       "id": "next-chat-1.0.0-build12",
       "name": "Next Chat Advanced 1.0.0 - Build 12",
@@ -13,18 +25,6 @@
       "sha256": "ef57ddb7892294e829c3a007dfdf4a22fe0865412d9fbfba0684bcd2b94ccf1e",
       "sizeBytes": 474856,
       "notes": "Unofficial ChatGPT web companion. Adaptive system light/dark native redesign, slide-out conversation sidebar, capsule action dock, navigation-based settings, optimized keyboard reconciliation and ProMotion opt-in. Live tabs and login retained. Physical-device login still requires testing. Not Apple Distribution signed."
-    },
-    {
-      "id": "notify-island-1.0.20-motion-bubbles-roothide",
-      "name": "Notify Island 1.0.20 — Motion Bubbles",
-      "fileName": "NotifyIsland_1.0.20_MotionBubbles_RootHide.deb",
-      "type": "deb",
-      "platform": "RootHide / iOS 16+",
-      "version": "1.0.20",
-      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.20/NotifyIsland_1.0.20_MotionBubbles_RootHide.deb",
-      "sha256": "07b359d5afd8d5d61465bd59f9e0a57e96f26015576d9db99cc5714918734ee4",
-      "sizeBytes": 122464,
-      "notes": "Device-test build: motion-driven per-app pending notification bubbles with counts, tap to reopen, and nonblocking Open. Session-only memory, lock-screen privacy, passthrough touch window and optional feature toggle. Preserves 1.0.19 banner fix, gestures and branding. Rollback: 1.0.19."
     },
     {
       "id": "notify-island-1.0.19-banner-lifecycle-roothide",
