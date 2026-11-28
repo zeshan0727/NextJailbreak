@@ -42,6 +42,7 @@ static char MGVolumeFillImageKey;
 static char MGConnectivityOriginalBackgroundColorKey;
 static char MGConnectivityOriginalLayerBackgroundColorKey;
 static char MGCompactSizeKey;
+static char MGCompactScreenSizeKey;
 static char MGApplyInProgressKey;
 static char MGLayoutPendingKey;
 static BOOL MGDeferredImageReload = NO;
@@ -1258,8 +1259,12 @@ static UIView *MGVisibleRoot(id controller) {
 static BOOL MGGeometryExpanded(id controller, UIView *root) {
     if (!root) return NO;
     if (MGIsExpanded(root)) return YES;
+    NSString *slot=MGSlotForController(controller,NULL);
+    if (![slot isEqualToString:@"volume"] && ![slot isEqualToString:@"brightness"]) return NO;
     NSValue *baseline=objc_getAssociatedObject(controller,&MGCompactSizeKey);
-    if (!baseline || !MGGlobalTransitionQuarantine) return NO;
+    if (!baseline) return NO;
+    NSValue *screenBaseline=objc_getAssociatedObject(controller,&MGCompactScreenSizeKey);
+    if (!screenBaseline || !CGSizeEqualToSize(screenBaseline.CGSizeValue,UIScreen.mainScreen.bounds.size)) return NO;
     CGSize old=baseline.CGSizeValue, now=root.bounds.size;
     CGFloat oldLong=MAX(old.width,old.height), newLong=MAX(now.width,now.height);
     CGFloat oldShort=MIN(old.width,old.height), newShort=MIN(now.width,now.height);
@@ -1294,6 +1299,7 @@ static void MGApplyControllerNow(id controller, NSString *source) {
         return;
     }
     objc_setAssociatedObject(controller,&MGCompactSizeKey,[NSValue valueWithCGSize:root.bounds.size],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(controller,&MGCompactScreenSizeKey,[NSValue valueWithCGSize:UIScreen.mainScreen.bounds.size],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
     NSArray<NSString *> *candidates = nil;
     NSString *slot = MGSlotForController(controller, &candidates);
@@ -1482,7 +1488,11 @@ static void MGRecoveryTick(NSUInteger generation) {
         BOOL visible=NO, expanded=NO, coordinator=NO;
         for (id controller in controllers) {
             UIView *root=MGVisibleRoot(controller);
-            if (!root) continue;
+            if (!root) {
+                objc_setAssociatedObject(controller,&MGCompactSizeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                objc_setAssociatedObject(controller,&MGCompactScreenSizeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                continue;
+            }
             visible=YES;
             expanded |= MGGeometryExpanded(controller,root) || MGNativeExpanded(controller);
             coordinator |= MGHasNativeCoordinator(controller);
@@ -1535,7 +1545,7 @@ static void MGPostLayoutRecovery(id controller, NSString *source) {
     if (MGGlobalTransitionQuarantine) return;
     UIView *root=MGVisibleRoot(controller);
     if (!root) return;
-    if (MGGeometryExpanded(controller,root) || MGNativeExpanded(controller) || MGHasNativeCoordinator(controller)) {
+    if (MGGeometryExpanded(controller,root) || MGNativeExpanded(controller)) {
         MGStartQuarantine(@"layout-native-transition");
         return;
     }
