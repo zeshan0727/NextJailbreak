@@ -104,6 +104,8 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     @Published var downloadMessage: String?
     @Published var attachmentIssue: AttachmentIssue?
     private var attachmentAttempts: [ObjectIdentifier: UUID] = [:]
+    private var attachmentPopupParents: [ObjectIdentifier: WKWebView] = [:]
+    private var recentDownloadGestures: [ObjectIdentifier: Date] = [:]
     @Published var diagnostic = "No navigation error recorded."
     @Published var resetInProgress = false
     @Published var popup: WKWebView?
@@ -140,7 +142,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.allowsInlineMediaPlayback = true
-        config.preferences.javaScriptCanOpenWindowsAutomatically = false
+        config.preferences.javaScriptCanOpenWindowsAutomatically = true
         web = WKWebView(frame: .zero, configuration: config)
         super.init()
         configure(web)
@@ -166,29 +168,64 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         view.isOpaque = false
         let controller = view.configuration.userContentController
         controller.add(LocalDownloadBridge(self), contentWorld: .defaultClient, name: "nextLocalFile")
-        controller.addUserScript(WKUserScript(source: Self.localDownloadScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .defaultClient))
+        controller.addUserScript(WKUserScript(source: Self.localDownloadScript, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .defaultClient))
+        controller.addUserScript(WKUserScript(source: Self.detachedDownloadScript, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
     }
-    // Only explicit user taps on a browser-generated download anchor are intercepted.
+    // Some web clients generate a download anchor off-DOM and call click().
+    // Attach it briefly so the standard DOM download listener can see the event.
+    private static let detachedDownloadScript = #"""
+    (() => {
+      if (location.protocol !== 'https:' || location.hostname !== 'chatgpt.com') return;
+      let lastGesture = 0;
+      document.addEventListener('click', e => {
+        if (e.isTrusted) lastGesture = Date.now();
+      }, true);
+      const nativeClick = HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click = function() {
+        if (!this.isConnected && this.hasAttribute('download') &&
+            /^(blob:|data:)/i.test(this.href) &&
+            Date.now() - lastGesture < 30000 && document.body) {
+          const previousStyle = this.getAttribute('style');
+          this.style.display = 'none';
+          document.body.appendChild(this);
+          try { return nativeClick.apply(this, arguments); }
+          finally {
+            this.remove();
+            if (previousStyle === null) this.removeAttribute('style');
+            else this.setAttribute('style', previousStyle);
+          }
+        }
+        return nativeClick.apply(this, arguments);
+      };
+    })();
+    """#
+    // Only user-initiated browser-generated download anchors are intercepted.
     // The website's own click handlers retain priority. HTTPS and sandbox references
     // are never fetched by this bridge; the website must resolve them itself.
     private static let localDownloadScript = #"""
     (() => {
       if (location.protocol !== 'https:' || location.hostname !== 'chatgpt.com') return;
       const limit = 8 * 1024 * 1024;
+      let lastGesture = 0;
       // Observe, never cancel or replace the website's sandbox attachment handler.
       document.addEventListener('click', event => {
         if (!event.isTrusted || event.button !== 0) return;
-        const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
+        lastGesture = Date.now();
+        const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+        const anchor = target?.closest('a[href]');
+        const button = target?.closest('button,[role="button"]');
         const href = anchor?.getAttribute('href') || '';
-        if (!/^sandbox:\/mnt\/data\//i.test(href)) return;
-        let name = href.split('/').pop() || 'Attachment';
-        try { name = decodeURIComponent(name); } catch (_) {}
+        const sandbox = /^sandbox:\/mnt\/data\//i.test(href);
+        const label = button?.getAttribute('aria-label') || button?.getAttribute('title') || '';
+        if (!sandbox && !anchor?.hasAttribute('download') && !/download/i.test(label)) return;
+        let name = sandbox ? href.split('/').pop() : anchor?.download || 'Attachment';
+        try { name = decodeURIComponent(name || 'Attachment'); } catch (_) {}
         window.webkit?.messageHandlers?.nextLocalFile?.postMessage({kind:'sandboxTap', name});
       }, true);
       document.addEventListener('click', async event => {
-        if (!event.isTrusted || event.defaultPrevented || event.button !== 0) return;
+        if (event.defaultPrevented || event.button !== 0 || (!event.isTrusted && Date.now() - lastGesture >= 30000)) return;
         const anchor = event.target instanceof Element ? event.target.closest('a[download]') : null;
-        if (!anchor) return;
+        if (!anchor || anchor.hasAttribute('data-next-native-retry')) return;
         const url = anchor.href;
         if (!/^(blob:|data:)/i.test(url) || !window.webkit?.messageHandlers?.nextLocalFile) return;
         if (url.startsWith('data:') && url.length > limit * 1.5) return;
@@ -197,6 +234,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         const retry = () => {
           const link = document.createElement('a');
           link.href = url; link.download = name;
+          link.setAttribute('data-next-native-retry', '');
           document.body.appendChild(link); link.click(); link.remove();
         };
         try {
@@ -278,7 +316,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         config.websiteDataStore = web.configuration.websiteDataStore
         config.processPool = web.configuration.processPool
         config.allowsInlineMediaPlayback = true
-        config.preferences.javaScriptCanOpenWindowsAutomatically = false
+        config.preferences.javaScriptCanOpenWindowsAutomatically = true
         let view = WKWebView(frame: .zero, configuration: config)
         configure(view)
         return view
@@ -330,6 +368,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         liveViews.removeAll { $0 === view }
         requestedURLs.removeValue(forKey: ObjectIdentifier(view))
         attachmentAttempts.removeValue(forKey: ObjectIdentifier(view))
+        recentDownloadGestures.removeValue(forKey: ObjectIdentifier(view))
         stoppedViews.remove(ObjectIdentifier(view))
         view.stopLoading()
         view.navigationDelegate = nil
@@ -460,6 +499,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private func watchAttachment(_ name: String, from view: WKWebView) {
         guard view === web else { return }
         let key = ObjectIdentifier(view)
+        recentDownloadGestures[key] = Date()
         let attempt = UUID()
         let conversation = browserStart(view.url)
         let safeName = String(name.prefix(180))
@@ -476,7 +516,8 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         }
     }
     private func attachmentStarted(_ view: WKWebView) {
-        if attachmentAttempts.removeValue(forKey: ObjectIdentifier(view)) != nil, view === web {
+        let source = attachmentPopupParents[ObjectIdentifier(view)] ?? view
+        if attachmentAttempts.removeValue(forKey: ObjectIdentifier(source)) != nil, source === web {
             attachmentIssue = nil
         }
     }
@@ -519,7 +560,30 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         downloadDiagnostic = "Resolving attachment."
         child.load(request)
     }
-    private func releaseFileView(_ view: WKWebView) { fileViews.removeValue(forKey: ObjectIdentifier(view)) }
+    private func releaseFileView(_ view: WKWebView) {
+        let key = ObjectIdentifier(view)
+        fileViews.removeValue(forKey: key)
+        attachmentPopupParents.removeValue(forKey: key)
+    }
+    private func recentAttachmentGesture(_ view: WKWebView) -> Bool {
+        guard let date = recentDownloadGestures[ObjectIdentifier(view)] else { return false }
+        return Date().timeIntervalSince(date) < 30
+    }
+    private func attachmentPopup(_ config: WKWebViewConfiguration, parent: WKWebView) -> WKWebView {
+        let child = WKWebView(frame: .zero, configuration: config)
+        child.navigationDelegate = self
+        child.uiDelegate = self
+        let key = ObjectIdentifier(child)
+        fileViews[key] = child
+        attachmentPopupParents[key] = parent
+        DispatchQueue.main.asyncAfter(deadline: .now() + 45) { [weak self, weak child] in
+            guard let self, let child, self.isFileView(child),
+                  !self.downloadViews.values.contains(where: { $0 === child }) else { return }
+            child.stopLoading()
+            self.releaseFileView(child)
+        }
+        return child
+    }
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = action.request.url else { decisionHandler(.cancel); return }
         // Never bridge WKFrameInfo.request on iOS 16.
@@ -543,6 +607,25 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             decisionHandler(.allow); return
         }
         if isFileView(webView) {
+            if let parent = attachmentPopupParents[ObjectIdentifier(webView)] {
+                if url.absoluteString == "about:blank" { decisionHandler(.allow); return }
+                if scheme == "blob" || scheme == "data" {
+                    attachmentStarted(parent); decisionHandler(.download); return
+                }
+                if scheme == "sandbox" {
+                    decisionHandler(.cancel)
+                    unresolvedAttachment(url, from: parent)
+                    releaseFileView(webView)
+                    return
+                }
+                // Permit only official HTTPS attachment destinations in a hidden popup.
+                if scheme == "https", (fileHost(url) || (official(url) && !authPage(url))) {
+                    decisionHandler(.allow); return
+                }
+                decisionHandler(.cancel)
+                releaseFileView(webView)
+                return
+            }
             decisionHandler(scheme == "https" ? .allow : .cancel); return
         }
         if scheme == "sandbox" && fromChat {
@@ -584,6 +667,10 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         let attachment = disposition.contains("attachment") || disposition.contains("filename=") || disposition.contains("filename*=")
         let route = isFileView(webView)
         let mime = response.response.mimeType?.lowercased() ?? ""
+        if attachmentPopupParents[ObjectIdentifier(webView)] != nil,
+           response.response.url?.absoluteString == "about:blank" {
+            decisionHandler(.allow); return
+        }
         if route && (!(200...299).contains(http?.statusCode ?? 200) || (!attachment && mime == "text/html")) {
             decisionHandler(.cancel)
             releaseFileView(webView)
@@ -599,6 +686,16 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         let fromChat = official(source)
         let appleSignIn = appleIdentity(url) && (fromChat || appleIdentity(source))
         let auth = authPage(source) || appleIdentity(source) || identityProvider(url)
+        if !auth && fromChat && recentAttachmentGesture(webView) && url.absoluteString == "about:blank" {
+            return attachmentPopup(configuration, parent: webView)
+        }
+        // The asynchronous popup preference is enabled for attachment flows;
+        // block unsolicited scripted popups, but retain normal links and authentication.
+        if !auth && !appleSignIn && action.navigationType != .linkActivated &&
+            !recentAttachmentGesture(webView) && !action.shouldPerformDownload &&
+            !fileHost(url) && !fileLink(url) && url.scheme != "blob" {
+            return nil
+        }
         if !auth && fromChat && (action.shouldPerformDownload || url.scheme == "blob") && ["https","blob","data"].contains(url.scheme ?? "") {
             beginFile(action.request, in: webView); return nil
         }
@@ -626,6 +723,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     }
     func webViewDidClose(_ webView: WKWebView) {
         if webView === popup { closePopup() }
+        else if isFileView(webView), !downloadViews.values.contains(where: { $0 === webView }) { releaseFileView(webView) }
     }
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         if webView === popup { popupHost = webView.url?.host ?? "Official sign-in" }
@@ -1263,7 +1361,7 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (15)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (16)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
 
                         }
@@ -1271,7 +1369,7 @@ struct SettingsView: View {
                     NavigationLink {
                         destination("About") {
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (15)")
+                    LabeledContent("Version", value: "1.0.0 (16)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
