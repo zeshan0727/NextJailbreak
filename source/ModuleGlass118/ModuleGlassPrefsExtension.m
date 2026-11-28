@@ -104,7 +104,7 @@ static UIColor *MGBrandColor(NSUInteger rgb, CGFloat alpha) {
     [_card addSubview:_subtitleLabel];
 
     _versionLabel = [UILabel new];
-    _versionLabel.text = @"1.1.20  •  iOS 16+";
+    _versionLabel.text = @"1.1.21  •  iOS 16+";
     _versionLabel.font = [UIFont monospacedSystemFontOfSize:10.5 weight:UIFontWeightSemibold];
     _versionLabel.textAlignment = NSTextAlignmentCenter;
     _versionLabel.textColor = MGBrandColor(0xDDFDE5, 0.94);
@@ -119,7 +119,7 @@ static UIColor *MGBrandColor(NSUInteger rgb, CGFloat alpha) {
     [_card addSubview:_accentLine];
 
     self.isAccessibilityElement = YES;
-    self.accessibilityLabel = @"Module Glass by Next Jailbreak. Premium Control Center styling. Version 1.1.20.";
+    self.accessibilityLabel = @"Module Glass by Next Jailbreak. Premium Control Center styling. Version 1.1.21.";
     return self;
 }
 

@@ -1,16 +1,16 @@
 Package: com.nextsolution.nextaura.cc-module-backgrounds
 Name: Module Glass
-Version: 1.1.20
+Version: 1.1.21
 Architecture: iphoneos-arm64e
-Description: Premium Control Center styling with independently selected module images, blur, opacity, glow, and Volume glyph color controls. Version 1.1.20 retains categorized native settings and Next Jailbreak branding while improving expansion and collapse recovery and live $1 lifetime activation.
+Description: Premium Control Center styling with independently selected module images, blur, opacity, glow, and Volume glyph color controls. Version 1.1.21 retains categorized native settings and Next Jailbreak branding while isolating compact overlays and restoring modules independently and live $1 lifetime activation.
 Maintainer: Next Jailbreak
 Author: Next Jailbreak - Zeeshan Barvi
 Section: Tweaks
 Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
-Provides: com.nextsolution.nextaura.runtime.ccbackgrounds (= 1.1.20)
-Conflicts: com.nextsolution.nextaura.runtime.ccbackgrounds (<= 1.1.19), com.nextsolution.unlockvibrate
-Breaks: com.nextsolution.nextaura.runtime.ccbackgrounds (<= 1.1.19)
-Replaces: com.nextsolution.nextaura.runtime.ccbackgrounds (<= 1.1.19)
+Provides: com.nextsolution.nextaura.runtime.ccbackgrounds (= 1.1.21)
+Conflicts: com.nextsolution.nextaura.runtime.ccbackgrounds (<= 1.1.20), com.nextsolution.unlockvibrate
+Breaks: com.nextsolution.nextaura.runtime.ccbackgrounds (<= 1.1.20)
+Replaces: com.nextsolution.nextaura.runtime.ccbackgrounds (<= 1.1.20)
 Priority: optional
 Homepage: https://nextsolution.cc/
 Tag: role::cydia

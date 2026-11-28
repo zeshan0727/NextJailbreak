@@ -20,6 +20,51 @@ static NSInteger const MGVolumePercentageOverlayTag = 0x4D475650;
 static NSInteger const MGSliderShellTag = 0x4D475353;
 
 static NSHashTable *MGControllers;
+static NSHashTable<UIImageView *> *MGOwnedOverlays;
+static char MGOverlayOwnerKey;
+static char MGCompactRectKey;
+static char MGRecoveryPendingKey;
+static char MGRecoveryCandidateRectKey;
+static char MGRecoveryCandidateTimeKey;
+static BOOL MGRecoverySweepActive = NO;
+static NSUInteger MGRecoverySweepGeneration = 0;
+
+// A view owned by this tweak must never follow a native reparenting operation.
+@interface MGOwnedImageView : UIImageView
+@property(nonatomic, weak) UIView *mgExpectedHost;
+@end
+@implementation MGOwnedImageView
+- (void)didMoveToSuperview {
+    [super didMoveToSuperview];
+    if (self.superview && self.mgExpectedHost && self.superview != self.mgExpectedHost) self.hidden=YES;
+}
+@end
+
+static void MGRegisterOverlay(UIImageView *image, id owner, UIView *host) {
+    if (!image) return;
+    [MGOwnedOverlays addObject:image];
+    if (owner) {
+        NSHashTable *owners=[NSHashTable weakObjectsHashTable];
+        [owners addObject:owner];
+        objc_setAssociatedObject(image,&MGOverlayOwnerKey,owners,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    if ([image isKindOfClass:MGOwnedImageView.class]) ((MGOwnedImageView *)image).mgExpectedHost=host;
+}
+static void MGDetachOverlay(UIImageView *image) {
+    if (!image) return;
+    image.hidden=YES;
+    [image.layer removeAllAnimations];
+    [image removeFromSuperview];
+}
+static void MGDetachAllOwnedOverlays(void) {
+    for (UIImageView *image in MGOwnedOverlays.allObjects) MGDetachOverlay(image);
+}
+static void MGHideControllerOverlays(id owner) {
+    for (UIImageView *image in MGOwnedOverlays.allObjects) {
+        NSHashTable *owners=objc_getAssociatedObject(image,&MGOverlayOwnerKey);
+        if ([owners containsObject:owner]) image.hidden=YES;
+    }
+}
 // While any Control Center module is transitioning, all Module Glass renderers
 // are quarantined. Some Apple modules expand through a parent controller while
 // their customized child controller continues receiving layout/value callbacks.
@@ -46,8 +91,9 @@ static char MGCompactScreenSizeKey;
 static char MGApplyInProgressKey;
 static char MGLayoutPendingKey;
 static BOOL MGDeferredImageReload = NO;
-static CFTimeInterval MGTransitionStarted = 0;
-static CFTimeInterval MGCompactSince = 0;
+static BOOL MGCompactEligible(id controller, UIView *root, BOOL requireStable);
+static void MGMarkRecovery(id controller);
+static void MGStartRecoverySweep(void);
 static void MGStartQuarantine(NSString *source);
 static void MGRefreshAll(NSString *source, BOOL forceReloadImages);
 
@@ -561,7 +607,7 @@ static BOOL MGApplyVolumeIconTint(UIView *slider, UIColor *color, NSString **out
         objc_setAssociatedObject(icon, &MGVolumeOriginalIconAlphaKey, @(icon.alpha), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-    UIImageView *overlay=[[UIImageView alloc] initWithFrame:CGRectZero];
+    UIImageView *overlay=[[MGOwnedImageView alloc] initWithFrame:CGRectZero];
     overlay.tag=MGVolumeIconOverlayTag;
     overlay.userInteractionEnabled=NO;
     overlay.backgroundColor=UIColor.clearColor;
@@ -576,6 +622,7 @@ static BOOL MGApplyVolumeIconTint(UIView *slider, UIColor *color, NSString **out
     overlay.hidden=icon.hidden;
     overlay.layer.cornerRadius=icon.layer.cornerRadius;
     overlay.layer.masksToBounds=icon.layer.masksToBounds;
+    MGRegisterOverlay(overlay,nil,icon.superview);
     [icon.superview insertSubview:overlay aboveSubview:icon];
     objc_setAssociatedObject(icon, &MGVolumeIconOverlayKey, overlay, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
@@ -721,7 +768,7 @@ static void MGRemoveTaggedImages(UIView *root, UIView *except) {
 
 static UIImageView *MGImageViewInParent(UIView *parent) {
     for (UIView *view in parent.subviews) if (view.tag == MGImageTag && [view isKindOfClass:UIImageView.class]) return (UIImageView *)view;
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectZero];
+    UIImageView *imageView = [[MGOwnedImageView alloc] initWithFrame:CGRectZero];
     imageView.tag = MGImageTag;
     imageView.userInteractionEnabled = NO;
     imageView.contentMode = UIViewContentModeScaleToFill;
@@ -1118,7 +1165,7 @@ static void MGSliderSetValue(id self, SEL _cmd, CGFloat value) {
     if (MGGlobalTransitionQuarantine) return;
     if (![self isKindOfClass:UIView.class]) return;
     UIImageView *imageView=objc_getAssociatedObject(self, &MGVolumeFillImageKey);
-    if ([imageView isKindOfClass:UIImageView.class] && imageView.superview && imageView.window && !imageView.hidden) MGApplySliderFillMask(imageView, (UIView *)self);
+    if ([imageView isKindOfClass:MGOwnedImageView.class] && imageView.superview && imageView.window && !imageView.hidden && ((MGOwnedImageView *)imageView).mgExpectedHost==imageView.superview) MGApplySliderFillMask(imageView, (UIView *)self);
 }
 
 
@@ -1256,20 +1303,34 @@ static UIView *MGVisibleRoot(id controller) {
     return root;
 }
 
+static CGRect MGWindowRect(UIView *root) {
+    if (!root.window) return CGRectNull;
+    CGRect rect=[root convertRect:root.bounds toView:root.window];
+    if (!isfinite(rect.origin.x) || !isfinite(rect.origin.y) ||
+        !isfinite(rect.size.width) || !isfinite(rect.size.height) ||
+        rect.size.width<=1 || rect.size.height<=1) return CGRectNull;
+    return rect;
+}
+static BOOL MGRectNear(CGRect a, CGRect b, CGFloat positionTolerance, CGFloat sizeTolerance) {
+    if (CGRectIsNull(a) || CGRectIsNull(b)) return NO;
+    return fabs(a.size.width-b.size.width)<=sizeTolerance &&
+           fabs(a.size.height-b.size.height)<=sizeTolerance &&
+           fabs(CGRectGetMidX(a)-CGRectGetMidX(b))<=positionTolerance &&
+           fabs(CGRectGetMidY(a)-CGRectGetMidY(b))<=positionTolerance;
+}
 static BOOL MGGeometryExpanded(id controller, UIView *root) {
     if (!root) return NO;
     if (MGIsExpanded(root)) return YES;
-    NSString *slot=MGSlotForController(controller,NULL);
-    if (![slot isEqualToString:@"volume"] && ![slot isEqualToString:@"brightness"]) return NO;
+    CGRect rect=MGWindowRect(root);
+    if (CGRectIsNull(rect) || MGSizeLooksExpanded(rect.size)) return YES;
     NSValue *baseline=objc_getAssociatedObject(controller,&MGCompactSizeKey);
-    if (!baseline) return NO;
     NSValue *screenBaseline=objc_getAssociatedObject(controller,&MGCompactScreenSizeKey);
-    if (!screenBaseline || !CGSizeEqualToSize(screenBaseline.CGSizeValue,UIScreen.mainScreen.bounds.size)) return NO;
+    if (!baseline || !screenBaseline || !CGSizeEqualToSize(screenBaseline.CGSizeValue,UIScreen.mainScreen.bounds.size)) return NO;
     CGSize old=baseline.CGSizeValue, now=root.bounds.size;
-    CGFloat oldLong=MAX(old.width,old.height), newLong=MAX(now.width,now.height);
-    CGFloat oldShort=MIN(old.width,old.height), newShort=MIN(now.width,now.height);
-    return (newLong>oldLong*1.45 && newLong>oldLong+44) ||
-           (newShort>oldShort*1.45 && newShort>oldShort+44);
+    return (now.width>old.width*1.45 && now.width>old.width+28) ||
+           (now.height>old.height*1.45 && now.height>old.height+28) ||
+           (rect.size.width>old.width*1.45 && rect.size.width>old.width+28) ||
+           (rect.size.height>old.height*1.45 && rect.size.height>old.height+28);
 }
 
 static BOOL MGNativeExpanded(id controller) {
@@ -1283,21 +1344,57 @@ static BOOL MGNativeExpanded(id controller) {
     return ((BOOL (*)(id,SEL))[controller methodForSelector:sel])(controller,sel);
 }
 
-static BOOL MGHasNativeCoordinator(id controller) {
-    for (UIViewController *vc=controller; vc; vc=vc.parentViewController) {
-        if (vc.transitionCoordinator) return YES;
+static void MGMarkRecovery(id controller) {
+    if (!controller) return;
+    if (![objc_getAssociatedObject(controller,&MGRecoveryPendingKey) boolValue]) {
+        objc_setAssociatedObject(controller,&MGRecoveryPendingKey,@YES,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(controller,&MGRecoveryCandidateRectKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(controller,&MGRecoveryCandidateTimeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        MGHideControllerOverlays(controller);
     }
-    return NO;
+}
+static BOOL MGCompactEligible(id controller, UIView *root, BOOL requireStable) {
+    if (!root || MGGeometryExpanded(controller,root)) return NO;
+    CGRect rect=MGWindowRect(root);
+    if (CGRectIsNull(rect)) return NO;
+    CGRect screen=root.window.bounds;
+    CGRect visible=CGRectIntersection(rect,screen);
+    if (CGRectIsNull(visible) || CGRectIsEmpty(visible)) return NO;
+    NSValue *oldRect=objc_getAssociatedObject(controller,&MGCompactRectKey);
+    NSValue *oldScreen=objc_getAssociatedObject(controller,&MGCompactScreenSizeKey);
+    BOOL sameScreen=oldRect && oldScreen && CGSizeEqualToSize(oldScreen.CGSizeValue,UIScreen.mainScreen.bounds.size);
+    BOOL pending=[objc_getAssociatedObject(controller,&MGRecoveryPendingKey) boolValue];
+    // The native expanded flag can outlive dismissal. A verified return to the
+    // compact rectangle is stronger evidence than that stale boolean.
+    BOOL returned=sameScreen && MGRectNear(rect,oldRect.CGRectValue,MAX(22.0,MIN(oldRect.CGRectValue.size.width,oldRect.CGRectValue.size.height)*0.40),MAX(10.0,MIN(oldRect.CGRectValue.size.width,oldRect.CGRectValue.size.height)*0.18));
+    if (MGNativeExpanded(controller) && !returned) return NO;
+    if (pending && sameScreen && !returned) return NO;
+    if (pending && requireStable) {
+        NSValue *candidate=objc_getAssociatedObject(controller,&MGRecoveryCandidateRectKey);
+        CFTimeInterval now=CACurrentMediaTime();
+        if (!candidate || !MGRectNear(rect,candidate.CGRectValue,2,2)) {
+            objc_setAssociatedObject(controller,&MGRecoveryCandidateRectKey,[NSValue valueWithCGRect:rect],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            objc_setAssociatedObject(controller,&MGRecoveryCandidateTimeKey,@(now),OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            return NO;
+        }
+        if (now-[objc_getAssociatedObject(controller,&MGRecoveryCandidateTimeKey) doubleValue]<0.22) return NO;
+    }
+    return YES;
 }
 
 static void MGApplyControllerNow(id controller, NSString *source) {
     if (MGGlobalTransitionQuarantine) return;
     UIView *root=MGVisibleRoot(controller);
     if (!root) return;
-    if (MGGeometryExpanded(controller,root) || MGNativeExpanded(controller)) {
-        MGStartQuarantine(@"expanded-layout-fallback");
+    if (!MGCompactEligible(controller,root,YES)) {
+        MGMarkRecovery(controller);
+        MGStartRecoverySweep();
         return;
     }
+    objc_setAssociatedObject(controller,&MGRecoveryPendingKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(controller,&MGRecoveryCandidateRectKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(controller,&MGRecoveryCandidateTimeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(controller,&MGCompactRectKey,[NSValue valueWithCGRect:MGWindowRect(root)],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     objc_setAssociatedObject(controller,&MGCompactSizeKey,[NSValue valueWithCGSize:root.bounds.size],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     objc_setAssociatedObject(controller,&MGCompactScreenSizeKey,[NSValue valueWithCGSize:UIScreen.mainScreen.bounds.size],OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
@@ -1350,7 +1447,26 @@ static void MGApplyControllerNow(id controller, NSString *source) {
     NSString *strategy = nil;
     if (!MGPrepareInsertion(root, slot, &parent, &anchor, &imageFrame, &cornerSource, &strategy) || !parent) return;
 
+    // Never use a host outside the actual compact tile. A stale expanded
+    // native background or slider conversion can otherwise paint elsewhere.
+    if (parent!=root && ![parent isDescendantOfView:root]) return;
+    CGRect tileInParent=[root convertRect:root.bounds toView:parent];
+    CGRect clipped=CGRectIntersection(imageFrame,tileInParent);
+    if (CGRectIsNull(clipped) || CGRectIsEmpty(clipped) ||
+        !isfinite(clipped.size.width) || !isfinite(clipped.size.height) ||
+        clipped.size.width<imageFrame.size.width*0.85 || clipped.size.height<imageFrame.size.height*0.85) {
+        MGHideControllerOverlays(controller);
+        return;
+    }
+    imageFrame=clipped;
     UIImageView *imageView = MGImageViewInParent(parent);
+    MGRegisterOverlay(imageView,controller,parent);
+    // Also remove any tracked previous view reparented outside this root.
+    for (UIImageView *old in MGOwnedOverlays.allObjects) {
+        if (old==imageView) continue;
+        NSHashTable *owners=objc_getAssociatedObject(old,&MGOverlayOwnerKey);
+        if ([owners containsObject:controller]) MGDetachOverlay(old);
+    }
     MGRemoveTaggedImages(root, imageView);
 
     if (imageView.superview != parent) [imageView removeFromSuperview];
@@ -1367,6 +1483,8 @@ static void MGApplyControllerNow(id controller, NSString *source) {
         imageView.image = [UIImage imageWithContentsOfFile:path];
         objc_setAssociatedObject(imageView, @selector(setImage:), path, OBJC_ASSOCIATION_COPY_NONATOMIC);
     }
+    imageView.transform=CGAffineTransformIdentity;
+    imageView.autoresizingMask=UIViewAutoresizingNone;
     imageView.frame = imageFrame;
     imageView.alpha = opacity;
     imageView.hidden = imageView.image == nil;
@@ -1445,10 +1563,10 @@ static void MGRefreshAll(NSString *source, BOOL forceReloadImages) {
             if (MGGlobalTransitionQuarantine) { MGDeferredImageReload |= reload; break; }
             UIView *root=MGVisibleRoot(controller);
             if (!root) continue;
-            if (MGGeometryExpanded(controller,root) || MGNativeExpanded(controller)) {
-                MGDeferredImageReload |= reload;
-                MGStartQuarantine(@"refresh-expanded-fallback");
-                break;
+            if (!MGCompactEligible(controller,root,YES)) {
+                MGMarkRecovery(controller);
+                MGStartRecoverySweep();
+                continue;
             }
             if (reload) MGRemoveTaggedImages(root,nil);
             objc_setAssociatedObject(controller, &MGLastDiagnosticKey, nil, OBJC_ASSOCIATION_COPY_NONATOMIC);
@@ -1477,55 +1595,66 @@ static void MGContentLayout(id self, SEL _cmd) {
     MGPostLayoutRecovery(self, @"CCUIContentModuleContainerViewController.layout");
 }
 
-// Quarantine is a session, not a one-shot transition callback. A single poll
-// chain observes the actual attached geometry until native compact mode is
-// stable. Stale completion blocks cannot re-enable the renderer.
-static void MGRecoveryTick(NSUInteger generation) {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.20*NSEC_PER_SEC)),dispatch_get_main_queue(), ^{
-        if (!MGGlobalTransitionQuarantine || generation!=MGGlobalTransitionGeneration) return;
-        NSArray *controllers=nil;
-        @synchronized (MGControllers) { controllers=MGControllers.allObjects; }
-        BOOL visible=NO, expanded=NO, coordinator=NO;
-        for (id controller in controllers) {
-            UIView *root=MGVisibleRoot(controller);
-            if (!root) {
-                objc_setAssociatedObject(controller,&MGCompactSizeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                objc_setAssociatedObject(controller,&MGCompactScreenSizeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                continue;
-            }
-            visible=YES;
-            expanded |= MGGeometryExpanded(controller,root) || MGNativeExpanded(controller);
-            coordinator |= MGHasNativeCoordinator(controller);
-        }
-        CFTimeInterval now=CACurrentMediaTime(), age=now-MGTransitionStarted;
-        // A missing/cancelled coordinator completion must not permanently
-        // suspend compact rendering. Do not touch any views while expanded.
-        BOOL safe=(!visible || !expanded) && age>=0.65 && (!coordinator || age>=2.5);
-        if (!safe) MGCompactSince=0;
-        else if (MGCompactSince==0) MGCompactSince=now;
-        if (safe && now-MGCompactSince>=0.24) {
-            MGGlobalTransitionQuarantine=NO;
-            MGCompactSince=0;
-            if (MGVerboseDiagnosticsEnabled()) MGLog(@"session-resume generation=%lu visible=%d age=%.2f",(unsigned long)generation,visible,age);
-            MGRefreshAll(@"session-compact-recovery",NO);
+// The global gate is bounded. A stale expanded controller must not keep every
+// unrelated module blank. Recovery eligibility is checked separately per tile.
+static void MGRecoverySweepTick(NSUInteger generation, NSUInteger attempt) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.25*NSEC_PER_SEC)),dispatch_get_main_queue(), ^{
+        if (!MGRecoverySweepActive || generation!=MGRecoverySweepGeneration) return;
+        if (MGGlobalTransitionQuarantine) {
+            MGRecoverySweepTick(generation,attempt);
             return;
         }
-        MGRecoveryTick(generation);
+        NSArray *controllers=nil;
+        @synchronized (MGControllers) { controllers=MGControllers.allObjects; }
+        BOOL pending=NO, anyVisible=NO;
+        for (id controller in controllers) {
+            UIView *root=MGVisibleRoot(controller);
+            if (root) anyVisible=YES;
+            if (![objc_getAssociatedObject(controller,&MGRecoveryPendingKey) boolValue]) continue;
+            if (!root) continue;
+            if (MGCompactEligible(controller,root,YES)) MGApplyController(controller,@"independent-compact-recovery");
+            if ([objc_getAssociatedObject(controller,&MGRecoveryPendingKey) boolValue]) pending=YES;
+        }
+        if (!anyVisible) {
+            // CC dismissed. Its next layout will establish new compact baselines.
+            for (id controller in controllers) {
+                objc_setAssociatedObject(controller,&MGCompactSizeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                objc_setAssociatedObject(controller,&MGCompactRectKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                objc_setAssociatedObject(controller,&MGCompactScreenSizeKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                objc_setAssociatedObject(controller,&MGRecoveryCandidateRectKey,nil,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            }
+        }
+        if (pending && attempt<48) MGRecoverySweepTick(generation,attempt+1);
+        else MGRecoverySweepActive=NO;
     });
 }
-
+static void MGStartRecoverySweep(void) {
+    if (MGRecoverySweepActive) return;
+    MGRecoverySweepActive=YES;
+    MGRecoverySweepTick(++MGRecoverySweepGeneration,0);
+}
 static void MGStartQuarantine(NSString *source) {
     BOOL wasQuarantined=MGGlobalTransitionQuarantine;
     MGGlobalTransitionQuarantine=YES;
-    MGTransitionStarted=CACurrentMediaTime();
-    MGCompactSince=0;
     NSUInteger generation=++MGGlobalTransitionGeneration;
+    NSArray *controllers=nil;
+    @synchronized (MGControllers) { controllers=MGControllers.allObjects; }
+    for (id controller in controllers) MGMarkRecovery(controller);
     if (!wasQuarantined) {
-        // Hide in place, restore only values previously changed by Module Glass.
-        // No view removal, reparenting, mask updates or transition registration.
-        [UIView performWithoutAnimation:^{ MGQuarantineAllTrackedControllers(source); }];
+        // BEFORE calling Apple's original transition method: remove only
+        // Module Glass-owned image views. No native view is moved or removed.
+        // Detached images cannot travel with an expanded module's hierarchy.
+        [UIView performWithoutAnimation:^{
+            MGQuarantineAllTrackedControllers(source);
+            MGDetachAllOwnedOverlays();
+        }];
     }
-    MGRecoveryTick(generation);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(0.85*NSEC_PER_SEC)),dispatch_get_main_queue(), ^{
+        if (generation!=MGGlobalTransitionGeneration) return;
+        MGGlobalTransitionQuarantine=NO;
+        MGStartRecoverySweep();
+        MGRefreshAll(@"bounded-transition-recovery",NO);
+    });
 }
 
 static void MGModuleWillTransition(id self,SEL c,CGSize size,id coordinator) {
@@ -1545,8 +1674,9 @@ static void MGPostLayoutRecovery(id controller, NSString *source) {
     if (MGGlobalTransitionQuarantine) return;
     UIView *root=MGVisibleRoot(controller);
     if (!root) return;
-    if (MGGeometryExpanded(controller,root) || MGNativeExpanded(controller)) {
-        MGStartQuarantine(@"layout-native-transition");
+    if (!MGCompactEligible(controller,root,YES)) {
+        MGMarkRecovery(controller);
+        MGStartRecoverySweep();
         return;
     }
     // Never mutate a module synchronously inside Apple's layout call stack.
@@ -1587,8 +1717,8 @@ static void MGHookController(Class cls, IMP loadHook, IMP layoutHook, IMP *oldLo
     if (!cls) return;
     SEL loadSel = @selector(viewDidLoad);
     SEL layoutSel = @selector(viewDidLayoutSubviews);
-    if (class_getInstanceMethod(cls, loadSel)) MSHookMessageEx(cls, loadSel, loadHook, oldLoad);
-    if (class_getInstanceMethod(cls, layoutSel)) MSHookMessageEx(cls, layoutSel, layoutHook, oldLayout);
+    if (class_getInstanceMethod(cls, loadSel)) *oldLoad=MGInstallLocalHook(cls,loadSel,loadHook);
+    if (class_getInstanceMethod(cls, layoutSel)) *oldLayout=MGInstallLocalHook(cls,layoutSel,layoutHook);
 }
 
 static void MGPrefsChanged(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
@@ -1600,6 +1730,7 @@ static void MGPrefsChanged(CFNotificationCenterRef center, void *observer, CFStr
 __attribute__((constructor)) static void MGInit(void) {
     @autoreleasepool {
         MGControllers = [NSHashTable weakObjectsHashTable];
+        MGOwnedOverlays = [NSHashTable weakObjectsHashTable];
         MGLoadLicenseState();
         void *handle = dlopen("/System/Library/PrivateFrameworks/ControlCenterUI.framework/ControlCenterUI", RTLD_LAZY);
         Class moduleClass = NSClassFromString(@"CCUIModuleContainerViewController");
@@ -1629,7 +1760,7 @@ __attribute__((constructor)) static void MGInit(void) {
         CFNotificationCenterAddObserver(darwin, NULL, MGPrefsChanged, CFSTR("com.nextsolution.nextlog/control.changed"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 
         [NSFileManager.defaultManager createDirectoryAtPath:MGBackgroundDirectory withIntermediateDirectories:YES attributes:nil error:nil];
-        MGLog(@"ModuleGlassRuntime 1.1.20 Expansion Session Recovery loaded SpringBoard=%@ prefsEnabled=%d licenseActive=%d", NSBundle.mainBundle.bundleIdentifier, MGBoolPreference(@"CCModuleBackgroundsEnabled", YES), MGLicenseActiveCached);
+        MGLog(@"ModuleGlassRuntime 1.1.21 Owned Overlay Recovery loaded SpringBoard=%@ prefsEnabled=%d licenseActive=%d", NSBundle.mainBundle.bundleIdentifier, MGBoolPreference(@"CCModuleBackgroundsEnabled", YES), MGLicenseActiveCached);
         MGLog(@"Glyph-safe stretch runtime with shared Brightness/Volume slider pattern process=%@ pid=%d dlopen=%p moduleClass=%@ contentClass=%@ sliderClass=%@", NSProcessInfo.processInfo.processName, getpid(), handle, moduleClass, contentClass, sliderClass);
         MGLog(@"diagnostic-control active=%d prefsDomain=%@ backgroundDirectory=%@ log=%@", MGVerboseDiagnosticsEnabled(), (__bridge NSString *)MGPrefsDomain, MGBackgroundDirectory, MGLogPath);
     }
