@@ -10,8 +10,18 @@ def one(a,b):
 one('static void UVNGReloadPreferences(void) {','''static BOOL UVNGFloatingEnabled;
 static CGFloat UVNGFloatingSize, UVNGFloatingSensitivity, UVNGFloatingBounce, UVNGFloatingGlow;
 static CGFloat UVNGFloatingSpeed, UVNGFloatingSmoothness, UVNGFloatingRotation;
+static NSInteger UVNGFloatingMotionMode;
+static BOOL UVNGFloatingAllApps;
+static NSSet<NSString *> *UVNGFloatingSelectedApps;
+static BOOL UVNGFloatingAppSelected(NSString *identifier){return identifier.length&&(UVNGFloatingAllApps||[UVNGFloatingSelectedApps containsObject:identifier.lowercaseString]);}
 static void UVNGReloadPreferences(void) {''')
 one('    UVNGIconSize = UVNGFloat(','''    UVNGFloatingEnabled = UVNGBool(@"NotificationGlowFloatingEnabled", NO);
+    UVNGFloatingMotionMode = (NSInteger)UVNGFloat(@"NotificationGlowFloatingMotionMode",0,0,1);
+    UVNGFloatingAllApps = UVNGBool(@"NotificationGlowFloatingAllApps", NO);
+    id chosen = UVNGCopyPreference(@"NotificationGlowFloatingSelectedApps");
+    NSMutableSet *selected=[NSMutableSet new];
+    if([chosen isKindOfClass:NSArray.class])for(id item in chosen)if([item isKindOfClass:NSString.class])[selected addObject:[item lowercaseString]];
+    UVNGFloatingSelectedApps=[selected copy];
     UVNGFloatingSize = UVNGFloat(@"NotificationGlowFloatingSize", 52, 28, 84);
     UVNGFloatingSensitivity = UVNGFloat(@"NotificationGlowFloatingSensitivity", 1.0, .2, 2.0);
     UVNGFloatingBounce = UVNGFloat(@"NotificationGlowFloatingBounce", .72, .05, .98);
@@ -28,8 +38,8 @@ static void UVNGNotificationObserved(id controller) {
         id request=NGFControllerRequest(controller);
         if(request)[[NGFFloatEngine shared] record:request];
     }''')
-s=s.replace('if (!UVNGIconAllStyles) UVNGAddIcon(', 'if ((!UVNGFloatingEnabled || locked || preview) && !UVNGIconAllStyles) UVNGAddIcon(')
-one('if (UVNGIconAllStyles || requestedStyle == 15) UVNGAddIcon(', 'if ((!UVNGFloatingEnabled || locked || preview) && (UVNGIconAllStyles || requestedStyle == 15)) UVNGAddIcon(')
+s=s.replace('if (!UVNGIconAllStyles) UVNGAddIcon(', 'if ((!UVNGFloatingEnabled || !UVNGFloatingAppSelected(identifier) || locked || preview) && !UVNGIconAllStyles) UVNGAddIcon(')
+one('if (UVNGIconAllStyles || requestedStyle == 15) UVNGAddIcon(', 'if ((!UVNGFloatingEnabled || !UVNGFloatingAppSelected(identifier) || locked || preview) && (UVNGIconAllStyles || requestedStyle == 15)) UVNGAddIcon(')
 one('static void UVNGDarwinCallback(','''%group NGFPost
 %hook NCNotificationDispatcher
 - (void)postNotificationWithRequest:(id)request {
@@ -105,9 +115,9 @@ one('        %init(UVNGHooks);','''        %init(UVNGHooks);
         if(NGFVoidMethod(dispatchClass,@selector(withdrawNotificationWithRequest:),3)){
             %init(NGFWithdraw);
         }
-        NSLog(@"[NotifyGlow 1.0.8] Floating engine ready; dispatcher hook=%d",NGFDispatcherHooked);''')
+        NSLog(@"[NotifyGlow 1.0.9] Floating engine ready; dispatcher hook=%d",NGFDispatcherHooked);''')
 one('            (__bridge NSString *)UVNGStop\n','            (__bridge NSString *)UVNGStop,\n            (__bridge NSString *)UVNGTestFloating,\n            (__bridge NSString *)UVNGStopFloating\n')
-s=s.replace('NotifyGlow 1.0.6','NotifyGlow 1.0.8')
+s=s.replace('NotifyGlow 1.0.6','NotifyGlow 1.0.9')
 rt.write_text(s)
 make=base/'runtime/Makefile'
 make.write_text(make.read_text().replace('AudioToolbox CoreFoundation','AudioToolbox CoreMotion CoreFoundation'))
@@ -120,8 +130,12 @@ def slider(label,key,default,lo,hi):
  return pref('PSSliderCell',label,key,default,min=lo,max=hi,showValue=True)
 idx=next(i for i,x in enumerate(items) if x.get('label')=='Position')
 items[idx:idx]=[
- dict(cell='PSGroupCell',label='FLOATING ICONS',footerText='Independent full-screen drift and tilt response, with collision avoidance. Adjust speed and smoothness separately. Rotation keeps the counter upright. Up to 120 Hz where supported.'),
+ dict(cell='PSGroupCell',label='FLOATING ICONS',footerText='Sensor only: icons move in response to device motion and settle when stationary. Continuous drift is optional. Select the apps that may float. Preview uses demo icons.'),
  pref('PSSwitchCell','Floating mode','Enabled',False),
+ pref('PSLinkListCell','Motion mode','MotionMode',0,validTitles=['Sensor only','Continuous drift'],validValues=[0,1],detail='PSListItemsController'),
+ pref('PSSwitchCell','All apps','AllApps',False),
+ dict(cell='PSButtonCell',label='Select floating apps',action='selectFloatingApps:'),
+
  slider('Floating icon size (pt)','Size',52,28,84),
  slider('Movement sensitivity','Sensitivity',1,.2,2),
  slider('Bouncing intensity','Bounce',.72,.05,.98),
@@ -133,6 +147,12 @@ items[idx:idx]=[
  dict(cell='PSButtonCell',label='Stop floating preview',action='test:',event='com.nextsolution.notifyglow/stop-floating'),
 ]
 f.write_bytes(plistlib.dumps(d))
+controller=prefs/'NGController.m'
+c=controller.read_text()
+c=c.replace('@interface NGController :', '#include "NGAppPicker.inc"\n@interface NGController :',1)
+c=c.replace('- (void)openPage:(PSSpecifier *)s {','- (void)selectFloatingApps:(PSSpecifier *)s {NGFloatingAppsController *picker=[[NGFloatingAppsController alloc]initWithStyle:UITableViewStyleInsetGrouped];[self.navigationController pushViewController:picker animated:YES];}\n- (void)openPage:(PSSpecifier *)s {',1)
+assert 'selectFloatingApps:' in c
+controller.write_text(c)
 # PSSliderCell on iOS 16 ignores the label in the visual cell. Give each
 # slider its own native section header, including existing controls on every page.
 for page in prefs.glob('*.plist'):
@@ -152,12 +172,12 @@ for page in prefs.glob('*.plist'):
  for i,item in enumerate(labeled):
   if item.get('cell')=='PSSliderCell': assert i>0 and labeled[i-1].get('cell')=='PSGroupCell' and labeled[i-1].get('label'),page.name
 for f in [prefs/'Info.plist',prefs/'Root.plist',prefs/'NGController.m',base/'runtime/control',base/'category/control']:
- s=f.read_text().replace('1.0.6','1.0.8')
- if f.name=='control':s=s.replace('1.0.2','1.0.4').replace('1.0.5 animation engine','1.0.8 floating icon animation engine')
+ s=f.read_text().replace('1.0.6','1.0.9')
+ if f.name=='control':s=s.replace('1.0.2','1.0.5').replace('1.0.5 animation engine','1.0.9 floating icon animation engine')
  f.write_text(s)
 # Original validator sees the new event strings and keys from included source.
 v=base/'validate.py'
-t=v.read_text().replace("runtime=(base/'runtime/NotificationGlow.xm').read_text();","runtime=(base/'runtime/NotificationGlow.xm').read_text()+(base/'runtime/NGFloating.inc').read_text();").replace('runtime.glow (>= 1.0.2)','runtime.glow (>= 1.0.4)')
+t=v.read_text().replace("runtime=(base/'runtime/NotificationGlow.xm').read_text();","runtime=(base/'runtime/NotificationGlow.xm').read_text()+(base/'runtime/NGFloating.inc').read_text();").replace('runtime.glow (>= 1.0.2)','runtime.glow (>= 1.0.5)')
 v.write_text(t)
 assert 'CoreMotion' in make.read_text()
 assert 'CAFrameRateRangeMake' in (base/'runtime/NGFloating.inc').read_text()

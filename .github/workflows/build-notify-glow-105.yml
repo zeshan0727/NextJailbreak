@@ -1,4 +1,4 @@
-name: Notify Glow 1.0.8 Floating RootHide test
+name: Notify Glow 1.0.9 Floating RootHide test
 on:
   push:
     branches: [agent/notify-glow-1.0.7-floating]
@@ -168,6 +168,7 @@ jobs:
         run: |
           set -euo pipefail
           cp "$GITHUB_WORKSPACE/source/NotifyGlowFloating/NGFloating.inc" "$RUNNER_TEMP/glow/runtime/"
+          cp "$GITHUB_WORKSPACE/source/NotifyGlowFloating/NGAppPicker.inc" "$RUNNER_TEMP/glow/category/prefs/"
           cd "$RUNNER_TEMP/glow"
           python3 "$GITHUB_WORKSPACE/source/NotifyGlowFloating/apply.py"
           python3 validate.py
@@ -184,7 +185,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: NotifyGlow-1.0.8-RootHide-test
+          name: NotifyGlow-1.0.9-RootHide-test
           path: |
             ${{ runner.temp }}/glow/output/*.deb
             ${{ runner.temp }}/glow-build.log
@@ -194,14 +195,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p test-builds/notify-glow
-          cp "$RUNNER_TEMP/glow/output/"*notification-glow*1.0.8*.deb test-builds/notify-glow/NotifyGlow_1.0.8_RootHide.deb
-          cp "$RUNNER_TEMP/glow/output/"*runtime.glow*1.0.4*.deb test-builds/notify-glow/GlowRuntime_1.0.4_RootHide.deb
+          cp "$RUNNER_TEMP/glow/output/"*notification-glow*1.0.9*.deb test-builds/notify-glow/NotifyGlow_1.0.9_RootHide.deb
+          cp "$RUNNER_TEMP/glow/output/"*runtime.glow*1.0.5*.deb test-builds/notify-glow/GlowRuntime_1.0.5_RootHide.deb
           cd test-builds/notify-glow
-          zip -j NotifyGlow_1.0.8_Test.zip NotifyGlow_1.0.8_RootHide.deb GlowRuntime_1.0.4_RootHide.deb
-          shasum -a 256 NotifyGlow_1.0.8_RootHide.deb GlowRuntime_1.0.4_RootHide.deb > SHA256-1.0.8.txt
+          zip -j NotifyGlow_1.0.9_Test.zip NotifyGlow_1.0.9_RootHide.deb GlowRuntime_1.0.5_RootHide.deb
+          shasum -a 256 NotifyGlow_1.0.9_RootHide.deb GlowRuntime_1.0.5_RootHide.deb > SHA256-1.0.9.txt
           cd "$GITHUB_WORKSPACE"
           git config user.name 'Next Jailbreak Build'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add test-builds/notify-glow
-          git commit -m 'Publish Notify Glow 1.0.8 floating device test packages'
+          git commit -m 'Publish Notify Glow 1.0.9 floating device test packages'
           git push origin HEAD:agent/notify-glow-1.0.7-floating

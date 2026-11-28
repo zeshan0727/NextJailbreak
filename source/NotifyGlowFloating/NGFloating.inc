@@ -1,4 +1,4 @@
-// Notify Glow - Next Jailbreak | Floating Icon Engine 1.0.8
+// Notify Glow - Next Jailbreak | Floating Icon Engine 1.0.9
 #import <CoreMotion/CoreMotion.h>
 #import <objc/runtime.h>
 #import <notify.h>
@@ -110,6 +110,10 @@ static BOOL NGFModeAllowed(void) {
 @property(nonatomic) CGSize priorSize;
 @property(nonatomic) CFTimeInterval priorTime;
 @property(nonatomic) CGPoint filteredGravity;
+@property(nonatomic) CGPoint sensorBaseline;
+@property(nonatomic) BOOL sensorReady;
+@property(nonatomic) CGFloat sensorSpin;
+@property(nonatomic) NSInteger lastMotionMode;
 @property(nonatomic) BOOL suspendedForCenter;
 @property(nonatomic) CFTimeInterval centerStart;
 @property(nonatomic) BOOL sawCenter;
@@ -139,6 +143,7 @@ static BOOL NGFModeAllowed(void) {
         _groups=[NSMutableDictionary new];_keyGroups=[NSMutableDictionary new];
         _attended=[NSMutableOrderedSet new];_balls=@[];_images=[NSCache new];_images.countLimit=96;
         _nativeRequests=[NSMapTable strongToWeakObjectsMapTable];
+        _lastMotionMode=-1;
         _motion=[CMMotionManager new];_motion.deviceMotionUpdateInterval=1.0/60.0;
         _motion.accelerometerUpdateInterval=1.0/60.0;
         _lockToken=-1;_blankToken=-1;
@@ -163,7 +168,7 @@ static BOOL NGFModeAllowed(void) {
     return self.lockToken>=0&&notify_get_state(self.lockToken,&state)==NOTIFY_STATUS_OK&&state!=0;
 }
 - (void)pause {
-    [self.link invalidate];self.link=nil;self.priorTime=0;self.frameCap=0;
+    [self.link invalidate];self.link=nil;self.priorTime=0;self.frameCap=0;self.sensorReady=NO;self.filteredGravity=CGPointZero;self.sensorSpin=0;
     if(self.motion.deviceMotionActive)[self.motion stopDeviceMotionUpdates];
     if(self.motion.accelerometerActive)[self.motion stopAccelerometerUpdates];
     self.window.hidden=YES;
@@ -303,7 +308,7 @@ static BOOL NGFModeAllowed(void) {
         if(nearest>pow(UVNGFloatingSize*2.5,2))break;
     }
     CGFloat initial=155*UVNGFloatingSpeed;
-    b.vel=CGPointMake(cos(b.heading)*initial,sin(b.heading)*initial);
+    b.vel=UVNGFloatingMotionMode==1?CGPointMake(cos(b.heading)*initial,sin(b.heading)*initial):CGPointZero;
     self.groups[group]=b;
     [self.window.rootViewController.view addSubview:b.button];
     return b;
@@ -320,7 +325,7 @@ static BOOL NGFModeAllowed(void) {
 - (void)record:(id)request {
     if(!NGFModeAllowed())return;
     NSString *key=NGFRequestKey(request),*section=NGFString(request,@"sectionIdentifier");
-    if(!key||!UVNGAppAllowed(section))return;
+    if(!key||!UVNGAppAllowed(section)||!UVNGFloatingAppSelected(section))return;
     id stamp=NGFGet(request,@"timestamp");
     [self.nativeRequests setObject:request forKey:key];
     [self addKey:key section:section date:[stamp isKindOfClass:NSDate.class]?stamp:nil preview:NO];
@@ -490,6 +495,15 @@ static BOOL NGFModeAllowed(void) {
 }
 - (void)reload {
     if(!UVNGEnabled||!UVNGShowAppIcon||!UVNGFloatingEnabled){[self clear];return;}
+    // Remove only the overlays for deselected apps; leave native notifications alone.
+    NSMutableArray *remove=[NSMutableArray new];
+    for(NGFFloatBall *b in self.balls)if(!b.preview&&!UVNGFloatingAppSelected(b.section))[remove addObjectsFromArray:b.keys.array];
+    for(NSString *key in remove){[self attend:key];[self.attended removeObject:key];}
+    if(self.lastMotionMode!=UVNGFloatingMotionMode){
+        self.lastMotionMode=UVNGFloatingMotionMode;
+        self.sensorReady=NO;self.filteredGravity=CGPointZero;self.sensorSpin=0;
+        for(NGFFloatBall *b in self.balls)b.vel=CGPointZero;
+    }
     self.priorSize=CGSizeZero;
     for(NGFFloatBall *b in self.balls)[self style:b];[self refresh];
 }
@@ -521,8 +535,33 @@ static CGFloat NGFClamp(CGFloat x,CGFloat lo,CGFloat hi){return MIN(MAX(x,lo),MA
         case UIInterfaceOrientationPortraitUpsideDown:gx=-gx;gy=-gy;break;
         default:break;
     }
-    if(!m&&!self.motion.accelerometerData){gx=0;gy=.35;}
+    if(!m&&!self.motion.accelerometerData){gx=0;gy=0;}
     if(!isfinite(gx)||!isfinite(gy)){gx=0;gy=0;}
+    BOOL sensorOnly=UVNGFloatingMotionMode==0;
+    if(self.lastMotionMode!=UVNGFloatingMotionMode){
+        self.lastMotionMode=UVNGFloatingMotionMode;
+        self.sensorReady=NO;self.filteredGravity=CGPointZero;self.sensorSpin=0;
+        for(NGFFloatBall *b in self.balls)b.vel=CGPointZero;
+    }
+    if(sensorOnly){
+        // Relative tilt, not a constant downward acceleration. Static posture
+        // becomes the neutral reference; motion is driven by fresh sensor data.
+        if(!self.sensorReady){
+            self.sensorBaseline=CGPointMake(gx,gy);self.sensorReady=YES;
+        }
+        CGFloat dx=gx-self.sensorBaseline.x,dy=gy-self.sensorBaseline.y;
+        CGFloat follow=1-exp(-dt*3.8);
+        self.sensorBaseline=CGPointMake(self.sensorBaseline.x+dx*follow,self.sensorBaseline.y+dy*follow);
+        CGFloat rotation=m?hypot(hypot(r.x,r.y),r.z):0;
+        CGFloat acceleration=m?hypot(hypot(a.x,a.y),a.z):hypot(dx,dy);
+        BOOL moving=(isfinite(rotation)&&rotation>.045)||(isfinite(acceleration)&&acceleration>.025)||hypot(dx,dy)>.045;
+        gx=moving?NGFClamp(dx*3,-1.5,1.5):0;
+        gy=moving?NGFClamp(dy*3,-1.5,1.5):0;
+        CGFloat rz=m&&isfinite(r.z)&&fabs(r.z)>.045?r.z:0;
+        self.sensorSpin+=(NGFClamp(rz,-3,3)-self.sensorSpin)*(1-exp(-dt*12));
+        if(fabs(self.sensorSpin)<.015)self.sensorSpin=0;
+        if(!m&&!self.motion.accelerometerData){gx=0;gy=0;self.sensorReady=NO;self.sensorSpin=0;}
+    }
     CGFloat smooth=1-exp(-dt*(24-20*UVNGFloatingSmoothness));
     self.filteredGravity=CGPointMake(self.filteredGravity.x+(NGFClamp(gx,-2,2)-self.filteredGravity.x)*smooth,self.filteredGravity.y+(NGFClamp(gy,-2,2)-self.filteredGravity.y)*smooth);
     // Zero-gravity drift + bounded tilt bias: no common downward force that
@@ -542,6 +581,24 @@ static CGFloat NGFClamp(CGFloat x,CGFloat lo,CGFloat hi){return MIN(MAX(x,lo),MA
         for(NGFFloatBall *b in balls){
             if(b.held)continue;
             CGPoint v=b.vel,p=b.pos;
+            if(sensorOnly){
+                // No cruise speed, random heading, autonomous rotation or wall
+                // steering in this mode. Drag stops momentum after a movement.
+                CGFloat drag=exp(-h*(2.6+1.6*(1-UVNGFloatingSmoothness)));
+                v.x=(v.x+self.filteredGravity.x*1050*UVNGFloatingSensitivity*UVNGFloatingSpeed*h)*drag;
+                v.y=(v.y+self.filteredGravity.y*1050*UVNGFloatingSensitivity*UVNGFloatingSpeed*h)*drag;
+                CGFloat maxSpeed=760*UVNGFloatingSpeed,mag=hypot(v.x,v.y);
+                if(mag>maxSpeed){v.x*=maxSpeed/mag;v.y*=maxSpeed/mag;}
+                if(hypot(self.filteredGravity.x,self.filteredGravity.y)<.015&&hypot(v.x,v.y)<3){v=CGPointZero;}
+                p.x+=v.x*h;p.y+=v.y*h;
+                if(p.x<rad){p.x=rad;if(v.x<0)v.x=-v.x*restitution;}
+                if(p.x>size.width-rad){p.x=size.width-rad;if(v.x>0)v.x=-v.x*restitution;}
+                if(p.y<rad){p.y=rad;if(v.y<0)v.y=-v.y*restitution;}
+                if(p.y>size.height-rad){p.y=size.height-rad;if(v.y>0)v.y=-v.y*restitution;}
+                b.pos=p;b.vel=v;
+                b.angle=remainder(b.angle+h*self.sensorSpin*UVNGFloatingRotation,2*M_PI);
+                continue;
+            }
             b.phase=remainder(b.phase+h*(.35+fabs(b.turnBias)),2*M_PI);
             b.heading=remainder(b.heading+h*(b.turnBias+.27*sin(b.phase)),2*M_PI);
             CGFloat tx=cos(b.heading)+tiltStrength*tiltX;
