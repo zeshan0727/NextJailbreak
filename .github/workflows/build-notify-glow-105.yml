@@ -1,17 +1,14 @@
-name: Notify Glow 1.0.6 RootHide test
+name: Notify Glow 1.0.7 Floating RootHide test
 on:
   push:
-    branches: [agent/notify-glow-1.0.5-test]
+    branches: [agent/notify-glow-1.0.7-floating]
     paths-ignore: ['test-builds/notify-glow/**']
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened]
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
   build:
-    if: github.ref == 'refs/heads/agent/notify-glow-1.0.5-test' || github.head_ref == 'agent/notify-glow-1.0.5-test'
+    if: github.ref == 'refs/heads/agent/notify-glow-1.0.7-floating' || github.head_ref == 'agent/notify-glow-1.0.7-floating'
     runs-on: macos-15
     timeout-minutes: 35
     steps:
@@ -164,6 +161,13 @@ jobs:
               cp "$ASSET" runtime/layout/Library/MobileSubstrate/DynamicLibraries/NextGlowAssets/
             fi
           fi
+      - name: Apply floating icon engine
+        run: |
+          set -euo pipefail
+          cp "$GITHUB_WORKSPACE/source/NotifyGlowFloating/NGFloating.inc" "$RUNNER_TEMP/glow/runtime/"
+          cd "$RUNNER_TEMP/glow"
+          python3 "$GITHUB_WORKSPACE/source/NotifyGlowFloating/apply.py"
+          python3 validate.py
       - name: Compile and package
         run: |
           set -euo pipefail
@@ -177,7 +181,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: NotifyGlow-1.0.6-RootHide-test
+          name: NotifyGlow-1.0.7-RootHide-test
           path: |
             ${{ runner.temp }}/glow/output/*.deb
             ${{ runner.temp }}/glow-build.log
@@ -187,14 +191,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p test-builds/notify-glow
-          cp "$RUNNER_TEMP/glow/output/"*notification-glow*1.0.6*.deb test-builds/notify-glow/NotifyGlow_1.0.6_RootHide.deb
-          cp "$RUNNER_TEMP/glow/output/"*runtime.glow*1.0.2*.deb test-builds/notify-glow/GlowRuntime_1.0.2_RootHide.deb
+          cp "$RUNNER_TEMP/glow/output/"*notification-glow*1.0.7*.deb test-builds/notify-glow/NotifyGlow_1.0.7_RootHide.deb
+          cp "$RUNNER_TEMP/glow/output/"*runtime.glow*1.0.3*.deb test-builds/notify-glow/GlowRuntime_1.0.3_RootHide.deb
           cd test-builds/notify-glow
-          zip -j NotifyGlow_1.0.6_Test.zip *.deb
-          shasum -a 256 *.deb > SHA256.txt
+          zip -j NotifyGlow_1.0.7_Test.zip NotifyGlow_1.0.7_RootHide.deb GlowRuntime_1.0.3_RootHide.deb
+          shasum -a 256 NotifyGlow_1.0.7_RootHide.deb GlowRuntime_1.0.3_RootHide.deb > SHA256-1.0.7.txt
           cd "$GITHUB_WORKSPACE"
           git config user.name 'Next Jailbreak Build'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add test-builds/notify-glow
-          git commit -m 'Publish Notify Glow 1.0.6 device test packages'
-          git push origin HEAD:agent/notify-glow-1.0.5-test
+          git commit -m 'Publish Notify Glow 1.0.7 floating device test packages'
+          git push origin HEAD:agent/notify-glow-1.0.7-floating
