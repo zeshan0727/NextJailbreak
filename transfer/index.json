@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-28T13:38:20Z",
+  "updatedAt": "2026-11-28T13:45:30Z",
   "files": [
+    {
+      "id": "next-chat-1.0.0-build13",
+      "name": "Next Chat Advanced 1.0.0 - Build 13",
+      "fileName": "NextChat_1.0.0_Build13.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ / TrollStore (ad-hoc signed)",
+      "version": "1.0.0 (13)",
+      "url": "https://nextjailbreak.com/transfer/files/NextChat/1.0.0/NextChat_1.0.0_Build13.ipa",
+      "sha256": "f43eb713df16fc721e57886d90e79ce2b992d45b9a33b1eae9caba312eb826d4",
+      "sizeBytes": 477664,
+      "notes": "Unofficial ChatGPT web companion. Simplified More menu: removed five sign-in and browser recovery shortcuts; optional browser mode in Connection settings. Existing password login, website data, live tabs, design and keyboard behavior unchanged. Physical-device login still requires testing. Not Apple Distribution signed."
+    },
     {
       "id": "notify-island-1.0.21-clean-island-roothide",
       "name": "Notify Island 1.0.21 — Clean Island",
