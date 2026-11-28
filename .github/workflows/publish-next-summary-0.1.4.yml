@@ -1,0 +1,89 @@
+name: Publish Next Summary 0.1.4 RootHide
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-next-summary-0.1.4.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: next-summary-sileo-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download exact user-tested artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/next-summary"
+          curl --fail --location --retry 3 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/zeshan0727/NextJailbreak/actions/artifacts/15269619778/zip" -o "$RUNNER_TEMP/next-summary/artifact.zip"
+          echo "855d64a8503133d593940ee55413ea60ba11f740051e6ae66e0d95a9e953c2fd  $RUNNER_TEMP/next-summary/artifact.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/next-summary/artifact.zip" -d "$RUNNER_TEMP/next-summary"
+          D="$RUNNER_TEMP/next-summary/NextSummary_0.1.4_RootHide.deb"
+          test -s "$D"
+          test "$(dpkg-deb -f "$D" Package)" = com.nextjailbreak.nextsummary
+          test "$(dpkg-deb -f "$D" Version)" = 0.1.4
+          test "$(dpkg-deb -f "$D" Architecture)" = iphoneos-arm64e
+          sha256sum "$D"
+      - name: Publish Sileo index and verified DEB
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq dpkg-dev zstd
+          git config user.name 'Next Jailbreak Build Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          D="$RUNNER_TEMP/next-summary/NextSummary_0.1.4_RootHide.deb"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p debfiles
+            cp "$D" debfiles/
+            # Scan only the approved package, not the full repository.
+            mkdir -p "$RUNNER_TEMP/next-summary/scan"
+            cp "$D" "$RUNNER_TEMP/next-summary/scan/"
+            dpkg-scanpackages -m "$RUNNER_TEMP/next-summary/scan" /dev/null > "$RUNNER_TEMP/next-summary/stanza"
+            sed -i 's|^Filename: .*/scan/|Filename: ./debfiles/|' "$RUNNER_TEMP/next-summary/stanza"
+            python3 - "$RUNNER_TEMP/next-summary/stanza" <<'PY'
+          from pathlib import Path
+          from datetime import datetime, timezone
+          import hashlib, re, sys
+          p=Path('Packages')
+          rows=[x.strip() for x in re.split(r'\n\s*\n',p.read_text()) if x.strip()]
+          def field(s,k):
+              m=re.search(r'^'+re.escape(k)+r': (.+)$',s,re.M)
+              return m.group(1) if m else ''
+          rows=[x for x in rows if not (field(x,'Package')=='com.nextjailbreak.nextsummary' and field(x,'Architecture')=='iphoneos-arm64e')]
+          new=Path(sys.argv[1]).read_text().strip()
+          assert field(new,'Package')=='com.nextjailbreak.nextsummary'
+          assert field(new,'Version')=='0.1.4'
+          assert field(new,'Architecture')=='iphoneos-arm64e'
+          assert field(new,'Filename')=='./debfiles/NextSummary_0.1.4_RootHide.deb'
+          d=Path(field(new,'Filename')).read_bytes()
+          assert field(new,'SHA256')==hashlib.sha256(d).hexdigest()
+          assert int(field(new,'Size'))==len(d)
+          p.write_text('\n\n'.join(rows+[new])+'\n')
+          r=Path('Release'); t=r.read_text()
+          m=re.search(r'^Version: (\d+)\.(\d+)\.(\d+)$',t,re.M)
+          if m: t=re.sub(r'^Version: .*$',f'Version: {m[1]}.{m[2]}.{int(m[3])+1}',t,flags=re.M)
+          t=re.sub(r'^Date: .*$', 'Date: '+datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S GMT'),t,flags=re.M)
+          r.write_text(t)
+          PY
+            gzip -9 -c Packages > Packages.gz
+            bzip2 -9 -c Packages > Packages.bz2
+            xz -9e -c Packages > Packages.xz
+            zstd -19 -q -c Packages > Packages.zst
+            git add debfiles/NextSummary_0.1.4_RootHide.deb Packages Packages.gz Packages.bz2 Packages.xz Packages.zst Release
+            git diff --cached --check
+            git commit -m 'Publish tested Next Summary 0.1.4 RootHide to Sileo'
+            if git push origin HEAD:main; then exit 0; fi
+            sleep $((attempt*4))
+          done
+          exit 1
