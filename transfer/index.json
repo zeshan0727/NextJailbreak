@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-28T16:16:41Z",
+  "updatedAt": "2026-11-28T16:18:50Z",
   "files": [
+    {
+      "id": "next-chat-1.0.0-build18",
+      "name": "Next Chat Advanced 1.0.0 - Build 18",
+      "fileName": "NextChat_1.0.0_Build18.ipa",
+      "type": "ipa",
+      "platform": "iOS 16+ / TrollStore (ad-hoc signed)",
+      "version": "1.0.0 (18)",
+      "url": "https://nextjailbreak.com/transfer/files/NextChat/1.0.0/NextChat_1.0.0_Build18.ipa",
+      "sha256": "7fe8f7152749b2950a9468fa420e23ec64b255334c19bbc53845b0ed07b899c5",
+      "sizeBytes": 522619,
+      "notes": "Unofficial ChatGPT web companion. Opt-in AI response-ready notifications only; removes all download notification triggers and legacy download alerts. Experimental reply detection while WebKit runs, notification settings and test, secure conversation routing. No remote push or message content collection. Physical-device login still requires testing. Not Apple Distribution signed."
+    },
     {
       "id": "next-chat-1.0.0-build17",
       "name": "Next Chat Advanced 1.0.0 - Build 17",
