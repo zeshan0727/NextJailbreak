@@ -1,6 +1,42 @@
 {
   "entries": [
     {
+      "action": "update",
+      "candidate_fingerprint": "individual-update.tethera-1.3.0-ad-block-recent-sites-travel-esim-2026-11-28",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 15.0–26.0.1, jailbreak required and rootless support. This package range does not establish jailbreak availability for every listed device or firmware. The 1.1.0 RootHide note concerns Patcher-converted installs and is not a native RootHide guarantee.",
+      "description": "Tethera 1.3.0 adds optional hotspot-wide ad blocking, local 24-hour Recent Sites and a travel-eSIM connectivity fix, with exact jailbreak and privacy limits.",
+      "developer": "AADiOS",
+      "entry_type": "individual-tweak-update",
+      "href": "tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
+      "image": "assets/articles/source-media/tethera-1-3-0-official-banner.png",
+      "media_alt": "Official Tethera banner showing an iPhone Personal Hotspot dashboard and connected devices",
+      "media_credit": "AADiOS/Havoc — official Tethera package banner",
+      "media_retrieval_status": "Retrieved the official Havoc page HTML, parsed __NEXT_DATA__ pageProps content banner metadata, downloaded the referenced PNG and embedded it in the article, listings and social-preview metadata.",
+      "media_sha256": "81e5c5dfb7b6549bf9a062d8ef97713d02cc3fcc4823e086d7bb26ce0decc821",
+      "media_source_url": "https://media.havoc.app/6adf49109d78034afcb0aff0",
+      "modified_at": "2026-11-28T18:00:00+03:00",
+      "name": "Tethera",
+      "package": "com.aadios.tethera",
+      "previous_version": "1.2.0",
+      "published_at": "2026-11-21T18:02:51+03:00",
+      "quality_target": 9,
+      "release": "Tethera 1.3.0; official Havoc updatedAt 2026-11-27T13:30:01.274Z; adds optional hotspot-wide Ad Block and local 24-hour Recent Sites, and fixes no-internet hotspot behavior for some SIMs whose carrier iOS does not recognize.",
+      "route": "/tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "tethera-1-2-0-hotspot-widget-monthly-allowance-update",
+      "source_name": "Official Havoc package page, embedded package metadata and changelog; AADiOS developer site",
+      "source_page_url": "https://havoc.app/package/tethera",
+      "source_url": "https://havoc.app/package/tethera/changes",
+      "source_visual_origin": "Havoc __NEXT_DATA__ pageProps.content.banner",
+      "source_visual_url": "https://media.havoc.app/6adf49109d78034afcb0aff0",
+      "title": "Tethera 1.3.0 Adds Hotspot-Wide Ad Blocking and Recent Sites",
+      "version": "1.3.0"
+    },
+    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -12320,5 +12356,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-28T14:40:53+00:00"
+  "updated_at": "2026-11-28T15:00:00+00:00"
 }

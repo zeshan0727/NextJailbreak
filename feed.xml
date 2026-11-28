@@ -6,6 +6,14 @@
     <description>Verified-source jailbreak tweak information and Next Jailbreak guides.</description>
     <language>en</language>
     <item>
+      <title>Tethera 1.3.0 Adds Hotspot-Wide Ad Blocking and Recent Sites</title>
+      <link>https://nextjailbreak.com/tethera-1-2-0-hotspot-widget-monthly-allowance-update/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/tethera-1-2-0-hotspot-widget-monthly-allowance-update/</guid>
+      <pubDate>Sat, 28 Nov 2026 15:00:00 GMT</pubDate>
+      <description>Tethera 1.3.0 adds optional hotspot-wide ad blocking, local 24-hour Recent Sites and a travel-eSIM connectivity fix, with exact jailbreak and privacy limits.</description>
+      <category>Individual Tweak Update</category>
+    </item>
+    <item>
       <title>Regram 7.2 Adds Ghost Mode, Content Filters and Direct Updates for Instagram</title>
       <link>https://nextjailbreak.com/regram-for-instagram-7-2-update/</link>
       <guid isPermaLink="true">https://nextjailbreak.com/regram-for-instagram-7-2-update/</guid>
@@ -196,14 +204,6 @@
       <pubDate>Sat, 21 Nov 2026 21:04:53 GMT</pubDate>
       <description>Beta 4 fixes a timing-attack privilege-escalation issue in Linux GUI builds introduced in beta 3. Check pre-release status, official artifacts and A8–A11 limits.</description>
       <category>Current Jailbreak Development</category>
-    </item>
-    <item>
-      <title>Tethera 1.2.0 Adds Hotspot Widgets, Monthly Caps and Wi-Fi Automation</title>
-      <link>https://nextjailbreak.com/tethera-1-2-0-hotspot-widget-monthly-allowance-update/</link>
-      <guid isPermaLink="true">https://nextjailbreak.com/tethera-1-2-0-hotspot-widget-monthly-allowance-update/</guid>
-      <pubDate>Sat, 21 Nov 2026 15:02:51 GMT</pubDate>
-      <description>Tethera 1.2.0 adds Home and Lock Screen hotspot widgets, monthly data caps, Wi-Fi departure automation and IPv6 controls. Check iOS and jailbreak limits.</description>
-      <category>Individual Tweak Update</category>
     </item>
     <item>
       <title>RootHide Patcher 2.1.4 vs Derootifier 1.3: Which Package Converter Do You Need?</title>
