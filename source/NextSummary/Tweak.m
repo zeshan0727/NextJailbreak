@@ -28,7 +28,8 @@ static BOOL Eligible(id r) {
     if ([critical respondsToSelector:@selector(boolValue)] && [critical boolValue]) return NO;
     NSString *t=Input(r).lowercaseString;
     for(NSString *s in @[@"verification code",@"one-time",@"otp",@"passcode",@"security code",@"authentication code",@"password",@"رمز التحقق"]) if ([t containsString:s]) return NO;
-    return [@[@"com.facebook.Messenger",@"net.whatsapp.WhatsApp",@"com.apple.MobileSMS",@"ph.telegra.Telegraph",@"com.apple.mobilemail",@"org.whispersystems.signal"] containsObject:app];
+    // Any explicitly selected notification source is eligible, regardless of app vendor.
+    return app.length > 0;
 }
 static NSDictionary *Snapshot(void) {
     id sections=Read(Read(List,@"masterList"),@"notificationSections");
