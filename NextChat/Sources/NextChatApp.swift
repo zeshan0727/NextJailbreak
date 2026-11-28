@@ -84,6 +84,14 @@ struct PendingDownload: Identifiable {
     var name: String
     var progress: Double
 }
+// A weak bridge for explicit browser-generated file downloads only.
+private final class LocalDownloadBridge: NSObject, WKScriptMessageHandler {
+    weak var browser: Browser?
+    init(_ browser: Browser) { self.browser = browser }
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        browser?.receiveLocalDownload(message)
+    }
+}
 final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
     @Published var loginHelp = false
     @Published var externalURL: URL?
@@ -149,6 +157,69 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         view.allowsBackForwardNavigationGestures = false
         view.scrollView.keyboardDismissMode = .interactive
         view.isOpaque = false
+        let controller = view.configuration.userContentController
+        controller.add(LocalDownloadBridge(self), contentWorld: .defaultClient, name: "nextLocalFile")
+        controller.addUserScript(WKUserScript(source: Self.localDownloadScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .defaultClient))
+    }
+    // Only explicit user taps on a browser-generated download anchor are intercepted.
+    // The website's own click handlers retain priority. HTTPS and sandbox references
+    // are never fetched by this bridge; the website must resolve them itself.
+    private static let localDownloadScript = #"""
+    (() => {
+      if (location.protocol !== 'https:' || location.hostname !== 'chatgpt.com') return;
+      const limit = 8 * 1024 * 1024;
+      document.addEventListener('click', async event => {
+        if (!event.isTrusted || event.defaultPrevented || event.button !== 0) return;
+        const anchor = event.target instanceof Element ? event.target.closest('a[download]') : null;
+        if (!anchor) return;
+        const url = anchor.href;
+        if (!/^(blob:|data:)/i.test(url) || !window.webkit?.messageHandlers?.nextLocalFile) return;
+        if (url.startsWith('data:') && url.length > limit * 1.5) return;
+        const name = anchor.download || 'Download';
+        event.preventDefault();
+        const retry = () => {
+          const link = document.createElement('a');
+          link.href = url; link.download = name;
+          document.body.appendChild(link); link.click(); link.remove();
+        };
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error('Unavailable local attachment');
+          const blob = await response.blob();
+          if (blob.size > limit) { retry(); return; }
+          const reader = new FileReader();
+          reader.onerror = retry;
+          reader.onload = () => {
+            const value = String(reader.result || '');
+            const offset = value.indexOf(',');
+            if (offset < 0) { retry(); return; }
+            window.webkit.messageHandlers.nextLocalFile.postMessage({name, bytes: value.slice(offset + 1)});
+          };
+          reader.readAsDataURL(blob);
+        } catch (_) { retry(); }
+      }, false);
+    })();
+    """#
+    fileprivate func receiveLocalDownload(_ message: WKScriptMessage) {
+        guard message.name == "nextLocalFile", message.frameInfo.isMainFrame,
+              message.frameInfo.securityOrigin.protocol == "https",
+              message.frameInfo.securityOrigin.host == "chatgpt.com",
+              let view = message.webView, liveViews.contains(where: { $0 === view }),
+              chatPage(view.url), !authPage(view.url),
+              let body = message.body as? [String: Any],
+              let name = body["name"] as? String, let encoded = body["bytes"] as? String,
+              encoded.utf8.count <= 11_184_816,
+              let data = Data(base64Encoded: encoded), data.count <= 8 * 1024 * 1024 else { return }
+        do {
+            let destination = try availableDestination(name)
+            try data.write(to: destination, options: .atomic)
+            refreshFiles()
+            downloadDiagnostic = "Browser-generated attachment saved."
+            downloadMessage = "Download saved"
+        } catch {
+            downloadDiagnostic = "Unable to save browser-generated attachment."
+            notice = "Download could not be saved. Check available device storage and retry."
+        }
     }
     private func observeActive() {
         observations.removeAll()
@@ -362,6 +433,13 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         if UserDefaults.standard.string(forKey: "externalLinkMode") == "Safari" { UIApplication.shared.open(url) }
         else { externalURL = url }
     }
+    private func unresolvedAttachment(_ url: URL) {
+        let filename = url.lastPathComponent
+        downloadDiagnostic = "Website returned an unresolved sandbox file reference."
+        notice = filename.isEmpty
+            ? "ChatGPT did not provide a downloadable attachment. Ask it to regenerate the file, or try the same conversation in your signed-in system browser."
+            : "ChatGPT did not resolve \(filename) to a downloadable attachment. Ask it to regenerate the file, or try the same conversation in your signed-in system browser."
+    }
     private func beginFile(_ request: URLRequest, in view: WKWebView) {
         downloadDiagnostic = "Starting download in website session."
         view.startDownload(using: request) { [weak self] download in
@@ -374,6 +452,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private func fileRoute(_ request: URLRequest, from view: WKWebView) {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = view.configuration.websiteDataStore
+        config.processPool = view.configuration.processPool
         let child = WKWebView(frame: .zero, configuration: config)
         child.navigationDelegate = self
         fileViews[ObjectIdentifier(child)] = child
@@ -398,19 +477,22 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         }
         if scheme == "sandbox" && fromChat {
             decisionHandler(.cancel)
-            downloadDiagnostic = "Unresolved sandbox reference."
-            notice = "The website did not resolve this file link. Ask ChatGPT to regenerate the attachment."
+            unresolvedAttachment(url)
             return
         }
         if !auth && fromChat && fileHost(url) {
             decisionHandler(.cancel)
             fileRoute(action.request, from: webView); return
         }
-        if !auth && fromChat && fileLink(url) && action.navigationType == .linkActivated {
+        if !auth && fromChat && fileLink(url) &&
+            (action.navigationType == .linkActivated || action.targetFrame == nil || official(url)) {
             decisionHandler(.cancel)
-            beginFile(action.request, in: webView); return
+            fileRoute(action.request, from: webView); return
         }
-        if scheme == "blob" && fromChat && action.navigationType == .linkActivated {
+        if !auth && fromChat && scheme == "blob" {
+            decisionHandler(.download); return
+        }
+        if !auth && fromChat && scheme == "data" && action.navigationType == .linkActivated {
             decisionHandler(.download); return
         }
         if official(url) || appleSignIn || url.absoluteString == "about:blank" || (scheme == "blob" && fromChat) {
@@ -447,10 +529,10 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         let fromChat = official(source)
         let appleSignIn = appleIdentity(url) && (fromChat || appleIdentity(source))
         let auth = authPage(source) || appleIdentity(source) || identityProvider(url)
-        if !auth && fromChat && (action.shouldPerformDownload || url.scheme == "blob" || fileLink(url)) && ["https","blob","data"].contains(url.scheme ?? "") {
+        if !auth && fromChat && (action.shouldPerformDownload || url.scheme == "blob") && ["https","blob","data"].contains(url.scheme ?? "") {
             beginFile(action.request, in: webView); return nil
         }
-        if !auth && fromChat && fileHost(url) {
+        if !auth && fromChat && (fileHost(url) || fileLink(url)) {
             fileRoute(action.request, from: webView); return nil
         }
         if !appleSignIn && (identityProvider(url) || (!official(url) && url.absoluteString != "about:blank" && authPage(source))) {
@@ -468,8 +550,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             return child
         }
         if url.scheme == "sandbox" && fromChat {
-            downloadDiagnostic = "Unresolved sandbox reference."
-            notice = "Ask ChatGPT to regenerate the attachment."
+            unresolvedAttachment(url)
         } else if action.navigationType == .linkActivated || fromChat { external(url) }
         return nil
     }
@@ -531,16 +612,43 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             }
         }
     }
+    private func availableDestination(_ suggestedFilename: String) throws -> URL {
+        try fm.createDirectory(at: folder, withIntermediateDirectories: true)
+        let sanitized = (suggestedFilename as NSString).lastPathComponent
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "\\", with: "_")
+            .components(separatedBy: .controlCharacters).joined()
+        let safe = String(sanitized.prefix(180))
+        let name = safe.isEmpty || safe == "." || safe == ".." ? "Download" : safe
+        var dest = folder.appendingPathComponent(name)
+        if fm.fileExists(atPath: dest.path) || destinations.values.contains(dest) {
+            dest = folder.appendingPathComponent(String(UUID().uuidString.prefix(8)) + "-" + name)
+        }
+        return dest
+    }
     func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
         let id = ObjectIdentifier(download)
-        do { try fm.createDirectory(at: folder, withIntermediateDirectories: true) } catch { completionHandler(nil); notice = "Cannot create download folder."; return }
-        let sanitized = (suggestedFilename as NSString).lastPathComponent
-        let name = sanitized.isEmpty || sanitized == "." || sanitized == ".." ? "Download" : sanitized
-        var dest = folder.appendingPathComponent(name)
-        if fm.fileExists(atPath: dest.path) || destinations.values.contains(dest) { dest = folder.appendingPathComponent(String(UUID().uuidString.prefix(8)) + "-" + name) }
-        destinations[id] = dest
-        if let i = active.firstIndex(where: { $0.id == id }) { active[i].name = name }
-        completionHandler(dest)
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            downloadDiagnostic = "Attachment server returned HTTP \(http.statusCode)."
+            completionHandler(nil)
+            return
+        }
+        if response.mimeType?.lowercased() == "text/html",
+           let url = response.url, fileLink(url),
+           !["html","htm"].contains((suggestedFilename as NSString).pathExtension.lowercased()) {
+            downloadDiagnostic = "The attachment link returned a web page instead of a file."
+            completionHandler(nil)
+            return
+        }
+        do {
+            let dest = try availableDestination(suggestedFilename)
+            destinations[id] = dest
+            if let i = active.firstIndex(where: { $0.id == id }) { active[i].name = dest.lastPathComponent }
+            completionHandler(dest)
+        } catch {
+            completionHandler(nil)
+            notice = "Cannot create download destination."
+        }
     }
     func downloadDidFinish(_ download: WKDownload) { finish(download, failed: false) }
     func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
@@ -1085,7 +1193,7 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (13)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (14)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
 
                         }
@@ -1093,7 +1201,7 @@ struct SettingsView: View {
                     NavigationLink {
                         destination("About") {
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (13)")
+                    LabeledContent("Version", value: "1.0.0 (14)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
