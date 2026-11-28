@@ -977,6 +977,7 @@ struct DownloadsView: View {
 struct SettingsView: View {
     @ObservedObject var browser: Browser
     @AppStorage("haptics") private var haptics = true
+    @AppStorage("preferSystemBrowserV5") private var launchBrowserMode = false
     @AppStorage("restore") private var restore = true
     @AppStorage("externalLinkMode") private var externalLinkMode = "In-app browser"
     @AppStorage("leftEdgeAction") private var leftEdgeAction = "Conversations"
@@ -1072,6 +1073,11 @@ struct SettingsView: View {
                         destination("Connection") {
                 Section("Connection") {
                     LabeledContent("Network", value: browser.online ? "Available" : "Offline")
+                    Picker("Chat mode", selection: $launchBrowserMode) {
+                        Text("Direct").tag(false)
+                        Text("Browser").tag(true)
+                    }
+                    Text("Direct mode uses your existing embedded website session. Browser mode is an optional fallback with a separate session. Changing mode does not clear sign-in data.").font(.caption).foregroundStyle(.secondary)
                     Button("Reload ChatGPT") { browser.web.reload(); dismiss() }
                     Button("Restart sign-in") { browser.restartLogin(); dismiss() }
                     Text(browser.diagnostic).font(.caption).textSelection(.enabled)
@@ -1079,7 +1085,7 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (12)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (13)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
 
                         }
@@ -1087,7 +1093,7 @@ struct SettingsView: View {
                     NavigationLink {
                         destination("About") {
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (12)")
+                    LabeledContent("Version", value: "1.0.0 (13)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -1221,11 +1227,6 @@ struct RootView: View {
                     Button { showConversations() } label: { Label("Saved conversations", systemImage: "books.vertical") }
                     Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
                     Button { browser.web.reload() } label: { Label("Reload", systemImage: "arrow.clockwise") }
-                    Button { browser.restartLogin() } label: { Label("Restart sign-in", systemImage: "person.crop.circle.badge.exclamationmark") }
-                    Button { showDirectLoginHelp = true } label: { Label("Direct mode login help", systemImage: "questionmark.circle") }
-                    Button { showBrowser() } label: { Label("Browser mode", systemImage: "globe") }
-                    Button { launchBrowserMode = true; showBrowser() } label: { Label("Make Browser mode default", systemImage: "globe") }
-                    Button { confirmResetLogin = true } label: { Label("Reset embedded sign-in", systemImage: "arrow.counterclockwise") }
                     Button { browser.safari() } label: { Label("Open in Safari", systemImage: "safari") }
                     Button { panel = .settings } label: { Label("Settings", systemImage: "gearshape") }
                 } label: { Image(systemName: "ellipsis.circle").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("More")
