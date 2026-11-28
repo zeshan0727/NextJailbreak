@@ -73,7 +73,8 @@ static NSString *NSUString(id value) { return [value isKindOfClass:NSString.clas
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
     NSString *q=[searchController.searchBar.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
     if (!q.length) self.visibleApps=self.apps;
-    else self.visibleApps=[self.apps filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary *row,NSDictionary *bindings){
+    else self.visibleApps=[self.apps filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object,NSDictionary *bindings){
+        NSDictionary *row=object;
         return [row[@"name"] localizedCaseInsensitiveContainsString:q] || [row[@"id"] localizedCaseInsensitiveContainsString:q];
     }]];
     [self.tableView reloadData];
