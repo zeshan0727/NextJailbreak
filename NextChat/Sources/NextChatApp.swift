@@ -105,7 +105,11 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     @Published var bookmarks: [SavedLink] = []
     @Published var recentChats: [RecentChat] = []
     private var recentWork: DispatchWorkItem?
-    let web: WKWebView
+    @Published private(set) var web: WKWebView
+    @Published private(set) var liveViews: [WKWebView] = []
+    private let liveLimit = 4
+    private var requestedURLs: [ObjectIdentifier: URL] = [:]
+    private var stoppedViews: Set<ObjectIdentifier> = []
     private var observations: [NSKeyValueObservation] = []
     private var transfers: [ObjectIdentifier: WKDownload] = [:]
     private var destinations: [ObjectIdentifier: URL] = [:]
@@ -124,11 +128,8 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
         web = WKWebView(frame: .zero, configuration: config)
         super.init()
-        web.navigationDelegate = self
-        web.uiDelegate = self
-        web.allowsBackForwardNavigationGestures = false
-        web.scrollView.keyboardDismissMode = .interactive
-        web.isOpaque = false
+        configure(web)
+        liveViews = [web]
         if let data = UserDefaults.standard.data(forKey: "bookmarks"),
            let decoded = try? JSONDecoder().decode([SavedLink].self, from: data) { bookmarks = decoded.filter { chatPage($0.url) } }
         if UserDefaults.standard.object(forKey: "recordRecentChats") as? Bool ?? true,
@@ -136,23 +137,109 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
            let decoded = try? JSONDecoder().decode([RecentChat].self, from: data) {
             recentChats = Array(decoded.filter { conversationURL($0.url) != nil }.prefix(100))
         }
-        observations = [
-            web.observe(\.isLoading, options: [.initial,.new]) { [weak self] w,_ in DispatchQueue.main.async { self?.loading = w.isLoading } },
-            web.observe(\.canGoBack, options: [.initial,.new]) { [weak self] w,_ in DispatchQueue.main.async { self?.canBack = w.canGoBack } },
-            web.observe(\.canGoForward, options: [.initial,.new]) { [weak self] w,_ in DispatchQueue.main.async { self?.canForward = w.canGoForward } },
-            web.observe(\.url, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async {
-                self?.current = w.url
-                if let url = w.url, chatPage(url), url.path.hasPrefix("/c/") || url.path.hasPrefix("/g/") {
-                    UserDefaults.standard.set(url.absoluteString, forKey: "lastChat")
-                }
-                self?.scheduleRecent()
-            } },
-            web.observe(\.title, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { self?.pageTitle = w.title ?? "ChatGPT"; self?.scheduleRecent() } }
-        ]
+        observeActive()
         monitor.pathUpdateHandler = { [weak self] path in DispatchQueue.main.async { self?.online = path.status == .satisfied } }
         monitor.start(queue: DispatchQueue(label: "nextchat.network"))
         refreshFiles()
         if !(UserDefaults.standard.object(forKey: "preferSystemBrowserV5") as? Bool ?? false) { startEmbeddedIfNeeded() }
+    }
+    private func configure(_ view: WKWebView) {
+        view.navigationDelegate = self
+        view.uiDelegate = self
+        view.allowsBackForwardNavigationGestures = false
+        view.scrollView.keyboardDismissMode = .interactive
+        view.isOpaque = false
+    }
+    private func observeActive() {
+        observations.removeAll()
+        current = web.url
+        pageTitle = web.title ?? "ChatGPT"
+        loading = web.isLoading
+        canBack = web.canGoBack
+        canForward = web.canGoForward
+        observations = [
+            web.observe(\.isLoading, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; self.loading = w.isLoading } },
+            web.observe(\.canGoBack, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; self.canBack = w.canGoBack } },
+            web.observe(\.canGoForward, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { guard let self, self.web === w else { return }; self.canForward = w.canGoForward } },
+            web.observe(\.url, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async {
+                guard let self, self.web === w else { return }
+                self.current = w.url
+                if let url = conversationURL(w.url) { UserDefaults.standard.set(url.absoluteString, forKey: "lastChat") }
+                self.scheduleRecent()
+            } },
+            web.observe(\.title, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async {
+                guard let self, self.web === w else { return }
+                self.pageTitle = w.title ?? "ChatGPT"; self.scheduleRecent()
+            } }
+        ]
+        if let url = conversationURL(web.url) { UserDefaults.standard.set(url.absoluteString, forKey: "lastChat") }
+        scheduleRecent()
+    }
+    private func makeLiveView() -> WKWebView {
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = web.configuration.websiteDataStore
+        config.processPool = web.configuration.processPool
+        config.allowsInlineMediaPlayback = true
+        config.preferences.javaScriptCanOpenWindowsAutomatically = false
+        let view = WKWebView(frame: .zero, configuration: config)
+        configure(view)
+        return view
+    }
+    func tabTitle(_ view: WKWebView) -> String {
+        if let title = view.title?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty, title != "ChatGPT" { return title }
+        if let url = conversationURL(view.url) ?? conversationURL(requestedURLs[ObjectIdentifier(view)]),
+           let recent = recentChats.first(where: { $0.url == url }) { return recent.title }
+        return conversationURL(view.url) != nil ? "Conversation" : "New conversation"
+    }
+    private func tabURL(_ view: WKWebView) -> URL? {
+        conversationURL(view.url) ?? (view.isLoading ? conversationURL(requestedURLs[ObjectIdentifier(view)]) : nil)
+    }
+    @discardableResult func selectTab(_ view: WKWebView) -> Bool {
+        guard liveViews.contains(where: { $0 === view }) else { return false }
+        guard view !== web else { return true }
+        closePopup()
+        recentWork?.cancel()
+        web.endEditing(true)
+        web = view
+        observeActive()
+        if stoppedViews.remove(ObjectIdentifier(view)) != nil {
+            if view.url != nil { view.reload() }
+            else { view.load(URLRequest(url: requestedURLs[ObjectIdentifier(view)] ?? homeURL)) }
+            notice = "iOS had reclaimed this tab. Reopening it from the website."
+        }
+        return true
+    }
+    @discardableResult private func loadInNewTab(_ url: URL) -> Bool {
+        if web.url == nil && !web.isLoading && requestedURLs[ObjectIdentifier(web)] == nil {
+            requestedURLs[ObjectIdentifier(web)] = url
+            web.load(URLRequest(url: url))
+            return true
+        }
+        guard liveViews.count < liveLimit else {
+            notice = "Four live conversations are open. Close a tab in Conversations before opening another."
+            return false
+        }
+        let view = makeLiveView()
+        liveViews.append(view)
+        requestedURLs[ObjectIdentifier(view)] = url
+        selectTab(view)
+        view.load(URLRequest(url: url))
+        return true
+    }
+    func closeTab(_ view: WKWebView) {
+        guard liveViews.count > 1, let i = liveViews.firstIndex(where: { $0 === view }) else { return }
+        if view === web { selectTab(liveViews[i == 0 ? 1 : i - 1]) }
+        liveViews.removeAll { $0 === view }
+        requestedURLs.removeValue(forKey: ObjectIdentifier(view))
+        stoppedViews.remove(ObjectIdentifier(view))
+        view.stopLoading()
+        view.navigationDelegate = nil
+        view.uiDelegate = nil
+    }
+    private func discardOtherTabs() {
+        for view in liveViews.filter({ $0 !== web }) { closeTab(view) }
+        requestedURLs.removeAll()
+        stoppedViews.removeAll()
     }
     func startEmbeddedIfNeeded() {
         guard web.url == nil, !web.isLoading else { return }
@@ -166,10 +253,19 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         notice = nil
     }
     deinit { monitor.cancel() }
-    func open(_ url: URL) { guard chatPage(url) else { return }; web.load(URLRequest(url: url)) }
-    func newChat() { closePopup(); open(homeURL) }
+    @discardableResult func open(_ url: URL) -> Bool {
+        guard chatPage(url) else { return false }
+        if let target = conversationURL(url) {
+            if let existing = liveViews.first(where: { tabURL($0) == target }) { return selectTab(existing) }
+            return loadInNewTab(url)
+        }
+        if web.url == url { return true }
+        return loadInNewTab(url)
+    }
+    func newChat() { closePopup(); loadInNewTab(homeURL) }
     func restartLogin() {
         closePopup()
+        discardOtherTabs()
         loginHelp = false
         web.stopLoading()
         web.load(URLRequest(url: homeURL, cachePolicy: .reloadIgnoringLocalCacheData))
@@ -250,10 +346,10 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     func removeBookmark(_ id: UUID) { bookmarks.removeAll { $0.id == id }; persistBookmarks() }
     private func persistBookmarks() { if let data = try? JSONEncoder().encode(bookmarks) { UserDefaults.standard.set(data, forKey: "bookmarks") } }
     func clearCache(all: Bool) {
-        if all { closePopup(); web.stopLoading() }
+        if all { closePopup(); discardOtherTabs(); web.stopLoading() }
         let types: Set<String> = all ? WKWebsiteDataStore.allWebsiteDataTypes() : [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache]
         web.configuration.websiteDataStore.removeData(ofTypes: types, modifiedSince: .distantPast) { [weak self] in
-            if all { UserDefaults.standard.removeObject(forKey: "lastChat"); self?.clearRecents(); self?.newChat() }
+            if all { UserDefaults.standard.removeObject(forKey: "lastChat"); self?.clearRecents(); self?.restartLogin() }
             self?.notice = all ? "Local website data cleared." : "Cache cleared."
         }
     }
@@ -380,11 +476,18 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         if webView === popup { popupHost = webView.url?.host ?? "Official sign-in" }
     }
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        if authPage(webView.url), webView.url?.path.lowercased().contains("error") == true {
+        if webView === web && authPage(webView.url) { discardOtherTabs() }
+        if (webView === web || webView === popup), authPage(webView.url), webView.url?.path.lowercased().contains("error") == true {
             loginHelp = true
         }
     }
-    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { notice = "Web content stopped. Reload to recover your session." }
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        if liveViews.contains(where: { $0 === webView }) && webView !== web {
+            stoppedViews.insert(ObjectIdentifier(webView))
+        } else if webView === web || webView === popup {
+            notice = "Web content stopped. Reload to recover your session."
+        }
+    }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { report(error, view: webView, stage: "provisional") }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { report(error, view: webView, stage: "committed") }
     private func report(_ error: Error, view: WKWebView, stage: String) {
@@ -396,6 +499,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             notice = "Download failed. Tap the original attachment to retry."
             return
         }
+        if view !== web && view !== popup { return }
         if e.domain == NSURLErrorDomain && e.code == NSURLErrorCancelled { return }
         // A delegate policy cancellation (e.g. Google OAuth handoff) is not a network failure.
         if (e.domain == WKError.errorDomain || e.domain == "WebKitErrorDomain") && e.code == 102 { return }
@@ -485,14 +589,29 @@ struct WebSurface: UIViewRepresentable {
             if gesture.edges == .right && delta.x < 0 { onRightEdge() }
         }
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-            guard let view = gestureRecognizer.view as? WKWebView else { return false }
-            return otherGestureRecognizer === view.scrollView.panGestureRecognizer
+            guard let scroll = otherGestureRecognizer.view as? UIScrollView else { return false }
+            return otherGestureRecognizer === scroll.panGestureRecognizer
         }
     }
     func makeCoordinator() -> Coordinator { Coordinator(self) }
-    func makeUIView(context: Context) -> WKWebView {
-        let view = browser.web
-        view.allowsBackForwardNavigationGestures = false
+    private func sync(_ container: UIView) {
+        let keep = Set(browser.liveViews.map { ObjectIdentifier($0) })
+        for child in container.subviews where !keep.contains(ObjectIdentifier(child)) { child.removeFromSuperview() }
+        for view in browser.liveViews {
+            if view.superview !== container {
+                view.frame = container.bounds
+                view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                container.addSubview(view)
+            }
+            view.isHidden = view !== browser.web
+            view.accessibilityElementsHidden = view !== browser.web
+        }
+        container.bringSubviewToFront(browser.web)
+    }
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView(frame: .zero)
+        view.clipsToBounds = true
+        sync(view)
         for edge in [UIRectEdge.left, UIRectEdge.right] {
             let gesture = UIScreenEdgePanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.edgeMoved(_:)))
             gesture.edges = edge
@@ -503,11 +622,12 @@ struct WebSurface: UIViewRepresentable {
         }
         return view
     }
-    func updateUIView(_ uiView: WKWebView, context: Context) {
+    func updateUIView(_ uiView: UIView, context: Context) {
+        sync(uiView)
         context.coordinator.onLeftEdge = onLeftEdge
         context.coordinator.onRightEdge = onRightEdge
     }
-    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+    static func dismantleUIView(_ uiView: UIView, coordinator: Coordinator) {
         for gesture in coordinator.edges { uiView.removeGestureRecognizer(gesture) }
         coordinator.edges.removeAll()
     }
@@ -593,15 +713,36 @@ struct ConversationHub: View {
     @State private var editing: SavedLink?
     @State private var titleDraft = ""
     @State private var confirmClear = false
+    @State private var closingTab: WKWebView?
     @Environment(\.dismiss) private var dismiss
     private func matches(_ title: String) -> Bool { search.isEmpty || title.localizedCaseInsensitiveContains(search) }
-    private func open(_ url: URL) { browser.open(url); dismiss() }
+    private func open(_ url: URL) { if browser.open(url) { dismiss() } }
     var body: some View {
         NavigationStack {
             List {
                 Section {
                     Button { browser.newChat(); dismiss() } label: { Label("New conversation", systemImage: "square.and.pencil") }
                     Button { browser.savePage() } label: { Label("Pin current conversation", systemImage: "pin") }
+                }
+                Section {
+                    ForEach(browser.liveViews, id: \.self) { view in
+                        HStack {
+                            Button {
+                                browser.selectTab(view); dismiss()
+                            } label: {
+                                Label(browser.tabTitle(view), systemImage: view === browser.web ? "checkmark.circle.fill" : "rectangle.on.rectangle")
+                            }.buttonStyle(.borderless)
+                            Spacer()
+                            if browser.liveViews.count > 1 {
+                                Button { closingTab = view } label: { Image(systemName: "xmark.circle").foregroundStyle(.secondary) }
+                                    .buttonStyle(.borderless).accessibilityLabel("Close tab")
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Live tabs · \(browser.liveViews.count)/4")
+                } footer: {
+                    Text("Open tabs stay in memory. Closing a tab may discard an unsent draft. iOS can reclaim web content under memory pressure.")
                 }
                 Section("Pinned") {
                     if browser.bookmarks.filter({ matches($0.title) }).isEmpty {
@@ -650,6 +791,10 @@ struct ConversationHub: View {
                 Button("Save") { if let item = editing { browser.renamePin(item.id, title: titleDraft) }; editing = nil }
                 Button("Cancel", role: .cancel) { editing = nil }
             }
+            .confirmationDialog("Close this live tab?", isPresented: Binding(get: { closingTab != nil }, set: { if !$0 { closingTab = nil } }), titleVisibility: .visible) {
+                Button("Close tab", role: .destructive) { if let view = closingTab { browser.closeTab(view) }; closingTab = nil }
+                Button("Cancel", role: .cancel) { closingTab = nil }
+            } message: { Text("This does not delete the account conversation, but may discard an unsent draft.") }
             .confirmationDialog("Clear local recent conversations?", isPresented: $confirmClear, titleVisibility: .visible) {
                 Button("Clear recents", role: .destructive) { browser.clearRecents() }
             }
@@ -844,10 +989,10 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (9)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (10)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (9)")
+                    LabeledContent("Version", value: "1.0.0 (10)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
