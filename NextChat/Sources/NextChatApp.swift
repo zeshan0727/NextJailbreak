@@ -173,18 +173,20 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     }
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = action.request.url else { decisionHandler(.cancel); return }
-        if action.shouldPerformDownload && (official(url) || official(action.sourceFrame.request.url) && url.scheme == "blob") {
+        // iOS 16 may supply a source frame with no NSURLRequest during initial navigation.
+        // Do not bridge WKFrameInfo.request into Swift; the committed page is optional and safe.
+        let source = webView.url
+        if action.shouldPerformDownload && (official(url) || (official(source) && url.scheme == "blob")) {
             decisionHandler(.download); return
         }
         if action.targetFrame?.isMainFrame == false { decisionHandler(.allow); return }
-        let source = action.sourceFrame.request.url
-        let appleSignIn = appleIdentity(url) && (official(source) || appleIdentity(source) || official(webView.url) || appleIdentity(webView.url) || webView === popup)
+        let appleSignIn = appleIdentity(url) && (official(source) || appleIdentity(source) || webView === popup)
         if official(url) || appleSignIn || url.absoluteString == "about:blank" || (url.scheme == "blob" && official(source)) {
             decisionHandler(.allow); return
         }
         decisionHandler(.cancel)
         // Never export a partially completed login or OAuth callback to another cookie store.
-        if identityProvider(url) || authPage(action.sourceFrame.request.url) || authPage(webView.url) {
+        if identityProvider(url) || authPage(source) {
             DispatchQueue.main.async { [weak self] in
                 self?.diagnostic = "Authentication navigation requires a browser. Destination host: \(url.host ?? "unknown")."
                 self?.loginHelp = true
@@ -199,8 +201,8 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     }
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard action.targetFrame == nil, let url = action.request.url else { return nil }
-        let source = action.sourceFrame.request.url
-        let appleSignIn = appleIdentity(url) && (official(source) || appleIdentity(source) || official(webView.url) || appleIdentity(webView.url))
+        let source = webView.url
+        let appleSignIn = appleIdentity(url) && (official(source) || appleIdentity(source))
         if !appleSignIn && (identityProvider(url) || (!official(url) && url.absoluteString != "about:blank" && authPage(webView.url))) {
             DispatchQueue.main.async { [weak self] in self?.loginHelp = true }
             return nil
@@ -487,10 +489,10 @@ struct SettingsView: View {
                     Text(browser.diagnostic).font(.caption).textSelection(.enabled)
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (5)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (6)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (5)")
+                    LabeledContent("Version", value: "1.0.0 (6)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
