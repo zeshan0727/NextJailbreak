@@ -2,6 +2,7 @@
 #import <Preferences/PSListController.h>
 #import <Preferences/PSSpecifier.h>
 #import "../Shared.h"
+#import "AppPicker.h"
 @interface NSUPrefsController : PSListController
 @property(nonatomic,strong) NSURLSessionDataTask *testTask;
 @end
@@ -36,6 +37,10 @@
     [a addAction:[UIAlertAction actionWithTitle:@"Save" style:UIAlertActionStyleDefault handler:^(__unused UIAlertAction *x){NSString *v=[a.textFields.firstObject.text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet]; if(!v.length)return; c[k]=v; if(!NSUSave(c)) dispatch_async(dispatch_get_main_queue(),^{[self notice:@"Not saved" text:@"Could not write preferences."];});}]];
     [self presentViewController:a animated:YES completion:nil];
 }
+- (void)openAppPicker {
+    NSUAppPicker *picker=[[NSUAppPicker alloc] initWithStyle:UITableViewStyleInsetGrouped];
+    [self.navigationController pushViewController:picker animated:YES];
+}
 - (void)editKey { [self edit:YES]; }
 - (void)editModel { [self edit:NO]; }
 - (void)removeKey { NSMutableDictionary *c=[NSUConfig() mutableCopy]; [c removeObjectForKey:@"key"]; c[@"enabled"]=@NO; BOOL ok=NSUSave(c); [self reloadSpecifiers]; [self notice:ok?@"Key removed":@"Not saved" text:ok?@"AI summaries are disabled.":@"Could not write preferences."]; }
@@ -43,6 +48,6 @@
     if(self.testTask){[self notice:@"Test running" text:@"An API request is already active."];return;}
     NSDictionary *c=NSUConfig(); if(![c[@"key"] length]){[self notice:@"Missing API key" text:@"Set your API key first."];return;}
     __weak typeof(self) weakSelf=self;
-    self.testTask=NSUSummarize(c,@"The delivery scheduled for Thursday has been postponed until Saturday at 4 PM.",^(NSString *s){typeof(self) strongSelf=weakSelf; strongSelf.testTask=nil; [strongSelf notice:s?@"API connected":@"API test failed" text:s?:@"Check the API key, model, billing and internet connection."];});
+    self.testTask=NSUSummarize(c,@"La entrega prevista para el jueves se ha pospuesto hasta el sábado a las 4 p. m.",^(NSString *s){typeof(self) strongSelf=weakSelf; strongSelf.testTask=nil; [strongSelf notice:s?@"English summary test passed":@"API test failed" text:s?:@"Check the API key, model, billing and internet connection."];});
 }
 @end
