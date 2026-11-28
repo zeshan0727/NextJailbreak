@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-28T07:53:27Z",
+  "updatedAt": "2026-11-28T13:24:19Z",
   "files": [
+    {
+      "id": "notify-island-1.0.20-motion-bubbles-roothide",
+      "name": "Notify Island 1.0.20 — Motion Bubbles",
+      "fileName": "NotifyIsland_1.0.20_MotionBubbles_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.20",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.20/NotifyIsland_1.0.20_MotionBubbles_RootHide.deb",
+      "sha256": "07b359d5afd8d5d61465bd59f9e0a57e96f26015576d9db99cc5714918734ee4",
+      "sizeBytes": 122464,
+      "notes": "Device-test build: motion-driven per-app pending notification bubbles with counts, tap to reopen, and nonblocking Open. Session-only memory, lock-screen privacy, passthrough touch window and optional feature toggle. Preserves 1.0.19 banner fix, gestures and branding. Rollback: 1.0.19."
+    },
     {
       "id": "notify-island-1.0.19-banner-lifecycle-roothide",
       "name": "Notify Island 1.0.19 — Banner Lifecycle",
