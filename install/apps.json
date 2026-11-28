@@ -9,17 +9,17 @@
       "minimumOS": "iOS 16.0+",
       "bundleId": "com.nextsolution.aspire",
       "icon": "/install/icons/com-nextsolution-aspire-156bc8af5ce9.png",
-      "manifest": "/install/com-nextsolution-aspire.plist",
+      "manifest": "/install/manifests/com-nextsolution-aspire-1.2.3-build16-icloud-r2.plist",
       "available": true,
       "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.3/com-nextsolution-aspire-1.2.3-16.ipa",
-      "sha256": "156bc8af5ce9fd3a008fd87c9b1a056a4f89966dd48f8de3f4ef77120c3878e4",
-      "sizeBytes": 2539576,
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.3/com-nextsolution-aspire-1.2.3-16-icloud-r2.ipa",
+      "sha256": "d0aaf6c716ce6255f954f9e9629c617577e63c867aa6a6c1ebd42ce3c91041f6",
+      "sizeBytes": 9095342,
       "storage": "Cloudflare R2",
       "duplicateSigned": false,
       "tweakCount": 0,
       "customIcon": false,
-      "signedByNextSigner": false
+      "signedByNextSigner": true
     },
     {
       "id": "com-nextsolution-kernel",
