@@ -1,6 +1,27 @@
 {
   "apps": [
     {
+      "id": "com-nextsolution-aspire",
+      "name": "Aspire Maintenance",
+      "version": "1.2.3",
+      "build": "16",
+      "platform": "iPhone",
+      "minimumOS": "iOS 16.0+",
+      "bundleId": "com.nextsolution.aspire",
+      "icon": "/install/icons/com-nextsolution-aspire-11e9395b2f48.png",
+      "manifest": "/install/com-nextsolution-aspire.plist",
+      "available": true,
+      "status": "Ready to install",
+      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.3/com-nextsolution-aspire-1.2.3-16.ipa",
+      "sha256": "11e9395b2f483089351cdb58966f47ab2eef848edc0b5c3632d4be4bab3cc815",
+      "sizeBytes": 2539564,
+      "storage": "Cloudflare R2",
+      "duplicateSigned": false,
+      "tweakCount": 0,
+      "customIcon": false,
+      "signedByNextSigner": false
+    },
+    {
       "id": "com-nextsolution-kernel",
       "name": "DUCK",
       "version": "1.0",
@@ -289,27 +310,6 @@
       "duplicateSigned": false,
       "tweakCount": 0,
       "customIcon": false
-    },
-    {
-      "id": "com-nextsolution-aspire",
-      "name": "Aspire Maintenance",
-      "version": "1.2.3",
-      "build": "16",
-      "platform": "iPhone",
-      "minimumOS": "iOS 16.0+",
-      "bundleId": "com.nextsolution.aspire",
-      "icon": "/install/icons/com-nextsolution-aspire-ae79ba8ecfee.png",
-      "manifest": "/install/manifests/com-nextsolution-aspire-1.2.3-build16.plist",
-      "available": true,
-      "status": "Ready to install",
-      "downloadURL": "https://files.nextsolution.cc/apps/ipa/com-nextsolution-aspire/1.2.3/com-nextsolution-aspire-1.2.3-16.ipa",
-      "sha256": "e3d41610622881b16371776913976524e043ebb8d917d2ea8425e72ac3208a22",
-      "sizeBytes": 9095180,
-      "storage": "Cloudflare R2",
-      "duplicateSigned": false,
-      "tweakCount": 0,
-      "customIcon": false,
-      "signedByNextSigner": true
     },
     {
       "id": "com-nextsolution-storage",
@@ -616,5 +616,5 @@
     }
   ],
   "catalog": "Next Jailbreak Private Apps",
-  "updated": "2026-11-22"
+  "updated": "2026-11-28"
 }
