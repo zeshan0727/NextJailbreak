@@ -22,6 +22,10 @@ private func authPage(_ url: URL?) -> Bool {
     guard let url, official(url), let host = url.host?.lowercased() else { return false }
     return host.hasPrefix("auth.") || host.hasPrefix("auth0.") || host.hasPrefix("login.") || url.path.hasPrefix("/auth") || url.path.hasPrefix("/api/auth") || url.path.hasPrefix("/oauth")
 }
+private func appleIdentity(_ url: URL?) -> Bool {
+    guard let url, url.scheme == "https", let host = url.host?.lowercased() else { return false }
+    return ["appleid.apple.com","account.apple.com","idmsa.apple.com"].contains(host)
+}
 private func identityProvider(_ url: URL) -> Bool {
     guard url.scheme == "https", let host = url.host?.lowercased() else { return false }
     return ["accounts.google.com","appleid.apple.com","account.apple.com","login.microsoftonline.com","login.live.com","account.live.com"].contains(host)
@@ -102,7 +106,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         monitor.pathUpdateHandler = { [weak self] path in DispatchQueue.main.async { self?.online = path.status == .satisfied } }
         monitor.start(queue: DispatchQueue(label: "nextchat.network"))
         refreshFiles()
-        if !(UserDefaults.standard.object(forKey: "preferSystemBrowserV4") as? Bool ?? true) { startEmbeddedIfNeeded() }
+        if !(UserDefaults.standard.object(forKey: "preferSystemBrowserV5") as? Bool ?? false) { startEmbeddedIfNeeded() }
     }
     func startEmbeddedIfNeeded() {
         guard web.url == nil, !web.isLoading else { return }
@@ -173,7 +177,9 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             decisionHandler(.download); return
         }
         if action.targetFrame?.isMainFrame == false { decisionHandler(.allow); return }
-        if official(url) || url.absoluteString == "about:blank" || (url.scheme == "blob" && official(action.sourceFrame.request.url)) {
+        let source = action.sourceFrame.request.url
+        let appleSignIn = appleIdentity(url) && (official(source) || appleIdentity(source) || official(webView.url) || appleIdentity(webView.url) || webView === popup)
+        if official(url) || appleSignIn || url.absoluteString == "about:blank" || (url.scheme == "blob" && official(source)) {
             decisionHandler(.allow); return
         }
         decisionHandler(.cancel)
@@ -193,11 +199,13 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     }
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard action.targetFrame == nil, let url = action.request.url else { return nil }
-        if identityProvider(url) || (!official(url) && url.absoluteString != "about:blank" && authPage(webView.url)) {
+        let source = action.sourceFrame.request.url
+        let appleSignIn = appleIdentity(url) && (official(source) || appleIdentity(source) || official(webView.url) || appleIdentity(webView.url))
+        if !appleSignIn && (identityProvider(url) || (!official(url) && url.absoluteString != "about:blank" && authPage(webView.url))) {
             DispatchQueue.main.async { [weak self] in self?.loginHelp = true }
             return nil
         }
-        if official(url) || url.absoluteString == "about:blank" {
+        if official(url) || appleSignIn || url.absoluteString == "about:blank" {
             guard popup == nil else { return nil }
             // Preserve WebKit's supplied configuration and window.opener semantics.
             let child = WKWebView(frame: .zero, configuration: configuration)
@@ -228,11 +236,12 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private func report(_ error: Error, view: WKWebView, stage: String) {
         let e = error as NSError
         if e.domain == NSURLErrorDomain && e.code == NSURLErrorCancelled { return }
-        if e.domain == WKError.errorDomain && e.code == 102 { return }
+        // A delegate policy cancellation (e.g. Google OAuth handoff) is not a network failure.
+        if (e.domain == WKError.errorDomain || e.domain == "WebKitErrorDomain") && e.code == 102 { return }
         let failed = e.userInfo[NSURLErrorFailingURLErrorKey] as? URL
         let host = (failed ?? view.url)?.host ?? "unknown"
         diagnostic = "Navigation \(stage) • \(e.domain) code \(e.code) • host \(host)"
-        if authPage(view.url) || authPage(failed) || (failed.map { identityProvider($0) } ?? false) || view === popup {
+        if authPage(view.url) || authPage(failed) || appleIdentity(view.url) || appleIdentity(failed) || (failed.map { identityProvider($0) } ?? false) || view === popup {
             loginHelp = true
         } else {
             notice = "Unable to load page. \(diagnostic). Use Reload or Browser mode."
@@ -478,10 +487,10 @@ struct SettingsView: View {
                     Text(browser.diagnostic).font(.caption).textSelection(.enabled)
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (4)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (5)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (4)")
+                    LabeledContent("Version", value: "1.0.0 (5)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -507,8 +516,9 @@ struct RootView: View {
     @State private var inactiveSince: Date?
     @State private var bookmarkSearch = ""
     @State private var pendingRoute: String?
-    @AppStorage("preferSystemBrowserV4") private var launchBrowserMode = true
+    @AppStorage("preferSystemBrowserV5") private var launchBrowserMode = false
     @State private var confirmResetLogin = false
+    @State private var showDirectLoginHelp = false
     @State private var didLaunchBrowser = false
     private func tap() { if haptics { UIImpactFeedbackGenerator(style: .soft).impactOccurred() } }
     private func showBrowser() {
@@ -595,6 +605,7 @@ struct RootView: View {
                     Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
                     Button { browser.web.reload() } label: { Label("Reload", systemImage: "arrow.clockwise") }
                     Button { browser.restartLogin() } label: { Label("Restart sign-in", systemImage: "person.crop.circle.badge.exclamationmark") }
+                    Button { showDirectLoginHelp = true } label: { Label("Direct mode login help", systemImage: "questionmark.circle") }
                     Button { showBrowser() } label: { Label("Browser mode", systemImage: "globe") }
                     Button { launchBrowserMode = true; showBrowser() } label: { Label("Make Browser mode default", systemImage: "globe") }
                     Button { confirmResetLogin = true } label: { Label("Reset embedded sign-in", systemImage: "arrow.counterclockwise") }
@@ -637,14 +648,22 @@ struct RootView: View {
         .confirmationDialog("Complete sign-in in one browser", isPresented: $browser.loginHelp, titleVisibility: .visible) {
             Button("Restart sign-in in Next Chat") { browser.restartLogin() }
             Button("Browser mode (separate session)") { showBrowser() }
+            Button("Direct mode login help") { showDirectLoginHelp = true }
             Button("Reset embedded sign-in") { confirmResetLogin = true }
             Button("Always start in browser mode") { launchBrowserMode = true; showBrowser() }
             Button("Open ChatGPT in Safari") { browser.safariLogin() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Some providers require a system browser. Sign in and chat in the same browser. Safari login does not sign in the embedded view.\n\n\(browser.diagnostic)")
+            Text("Google requires a supported system browser. Direct mode can use your existing OpenAI password if enabled, or an account's supported sign-in method. Safari sessions remain separate.\n\n\(browser.diagnostic)")
         }
         .alert("Next Chat", isPresented: Binding(get: { browser.notice != nil && (!appLock || !locked) }, set: { if !$0 { browser.notice = nil } })) { Button("OK", role: .cancel) { browser.notice = nil } } message: { Text(browser.notice ?? "") }
+        .alert("Direct mode sign-in", isPresented: $showDirectLoginHelp) {
+            Button("Try direct sign-in") { launchBrowserMode = false; browser.restartLogin() }
+            Button("Open account in Browser mode") { showBrowser() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Use your existing ChatGPT account email and password if available. For accounts originally using Google or Apple, check Settings → Security and login → Password → Add in your signed-in ChatGPT account. Do not create a new account. If using Apple, select your original Apple account. Google sign-in is not supported in embedded WebKit.")
+        }
         .confirmationDialog("Reset Next Chat website data?", isPresented: $confirmResetLogin, titleVisibility: .visible) {
             Button("Reset embedded sign-in", role: .destructive) { browser.resetSignIn() }
             Button("Cancel", role: .cancel) {}
