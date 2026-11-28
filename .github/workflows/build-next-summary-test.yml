@@ -42,8 +42,22 @@ jobs:
           dpkg-deb -c "$deb" > "$RUNNER_TEMP/contents.txt"
           grep -q NextSummary.dylib "$RUNNER_TEMP/contents.txt"
           grep -q NextSummaryPrefs.bundle/NextSummaryPrefs "$RUNNER_TEMP/contents.txt"
+          test "$(dpkg-deb -f "$deb" Version)" = 0.1.2
+          verify="$(mktemp -d)"
+          dpkg-deb -x "$deb" "$verify"
+          prefs="$(find "$verify" -type d -name NextSummaryPrefs.bundle -print -quit)"
+          entry="$(find "$verify" -path '*/PreferenceLoader/Preferences/NextSummary.plist' -print -quit)"
+          test -n "$prefs" && test -n "$entry"
+          test -f "$prefs/Root.plist" && test -f "$prefs/Info.plist" && test -f "$prefs/NextSummaryPrefs"
+          plutil -lint "$prefs/Root.plist" "$prefs/Info.plist" "$entry"
+          /usr/libexec/PlistBuddy -c 'Print :NSPrincipalClass' "$prefs/Info.plist" | grep -Fx NSUPrefsController
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$prefs/Info.plist" | grep -Fx NextSummaryPrefs
+          /usr/libexec/PlistBuddy -c 'Print :items:1:label' "$prefs/Root.plist" | grep -Fx 'Enable AI summaries'
+          strings -a "$prefs/NextSummaryPrefs" > "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q NSUPrefsController "$RUNNER_TEMP/prefs-symbols.txt"
+          lipo -verify_arch arm64 arm64e "$prefs/NextSummaryPrefs"
           mkdir -p "$RUNNER_TEMP/next-summary"
-          cp "$deb" "$RUNNER_TEMP/next-summary/NextSummary_0.1.1_RootHide.deb"
+          cp "$deb" "$RUNNER_TEMP/next-summary/NextSummary_0.1.2_RootHide.deb"
           shasum -a 256 "$RUNNER_TEMP/next-summary/"*.deb
       - uses: actions/upload-artifact@v4
         with:
