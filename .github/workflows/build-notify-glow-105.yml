@@ -1,13 +1,14 @@
-name: Notify Glow 1.0.5 RootHide test
+name: Notify Glow 1.0.6 RootHide test
 on:
   push:
     branches: [agent/notify-glow-1.0.5-test]
+    paths-ignore: ['test-builds/notify-glow/**']
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     if: github.ref == 'refs/heads/agent/notify-glow-1.0.5-test' || github.head_ref == 'agent/notify-glow-1.0.5-test'
@@ -49,6 +50,120 @@ jobs:
           assert needle in s
           p.write_text(s.replace(needle, 'NotifyGlowPrefs_LDFLAGS += -F' + sys.argv[2] + '\n' + needle))
           PY
+      - name: Apply device feedback correction 1.0.6
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/glow"
+          python3 - <<'PY'
+          from pathlib import Path
+          import plistlib as p
+          base=Path('.')
+          prefs=base/'category/prefs'
+          registration=base/'category/layout/Library/PreferenceLoader/Preferences'
+          old=registration/'NextAura-notification-glow.plist'
+          d=p.loads(old.read_bytes())
+          d['entry'].update({'bundle':'NotifyGlowPrefs','detail':'NGController','isController':True,'label':'Notify Glow - Next Jailbreak','icon':'icon.png'})
+          (registration/'NextJailbreak-NotifyGlow.plist').write_bytes(p.dumps(d))
+          old.unlink()
+          info=p.loads((prefs/'Info.plist').read_bytes())
+          info.update({'CFBundleShortVersionString':'1.0.6','CFBundleVersion':'1.0.6'})
+          (prefs/'Info.plist').write_bytes(p.dumps(info))
+          root=p.loads((prefs/'Root.plist').read_bytes())
+          root['items'][0].update({'label':'NEXT JAILBREAK','footerText':'Notify Glow 1.0.6 | Animation and Icon Studio'})
+          root['items'][0]['label']='NEXT JAILBREAK - NOTIFY GLOW'
+          (prefs/'Root.plist').write_bytes(p.dumps(root))
+          controller=prefs/'NGController.m'
+          s=controller.read_text()
+          s=s.replace(':@"Notify Glow";}',':@"Notify Glow | Next Jailbreak";}')
+          s=s.replace('return _specifiers;}', 'return _specifiers;}')
+          s=s.replace('- (void)viewDidLoad {[super viewDidLoad];','- (void)viewDidLoad {[super viewDidLoad]; NSLog(@"[NotifyGlow 1.0.6] settings page %@",self.page?:@"Root");')
+          controller.write_text(s)
+          for name,oldver,newver in [('category','1.0.5','1.0.6'),('runtime','1.0.1','1.0.2')]:
+           f=base/name/'control'
+           s=f.read_text().replace('Version: '+oldver,'Version: '+newver).replace('runtime.glow (>= 1.0.1)','runtime.glow (>= 1.0.2)').replace('Notify Glow 1.0.5','Notify Glow 1.0.6')
+           f.write_text(s)
+          runtime=base/'runtime/NotificationGlow.xm'
+          s=runtime.read_text()
+          needle='static void UVNGAddBurningBezel(UIView *canvas, UIWindow *window, UIColor *notificationColor) {'
+          assert needle in s
+          s=s.replace(needle,r'''static CGPathRef UVNGFlamePath(CGFloat width, CGFloat length, CGFloat bend) {
+              UIBezierPath *p=[UIBezierPath bezierPath];
+              [p moveToPoint:CGPointMake(-width*.55,0)];
+              [p addQuadCurveToPoint:CGPointMake(bend,-length) controlPoint:CGPointMake(-width*.75,-length*.5)];
+              [p addQuadCurveToPoint:CGPointMake(width*.5,0) controlPoint:CGPointMake(width*.9,-length*.45)];
+              [p closePath]; return CGPathCreateCopy(p.CGPath);
+          }
+          static void UVNGFireTongues(UIView *canvas, CGRect b, CGFloat radius) {
+              CGFloat w=CGRectGetWidth(b),h=CGRectGetHeight(b);
+              // Four inward-facing rows. Each tongue has three colored layers and an independent animated mask.
+              for (NSInteger side=0;side<4;side++) {
+                  BOOL horizontal=(side==0||side==2);
+                  CGFloat length=horizontal?w:h;
+                  NSInteger count=MAX(12,(NSInteger)(length/20));
+                  for(NSInteger i=0;i<count;i++){
+                      CGFloat t=(i+.5)/count, spread=16+9*UVNGFireDensity;
+                      CGFloat height=(18+31*UVNGFireDepth)*(0.6+0.4*sin(i*2.31+side));
+                      CGFloat offset=radius+(length-2*radius)*t;
+                      CGPoint origin=side==0?CGPointMake(CGRectGetMinX(b)+offset,CGRectGetMinY(b)):side==1?CGPointMake(CGRectGetMaxX(b),CGRectGetMinY(b)+offset):side==2?CGPointMake(CGRectGetMinX(b)+offset,CGRectGetMaxY(b)):CGPointMake(CGRectGetMinX(b),CGRectGetMinY(b)+offset);
+                      CALayer *anchor=[CALayer layer];anchor.frame=CGRectMake(origin.x,origin.y,1,1);
+                      anchor.transform=CATransform3DMakeRotation(side==0?M_PI:side==1?-M_PI_2:side==2?0:M_PI_2,0,0,1);
+                      [canvas.layer addSublayer:anchor];
+                      for(NSInteger k=0;k<3;k++){
+                          CAShapeLayer *flame=[CAShapeLayer layer];
+                          CGFloat scale=1-k*.22;
+                          CGPathRef a=UVNGFlamePath(spread*scale,height*scale,-5+k*2);
+                          CGPathRef z=UVNGFlamePath(spread*scale*.86,height*scale*1.55,7-k*2);
+                          flame.path=a;
+                          UIColor *fill=k==0?[UIColor colorWithRed:1 green:.14 blue:.015 alpha:.66]:k==1?[UIColor colorWithRed:1 green:.53 blue:.04 alpha:.82]:[UIColor colorWithRed:1 green:.92 blue:.42 alpha:.92];
+                          flame.fillColor=fill.CGColor;flame.shadowColor=fill.CGColor;flame.shadowOpacity=.65;flame.shadowRadius=4-k;flame.shadowOffset=CGSizeZero;
+                          [anchor addSublayer:flame];
+                          CABasicAnimation *motion=[CABasicAnimation animationWithKeyPath:@"path"];
+                          motion.fromValue=(__bridge id)a;motion.toValue=(__bridge id)z;
+                          motion.duration=(.18+.035*(i%7)+.03*k)/UVNGSpeed;motion.autoreverses=YES;motion.repeatCount=HUGE_VALF;
+                          motion.timeOffset=i*.043+k*.071;
+                          [flame addAnimation:motion forKey:@"next.fire.shape"];
+                          CGPathRelease(a);CGPathRelease(z);
+                      }
+                  }
+              }
+          }
+          static UIImage *UVNGOriginalFireImage(void) {
+              UIImage *custom=[UIImage imageWithContentsOfFile:UVNGPhotoPath(@"fire.png")];
+              if(custom)return custom;
+              Dl_info info={0};
+              if(dladdr((const void *)&UVNGOriginalFireImage,&info)&&info.dli_fname){
+                  NSString *dir=[[NSString stringWithUTF8String:info.dli_fname] stringByDeletingLastPathComponent];
+                  for(NSString *name in @[@"NextGlowAssets/bezel-fire-a.png",@"NextSolutionAssets/bezel-fire-a.png"]){
+                      UIImage *image=[UIImage imageWithContentsOfFile:[dir stringByAppendingPathComponent:name]];
+                      if(image)return image;
+                  }
+              }
+              return nil;
+          }
+          '''+needle)
+          s=s.replace('if(UVNGFireMode!=0){UIImage *image=[UIImage imageWithContentsOfFile:UVNGPhotoPath(@"fire.png")];','{UIImage *image=UVNGOriginalFireImage();')
+          s=s.replace('texture.alpha=.55;','texture.alpha=.88;').replace('UVNGAnimate(texture.layer,@"opacity",@.22,@.72,.32,YES);','UVNGAnimate(texture.layer,@"opacity",@.62,@.98,.32,YES);')
+          s=s.replace('UVNGEmitEdges(canvas,YES,UVNGFireMode==2?notificationColor:UIColor.whiteColor);','UVNGFireTongues(canvas,b,radius);\n    UVNGEmitEdges(canvas,YES,UVNGFireMode==2?notificationColor:UIColor.whiteColor);')
+          s=s.replace('NSInteger style = requestedStyle >= 0 ? requestedStyle : (locked ?', 'NSInteger style = requestedStyle >= 0 ? requestedStyle : (locked ?')
+          s=s.replace('UVNGReloadPreferences();\n        %init(UVNGHooks);','UVNGReloadPreferences();\n        NSLog(@"[NotifyGlow 1.0.6] runtime loaded");\n        %init(UVNGHooks);')
+          runtime.write_text(s)
+          fire=p.loads((prefs/'Fire.plist').read_bytes())
+          fire['items'][0]['footerText']='Layered animated flames and the recovered or selected fire photo. The photo is optional.'
+          for item in fire['items']:
+           if item.get('key')=='NotificationGlowFireMode':item['validTitles']=['Classic fire + motion','Custom photo + fire','Custom photo + app tint']
+          (prefs/'Fire.plist').write_bytes(p.dumps(fire))
+          validator=base/'validate.py'
+          s=validator.read_text().replace('runtime.glow (>= 1.0.1)','runtime.glow (>= 1.0.2)').replace("assert 'bezel-fire-a.png' not in runtime","assert 'UVNGFireTongues' in runtime and 'UVNGOriginalFireImage' in runtime\nassert (base/'category/layout/Library/PreferenceLoader/Preferences/NextJailbreak-NotifyGlow.plist').exists()")
+          validator.write_text(s)
+          PY
+          python3 validate.py
+          mkdir -p runtime/layout/Library/MobileSubstrate/DynamicLibraries/NextGlowAssets
+          if dpkg-deb -x "$GITHUB_WORKSPACE/debfiles/NextAura_4.4.8_RootHide_iOS16.deb" "$RUNNER_TEMP/old-aura"; then
+            ASSET="$(find "$RUNNER_TEMP/old-aura" -name bezel-fire-a.png -print -quit)"
+            if [ -n "$ASSET" ]; then
+              cp "$ASSET" runtime/layout/Library/MobileSubstrate/DynamicLibraries/NextGlowAssets/
+            fi
+          fi
       - name: Compile and package
         run: |
           set -euo pipefail
@@ -62,8 +177,24 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: NotifyGlow-1.0.5-RootHide-test
+          name: NotifyGlow-1.0.6-RootHide-test
           path: |
             ${{ runner.temp }}/glow/output/*.deb
             ${{ runner.temp }}/glow-build.log
           if-no-files-found: warn
+      - name: Publish direct test links on isolated branch
+        if: success() && github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          mkdir -p test-builds/notify-glow
+          cp "$RUNNER_TEMP/glow/output/"*notification-glow*1.0.6*.deb test-builds/notify-glow/NotifyGlow_1.0.6_RootHide.deb
+          cp "$RUNNER_TEMP/glow/output/"*runtime.glow*1.0.2*.deb test-builds/notify-glow/GlowRuntime_1.0.2_RootHide.deb
+          cd test-builds/notify-glow
+          zip -j NotifyGlow_1.0.6_Test.zip *.deb
+          shasum -a 256 *.deb > SHA256.txt
+          cd "$GITHUB_WORKSPACE"
+          git config user.name 'Next Jailbreak Build'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add test-builds/notify-glow
+          git commit -m 'Publish Notify Glow 1.0.6 device test packages'
+          git push origin HEAD:agent/notify-glow-1.0.5-test
