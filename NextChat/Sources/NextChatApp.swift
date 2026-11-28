@@ -13,6 +13,14 @@ private func official(_ url: URL?) -> Bool {
     guard let url, url.scheme == "https", let host = url.host?.lowercased() else { return false }
     return host == "chatgpt.com" || host.hasSuffix(".chatgpt.com") || host == "openai.com" || host.hasSuffix(".openai.com")
 }
+private func fileHost(_ url: URL?) -> Bool {
+    guard let url, url.scheme == "https", let h = url.host?.lowercased() else { return false }
+    return h == "oaiusercontent.com" || h.hasSuffix(".oaiusercontent.com") || h == "oaistatic.com" || h.hasSuffix(".oaistatic.com")
+}
+private func fileLink(_ url: URL) -> Bool {
+    guard url.scheme == "https" else { return false }
+    return ["ipa","tipa","zip","pdf","doc","docx","xls","xlsx","csv","ppt","pptx","txt","json","png","jpg","jpeg","webp","gif","mp4","mov","m4a","mp3","wav","tar","gz","7z","rar","dmg","ics","mobileprovision","deb"].contains(url.pathExtension.lowercased())
+}
 private func chatPage(_ url: URL?) -> Bool {
     guard let url, url.scheme == "https", url.host?.lowercased() == "chatgpt.com" else { return false }
     return true
@@ -53,6 +61,9 @@ struct PendingDownload: Identifiable {
 }
 final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
     @Published var loginHelp = false
+    @Published var externalURL: URL?
+    @Published var downloadDiagnostic = "No downloads yet."
+    @Published var downloadMessage: String?
     @Published var diagnostic = "No navigation error recorded."
     @Published var resetInProgress = false
     @Published var popup: WKWebView?
@@ -72,6 +83,8 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private var transfers: [ObjectIdentifier: WKDownload] = [:]
     private var destinations: [ObjectIdentifier: URL] = [:]
     private var progressObservers: [ObjectIdentifier: NSKeyValueObservation] = [:]
+    private var fileViews: [ObjectIdentifier: WKWebView] = [:]
+    private var downloadViews: [ObjectIdentifier: WKWebView] = [:]
     private let monitor = NWPathMonitor()
     private let fm = FileManager.default
     private var folder: URL {
@@ -171,45 +184,108 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             self?.notice = all ? "Local website data cleared." : "Cache cleared."
         }
     }
+    private func external(_ url: URL) {
+        guard ["http","https"].contains(url.scheme ?? "") else { return }
+        if UserDefaults.standard.string(forKey: "externalLinkMode") == "Safari" { UIApplication.shared.open(url) }
+        else { externalURL = url }
+    }
+    private func beginFile(_ request: URLRequest, in view: WKWebView) {
+        downloadDiagnostic = "Starting download in website session."
+        view.startDownload(using: request) { [weak self] download in
+            guard let self else { return }
+            self.downloadViews[ObjectIdentifier(download)] = view
+            self.register(download)
+        }
+    }
+    private func isFileView(_ view: WKWebView) -> Bool { fileViews[ObjectIdentifier(view)] != nil }
+    private func fileRoute(_ request: URLRequest, from view: WKWebView) {
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = view.configuration.websiteDataStore
+        let child = WKWebView(frame: .zero, configuration: config)
+        child.navigationDelegate = self
+        fileViews[ObjectIdentifier(child)] = child
+        downloadDiagnostic = "Resolving attachment."
+        child.load(request)
+    }
+    private func releaseFileView(_ view: WKWebView) { fileViews.removeValue(forKey: ObjectIdentifier(view)) }
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = action.request.url else { decisionHandler(.cancel); return }
-        // iOS 16 may supply a source frame with no NSURLRequest during initial navigation.
-        // Do not bridge WKFrameInfo.request into Swift; the committed page is optional and safe.
+        // Never bridge WKFrameInfo.request on iOS 16.
         let source = webView.url
-        if action.shouldPerformDownload && (official(url) || (official(source) && url.scheme == "blob")) {
+        let scheme = url.scheme?.lowercased() ?? ""
+        let fromChat = official(source)
+        let appleSignIn = appleIdentity(url) && (fromChat || appleIdentity(source) || webView === popup)
+        let auth = authPage(source) || appleIdentity(source) || identityProvider(url)
+        if action.shouldPerformDownload && !auth && (scheme == "https" || (fromChat && ["blob","data"].contains(scheme))) {
             decisionHandler(.download); return
         }
         if action.targetFrame?.isMainFrame == false { decisionHandler(.allow); return }
-        let appleSignIn = appleIdentity(url) && (official(source) || appleIdentity(source) || webView === popup)
-        if official(url) || appleSignIn || url.absoluteString == "about:blank" || (url.scheme == "blob" && official(source)) {
+        if isFileView(webView) {
+            decisionHandler(scheme == "https" ? .allow : .cancel); return
+        }
+        if scheme == "sandbox" && fromChat {
+            decisionHandler(.cancel)
+            downloadDiagnostic = "Unresolved sandbox reference."
+            notice = "The website did not resolve this file link. Ask ChatGPT to regenerate the attachment."
+            return
+        }
+        if !auth && fromChat && fileHost(url) {
+            decisionHandler(.cancel)
+            fileRoute(action.request, from: webView); return
+        }
+        if !auth && fromChat && fileLink(url) && action.navigationType == .linkActivated {
+            decisionHandler(.cancel)
+            beginFile(action.request, in: webView); return
+        }
+        if scheme == "blob" && fromChat && action.navigationType == .linkActivated {
+            decisionHandler(.download); return
+        }
+        if official(url) || appleSignIn || url.absoluteString == "about:blank" || (scheme == "blob" && fromChat) {
             decisionHandler(.allow); return
         }
         decisionHandler(.cancel)
-        // Never export a partially completed login or OAuth callback to another cookie store.
-        if identityProvider(url) || authPage(source) {
+        if auth {
             DispatchQueue.main.async { [weak self] in
                 self?.diagnostic = "Authentication navigation requires a browser. Destination host: \(url.host ?? "unknown")."
                 self?.loginHelp = true
             }
-        } else if action.navigationType == .linkActivated, ["http","https"].contains(url.scheme ?? "") {
-            UIApplication.shared.open(url)
+        } else if action.navigationType == .linkActivated || (fromChat && action.targetFrame == nil) {
+            external(url)
         }
     }
     func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-        let attachment = (response.response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Disposition")?.lowercased().contains("attachment") ?? false
-        decisionHandler(!response.canShowMIMEType || attachment ? .download : .allow)
+        let http = response.response as? HTTPURLResponse
+        let disposition = http?.value(forHTTPHeaderField: "Content-Disposition")?.lowercased() ?? ""
+        let attachment = disposition.contains("attachment") || disposition.contains("filename=") || disposition.contains("filename*=")
+        let route = isFileView(webView)
+        let mime = response.response.mimeType?.lowercased() ?? ""
+        if route && (!(200...299).contains(http?.statusCode ?? 200) || (!attachment && mime == "text/html")) {
+            decisionHandler(.cancel)
+            releaseFileView(webView)
+            downloadDiagnostic = "Attachment unavailable: HTTP \(http?.statusCode ?? 0), \(mime)."
+            notice = "The server did not return a downloadable file. Try regenerating it."
+            return
+        }
+        decisionHandler(route || !response.canShowMIMEType || attachment ? .download : .allow)
     }
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard action.targetFrame == nil, let url = action.request.url else { return nil }
         let source = webView.url
-        let appleSignIn = appleIdentity(url) && (official(source) || appleIdentity(source))
-        if !appleSignIn && (identityProvider(url) || (!official(url) && url.absoluteString != "about:blank" && authPage(webView.url))) {
+        let fromChat = official(source)
+        let appleSignIn = appleIdentity(url) && (fromChat || appleIdentity(source))
+        let auth = authPage(source) || appleIdentity(source) || identityProvider(url)
+        if !auth && fromChat && (action.shouldPerformDownload || url.scheme == "blob" || fileLink(url)) && ["https","blob","data"].contains(url.scheme ?? "") {
+            beginFile(action.request, in: webView); return nil
+        }
+        if !auth && fromChat && fileHost(url) {
+            fileRoute(action.request, from: webView); return nil
+        }
+        if !appleSignIn && (identityProvider(url) || (!official(url) && url.absoluteString != "about:blank" && authPage(source))) {
             DispatchQueue.main.async { [weak self] in self?.loginHelp = true }
             return nil
         }
         if official(url) || appleSignIn || url.absoluteString == "about:blank" {
             guard popup == nil else { return nil }
-            // Preserve WebKit's supplied configuration and window.opener semantics.
             let child = WKWebView(frame: .zero, configuration: configuration)
             child.navigationDelegate = self
             child.uiDelegate = self
@@ -218,7 +294,10 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             popup = child
             return child
         }
-        if action.navigationType == .linkActivated, ["http","https"].contains(url.scheme ?? "") { UIApplication.shared.open(url) }
+        if url.scheme == "sandbox" && fromChat {
+            downloadDiagnostic = "Unresolved sandbox reference."
+            notice = "Ask ChatGPT to regenerate the attachment."
+        } else if action.navigationType == .linkActivated || fromChat { external(url) }
         return nil
     }
     func webViewDidClose(_ webView: WKWebView) {
@@ -237,6 +316,13 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { report(error, view: webView, stage: "committed") }
     private func report(_ error: Error, view: WKWebView, stage: String) {
         let e = error as NSError
+        if isFileView(view) {
+            if (e.domain == NSURLErrorDomain && e.code == NSURLErrorCancelled) || ((e.domain == WKError.errorDomain || e.domain == "WebKitErrorDomain") && e.code == 102) { return }
+            releaseFileView(view)
+            downloadDiagnostic = "Attachment failed: \(e.domain) \(e.code)."
+            notice = "Download failed. Tap the original attachment to retry."
+            return
+        }
         if e.domain == NSURLErrorDomain && e.code == NSURLErrorCancelled { return }
         // A delegate policy cancellation (e.g. Google OAuth handoff) is not a network failure.
         if (e.domain == WKError.errorDomain || e.domain == "WebKitErrorDomain") && e.code == 102 { return }
@@ -249,11 +335,13 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
             notice = "Unable to load page. \(diagnostic). Use Reload or Browser mode."
         }
     }
-    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) { register(download) }
-    func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) { register(download) }
+    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) { downloadViews[ObjectIdentifier(download)] = webView; register(download) }
+    func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) { downloadViews[ObjectIdentifier(download)] = webView; register(download) }
     private func register(_ download: WKDownload) {
         let id = ObjectIdentifier(download)
+        guard transfers[id] == nil else { return }
         transfers[id] = download; download.delegate = self
+        downloadDiagnostic = "Download accepted by WebKit."
         active.append(PendingDownload(id: id, name: "Preparing download", progress: 0))
         progressObservers[id] = download.progress.observe(\.fractionCompleted, options: [.new]) { [weak self] p,_ in
             DispatchQueue.main.async {
@@ -274,12 +362,19 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         completionHandler(dest)
     }
     func downloadDidFinish(_ download: WKDownload) { finish(download, failed: false) }
-    func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) { finish(download, failed: true) }
+    func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
+        let e = error as NSError
+        downloadDiagnostic = "Download error: \(e.domain) \(e.code)."
+        finish(download, failed: true)
+    }
     private func finish(_ download: WKDownload, failed: Bool) {
         let id = ObjectIdentifier(download)
         if failed, let url = destinations[id] { try? fm.removeItem(at: url) }
         active.removeAll { $0.id == id }; transfers[id] = nil; destinations[id] = nil; progressObservers[id] = nil
-        refreshFiles(); notice = failed ? "Download failed. Reopen the original link to retry." : "Download saved."
+        if let view = downloadViews.removeValue(forKey: id) { releaseFileView(view) }
+        refreshFiles()
+        if failed { notice = "Download failed. Reopen the original link to retry. \(downloadDiagnostic)" }
+        else { downloadDiagnostic = "Download saved."; downloadMessage = "Download saved" }
     }
     func cancel(_ id: ObjectIdentifier) {
         guard let download = transfers[id] else { return }
@@ -457,6 +552,7 @@ struct SettingsView: View {
     @AppStorage("appearance") private var appearance = "System"
     @AppStorage("haptics") private var haptics = true
     @AppStorage("restore") private var restore = true
+    @AppStorage("externalLinkMode") private var externalLinkMode = "In-app browser"
     @AppStorage("appLock") private var appLock = false
     @AppStorage("privacy") private var privacy = true
     @AppStorage("lockDelay") private var lockDelay = 0
@@ -469,6 +565,10 @@ struct SettingsView: View {
                     Picker("Appearance", selection: $appearance) { ForEach(["System","Light","Dark"], id: \.self) { Text($0) } }
                     Toggle("Haptics", isOn: $haptics)
                     Toggle("Restore last conversation", isOn: $restore)
+                    Picker("Website links", selection: $externalLinkMode) {
+                        Text("In-app browser").tag("In-app browser")
+                        Text("Safari").tag("Safari")
+                    }
                 }
                 Section("Privacy") {
                     Toggle("App switcher privacy", isOn: $privacy)
@@ -487,12 +587,14 @@ struct SettingsView: View {
                     Button("Reload ChatGPT") { browser.web.reload(); dismiss() }
                     Button("Restart sign-in") { browser.restartLogin(); dismiss() }
                     Text(browser.diagnostic).font(.caption).textSelection(.enabled)
+                    Text(browser.downloadDiagnostic).font(.caption).textSelection(.enabled)
+                    ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (6)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (7)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (6)")
+                    LabeledContent("Version", value: "1.0.0 (7)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -503,7 +605,7 @@ struct SettingsView: View {
         }
     }
 }
-enum Panel: String, Identifiable { case settings, downloads, prompts, bookmarks, browserMode; var id: String { rawValue } }
+enum Panel: String, Identifiable { case settings, downloads, prompts, bookmarks, browserMode, externalBrowser; var id: String { rawValue } }
 struct RootView: View {
     @StateObject private var browser = Browser()
     @AppStorage("appearance") private var appearance = "System"
@@ -513,6 +615,7 @@ struct RootView: View {
     @AppStorage("lockDelay") private var lockDelay = 0
     @Environment(\.scenePhase) private var scenePhase
     @State private var panel: Panel?
+    @State private var externalStart: URL?
     @State private var locked = true
     @State private var authenticating = false
     @State private var inactiveSince: Date?
@@ -591,15 +694,22 @@ struct RootView: View {
             } else {
                 WebSurface(browser: browser).frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             if !launchBrowserMode {
-            if browser.loading { ProgressView().progressViewStyle(.linear) }
-            Divider()
-            HStack(spacing: 18) {
+                VStack(spacing: 0) {
+                if browser.loading { ProgressView().progressViewStyle(.linear) }
+                Divider()
+                HStack(spacing: 18) {
                 Button { tap(); browser.web.goBack() } label: { Image(systemName: "chevron.left") }.disabled(!browser.canBack).accessibilityLabel("Back")
                 Button { tap(); browser.web.goForward() } label: { Image(systemName: "chevron.right") }.disabled(!browser.canForward).accessibilityLabel("Forward")
                 Spacer(minLength: 0)
                 Button { tap(); browser.newChat() } label: { Image(systemName: "square.and.pencil") }.accessibilityLabel("New chat")
-                Button { tap(); panel = .downloads } label: { Image(systemName: "arrow.down.circle") }.accessibilityLabel("Downloads")
+                Button { tap(); panel = .downloads } label: {
+                    Image(systemName: "arrow.down.circle").overlay(alignment: .topTrailing) {
+                        if !browser.active.isEmpty { Circle().fill(Color.accentColor).frame(width: 7, height: 7) }
+                    }
+                }.accessibilityLabel("Downloads")
                 Menu {
                     Button { browser.resume() } label: { Label("Resume conversation", systemImage: "clock") }
                     Button { browser.savePage() } label: { Label("Save current page", systemImage: "bookmark") }
@@ -614,7 +724,8 @@ struct RootView: View {
                     Button { browser.safari() } label: { Label("Open in Safari", systemImage: "safari") }
                     Button { panel = .settings } label: { Label("Settings", systemImage: "gearshape") }
                 } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("More")
-            }.font(.system(size: 21, weight: .medium)).padding(.horizontal, 22).padding(.vertical, 11).background(.ultraThinMaterial)
+                }.font(.system(size: 21, weight: .medium)).padding(.horizontal, 22).frame(height: 46)
+                }.fixedSize(horizontal: false, vertical: true).background(.regularMaterial)
             }
         }
         .preferredColorScheme(appearance == "Dark" ? .dark : appearance == "Light" ? .light : nil)
@@ -624,6 +735,8 @@ struct RootView: View {
             case .downloads: DownloadsView(browser: browser)
             case .prompts: PromptTools()
             case .browserMode: SafariSurface(start: homeURL).ignoresSafeArea()
+            case .externalBrowser:
+                if let url = externalStart { SafariSurface(start: url).ignoresSafeArea() }
             case .bookmarks:
                 NavigationStack {
                     List {
@@ -632,6 +745,25 @@ struct RootView: View {
                             Button(item.title) { browser.open(item.url); panel = nil }.swipeActions { Button("Remove", role: .destructive) { browser.removeBookmark(item.id) } }
                         }
                     }.searchable(text: $bookmarkSearch).navigationTitle("Saved conversations").toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { panel = nil } } }
+                }
+            }
+        }
+        .onChange(of: browser.externalURL) { url in
+            guard let url else { return }
+            if !appLock || !locked { externalStart = url; panel = .externalBrowser }
+            browser.externalURL = nil
+        }
+        .overlay(alignment: .top) {
+            if let message = browser.downloadMessage {
+                Button { browser.downloadMessage = nil; panel = .downloads } label: {
+                    Label(message + " · Open", systemImage: "checkmark.circle.fill")
+                        .font(.subheadline.weight(.semibold)).padding(10)
+                        .background(.regularMaterial, in: Capsule())
+                }.padding(.top, 8)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        if browser.downloadMessage == message { browser.downloadMessage = nil }
+                    }
                 }
             }
         }
