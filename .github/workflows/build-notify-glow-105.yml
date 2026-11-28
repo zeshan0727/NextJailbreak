@@ -91,7 +91,7 @@ jobs:
               [p moveToPoint:CGPointMake(-width*.55,0)];
               [p addQuadCurveToPoint:CGPointMake(bend,-length) controlPoint:CGPointMake(-width*.75,-length*.5)];
               [p addQuadCurveToPoint:CGPointMake(width*.5,0) controlPoint:CGPointMake(width*.9,-length*.45)];
-              [p closePath]; return CGPathCreateCopy(p.CGPath);
+              [p closePath]; CGAffineTransform t=CGAffineTransformMakeTranslation(40,90); return CGPathCreateCopyByTransformingPath(p.CGPath,&t);
           }
           static void UVNGFireTongues(UIView *canvas, CGRect b, CGFloat radius) {
               CGFloat w=CGRectGetWidth(b),h=CGRectGetHeight(b);
@@ -99,23 +99,23 @@ jobs:
               for (NSInteger side=0;side<4;side++) {
                   BOOL horizontal=(side==0||side==2);
                   CGFloat length=horizontal?w:h;
-                  NSInteger count=MAX(12,(NSInteger)(length/20));
+                  NSInteger count=MAX(10,(NSInteger)(length/29));
                   for(NSInteger i=0;i<count;i++){
                       CGFloat t=(i+.5)/count, spread=16+9*UVNGFireDensity;
                       CGFloat height=(18+31*UVNGFireDepth)*(0.6+0.4*sin(i*2.31+side));
                       CGFloat offset=radius+(length-2*radius)*t;
                       CGPoint origin=side==0?CGPointMake(CGRectGetMinX(b)+offset,CGRectGetMinY(b)):side==1?CGPointMake(CGRectGetMaxX(b),CGRectGetMinY(b)+offset):side==2?CGPointMake(CGRectGetMinX(b)+offset,CGRectGetMaxY(b)):CGPointMake(CGRectGetMinX(b),CGRectGetMinY(b)+offset);
-                      CALayer *anchor=[CALayer layer];anchor.frame=CGRectMake(origin.x,origin.y,1,1);
+                      CALayer *anchor=[CALayer layer];anchor.bounds=CGRectMake(0,0,80,100);anchor.anchorPoint=CGPointMake(.5,.9);anchor.position=origin;
                       anchor.transform=CATransform3DMakeRotation(side==0?M_PI:side==1?-M_PI_2:side==2?0:M_PI_2,0,0,1);
                       [canvas.layer addSublayer:anchor];
                       for(NSInteger k=0;k<3;k++){
-                          CAShapeLayer *flame=[CAShapeLayer layer];
+                          CAShapeLayer *flame=[CAShapeLayer layer];flame.frame=anchor.bounds;
                           CGFloat scale=1-k*.22;
                           CGPathRef a=UVNGFlamePath(spread*scale,height*scale,-5+k*2);
                           CGPathRef z=UVNGFlamePath(spread*scale*.86,height*scale*1.55,7-k*2);
                           flame.path=a;
                           UIColor *fill=k==0?[UIColor colorWithRed:1 green:.14 blue:.015 alpha:.66]:k==1?[UIColor colorWithRed:1 green:.53 blue:.04 alpha:.82]:[UIColor colorWithRed:1 green:.92 blue:.42 alpha:.92];
-                          flame.fillColor=fill.CGColor;flame.shadowColor=fill.CGColor;flame.shadowOpacity=.65;flame.shadowRadius=4-k;flame.shadowOffset=CGSizeZero;
+                          flame.fillColor=fill.CGColor;flame.shadowColor=fill.CGColor;flame.shadowOpacity=k==0?.45:0;flame.shadowRadius=4-k;flame.shadowOffset=CGSizeZero;
                           [anchor addSublayer:flame];
                           CABasicAnimation *motion=[CABasicAnimation animationWithKeyPath:@"path"];
                           motion.fromValue=(__bridge id)a;motion.toValue=(__bridge id)z;
@@ -129,7 +129,7 @@ jobs:
           }
           static UIImage *UVNGOriginalFireImage(void) {
               UIImage *custom=[UIImage imageWithContentsOfFile:UVNGPhotoPath(@"fire.png")];
-              if(custom)return custom;
+              if(custom&&UVNGFireMode!=0)return custom;
               Dl_info info={0};
               if(dladdr((const void *)&UVNGOriginalFireImage,&info)&&info.dli_fname){
                   NSString *dir=[[NSString stringWithUTF8String:info.dli_fname] stringByDeletingLastPathComponent];
@@ -138,7 +138,7 @@ jobs:
                       if(image)return image;
                   }
               }
-              return nil;
+              return custom;
           }
           '''+needle)
           s=s.replace('if(UVNGFireMode!=0){UIImage *image=[UIImage imageWithContentsOfFile:UVNGPhotoPath(@"fire.png")];','{UIImage *image=UVNGOriginalFireImage();')
