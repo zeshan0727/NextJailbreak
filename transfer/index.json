@@ -1,7 +1,19 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-28T07:50:19Z",
+  "updatedAt": "2026-11-28T07:53:27Z",
   "files": [
+    {
+      "id": "notify-island-1.0.19-banner-lifecycle-roothide",
+      "name": "Notify Island 1.0.19 — Banner Lifecycle",
+      "fileName": "NotifyIsland_1.0.19_BannerLifecycle_RootHide.deb",
+      "type": "deb",
+      "platform": "RootHide / iOS 16+",
+      "version": "1.0.19",
+      "url": "https://nextjailbreak.com/transfer/files/NotifyIsland/1.0.19/NotifyIsland_1.0.19_BannerLifecycle_RootHide.deb",
+      "sha256": "85bd218a1c566f3b66c5d5a811c0489bb66ffe5a82725d47956ce83e14df0a5b",
+      "sizeBytes": 109356,
+      "notes": "Device-test build: keeps replaced native transient banner suppressed independently of the island timer, including early swipe or double-tap dismissal. Restores recycled list views and respects the Replace stock banner setting. Previous gestures and branding retained. Rollback: 1.0.18."
+    },
     {
       "id": "next-chat-1.0.0-build11",
       "name": "Next Chat Advanced 1.0.0 - Build 11",
