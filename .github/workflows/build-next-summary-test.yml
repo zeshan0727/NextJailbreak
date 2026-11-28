@@ -1,0 +1,44 @@
+name: Next Summary RootHide Test
+on:
+  push:
+    branches: [agent/next-summary-0.1.1-test]
+    paths: ['source/NextSummary/**']
+  pull_request:
+    branches: [main]
+    paths: ['source/NextSummary/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install dpkg ldid xz
+      - name: Build RootHide
+        run: |
+          set -euo pipefail
+          export THEOS="$RUNNER_TEMP/theos-roothide"
+          git init "$THEOS"
+          git -C "$THEOS" remote add origin https://github.com/roothide/theos.git
+          git -C "$THEOS" fetch --depth 1 origin 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
+          git -C "$THEOS" checkout --detach 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
+          git -C "$THEOS" submodule update --init --recursive --depth 1
+          cd source/NextSummary
+          make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+          deb="$(find packages -name '*_iphoneos-arm64e.deb' -print -quit)"
+          test -n "$deb"
+          test "$(dpkg-deb -f "$deb" Package)" = com.nextjailbreak.nextsummary
+          test "$(dpkg-deb -f "$deb" Architecture)" = iphoneos-arm64e
+          dpkg-deb -c "$deb" > "$RUNNER_TEMP/contents.txt"
+          grep -q NextSummary.dylib "$RUNNER_TEMP/contents.txt"
+          grep -q NextSummaryPrefs.bundle/NextSummaryPrefs "$RUNNER_TEMP/contents.txt"
+          mkdir -p "$RUNNER_TEMP/next-summary"
+          cp "$deb" "$RUNNER_TEMP/next-summary/NextSummary_0.1.1_RootHide.deb"
+          shasum -a 256 "$RUNNER_TEMP/next-summary/"*.deb
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextSummary-RootHide-DEB
+          path: ${{ runner.temp }}/next-summary/*.deb
+          if-no-files-found: error
