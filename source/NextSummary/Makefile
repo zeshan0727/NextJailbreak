@@ -6,7 +6,7 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = NextSummary
 NextSummary_FILES = Tweak.m Shared.m
 NextSummary_CFLAGS = -fobjc-arc
-NextSummary_FRAMEWORKS = UIKit Foundation
+NextSummary_FRAMEWORKS = UIKit Foundation NaturalLanguage
 NextSummary_LIBRARIES = substrate
 include $(THEOS_MAKE_PATH)/tweak.mk
 SUBPROJECTS += Prefs
