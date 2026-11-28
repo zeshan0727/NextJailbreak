@@ -162,11 +162,11 @@
       "version": "1.5"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.regram/": {
-      "checked_at": "2026-11-21T22:54:27.819497+00:00",
+      "checked_at": "2026-11-28T14:40:53+00:00",
       "package": "com.fouadraheb.regram",
-      "status": "duplicate",
-      "target_path": "regram-for-instagram-7-1-update/",
-      "version": "7.1"
+      "status": "published",
+      "target_path": "regram-for-instagram-7-2-update/",
+      "version": "7.2"
     },
     "https://www.ios-repo-updates.com/repository/fouad-s/package/com.fouadraheb.watusi/": {
       "checked_at": "2026-11-21T22:54:27.819497+00:00",
@@ -218,7 +218,7 @@
       "version": "3.0"
     },
     "https://www.ios-repo-updates.com/repository/havoc/package/com.cercube.ios/": {
-      "checked_at": "2026-10-13T00:17:24.340912+00:00",
+      "checked_at": "2026-11-28T14:40:53.326895+00:00",
       "package": "com.cercube.ios",
       "status": "duplicate",
       "target_path": "cercube-for-youtube-6-1-3-update/",
@@ -371,7 +371,7 @@
       "version": "3.8.38"
     },
     "https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytlegacy/": {
-      "checked_at": "2026-10-20T10:31:55.328692+00:00",
+      "checked_at": "2026-11-28T14:40:53.326895+00:00",
       "package": "com.ps.ytlegacy",
       "reason": "resolved source does not independently identify the discovered package",
       "status": "failed"
@@ -3375,6 +3375,95 @@
       "at": "2026-11-21T22:54:27.819497+00:00",
       "failures": [],
       "reason": "no-high-quality-original-source-candidate"
+    },
+    {
+      "action": "published",
+      "api": {
+        "initial_verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0740a77e630ece54016b0ae81b1c3887d1bb33a270c760e8da",
+          "usage": {
+            "input_tokens": 23333,
+            "input_tokens_details": {
+              "cache_write_tokens": 23330,
+              "cache_write_tokens_details": {
+                "ttl_12h_tokens": 0,
+                "ttl_30m_tokens": 23330
+              },
+              "cached_tokens": 0
+            },
+            "output_tokens": 349,
+            "output_tokens_details": {
+              "reasoning_tokens": 236
+            },
+            "total_tokens": 23682
+          }
+        },
+        "repair": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0d3d8e84a810c0f5016b0ae81f2fe087d192397b9ca2dd22fb",
+          "usage": {
+            "input_tokens": 23391,
+            "input_tokens_details": {
+              "cache_write_tokens": 23388,
+              "cache_write_tokens_details": {
+                "ttl_12h_tokens": 0,
+                "ttl_30m_tokens": 23388
+              },
+              "cached_tokens": 0
+            },
+            "output_tokens": 2568,
+            "output_tokens_details": {
+              "reasoning_tokens": 50
+            },
+            "total_tokens": 25959
+          }
+        },
+        "verifier": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0c8936cb751f8fa4016b0ae8376acc87d199074665d32c3cf8",
+          "usage": {
+            "input_tokens": 23360,
+            "input_tokens_details": {
+              "cache_write_tokens": 23357,
+              "cache_write_tokens_details": {
+                "ttl_12h_tokens": 0,
+                "ttl_30m_tokens": 23357
+              },
+              "cached_tokens": 0
+            },
+            "output_tokens": 343,
+            "output_tokens_details": {
+              "reasoning_tokens": 225
+            },
+            "total_tokens": 23703
+          }
+        },
+        "writer": {
+          "model": "gpt-5.6-luna",
+          "response_id": "resp_0982356a7591eb89016b0ae8030fb887d1b2359f9085831ec8",
+          "usage": {
+            "input_tokens": 21041,
+            "input_tokens_details": {
+              "cache_write_tokens": 21038,
+              "cache_write_tokens_details": {
+                "ttl_12h_tokens": 0,
+                "ttl_30m_tokens": 21038
+              },
+              "cached_tokens": 0
+            },
+            "output_tokens": 2578,
+            "output_tokens_details": {
+              "reasoning_tokens": 90
+            },
+            "total_tokens": 23619
+          }
+        }
+      },
+      "at": "2026-11-28T14:40:53+00:00",
+      "package": "com.fouadraheb.regram",
+      "target_path": "regram-for-instagram-7-2-update/",
+      "version": "7.2"
     }
   ],
   "schema_version": 1

@@ -1,13 +1,51 @@
 {
   "entries": [
     {
+      "category": {
+        "id": "system-utilities",
+        "label": "System & Utilities"
+      },
+      "description": "Regram for Instagram 7.2 iOS jailbreak tweak: verified features, compatibility, requirements and release details from the original developer source.",
+      "entry_type": "source-news",
+      "href": "regram-for-instagram-7-2-update/",
+      "image": "assets/articles/source-media/regram-for-instagram-7-2-update-53d7cb699b.png",
+      "media_credit": "Source visual from github.com",
+      "media_source_url": "https://github.com/FouadRaheb/Regram-for-Instagram",
+      "modified_at": "2026-11-28T14:40:53+00:00",
+      "name": "Regram for Instagram",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-11-28T14:40:53+00:00",
+      "quality_target": 9,
+      "selection_pool": "ios-repo-discovery-original-source",
+      "source_name": "apt.fouadraheb.com",
+      "source_page_url": "https://apt.fouadraheb.com/Packages",
+      "source_url": "https://apt.fouadraheb.com/Packages",
+      "source_visual_origin": "og:image",
+      "source_visual_url": "https://opengraph.githubassets.com/1436bf5cf3a9921dbab34e71f1f38d9e04b377ccdc316b23189d8333cc2c3dff/FouadRaheb/Regram-for-Instagram",
+      "title": "Regram 7.2 Adds Ghost Mode, Content Filters and Direct Updates for Instagram",
+      "version": "7.2"
+    },
+    {
       "action": "create",
       "additional_media": [
-        {"credit": "eknv/Havoc — official SideDock banner", "path": "assets/articles/source-media/sidedock-1-0-1-official-banner.png", "sha256": "289423c3c37a96de6c3b35a8180300f919f40dbe41fa5cec48b0b56b0ead748e", "source_url": "https://media.havoc.app/6acdd37d6e6af822fe19efc0"},
-        {"credit": "Antony .M/Chariz — official Drift promotional banner", "path": "assets/articles/source-media/drift-1-0-0-update-702c52ab05.jpg", "sha256": "64a4e2e87b5fdbc94b03fe20e794c34667954132f4a47cdb1cdd4e7d60c0de11", "source_url": "https://img.chariz.cloud/sileo-banner/drift.jpg"}
+        {
+          "credit": "eknv/Havoc — official SideDock banner",
+          "path": "assets/articles/source-media/sidedock-1-0-1-official-banner.png",
+          "sha256": "289423c3c37a96de6c3b35a8180300f919f40dbe41fa5cec48b0b56b0ead748e",
+          "source_url": "https://media.havoc.app/6acdd37d6e6af822fe19efc0"
+        },
+        {
+          "credit": "Antony .M/Chariz — official Drift promotional banner",
+          "path": "assets/articles/source-media/drift-1-0-0-update-702c52ab05.jpg",
+          "sha256": "64a4e2e87b5fdbc94b03fe20e794c34667954132f4a47cdb1cdd4e7d60c0de11",
+          "source_url": "https://img.chariz.cloud/sileo-banner/drift.jpg"
+        }
       ],
       "candidate_fingerprint": "roundup-comparison.sidedock-1.0.1-floatingdockxvi-2.3-drift-1.1.0-2026-11-28",
-      "category": {"id": "tweak-roundup-comparison", "label": "Tweak Roundup & Comparison"},
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
       "channel": "scheduled-tweak-roundup-comparison",
       "compat": "SideDock 1.0.1 lists rootless iOS 17.0–18.7.9 and names Dopamine and palera1n; FloatingDockXVI 2.3 lists iOS 15.0–16.7.4 with rootless support and earlier Dopamine support; Drift 1.1.0 lists jailbroken iOS 15.0–26.0 but publishes no jailbreak-environment matrix. Package ranges do not establish jailbreak availability for every device.",
       "description": "Compare SideDock 1.0.1, FloatingDockXVI 2.3 and Drift 1.1.0 by dock style, iOS range, jailbreak environment, price, conflicts and recovery.",
@@ -78,7 +116,40 @@
       "version": "Dopamine 3.0.13 / Apple iOS 27 battery guidance"
     },
     {
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.tims-cooked-ios27-ool-map-audit-2026-11-26",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "channel": "scheduled-current-jailbreak-development",
+      "compat": "Exact-build static analysis only: iPhone14,2 / iOS 27.0 build 24A5390f. The November 26 notes trace a conditional OOL map-field write, error cleanup and getter consumer, but do not establish runtime execution, final destruction, a dangling reference, UAF, OOB, kernel read/write, exploit or jailbreak availability. No new IPA was published.",
+      "description": "Tims-Cooked’s November 26 iOS 27 audit traces a conditional OOL map-field write and cleanup path. See the exact build, evidence limits and why no exploit exists.",
+      "entry_type": "jailbreak-development",
+      "href": "tims-cooked-ios-27-socket-uaf-correction/",
+      "modified_at": "2026-11-28T00:00:00+03:00",
+      "name": "Tims Cooked iOS 27 IOSurface research",
+      "package": "research.tims-cooked",
+      "published_at": "2026-11-21T00:00:13+03:00",
+      "quality_target": 9,
+      "release": "November 26, 2026 documentation checkpoint: exact-build IOSurface OOL marshalling and map-field audit; no new app binary",
+      "route": "tims-cooked-ios-27-socket-uaf-correction/",
+      "run_id": "scheduled-2026-11-27T21:00:00Z",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "tims-cooked-ios-27-socket-uaf-correction",
+      "source_name": "Official Tims-Cooked November 26 commit and exact-build OOL audit notes",
+      "source_page_url": "https://github.com/ramonburf/Tims-Cooked/commit/2a79ef1",
+      "source_url": "https://github.com/ramonburf/Tims-Cooked/blob/2a79ef1/research-updates/2026-11-26-ool-status4-map-publication-24A5390f.md",
+      "title": "Tims‑Cooked iOS 27 OOL Audit Narrows a Conditional Map Write",
+      "version": "iPhone14,2 / iOS 27.0 build 24A5390f / exact-build static OOL audit / documentation-only checkpoint",
+      "visual_status": "No suitable original source visual documents the November 26 OOL control-flow and object-lifetime audit. The official checkpoint contains text and disassembly findings only; the repository's F1 contact sheet and AGXProbe icon do not depict this result. No article image or substitute artwork is embedded."
+    },
+    {
       "action": "create",
+      "additional_source_urls": [
+        "https://github.com/adnan120hz/WorkTweaks/tree/v7.0",
+        "https://github.com/adnan120hz/WorkTweaks/blob/v7.0/README.md"
+      ],
       "candidate_fingerprint": "individual-update.worktweaks-7.0-save-vault-diagnostics-2026-11-27",
       "category": {
         "id": "individual-tweak-update",
@@ -98,6 +169,7 @@
       "modified_at": "2026-11-27T18:00:00+03:00",
       "name": "WorkTweaks",
       "package": "app.worktweaks",
+      "previous_version": "6.1",
       "published_at": "2026-11-27T18:00:00+03:00",
       "quality_target": 9,
       "release": "WorkTweaks 7.0 — released 2026-11-27; official release page displays 10:25",
@@ -111,12 +183,7 @@
       "source_visual_origin": "official-project-app-icon",
       "source_visual_url": "https://github.com/adnan120hz/WorkTweaks/blob/v7.0/icon-rounded.png",
       "title": "WorkTweaks 7.0 Adds Save Vault, Diagnostics and Wi-Fi File Sharing",
-      "version": "7.0",
-      "previous_version": "6.1",
-      "additional_source_urls": [
-        "https://github.com/adnan120hz/WorkTweaks/tree/v7.0",
-        "https://github.com/adnan120hz/WorkTweaks/blob/v7.0/README.md"
-      ]
+      "version": "7.0"
     },
     {
       "action": "create",
@@ -195,6 +262,195 @@
       "version": "Nugget 7.4.1 / Erosion 0.3.1"
     },
     {
+      "action": "update",
+      "additional_media": [],
+      "candidate_fingerprint": "jailbreak-development.erosion-file-browser-cache-container-hash-ramp-642c5d7-2026-11-26",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Erosion 0.3.1 remains the latest official IPA. November 26 commits through 642c5d7 are source-only and do not expand firmware support: iOS/iPadOS 26.0–26.6.2 remains limited with no MobileGestalt writes; 27.0–27.2.1 and 27.3 beta 1 (24C5037i) are documented; worse_query is patched from 27.3 beta 2 (24C5049d).",
+      "description": "Three November 26 source commits add automatic container-hash retries and file-browser caching. The official IPA remains 0.3.1, and firmware support has not expanded.",
+      "developer": "jailbreakdotparty / Erosion team",
+      "entry_type": "jailbreak-development",
+      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
+      "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
+      "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
+      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
+      "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
+      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
+      "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
+      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "modified_at": "2026-11-26T21:00:00Z",
+      "name": "Erosion",
+      "package": "project.erosion",
+      "published_at": "2026-11-09T21:00:36Z",
+      "release": "Erosion 0.3.1 released November 10, 2026 and remains the latest official IPA; November 26 commits 6839afa, c5bfe93 and 642c5d7 are unreleased source changes",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Official Erosion November 26 source commits through 642c5d7, current README and Erosion 0.3.1 release",
+      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/642c5d7f46a7273f9280fc83d2c449b60bc9adfd",
+      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/642c5d7f46a7273f9280fc83d2c449b60bc9adfd",
+      "source_visual_origin": "official-tagged-project-app-icon",
+      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
+      "title": "Erosion Source Adds File Browser Caching; 0.3.1 Is Still Latest",
+      "version": "0.3.1 official release / unreleased development source through commit 642c5d7 / iOS 27.3 beta 2 patch boundary unchanged"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official NowLyrics 1.1.2 Dynamic Island settings screenshot by tuonghoa2k7",
+          "path": "assets/articles/source-media/nowlyrics-1-1-2-dynamic-island-settings.jpg",
+          "sha256": "4af92c9dfab80d72099498543fbdaa2a6f569f5d13ff4823d8a5537d776008cd",
+          "source_url": "https://media.havoc.app/6ac156483ccac01238803380"
+        }
+      ],
+      "category": {
+        "id": "tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 15.0–26.0.1 and rootless support. The 1.3.1 Control Center player behavior is documented specifically for iOS 16 and iOS 26; the package range does not guarantee jailbreak availability, and RootHide support is not claimed.",
+      "description": "NowLyrics 1.3.1 adds configurable word-by-word Control Center lyrics and dedicated modules. Check the iOS 16/26 feature scope, rootless limits and practical upgrade fixes.",
+      "developer": "tuonghoa2k7",
+      "entry_type": "tweak-update",
+      "href": "nowlyrics-1-0-synced-lyrics-lock-screen/",
+      "image": "assets/articles/source-media/nowlyrics-1-1-2-official-banner.png",
+      "media_credit": "Official NowLyrics Havoc banner and Dynamic Island settings screenshot by tuonghoa2k7; gallery images predate the 1.3.1 Control Center layout",
+      "media_sha256": "48a478baf634fdc336018c2d1e1bfa82c07e6a87d3b570ed5ca0ffcf288ae6a1",
+      "media_source_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "modified_at": "2026-11-26T15:00:00Z",
+      "name": "NowLyrics",
+      "package": "com.c3x14n.nowlyrics",
+      "price": "2.99",
+      "published_at": "2026-10-01T15:04:37Z",
+      "release": "1.3.1 released 2026-11-25T16:06:21Z; 1.3.0 released 2026-11-01T23:40:56Z",
+      "selection_pool": "official-havoc-individual-update",
+      "slug": "nowlyrics-1-0-synced-lyrics-lock-screen",
+      "source": "https://havoc.app/package/nowlyrics",
+      "sourceImage": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "source_name": "Havoc",
+      "source_page_url": "https://havoc.app/package/nowlyrics",
+      "source_visual_origin": "official-havoc-banner",
+      "source_visual_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
+      "title": "NowLyrics 1.3.1 Adds Word-by-Word Control Center Lyrics",
+      "version": "1.3.1"
+    },
+    {
+      "action": "update",
+      "additional_media": [
+        {
+          "credit": "Official Dopamine app icon from the 3.0.13 source tag",
+          "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
+        }
+      ],
+      "candidate_fingerprint": "roundup-comparison.dopamine-3.0.13-palera1n-3.0-beta4-stable2.4-2026-11-26",
+      "category": {
+        "id": "jailbreak-comparison",
+        "label": "Jailbreak Comparison"
+      },
+      "channel": "scheduled-tweak-roundup-comparison",
+      "compat": "Dopamine: official arm64e, A12/A13 and arm64 firmware ranges; palera1n: A8–A11 and listed T2 devices",
+      "description": "Compare Dopamine 3.0.13 with palera1n 3.0 Beta 4 and stable 2.4 by device support, reboot workflow, computer needs, A11 limits and release risk.",
+      "developer": "opa334; palera1n team",
+      "entry_type": "roundup-comparison",
+      "href": "dopamine-vs-palera1n-jailbreak-comparison/",
+      "image": "assets/articles/source-media/palera1n-v3-official-demo.png",
+      "media_credit": "Official palera1n 3 demonstration image from the beta 4 tag; Git blob SHA 235a0b859af9093e5dac26aa8d3e22d9011a84cb is unchanged from beta 3",
+      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.4/.github/demo.png",
+      "modified_at": "2026-11-26T12:00:00+03:00",
+      "name": "Dopamine 3 vs palera1n 3",
+      "package": "comparison.dopamine-palera1n",
+      "previous_version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.3",
+      "published_at": "2026-10-04T08:57:29Z",
+      "release": "Dopamine 3.0.13 (2026-11-03) / palera1n 3.0.0 beta 4 (2026-11-21, prerelease) / palera1n 2.4 (2026-07-27, stable)",
+      "selection_pool": "official-project-comparison",
+      "slug": "dopamine-vs-palera1n-jailbreak-comparison",
+      "source": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
+      "source_name": "GitHub",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
+      "source_visual_origin": "official-repository-asset",
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
+      "title": "Dopamine 3.0.13 vs palera1n 3.0 Beta 4: Which Jailbreak Fits?",
+      "version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.4 / palera1n stable 2.4"
+    },
+    {
+      "action": "update",
+      "additional_media": [],
+      "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-cryptex-450-2026-11-26",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "TSSChecker Build 450 provides official Windows x86_64, macOS arm64/x86_64 and multiple Linux assets. Its merged patch broadens custom Cryptex tag selection beyond manifest keys containing Rap. A signing-status result does not establish jailbreak availability or a future restore; reusable tickets still require correct device/nonce values and compatible SEP, baseband and Cryptex conditions.",
+      "description": "Use TSSChecker Build 450 to check iOS signing safely, understand its Cryptex-request fix, verify official downloads and separate signing status from usable SHSH restores.",
+      "developer": "1Conan / TSSChecker contributors; FutureRestore contributors",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "check-ios-signing-status-tsschecker-guide/",
+      "media_retrieval_status": "No suitable original source visual is available: the official TSSChecker Build 450 release, tagged repository and merged PR provide command-line binaries, text documentation and source code, but no app screenshot, release artwork or project image. No substitute image is embedded.",
+      "modified_at": "2026-11-26T06:00:00+03:00",
+      "name": "iOS signing status with TSSChecker",
+      "package": "guide.ios.signing-status-tsschecker",
+      "published_at": "2026-11-16T06:01:00+03:00",
+      "release": "TSSChecker Build 450 released November 17, 2026 at 11:54:43 UTC; fixes Cryptex blob request tag selection. FutureRestore v194 remains officially deprecated in favor of nightlies.",
+      "run_id": "scheduled-2026-11-26T03:00:00Z",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Official TSSChecker Build 450 release, tagged README and merged Cryptex fix; FutureRestore official warning and README; Apple Support",
+      "source_page_url": "https://github.com/1Conan/tsschecker/releases/tag/450",
+      "source_url": "https://github.com/1Conan/tsschecker/blob/4d9a7875bb6c175e841fc0c16b6d0bcd040324f0/README.md",
+      "source_visual_origin": "no-suitable-source-visual",
+      "title": "How to Check If an iOS Version Is Still Signed with TSSChecker",
+      "version": "Guide revision 2026-11-26 / TSSChecker Build 450 commit 4d9a7875"
+    },
+    {
+      "action": "update",
+      "additional_media": [
+        "assets/articles/source-media/panoramicview-1-1-0-official-pair.png",
+        "assets/articles/source-media/aerial-5-1-official-banner.png",
+        "assets/articles/source-media/pullover-pro-3-0-1-official-poster.jpg",
+        "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png",
+        "assets/articles/source-media/aerial-official-split-stage-interface.jpg"
+      ],
+      "additional_source_urls": [
+        "https://github.com/Jond-ie/pulloverpro",
+        "https://havoc.app/package/aerial",
+        "https://havoc.app/package/aerial/changes",
+        "https://havoc.app/package/panoramic"
+      ],
+      "candidate_fingerprint": "individual-update.panoramicview-1.1.0-home-button-pairing-2026-11-25",
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "PullOver Pro lists iOS 15–27 with Rootless and RootHide and needs AltList; PanoramicView 1.1.0 lists iOS 15.0–26.0.1, Dopamine, Rootless and RootHide, now supports regular Home-button iPhones, and still excludes iPhone Duo and iPad; Aerial is Rootless, with Havoc metadata 15.0–26.0.1 but description 15.0–17.7.10. All require a compatible jailbreak.",
+      "description": "Updated with PanoramicView 1.1.0: Home-button iPhone pairing, Dynamic Island pairing, pair recovery, keyboard and rotation fixes, exact iOS/device limits, troubleshooting and current original-source media.",
+      "developer": "c1d3r / Jond_ie; uzra; 82flex",
+      "entry_type": "comparison",
+      "href": "pullover-pro-vs-aerial-multitasking-tweak-comparison/",
+      "image": "assets/articles/source-media/panoramicview-1-1-0-official-banner.png",
+      "media_alt": "Official PanoramicView banner showing two full-size iPhone apps paired on a vertically extended canvas",
+      "media_credit": "82flex — official PanoramicView banner and interface screenshot from the live Havoc package data",
+      "media_retrieval_status": "Ordinary Havoc HTML retrieval succeeded. The live __NEXT_DATA__ identified version 1.1.0, its exact release time, compatibility, changelog, banner and screenshots. The 1600×900 banner and 1320×2868 interface PNG were downloaded unchanged, visually inspected and embedded.",
+      "media_source_url": "https://media.havoc.app/6afc1453336c140b62dba764",
+      "modified_at": "2026-11-25T18:00:00+03:00",
+      "name": "PullOver Pro vs Aerial vs PanoramicView",
+      "package": "comparison.pulloverpro-aerial-panoramicview",
+      "previous_version": "PullOver Pro 3.0.1 / Aerial 5.1 / PanoramicView 1.0.15",
+      "published_at": "2026-11-15T12:07:00+03:00",
+      "quality_target": 9,
+      "release": "PullOver Pro 3.0.1 — November 12, 2026; Aerial 5.1 — October 22, 2026; PanoramicView 1.1.0 — November 25, 2026 at 05:29:51 UTC",
+      "route": "pullover-pro-vs-aerial-multitasking-tweak-comparison/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "pullover-pro-vs-aerial-multitasking-tweak-comparison",
+      "source_name": "Official PanoramicView, Aerial and PullOver Pro project/package sources",
+      "source_page_url": "https://havoc.app/package/panoramic",
+      "source_url": "https://havoc.app/package/panoramic",
+      "source_visual_origin": "havoc-__NEXT_DATA__.content.banner-and-screenshot",
+      "source_visual_url": "https://media.havoc.app/6afc1453336c140b62dba764",
+      "title": "PullOver Pro 3.0.1 vs Aerial 5.1 vs PanoramicView 1.1.0: Which Multitasking Style Fits?",
+      "version": "PullOver Pro 3.0.1 / Aerial 5.1 / PanoramicView 1.1.0"
+    },
+    {
       "action": "create",
       "candidate_fingerprint": "comparison.app-switcher-deck-killx-closeall-2026-11-25",
       "category": {
@@ -218,6 +474,8 @@
       "release": "Deck 1.2.0 / KillX Pro Neo 3.0.1 / CloseAll 1.0",
       "route": "deck-vs-killx-pro-neo-vs-closeall-app-switcher-comparison/",
       "run_id": "scheduled-2026-11-25T08:56:15Z",
+      "secondary_image": "assets/articles/source-media/killx-pro-neo-3-0-update-005bcce4b8.png",
+      "secondary_media_source_url": "https://havoc.app/package/killxproneo",
       "selection_pool": "scheduled-tweak-roundup-comparison",
       "slug": "deck-vs-killx-pro-neo-vs-closeall-app-switcher-comparison",
       "source_name": "Official Chariz, Havoc and CloseAll project sources",
@@ -225,12 +483,246 @@
       "source_url": "https://havoc.app/package/killxproneo",
       "source_visual_origin": "official-package-artwork-and-screenshots",
       "source_visual_url": "https://img.chariz.cloud/sileo-banner/deck.jpg",
-      "secondary_image": "assets/articles/source-media/killx-pro-neo-3-0-update-005bcce4b8.png",
-      "secondary_media_source_url": "https://havoc.app/package/killxproneo",
       "tertiary_image": "assets/articles/source-media/closeall-1-0-official-app-switcher.png",
       "tertiary_media_source_url": "https://media.havoc.app/64727bf4106f70eb25226691",
       "title": "Deck 1.2.0 vs KillX Pro Neo 3.0.1 vs CloseAll 1.0: Which App Switcher Tweak Fits?",
       "version": "Deck 1.2.0 / KillX Pro Neo 3.0.1 / CloseAll 1.0"
+    },
+    {
+      "additional_source_urls": [
+        "https://github.com/palera1n/palera1n/blob/main/README.md",
+        "https://github.com/palera1n/palera1n/releases/tag/v2.4",
+        "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
+        "https://github.com/palera1n/palen1x/releases/tag/v2.4",
+        "https://github.com/palera1n/palen1x/releases/tag/v3.0.0-beta.4",
+        "https://docs.palera.in/installing-palera1n/",
+        "https://docs.palera.in/using-palen1x/"
+      ],
+      "candidate_fingerprint": "evergreen-guide.palera1n-stable-2-4-v3-beta4-device-host-guide-2026-11-25",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "The official iPhone guide covers A11 and earlier devices on iOS 15.0+; the project README lists iPhone 6s through iPhone X plus specified iPads/iPod touch 7 and separate Apple T2 hardware. A12+ iPhones are not listed. A11 passcode/SEP restrictions apply; A11 devices on iOS 16 with previous passcode use must be erased. Beta 4 does not expand hardware support or confirm iOS 27.",
+      "description": "Choose palera1n 2.4 stable or 3.0.0-beta.4, verify A8–A11 device and A11 passcode limits, then follow the official Mac, Linux or palen1x setup.",
+      "developer": "palera1n team / iOS Guide contributors",
+      "entry_type": "guide",
+      "href": "how-to-jailbreak/",
+      "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
+      "media_alt": "Official palera1n GUI showing an iPhone 7 on iOS 15.7 with Quick Mode and Start controls",
+      "media_credit": "palera1n team — official GUI screenshot from the v3.0.0-beta.4 tagged source; identical image blob to beta 3, interface depiction only",
+      "media_git_blob_sha": "235a0b859af9093e5dac26aa8d3e22d9011a84cb",
+      "media_retrieval_status": "Reused the existing original 1184×920 PNG. The official v3.0.0-beta.4 tag contains the same Git blob 235a0b859af9093e5dac26aa8d3e22d9011a84cb as beta 3; the screenshot depicts the GUI only and is not evidence of the beta 4 security fix.",
+      "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
+      "media_source_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
+      "modified_at": "2026-11-25T06:00:00+03:00",
+      "name": "palera1n installation and release-track guide",
+      "package": "guide.palera1n.ios16.install",
+      "published_at": "2024-10-28T00:00:00Z",
+      "quality_target": 9,
+      "release": "palera1n v2.4 latest stable (published 2026-07-27); v3.0.0-beta.4 latest pre-release (published 2026-11-21); palen1x v2.4 stable (2026-07-30) and v3.0.0-beta.4 pre-release (2026-11-21)",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "how-to-jailbreak",
+      "source_name": "Official palera1n installation guide, palen1x guide, palera1n and palen1x release records, and project README",
+      "source_page_url": "https://docs.palera.in/installing-palera1n/",
+      "source_url": "https://docs.palera.in/using-palen1x/",
+      "source_visual_origin": "official-tagged-repository-screenshot-reused",
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
+      "title": "How to Jailbreak with palera1n: Stable 2.4 vs 3.0 Beta 4",
+      "version": "2.4 stable / 3.0.0-beta.4 pre-release"
+    },
+    {
+      "action": "create",
+      "additional_source_urls": [
+        "https://github.com/sahinkaa/Tinge26/blob/main/README.md",
+        "https://github.com/sahinkaa/Tinge26/blob/main/RELEASE_NOTES.md",
+        "https://github.com/sahinkaa/Tinge26/commit/880b34b401829883dbce02ae57dfe8cdf9eb3b63"
+      ],
+      "candidate_fingerprint": "individual-update.tinge-26-1.0.3-adaptive-badge-threshold-2026-11-24",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "The developer describes Tinge 26 as an iOS 26 port. The v1.0.3 release supplies iphoneos-arm64 for standard rootless and iphoneos-arm64e for RootHide; RootHide users install the native arm64e package directly without Patcher. README dependencies: PreferenceLoader, a Substrate-compatible loader and libcolorpicker; RootHide also needs rootless-compat. The repository release notes record one earlier test on iPhone 11 Pro Max / iOS 26.0.1 / Dopamine 3 RootHide; other devices, other builds and standard-rootless on-device testing are not confirmed. No rootful or TrollStore-only package is documented.",
+      "description": "Tinge 26 1.0.3 adds adaptive badge threshold controls on iOS 26. Check its RootHide and rootless packages, dependencies and limited device-testing record.",
+      "developer": "sahinkaa (Tinge 26 port; original Tinge by P2KDev)",
+      "entry_type": "individual-tweak-update",
+      "href": "tinge-26-1-0-3-adaptive-badge-threshold-update/",
+      "image": "assets/articles/source-media/tinge-26-1-0-3-official-settings.png",
+      "media_alt": "Official Tinge 26 v1.0.3 settings screenshot showing four-app notification badge live preview, the Darken / Lighten Threshold slider, adaptive text controls and border settings.",
+      "media_credit": "sahinkaa — official Tinge 26 v1.0.3 GitHub release screenshot",
+      "media_git_blob_sha": "a89786855d7179f30e5588ddb14cfbbf3617dc79",
+      "media_retrieval_status": "Retrieved the original 1242×2577 PNG from the official v1.0.3 release commit 880b34b401829883dbce02ae57dfe8cdf9eb3b63, decoded and visually inspected it, then embedded it unchanged. No matching Havoc/Chariz package page was surfaced in targeted search; a guessed Havoc package route was inaccessible, so no Havoc package metadata is asserted.",
+      "media_source_url": "https://raw.githubusercontent.com/sahinkaa/Tinge26/880b34b401829883dbce02ae57dfe8cdf9eb3b63/assets/Tinge26-Settings-v1.0.3.png",
+      "modified_at": "2026-11-24T18:39:25+03:00",
+      "name": "Tinge 26",
+      "package": "com.sahinkaa.tinge26",
+      "previous_version": "1.0.2",
+      "published_at": "2026-11-24T18:39:25+03:00",
+      "quality_target": 9,
+      "release": "Tinge 26 v1.0.3 published 2026-11-24T10:42:10Z; latest stable release returned by the official GitHub Releases endpoint. Adds Darken / Lighten Threshold (default 60), first-launch defaults 60/66/1.5 pt/30, double-tap slider resets, Text Color rename and Static-only color pickers.",
+      "route": "/tinge-26-1-0-3-adaptive-badge-threshold-update/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "tinge-26-1-0-3-adaptive-badge-threshold-update",
+      "source_name": "sahinkaa official Tinge26 GitHub v1.0.3 release, README and RELEASE_NOTES.md",
+      "source_page_url": "https://github.com/sahinkaa/Tinge26/releases/tag/v1.0.3",
+      "source_url": "https://github.com/sahinkaa/Tinge26/releases/tag/v1.0.3",
+      "source_visual_origin": "official-github-release-screenshot",
+      "source_visual_url": "https://raw.githubusercontent.com/sahinkaa/Tinge26/880b34b401829883dbce02ae57dfe8cdf9eb3b63/assets/Tinge26-Settings-v1.0.3.png",
+      "title": "Tinge 26 1.0.3 Adds Adaptive Badge Threshold and Cleaner Color Controls",
+      "version": "1.0.3"
+    },
+    {
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/carcast-1-2-official-settings.jpg",
+          "media_alt": "Official CarCast 1.2 settings screenshot showing installed apps that can be added to or removed from the CarPlay Home screen",
+          "media_credit": "Dcsyhi — official CarCast 1.2 settings screenshot from Chariz",
+          "media_git_blob_sha": "1a56dc0ab811f6bece7dadd573784dffe452c4bd",
+          "media_retrieval_status": "Official image link opened from the Chariz CarCast product page and visually inspected; the same existing asset remains embedded in the article.",
+          "media_source_url": "https://cdn.chariz.cloud/asset/carcast/f8GbQK6NvWspeXr8A8AU5kKEP_OKww1f/assets/ER4PPUds01SAE7LmnoZmXLc2qZKjniv1A8XUEv3D6ixt9oggDYoeF8aWVOWqNIgix2PngnKbrCuafcG1d2R8nw.jpg"
+        }
+      ],
+      "additional_source_urls": [
+        "https://teapawt.net/HavocRepo",
+        "https://havoc.app/package/carbridge/changes",
+        "https://carbridge.app/faq",
+        "https://chariz.com/buy/carcast/",
+        "https://chariz.com/buy/airaw/"
+      ],
+      "candidate_fingerprint": "comparison.carbridge-2.1.0-carcast-1.2-ios18-2026-11-24",
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "CarBridge 2.1.0: Havoc Marketplace announced iOS 18 support and improved app-switching stability on 2026-11-24, but the announcement does not state the exact point-build range or jailbreak-environment flag; the package page/changes HTML was blocked and indexed metadata remains older. CarCast 1.2: Chariz confirms iOS 17, 18 and 26, excludes iOS 16 or earlier, requires Airaw, and lists rootless tests on Dopamine/NathanLR. CarBridge and CarCast must not be installed together. A package compatibility claim does not prove a public jailbreak exists for every device/build.",
+      "description": "Havoc says CarBridge 2.1.0 adds iOS 18 and improves app switching. Compare it with CarCast 1.2, Airaw requirements, tested jailbreaks and compatibility caveats.",
+      "developer": "leftyfl1p; Dcsyhi",
+      "entry_type": "comparison",
+      "href": "carbridge-vs-carcast-carplay-tweak-comparison/",
+      "image": "assets/articles/source-media/carbridge-2-0-15-official-carplay-home.png",
+      "media_alt": "Official CarBridge CarPlay home-screen depiction from an earlier Havoc listing; not a 2.1.0 release capture",
+      "media_credit": "leftyfl1p/Havoc — official CarBridge depiction screenshot from the earlier listing, not a 2.1.0 capture; Dcsyhi/Chariz — official CarCast 1.2 settings screenshot",
+      "media_retrieval_status": "Retained the previously committed official CarBridge Havoc depiction image and the official CarCast 1.2 Chariz settings screenshot. The CarBridge image is explicitly captioned as an earlier depiction, not a 2.1.0 capture. On 2026-11-24 the Havoc package/changes HTML and media endpoint could not be retrieved (HTTP 403/internal error), so __NEXT_DATA__ screenshots/banner could not be inspected. The CarCast image was inspected from the Chariz product page image link. Public Next Jailbreak image endpoints were not accessible through the read-only web check.",
+      "media_sha256": "cf727ed9b45ec393a6b174f67a3b0a088185ef621be7a7c4c5c52fea51d8e10b",
+      "media_source_url": "https://media.havoc.app/6393d53afb3fac29d26b95e2",
+      "modified_at": "2026-11-24T12:00:00+03:00",
+      "name": "CarBridge vs CarCast",
+      "package": "comparison.carbridge-carcast",
+      "published_at": "2026-10-16T09:00:31Z",
+      "release": "CarBridge 2.1.0 announced 2026-11-24 (iOS 18 support; improved app-switching stability) / CarCast 1.2 / Airaw 1.7.1",
+      "run_id": "scheduled-2026-11-24T09:00:00Z",
+      "selection_pool": "scheduled-tweak-roundup-comparison",
+      "slug": "carbridge-vs-carcast-carplay-tweak-comparison",
+      "source_name": "Havoc Marketplace official account and CarBridge FAQ; Dcsyhi/Chariz official CarCast and Airaw product pages",
+      "source_page_url": "https://havoc.app/package/carbridge",
+      "source_url": "https://x.com/HavocRepo",
+      "source_visual_origin": "official-havoc-and-chariz-product-depiction-assets",
+      "source_visual_url": "https://media.havoc.app/6393d53afb3fac29d26b95e2",
+      "title": "CarBridge 2.1.0 vs CarCast 1.2: iOS 18 Support Changes the CarPlay Choice",
+      "version": "CarBridge 2.1.0 announcement / CarCast 1.2 / Airaw 1.7.1"
+    },
+    {
+      "additional_media": [
+        {
+          "credit": "Official Triggr If / Otherwise screenshot by Jond-ie",
+          "image": "assets/articles/source-media/triggr-2-1-0-official-if-otherwise.png",
+          "source_url": "https://raw.githubusercontent.com/Jond-ie/repo/4ca9413394a7c274c8e19d3b7517945cddf05a8e/screenshots/triggr/12-ifelse.png"
+        },
+        {
+          "credit": "Official RemoteCompanion 4.5.0 trigger-picker screenshot by saihgupr",
+          "image": "assets/articles/source-media/remotecompanion-4-5-0-official-trigger-picker.png",
+          "source_url": "https://raw.githubusercontent.com/saihgupr/RemoteCompanion/404dd82175fe70f5b31bf45eeeb12c0dbb32c724/images/4.5.0/new-trigger-picker.png"
+        },
+        {
+          "credit": "Official RemoteCompanion 4.5.0 Web UI settings screenshot by saihgupr",
+          "image": "assets/articles/source-media/remotecompanion-4-5-0-official-settings-webui.png",
+          "source_url": "https://raw.githubusercontent.com/saihgupr/RemoteCompanion/404dd82175fe70f5b31bf45eeeb12c0dbb32c724/images/4.5.0/settings-webui.png"
+        }
+      ],
+      "category": {
+        "id": "tweak-roundup-comparison",
+        "label": "Tweak Roundup & Comparison"
+      },
+      "compat": "Triggr: iOS 15–27 on Rootless or RootHide; named real-device tests through iOS 18.6.2 and virtual RootHide checks on iOS 18.6.2, 26.6.2 and 27.0.1. RemoteCompanion: iOS 14–17 with partial iOS 26 support; Rootless, Rootful and RootHide; v4.5.0 includes targeted iOS 18 and 26 fixes. Jailbreak availability remains device/build-specific.",
+      "description": "Compare Triggr 2.1.0 and RemoteCompanion 4.5.0 by triggers, automation, remote control, privacy, firmware and jailbreak-environment support.",
+      "developer": "Jond-ie and saihgupr",
+      "entry_type": "tweak-comparison",
+      "href": "triggr-1-0-4-activator-automation-dopamine/",
+      "image": "assets/articles/source-media/triggr-2-1-0-official-main.png",
+      "last_verified_at": "2026-11-24T09:00:00Z",
+      "media_credit": "Official Triggr screenshots by Jond-ie and official RemoteCompanion screenshots by saihgupr.",
+      "media_source_url": "https://raw.githubusercontent.com/Jond-ie/repo/4ca9413394a7c274c8e19d3b7517945cddf05a8e/screenshots/triggr/1-main.png",
+      "modified_at": "2026-11-24T12:00:00+03:00",
+      "name": "Triggr vs RemoteCompanion",
+      "package": "com.johndie.triggr",
+      "packages": [
+        "com.johndie.triggr",
+        "com.saihgupr.remotecompanion"
+      ],
+      "published_at": "2026-10-06T13:08:32Z",
+      "release": "Triggr 2.1.0 package-index commit: 2026-11-10; RemoteCompanion 4.5.0 release: 2026-11-22",
+      "selection_pool": "official-developer-release",
+      "slug": "triggr-1-0-4-activator-automation-dopamine",
+      "source_name": "Jond-ie and saihgupr official project repositories",
+      "source_page_url": "https://jond-ie.github.io/repo/triggr/",
+      "source_url": "https://github.com/saihgupr/RemoteCompanion/releases/tag/v4.5.0",
+      "source_urls": [
+        "https://github.com/Jond-ie/repo/commit/4ca9413394a7c274c8e19d3b7517945cddf05a8e",
+        "https://jond-ie.github.io/repo/triggr/",
+        "https://github.com/Jond-ie/triggr-beta/blob/main/README.md",
+        "https://github.com/saihgupr/RemoteCompanion/releases/tag/v4.5.0",
+        "https://github.com/saihgupr/RemoteCompanion/blob/main/README.md",
+        "https://github.com/saihgupr/RemoteCompanion/blob/main/CHANGELOG.md"
+      ],
+      "source_visual_origin": "official-project-repositories",
+      "source_visual_url": "https://raw.githubusercontent.com/Jond-ie/repo/4ca9413394a7c274c8e19d3b7517945cddf05a8e/screenshots/triggr/1-main.png",
+      "title": "Triggr 2.1.0 vs RemoteCompanion 4.5.0: Which Activator Alternative Fits?",
+      "version": "Triggr 2.1.0 / RemoteCompanion 4.5.0"
+    },
+    {
+      "action": "update",
+      "additional_source_urls": [
+        "https://github.com/opa334/TrollStore/blob/2.1.1/README.md",
+        "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+        "https://ios.cfw.guide/installing-trollstore/",
+        "https://ios.cfw.guide/installing-trollstore-trollrestore/",
+        "https://github.com/JJTech0130/TrollRestore",
+        "https://github.com/opa334/Dopamine/issues/773"
+      ],
+      "candidate_fingerprint": "evergreen-guide.trollstore-installer-matrix-15-8-7-15-8-8-2026-11-24",
+      "category": {
+        "id": "jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "compat": "TrollStore 2.1.1 README lists iOS 14.0 beta 2–16.6.1, iOS 16.7 RC (20H18) and iOS 17.0. The current iOS CFW Guide installer matrix additionally lists TrollRestore for iOS/iPadOS 15.8.7–15.8.8 on A8 and A9–A11; A12–A17/M1–M2 is Not Applicable. Dopamine issue #773 records the KFD puaf_landa patch on 15.8.7, so TrollStore installation must not be mistaken for jailbreak availability. TrollRestore requires a computer and Find My disabled during the modified-backup restore.",
+      "description": "Choose the correct TrollStore installer by exact iOS build and chip. Updated Nov 24 with the TrollRestore route for supported 15.8.7–15.8.8 devices.",
+      "developer": "opa334",
+      "entry_type": "evergreen-guide",
+      "href": "trollstore-installation-method-guide/",
+      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
+      "media_alt": "Official TrollStore app icon from the opa334 TrollStore 2.1.1 source tag",
+      "media_credit": "opa334 — official TrollStore 2.1.1 source tag",
+      "media_git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "modified_at": "2026-11-24T06:00:00+03:00",
+      "name": "TrollStore",
+      "published_at": "2026-10-02T02:56:51Z",
+      "release": "Latest official TrollStore release 2.1.1 (2026-04-01); device-specific TrollRestore matrix rechecked 2026-11-24",
+      "run_id": "scheduled-2026-11-24T03:00:00Z",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "trollstore-installation-method-guide",
+      "source": "https://github.com/opa334/TrollStore",
+      "sourceImage": "https://github.com/opa334/TrollStore/blob/main/TrollStore/Resources/AppIcon76x76%402x.png",
+      "source_name": "opa334 TrollStore 2.1.1 README and release; current iOS CFW Guide installer matrix; JJTech0130 TrollRestore; opa334 Dopamine issue #773",
+      "source_page_url": "https://ios.cfw.guide/installing-trollstore/",
+      "source_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
+      "source_visual_origin": "official-trollstore-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
+      "title": "How to Install TrollStore in 2026: Choose the Right Method for Your iPhone",
+      "version": "TrollStore 2.1.1 / TrollRestore 1.0 / installer matrix checked 2026-11-24"
     },
     {
       "action": "create",
@@ -239,9 +731,17 @@
           "image": "assets/articles/source-media/nextclock-1-2-0-official-pack-selector.png",
           "media_alt": "Official NextClock pack selector screenshot listing Anime, CRT, Pixel and Sakura digit styles",
           "media_credit": "RAtnik00 — official NextClock APT repository depiction screenshot",
-          "media_source_url": "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/assets/nextclock/06-packs.png",
-          "media_git_blob_sha": "da0e6b86434a7c2ad7b85746ffb1bb0949f725db"
+          "media_git_blob_sha": "da0e6b86434a7c2ad7b85746ffb1bb0949f725db",
+          "media_source_url": "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/assets/nextclock/06-packs.png"
         }
+      ],
+      "additional_source_urls": [
+        "https://github.com/RAtnik00/NextClock/tree/v1.2.0",
+        "https://github.com/RAtnik00/NextClock/blob/v1.2.0/README.md",
+        "https://github.com/RAtnik00/NextClock/blob/v1.2.0/BETA-1.2.md",
+        "https://github.com/RAtnik00/repo/commit/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3",
+        "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/depictions/nextclock/depiction.json",
+        "https://ratnik00.github.io/repo/"
       ],
       "candidate_fingerprint": "individual-update.nextclock-1.2.0-per-wallpaper-packs-live-preview-2026-11-23",
       "category": {
@@ -263,6 +763,7 @@
       "modified_at": "2026-11-23T18:00:00+03:00",
       "name": "NextClock",
       "package": "com.ratnik00.nextclock",
+      "previous_version": "1.1.1",
       "published_at": "2026-11-23T18:00:00+03:00",
       "quality_target": 9,
       "release": "NextClock 1.2.0 stable — published 2026-11-13T18:11:26Z; latest stable GitHub release and developer APT package index checked 2026-11-23",
@@ -275,16 +776,234 @@
       "source_visual_origin": "official-developer-apt-repository-depiction-screenshots",
       "source_visual_url": "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/assets/nextclock/04-settings.png",
       "title": "NextClock 1.2.0 Adds Per-Wallpaper Clock Packs, Live Preview and Experimental AOD",
-      "version": "1.2.0",
-      "previous_version": "1.1.1",
-      "additional_source_urls": [
-        "https://github.com/RAtnik00/NextClock/tree/v1.2.0",
-        "https://github.com/RAtnik00/NextClock/blob/v1.2.0/README.md",
-        "https://github.com/RAtnik00/NextClock/blob/v1.2.0/BETA-1.2.md",
-        "https://github.com/RAtnik00/repo/commit/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3",
-        "https://github.com/RAtnik00/repo/blob/03a0c0d2ad408d986a1b022cf9b2ff6e1ce6c1c3/depictions/nextclock/depiction.json",
-        "https://ratnik00.github.io/repo/"
-      ]
+      "version": "1.2.0"
+    },
+    {
+      "action": "update",
+      "additional_media": [],
+      "candidate_fingerprint": "evergreen-guide.iphone-model-ios-build-jailbreak-compatibility-2026-11-23",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Current project matrix checked 2026-11-23: Dopamine 3.0.13 has no iOS 27 range; palera1n 2.4 is stable and 3.0.0 beta 4 is prerelease for A8–A11/T2 only; TrollStore 2.1.1 is limited to 14.0b2–16.6.1, 16.7 RC 20H18 and 17.0; Erosion 0.3.1 is the latest official IPA (0.3.2 beta 1 is source-only) and ends at 27.3 beta 1 build 24C5037i with worse_query patched from 24C5049d; Liter8 0.3.1 marks only standard iPhone 11 on 24C5037i as run and refuses unlisted builds.",
+      "description": "Updated: identify your exact iPhone model, chip, iOS version and build, then compare current official Dopamine, palera1n, TrollStore, Erosion and Liter8 support boundaries—including iOS 27.3 beta 2 v2 build 24C5049f.",
+      "developer": "Next Jailbreak editorial; Apple and primary project documentation",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "check-iphone-model-ios-build-jailbreak-compatibility/",
+      "image": "assets/articles/source-media/apple-ios-27-about-software-version.png",
+      "media_alt": "Apple Support About screen showing iOS Version 27.0.1, iPhone 17 Pro model name and model number field",
+      "media_credit": "Apple Support — official About-screen example from Find the software version on your iPhone, iPad or iPod touch",
+      "media_git_blob_sha": "b516d4c43d13ff3eaee5434e3a880adc1a0eeeb1",
+      "media_retrieval_status": "Retrieved directly from the Apple Support CDN, inspected locally as the exact 760×688 PNG and embedded without alteration.",
+      "media_sha256": "a391edd5a028641b2900374ec22527537f0521c0ada1e29e4e8dcfde5c90733d",
+      "media_source_url": "https://support.apple.com/en-gb/109065",
+      "modified_at": "2026-11-23T06:00:00+03:00",
+      "name": "Jailbreak compatibility pre-check",
+      "package": "guide.jailbreak.model-build-compatibility",
+      "published_at": "2026-11-15T06:04:00+03:00",
+      "release": "Guide revision 2026-11-23; Dopamine 3.0.13; palera1n 2.4 stable / 3.0.0 beta 4 prerelease; TrollStore 2.1.1; Erosion 0.3.1 official IPA (0.3.2 beta 1 source-only); Liter8 0.3.1; Apple iOS 27.3 beta 2 v2 build 24C5049f dated 2026-11-19.",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "source_name": "Apple Support and Apple Developer release page; official Dopamine, palera1n, TrollStore, Erosion and Liter8 release notes and tagged/current device documentation",
+      "source_page_url": "https://developer.apple.com/news/releases/?id=11192026a",
+      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
+      "source_visual_origin": "official-apple-support-screenshot",
+      "source_visual_url": "https://cdsassets.apple.com/live/7WUAS350/images/ios/locale/en-gb/ios-27-iphone-17-pro-settings-general-about-software-version.png",
+      "title": "How to Check Your iPhone Model and iOS Build Before Jailbreaking",
+      "version": "Guide revision 2026-11-23 / Dopamine 3.0.13 / palera1n 2.4 stable + 3.0.0 beta 4 prerelease / TrollStore 2.1.1 / Erosion 0.3.1 (0.3.2 source-only) / Liter8 0.3.1"
+    },
+    {
+      "article_sha256": "0fba5e7a52ef8cce8d617df3fa8e29bdfcdda966d97c898eb752d4f8fc446b20",
+      "candidate_fingerprint": "jailbreak-development.liter8-0-3-1-host-file-safety-ios-27-3-beta2-v2-not-listed-2026-11-22",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Latest tag v0.3.1 fixes keychain persistence; main commit 4863c50 adds host-side file safety. Current Apple iOS 27.3 beta 2 v2 build 24C5049f is not listed; only iPhone 11 (iPhone12,1 / n104ap) on beta 1 build 24C5037i is marked run; iPhone 11 Pro and Pro Max remain experimental; builds outside the table can be extracted for research only but make-cfw, restore, boot and provision refuse them; tethered pwnDFU boot and erase restore; no SEP, passcode or cellular data.",
+      "description": "Liter8 0.3.1 fixes keychain persistence, and the November 22 main-branch merge hardens host-file copies. Its support table still lists iOS 27.3 beta 1 (24C5037i), not beta 2 v2 (24C5049f).",
+      "developer": "Vinay Kumar Rasala (Xplo8E)",
+      "entry_type": "editorial-news-update",
+      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "image": "assets/articles/source-media/liter8-ios-27-3-beta1-official-iphone11-sileo.jpg",
+      "media_alt": "Official Liter8 project photo showing an iPhone 11 with Sileo beside a root SSH session on a Mac; representative project imagery, not a beta 2 test result.",
+      "media_credit": "Xplo8E — official Liter8 iPhone 11 Sileo and root SSH project photo; representative earlier iOS 27.0 test",
+      "media_git_blob_sha": "03bf969e90df7e4101912f0d01b48254d0798107",
+      "media_sha256": "5d0cad626ec7f2889e7ad9d9c4eddcc0c772f2a746358f035b40bcce019d9f6f",
+      "media_source_url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
+      "modified_at": "2026-11-22T23:55:55+03:00",
+      "name": "Liter8 iOS 27 custom firmware and tethered jailbreak environment",
+      "package": "editorial.ios27-jailbreak-status",
+      "published_at": "2026-09-15T07:47:49Z",
+      "quality_target": 9,
+      "release": "Liter8 v0.3.1 released November 14, 2026; main commit 4863c50 merged host-file-safety fixes November 22; Apple iOS 27.3 beta 2 v2 build 24C5049f is not listed in Liter8 firmware support.",
+      "route": "ios-27-jailbreak-status-security-fixes-usbliter8/",
+      "run_id": "scheduled-2026-11-22T20:55:55Z",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "Xplo8E/Liter8 official v0.3.1 release, November 22 main-branch host-file-safety merge and Apple Developer iOS 27.3 beta 2 v2 release",
+      "source_page_url": "https://github.com/Xplo8E/Liter8/commit/4863c50656efadc92655031e8b39eeda167c6738",
+      "source_url": "https://github.com/Xplo8E/Liter8/releases/tag/v0.3.1",
+      "source_visual_origin": "official-project-readme-photo",
+      "source_visual_url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
+      "title": "Liter8 0.3.1 Fixes Keychain Persistence; iOS 27.3 Beta 2 v2 Is Not Listed",
+      "version": "Liter8 0.3.1 (latest tag) / main 4863c50 (Nov 22) / iOS 27.3 beta 2 v2 not listed"
+    },
+    {
+      "action": "update",
+      "additional_media": [
+        {
+          "image": "assets/articles/source-media/soko-1-2-0-official-editor.png",
+          "media_alt": "Official Soko Lock Screen editor screenshot showing the bottom widget row and the swipe gesture for moving it",
+          "media_credit": "waruhachi — official Soko 1.2.0 Lock Screen editor screenshot",
+          "media_git_blob_sha": "4bbee252b9f79b500501c25f1c6b3e5f6fcef675",
+          "media_source_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Editor.png"
+        },
+        {
+          "image": "assets/articles/source-media/soko-1-2-0-official-layouts.png",
+          "media_alt": "Official Soko screenshot comparing Lock Screen widgets positioned at the top and bottom on separate wallpapers",
+          "media_credit": "waruhachi — official Soko 1.2.0 layout screenshot",
+          "media_git_blob_sha": "146a09af89a87b936f14dfc2db15240a706baf98",
+          "media_source_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Layouts.png"
+        },
+        {
+          "image": "assets/articles/source-media/soko-1-2-0-official-notifications.png",
+          "media_alt": "Official Soko screenshot showing notifications and Now Playing above the bottom Lock Screen widgets",
+          "media_credit": "waruhachi — official Soko 1.2.0 notifications screenshot",
+          "media_git_blob_sha": "84d24347a0f09c6bdb5a314e936e2027a7eacb81",
+          "media_source_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Notifications.png"
+        }
+      ],
+      "candidate_fingerprint": "soko-1.2.0-depth-effect-ios16-ios18-2026-11-22",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc lists iOS 16.0–18.7.9 and jailbreak required. The official 1.2.0 release provides separate rootful iphoneos-arm, conventional rootless iphoneos-arm64 and RootHide iphoneos-arm64e packages. The listed firmware range does not prove a public jailbreak is available for every device and firmware.",
+      "description": "Soko 1.2.0 keeps wallpaper Depth Effect working with bottom Lock Screen widgets, fixes editor, swipe and notification layout issues, and ships separate rootful, rootless and RootHide packages for jailbroken iOS 16–18.7.9.",
+      "developer": "waruhachi",
+      "entry_type": "tweak-update",
+      "href": "soko-1-1-0-lock-screen-widgets-roothide-update/",
+      "image": "assets/articles/source-media/soko-1-2-0-official-banner.jpeg",
+      "media_alt": "Official Soko banner showing two iPhone Lock Screens with widgets positioned at the bottom",
+      "media_credit": "waruhachi — official Soko 1.2.0 banner from the tagged source repository",
+      "media_git_blob_sha": "c3f583e802afdd1710d300173f6cc91fe191f67c",
+      "media_retrieval_status": "Retrieved from the official 1.2.0 GitHub tag, visually inspected and embedded. Havoc HTML and __NEXT_DATA__ retrieval returned HTTP 403.",
+      "media_source_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Banner.jpeg",
+      "modified_at": "2026-11-22T18:00:00+03:00",
+      "name": "Soko",
+      "package": "moe.waru.soko",
+      "published_at": "2026-10-28T15:00:41Z",
+      "quality_target": 9,
+      "release": "Soko 1.2.0 official GitHub release published 2026-11-21T19:08:10Z; newest official release checked 2026-11-22",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "soko-1-1-0-lock-screen-widgets-roothide-update",
+      "source_name": "Official waruhachi/Soko 1.2.0 GitHub release and tagged source; Havoc compatibility metadata",
+      "source_page_url": "https://github.com/waruhachi/Soko/releases/tag/1.2.0",
+      "source_url": "https://github.com/waruhachi/Soko/releases/tag/1.2.0",
+      "source_visual_origin": "official-tagged-github-banner-and-interface-screenshots",
+      "source_visual_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Banner.jpeg",
+      "title": "Soko 1.2.0 Brings the Depth Effect to Bottom Lock Screen Widgets",
+      "version": "1.2.0"
+    },
+    {
+      "action": "update",
+      "additional_media": [],
+      "article_sha256": "4f75dce36207bb39cbdb65e480dece352fc78e6c9013d9ee83dfc67252cea517",
+      "candidate_fingerprint": "evergreen-guide.vphone-cli-apple-silicon-setup-2026-11-22",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "compat": "Host: physical Apple Silicon Mac with macOS 15+; nested macOS virtualization is unsupported. Guest support depends on exact iPhone/iPad IPSW, build, cloudOS and host. Current docs record specific iOS 27.0.1 pairings, including iPhone17,3, iPhone18,2 and iPhone19,2; some test records used earlier Core Bundle versions. vphone is not a physical-device jailbreak.",
+      "description": "Set up vphone 2.17.1 with Launchpad on a physical Apple Silicon Mac, check tested iOS and cloudOS pairings, add the guest RootHide-layout bootstrap and troubleshoot safely. vphone is a research VM, not a physical iPhone jailbreak.",
+      "developer": "Lakr Aream",
+      "entry_type": "evergreen-guide",
+      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
+      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest root-terminal window on an Apple Silicon Mac",
+      "media_credit": "Lakr233 — official vphone-cli demo from the 2.17.1 tagged repository",
+      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
+      "media_retrieval_status": "Fetched from the official Lakr233/vphone-cli 2.17.1 tag through the connected GitHub source and visually inspected. The upstream Documents/demo.jpeg and committed Next Jailbreak asset share Git blob a63a8d0f2eeff3e783b80904084b30e54d93dde7.",
+      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
+      "media_source_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.17.1/Documents/demo.jpeg",
+      "modified_at": "2026-11-22T06:04:22+03:00",
+      "name": "vphone-cli setup guide",
+      "package": "project.vphone-cli",
+      "published_at": "2026-09-15T08:07:38Z",
+      "quality_target": 9,
+      "release": "Latest official tagged release vphone 2.17.1, published 2026-11-13 09:01:22 UTC; current upstream manual checked 2026-11-22.",
+      "route": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
+      "run_id": "scheduled-2026-11-22T03:04:22Z",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
+      "source_name": "Official Lakr233/vphone-cli 2.17.1 release notes and current upstream manual",
+      "source_page_url": "https://github.com/Lakr233/vphone-cli/blob/main/Documents/en/get-started/quick-start.md",
+      "source_url": "https://github.com/Lakr233/vphone-cli/blob/main/Documents/en/firmware/compatibility.md",
+      "source_visual_origin": "official-tagged-project-demo",
+      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.17.1/Documents/demo.jpeg",
+      "title": "vphone-cli Setup Guide: Run a Virtual iPhone on Apple Silicon",
+      "version": "2.17.1"
+    },
+    {
+      "action": "update",
+      "candidate_fingerprint": "jailbreak-development.palera1n-3.0.0-beta.4-linux-gui-pkexec-fix-2026-11-22",
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "A8–A11 and listed Apple T2 hardware only; official manual lists iOS/iPadOS/tvOS 15–26 and bridgeOS 5–10, with specific device requirements; A11 passcode restrictions apply. Beta 4 does not expand compatibility.",
+      "description": "Beta 4 fixes a timing-attack privilege-escalation issue in Linux GUI builds introduced in beta 3. Check pre-release status, official artifacts and A8–A11 limits.",
+      "developer": "palera1n team",
+      "entry_type": "source-news",
+      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
+      "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
+      "media_credit": "palera1n team — official GUI screenshot; identical Git blob in beta 3 and beta 4 tags, illustrating the interface rather than the security fix",
+      "media_retrieval_status": "Reused the existing official GUI screenshot. Confirmed the same Git blob 235a0b859af9093e5dac26aa8d3e22d9011a84cb at both the v3.0.0-beta.3 and v3.0.0-beta.4 tags; the committed image remains embedded in the article and social metadata.",
+      "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
+      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.4/.github/demo.png",
+      "modified_at": "2026-11-22T00:04:53+03:00",
+      "name": "palera1n",
+      "package": "palera1n-3.0.0-beta.4",
+      "published_at": "2026-09-22T06:21:05+00:00",
+      "quality_target": 9,
+      "release": "v3.0.0-beta.4 latest pre-release (2026-11-21); v2.4 latest stable (2026-07-27)",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "source_name": "palera1n official GitHub release, tagged fix commit and project documentation",
+      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
+      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
+      "source_visual_origin": "official-tagged-repository-screenshot",
+      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
+      "title": "palera1n 3.0.0 Beta 4 Fixes Linux GUI Privilege-Escalation Flaw",
+      "version": "3.0.0-beta.4"
+    },
+    {
+      "action": "create",
+      "candidate_fingerprint": "individual-update.tethera-1.2.0-hotspot-widgets-monthly-allowance-2026-11-21",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "compat": "Havoc package metadata lists iOS 15.0–26.0.1, jailbreak required and rootless support. The widget requires iOS 16.1+. The Wi-Fi connection-retention fix specifically requires a jailbreak that injects tweaks into the Wi-Fi service, such as Dopamine. A prior 1.1.0 changelog mentions a RootHide-Patcher-converted install fix; do not treat that as blanket RootHide or rootful support.",
+      "description": "Tethera 1.2.0 adds Home and Lock Screen hotspot widgets, monthly data caps, Wi-Fi departure automation and IPv6 controls. Check iOS and jailbreak limits.",
+      "developer": "AADiOS",
+      "entry_type": "individual-tweak-update",
+      "href": "tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
+      "media_retrieval_status": "Official Havoc package HTML and __NEXT_DATA__ media retrieval returned HTTP 403 during review; no screenshot or banner was embedded.",
+      "modified_at": "2026-11-21T18:02:51+03:00",
+      "name": "Tethera",
+      "package": "com.aadios.tethera",
+      "published_at": "2026-11-21T18:02:51+03:00",
+      "quality_target": 9,
+      "release": "Tethera 1.2.0 is the newest entry in Havoc's version history checked 2026-11-21; Havoc showed '4 days ago' while iOS Repo Updates groups the package update under 2026-11-16.",
+      "route": "/tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "tethera-1-2-0-hotspot-widget-monthly-allowance-update",
+      "source_name": "Official Havoc package listing and version history; AADiOS developer site; iOS Repo Updates date cross-check",
+      "source_page_url": "https://havoc.app/package/tethera",
+      "source_secondary_url": "https://www.ios-repo-updates.com/repository/havoc/",
+      "source_url": "https://havoc.app/package/tethera/changes",
+      "title": "Tethera 1.2.0 Adds Hotspot Widgets, Monthly Caps and Wi-Fi Automation",
+      "version": "1.2.0"
     },
     {
       "action": "create",
@@ -310,6 +1029,9 @@
       "release": "RootHide Patcher 2.1.4 / Derootifier 1.3",
       "route": "roothide-patcher-vs-derootifier-package-converter-comparison/",
       "run_id": "scheduled-2026-11-21T09:03:16Z",
+      "secondary_image": "assets/articles/source-media/derootifier-1-3-official-icon.png",
+      "secondary_media_alt": "Official Derootifier arm64e app icon from the palera1n project repository",
+      "secondary_media_source_url": "https://github.com/palera1n/Derootifier/blob/master/derootifier-2-modified.png",
       "selection_pool": "scheduled-tweak-roundup-comparison",
       "slug": "roothide-patcher-vs-derootifier-package-converter-comparison",
       "source_name": "Official RootHide Patcher and palera1n Derootifier repositories",
@@ -318,10 +1040,7 @@
       "source_visual_origin": "official-project-icons",
       "source_visual_url": "https://raw.githubusercontent.com/roothide/RootHidePatcher/master/derootifier-2-modified.png",
       "title": "RootHide Patcher 2.1.4 vs Derootifier 1.3: Which Package Converter Do You Need?",
-      "version": "RootHide Patcher 2.1.4 / Derootifier 1.3",
-      "secondary_image": "assets/articles/source-media/derootifier-1-3-official-icon.png",
-      "secondary_media_alt": "Official Derootifier arm64e app icon from the palera1n project repository",
-      "secondary_media_source_url": "https://github.com/palera1n/Derootifier/blob/master/derootifier-2-modified.png"
+      "version": "RootHide Patcher 2.1.4 / Derootifier 1.3"
     },
     {
       "action": "create",
@@ -360,32 +1079,39 @@
     },
     {
       "action": "update",
-      "candidate_fingerprint": "jailbreak-development.tims-cooked-ios27-ool-map-audit-2026-11-26",
+      "article_sha256": "e79bf9522289a80137a1c7744b842c9d9b10250079322b9a333ac83a0044b6a3",
+      "candidate_fingerprint": "individual-update.lockscreenrestore-1.9.6-2026-11-20",
       "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
       },
-      "channel": "scheduled-current-jailbreak-development",
-      "compat": "Exact-build static analysis only: iPhone14,2 / iOS 27.0 build 24A5390f. The November 26 notes trace a conditional OOL map-field write, error cleanup and getter consumer, but do not establish runtime execution, final destruction, a dangling reference, UAF, OOB, kernel read/write, exploit or jailbreak availability. No new IPA was published.",
-      "description": "Tims-Cooked’s November 26 iOS 27 audit traces a conditional OOL map-field write and cleanup path. See the exact build, evidence limits and why no exploit exists.",
-      "entry_type": "jailbreak-development",
-      "href": "tims-cooked-ios-27-socket-uaf-correction/",
-      "modified_at": "2026-11-28T00:00:00+03:00",
-      "name": "Tims Cooked iOS 27 IOSurface research",
-      "package": "research.tims-cooked",
-      "published_at": "2026-11-21T00:00:13+03:00",
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "Official package metadata enforces iOS 16.0–16.7.16, rootless iphoneos-arm64 and a compatible tweak-injection provider. The developer documents tests on iPhone 13 Pro/iOS 16.1.1 and iPhone 12 Pro/iOS 16.5 plus user reports on iPhone X, iPhone 11 and iPhone 8 Plus; Dynamic Island models and iOS 17+ are unsupported.",
+      "description": "LockScreenRestore 1.9.6 fixes landscape wallpaper coverage and blocks unsupported iOS 17 installs. Check exact iOS 16 devices, limits and safe update steps.",
+      "entry_type": "individual-update",
+      "href": "lockscreenrestore-1-8-2-update/",
+      "image": "assets/articles/source-media/lockscreenrestore-1-9-4-official-banner.jpg",
+      "media_alt": "Official LockScreenRestore artwork showing its iOS 15-style Lock Screen on three iPhones",
+      "media_credit": "Official LockScreenRestore banner by aronsz26",
+      "media_retrieval_status": "Re-read the live Havoc HTML and __NEXT_DATA__ package data for version 1.9.6, downloaded the official banner and music-player screenshot, visually inspected them, and verified they are byte-for-byte identical to the committed source-media files.",
+      "media_sha256": "303577adb8967f515c41630fe85ce9b60d8392547fbca846b1d91cf002fc60d0",
+      "media_source_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
+      "modified_at": "2026-11-20T18:00:00+03:00",
+      "name": "LockScreenRestore",
+      "package": "com.aronsz26.lockscreenrestore",
+      "previous_version": "1.9.4",
+      "published_at": "2026-09-28T18:52:07+00:00",
       "quality_target": 9,
-      "release": "November 26, 2026 documentation checkpoint: exact-build IOSurface OOL marshalling and map-field audit; no new app binary",
-      "route": "tims-cooked-ios-27-socket-uaf-correction/",
-      "run_id": "scheduled-2026-11-27T21:00:00Z",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "tims-cooked-ios-27-socket-uaf-correction",
-      "source_name": "Official Tims-Cooked November 26 commit and exact-build OOL audit notes",
-      "source_page_url": "https://github.com/ramonburf/Tims-Cooked/commit/2a79ef1",
-      "source_url": "https://github.com/ramonburf/Tims-Cooked/blob/2a79ef1/research-updates/2026-11-26-ool-status4-map-publication-24A5390f.md",
-      "title": "Tims‑Cooked iOS 27 OOL Audit Narrows a Conditional Map Write",
-      "version": "iPhone14,2 / iOS 27.0 build 24A5390f / exact-build static OOL audit / documentation-only checkpoint",
-      "visual_status": "No suitable original source visual documents the November 26 OOL control-flow and object-lifetime audit. The official checkpoint contains text and disassembly findings only; the repository's F1 contact sheet and AGXProbe icon do not depict this result. No article image or substitute artwork is embedded."
+      "release": "GitHub release November 14, 2026; Havoc update November 18, 2026",
+      "run_id": "scheduled-2026-11-20T15:00:00Z",
+      "selection_pool": "scheduled-individual-update",
+      "source_name": "Official LockScreenRestore GitHub release, tagged source and live Havoc package data",
+      "source_page_url": "https://havoc.app/package/lockscreenrstr",
+      "source_url": "https://github.com/aronsz26/LockScreenRestore/releases/tag/v1.9.6",
+      "source_visual_origin": "official-havoc-banner-and-interface-screenshot",
+      "source_visual_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
+      "title": "LockScreenRestore 1.9.6 Blocks iOS 17 Installs and Fixes Landscape Wallpaper",
+      "version": "1.9.6"
     },
     {
       "action": "create",
@@ -433,6 +1159,111 @@
       "version": "Bezelify Lite 1.2.3 / Bezelify Pro 1.2.3"
     },
     {
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-openssh-sftp-rootless-paths-2026-11-20",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Use only on an active, officially supported Dopamine 3.0.13 conventional rootless jailbreak. Dopamine documents device-specific iOS ranges; OpenSSH and SFTP availability do not expand jailbreak compatibility. RootHide uses a different path model.",
+      "description": "Install Procursus OpenSSH on Dopamine 3.0.13, transfer files safely with SFTP or SCP, understand rootless paths, add SSH keys and fix connection or permission errors.",
+      "developer": "Procursus Team / OpenSSH / opa334",
+      "entry_type": "guide",
+      "href": "install-openssh-dopamine-rootless-jailbreak-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — official Dopamine 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_retrieval_status": "Reused the exact official 192×192 PNG already retrieved, inspected and verified from the Dopamine 3.0.13 source tag. Dopamine and Procursus publish no dedicated SFTP walkthrough screenshot.",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "modified_at": "2026-11-20T06:00:00+03:00",
+      "name": "OpenSSH and SFTP on Dopamine guide",
+      "package": "guide.dopamine.openssh",
+      "published_at": "2026-10-22T04:56:50Z",
+      "quality_target": 9,
+      "release": "Guide revision 2026-11-20 / Dopamine 3.0.13 / Procursus OpenSSH recipe 9.7p1-1 / upstream OpenSSH 10.6p2",
+      "selection_pool": "scheduled-evergreen-guide",
+      "slug": "install-openssh-dopamine-rootless-jailbreak-guide",
+      "source_name": "Dopamine 3.0.13 release and tagged README; current Procursus OpenSSH recipe and package scripts; OpenSSH SFTP/SCP manuals; Theos rootless documentation",
+      "source_page_url": "https://github.com/ProcursusTeam/Procursus/blob/main/makefiles/openssh.mk",
+      "source_url": "https://man.openbsd.org/sftp",
+      "source_visual_origin": "official-dopamine-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Install OpenSSH and Transfer Files with SFTP on Dopamine",
+      "version": "Guide revision 2026-11-20 / Dopamine 3.0.13 / Procursus OpenSSH 9.7p1-1"
+    },
+    {
+      "category": {
+        "id": "current-jailbreak-development",
+        "label": "Current Jailbreak Development"
+      },
+      "compat": "Liter8 marks iOS 27.2.1 build 24B156 as run only on iPhone 11 (iPhone12,1 / n104ap). iPhone 11 Pro and Pro Max remain experimental; newer devices are not covered.",
+      "description": "Liter8 0.3.1 documents iOS 27.2.1 build 24B156 on iPhone 11, with an erase restore, Mac-tethered boots and major SEP, cellular-data and iCloud limits.",
+      "developer": "Xplo8E; Apple firmware",
+      "entry_type": "current-jailbreak-development",
+      "href": "ios-27-2-rc-jailbreak-status-update/",
+      "image": "assets/articles/source-media/liter8-ios-27-2-1-official-hero.jpg",
+      "media_credit": "Xplo8E — official Liter8 iOS 27.2.1 hero showing root SSH, Sileo and TrollStore Lite",
+      "media_optimization": "JPEG derivative of the official 2400×1380 PNG, quality 90, no crop or resize",
+      "media_sha256": "074cf7e72635863e52e2b2be2a3bc562246ee0e3c4490998b2fc638d08cf75fa",
+      "media_source_url": "https://github.com/Xplo8E/Liter8/blob/8c8629e5497cfa0b469ee41d6085f54efc4e34c0/docs/images/hero-light.png",
+      "modified_at": "2026-11-20T00:00:35+03:00",
+      "name": "Liter8 on iOS 27.2.1",
+      "package": "org.xplo8e.liter8",
+      "published_at": "2026-10-19T20:56:22Z",
+      "quality_target": 9,
+      "release": "Liter8 0.3.1; iOS 27.2.1 build 24B156 reviewed on iPhone 11 November 14, 2026",
+      "selection_pool": "scheduled-current-jailbreak-development",
+      "slug": "ios-27-2-rc-jailbreak-status-update",
+      "source_name": "Apple Developer releases, Apple iOS 27.2.1 security content, and Xplo8E/Liter8 README plus hardware-review commits",
+      "source_page_url": "https://github.com/Xplo8E/Liter8/commit/7b49b3caa25fe282e614e30c979e4a0b701fea96",
+      "source_url": "https://github.com/Xplo8E/Liter8",
+      "source_visual_origin": "official-project-repository-asset",
+      "source_visual_sha256": "3ce5204b72d1f18275c9c644698a629ff77ef5e93da86d6434e8ad2e60a806fe",
+      "source_visual_url": "https://raw.githubusercontent.com/Xplo8E/Liter8/8c8629e5497cfa0b469ee41d6085f54efc4e34c0/docs/images/hero-light.png",
+      "title": "iOS 27.2.1 Jailbreak Status: Liter8 Works on iPhone 11—With Major Limits",
+      "version": "Liter8 0.3.1 / iOS 27.2.1 (24B156)"
+    },
+    {
+      "action": "update",
+      "additional_media": [
+        {
+          "credit": "Official Solo Home Screen screenshot from Havoc",
+          "image": "assets/articles/source-media/solo-1-0-2-official-homescreen.png",
+          "source_url": "https://media.havoc.app/6af2b5e52e43c13fc21b88b0"
+        }
+      ],
+      "candidate_fingerprint": "tweak.solo-1.0.1-2026-11-17",
+      "category": {
+        "id": "individual-tweak-update",
+        "label": "Individual Tweak Update"
+      },
+      "channel": "scheduled-individual-tweak-update",
+      "compat": "Primary support is iOS 15–26 on rootless jailbreaks. Havoc metadata lists iOS 14.0–26.0.1 because 1.0.2 adds experimental, untested iOS 14 and rootful iOS 15 support. RootHide is explicitly unsupported. Package compatibility does not establish jailbreak availability for every device and firmware.",
+      "description": "Solo 1.0.2 fixes an iOS 15 device-check crash and several Atria carousel-widget bugs, while adding experimental, untested iOS 14 and rootful iOS 15 support.",
+      "developer": "OaksTheAwesome",
+      "entry_type": "individual-tweak-update",
+      "href": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
+      "image": "assets/articles/source-media/solo-1-0-2-official-banner.png",
+      "media_retrieval_status": "Ordinary Havoc HTML retrieval succeeded. Current __NEXT_DATA__ supplied the official 1.0.2 banner and screenshot; the PNGs were inspected, hashed, embedded and committed.",
+      "modified_at": "2026-11-19T18:00:53+03:00",
+      "name": "Solo",
+      "package": "com.oakstheawesome.solo",
+      "previous_version": "1.0.1",
+      "published_at": "2026-11-17T18:04:25+03:00",
+      "quality_target": 9,
+      "release": "Solo 1.0.2 — November 18, 2026 at 15:33:05 UTC",
+      "route": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
+      "selection_pool": "scheduled-individual-tweak-update",
+      "slug": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes",
+      "source_name": "Official Solo Havoc package page, Havoc version history and developer release post",
+      "source_page_url": "https://havoc.app/package/solo",
+      "source_url": "https://havoc.app/package/solo/changes",
+      "source_visual_origin": "havoc-__NEXT_DATA__.content.banner-and-screenshot",
+      "title": "Solo 1.0.2 Fixes iOS 15 Crash and Atria Carousel Widgets",
+      "version": "1.0.2"
+    },
+    {
       "action": "create",
       "candidate_fingerprint": "comparison.infobar-1.4.0-powertrace-1.0.3b-2026-11-19",
       "channel": "scheduled-tweak-comparison",
@@ -441,6 +1272,40 @@
       "published_at": "2026-11-19T12:02:10+03:00",
       "run_id": "scheduled-2026-11-19T12:02:10+03:00",
       "version": "InfoBar 1.4.0 / PowerTrace 1.0.3b"
+    },
+    {
+      "action": "update",
+      "additional_media": [],
+      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-remove-jailbreak-2026-11-19",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "compat": "Dopamine 3.0.13 removal requires an existing conventional Dopamine bootstrap. Official support is arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. The removal route differs for TrollStore and non-TrollStore installations and does not add iOS 27 support.",
+      "description": "Use Dopamine’s official TrollStore or sideloaded removal route, understand exactly what is deleted, and avoid leaving a partial bootstrap.",
+      "developer": "opa334",
+      "entry_type": "guide",
+      "href": "remove-dopamine-3-jailbreak-safely-guide/",
+      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
+      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
+      "media_credit": "opa334 — exact official Dopamine icon from the 3.0.13 source tag",
+      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
+      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
+      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "modified_at": "2026-11-19T06:00:26+03:00",
+      "name": "Remove Dopamine 3 Jailbreak Safely",
+      "package": "guide.dopamine.remove-jailbreak",
+      "published_at": "2026-10-15T01:00:01Z",
+      "release": "Dopamine 3.0.13 released 2026-11-03T16:28:05Z; removal workflow reverified in the 3.0.13 tag on 2026-11-19",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "remove-dopamine-3-jailbreak-safely-guide",
+      "source_name": "Official Dopamine 3.0.13 release, tagged removal controls, removal routine, warning text and compatibility README",
+      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Settings/DOSettingsController.m",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-tagged-repository-app-icon",
+      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
+      "title": "How to Remove Dopamine 3.0.13 Jailbreak Safely",
+      "version": "Dopamine 3.0.13"
     },
     {
       "category": {
@@ -500,79 +1365,6 @@
       "source_visual_url": "https://cdsassets.apple.com/live/7WUAS350/images/ios/locale/en-gb/ios-27-iphone-17-pro-settings-general-about-software-version.png",
       "title": "How to Leave an iOS Beta Without Losing Jailbreak Options",
       "version": "Guide revision 2026-11-18 / Apple iOS-iPadOS beta removal guidance 2026-03-25"
-    },
-    {
-      "action": "update",
-      "additional_media": [],
-      "candidate_fingerprint": "jailbreak-development.erosion-file-browser-cache-container-hash-ramp-642c5d7-2026-11-26",
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Erosion 0.3.1 remains the latest official IPA. November 26 commits through 642c5d7 are source-only and do not expand firmware support: iOS/iPadOS 26.0–26.6.2 remains limited with no MobileGestalt writes; 27.0–27.2.1 and 27.3 beta 1 (24C5037i) are documented; worse_query is patched from 27.3 beta 2 (24C5049d).",
-      "description": "Three November 26 source commits add automatic container-hash retries and file-browser caching. The official IPA remains 0.3.1, and firmware support has not expanded.",
-      "developer": "jailbreakdotparty / Erosion team",
-      "entry_type": "jailbreak-development",
-      "href": "erosion-0-3-ios-27-sandbox-escape-toolbox/",
-      "image": "assets/articles/source-media/erosion-0-3-official-app-icon.png",
-      "media_alt": "Official Erosion app icon showing a black-handled white shovel on a brown rounded-square background",
-      "media_credit": "jailbreakdotparty/Erosion — official application icon from the version 0.3.1 tagged source",
-      "media_git_blob_sha": "289a8e3b85149f02e57ceb4637e0d74d732f3a76",
-      "media_retrieval_status": "Verified the exact PreviewIcon.png asset in the official 0.3.1 tag; it is the same Git blob as the committed, locally inspected 1024×1024 PNG.",
-      "media_sha256": "339d4f9e1095eed22cebb854a84a70f913038a1a7a140d57ad2183b0368259b7",
-      "media_source_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "modified_at": "2026-11-26T21:00:00Z",
-      "name": "Erosion",
-      "package": "project.erosion",
-      "published_at": "2026-11-09T21:00:36Z",
-      "release": "Erosion 0.3.1 released November 10, 2026 and remains the latest official IPA; November 26 commits 6839afa, c5bfe93 and 642c5d7 are unreleased source changes",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Official Erosion November 26 source commits through 642c5d7, current README and Erosion 0.3.1 release",
-      "source_page_url": "https://github.com/jailbreakdotparty/Erosion/commit/642c5d7f46a7273f9280fc83d2c449b60bc9adfd",
-      "source_url": "https://github.com/jailbreakdotparty/Erosion/commit/642c5d7f46a7273f9280fc83d2c449b60bc9adfd",
-      "source_visual_origin": "official-tagged-project-app-icon",
-      "source_visual_url": "https://github.com/jailbreakdotparty/Erosion/blob/0.3.1/PreviewIcon.png",
-      "title": "Erosion Source Adds File Browser Caching; 0.3.1 Is Still Latest",
-      "version": "0.3.1 official release / unreleased development source through commit 642c5d7 / iOS 27.3 beta 2 patch boundary unchanged"
-    },
-    {
-      "action": "update",
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/solo-1-0-2-official-homescreen.png",
-          "credit": "Official Solo Home Screen screenshot from Havoc",
-          "source_url": "https://media.havoc.app/6af2b5e52e43c13fc21b88b0"
-        }
-      ],
-      "candidate_fingerprint": "tweak.solo-1.0.1-2026-11-17",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "channel": "scheduled-individual-tweak-update",
-      "compat": "Primary support is iOS 15–26 on rootless jailbreaks. Havoc metadata lists iOS 14.0–26.0.1 because 1.0.2 adds experimental, untested iOS 14 and rootful iOS 15 support. RootHide is explicitly unsupported. Package compatibility does not establish jailbreak availability for every device and firmware.",
-      "description": "Solo 1.0.2 fixes an iOS 15 device-check crash and several Atria carousel-widget bugs, while adding experimental, untested iOS 14 and rootful iOS 15 support.",
-      "developer": "OaksTheAwesome",
-      "entry_type": "individual-tweak-update",
-      "href": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
-      "media_retrieval_status": "Ordinary Havoc HTML retrieval succeeded. Current __NEXT_DATA__ supplied the official 1.0.2 banner and screenshot; the PNGs were inspected, hashed, embedded and committed.",
-      "modified_at": "2026-11-19T18:00:53+03:00",
-      "name": "Solo",
-      "package": "com.oakstheawesome.solo",
-      "published_at": "2026-11-17T18:04:25+03:00",
-      "quality_target": 9,
-      "release": "Solo 1.0.2 — November 18, 2026 at 15:33:05 UTC",
-      "route": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes/",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "solo-1-0-1-springboard-hang-atria-liquid-glass-fixes",
-      "source_name": "Official Solo Havoc package page, Havoc version history and developer release post",
-      "source_page_url": "https://havoc.app/package/solo",
-      "source_url": "https://havoc.app/package/solo/changes",
-      "source_visual_origin": "havoc-__NEXT_DATA__.content.banner-and-screenshot",
-      "title": "Solo 1.0.2 Fixes iOS 15 Crash and Atria Carousel Widgets",
-      "version": "1.0.2",
-      "previous_version": "1.0.1",
-      "image": "assets/articles/source-media/solo-1-0-2-official-banner.png"
     },
     {
       "additional_media": [
@@ -654,46 +1446,6 @@
       "version": "Dopamine 3.0.13"
     },
     {
-      "action": "update",
-      "additional_media": [],
-      "article_sha256": "4f75dce36207bb39cbdb65e480dece352fc78e6c9013d9ee83dfc67252cea517",
-      "candidate_fingerprint": "evergreen-guide.vphone-cli-apple-silicon-setup-2026-11-22",
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "channel": "scheduled-evergreen-jailbreak-guide",
-      "compat": "Host: physical Apple Silicon Mac with macOS 15+; nested macOS virtualization is unsupported. Guest support depends on exact iPhone/iPad IPSW, build, cloudOS and host. Current docs record specific iOS 27.0.1 pairings, including iPhone17,3, iPhone18,2 and iPhone19,2; some test records used earlier Core Bundle versions. vphone is not a physical-device jailbreak.",
-      "description": "Set up vphone 2.17.1 with Launchpad on a physical Apple Silicon Mac, check tested iOS and cloudOS pairings, add the guest RootHide-layout bootstrap and troubleshoot safely. vphone is a research VM, not a physical iPhone jailbreak.",
-      "developer": "Lakr Aream",
-      "entry_type": "evergreen-guide",
-      "href": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
-      "image": "assets/articles/source-media/vphone-cli-ios27-rc-demo.jpeg",
-      "media_alt": "Official vphone-cli demo showing a virtual iPhone Home Screen and guest root-terminal window on an Apple Silicon Mac",
-      "media_credit": "Lakr233 — official vphone-cli demo from the 2.17.1 tagged repository",
-      "media_git_blob_sha": "a63a8d0f2eeff3e783b80904084b30e54d93dde7",
-      "media_retrieval_status": "Fetched from the official Lakr233/vphone-cli 2.17.1 tag through the connected GitHub source and visually inspected. The upstream Documents/demo.jpeg and committed Next Jailbreak asset share Git blob a63a8d0f2eeff3e783b80904084b30e54d93dde7.",
-      "media_sha256": "baa413a8104308f42ad8341722a6b8cb25de1c2b48c948c626544dbb0f0b762f",
-      "media_source_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.17.1/Documents/demo.jpeg",
-      "modified_at": "2026-11-22T06:04:22+03:00",
-      "name": "vphone-cli setup guide",
-      "package": "project.vphone-cli",
-      "published_at": "2026-09-15T08:07:38Z",
-      "quality_target": 9,
-      "release": "Latest official tagged release vphone 2.17.1, published 2026-11-13 09:01:22 UTC; current upstream manual checked 2026-11-22.",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon",
-      "source_name": "Official Lakr233/vphone-cli 2.17.1 release notes and current upstream manual",
-      "source_page_url": "https://github.com/Lakr233/vphone-cli/blob/main/Documents/en/get-started/quick-start.md",
-      "source_url": "https://github.com/Lakr233/vphone-cli/blob/main/Documents/en/firmware/compatibility.md",
-      "source_visual_origin": "official-tagged-project-demo",
-      "source_visual_url": "https://raw.githubusercontent.com/Lakr233/vphone-cli/2.17.1/Documents/demo.jpeg",
-      "title": "vphone-cli Setup Guide: Run a Virtual iPhone on Apple Silicon",
-      "version": "2.17.1",
-      "route": "vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/",
-      "run_id": "scheduled-2026-11-22T03:04:22Z"
-    },
-    {
       "additional_media": [
         {
           "credit": "Official MacStatusBar&Dock Force Quit screenshot by BesiktasliSeba",
@@ -732,34 +1484,6 @@
       "source_visual_url": "https://besiktasliseba.github.io/repo/depictions/com.besiktasliseba.macstatusbaranddock/screenshots/0-settings-window.jpg",
       "title": "MacStatusBar&Dock 1.8.7.5 Fixes Charge Limits, Stage Manager and Crash Recovery",
       "version": "1.8.7.5"
-    },
-    {
-      "action": "update",
-      "additional_media": [],
-      "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-cryptex-450-2026-11-26",
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "TSSChecker Build 450 provides official Windows x86_64, macOS arm64/x86_64 and multiple Linux assets. Its merged patch broadens custom Cryptex tag selection beyond manifest keys containing Rap. A signing-status result does not establish jailbreak availability or a future restore; reusable tickets still require correct device/nonce values and compatible SEP, baseband and Cryptex conditions.",
-      "description": "Use TSSChecker Build 450 to check iOS signing safely, understand its Cryptex-request fix, verify official downloads and separate signing status from usable SHSH restores.",
-      "developer": "1Conan / TSSChecker contributors; FutureRestore contributors",
-      "entry_type": "evergreen-jailbreak-guide",
-      "href": "check-ios-signing-status-tsschecker-guide/",
-      "media_retrieval_status": "No suitable original source visual is available: the official TSSChecker Build 450 release, tagged repository and merged PR provide command-line binaries, text documentation and source code, but no app screenshot, release artwork or project image. No substitute image is embedded.",
-      "modified_at": "2026-11-26T06:00:00+03:00",
-      "name": "iOS signing status with TSSChecker",
-      "package": "guide.ios.signing-status-tsschecker",
-      "published_at": "2026-11-16T06:01:00+03:00",
-      "release": "TSSChecker Build 450 released November 17, 2026 at 11:54:43 UTC; fixes Cryptex blob request tag selection. FutureRestore v194 remains officially deprecated in favor of nightlies.",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "source_name": "Official TSSChecker Build 450 release, tagged README and merged Cryptex fix; FutureRestore official warning and README; Apple Support",
-      "source_page_url": "https://github.com/1Conan/tsschecker/releases/tag/450",
-      "source_url": "https://github.com/1Conan/tsschecker/blob/4d9a7875bb6c175e841fc0c16b6d0bcd040324f0/README.md",
-      "source_visual_origin": "no-suitable-source-visual",
-      "title": "How to Check If an iOS Version Is Still Signed with TSSChecker",
-      "version": "Guide revision 2026-11-26 / TSSChecker Build 450 commit 4d9a7875",
-      "run_id": "scheduled-2026-11-26T03:00:00Z"
     },
     {
       "action": "update",
@@ -825,89 +1549,6 @@
       "source_visual_url": "https://media.havoc.app/6aef7f675f5ce023d12451cb",
       "title": "DynamicSeth 1.0.2 Adds iOS 26 Support and Test Mode",
       "version": "1.0.2"
-    },
-    {
-      "action": "update",
-      "additional_media": [
-        "assets/articles/source-media/panoramicview-1-1-0-official-pair.png",
-        "assets/articles/source-media/aerial-5-1-official-banner.png",
-        "assets/articles/source-media/pullover-pro-3-0-1-official-poster.jpg",
-        "assets/articles/source-media/pullover-pro-3-0-1-official-overlay.png",
-        "assets/articles/source-media/aerial-official-split-stage-interface.jpg"
-      ],
-      "candidate_fingerprint": "individual-update.panoramicview-1.1.0-home-button-pairing-2026-11-25",
-      "category": {
-        "id": "tweak-roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "channel": "scheduled-individual-tweak-update",
-      "compat": "PullOver Pro lists iOS 15–27 with Rootless and RootHide and needs AltList; PanoramicView 1.1.0 lists iOS 15.0–26.0.1, Dopamine, Rootless and RootHide, now supports regular Home-button iPhones, and still excludes iPhone Duo and iPad; Aerial is Rootless, with Havoc metadata 15.0–26.0.1 but description 15.0–17.7.10. All require a compatible jailbreak.",
-      "description": "Updated with PanoramicView 1.1.0: Home-button iPhone pairing, Dynamic Island pairing, pair recovery, keyboard and rotation fixes, exact iOS/device limits, troubleshooting and current original-source media.",
-      "developer": "c1d3r / Jond_ie; uzra; 82flex",
-      "entry_type": "comparison",
-      "href": "pullover-pro-vs-aerial-multitasking-tweak-comparison/",
-      "image": "assets/articles/source-media/panoramicview-1-1-0-official-banner.png",
-      "media_alt": "Official PanoramicView banner showing two full-size iPhone apps paired on a vertically extended canvas",
-      "media_credit": "82flex — official PanoramicView banner and interface screenshot from the live Havoc package data",
-      "media_retrieval_status": "Ordinary Havoc HTML retrieval succeeded. The live __NEXT_DATA__ identified version 1.1.0, its exact release time, compatibility, changelog, banner and screenshots. The 1600×900 banner and 1320×2868 interface PNG were downloaded unchanged, visually inspected and embedded.",
-      "media_source_url": "https://media.havoc.app/6afc1453336c140b62dba764",
-      "modified_at": "2026-11-25T18:00:00+03:00",
-      "name": "PullOver Pro vs Aerial vs PanoramicView",
-      "package": "comparison.pulloverpro-aerial-panoramicview",
-      "published_at": "2026-11-15T12:07:00+03:00",
-      "quality_target": 9,
-      "release": "PullOver Pro 3.0.1 — November 12, 2026; Aerial 5.1 — October 22, 2026; PanoramicView 1.1.0 — November 25, 2026 at 05:29:51 UTC",
-      "route": "pullover-pro-vs-aerial-multitasking-tweak-comparison/",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "pullover-pro-vs-aerial-multitasking-tweak-comparison",
-      "source_name": "Official PanoramicView, Aerial and PullOver Pro project/package sources",
-      "source_page_url": "https://havoc.app/package/panoramic",
-      "source_url": "https://havoc.app/package/panoramic",
-      "source_visual_origin": "havoc-__NEXT_DATA__.content.banner-and-screenshot",
-      "source_visual_url": "https://media.havoc.app/6afc1453336c140b62dba764",
-      "title": "PullOver Pro 3.0.1 vs Aerial 5.1 vs PanoramicView 1.1.0: Which Multitasking Style Fits?",
-      "version": "PullOver Pro 3.0.1 / Aerial 5.1 / PanoramicView 1.1.0",
-      "additional_source_urls": [
-        "https://github.com/Jond-ie/pulloverpro",
-        "https://havoc.app/package/aerial",
-        "https://havoc.app/package/aerial/changes",
-        "https://havoc.app/package/panoramic"
-      ],
-      "previous_version": "PullOver Pro 3.0.1 / Aerial 5.1 / PanoramicView 1.0.15"
-    },
-    {
-      "action": "update",
-      "additional_media": [],
-      "candidate_fingerprint": "evergreen-guide.iphone-model-ios-build-jailbreak-compatibility-2026-11-23",
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Current project matrix checked 2026-11-23: Dopamine 3.0.13 has no iOS 27 range; palera1n 2.4 is stable and 3.0.0 beta 4 is prerelease for A8–A11/T2 only; TrollStore 2.1.1 is limited to 14.0b2–16.6.1, 16.7 RC 20H18 and 17.0; Erosion 0.3.1 is the latest official IPA (0.3.2 beta 1 is source-only) and ends at 27.3 beta 1 build 24C5037i with worse_query patched from 24C5049d; Liter8 0.3.1 marks only standard iPhone 11 on 24C5037i as run and refuses unlisted builds.",
-      "description": "Updated: identify your exact iPhone model, chip, iOS version and build, then compare current official Dopamine, palera1n, TrollStore, Erosion and Liter8 support boundaries—including iOS 27.3 beta 2 v2 build 24C5049f.",
-      "developer": "Next Jailbreak editorial; Apple and primary project documentation",
-      "entry_type": "evergreen-jailbreak-guide",
-      "href": "check-iphone-model-ios-build-jailbreak-compatibility/",
-      "image": "assets/articles/source-media/apple-ios-27-about-software-version.png",
-      "media_alt": "Apple Support About screen showing iOS Version 27.0.1, iPhone 17 Pro model name and model number field",
-      "media_credit": "Apple Support — official About-screen example from Find the software version on your iPhone, iPad or iPod touch",
-      "media_git_blob_sha": "b516d4c43d13ff3eaee5434e3a880adc1a0eeeb1",
-      "media_retrieval_status": "Retrieved directly from the Apple Support CDN, inspected locally as the exact 760×688 PNG and embedded without alteration.",
-      "media_sha256": "a391edd5a028641b2900374ec22527537f0521c0ada1e29e4e8dcfde5c90733d",
-      "media_source_url": "https://support.apple.com/en-gb/109065",
-      "modified_at": "2026-11-23T06:00:00+03:00",
-      "name": "Jailbreak compatibility pre-check",
-      "package": "guide.jailbreak.model-build-compatibility",
-      "published_at": "2026-11-15T06:04:00+03:00",
-      "release": "Guide revision 2026-11-23; Dopamine 3.0.13; palera1n 2.4 stable / 3.0.0 beta 4 prerelease; TrollStore 2.1.1; Erosion 0.3.1 official IPA (0.3.2 beta 1 source-only); Liter8 0.3.1; Apple iOS 27.3 beta 2 v2 build 24C5049f dated 2026-11-19.",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "source_name": "Apple Support and Apple Developer release page; official Dopamine, palera1n, TrollStore, Erosion and Liter8 release notes and tagged/current device documentation",
-      "source_page_url": "https://developer.apple.com/news/releases/?id=11192026a",
-      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
-      "source_visual_origin": "official-apple-support-screenshot",
-      "source_visual_url": "https://cdsassets.apple.com/live/7WUAS350/images/ios/locale/en-gb/ios-27-iphone-17-pro-settings-general-about-software-version.png",
-      "title": "How to Check Your iPhone Model and iOS Build Before Jailbreaking",
-      "version": "Guide revision 2026-11-23 / Dopamine 3.0.13 / palera1n 2.4 stable + 3.0.0 beta 4 prerelease / TrollStore 2.1.1 / Erosion 0.3.1 (0.3.2 source-only) / Liter8 0.3.1"
     },
     {
       "action": "create",
@@ -1165,41 +1806,6 @@
       "version": "1.3.31"
     },
     {
-      "article_sha256": "0fba5e7a52ef8cce8d617df3fa8e29bdfcdda966d97c898eb752d4f8fc446b20",
-      "candidate_fingerprint": "jailbreak-development.liter8-0-3-1-host-file-safety-ios-27-3-beta2-v2-not-listed-2026-11-22",
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Latest tag v0.3.1 fixes keychain persistence; main commit 4863c50 adds host-side file safety. Current Apple iOS 27.3 beta 2 v2 build 24C5049f is not listed; only iPhone 11 (iPhone12,1 / n104ap) on beta 1 build 24C5037i is marked run; iPhone 11 Pro and Pro Max remain experimental; builds outside the table can be extracted for research only but make-cfw, restore, boot and provision refuse them; tethered pwnDFU boot and erase restore; no SEP, passcode or cellular data.",
-      "description": "Liter8 0.3.1 fixes keychain persistence, and the November 22 main-branch merge hardens host-file copies. Its support table still lists iOS 27.3 beta 1 (24C5037i), not beta 2 v2 (24C5049f).",
-      "developer": "Vinay Kumar Rasala (Xplo8E)",
-      "entry_type": "editorial-news-update",
-      "href": "ios-27-jailbreak-status-security-fixes-usbliter8/",
-      "image": "assets/articles/source-media/liter8-ios-27-3-beta1-official-iphone11-sileo.jpg",
-      "media_alt": "Official Liter8 project photo showing an iPhone 11 with Sileo beside a root SSH session on a Mac; representative project imagery, not a beta 2 test result.",
-      "media_credit": "Xplo8E — official Liter8 iPhone 11 Sileo and root SSH project photo; representative earlier iOS 27.0 test",
-      "media_git_blob_sha": "03bf969e90df7e4101912f0d01b48254d0798107",
-      "media_sha256": "5d0cad626ec7f2889e7ad9d9c4eddcc0c772f2a746358f035b40bcce019d9f6f",
-      "media_source_url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
-      "modified_at": "2026-11-22T23:55:55+03:00",
-      "name": "Liter8 iOS 27 custom firmware and tethered jailbreak environment",
-      "package": "editorial.ios27-jailbreak-status",
-      "published_at": "2026-09-15T07:47:49Z",
-      "quality_target": 9,
-      "release": "Liter8 v0.3.1 released November 14, 2026; main commit 4863c50 merged host-file-safety fixes November 22; Apple iOS 27.3 beta 2 v2 build 24C5049f is not listed in Liter8 firmware support.",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "Xplo8E/Liter8 official v0.3.1 release, November 22 main-branch host-file-safety merge and Apple Developer iOS 27.3 beta 2 v2 release",
-      "source_page_url": "https://github.com/Xplo8E/Liter8/commit/4863c50656efadc92655031e8b39eeda167c6738",
-      "source_url": "https://github.com/Xplo8E/Liter8/releases/tag/v0.3.1",
-      "source_visual_origin": "official-project-readme-photo",
-      "source_visual_url": "https://raw.githubusercontent.com/Xplo8E/Liter8/9bfe8fa51dea964be0122412f45abc60a0cbfa4a/docs/iphone11-sileo.jpg",
-      "title": "Liter8 0.3.1 Fixes Keychain Persistence; iOS 27.3 Beta 2 v2 Is Not Listed",
-      "version": "Liter8 0.3.1 (latest tag) / main 4863c50 (Nov 22) / iOS 27.3 beta 2 v2 not listed",
-      "route": "ios-27-jailbreak-status-security-fixes-usbliter8/",
-      "run_id": "scheduled-2026-11-22T20:55:55Z"
-    },
-    {
       "article_sha256": "c0f2daddc50c64854432a1466ac3a6b4473f973635a134ef0cbe4a8f35b147c7",
       "candidate_fingerprint": "individual-update.atria-1.9.3-roothide-app-library-categories-2026-11-12",
       "category": {
@@ -1296,40 +1902,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/LiveContainer/LiveContainer/9d6ea09b05afa2c8fc537c372795a294db631311/screenshots/release.png",
       "title": "LiveContainer Nightly vs Feather 2.9.0: Which IPA Workflow Fits?",
       "version": "LiveContainer nightly 20261108 commit 9d6ea09 vs Feather 2.9.0"
-    },
-    {
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-openssh-sftp-rootless-paths-2026-11-20",
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Use only on an active, officially supported Dopamine 3.0.13 conventional rootless jailbreak. Dopamine documents device-specific iOS ranges; OpenSSH and SFTP availability do not expand jailbreak compatibility. RootHide uses a different path model.",
-      "description": "Install Procursus OpenSSH on Dopamine 3.0.13, transfer files safely with SFTP or SCP, understand rootless paths, add SSH keys and fix connection or permission errors.",
-      "developer": "Procursus Team / OpenSSH / opa334",
-      "entry_type": "guide",
-      "href": "install-openssh-dopamine-rootless-jailbreak-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_credit": "opa334 — official Dopamine 3.0.13 source tag",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "media_retrieval_status": "Reused the exact official 192×192 PNG already retrieved, inspected and verified from the Dopamine 3.0.13 source tag. Dopamine and Procursus publish no dedicated SFTP walkthrough screenshot.",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "modified_at": "2026-11-20T06:00:00+03:00",
-      "name": "OpenSSH and SFTP on Dopamine guide",
-      "package": "guide.dopamine.openssh",
-      "published_at": "2026-10-22T04:56:50Z",
-      "quality_target": 9,
-      "release": "Guide revision 2026-11-20 / Dopamine 3.0.13 / Procursus OpenSSH recipe 9.7p1-1 / upstream OpenSSH 10.6p2",
-      "selection_pool": "scheduled-evergreen-guide",
-      "slug": "install-openssh-dopamine-rootless-jailbreak-guide",
-      "source_name": "Dopamine 3.0.13 release and tagged README; current Procursus OpenSSH recipe and package scripts; OpenSSH SFTP/SCP manuals; Theos rootless documentation",
-      "source_page_url": "https://github.com/ProcursusTeam/Procursus/blob/main/makefiles/openssh.mk",
-      "source_url": "https://man.openbsd.org/sftp",
-      "source_visual_origin": "official-dopamine-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "How to Install OpenSSH and Transfer Files with SFTP on Dopamine",
-      "version": "Guide revision 2026-11-20 / Dopamine 3.0.13 / Procursus OpenSSH 9.7p1-1"
     },
     {
       "category": {
@@ -1907,45 +2479,6 @@
       "source_visual_url": "https://cydia.ichitaso.com/depiction/srmusic/banner.png",
       "title": "ScreenRecordingMusic 1.1.0 Expands Recording Support to iOS 26 and Rootless Setups",
       "version": "1.0.1"
-    },
-    {
-      "additional_media": [
-        {
-          "credit": "Official Dopamine app icon from the 3.0.13 source tag",
-          "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-          "source_url": "https://github.com/opa334/Dopamine/tree/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset"
-        }
-      ],
-      "category": {
-        "id": "jailbreak-comparison",
-        "label": "Jailbreak Comparison"
-      },
-      "compat": "Dopamine: official arm64e, A12/A13 and arm64 firmware ranges; palera1n: A8–A11 and listed T2 devices",
-      "description": "Compare Dopamine 3.0.13 with palera1n 3.0 Beta 4 and stable 2.4 by device support, reboot workflow, computer needs, A11 limits and release risk.",
-      "developer": "opa334; palera1n team",
-      "entry_type": "roundup-comparison",
-      "href": "dopamine-vs-palera1n-jailbreak-comparison/",
-      "image": "assets/articles/source-media/palera1n-v3-official-demo.png",
-      "media_credit": "Official palera1n 3 demonstration image from the beta 4 tag; Git blob SHA 235a0b859af9093e5dac26aa8d3e22d9011a84cb is unchanged from beta 3",
-      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.4/.github/demo.png",
-      "modified_at": "2026-11-26T12:00:00+03:00",
-      "name": "Dopamine 3 vs palera1n 3",
-      "package": "comparison.dopamine-palera1n",
-      "published_at": "2026-10-04T08:57:29Z",
-      "release": "Dopamine 3.0.13 (2026-11-03) / palera1n 3.0.0 beta 4 (2026-11-21, prerelease) / palera1n 2.4 (2026-07-27, stable)",
-      "selection_pool": "official-project-comparison",
-      "slug": "dopamine-vs-palera1n-jailbreak-comparison",
-      "source": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
-      "source_name": "GitHub",
-      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
-      "source_visual_origin": "official-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
-      "title": "Dopamine 3.0.13 vs palera1n 3.0 Beta 4: Which Jailbreak Fits?",
-      "version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.4 / palera1n stable 2.4",
-      "action": "update",
-      "candidate_fingerprint": "roundup-comparison.dopamine-3.0.13-palera1n-3.0-beta4-stable2.4-2026-11-26",
-      "channel": "scheduled-tweak-roundup-comparison",
-      "previous_version": "Dopamine 3.0.13 / palera1n 3.0.0-beta.3"
     },
     {
       "category": {
@@ -2714,63 +3247,6 @@
       "version": "Irisin 5.0.3 / Sileo 2.5.1"
     },
     {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/soko-1-2-0-official-editor.png",
-          "media_alt": "Official Soko Lock Screen editor screenshot showing the bottom widget row and the swipe gesture for moving it",
-          "media_credit": "waruhachi — official Soko 1.2.0 Lock Screen editor screenshot",
-          "media_source_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Editor.png",
-          "media_git_blob_sha": "4bbee252b9f79b500501c25f1c6b3e5f6fcef675"
-        },
-        {
-          "image": "assets/articles/source-media/soko-1-2-0-official-layouts.png",
-          "media_alt": "Official Soko screenshot comparing Lock Screen widgets positioned at the top and bottom on separate wallpapers",
-          "media_credit": "waruhachi — official Soko 1.2.0 layout screenshot",
-          "media_source_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Layouts.png",
-          "media_git_blob_sha": "146a09af89a87b936f14dfc2db15240a706baf98"
-        },
-        {
-          "image": "assets/articles/source-media/soko-1-2-0-official-notifications.png",
-          "media_alt": "Official Soko screenshot showing notifications and Now Playing above the bottom Lock Screen widgets",
-          "media_credit": "waruhachi — official Soko 1.2.0 notifications screenshot",
-          "media_source_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Notifications.png",
-          "media_git_blob_sha": "84d24347a0f09c6bdb5a314e936e2027a7eacb81"
-        }
-      ],
-      "candidate_fingerprint": "soko-1.2.0-depth-effect-ios16-ios18-2026-11-22",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Havoc lists iOS 16.0–18.7.9 and jailbreak required. The official 1.2.0 release provides separate rootful iphoneos-arm, conventional rootless iphoneos-arm64 and RootHide iphoneos-arm64e packages. The listed firmware range does not prove a public jailbreak is available for every device and firmware.",
-      "description": "Soko 1.2.0 keeps wallpaper Depth Effect working with bottom Lock Screen widgets, fixes editor, swipe and notification layout issues, and ships separate rootful, rootless and RootHide packages for jailbroken iOS 16–18.7.9.",
-      "developer": "waruhachi",
-      "entry_type": "tweak-update",
-      "href": "soko-1-1-0-lock-screen-widgets-roothide-update/",
-      "image": "assets/articles/source-media/soko-1-2-0-official-banner.jpeg",
-      "media_alt": "Official Soko banner showing two iPhone Lock Screens with widgets positioned at the bottom",
-      "media_credit": "waruhachi — official Soko 1.2.0 banner from the tagged source repository",
-      "media_git_blob_sha": "c3f583e802afdd1710d300173f6cc91fe191f67c",
-      "media_retrieval_status": "Retrieved from the official 1.2.0 GitHub tag, visually inspected and embedded. Havoc HTML and __NEXT_DATA__ retrieval returned HTTP 403.",
-      "media_source_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Banner.jpeg",
-      "modified_at": "2026-11-22T18:00:00+03:00",
-      "name": "Soko",
-      "package": "moe.waru.soko",
-      "published_at": "2026-10-28T15:00:41Z",
-      "quality_target": 9,
-      "release": "Soko 1.2.0 official GitHub release published 2026-11-21T19:08:10Z; newest official release checked 2026-11-22",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "soko-1-1-0-lock-screen-widgets-roothide-update",
-      "source_name": "Official waruhachi/Soko 1.2.0 GitHub release and tagged source; Havoc compatibility metadata",
-      "source_page_url": "https://github.com/waruhachi/Soko/releases/tag/1.2.0",
-      "source_url": "https://github.com/waruhachi/Soko/releases/tag/1.2.0",
-      "source_visual_origin": "official-tagged-github-banner-and-interface-screenshots",
-      "source_visual_url": "https://raw.githubusercontent.com/waruhachi/Soko/1.2.0/Resources/Banner.jpeg",
-      "title": "Soko 1.2.0 Brings the Depth Effect to Bottom Lock Screen Widgets",
-      "version": "1.2.0",
-      "action": "update"
-    },
-    {
       "category": {
         "id": "system-utilities",
         "label": "System & Utilities"
@@ -2973,38 +3449,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/zbrateam/Zebra/main/Zebra/Assets.xcassets/App%20Icons/AppIcon.appiconset/Icon-App-83.5x83.5%402x.png",
       "title": "How to Install Zebra Alongside Sileo on a Rootless Jailbreak",
       "version": "Zebra 1.1.37"
-    },
-    {
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "compat": "Liter8 marks iOS 27.2.1 build 24B156 as run only on iPhone 11 (iPhone12,1 / n104ap). iPhone 11 Pro and Pro Max remain experimental; newer devices are not covered.",
-      "description": "Liter8 0.3.1 documents iOS 27.2.1 build 24B156 on iPhone 11, with an erase restore, Mac-tethered boots and major SEP, cellular-data and iCloud limits.",
-      "developer": "Xplo8E; Apple firmware",
-      "entry_type": "current-jailbreak-development",
-      "href": "ios-27-2-rc-jailbreak-status-update/",
-      "image": "assets/articles/source-media/liter8-ios-27-2-1-official-hero.jpg",
-      "media_credit": "Xplo8E — official Liter8 iOS 27.2.1 hero showing root SSH, Sileo and TrollStore Lite",
-      "media_sha256": "074cf7e72635863e52e2b2be2a3bc562246ee0e3c4490998b2fc638d08cf75fa",
-      "media_source_url": "https://github.com/Xplo8E/Liter8/blob/8c8629e5497cfa0b469ee41d6085f54efc4e34c0/docs/images/hero-light.png",
-      "modified_at": "2026-11-20T00:00:35+03:00",
-      "name": "Liter8 on iOS 27.2.1",
-      "package": "org.xplo8e.liter8",
-      "published_at": "2026-10-19T20:56:22Z",
-      "quality_target": 9,
-      "release": "Liter8 0.3.1; iOS 27.2.1 build 24B156 reviewed on iPhone 11 November 14, 2026",
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "slug": "ios-27-2-rc-jailbreak-status-update",
-      "source_name": "Apple Developer releases, Apple iOS 27.2.1 security content, and Xplo8E/Liter8 README plus hardware-review commits",
-      "source_page_url": "https://github.com/Xplo8E/Liter8/commit/7b49b3caa25fe282e614e30c979e4a0b701fea96",
-      "source_url": "https://github.com/Xplo8E/Liter8",
-      "source_visual_origin": "official-project-repository-asset",
-      "source_visual_url": "https://raw.githubusercontent.com/Xplo8E/Liter8/8c8629e5497cfa0b469ee41d6085f54efc4e34c0/docs/images/hero-light.png",
-      "title": "iOS 27.2.1 Jailbreak Status: Liter8 Works on iPhone 11—With Major Limits",
-      "version": "Liter8 0.3.1 / iOS 27.2.1 (24B156)",
-      "source_visual_sha256": "3ce5204b72d1f18275c9c644698a629ff77ef5e93da86d6434e8ad2e60a806fe",
-      "media_optimization": "JPEG derivative of the official 2400×1380 PNG, quality 90, no crop or resize"
     },
     {
       "additional_media": [
@@ -3296,81 +3740,6 @@
       "source_visual_url": "https://github.com/dhinakg/ellekit-official/blob/762e68ae9948392d0f4c21d20d2433ff6a008f9b/static/logos/logo-cropped.png",
       "title": "ElleKit vs libhooker vs Substitute: Which Tweak Injector Should You Use?",
       "version": "ElleKit 1.2 official repo package / libhooker 1.6.9 OSS snapshot / current Substitute source"
-    },
-    {
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "The official iPhone guide covers A11 and earlier devices on iOS 15.0+; the project README lists iPhone 6s through iPhone X plus specified iPads/iPod touch 7 and separate Apple T2 hardware. A12+ iPhones are not listed. A11 passcode/SEP restrictions apply; A11 devices on iOS 16 with previous passcode use must be erased. Beta 4 does not expand hardware support or confirm iOS 27.",
-      "description": "Choose palera1n 2.4 stable or 3.0.0-beta.4, verify A8–A11 device and A11 passcode limits, then follow the official Mac, Linux or palen1x setup.",
-      "developer": "palera1n team / iOS Guide contributors",
-      "entry_type": "guide",
-      "href": "how-to-jailbreak/",
-      "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
-      "media_alt": "Official palera1n GUI showing an iPhone 7 on iOS 15.7 with Quick Mode and Start controls",
-      "media_credit": "palera1n team — official GUI screenshot from the v3.0.0-beta.4 tagged source; identical image blob to beta 3, interface depiction only",
-      "media_git_blob_sha": "235a0b859af9093e5dac26aa8d3e22d9011a84cb",
-      "media_retrieval_status": "Reused the existing original 1184×920 PNG. The official v3.0.0-beta.4 tag contains the same Git blob 235a0b859af9093e5dac26aa8d3e22d9011a84cb as beta 3; the screenshot depicts the GUI only and is not evidence of the beta 4 security fix.",
-      "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
-      "media_source_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
-      "modified_at": "2026-11-25T06:00:00+03:00",
-      "name": "palera1n installation and release-track guide",
-      "package": "guide.palera1n.ios16.install",
-      "published_at": "2024-10-28T00:00:00Z",
-      "quality_target": 9,
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "how-to-jailbreak",
-      "source_name": "Official palera1n installation guide, palen1x guide, palera1n and palen1x release records, and project README",
-      "source_page_url": "https://docs.palera.in/installing-palera1n/",
-      "source_url": "https://docs.palera.in/using-palen1x/",
-      "source_visual_origin": "official-tagged-repository-screenshot-reused",
-      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
-      "title": "How to Jailbreak with palera1n: Stable 2.4 vs 3.0 Beta 4",
-      "version": "2.4 stable / 3.0.0-beta.4 pre-release",
-      "release": "palera1n v2.4 latest stable (published 2026-07-27); v3.0.0-beta.4 latest pre-release (published 2026-11-21); palen1x v2.4 stable (2026-07-30) and v3.0.0-beta.4 pre-release (2026-11-21)",
-      "candidate_fingerprint": "evergreen-guide.palera1n-stable-2-4-v3-beta4-device-host-guide-2026-11-25",
-      "additional_source_urls": [
-        "https://github.com/palera1n/palera1n/blob/main/README.md",
-        "https://github.com/palera1n/palera1n/releases/tag/v2.4",
-        "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
-        "https://github.com/palera1n/palen1x/releases/tag/v2.4",
-        "https://github.com/palera1n/palen1x/releases/tag/v3.0.0-beta.4",
-        "https://docs.palera.in/installing-palera1n/",
-        "https://docs.palera.in/using-palen1x/"
-      ]
-    },
-    {
-      "category": {
-        "id": "current-jailbreak-development",
-        "label": "Current Jailbreak Development"
-      },
-      "description": "Beta 4 fixes a timing-attack privilege-escalation issue in Linux GUI builds introduced in beta 3. Check pre-release status, official artifacts and A8–A11 limits.",
-      "entry_type": "source-news",
-      "href": "palera1n-3-0-0-beta-2-gui-dfu-fixes/",
-      "image": "assets/articles/source-media/palera1n-3-0-0-beta-3-official-demo.png",
-      "media_credit": "palera1n team — official GUI screenshot; identical Git blob in beta 3 and beta 4 tags, illustrating the interface rather than the security fix",
-      "media_retrieval_status": "Reused the existing official GUI screenshot. Confirmed the same Git blob 235a0b859af9093e5dac26aa8d3e22d9011a84cb at both the v3.0.0-beta.3 and v3.0.0-beta.4 tags; the committed image remains embedded in the article and social metadata.",
-      "media_sha256": "84f7447946ebad6976f528ab3906806f099f8839e38f634a28f27b9e2c9c3e38",
-      "media_source_url": "https://github.com/palera1n/palera1n/blob/v3.0.0-beta.4/.github/demo.png",
-      "modified_at": "2026-11-22T00:04:53+03:00",
-      "name": "palera1n",
-      "package": "palera1n-3.0.0-beta.4",
-      "published_at": "2026-09-22T06:21:05+00:00",
-      "quality_target": 9,
-      "selection_pool": "scheduled-current-jailbreak-development",
-      "source_name": "palera1n official GitHub release, tagged fix commit and project documentation",
-      "source_page_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
-      "source_url": "https://github.com/palera1n/palera1n/releases/tag/v3.0.0-beta.4",
-      "source_visual_origin": "official-tagged-repository-screenshot",
-      "source_visual_url": "https://raw.githubusercontent.com/palera1n/palera1n/v3.0.0-beta.4/.github/demo.png",
-      "title": "palera1n 3.0.0 Beta 4 Fixes Linux GUI Privilege-Escalation Flaw",
-      "version": "3.0.0-beta.4",
-      "action": "update",
-      "candidate_fingerprint": "jailbreak-development.palera1n-3.0.0-beta.4-linux-gui-pkexec-fix-2026-11-22",
-      "compat": "A8–A11 and listed Apple T2 hardware only; official manual lists iOS/iPadOS/tvOS 15–26 and bridgeOS 5–10, with specific device requirements; A11 passcode restrictions apply. Beta 4 does not expand compatibility.",
-      "developer": "palera1n team",
-      "release": "v3.0.0-beta.4 latest pre-release (2026-11-21); v2.4 latest stable (2026-07-27)"
     },
     {
       "additional_media": [],
@@ -4456,56 +4825,6 @@
       "version": "1.6"
     },
     {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/carcast-1-2-official-settings.jpg",
-          "media_alt": "Official CarCast 1.2 settings screenshot showing installed apps that can be added to or removed from the CarPlay Home screen",
-          "media_credit": "Dcsyhi — official CarCast 1.2 settings screenshot from Chariz",
-          "media_source_url": "https://cdn.chariz.cloud/asset/carcast/f8GbQK6NvWspeXr8A8AU5kKEP_OKww1f/assets/ER4PPUds01SAE7LmnoZmXLc2qZKjniv1A8XUEv3D6ixt9oggDYoeF8aWVOWqNIgix2PngnKbrCuafcG1d2R8nw.jpg",
-          "media_git_blob_sha": "1a56dc0ab811f6bece7dadd573784dffe452c4bd",
-          "media_retrieval_status": "Official image link opened from the Chariz CarCast product page and visually inspected; the same existing asset remains embedded in the article."
-        }
-      ],
-      "category": {
-        "id": "tweak-roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "CarBridge 2.1.0: Havoc Marketplace announced iOS 18 support and improved app-switching stability on 2026-11-24, but the announcement does not state the exact point-build range or jailbreak-environment flag; the package page/changes HTML was blocked and indexed metadata remains older. CarCast 1.2: Chariz confirms iOS 17, 18 and 26, excludes iOS 16 or earlier, requires Airaw, and lists rootless tests on Dopamine/NathanLR. CarBridge and CarCast must not be installed together. A package compatibility claim does not prove a public jailbreak exists for every device/build.",
-      "description": "Havoc says CarBridge 2.1.0 adds iOS 18 and improves app switching. Compare it with CarCast 1.2, Airaw requirements, tested jailbreaks and compatibility caveats.",
-      "developer": "leftyfl1p; Dcsyhi",
-      "entry_type": "comparison",
-      "href": "carbridge-vs-carcast-carplay-tweak-comparison/",
-      "image": "assets/articles/source-media/carbridge-2-0-15-official-carplay-home.png",
-      "media_credit": "leftyfl1p/Havoc — official CarBridge depiction screenshot from the earlier listing, not a 2.1.0 capture; Dcsyhi/Chariz — official CarCast 1.2 settings screenshot",
-      "media_sha256": "cf727ed9b45ec393a6b174f67a3b0a088185ef621be7a7c4c5c52fea51d8e10b",
-      "media_source_url": "https://media.havoc.app/6393d53afb3fac29d26b95e2",
-      "modified_at": "2026-11-24T12:00:00+03:00",
-      "name": "CarBridge vs CarCast",
-      "package": "comparison.carbridge-carcast",
-      "published_at": "2026-10-16T09:00:31Z",
-      "release": "CarBridge 2.1.0 announced 2026-11-24 (iOS 18 support; improved app-switching stability) / CarCast 1.2 / Airaw 1.7.1",
-      "selection_pool": "scheduled-tweak-roundup-comparison",
-      "slug": "carbridge-vs-carcast-carplay-tweak-comparison",
-      "source_name": "Havoc Marketplace official account and CarBridge FAQ; Dcsyhi/Chariz official CarCast and Airaw product pages",
-      "source_page_url": "https://havoc.app/package/carbridge",
-      "source_url": "https://x.com/HavocRepo",
-      "source_visual_origin": "official-havoc-and-chariz-product-depiction-assets",
-      "source_visual_url": "https://media.havoc.app/6393d53afb3fac29d26b95e2",
-      "title": "CarBridge 2.1.0 vs CarCast 1.2: iOS 18 Support Changes the CarPlay Choice",
-      "version": "CarBridge 2.1.0 announcement / CarCast 1.2 / Airaw 1.7.1",
-      "additional_source_urls": [
-        "https://teapawt.net/HavocRepo",
-        "https://havoc.app/package/carbridge/changes",
-        "https://carbridge.app/faq",
-        "https://chariz.com/buy/carcast/",
-        "https://chariz.com/buy/airaw/"
-      ],
-      "candidate_fingerprint": "comparison.carbridge-2.1.0-carcast-1.2-ios18-2026-11-24",
-      "run_id": "scheduled-2026-11-24T09:00:00Z",
-      "media_alt": "Official CarBridge CarPlay home-screen depiction from an earlier Havoc listing; not a 2.1.0 release capture",
-      "media_retrieval_status": "Retained the previously committed official CarBridge Havoc depiction image and the official CarCast 1.2 Chariz settings screenshot. The CarBridge image is explicitly captioned as an earlier depiction, not a 2.1.0 capture. On 2026-11-24 the Havoc package/changes HTML and media endpoint could not be retrieved (HTTP 403/internal error), so __NEXT_DATA__ screenshots/banner could not be inspected. The CarCast image was inspected from the Chariz product page image link. Public Next Jailbreak image endpoints were not accessible through the read-only web check."
-    },
-    {
       "additional_media": [],
       "category": {
         "id": "evergreen-jailbreak-guide",
@@ -4624,40 +4943,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/opa334/Choicy/master/ChoicyPrefs/Resources/ChoicyIcon%403x.png",
       "title": "How to Disable Tweaks for One App with Choicy",
       "version": "Choicy 1.5.4-2"
-    },
-    {
-      "additional_media": [],
-      "category": {
-        "id": "evergreen-jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "Dopamine 3.0.13 removal requires an existing conventional Dopamine bootstrap. Official support is arm64e iOS 15.0–17.3.1; A12/A13 iOS 15.0–18.7.1 and 26.0–26.0.1; arm64 iOS 15.0–18.7.1. The removal route differs for TrollStore and non-TrollStore installations and does not add iOS 27 support.",
-      "description": "Use Dopamine’s official TrollStore or sideloaded removal route, understand exactly what is deleted, and avoid leaving a partial bootstrap.",
-      "developer": "opa334",
-      "entry_type": "guide",
-      "href": "remove-dopamine-3-jailbreak-safely-guide/",
-      "image": "assets/articles/source-media/dopamine-3-0-13-official-app-icon.png",
-      "media_credit": "opa334 — exact official Dopamine icon from the 3.0.13 source tag",
-      "media_sha256": "f15f69564c1fbca6405866e8de3dd105bfd7f30a7b57dd751383200bad9eeaf6",
-      "media_source_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "name": "Remove Dopamine 3 Jailbreak Safely",
-      "package": "guide.dopamine.remove-jailbreak",
-      "published_at": "2026-10-15T01:00:01Z",
-      "release": "Dopamine 3.0.13 released 2026-11-03T16:28:05Z; removal workflow reverified in the 3.0.13 tag on 2026-11-19",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "remove-dopamine-3-jailbreak-safely-guide",
-      "source_name": "Official Dopamine 3.0.13 release, tagged removal controls, removal routine, warning text and compatibility README",
-      "source_page_url": "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Settings/DOSettingsController.m",
-      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
-      "source_visual_origin": "official-tagged-repository-app-icon",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/Dopamine/3.0.13/Application/Dopamine/Assets.xcassets/AppIcon.appiconset/Icon-64%403x.png",
-      "title": "How to Remove Dopamine 3.0.13 Jailbreak Safely",
-      "version": "Dopamine 3.0.13",
-      "action": "update",
-      "candidate_fingerprint": "evergreen-guide.dopamine-3.0.13-remove-jailbreak-2026-11-19",
-      "media_alt": "Official green Dopamine 3.0.13 jailbreak app icon",
-      "media_git_blob_sha": "8c1f831d43aee23aec3079608400467b9c6985fc",
-      "modified_at": "2026-11-19T06:00:26+03:00"
     },
     {
       "additional_media": [],
@@ -5304,45 +5589,6 @@
       "version": "Sileo 2.5.1"
     },
     {
-      "additional_media": [
-        {
-          "credit": "Official NowLyrics 1.1.2 Dynamic Island settings screenshot by tuonghoa2k7",
-          "path": "assets/articles/source-media/nowlyrics-1-1-2-dynamic-island-settings.jpg",
-          "sha256": "4af92c9dfab80d72099498543fbdaa2a6f569f5d13ff4823d8a5537d776008cd",
-          "source_url": "https://media.havoc.app/6ac156483ccac01238803380"
-        }
-      ],
-      "category": {
-        "id": "tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Havoc lists iOS 15.0–26.0.1 and rootless support. The 1.3.1 Control Center player behavior is documented specifically for iOS 16 and iOS 26; the package range does not guarantee jailbreak availability, and RootHide support is not claimed.",
-      "description": "NowLyrics 1.3.1 adds configurable word-by-word Control Center lyrics and dedicated modules. Check the iOS 16/26 feature scope, rootless limits and practical upgrade fixes.",
-      "developer": "tuonghoa2k7",
-      "entry_type": "tweak-update",
-      "href": "nowlyrics-1-0-synced-lyrics-lock-screen/",
-      "image": "assets/articles/source-media/nowlyrics-1-1-2-official-banner.png",
-      "media_credit": "Official NowLyrics Havoc banner and Dynamic Island settings screenshot by tuonghoa2k7; gallery images predate the 1.3.1 Control Center layout",
-      "media_sha256": "48a478baf634fdc336018c2d1e1bfa82c07e6a87d3b570ed5ca0ffcf288ae6a1",
-      "media_source_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
-      "modified_at": "2026-11-26T15:00:00Z",
-      "name": "NowLyrics",
-      "package": "com.c3x14n.nowlyrics",
-      "price": "2.99",
-      "published_at": "2026-10-01T15:04:37Z",
-      "release": "1.3.1 released 2026-11-25T16:06:21Z; 1.3.0 released 2026-11-01T23:40:56Z",
-      "selection_pool": "official-havoc-individual-update",
-      "slug": "nowlyrics-1-0-synced-lyrics-lock-screen",
-      "source": "https://havoc.app/package/nowlyrics",
-      "sourceImage": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
-      "source_name": "Havoc",
-      "source_page_url": "https://havoc.app/package/nowlyrics",
-      "source_visual_origin": "official-havoc-banner",
-      "source_visual_url": "https://media.havoc.app/6ab8b30ef180aae7681c4321",
-      "title": "NowLyrics 1.3.1 Adds Word-by-Word Control Center Lyrics",
-      "version": "1.3.1"
-    },
-    {
       "article_sha256": "d1c0161400ca2107fb20856ceeed9d626b99267fb75f2c1167d284f3939893b6",
       "candidate_fingerprint": "abcb648d7522372d8b38b289b3b62b2e688136bb586d270138e579da237c7c59",
       "category": {
@@ -5519,42 +5765,6 @@
       "version": "1.3.0"
     },
     {
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Official package metadata enforces iOS 16.0–16.7.16, rootless iphoneos-arm64 and a compatible tweak-injection provider. The developer documents tests on iPhone 13 Pro/iOS 16.1.1 and iPhone 12 Pro/iOS 16.5 plus user reports on iPhone X, iPhone 11 and iPhone 8 Plus; Dynamic Island models and iOS 17+ are unsupported.",
-      "description": "LockScreenRestore 1.9.6 fixes landscape wallpaper coverage and blocks unsupported iOS 17 installs. Check exact iOS 16 devices, limits and safe update steps.",
-      "entry_type": "individual-update",
-      "href": "lockscreenrestore-1-8-2-update/",
-      "image": "assets/articles/source-media/lockscreenrestore-1-9-4-official-banner.jpg",
-      "media_credit": "Official LockScreenRestore banner by aronsz26",
-      "media_source_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
-      "modified_at": "2026-11-20T18:00:00+03:00",
-      "name": "LockScreenRestore",
-      "package": "com.aronsz26.lockscreenrestore",
-      "published_at": "2026-09-28T18:52:07+00:00",
-      "quality_target": 9,
-      "selection_pool": "scheduled-individual-update",
-      "source_name": "Official LockScreenRestore GitHub release, tagged source and live Havoc package data",
-      "source_page_url": "https://havoc.app/package/lockscreenrstr",
-      "source_url": "https://github.com/aronsz26/LockScreenRestore/releases/tag/v1.9.6",
-      "source_visual_origin": "official-havoc-banner-and-interface-screenshot",
-      "source_visual_url": "https://media.havoc.app/6ac0f895058feb85f94fb1a9",
-      "title": "LockScreenRestore 1.9.6 Blocks iOS 17 Installs and Fixes Landscape Wallpaper",
-      "version": "1.9.6",
-      "action": "update",
-      "article_sha256": "e79bf9522289a80137a1c7744b842c9d9b10250079322b9a333ac83a0044b6a3",
-      "candidate_fingerprint": "individual-update.lockscreenrestore-1.9.6-2026-11-20",
-      "channel": "scheduled-individual-tweak-update",
-      "media_alt": "Official LockScreenRestore artwork showing its iOS 15-style Lock Screen on three iPhones",
-      "media_retrieval_status": "Re-read the live Havoc HTML and __NEXT_DATA__ package data for version 1.9.6, downloaded the official banner and music-player screenshot, visually inspected them, and verified they are byte-for-byte identical to the committed source-media files.",
-      "media_sha256": "303577adb8967f515c41630fe85ce9b60d8392547fbca846b1d91cf002fc60d0",
-      "previous_version": "1.9.4",
-      "release": "GitHub release November 14, 2026; Havoc update November 18, 2026",
-      "run_id": "scheduled-2026-11-20T15:00:00Z"
-    },
-    {
       "additional_media": [
         {
           "credit": "Official Circle to Search 0.6.0 screenshot by WeWaffles",
@@ -5700,64 +5910,6 @@
       "source_visual_url": "https://github.com/Leviidev/Husk/blob/0.7.0/src/app/Husk/Resources/icon-default.png",
       "title": "How to Enable JIT in Husk 0.7.0 with StikJIT, StikDebug or TrollStore",
       "version": "Husk 0.7.0"
-    },
-    {
-      "additional_media": [
-        {
-          "image": "assets/articles/source-media/triggr-2-1-0-official-if-otherwise.png",
-          "credit": "Official Triggr If / Otherwise screenshot by Jond-ie",
-          "source_url": "https://raw.githubusercontent.com/Jond-ie/repo/4ca9413394a7c274c8e19d3b7517945cddf05a8e/screenshots/triggr/12-ifelse.png"
-        },
-        {
-          "image": "assets/articles/source-media/remotecompanion-4-5-0-official-trigger-picker.png",
-          "credit": "Official RemoteCompanion 4.5.0 trigger-picker screenshot by saihgupr",
-          "source_url": "https://raw.githubusercontent.com/saihgupr/RemoteCompanion/404dd82175fe70f5b31bf45eeeb12c0dbb32c724/images/4.5.0/new-trigger-picker.png"
-        },
-        {
-          "image": "assets/articles/source-media/remotecompanion-4-5-0-official-settings-webui.png",
-          "credit": "Official RemoteCompanion 4.5.0 Web UI settings screenshot by saihgupr",
-          "source_url": "https://raw.githubusercontent.com/saihgupr/RemoteCompanion/404dd82175fe70f5b31bf45eeeb12c0dbb32c724/images/4.5.0/settings-webui.png"
-        }
-      ],
-      "category": {
-        "id": "tweak-roundup-comparison",
-        "label": "Tweak Roundup & Comparison"
-      },
-      "compat": "Triggr: iOS 15–27 on Rootless or RootHide; named real-device tests through iOS 18.6.2 and virtual RootHide checks on iOS 18.6.2, 26.6.2 and 27.0.1. RemoteCompanion: iOS 14–17 with partial iOS 26 support; Rootless, Rootful and RootHide; v4.5.0 includes targeted iOS 18 and 26 fixes. Jailbreak availability remains device/build-specific.",
-      "description": "Compare Triggr 2.1.0 and RemoteCompanion 4.5.0 by triggers, automation, remote control, privacy, firmware and jailbreak-environment support.",
-      "developer": "Jond-ie and saihgupr",
-      "entry_type": "tweak-comparison",
-      "href": "triggr-1-0-4-activator-automation-dopamine/",
-      "image": "assets/articles/source-media/triggr-2-1-0-official-main.png",
-      "media_credit": "Official Triggr screenshots by Jond-ie and official RemoteCompanion screenshots by saihgupr.",
-      "media_source_url": "https://raw.githubusercontent.com/Jond-ie/repo/4ca9413394a7c274c8e19d3b7517945cddf05a8e/screenshots/triggr/1-main.png",
-      "modified_at": "2026-11-24T12:00:00+03:00",
-      "name": "Triggr vs RemoteCompanion",
-      "package": "com.johndie.triggr",
-      "published_at": "2026-10-06T13:08:32Z",
-      "release": "Triggr 2.1.0 package-index commit: 2026-11-10; RemoteCompanion 4.5.0 release: 2026-11-22",
-      "selection_pool": "official-developer-release",
-      "slug": "triggr-1-0-4-activator-automation-dopamine",
-      "source_name": "Jond-ie and saihgupr official project repositories",
-      "source_page_url": "https://jond-ie.github.io/repo/triggr/",
-      "source_url": "https://github.com/saihgupr/RemoteCompanion/releases/tag/v4.5.0",
-      "source_visual_origin": "official-project-repositories",
-      "source_visual_url": "https://raw.githubusercontent.com/Jond-ie/repo/4ca9413394a7c274c8e19d3b7517945cddf05a8e/screenshots/triggr/1-main.png",
-      "title": "Triggr 2.1.0 vs RemoteCompanion 4.5.0: Which Activator Alternative Fits?",
-      "version": "Triggr 2.1.0 / RemoteCompanion 4.5.0",
-      "source_urls": [
-        "https://github.com/Jond-ie/repo/commit/4ca9413394a7c274c8e19d3b7517945cddf05a8e",
-        "https://jond-ie.github.io/repo/triggr/",
-        "https://github.com/Jond-ie/triggr-beta/blob/main/README.md",
-        "https://github.com/saihgupr/RemoteCompanion/releases/tag/v4.5.0",
-        "https://github.com/saihgupr/RemoteCompanion/blob/main/README.md",
-        "https://github.com/saihgupr/RemoteCompanion/blob/main/CHANGELOG.md"
-      ],
-      "packages": [
-        "com.johndie.triggr",
-        "com.saihgupr.remotecompanion"
-      ],
-      "last_verified_at": "2026-11-24T09:00:00Z"
     },
     {
       "additional_media": [
@@ -6089,49 +6241,6 @@
       "source_visual_url": "https://github.githubassets.com/assets/copilot-f1325176442b.png",
       "title": "Watusi 3 for WhatsApp 1.3.26 adds WhatsApp 26.38.X support and fixes sideloaded voice notes",
       "version": "1.3.26"
-    },
-    {
-      "category": {
-        "id": "jailbreak-guide",
-        "label": "Evergreen Jailbreak Guide"
-      },
-      "compat": "TrollStore 2.1.1 README lists iOS 14.0 beta 2–16.6.1, iOS 16.7 RC (20H18) and iOS 17.0. The current iOS CFW Guide installer matrix additionally lists TrollRestore for iOS/iPadOS 15.8.7–15.8.8 on A8 and A9–A11; A12–A17/M1–M2 is Not Applicable. Dopamine issue #773 records the KFD puaf_landa patch on 15.8.7, so TrollStore installation must not be mistaken for jailbreak availability. TrollRestore requires a computer and Find My disabled during the modified-backup restore.",
-      "description": "Choose the correct TrollStore installer by exact iOS build and chip. Updated Nov 24 with the TrollRestore route for supported 15.8.7–15.8.8 devices.",
-      "developer": "opa334",
-      "entry_type": "evergreen-guide",
-      "href": "trollstore-installation-method-guide/",
-      "image": "assets/articles/source-media/trollstore-official-app-icon.jpg",
-      "media_credit": "opa334 — official TrollStore 2.1.1 source tag",
-      "media_source_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
-      "modified_at": "2026-11-24T06:00:00+03:00",
-      "name": "TrollStore",
-      "published_at": "2026-10-02T02:56:51Z",
-      "release": "Latest official TrollStore release 2.1.1 (2026-04-01); device-specific TrollRestore matrix rechecked 2026-11-24",
-      "selection_pool": "scheduled-evergreen-jailbreak-guide",
-      "slug": "trollstore-installation-method-guide",
-      "source": "https://github.com/opa334/TrollStore",
-      "sourceImage": "https://github.com/opa334/TrollStore/blob/main/TrollStore/Resources/AppIcon76x76%402x.png",
-      "source_name": "opa334 TrollStore 2.1.1 README and release; current iOS CFW Guide installer matrix; JJTech0130 TrollRestore; opa334 Dopamine issue #773",
-      "source_page_url": "https://ios.cfw.guide/installing-trollstore/",
-      "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
-      "title": "How to Install TrollStore in 2026: Choose the Right Method for Your iPhone",
-      "version": "TrollStore 2.1.1 / TrollRestore 1.0 / installer matrix checked 2026-11-24",
-      "action": "update",
-      "candidate_fingerprint": "evergreen-guide.trollstore-installer-matrix-15-8-7-15-8-8-2026-11-24",
-      "channel": "scheduled-evergreen-jailbreak-guide",
-      "run_id": "scheduled-2026-11-24T03:00:00Z",
-      "source_url": "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
-      "additional_source_urls": [
-        "https://github.com/opa334/TrollStore/blob/2.1.1/README.md",
-        "https://github.com/opa334/TrollStore/releases/tag/2.1.1",
-        "https://ios.cfw.guide/installing-trollstore/",
-        "https://ios.cfw.guide/installing-trollstore-trollrestore/",
-        "https://github.com/JJTech0130/TrollRestore",
-        "https://github.com/opa334/Dopamine/issues/773"
-      ],
-      "media_git_blob_sha": "166888316c7468f012c68a4df9f11aeed322961c",
-      "media_alt": "Official TrollStore app icon from the opa334 TrollStore 2.1.1 source tag",
-      "source_visual_origin": "official-trollstore-app-icon"
     },
     {
       "category": {
@@ -8386,77 +8495,6 @@
       "source_visual_url": "https://raw.githubusercontent.com/opa334/TrollStore/2.1.1/TrollStore/Resources/AppIcon76x76%402x.png",
       "title": "How to Uninstall TrollStore Safely—and Choose Whether to Keep Apps",
       "version": "2.1.1"
-    },
-    {
-      "action": "create",
-      "candidate_fingerprint": "individual-update.tethera-1.2.0-hotspot-widgets-monthly-allowance-2026-11-21",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "Havoc package metadata lists iOS 15.0–26.0.1, jailbreak required and rootless support. The widget requires iOS 16.1+. The Wi-Fi connection-retention fix specifically requires a jailbreak that injects tweaks into the Wi-Fi service, such as Dopamine. A prior 1.1.0 changelog mentions a RootHide-Patcher-converted install fix; do not treat that as blanket RootHide or rootful support.",
-      "description": "Tethera 1.2.0 adds Home and Lock Screen hotspot widgets, monthly data caps, Wi-Fi departure automation and IPv6 controls. Check iOS and jailbreak limits.",
-      "developer": "AADiOS",
-      "entry_type": "individual-tweak-update",
-      "href": "tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
-      "media_retrieval_status": "Official Havoc package HTML and __NEXT_DATA__ media retrieval returned HTTP 403 during review; no screenshot or banner was embedded.",
-      "modified_at": "2026-11-21T18:02:51+03:00",
-      "name": "Tethera",
-      "package": "com.aadios.tethera",
-      "published_at": "2026-11-21T18:02:51+03:00",
-      "quality_target": 9,
-      "release": "Tethera 1.2.0 is the newest entry in Havoc's version history checked 2026-11-21; Havoc showed '4 days ago' while iOS Repo Updates groups the package update under 2026-11-16.",
-      "route": "/tethera-1-2-0-hotspot-widget-monthly-allowance-update/",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "tethera-1-2-0-hotspot-widget-monthly-allowance-update",
-      "source_name": "Official Havoc package listing and version history; AADiOS developer site; iOS Repo Updates date cross-check",
-      "source_page_url": "https://havoc.app/package/tethera",
-      "source_url": "https://havoc.app/package/tethera/changes",
-      "source_secondary_url": "https://www.ios-repo-updates.com/repository/havoc/",
-      "title": "Tethera 1.2.0 Adds Hotspot Widgets, Monthly Caps and Wi-Fi Automation",
-      "version": "1.2.0"
-    },
-    {
-      "action": "create",
-      "candidate_fingerprint": "individual-update.tinge-26-1.0.3-adaptive-badge-threshold-2026-11-24",
-      "channel": "scheduled-individual-tweak-update",
-      "category": {
-        "id": "individual-tweak-update",
-        "label": "Individual Tweak Update"
-      },
-      "compat": "The developer describes Tinge 26 as an iOS 26 port. The v1.0.3 release supplies iphoneos-arm64 for standard rootless and iphoneos-arm64e for RootHide; RootHide users install the native arm64e package directly without Patcher. README dependencies: PreferenceLoader, a Substrate-compatible loader and libcolorpicker; RootHide also needs rootless-compat. The repository release notes record one earlier test on iPhone 11 Pro Max / iOS 26.0.1 / Dopamine 3 RootHide; other devices, other builds and standard-rootless on-device testing are not confirmed. No rootful or TrollStore-only package is documented.",
-      "description": "Tinge 26 1.0.3 adds adaptive badge threshold controls on iOS 26. Check its RootHide and rootless packages, dependencies and limited device-testing record.",
-      "developer": "sahinkaa (Tinge 26 port; original Tinge by P2KDev)",
-      "entry_type": "individual-tweak-update",
-      "href": "tinge-26-1-0-3-adaptive-badge-threshold-update/",
-      "image": "assets/articles/source-media/tinge-26-1-0-3-official-settings.png",
-      "media_alt": "Official Tinge 26 v1.0.3 settings screenshot showing four-app notification badge live preview, the Darken / Lighten Threshold slider, adaptive text controls and border settings.",
-      "media_credit": "sahinkaa — official Tinge 26 v1.0.3 GitHub release screenshot",
-      "media_git_blob_sha": "a89786855d7179f30e5588ddb14cfbbf3617dc79",
-      "media_retrieval_status": "Retrieved the original 1242×2577 PNG from the official v1.0.3 release commit 880b34b401829883dbce02ae57dfe8cdf9eb3b63, decoded and visually inspected it, then embedded it unchanged. No matching Havoc/Chariz package page was surfaced in targeted search; a guessed Havoc package route was inaccessible, so no Havoc package metadata is asserted.",
-      "media_source_url": "https://raw.githubusercontent.com/sahinkaa/Tinge26/880b34b401829883dbce02ae57dfe8cdf9eb3b63/assets/Tinge26-Settings-v1.0.3.png",
-      "modified_at": "2026-11-24T18:39:25+03:00",
-      "name": "Tinge 26",
-      "package": "com.sahinkaa.tinge26",
-      "published_at": "2026-11-24T18:39:25+03:00",
-      "quality_target": 9,
-      "release": "Tinge 26 v1.0.3 published 2026-11-24T10:42:10Z; latest stable release returned by the official GitHub Releases endpoint. Adds Darken / Lighten Threshold (default 60), first-launch defaults 60/66/1.5 pt/30, double-tap slider resets, Text Color rename and Static-only color pickers.",
-      "route": "/tinge-26-1-0-3-adaptive-badge-threshold-update/",
-      "selection_pool": "scheduled-individual-tweak-update",
-      "slug": "tinge-26-1-0-3-adaptive-badge-threshold-update",
-      "source_name": "sahinkaa official Tinge26 GitHub v1.0.3 release, README and RELEASE_NOTES.md",
-      "source_page_url": "https://github.com/sahinkaa/Tinge26/releases/tag/v1.0.3",
-      "source_url": "https://github.com/sahinkaa/Tinge26/releases/tag/v1.0.3",
-      "source_visual_origin": "official-github-release-screenshot",
-      "source_visual_url": "https://raw.githubusercontent.com/sahinkaa/Tinge26/880b34b401829883dbce02ae57dfe8cdf9eb3b63/assets/Tinge26-Settings-v1.0.3.png",
-      "title": "Tinge 26 1.0.3 Adds Adaptive Badge Threshold and Cleaner Color Controls",
-      "version": "1.0.3",
-      "previous_version": "1.0.2",
-      "additional_source_urls": [
-        "https://github.com/sahinkaa/Tinge26/blob/main/README.md",
-        "https://github.com/sahinkaa/Tinge26/blob/main/RELEASE_NOTES.md",
-        "https://github.com/sahinkaa/Tinge26/commit/880b34b401829883dbce02ae57dfe8cdf9eb3b63"
-      ]
     }
   ],
   "events": [
@@ -12270,8 +12308,17 @@
       "published_at": "2026-11-28T00:00:00+03:00",
       "run_id": "scheduled-2026-11-27T21:00:00Z",
       "version": "iPhone14,2 / iOS 27.0 build 24A5390f / exact-build static OOL audit / documentation-only checkpoint"
+    },
+    {
+      "action": "create",
+      "channel": "ios-repo-discovery-original-source",
+      "href": "regram-for-instagram-7-2-update/",
+      "package": "com.fouadraheb.regram",
+      "published_at": "2026-11-28T14:40:53+00:00",
+      "run_id": "46155754621",
+      "version": "7.2"
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-28T12:00:00+03:00"
+  "updated_at": "2026-11-28T14:40:53+00:00"
 }

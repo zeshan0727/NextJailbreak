@@ -13,25 +13,29 @@
     <priority>0.8</priority>
   </url>
   <url>
-  <loc>https://nextjailbreak.com/deck-vs-killx-pro-neo-vs-closeall-app-switcher-comparison/</loc>
-  <lastmod>2026-11-25</lastmod>
-  <changefreq>monthly</changefreq>
-  <priority>0.8</priority>
-</url>
+    <loc>https://nextjailbreak.com/deck-vs-killx-pro-neo-vs-closeall-app-switcher-comparison/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <url>
-  <loc>https://nextjailbreak.com/tinge-26-1-0-3-adaptive-badge-threshold-update/</loc>
-  <lastmod>2026-11-24</lastmod>
-  <changefreq>monthly</changefreq>
-  <priority>0.8</priority>
-</url>
-<url><loc>https://nextjailbreak.com/nextclock-1-2-0-per-wallpaper-clock-packs-live-preview-aod-update/</loc><lastmod>2026-11-23</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+    <loc>https://nextjailbreak.com/tinge-26-1-0-3-adaptive-badge-threshold-update/</loc>
+    <lastmod>2026-11-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nextjailbreak.com/nextclock-1-2-0-per-wallpaper-clock-packs-live-preview-aod-update/</loc>
+    <lastmod>2026-11-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <url>
     <loc>https://nextjailbreak.com/vphone-cli-ios-27-rc-jailbreak-vm-apple-silicon/</loc>
     <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
   <url>
     <loc>https://nextjailbreak.com/tethera-1-2-0-hotspot-widget-monthly-allowance-update/</loc>
     <lastmod>2026-11-21</lastmod>
@@ -53,7 +57,7 @@
   <url>
     <loc>https://nextjailbreak.com/tims-cooked-ios-27-socket-uaf-correction/</loc>
     <lastmod>2026-11-28</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
@@ -76,7 +80,7 @@
   </url>
   <url>
     <loc>https://nextjailbreak.com/pullover-pro-vs-aerial-multitasking-tweak-comparison/</loc>
-    <lastmod>2026-11-25T18:00:00+03:00</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -380,7 +384,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
   <url>
     <loc>https://nextjailbreak.com/battman-1-1-0-battery-analytics-plugins-update/</loc>
     <lastmod>2026-10-16</lastmod>
@@ -1632,7 +1635,7 @@
   </url>
   <url>
     <loc>https://nextjailbreak.com/erosion-0-3-ios-27-sandbox-escape-toolbox/</loc>
-    <lastmod>2026-11-27</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1711,6 +1714,12 @@
   <url>
     <loc>https://nextjailbreak.com/worktweaks-7-0-save-vault-diagnostics-update/</loc>
     <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nextjailbreak.com/regram-for-instagram-7-2-update/</loc>
+    <lastmod>2026-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
