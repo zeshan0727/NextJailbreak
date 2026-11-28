@@ -4,6 +4,9 @@ on:
     branches: [agent/notify-glow-1.0.7-floating]
     paths-ignore: ['test-builds/notify-glow/**']
   workflow_dispatch:
+concurrency:
+  group: notify-glow-floating-test-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:

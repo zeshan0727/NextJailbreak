@@ -30,7 +30,31 @@ one('static void UVNGDarwinCallback(','''%group NGFPost
 %hook NCNotificationDispatcher
 - (void)postNotificationWithRequest:(id)request {
     %orig;
-    if(UVNGFloatingEnabled)NGFOnMain(^{[[NGFFloatEngine shared] record:request];});
+    if(UVNGFloatingEnabled)NGFOnMain(^{NGFNativeDispatcher=self;[[NGFFloatEngine shared] record:request];});
+}
+%end
+%end
+%group NGFAccepted
+%hook NCNotificationDispatcher
+- (void)_didPostNotificationRequest:(id)request {
+    %orig;
+    if(UVNGFloatingEnabled)NGFOnMain(^{NGFNativeDispatcher=self;[[NGFFloatEngine shared] record:request];});
+}
+%end
+%end
+%group NGFRemoved
+%hook NCNotificationDispatcher
+- (void)_didRemoveNotificationRequest:(id)request {
+    %orig;
+    if(UVNGFloatingEnabled)NGFOnMain(^{[[NGFFloatEngine shared] removeRequest:request];});
+}
+%end
+%end
+%group NGFClearFrom
+%hook NCNotificationDispatcher
+- (void)destination:(id)destination requestsClearingNotificationRequests:(id)requests fromDestinations:(id)destinations {
+    %orig;
+    if(UVNGFloatingEnabled)NGFOnMain(^{[[NGFFloatEngine shared] removeKeys:requests];});
 }
 %end
 %end
@@ -60,11 +84,19 @@ one('    } else if(CFEqual(eventName,UVNGStop)){','''    } else if(CFEqual(event
         [[NGFFloatEngine shared] clear];''')
 one('        %init(UVNGHooks);','''        %init(UVNGHooks);
         Class dispatchClass=NSClassFromString(@"NCNotificationDispatcher");
-        if(NGFVoidMethod(dispatchClass,@selector(postNotificationWithRequest:),3)){
+        if(NGFVoidMethod(dispatchClass,@selector(_didPostNotificationRequest:),3)){
+            %init(NGFAccepted); NGFDispatcherHooked=YES;
+        }else if(NGFVoidMethod(dispatchClass,@selector(postNotificationWithRequest:),3)){
             %init(NGFPost); NGFDispatcherHooked=YES;
         }
         if(NGFVoidMethod(dispatchClass,@selector(destination:requestsClearingNotificationRequests:),4)){
             %init(NGFClear);
+        }
+        if(NGFVoidMethod(dispatchClass,@selector(_didRemoveNotificationRequest:),3)){
+            %init(NGFRemoved);
+        }
+        if(NGFVoidMethod(dispatchClass,@selector(destination:requestsClearingNotificationRequests:fromDestinations:),5)){
+            %init(NGFClearFrom);
         }
         if(NGFVoidMethod(dispatchClass,@selector(withdrawNotificationWithRequest:),3)){
             %init(NGFWithdraw);

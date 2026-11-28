@@ -4,6 +4,8 @@
 #import <notify.h>
 
 static BOOL UVNGFloatingPreview;
+static __weak id NGFNativeDispatcher;
+static BOOL NGFVoidMethod(Class c,SEL s,unsigned int arguments);
 static CFStringRef const UVNGTestFloating=CFSTR("com.nextsolution.notifyglow/test-floating");
 static CFStringRef const UVNGStopFloating=CFSTR("com.nextsolution.notifyglow/stop-floating");
 
@@ -96,6 +98,7 @@ static BOOL NGFModeAllowed(void) {
 @property(nonatomic,strong) NSMutableOrderedSet<NSString *> *attended;
 @property(nonatomic,strong) NSArray<NGFFloatBall *> *balls;
 @property(nonatomic,strong) NSCache<NSString *,UIImage *> *images;
+@property(nonatomic,strong) NSMapTable<NSString *,id> *nativeRequests;
 @property(nonatomic,strong) UIView *panel;
 @property(nonatomic,strong) NGFFloatBall *selected;
 @property(nonatomic) CGSize priorSize;
@@ -129,6 +132,7 @@ static BOOL NGFModeAllowed(void) {
     if((self=[super init])){
         _groups=[NSMutableDictionary new];_keyGroups=[NSMutableDictionary new];
         _attended=[NSMutableOrderedSet new];_balls=@[];_images=[NSCache new];_images.countLimit=96;
+        _nativeRequests=[NSMapTable strongToWeakObjectsMapTable];
         _motion=[CMMotionManager new];_motion.deviceMotionUpdateInterval=1.0/60.0;
         _motion.accelerometerUpdateInterval=1.0/60.0;
         _lockToken=-1;_blankToken=-1;
@@ -188,7 +192,7 @@ static BOOL NGFModeAllowed(void) {
 }
 - (void)refresh {
     if(self.groups.count==0){
-        [self pause];[self.stateTimer invalidate];self.stateTimer=nil;
+        [self pause];self.suspendedForCenter=NO;self.sawCenter=NO;[self.stateTimer invalidate];self.stateTimer=nil;
         [self.panel removeFromSuperview];self.panel=nil;self.selected=nil;self.window=nil;
         return;
     }
@@ -239,11 +243,11 @@ static BOOL NGFModeAllowed(void) {
     b.button.layer.shadowColor=c.CGColor;b.button.layer.shadowOffset=CGSizeZero;
     b.button.layer.shadowOpacity=UVNGFloatingGlow;b.button.layer.shadowRadius=6+UVNGFloatingGlow*6;
     b.button.layer.shadowPath=[UIBezierPath bezierPathWithRoundedRect:b.button.bounds cornerRadius:b.image.layer.cornerRadius].CGPath;
-    b.badge.frame=CGRectMake(d-16,-5,MAX(22,b.keys.count>99?34:24),22);
+    b.badge.frame=CGRectMake(d-MAX(22,b.keys.count>99?34:24)+4,-4,MAX(22,b.keys.count>99?34:24),22);
     b.badge.layer.cornerRadius=11;
     b.badge.text=b.keys.count>999?@"999+":[NSString stringWithFormat:@"%lu",(unsigned long)b.keys.count];
     b.button.accessibilityLabel=[NSString stringWithFormat:@"%@, %lu notifications",b.section,(unsigned long)b.keys.count];
-    [b.image.layer removeAllAnimations];
+    [b.image.layer removeAllAnimations];[b.button.layer removeAnimationForKey:@"ng.shadowOpacity"];
     if(UVNGIconAnimation==1)UVNGAnimate(b.image.layer,@"opacity",@1,@.55,.7,YES);
     else if(UVNGIconAnimation==2)UVNGAnimate(b.image.layer,@"transform.scale",@.92,@1.08,.6,YES);
     else if(UVNGIconAnimation==3)UVNGAnimate(b.image.layer,@"transform.rotation.z",@0,@(2*M_PI),2,NO);
@@ -290,6 +294,7 @@ static BOOL NGFModeAllowed(void) {
     NSString *key=NGFRequestKey(request),*section=NGFString(request,@"sectionIdentifier");
     if(!key||!UVNGAppAllowed(section))return;
     id stamp=NGFGet(request,@"timestamp");
+    [self.nativeRequests setObject:request forKey:key];
     [self addKey:key section:section date:[stamp isKindOfClass:NSDate.class]?stamp:nil preview:NO];
 }
 - (void)attend:(NSString *)key {
@@ -298,7 +303,7 @@ static BOOL NGFModeAllowed(void) {
     if(!b)return;
     [self.attended addObject:key];
     if(self.attended.count>2048)[self.attended removeObjectAtIndex:0];
-    [b.keys removeObject:key];[b.dates removeObjectForKey:key];[self.keyGroups removeObjectForKey:key];
+    [b.keys removeObject:key];[b.dates removeObjectForKey:key];[self.keyGroups removeObjectForKey:key];[self.nativeRequests removeObjectForKey:key];
     if(!b.keys.count){
         [b.button removeFromSuperview];[self.groups removeObjectForKey:group];
         if(self.selected==b)[self closePanel];
@@ -360,11 +365,17 @@ static BOOL NGFModeAllowed(void) {
     for(NSString *key in b.keys){
         CGFloat y=i*58;
         UILabel *label=[[UILabel alloc]initWithFrame:CGRectMake(4,y,w-145,52)];
+        label.frame=CGRectMake(4,y,MAX(75,w-190),52);
         label.numberOfLines=2;label.font=[UIFont systemFontOfSize:13];label.textColor=UIColor.labelColor;
         label.text=[NSString stringWithFormat:@"Notification %lu\n%@",(unsigned long)i+1,[fmt stringFromDate:b.dates[key]?:NSDate.date]];
         [scroll addSubview:label];
         UIButton *done=[self panelButton:@"Attended" action:@selector(attendTapped:) tag:(NSInteger)i];
-        done.frame=CGRectMake(w-128,y+5,96,43);[scroll addSubview:done];i++;
+        done.frame=CGRectMake(w-108,y+5,78,43);[scroll addSubview:done];
+        if(!b.preview){
+            UIButton *open=[self panelButton:@"Open" action:@selector(openTapped:) tag:(NSInteger)i];
+            open.frame=CGRectMake(w-172,y+5,58,43);[scroll addSubview:open];
+        }
+        i++;
     }
     scroll.contentSize=CGSizeMake(w-24,i*58);[panel addSubview:scroll];
     UIButton *native=[self panelButton:b.preview?@"Close preview":@"Open Notification Centre" action:@selector(nativeTapped:) tag:0];
@@ -376,6 +387,41 @@ static BOOL NGFModeAllowed(void) {
     if([self locked]||!NGFScreenOn()){[self refresh];return;}
     NGFFloatBall *b=self.selected;
     if(b&&sender.tag>=0&&(NSUInteger)sender.tag<b.keys.count)[self attend:b.keys[(NSUInteger)sender.tag]];
+}
+- (void)openTapped:(UIButton *)sender {
+    if([self locked]||!NGFScreenOn()||NGFCoverVisible()){[self refresh];return;}
+    NGFFloatBall *b=self.selected;
+    if(!b||sender.tag<0||(NSUInteger)sender.tag>=b.keys.count)return;
+    NSString *key=b.keys[(NSUInteger)sender.tag];
+    id request=[self.nativeRequests objectForKey:key];
+    id wrapper=NGFGet(UIApplication.sharedApplication,@"notificationDispatcher");
+    id dispatcher=NGFGet(wrapper,@"dispatcher")?:NGFNativeDispatcher;
+    id action=NGFGet(request,@"defaultAction");
+    SEL execute=NSSelectorFromString(@"destination:executeAction:forNotificationRequest:requestAuthentication:withParameters:completion:");
+    SEL registered=NSSelectorFromString(@"_isRegisteredDestination:");
+    id destination=nil;
+    @try {
+        if(request&&action&&dispatcher&&NGFVoidMethod([dispatcher class],execute,8)&&[dispatcher respondsToSelector:registered]){
+            NSMethodSignature *sig=[dispatcher methodSignatureForSelector:execute];
+            const char *auth=[sig getArgumentTypeAtIndex:5];
+            if(auth&&(auth[0]=='B'||auth[0]=='c')){
+                id destinations=NGFGet(request,@"requestDestinations");
+                for(NSString *name in @[@"notificationCenterDestination",@"lockScreenDestination",@"bannerDestination"]){
+                    id candidate=NGFGet(wrapper,name);
+                    NSString *identifier=NGFString(candidate,@"identifier");
+                    if(!identifier.length)identifier=NGFString(candidate,@"destinationIdentifier");
+                    if(!candidate||!identifier.length||![destinations respondsToSelector:@selector(containsObject:)]||![destinations containsObject:identifier])continue;
+                    if(((BOOL(*)(id,SEL,id))objc_msgSend)(dispatcher,registered,candidate)){destination=candidate;break;}
+                }
+            }
+        }
+    }@catch(__unused NSException *e){destination=nil;}
+    if(!destination){[self nativeTapped:sender];return;}
+    if([self locked]){[self refresh];return;}
+    @try {
+        ((void(*)(id,SEL,id,id,id,BOOL,id,id))objc_msgSend)(dispatcher,execute,destination,action,request,YES,nil,^{});
+        [self closePanel];
+    }@catch(__unused NSException *e){[self nativeTapped:sender];}
 }
 - (void)nativeTapped:(__unused UIButton *)sender {
     if([self locked]||!NGFScreenOn()){[self refresh];return;}
@@ -397,7 +443,7 @@ static BOOL NGFModeAllowed(void) {
 - (void)clear {
     [self closePanel];[self pause];
     for(NGFFloatBall *b in self.balls)[b.button removeFromSuperview];
-    [self.groups removeAllObjects];[self.keyGroups removeAllObjects];[self.attended removeAllObjects];
+    [self.groups removeAllObjects];[self.keyGroups removeAllObjects];[self.nativeRequests removeAllObjects];[self.attended removeAllObjects];
     self.balls=@[];UVNGFloatingPreview=NO;[self refresh];
 }
 - (void)stopPreview {
