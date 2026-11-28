@@ -5,7 +5,7 @@
 <key>CFBundleName</key><string>Next Summary</string>
 <key>CFBundleExecutable</key><string>NextSummaryPrefs</string>
 <key>CFBundlePackageType</key><string>BNDL</string>
-<key>CFBundleVersion</key><string>1</string>
-<key>CFBundleShortVersionString</key><string>0.1.1</string>
+<key>CFBundleVersion</key><string>2</string>
+<key>CFBundleShortVersionString</key><string>0.1.2</string>
 <key>NSPrincipalClass</key><string>NSUPrefsController</string>
 </dict></plist>
