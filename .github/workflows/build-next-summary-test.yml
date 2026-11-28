@@ -55,7 +55,7 @@ jobs:
           /usr/libexec/PlistBuddy -c 'Print :items:1:label' "$prefs/Root.plist" | grep -Fx 'Enable AI summaries'
           strings -a "$prefs/NextSummaryPrefs" > "$RUNNER_TEMP/prefs-symbols.txt"
           grep -q NSUPrefsController "$RUNNER_TEMP/prefs-symbols.txt"
-          lipo -verify_arch arm64 arm64e "$prefs/NextSummaryPrefs"
+          lipo "$prefs/NextSummaryPrefs" -verify_arch arm64 arm64e
           mkdir -p "$RUNNER_TEMP/next-summary"
           cp "$deb" "$RUNNER_TEMP/next-summary/NextSummary_0.1.2_RootHide.deb"
           shasum -a 256 "$RUNNER_TEMP/next-summary/"*.deb
