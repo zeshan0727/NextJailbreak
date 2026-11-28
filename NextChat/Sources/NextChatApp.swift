@@ -147,6 +147,8 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private var attachmentPopupParents: [ObjectIdentifier: WKWebView] = [:]
     private var recentDownloadGestures: [ObjectIdentifier: Date] = [:]
     private var seenReplyNotices: [String] = []
+    @Published var replyDiagnostic = "Waiting for reply observer."
+    @Published var lastReplyEvent = "No response detected yet."
     @Published var diagnostic = "No navigation error recorded."
     @Published var resetInProgress = false
     @Published var popup: WKWebView?
@@ -219,77 +221,126 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     private static let replyNoticeScript = #"""
     (() => {
       if (location.protocol !== 'https:' || location.hostname !== 'chatgpt.com') return;
-      const stopSelector = 'button[data-testid="stop-button"],button[aria-label="Stop generating"],button[aria-label="Stop streaming"]';
-      const sendSelector = 'button[data-testid="send-button"],button[aria-label="Send prompt"],button[aria-label="Send message"]';
-      const assistantSelector = '[data-message-author-role="assistant"]';
-      let state = null, scheduled = false, stable = null, baseline = 0, previousPath = location.pathname, lastSubmit = 0;
-      const chatPath = p => /^(\/c\/[^/]+|\/g\/[^/]+(?:\/[^/]+)*\/c\/[^/]+)\/?$/.test(p);
-      const assistantCount = () => document.querySelectorAll(assistantSelector).length;
-      const stopPresent = () => !!document.querySelector(stopSelector);
-      const sendPresent = () => !!document.querySelector(sendSelector);
-      const forget = () => { clearTimeout(stable); stable = null; state = null; };
-      document.addEventListener('click', event => {
-        if (!event.isTrusted) return;
-        const target = event.target instanceof Element ? event.target : event.target?.parentElement;
-        if (target?.closest(stopSelector)) { if (state) state.cancelled = true; return; }
-        if (target?.closest(sendSelector)) lastSubmit = Date.now();
-      }, true);
-      document.addEventListener('keydown', event => {
-        if (event.isTrusted && event.key === 'Enter' && !event.shiftKey && !event.isComposing &&
-            (event.target?.isContentEditable || event.target?.tagName === 'TEXTAREA')) lastSubmit = Date.now();
-      }, true);
-      const inspect = () => {
-        scheduled = false;
-        const path = location.pathname;
-        if (path !== previousPath) {
-          if (state && previousPath === '/' && chatPath(path)) state.path = path;
-          else { forget(); baseline = assistantCount(); lastSubmit = 0; }
-          previousPath = path;
+      const stop = 'button[data-testid="stop-button"],button[data-testid*="stop-generat"],button[aria-label*="stop generating" i],button[aria-label*="stop streaming" i],button[aria-label="Stop" i]';
+      const send = 'button[data-testid="send-button"],button[data-testid*="composer-send"],button[aria-label="Send prompt" i],button[aria-label="Send message" i],#composer-submit-button';
+      const assistant = '[data-message-author-role="assistant"]';
+      const user = '[data-message-author-role="user"]';
+      const completeAction = 'button[data-testid="copy-turn-action-button"],button[data-testid*="good-response"],button[data-testid*="bad-response"],button[aria-label="Copy" i],button[aria-label="Good response" i],button[aria-label="Bad response" i]';
+      const chatPath = p => /(?:^|\/)c\/[^/]+\/?$/.test(p);
+      const bridge = window.webkit?.messageHandlers?.nextReplyNotice;
+      if (!bridge) return;
+      let path = location.pathname, state = null, timer = null, lastStatus = '';
+      let last = null;
+      const status = value => {
+        if (value === lastStatus) return;
+        lastStatus = value;
+        bridge.postMessage({kind:'status', status:value});
+      };
+      const nodes = selector => Array.from(document.querySelectorAll(selector));
+      const snap = () => {
+        const a = nodes(assistant), u = nodes(user);
+        const reply = a[a.length - 1], prompt = u[u.length - 1];
+        const turn = reply?.closest('[data-testid^="conversation-turn-"],article,[data-turn-id]') || reply;
+        const key = n => n?.getAttribute('data-message-id') || n?.closest('[data-message-id]')?.getAttribute('data-message-id') || '';
+        return {a:a.length,u:u.length, aid:key(reply),uid:key(prompt),reply, prompt,
+          // Only inspect response length locally. Never send message content.
+          size:reply?.textContent?.length || 0,
+          rich:!!reply?.querySelector('img,video,table,pre,canvas'),
+          stopped:!!document.querySelector(stop),
+          actions:!!turn?.querySelector(completeAction),
+          afterPrompt:!!(reply && prompt && (prompt.compareDocumentPosition(reply) & Node.DOCUMENT_POSITION_FOLLOWING))};
+      };
+      const fresh = (x,b) => x.a > b.a || (x.aid && x.aid !== b.aid) || (x.reply && x.reply !== b.reply && x.afterPrompt && x.u > b.u);
+      const begin = (base, reason) => {
+        if (state) return;
+        state = {base, id:Date.now()+'-'+Math.random().toString(36).slice(2), path, started:Date.now(), busy:false, cancelled:false, quiet:0, signature:'', reason};
+        status('Waiting for AI response');
+      };
+      document.addEventListener('click', e => {
+        if (!e.isTrusted) return;
+        const target = e.target instanceof Element ? e.target : e.target?.parentElement;
+        if (target?.closest(stop)) { if(state) { state.cancelled = true; status('Response stopped by user'); } return; }
+        const control = target?.closest(send);
+        if (control && !control.matches(stop) && !control.disabled) begin(snap(),'send');
+      },true);
+      document.addEventListener('keydown', e => {
+        if (e.isTrusted && e.key === 'Enter' && !e.shiftKey && !e.isComposing &&
+            (e.target?.isContentEditable || e.target?.tagName === 'TEXTAREA')) begin(snap(),'send');
+      },true);
+      const check = () => {
+        const now = Date.now(), p = location.pathname, x = snap();
+        if (p !== path) {
+          const newConversation = !chatPath(path) && chatPath(p);
+          if (state && newConversation) state.path = p;
+          else { state = null; last = x; }
+          path = p;
         }
-        const count = assistantCount();
-        if (stopPresent()) {
-          clearTimeout(stable); stable = null;
-          if (!state) state = {path, baseline: Math.min(baseline, count), id: Date.now() + '-' + Math.random().toString(36).slice(2), cancelled: false, submitted: Date.now() - lastSubmit < 120000};
+        if (!last) last = x;
+        if (!state && x.stopped && chatPath(path)) begin(last,'streaming');
+        if (!state && chatPath(path) && x.u > last.u) begin(last,'new user turn');
+        if (!state) {
+          last = x;
+          status(chatPath(path) ? 'Observer active — waiting for a new message' : 'Observer active — open a conversation');
           return;
         }
-        if (!state) { baseline = count; return; }
-        if (state.cancelled) { forget(); baseline = count; return; }
-        if (!sendPresent() || !chatPath(path) || count <= state.baseline || !navigator.onLine) return;
-        if (stable !== null) return;
-        const candidate = state;
-        stable = setTimeout(() => {
-          stable = null;
-          if (state !== candidate || candidate.cancelled || stopPresent() || !sendPresent() ||
-              location.pathname !== candidate.path || !navigator.onLine || assistantCount() <= candidate.baseline) return;
-          window.webkit?.messageHandlers?.nextReplyNotice?.postMessage({id: candidate.id, path: candidate.path});
-          forget(); baseline = assistantCount();
-        }, 1800);
+        const c = state;
+        if (c.cancelled) { if (!x.stopped) {state=null;last=x;} return; }
+        if (now-c.started > 30*60*1000) { state=null;last=x;status('Response observation timed out');return; }
+        if (x.stopped) { c.busy=true;c.quiet=0;status('AI is responding');return; }
+        const newReply = fresh(x,c.base);
+        // The stop control may disappear into a voice button rather than a send button.
+        // Require a new assistant turn, then either completion actions or a witnessed stream end.
+        if (!chatPath(path) || !newReply || !x.afterPrompt || (!x.size && !x.rich) || !navigator.onLine) {
+          c.quiet=0;return;
+        }
+        if (!x.actions && !c.busy) { c.quiet=0;status('Assistant turn detected — waiting for completion');return; }
+        const signature = x.a+'|'+x.aid+'|'+x.size+'|'+x.actions;
+        if (c.signature !== signature) {c.signature=signature;c.quiet=now;return;}
+        if (!c.quiet) c.quiet=now;
+        if (now-c.quiet < (x.actions ? 1000 : 2500)) return;
+        bridge.postMessage({kind:'complete',id:c.id,path:path});
+        status('AI response completion detected');
+        state=null;last=x;
       };
       const queue = () => {
-        if (scheduled) return;
-        scheduled = true;
-        setTimeout(inspect, 350);
+        if(timer !== null) return;
+        timer=setTimeout(()=>{timer=null;check();},180);
       };
-      const observer = new MutationObserver(queue);
-      observer.observe(document.documentElement, {childList:true,subtree:true,attributes:true,attributeFilter:['data-testid','aria-label','disabled']});
-      window.addEventListener('pageshow', queue);
-      window.addEventListener('popstate', queue);
-      document.addEventListener('visibilitychange', queue);
-      baseline = assistantCount(); queue();
+      new MutationObserver(queue).observe(document.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['data-testid','aria-label','disabled','data-message-id','data-message-author-role']});
+      window.addEventListener('pageshow',queue);
+      window.addEventListener('popstate',queue);
+      document.addEventListener('visibilitychange',queue);
+      setInterval(check,1000);
+      status('Observer connected');check();
     })();
     """#
     fileprivate func receiveReplyNotice(_ message: WKScriptMessage) {
         guard message.name == "nextReplyNotice", message.frameInfo.isMainFrame,
               message.frameInfo.securityOrigin.protocol == "https", message.frameInfo.securityOrigin.host == "chatgpt.com",
               let view = message.webView, liveViews.contains(where: { $0 === view }),
-              let url = conversationURL(view.url),
-              let body = message.body as? [String: String], let id = body["id"], id.count < 100,
+              chatPage(view.url), !authPage(view.url),
+              let body = message.body as? [String: String] else { return }
+        if body["kind"] == "status" {
+            if view === web, let status = body["status"], status.count <= 120, replyDiagnostic != status { replyDiagnostic = status }
+            return
+        }
+        guard body["kind"] == "complete", let url = conversationURL(view.url),
+              let id = body["id"], id.count < 100,
               body["path"] == url.path, !seenReplyNotices.contains(id) else { return }
         seenReplyNotices.append(id)
         if seenReplyNotices.count > 100 { seenReplyNotices.removeFirst() }
-        guard view !== web || UIApplication.shared.applicationState != .active || ChatNotices.option("nextNoticesVisibleReply", default: false) else { return }
-        ChatNotices.post("Reply ready", "A conversation may have finished responding.",
+        lastReplyEvent = "Response detected at " + Date().formatted(date: .omitted, time: .standard)
+        guard ChatNotices.enabled, ChatNotices.option("nextNoticesReplies") else {
+            lastReplyEvent += " — notifications disabled."
+            return
+        }
+        guard view !== web || UIApplication.shared.applicationState != .active || ChatNotices.option("nextNoticesVisibleReply", default: true) else {
+            lastReplyEvent += " — current chat alerts disabled."
+            return
+        }
+        ChatNotices.post("Reply ready", "Your AI response is ready.",
                          route: "conversation:" + url.absoluteString, category: "nextNoticesReplies")
+        lastReplyEvent += " — notification requested."
     }
     // Some web clients generate a download anchor off-DOM and call click().
     // Attach it briefly so the standard DOM download listener can see the event.
@@ -1372,9 +1423,10 @@ struct DownloadsView: View {
     }
 }
 struct NotificationSettings: View {
+    @ObservedObject var browser: Browser
     @AppStorage("nextNoticesEnabled") private var enabled = false
     @AppStorage("nextNoticesReplies") private var replies = true
-    @AppStorage("nextNoticesVisibleReply") private var visibleReplies = false
+    @AppStorage("nextNoticesVisibleReply") private var visibleReplies = true
     @AppStorage("nextNoticesSound") private var sound = true
     @Environment(\.scenePhase) private var scenePhase
     @State private var permission = UNAuthorizationStatus.notDetermined
@@ -1424,6 +1476,13 @@ struct NotificationSettings: View {
                 if !status.isEmpty { Text(status).font(.caption).foregroundStyle(.secondary) }
             } footer: {
                 Text("Reply detection works only while the embedded web page is running. iOS may suspend the app in the background. This is not ChatGPT account-wide push notification support.")
+            }
+            Section("Reply detection") {
+                Text(browser.replyDiagnostic).font(.subheadline)
+                Text(browser.lastReplyEvent).font(.caption).foregroundStyle(.secondary)
+                ShareLink(item: browser.replyDiagnostic + "\n" + browser.lastReplyEvent) {
+                    Label("Share reply diagnostics", systemImage: "square.and.arrow.up")
+                }
             }
         }
         .navigationTitle("Notifications")
@@ -1504,7 +1563,7 @@ struct SettingsView: View {
                     } label: { tile("Controls & gestures", "Navigation, haptics and links", "hand.tap", .blue) }
                 }
                 Section("App") {
-                    NavigationLink { NotificationSettings() } label: { tile("Notifications", "AI responses and sounds", "bell.badge", .red) }
+                    NavigationLink { NotificationSettings(browser: browser) } label: { tile("Notifications", "AI responses and sounds", "bell.badge", .red) }
                     NavigationLink {
                         destination("Privacy") {
                 Section("Privacy") {
@@ -1544,7 +1603,7 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (18)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (19)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
 
                         }
@@ -1552,7 +1611,7 @@ struct SettingsView: View {
                     NavigationLink {
                         destination("About") {
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (18)")
+                    LabeledContent("Version", value: "1.0.0 (19)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
