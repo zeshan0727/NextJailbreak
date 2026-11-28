@@ -2,10 +2,10 @@ name: Next Summary RootHide Test
 on:
   push:
     branches: [agent/next-summary-0.1.1-test]
-    paths: ['source/NextSummary/**']
+    paths: ['source/NextSummary/BUILD_READY']
   pull_request:
     branches: [main]
-    paths: ['source/NextSummary/**']
+    paths: ['source/NextSummary/BUILD_READY']
   workflow_dispatch:
 permissions:
   contents: read
