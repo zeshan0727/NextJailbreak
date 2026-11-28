@@ -1346,3 +1346,19 @@ Size: 108724
 MD5sum: a509716efe08d770ce43efdd48e392a9
 SHA1: d14a44d64cf6d78dfd5d7b7ca0ca2061986206d8
 SHA256: 9b4c4a229f2479a9ec58906ecdcc66c6c9c4c7bdcf3b7bcd5f4635ca2bdd2a25
+
+Package: com.nextjailbreak.nextsummary
+Version: 0.1.4
+Architecture: iphoneos-arm64e
+Maintainer: Next Jailbreak
+Installed-Size: 424
+Depends: firmware (>= 16.0), mobilesubstrate, preferenceloader
+Filename: ./debfiles/NextSummary_0.1.4_RootHide.deb
+Size: 36560
+MD5sum: df2f009c9d557f2e8f0cf621ed861a38
+SHA1: 3aa0ab080942928484427df7166b8bdb02756373
+SHA256: a174c32bfce05749f2a370994abd24aa0b55c3e4bca03f58b797c0379c0addf2
+Section: Tweaks
+Description: Opt-in AI summaries for Notification Center on iOS 16.
+Author: Next Jailbreak
+Name: Next Summary
