@@ -576,8 +576,13 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
 // Keep live pages attached, but resize only the visible page during keyboard transitions.
 final class LiveChatContainer: UIView {
     private weak var visiblePage: WKWebView?
+    private var attachedPages: [ObjectIdentifier] = []
     func reconcile(_ pages: [WKWebView], active: WKWebView) {
-        let keep = Set(pages.map { ObjectIdentifier($0) })
+        let identities = pages.map { ObjectIdentifier($0) }
+        // SwiftUI can issue many updates during keyboard animation; do not revisit inactive views.
+        guard attachedPages != identities || visiblePage !== active || active.superview !== self || active.isHidden else { return }
+        attachedPages = identities
+        let keep = Set(identities)
         for child in subviews where !keep.contains(ObjectIdentifier(child)) { child.removeFromSuperview() }
         for page in pages where page.superview !== self {
             page.autoresizingMask = []
@@ -731,6 +736,8 @@ final class Dictation: ObservableObject {
 }
 struct ConversationHub: View {
     @ObservedObject var browser: Browser
+    var onClose: (() -> Void)? = nil
+    var onSettings: (() -> Void)? = nil
     @AppStorage("recordRecentChats") private var recordRecentChats = true
     @State private var search = ""
     @State private var editing: SavedLink?
@@ -739,21 +746,25 @@ struct ConversationHub: View {
     @State private var closingTab: WKWebView?
     @Environment(\.dismiss) private var dismiss
     private func matches(_ title: String) -> Bool { search.isEmpty || title.localizedCaseInsensitiveContains(search) }
-    private func open(_ url: URL) { if browser.open(url) { dismiss() } }
+    private func close() { if let onClose { onClose() } else { dismiss() } }
+    private func open(_ url: URL) { if browser.open(url) { close() } }
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    Button { browser.newChat(); dismiss() } label: { Label("New conversation", systemImage: "square.and.pencil") }
+                    Button { browser.newChat(); close() } label: { Label("New conversation", systemImage: "square.and.pencil") }
                     Button { browser.savePage() } label: { Label("Pin current conversation", systemImage: "pin") }
                 }
                 Section {
                     ForEach(browser.liveViews, id: \.self) { view in
                         HStack {
                             Button {
-                                browser.selectTab(view); dismiss()
+                                browser.selectTab(view); close()
                             } label: {
                                 Label(browser.tabTitle(view), systemImage: view === browser.web ? "checkmark.circle.fill" : "rectangle.on.rectangle")
+                                    .font(.subheadline.weight(view === browser.web ? .semibold : .regular))
+                                    .foregroundStyle(view === browser.web ? Color.accentColor : Color.primary)
+                                    .lineLimit(2)
                             }.buttonStyle(.borderless)
                             Spacer()
                             if browser.liveViews.count > 1 {
@@ -802,13 +813,18 @@ struct ConversationHub: View {
                         }
                     }
                 }
+                if let onSettings {
+                    Section { Button(action: onSettings) { Label("Settings", systemImage: "gearshape") } }
+                }
                 Section {
                     Button("Clear local recents", role: .destructive) { confirmClear = true }.disabled(browser.recentChats.isEmpty)
                 } footer: { Text("Only titles and links opened in Next Chat are stored locally. Your full account history remains in the ChatGPT sidebar. Removing a local shortcut does not delete a conversation.") }
             }
-            .searchable(text: $search, prompt: "Search local conversations")
+            .listStyle(.insetGrouped)
+            .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search conversations")
             .navigationTitle("Conversations")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button { close() } label: { Image(systemName: "xmark.circle.fill").font(.title3).foregroundStyle(.secondary) }.accessibilityLabel("Close conversations") } }
             .alert("Rename pinned conversation", isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
                 TextField("Title", text: $titleDraft)
                 Button("Save") { if let item = editing { browser.renamePin(item.id, title: titleDraft) }; editing = nil }
@@ -960,7 +976,6 @@ struct DownloadsView: View {
 }
 struct SettingsView: View {
     @ObservedObject var browser: Browser
-    @AppStorage("appearance") private var appearance = "System"
     @AppStorage("haptics") private var haptics = true
     @AppStorage("restore") private var restore = true
     @AppStorage("externalLinkMode") private var externalLinkMode = "In-app browser"
@@ -971,11 +986,48 @@ struct SettingsView: View {
     @AppStorage("lockDelay") private var lockDelay = 0
     @State private var confirm = false
     @Environment(\.dismiss) private var dismiss
+    private func destination<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        Form { content() }
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+    }
+    private func tile(_ title: String, _ detail: String, _ symbol: String, _ tint: Color) -> some View {
+        HStack(spacing: 13) {
+            Image(systemName: symbol).font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(tint).frame(width: 42, height: 42)
+                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 13))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.body.weight(.semibold))
+                Text(detail).font(.caption).foregroundStyle(.secondary)
+            }
+        }.padding(.vertical, 5)
+    }
     var body: some View {
         NavigationStack {
-            Form {
-                Section("General") {
-                    Picker("Appearance", selection: $appearance) { ForEach(["System","Light","Dark"], id: \.self) { Text($0) } }
+            List {
+                Section {
+                    HStack(spacing: 14) {
+                        Image(systemName: "bubble.left.and.bubble.right.fill").font(.system(size: 26, weight: .semibold))
+                            .frame(width: 60, height: 60)
+                            .foregroundStyle(.white).background(Color.accentColor, in: RoundedRectangle(cornerRadius: 18))
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Next Chat").font(.title2.bold())
+                            Text("Your conversations, elevated.").font(.subheadline).foregroundStyle(.secondary)
+                        }
+                    }.padding(.vertical, 10)
+                }
+                Section("Personalize") {
+                    NavigationLink {
+                        destination("Appearance") {
+                            Section {
+                                LabeledContent("Theme", value: "System")
+                                Text("Next Chat automatically follows iOS light and dark appearance. Change it in iOS Settings → Display & Brightness. ChatGPT's website has its own appearance preference.").foregroundStyle(.secondary)
+                            }
+                        }
+                    } label: { tile("Appearance", "Automatic light and dark", "circle.lefthalf.filled", .indigo) }
+                    NavigationLink {
+                        destination("Controls") {
+                Section("Preferences") {
                     Toggle("Haptics", isOn: $haptics)
                     Toggle("Restore last conversation", isOn: $restore)
                     Picker("Left edge swipe", selection: $leftEdgeAction) {
@@ -988,6 +1040,13 @@ struct SettingsView: View {
                         Text("Safari").tag("Safari")
                     }
                 }
+
+                        }
+                    } label: { tile("Controls & gestures", "Navigation, haptics and links", "hand.tap", .blue) }
+                }
+                Section("App") {
+                    NavigationLink {
+                        destination("Privacy") {
                 Section("Privacy") {
                     Toggle("App switcher privacy", isOn: $privacy)
                     Toggle("Record local recent conversations", isOn: $recordRecentChats)
@@ -1003,6 +1062,14 @@ struct SettingsView: View {
                     Button("Clear cache") { browser.clearCache(all: false) }
                     Button("Clear website data", role: .destructive) { confirm = true }
                 }
+
+                        }
+                        .confirmationDialog("Clear local website data and sign out of this web session?", isPresented: $confirm, titleVisibility: .visible) {
+                            Button("Clear data", role: .destructive) { browser.clearCache(all: true) }
+                        }
+                    } label: { tile("Privacy & security", "App lock, local history and storage", "lock.shield", .green) }
+                    NavigationLink {
+                        destination("Connection") {
                 Section("Connection") {
                     LabeledContent("Network", value: browser.online ? "Available" : "Offline")
                     Button("Reload ChatGPT") { browser.web.reload(); dismiss() }
@@ -1012,24 +1079,31 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (11)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (12)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
+
+                        }
+                    } label: { tile("Connection & diagnostics", "Network, sign-in and downloads", "network", .orange) }
+                    NavigationLink {
+                        destination("About") {
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (11)")
+                    LabeledContent("Version", value: "1.0.0 (12)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
-            }.navigationTitle("Settings").toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
-            .confirmationDialog("Clear local website data and sign out of this web session?", isPresented: $confirm, titleVisibility: .visible) {
-                Button("Clear data", role: .destructive) { browser.clearCache(all: true) }
-            }
+
+                        }
+                    } label: { tile("About Next Chat", "Version and policies", "info.circle", .secondary) }
+                }
+            }.listStyle(.insetGrouped)
+            .navigationTitle("Settings").toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
     }
 }
 enum Panel: String, Identifiable { case settings, downloads, prompts, bookmarks, browserMode, externalBrowser; var id: String { rawValue } }
 struct RootView: View {
     @StateObject private var browser = Browser()
-    @AppStorage("appearance") private var appearance = "System"
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("haptics") private var haptics = true
     @AppStorage("privacy") private var privacy = true
     @AppStorage("appLock") private var appLock = false
@@ -1038,6 +1112,7 @@ struct RootView: View {
     @State private var panel: Panel?
     @State private var externalStart: URL?
     @State private var controlsExpanded = false
+    @State private var sidebarOpen = false
     @AppStorage("leftEdgeAction") private var leftEdgeAction = "Conversations"
     @State private var locked = true
     @State private var authenticating = false
@@ -1053,15 +1128,24 @@ struct RootView: View {
         guard !launchBrowserMode, browser.popup == nil, !appLock || !locked else { return }
         if controlsExpanded != expanded {
             tap()
-            withAnimation(.easeInOut(duration: 0.22)) { controlsExpanded = expanded }
+            controlsExpanded = expanded
         }
     }
     private func leftEdge() {
         guard !launchBrowserMode, browser.popup == nil, panel == nil, !appLock || !locked else { return }
-        if leftEdgeAction == "Conversations" { tap(); controlsExpanded = false; panel = .bookmarks }
+        if leftEdgeAction == "Conversations" { showConversations() }
+    }
+    private func showConversations() {
+        guard !appLock || !locked, browser.popup == nil else { return }
+        if launchBrowserMode { panel = .bookmarks; return }
+        tap()
+        browser.web.endEditing(true)
+        controlsExpanded = false
+        sidebarOpen = true
     }
     private func showBrowser() {
         guard !appLock || !locked else { pendingRoute = "resume"; return }
+        sidebarOpen = false
         browser.prepareSystemBrowser()
         didLaunchBrowser = true
         panel = .browserMode
@@ -1104,7 +1188,8 @@ struct RootView: View {
                     if !browser.active.isEmpty { Circle().fill(Color.accentColor).frame(width: 6, height: 6) }
                 }
                 .padding(.horizontal, 12)
-                .frame(height: 22)
+                .frame(height: 24)
+                .background(Color(uiColor: .tertiarySystemFill), in: Capsule())
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -1112,11 +1197,11 @@ struct RootView: View {
             .simultaneousGesture(DragGesture(minimumDistance: 12).onEnded { value in
                 if value.translation.width < -20 && abs(value.translation.width) > abs(value.translation.height) { setControls(true) }
             })
-        }.padding(.horizontal, 8)
+        }.padding(.horizontal, 12)
     }
     private var expandedControls: some View {
         HStack(spacing: 3) {
-            Button { tap(); controlsExpanded = false; panel = .bookmarks } label: {
+            Button { showConversations() } label: {
                 Image(systemName: "books.vertical").frame(minWidth: 44, minHeight: 44)
             }.accessibilityLabel("Conversations")
             Button { tap(); controlsExpanded = false; panel = .prompts } label: {
@@ -1133,7 +1218,7 @@ struct RootView: View {
                 Menu {
                     Button { browser.resume() } label: { Label("Resume conversation", systemImage: "clock") }
                     Button { browser.savePage() } label: { Label("Save current page", systemImage: "bookmark") }
-                    Button { panel = .bookmarks } label: { Label("Saved conversations", systemImage: "books.vertical") }
+                    Button { showConversations() } label: { Label("Saved conversations", systemImage: "books.vertical") }
                     Button { panel = .prompts } label: { Label("Prompt tools", systemImage: "text.bubble") }
                     Button { browser.web.reload() } label: { Label("Reload", systemImage: "arrow.clockwise") }
                     Button { browser.restartLogin() } label: { Label("Restart sign-in", systemImage: "person.crop.circle.badge.exclamationmark") }
@@ -1145,19 +1230,21 @@ struct RootView: View {
                     Button { panel = .settings } label: { Label("Settings", systemImage: "gearshape") }
                 } label: { Image(systemName: "ellipsis.circle").frame(minWidth: 44, minHeight: 44) }.accessibilityLabel("More")
 
-            Spacer(minLength: 0)
             Button { setControls(false) } label: {
                 Image(systemName: "chevron.right").frame(minWidth: 44, minHeight: 44)
             }.accessibilityLabel("Hide Next Chat controls")
         }
         .font(.system(size: 20, weight: .medium))
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 7)
         .frame(height: 46)
+        .background(Color(uiColor: .secondarySystemGroupedBackground), in: Capsule())
+        .overlay { Capsule().strokeBorder(Color(uiColor: .separator).opacity(0.35), lineWidth: 0.5) }
+        .padding(.horizontal, 8)
+        .frame(maxWidth: .infinity, alignment: .trailing)
         .contentShape(Rectangle())
         .simultaneousGesture(DragGesture(minimumDistance: 18).onEnded { value in
             if value.translation.width > 36 && abs(value.translation.width) > abs(value.translation.height) { setControls(false) }
         })
-        .overlay(alignment: .top) { Divider() }
     }
     var body: some View {
         VStack(spacing: 0) {
@@ -1195,6 +1282,7 @@ struct RootView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .accessibilityHidden(sidebarOpen)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !launchBrowserMode && browser.popup == nil {
                 ZStack(alignment: .top) {
@@ -1214,11 +1302,36 @@ struct RootView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .background(Color(uiColor: .secondarySystemBackground))
+                .frame(height: controlsExpanded ? 50 : 26, alignment: .center)
+                .background(Color(uiColor: .systemBackground))
                 .clipped()
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.20), value: controlsExpanded)
             }
         }
-        .preferredColorScheme(appearance == "Dark" ? .dark : appearance == "Light" ? .light : nil)
+        .overlay(alignment: .leading) {
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    if sidebarOpen {
+                        Color.black.opacity(0.28).ignoresSafeArea()
+                            .onTapGesture { sidebarOpen = false }
+                            .accessibilityLabel("Close conversations")
+                            .transition(.opacity)
+                        ConversationHub(browser: browser, onClose: { sidebarOpen = false }, onSettings: { sidebarOpen = false; panel = .settings })
+                            .frame(width: min(360, max(220, proxy.size.width - 32)))
+                            .frame(maxHeight: .infinity)
+                            .background(Color(uiColor: .systemGroupedBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                            .padding(.vertical, 4)
+                            .shadow(color: .black.opacity(0.12), radius: 10, x: 3, y: 0)
+                            .transition(.move(edge: .leading).combined(with: .opacity))
+                            .accessibilityAddTraits(.isModal)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.24), value: sidebarOpen)
+            }.allowsHitTesting(sidebarOpen)
+        }
+        .preferredColorScheme(nil)
         .sheet(item: $panel) { sheet in
             switch sheet {
             case .settings: SettingsView(browser: browser)
@@ -1290,11 +1403,12 @@ struct RootView: View {
             if !appLock { locked = false }
             if !appLock { startPreferredMode() }
         }
-        .onChange(of: appLock) { value in locked = value; if value { panel = nil; didLaunchBrowser = false; unlock() } }
-        .onChange(of: launchBrowserMode) { value in controlsExpanded = false; if !value { browser.startEmbeddedIfNeeded() } }
-        .onChange(of: panel) { value in if value != nil { controlsExpanded = false } }
+        .onChange(of: appLock) { value in locked = value; if value { sidebarOpen = false; panel = nil; didLaunchBrowser = false; unlock() } }
+        .onChange(of: launchBrowserMode) { value in sidebarOpen = false; controlsExpanded = false; if !value { browser.startEmbeddedIfNeeded() } }
+        .onChange(of: panel) { value in if value != nil { sidebarOpen = false; controlsExpanded = false } }
+        .onChange(of: browser.popupHost) { _ in if browser.popup != nil { sidebarOpen = false } }
         .onChange(of: scenePhase) { phase in
-            if phase == .background { if privacy && panel != .browserMode { panel = nil }; inactiveSince = Date(); if appLock && lockDelay == 0 { panel = nil; locked = true; didLaunchBrowser = false } }
+            if phase == .background { sidebarOpen = false; if privacy && panel != .browserMode { panel = nil }; inactiveSince = Date(); if appLock && lockDelay == 0 { panel = nil; locked = true; didLaunchBrowser = false } }
             if phase == .active, let date = inactiveSince {
                 inactiveSince = nil
                 if appLock && Date().timeIntervalSince(date) >= Double(lockDelay) { panel = nil; locked = true; didLaunchBrowser = false }
