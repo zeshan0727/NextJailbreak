@@ -1,0 +1,71 @@
+name: Next Summary RootHide Test
+on:
+  push:
+    branches: [agent/next-summary-0.1.1-test]
+    paths: ['source/NextSummary/BUILD_READY']
+  pull_request:
+    branches: [main]
+    paths: ['source/NextSummary/BUILD_READY']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install dpkg ldid xz
+      - name: Build RootHide
+        run: |
+          set -euo pipefail
+          export THEOS="$RUNNER_TEMP/theos-roothide"
+          git init "$THEOS"
+          git -C "$THEOS" remote add origin https://github.com/roothide/theos.git
+          git -C "$THEOS" fetch --depth 1 origin 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
+          git -C "$THEOS" checkout --detach 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
+          git -C "$THEOS" submodule update --init --recursive --depth 1
+          # The stock Xcode SDK omits the private Preferences framework.
+          # Use the patched SDK already used by the project's other tweak builds.
+          mkdir -p "$THEOS/sdks"
+          curl -fL --retry 3 https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz -o "$RUNNER_TEMP/iphoneos16.5-sdk.tar.xz"
+          tar -xJf "$RUNNER_TEMP/iphoneos16.5-sdk.tar.xz" -C "$THEOS/sdks"
+          SDK="$THEOS/sdks/iPhoneOS16.5.sdk"
+          test -d "$SDK"
+          test -f "$SDK/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd"
+          cd source/NextSummary
+          make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide TARGET=iphone:clang:16.5:16.0
+          deb="$(find packages -name '*_iphoneos-arm64e.deb' -print -quit)"
+          test -n "$deb"
+          test "$(dpkg-deb -f "$deb" Package)" = com.nextjailbreak.nextsummary
+          test "$(dpkg-deb -f "$deb" Architecture)" = iphoneos-arm64e
+          dpkg-deb -c "$deb" > "$RUNNER_TEMP/contents.txt"
+          grep -q NextSummary.dylib "$RUNNER_TEMP/contents.txt"
+          grep -q NextSummaryPrefs.bundle/NextSummaryPrefs "$RUNNER_TEMP/contents.txt"
+          test "$(dpkg-deb -f "$deb" Version)" = 0.1.4
+          verify="$(mktemp -d)"
+          dpkg-deb -x "$deb" "$verify"
+          prefs="$(find "$verify" -type d -name NextSummaryPrefs.bundle -print -quit)"
+          entry="$(find "$verify" -path '*/PreferenceLoader/Preferences/NextSummary.plist' -print -quit)"
+          test -n "$prefs" && test -n "$entry"
+          test -f "$prefs/Root.plist" && test -f "$prefs/Info.plist" && test -f "$prefs/NextSummaryPrefs"
+          plutil -lint "$prefs/Root.plist" "$prefs/Info.plist" "$entry"
+          /usr/libexec/PlistBuddy -c 'Print :NSPrincipalClass' "$prefs/Info.plist" | grep -Fx NSUPrefsController
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$prefs/Info.plist" | grep -Fx NextSummaryPrefs
+          /usr/libexec/PlistBuddy -c 'Print :items:1:label' "$prefs/Root.plist" | grep -Fx 'Enable AI summaries'
+          strings -a "$prefs/NextSummaryPrefs" > "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q NSUPrefsController "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q NSUAppPicker "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q openAppPicker "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q selectAllApps "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q deselectAllApps "$RUNNER_TEMP/prefs-symbols.txt"
+          grep -q "Select installed apps" "$prefs/Root.plist"
+          lipo "$prefs/NextSummaryPrefs" -verify_arch arm64 arm64e
+          mkdir -p "$RUNNER_TEMP/next-summary"
+          cp "$deb" "$RUNNER_TEMP/next-summary/NextSummary_0.1.4_RootHide.deb"
+          shasum -a 256 "$RUNNER_TEMP/next-summary/"*.deb
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextSummary-RootHide-DEB
+          path: ${{ runner.temp }}/next-summary/*.deb
+          if-no-files-found: error

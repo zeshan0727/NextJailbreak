@@ -1,0 +1,2 @@
+# Next Summary 0.1.1 (experimental RootHide build)
+iOS 16.0, SpringBoard only. Default off, all apps opt-in. OpenAI API key is set locally in Settings, never in source. Selected notification preview text is transmitted to OpenAI. The key is stored in a mobile preferences file with mode 0600, not Keychain. Never enable for private content that should not be sent to an API. Notification membership is an approximation of unattended status. Runtime private classes and selectors require real device testing. No release or Sileo index publication from this test workflow.

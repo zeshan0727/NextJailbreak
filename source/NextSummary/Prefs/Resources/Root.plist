@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>items</key><array>
+<dict>
+<key>cell</key><string>PSGroupCell</string>
+<key>label</key><string>Next Summary · 0.1.4</string>
+<key>footerText</key><string>Selected message previews are sent to OpenAI when enabled. API usage may incur charges.</string>
+</dict>
+<dict>
+<key>cell</key><string>PSSwitchCell</string>
+<key>label</key><string>Enable AI summaries</string>
+<key>key</key><string>enabled</string>
+<key>default</key><false/>
+<key>get</key><string>readPreferenceValue:</string>
+<key>set</key><string>setPreferenceValue:specifier:</string>
+</dict>
+<dict>
+<key>cell</key><string>PSGroupCell</string>
+<key>label</key><string>API connection</string>
+<key>footerText</key><string>API key is stored in a private mobile preferences file, not Keychain.</string>
+</dict>
+<dict>
+<key>cell</key><string>PSButtonCell</string>
+<key>label</key><string>Set or replace API key</string>
+<key>action</key><string>editKey</string>
+</dict>
+<dict>
+<key>cell</key><string>PSButtonCell</string>
+<key>label</key><string>Remove API key</string>
+<key>action</key><string>removeKey</string>
+</dict>
+<dict>
+<key>cell</key><string>PSButtonCell</string>
+<key>label</key><string>Choose model</string>
+<key>action</key><string>editModel</string>
+</dict>
+<dict>
+<key>cell</key><string>PSButtonCell</string>
+<key>label</key><string>Test API with sample text</string>
+<key>action</key><string>testAPI</string>
+</dict>
+<dict>
+<key>cell</key><string>PSGroupCell</string>
+<key>label</key><string>Allowed apps</string>
+<key>footerText</key><string>Select All, Deselect All, or choose applications individually. Previously enabled apps are preserved.</string>
+</dict>
+<dict>
+<key>cell</key><string>PSButtonCell</string>
+<key>label</key><string>Select installed apps</string>
+<key>action</key><string>openAppPicker</string>
+</dict>
+<dict>
+<key>cell</key><string>PSGroupCell</string>
+<key>label</key><string>Summary language</string>
+<key>footerText</key><string>Summaries are requested in English regardless of the original notification language. Confidently non-English results are rejected.</string>
+</dict>
+<dict>
+<key>cell</key><string>PSGroupCell</string>
+<key>label</key><string>Testing</string>
+<key>footerText</key><string>Test the API with the multilingual sample, select an app, and receive an unattended notification. If the API fails, the original notification remains visible.</string>
+</dict>
+</array>
+</dict>
+</plist>
