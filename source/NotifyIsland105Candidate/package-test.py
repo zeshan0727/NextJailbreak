@@ -44,9 +44,9 @@ control=stage/"DEBIAN/control"
 fields={
     "Package":"com.nextsolution.nextaura.notification-island",
     "Name":"Notify Island",
-    "Version":"1.0.18",
+    "Version":"1.0.19",
     "Architecture":"iphoneos-arm64e",
-    "Description":"Notify Island 1.0.18 Compact Swipe device-test build. Downward swipe dismisses compact notifications only; existing gestures and branded preferences preserved; device validation required.",
+    "Description":"Notify Island 1.0.19 Banner Lifecycle device-test build. Native transient banner suppression follows its notification identity through early dismissal; notification history and gestures preserved; device validation required.",
     "Maintainer":"Next Jailbreak",
     "Author":"Next Jailbreak",
     "Section":"Tweaks",
@@ -65,7 +65,7 @@ for p in (libs/"NextAuraNotificationIsland.dylib",bundle/"NotifyIslandPrefs"):
     run("ldid","-S",p)
     check(bool(run("ldid","-e",p)) or p.stat().st_size>0,"Signing check failed")
 check("/System/Library/PrivateFrameworks/Preferences.framework/Preferences" in run("otool","-L",bundle/"NotifyIslandPrefs"),"Settings framework install-name mismatch")
-check("1.0.18 Compact Swipe loaded" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Runtime marker missing")
+check("1.0.19 Banner Lifecycle loaded" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Runtime marker missing")
 check("NIStudioHeader" in run("strings","-a",bundle/"NotifyIslandPrefs"),"Studio controller missing")
 check("Full Cover" in run("strings","-a",bundle/"NotifyIslandPrefs"),"Full Cover setting missing")
 check("NotificationIslandVerticalPosition" in run("strings","-a",libs/"NextAuraNotificationIsland.dylib"),"Position key missing")
@@ -86,7 +86,7 @@ for p in bundle.glob("*.plist"):
     data=plistlib.load(open(p,"rb"))
     for item in data.get("items",[]):
         if "key" in item: check(item.get("get")=="readPreferenceValue:" and item.get("set")=="setPreferenceValue:specifier:","Missing read/write selectors in "+p.name)
-out=build/"NotifyIsland_1.0.18_CompactSwipe_RootHide.deb"
+out=build/"NotifyIsland_1.0.19_BannerLifecycle_RootHide.deb"
 run("dpkg-deb","--root-owner-group","-Zxz","-b",stage,out)
 for k in ["Package","Version","Architecture","Depends","Conflicts","Replaces","Provides"]: check(run("dpkg-deb","-f",out,k)==fields[k],"Control mismatch: "+k)
 verify=temp/"notify-verify"; shutil.rmtree(verify,ignore_errors=True)
