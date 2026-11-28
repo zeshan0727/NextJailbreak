@@ -115,9 +115,9 @@ one('        %init(UVNGHooks);','''        %init(UVNGHooks);
         if(NGFVoidMethod(dispatchClass,@selector(withdrawNotificationWithRequest:),3)){
             %init(NGFWithdraw);
         }
-        NSLog(@"[NotifyGlow 1.0.9] Floating engine ready; dispatcher hook=%d",NGFDispatcherHooked);''')
+        NSLog(@"[NotifyGlow 1.0.10] Floating engine ready; dispatcher hook=%d",NGFDispatcherHooked);''')
 one('            (__bridge NSString *)UVNGStop\n','            (__bridge NSString *)UVNGStop,\n            (__bridge NSString *)UVNGTestFloating,\n            (__bridge NSString *)UVNGStopFloating\n')
-s=s.replace('NotifyGlow 1.0.6','NotifyGlow 1.0.9')
+s=s.replace('NotifyGlow 1.0.6','NotifyGlow 1.0.10')
 rt.write_text(s)
 make=base/'runtime/Makefile'
 make.write_text(make.read_text().replace('AudioToolbox CoreFoundation','AudioToolbox CoreMotion CoreFoundation'))
@@ -130,7 +130,7 @@ def slider(label,key,default,lo,hi):
  return pref('PSSliderCell',label,key,default,min=lo,max=hi,showValue=True)
 idx=next(i for i,x in enumerate(items) if x.get('label')=='Position')
 items[idx:idx]=[
- dict(cell='PSGroupCell',label='FLOATING ICONS',footerText='Sensor only: icons move in response to device motion and settle when stationary. Continuous drift is optional. Select the apps that may float. Preview uses demo icons.'),
+ dict(cell='PSGroupCell',label='FLOATING ICONS',footerText='Sensor only: absolute gravity pulls icons to the lowest screen edge, even while held still. On a flat phone they stop after momentum fades. Continuous drift is optional. Select the apps that may float. Preview uses demo icons.'),
  pref('PSSwitchCell','Floating mode','Enabled',False),
  pref('PSLinkListCell','Motion mode','MotionMode',0,validTitles=['Sensor only','Continuous drift'],validValues=[0,1],detail='PSListItemsController'),
  pref('PSSwitchCell','All apps','AllApps',False),
@@ -172,12 +172,12 @@ for page in prefs.glob('*.plist'):
  for i,item in enumerate(labeled):
   if item.get('cell')=='PSSliderCell': assert i>0 and labeled[i-1].get('cell')=='PSGroupCell' and labeled[i-1].get('label'),page.name
 for f in [prefs/'Info.plist',prefs/'Root.plist',prefs/'NGController.m',base/'runtime/control',base/'category/control']:
- s=f.read_text().replace('1.0.6','1.0.9')
- if f.name=='control':s=s.replace('1.0.2','1.0.5').replace('1.0.5 animation engine','1.0.9 floating icon animation engine')
+ s=f.read_text().replace('1.0.6','1.0.10')
+ if f.name=='control':s=s.replace('1.0.2','1.0.6').replace('1.0.5 animation engine','1.0.10 floating icon animation engine')
  f.write_text(s)
 # Original validator sees the new event strings and keys from included source.
 v=base/'validate.py'
-t=v.read_text().replace("runtime=(base/'runtime/NotificationGlow.xm').read_text();","runtime=(base/'runtime/NotificationGlow.xm').read_text()+(base/'runtime/NGFloating.inc').read_text();").replace('runtime.glow (>= 1.0.2)','runtime.glow (>= 1.0.5)')
+t=v.read_text().replace("runtime=(base/'runtime/NotificationGlow.xm').read_text();","runtime=(base/'runtime/NotificationGlow.xm').read_text()+(base/'runtime/NGFloating.inc').read_text();").replace('runtime.glow (>= 1.0.2)','runtime.glow (>= 1.0.6)')
 v.write_text(t)
 assert 'CoreMotion' in make.read_text()
 assert 'CAFrameRateRangeMake' in (base/'runtime/NGFloating.inc').read_text()

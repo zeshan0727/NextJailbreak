@@ -1,4 +1,4 @@
-// Notify Glow - Next Jailbreak | Floating Icon Engine 1.0.9
+// Notify Glow - Next Jailbreak | Floating Icon Engine 1.0.10
 #import <CoreMotion/CoreMotion.h>
 #import <objc/runtime.h>
 #import <notify.h>
@@ -256,9 +256,14 @@ static BOOL NGFModeAllowed(void) {
     b.button.layer.shadowColor=c.CGColor;b.button.layer.shadowOffset=CGSizeZero;
     b.button.layer.shadowOpacity=UVNGFloatingGlow;b.button.layer.shadowRadius=6+UVNGFloatingGlow*6;
     b.button.layer.shadowPath=[UIBezierPath bezierPathWithRoundedRect:b.button.bounds cornerRadius:b.image.layer.cornerRadius].CGPath;
-    b.badge.frame=CGRectMake(d-MAX(22,b.keys.count>99?34:24)+4,-4,MAX(22,b.keys.count>99?34:24),22);
-    b.badge.layer.cornerRadius=11;
-    b.badge.text=b.keys.count>999?@"999+":[NSString stringWithFormat:@"%lu",(unsigned long)b.keys.count];
+    CGFloat bh=MIN(15,MAX(10,d*.25));
+    b.badge.font=[UIFont monospacedDigitSystemFontOfSize:bh*.68 weight:UIFontWeightSemibold];
+    b.badge.text=b.keys.count>99?@"99+":[NSString stringWithFormat:@"%lu",(unsigned long)b.keys.count];
+    CGFloat bw=MAX(bh,ceil([b.badge.text sizeWithAttributes:@{NSFontAttributeName:b.badge.font}].width)+5);
+    b.badge.bounds=CGRectMake(0,0,bw,bh);
+    b.badge.center=CGPointMake(d-1,1);
+    b.badge.layer.cornerRadius=bh/2;
+    b.badge.layer.borderWidth=.65;
     b.button.accessibilityLabel=[NSString stringWithFormat:@"%@, %lu notifications",b.section,(unsigned long)b.keys.count];
     [b.image.layer removeAllAnimations];[b.button.layer removeAnimationForKey:@"ng.shadowOpacity"];
     if(UVNGIconAnimation==1)UVNGAnimate(b.image.layer,@"opacity",@1,@.55,.7,YES);
@@ -280,7 +285,7 @@ static BOOL NGFModeAllowed(void) {
     [b.rotor addSubview:b.image];[b.button addSubview:b.rotor];
     b.badge=[UILabel new];b.badge.userInteractionEnabled=NO;b.badge.textAlignment=NSTextAlignmentCenter;
     b.badge.font=[UIFont systemFontOfSize:11 weight:UIFontWeightBold];b.badge.textColor=UIColor.whiteColor;
-    b.badge.backgroundColor=UIColor.systemRedColor;b.badge.clipsToBounds=YES;
+    b.badge.backgroundColor=[UIColor colorWithRed:.90 green:.16 blue:.23 alpha:1];b.badge.clipsToBounds=YES;
     b.badge.layer.borderWidth=1;b.badge.layer.borderColor=UIColor.whiteColor.CGColor;
     [b.button addSubview:b.badge];
     [b.button addTarget:self action:@selector(hold:) forControlEvents:UIControlEventTouchDown];
@@ -544,29 +549,19 @@ static CGFloat NGFClamp(CGFloat x,CGFloat lo,CGFloat hi){return MIN(MAX(x,lo),MA
         for(NGFFloatBall *b in self.balls)b.vel=CGPointZero;
     }
     if(sensorOnly){
-        // Relative tilt, not a constant downward acceleration. Static posture
-        // becomes the neutral reference; motion is driven by fresh sensor data.
-        if(!self.sensorReady){
-            self.sensorBaseline=CGPointMake(gx,gy);self.sensorReady=YES;
-        }
-        CGFloat dx=gx-self.sensorBaseline.x,dy=gy-self.sensorBaseline.y;
-        CGFloat follow=1-exp(-dt*3.8);
-        self.sensorBaseline=CGPointMake(self.sensorBaseline.x+dx*follow,self.sensorBaseline.y+dy*follow);
-        CGFloat rotation=m?hypot(hypot(r.x,r.y),r.z):0;
-        CGFloat acceleration=m?hypot(hypot(a.x,a.y),a.z):hypot(dx,dy);
-        BOOL moving=(isfinite(rotation)&&rotation>.045)||(isfinite(acceleration)&&acceleration>.025)||hypot(dx,dy)>.045;
-        gx=moving?NGFClamp(dx*3,-1.5,1.5):0;
-        gy=moving?NGFClamp(dy*3,-1.5,1.5):0;
+        // Absolute screen-plane gravity. Upright remains downward, even when
+        // stationary. Flat face-up/down has approximately zero in-plane gravity.
+        if(hypot(gx,gy)<.035){gx=0;gy=0;}
         CGFloat rz=m&&isfinite(r.z)&&fabs(r.z)>.045?r.z:0;
         self.sensorSpin+=(NGFClamp(rz,-3,3)-self.sensorSpin)*(1-exp(-dt*12));
         if(fabs(self.sensorSpin)<.015)self.sensorSpin=0;
-        if(!m&&!self.motion.accelerometerData){gx=0;gy=0;self.sensorReady=NO;self.sensorSpin=0;}
+        if(!m&&!self.motion.accelerometerData){gx=0;gy=0;self.sensorSpin=0;}
     }
     CGFloat smooth=1-exp(-dt*(24-20*UVNGFloatingSmoothness));
     self.filteredGravity=CGPointMake(self.filteredGravity.x+(NGFClamp(gx,-2,2)-self.filteredGravity.x)*smooth,self.filteredGravity.y+(NGFClamp(gy,-2,2)-self.filteredGravity.y)*smooth);
     // Zero-gravity drift + bounded tilt bias: no common downward force that
     // traps every icon on the same edge. Each icon has its own heading and spin.
-    CGFloat rad=self.diameter*(UVNGFloatingRotation>.001?.70:.50)+3;
+    CGFloat rad=sensorOnly?self.diameter*.5:self.diameter*(UVNGFloatingRotation>.001?.70:.50)+3;
     CGFloat restitution=UVNGFloatingBounce;
     CGFloat cruise=155*UVNGFloatingSpeed;
     CGFloat gLength=hypot(self.filteredGravity.x,self.filteredGravity.y);
@@ -582,21 +577,27 @@ static CGFloat NGFClamp(CGFloat x,CGFloat lo,CGFloat hi){return MIN(MAX(x,lo),MA
             if(b.held)continue;
             CGPoint v=b.vel,p=b.pos;
             if(sensorOnly){
-                // No cruise speed, random heading, autonomous rotation or wall
-                // steering in this mode. Drag stops momentum after a movement.
+                // Only real gravity, inertia and collisions. No autonomous drift.
                 CGFloat drag=exp(-h*(2.6+1.6*(1-UVNGFloatingSmoothness)));
-                v.x=(v.x+self.filteredGravity.x*1050*UVNGFloatingSensitivity*UVNGFloatingSpeed*h)*drag;
-                v.y=(v.y+self.filteredGravity.y*1050*UVNGFloatingSensitivity*UVNGFloatingSpeed*h)*drag;
+                CGFloat ax=self.filteredGravity.x*1050*UVNGFloatingSensitivity*UVNGFloatingSpeed;
+                CGFloat ay=self.filteredGravity.y*1050*UVNGFloatingSensitivity*UVNGFloatingSpeed;
+                b.angle=remainder(b.angle+h*self.sensorSpin*UVNGFloatingRotation,2*M_PI);
+                CGFloat extent=rad*(fabs(cos(b.angle))+fabs(sin(b.angle)));
+                CGFloat ex=MIN(extent,size.width/2),ey=MIN(extent,size.height/2);
+                // Static contact cancels acceleration into a supporting wall.
+                if((p.x<=ex+.5&&ax<0&&fabs(v.x)<24)||(p.x>=size.width-ex-.5&&ax>0&&fabs(v.x)<24)){ax=0;v.x=0;}
+                if((p.y<=ey+.5&&ay<0&&fabs(v.y)<24)||(p.y>=size.height-ey-.5&&ay>0&&fabs(v.y)<24)){ay=0;v.y=0;}
+                v.x=(v.x+ax*h)*drag;v.y=(v.y+ay*h)*drag;
                 CGFloat maxSpeed=760*UVNGFloatingSpeed,mag=hypot(v.x,v.y);
                 if(mag>maxSpeed){v.x*=maxSpeed/mag;v.y*=maxSpeed/mag;}
-                if(hypot(self.filteredGravity.x,self.filteredGravity.y)<.015&&hypot(v.x,v.y)<3){v=CGPointZero;}
+                if(fabs(ax)<16&&fabs(v.x)<3)v.x=0;
+                if(fabs(ay)<16&&fabs(v.y)<3)v.y=0;
                 p.x+=v.x*h;p.y+=v.y*h;
-                if(p.x<rad){p.x=rad;if(v.x<0)v.x=-v.x*restitution;}
-                if(p.x>size.width-rad){p.x=size.width-rad;if(v.x>0)v.x=-v.x*restitution;}
-                if(p.y<rad){p.y=rad;if(v.y<0)v.y=-v.y*restitution;}
-                if(p.y>size.height-rad){p.y=size.height-rad;if(v.y>0)v.y=-v.y*restitution;}
+                if(p.x<ex){p.x=ex;if(v.x<0)v.x=fabs(v.x)<28?0:-v.x*restitution;}
+                if(p.x>size.width-ex){p.x=size.width-ex;if(v.x>0)v.x=fabs(v.x)<28?0:-v.x*restitution;}
+                if(p.y<ey){p.y=ey;if(v.y<0)v.y=fabs(v.y)<28?0:-v.y*restitution;}
+                if(p.y>size.height-ey){p.y=size.height-ey;if(v.y>0)v.y=fabs(v.y)<28?0:-v.y*restitution;}
                 b.pos=p;b.vel=v;
-                b.angle=remainder(b.angle+h*self.sensorSpin*UVNGFloatingRotation,2*M_PI);
                 continue;
             }
             b.phase=remainder(b.phase+h*(.35+fabs(b.turnBias)),2*M_PI);
@@ -659,9 +660,21 @@ static CGFloat NGFClamp(CGFloat x,CGFloat lo,CGFloat hi){return MIN(MAX(x,lo),MA
     }
     [CATransaction begin];[CATransaction setDisableActions:YES];
     for(NGFFloatBall *b in balls){
-        b.pos=CGPointMake(NGFClamp(b.pos.x,rad,size.width-rad),NGFClamp(b.pos.y,rad,size.height-rad));
+        CGFloat extent=sensorOnly?rad*(fabs(cos(b.angle))+fabs(sin(b.angle))):rad;
+        CGFloat ex=MIN(extent,size.width/2),ey=MIN(extent,size.height/2);
+        b.pos=CGPointMake(NGFClamp(b.pos.x,ex,size.width-ex),NGFClamp(b.pos.y,ey,size.height-ey));
         b.button.center=b.pos;
         if(UVNGFloatingRotation>.001)b.rotor.transform=CGAffineTransformMakeRotation(b.angle);
+        // Counter remains upright, normally outside the top right of the icon.
+        // Flip to the opposite side at a display edge to avoid clipping.
+        CGFloat d=self.diameter,bw=b.badge.bounds.size.width,bh=b.badge.bounds.size.height;
+        CGFloat bx=d-1,by=1;
+        if(b.pos.x-d/2+bx+bw/2>size.width-1)bx=1;
+        if(b.pos.y-d/2+by-bh/2<1)by=d-1;
+        CGFloat left=b.pos.x-d/2,top=b.pos.y-d/2;
+        bx=NGFClamp(bx,bw/2+1-left,size.width-bw/2-1-left);
+        by=NGFClamp(by,bh/2+1-top,size.height-bh/2-1-top);
+        b.badge.center=CGPointMake(bx,by);
     }
     [CATransaction commit];
 }
