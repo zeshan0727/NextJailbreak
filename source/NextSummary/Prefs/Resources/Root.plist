@@ -5,7 +5,7 @@
 <key>items</key><array>
 <dict>
 <key>cell</key><string>PSGroupCell</string>
-<key>label</key><string>Next Summary · 0.1.2</string>
+<key>label</key><string>Next Summary · 0.1.3</string>
 <key>footerText</key><string>Selected message previews are sent to OpenAI when enabled. API usage may incur charges.</string>
 </dict>
 <dict>
@@ -44,60 +44,22 @@
 <dict>
 <key>cell</key><string>PSGroupCell</string>
 <key>label</key><string>Allowed apps</string>
-<key>footerText</key><string>All apps are off by default. Only enable apps whose notification text you consent to send to OpenAI.</string>
+<key>footerText</key><string>Select installed applications individually. Previously enabled apps are preserved. All other apps are off by default.</string>
 </dict>
 <dict>
-<key>cell</key><string>PSSwitchCell</string>
-<key>label</key><string>Messenger</string>
-<key>key</key><string>app:com.facebook.Messenger</string>
-<key>default</key><false/>
-<key>get</key><string>readPreferenceValue:</string>
-<key>set</key><string>setPreferenceValue:specifier:</string>
+<key>cell</key><string>PSButtonCell</string>
+<key>label</key><string>Select installed apps</string>
+<key>action</key><string>openAppPicker</string>
 </dict>
 <dict>
-<key>cell</key><string>PSSwitchCell</string>
-<key>label</key><string>WhatsApp</string>
-<key>key</key><string>app:net.whatsapp.WhatsApp</string>
-<key>default</key><false/>
-<key>get</key><string>readPreferenceValue:</string>
-<key>set</key><string>setPreferenceValue:specifier:</string>
-</dict>
-<dict>
-<key>cell</key><string>PSSwitchCell</string>
-<key>label</key><string>Messages</string>
-<key>key</key><string>app:com.apple.MobileSMS</string>
-<key>default</key><false/>
-<key>get</key><string>readPreferenceValue:</string>
-<key>set</key><string>setPreferenceValue:specifier:</string>
-</dict>
-<dict>
-<key>cell</key><string>PSSwitchCell</string>
-<key>label</key><string>Telegram</string>
-<key>key</key><string>app:ph.telegra.Telegraph</string>
-<key>default</key><false/>
-<key>get</key><string>readPreferenceValue:</string>
-<key>set</key><string>setPreferenceValue:specifier:</string>
-</dict>
-<dict>
-<key>cell</key><string>PSSwitchCell</string>
-<key>label</key><string>Mail</string>
-<key>key</key><string>app:com.apple.mobilemail</string>
-<key>default</key><false/>
-<key>get</key><string>readPreferenceValue:</string>
-<key>set</key><string>setPreferenceValue:specifier:</string>
-</dict>
-<dict>
-<key>cell</key><string>PSSwitchCell</string>
-<key>label</key><string>Signal</string>
-<key>key</key><string>app:org.whispersystems.signal</string>
-<key>default</key><false/>
-<key>get</key><string>readPreferenceValue:</string>
-<key>set</key><string>setPreferenceValue:specifier:</string>
+<key>cell</key><string>PSGroupCell</string>
+<key>label</key><string>Summary language</string>
+<key>footerText</key><string>Summaries are requested in English regardless of the original notification language. Confidently non-English results are rejected.</string>
 </dict>
 <dict>
 <key>cell</key><string>PSGroupCell</string>
 <key>label</key><string>Testing</string>
-<key>footerText</key><string>Test the API first, enable Messenger, and receive an unattended notification. If the API fails, the original notification remains visible.</string>
+<key>footerText</key><string>Test the API with the multilingual sample, select an app, and receive an unattended notification. If the API fails, the original notification remains visible.</string>
 </dict>
 </array>
 </dict>
