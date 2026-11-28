@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1118">
+  <title>Diagnose Jailbreak Battery Drain on Dopamine | Next Jailbreak</title>
+  <meta name="description" content="Diagnose battery drain on Dopamine 3.0.13 by separating app activity, battery health, the jailbreak environment and tweak injection without deleting everything.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://nextjailbreak.com/diagnose-jailbreak-battery-drain-dopamine-guide/">
+  <link rel="alternate" type="application/rss+xml" title="Next Jailbreak articles" href="/feed.xml">
+  <link rel="icon" type="image/svg+xml" href="/assets/brand/next-jailbreak-mark.svg">
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="/assets/community-comments.css">
+  <meta property="og:type" content="article"><meta property="og:site_name" content="Next Jailbreak">
+  <meta property="og:url" content="https://nextjailbreak.com/diagnose-jailbreak-battery-drain-dopamine-guide/">
+  <meta property="og:title" content="Diagnose Jailbreak Battery Drain on Dopamine | Next Jailbreak">
+  <meta property="og:description" content="Separate normal app activity, battery wear, the jailbreak environment and injected tweaks with a repeatable Dopamine 3.0.13 test.">
+  <meta property="og:image" content="https://nextjailbreak.com/assets/articles/source-media/apple-ios-26-view-all-battery-usage.png">
+  <meta property="og:image:secure_url" content="https://nextjailbreak.com/assets/articles/source-media/apple-ios-26-view-all-battery-usage.png">
+  <meta property="og:image:type" content="image/png"><meta property="og:image:width" content="760"><meta property="og:image:height" content="780">
+  <meta property="og:image:alt" content="Apple’s official iPhone Battery settings image showing View All Battery Usage">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@nextjailbreak">
+  <meta name="twitter:title" content="Diagnose Jailbreak Battery Drain on Dopamine | Next Jailbreak">
+  <meta name="twitter:description" content="A controlled Dopamine 3.0.13 battery-drain test that isolates apps, battery health and tweak injection.">
+  <meta name="twitter:image" content="https://nextjailbreak.com/assets/articles/source-media/apple-ios-26-view-all-battery-usage.png"><meta name="twitter:image:alt" content="Apple’s official iPhone Battery settings image showing View All Battery Usage">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"TechArticle","headline":"How to Diagnose Jailbreak Battery Drain on Dopamine","description":"Diagnose battery drain on Dopamine 3.0.13 by separating app activity, battery health, the jailbreak environment and tweak injection without deleting everything.","datePublished":"2026-11-28T06:00:00+03:00","dateModified":"2026-11-28T06:00:00+03:00","image":"https://nextjailbreak.com/assets/articles/source-media/apple-ios-26-view-all-battery-usage.png","author":{"@type":"Person","name":"Zeeshan Barvi"},"publisher":{"@type":"Organization","name":"Next Jailbreak","url":"https://nextjailbreak.com/"},"mainEntityOfPage":"https://nextjailbreak.com/diagnose-jailbreak-battery-drain-dopamine-guide/","articleSection":"Evergreen Jailbreak Guides","citation":["https://support.apple.com/en-ie/102432","https://support.apple.com/guide/iphone/understand-iphone-battery-usage-health-iphd453d043a/27/ios/27","https://github.com/opa334/Dopamine/releases/tag/3.0.13","https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Settings/DOSettingsController.m","https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings"]},{"@type":"HowTo","name":"Isolate battery drain on Dopamine 3.0.13","step":[{"@type":"HowToStep","name":"Record an iOS battery baseline","text":"Use Settings > Battery and View All Battery Usage to record app and system activity before changing the jailbreak."},{"@type":"HowToStep","name":"Test after a full reboot","text":"Compare the same routine while Dopamine and tweak injection are inactive after a full reboot."},{"@type":"HowToStep","name":"Test with tweak injection disabled","text":"Jailbreak again, disable Tweak Injection in Dopamine settings and accept the required userspace reboot."},{"@type":"HowToStep","name":"Narrow the suspect set","text":"Re-enable injection and remove or disable the most recent or most relevant tweak changes in small groups."},{"@type":"HowToStep","name":"Confirm the result","text":"Repeat the same workload and restore only packages that do not reproduce the drain."}]},{"@type":"SoftwareApplication","name":"Dopamine","softwareVersion":"3.0.13","operatingSystem":"iOS 15.0–17.3.1 on arm64e; iOS 15.0–18.7.1 and selected iOS 26.0–26.0.1 devices as listed by the official project","applicationCategory":"UtilitiesApplication","url":"https://github.com/opa334/Dopamine/releases/tag/3.0.13"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nextjailbreak.com/"},{"@type":"ListItem","position":2,"name":"Jailbreak guides","item":"https://nextjailbreak.com/tutorials/#jailbreak-guides"},{"@type":"ListItem","position":3,"name":"Diagnose jailbreak battery drain","item":"https://nextjailbreak.com/diagnose-jailbreak-battery-drain-dopamine-guide/"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does disabling tweak injection remove my tweaks?","acceptedAnswer":{"@type":"Answer","text":"No. Dopamine 3.0.13 keeps the packages installed and changes whether injected tweaks load. The app requires a userspace reboot to apply the switch."}},{"@type":"Question","name":"Does a full reboot remove Dopamine?","acceptedAnswer":{"@type":"Answer","text":"No. Dopamine is semi-untethered: a full reboot returns the device to a non-jailbroken state until Dopamine is run again, while installed jailbreak files remain."}},{"@type":"Question","name":"Can one short test prove a tweak causes battery drain?","acceptedAnswer":{"@type":"Answer","text":"No. Battery percentage is coarse and workloads vary. Compare the same routine and conditions across more than one interval before attributing the change to a package."}}]}]}</script>
+  <!-- google-analytics-auto:start -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7GJ4N0HV92"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7GJ4N0HV92');
+</script>
+<!-- google-analytics-auto:end -->
+  <meta name="monetag" content="afa6c0ac5c051fa9058f934da7f2c324">
+</head>
+<body>
+  <div class="topline"><div class="topline-inner"><span>Jailbreaks · Tweaks · Apps · Guides</span><span class="topline-status"><i aria-hidden="true"></i> Primary-source troubleshooting guide</span></div></div>
+  <header class="site-header"><div class="nav-shell"><a class="brand" href="/" aria-label="Next Jailbreak home"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><nav aria-label="Primary navigation"><ul class="nav-links"><li><a href="/">Blog</a></li><li><a href="/tutorials/#verified-articles">Tweaks</a></li><li><a href="/tutorials/#jailbreak-guides" aria-current="page">Jailbreak</a></li><li><a href="/videos/">Videos</a></li><li><a href="https://repo.nextjailbreak.com/">Repo</a></li></ul></nav></div></header>
+  <main class="container article-main">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/tutorials/#jailbreak-guides">Guides</a><span>/</span><span>Battery drain diagnosis</span></nav>
+    <article>
+      <header class="article-hero"><span class="article-kicker">Evergreen jailbreak guide · Dopamine 3.0.13 · Battery diagnosis</span><h1>How to Diagnose Jailbreak Battery Drain on Dopamine</h1><p class="article-summary">Do not start by deleting every tweak. A full reboot and Dopamine’s system-wide Tweak Injection switch create two useful comparison states, while Apple’s Battery screen shows whether an app, background activity, poor signal or battery health is the more likely explanation.</p><p class="article-footnote">By Zeeshan Barvi · Published November 28, 2026 · Verified against Dopamine 3.0.13 source and current Apple battery documentation</p></header>
+      <figure class="article-visual"><a href="/assets/articles/source-media/apple-ios-26-view-all-battery-usage.png"><img src="/assets/articles/source-media/apple-ios-26-view-all-battery-usage.png" alt="Apple’s official iPhone Battery settings image showing apps, activity time, Battery Health and the View All Battery Usage control" width="760" height="780" fetchpriority="high"></a><figcaption>Apple’s official iOS 26 Battery settings image. “View All Battery Usage” opens the longer activity history used for the first baseline in this guide. Source: <a href="https://support.apple.com/en-ie/102432" rel="nofollow noopener noreferrer">Apple Support</a>.</figcaption></figure>
+      <div class="article-layout"><div class="article-content">
+        <div class="article-disclaimer"><strong>What this test proves:</strong> it can separate ordinary iOS activity, a worn battery, the active jailbreak environment and injected tweaks. It cannot identify a specific package from one battery-percentage reading, and it is not a substitute for battery service diagnostics.</div>
+
+        <h2>Confirm the environment before testing</h2>
+        <p>Dopamine 3.0.13 is the current official release, published November 3, 2026. Its official 3.x README lists iOS 15.0–17.3.1 for the general arm64e range, iOS 15.0–18.7.1 plus iOS 26.0–26.0.1 for A12/A13, and iOS 15.0–18.7.1 for arm64 devices. A firmware range does not make every device capable of running that firmware, and it does not prove that every installed tweak supports the device.</p>
+        <p>This workflow is verified for the official Dopamine app and its rootless environment. RootHide Bootstrap, Dopamine RootHide forks, palera1n and other jailbreaks may expose different injection controls and paths. Do not translate the button names in this guide to those environments without checking their own documentation.</p>
+        <table><thead><tr><th>Test state</th><th>What remains active</th><th>What a large difference suggests</th></tr></thead><tbody>
+          <tr><td>Normal jailbroken state</td><td>Dopamine environment and tweak injection</td><td>Baseline only; no cause isolated yet</td></tr>
+          <tr><td>After a full reboot, before re-jailbreaking</td><td>Stock iOS session; jailbreak packages remain stored but are not active</td><td>If drain falls here, the active jailbreak layer deserves investigation</td></tr>
+          <tr><td>Jailbroken with Tweak Injection off</td><td>Dopamine environment without normal injected tweaks</td><td>If drain falls only here, an injected tweak or conflict is the stronger suspect</td></tr>
+        </tbody></table>
+
+        <h2>1. Record a useful iOS battery baseline</h2>
+        <p>Open Settings → Battery. Apple’s current instructions say <strong>View All Battery Usage</strong> shows usage percentages for the previous eight days. Tap an app or day to inspect activity. Record the battery level, test duration, screen-on time, background time, signal conditions and the top app or system entries before changing anything.</p>
+        <p>Apple specifically identifies on-screen time, background activity, cellular coverage and notifications as reasons an app can appear high in the list. A map session, weak cellular signal, photo sync or an app playing audio in the background can explain a fast drop without any tweak being involved. Compare like with like: similar charge level, display brightness, network, temperature, apps and screen time.</p>
+        <p>Also open Battery Health. On iPhone 14 and earlier Apple places this under Battery Health &amp; Charging; on iPhone 15 and later it is under Battery Health. A service recommendation, materially reduced maximum capacity or unexpected shutdown history is a hardware lead, not evidence against a particular tweak.</p>
+
+        <h2>2. Compare a non-jailbroken session after a full reboot</h2>
+        <p>Dopamine is semi-untethered. A full device reboot returns iOS to a non-jailbroken state until Dopamine is run again; it does not erase the installed bootstrap or tweak packages. Reboot, leave Dopamine closed and repeat the same routine used for the baseline.</p>
+        <p>Do not compare ten minutes of idle time with an hour of gaming, navigation or poor-signal cellular use. Battery percentage is rounded, and iOS can perform legitimate background work. Use a meaningful interval and repeat the comparison if the result is close. If drain remains similar while non-jailbroken, first investigate the apps, signal, battery health and workload shown by iOS.</p>
+        <p>If the non-jailbroken session is consistently better, the result narrows the problem to something active only when jailbroken. It still does not distinguish Dopamine’s environment from tweak injection, so continue to the next state instead of uninstalling packages at random.</p>
+
+        <h2>3. Disable tweak injection without deleting packages</h2>
+        <ol>
+          <li>Open the official Dopamine 3.0.13 app and re-jailbreak normally.</li>
+          <li>Open Dopamine’s settings and turn off <strong>Tweak Injection</strong>.</li>
+          <li>Accept <strong>Reboot Now</strong> when Dopamine asks for a userspace reboot. The project’s tagged source says a userspace reboot is required to apply the change.</li>
+          <li>After the device returns, confirm that normal visual and app tweaks are no longer loading, then repeat the same battery routine.</li>
+        </ol>
+        <p>Dopamine’s 3.0.13 source stores this as the <code>tweakInjectionEnabled</code> setting and changes the live environment when the device is jailbroken. Turning it off does not uninstall the packages or delete their preferences. That makes it a cleaner A/B test than removing many packages at once.</p>
+        <p>If battery behavior improves in this state, one or more injected tweaks—or a conflict between them—is the stronger lead. If it does not improve, do not assume injection is responsible. Compare the full-reboot result again and check whether a jailbreak daemon, package-manager task, indexing activity or an ordinary app was active during only one test.</p>
+
+        <h2>4. Narrow the suspect list safely</h2>
+        <p>Start with changes closest to when the problem began: newly installed or updated packages, lock-screen and SpringBoard overlays, always-on refresh tools, background-execution modifications, live system monitors, network hooks and packages that inject into many processes. A package’s advertised iOS range does not prove that it is stable on every device or alongside every other tweak.</p>
+        <ol>
+          <li>Use the <a href="/backup-sileo-sources-installed-tweaks-before-jailbreak-update/">Sileo package-list backup guide</a> to record package IDs, versions and architectures before changing the set.</li>
+          <li>Re-enable Tweak Injection in Dopamine and accept the required userspace reboot.</li>
+          <li>Disable or remove one small suspect group, then repeat the same workload. If the issue is severe, divide the suspect set in halves to reduce the number of test rounds.</li>
+          <li>When a group changes the result, restore the known-good packages one at a time until the behavior returns.</li>
+          <li>If a recent update is the trigger, use Sileo’s official repository version selector and the <a href="/downgrade-jailbreak-tweak-sileo-guide/">safe downgrade guide</a>; do not install an untrusted repack.</li>
+        </ol>
+        <p>For a problem limited to one app, <a href="/disable-tweaks-one-app-choicy-guide/">Choicy can disable injection for that app</a>. It is not a system-wide battery diagnostic and it does not disable SpringBoard or daemon tweaks, so use Dopamine’s global switch for the broad comparison first.</p>
+
+        <h2>5. Read the result without overclaiming</h2>
+        <table><thead><tr><th>Observed result</th><th>Best next step</th></tr></thead><tbody>
+          <tr><td>Drain is similar in all three states</td><td>Focus on Battery activity, signal, battery health and repeatable workload before blaming the jailbreak.</td></tr>
+          <tr><td>Full reboot improves drain, but injection-off does not</td><td>Repeat the test. Investigate activity in the active jailbreak environment rather than assuming a normal injected tweak is responsible.</td></tr>
+          <tr><td>Injection-off improves drain</td><td>Narrow recently changed and high-scope tweaks in small groups.</td></tr>
+          <tr><td>Only one app shows abnormal background time</td><td>Test that app’s own settings and per-app injection before removing unrelated system packages.</td></tr>
+          <tr><td>Battery Health recommends service</td><td>Use Apple or an authorized service provider for the hardware decision; tweak testing cannot reverse chemical aging.</td></tr>
+          <tr><td>Phone becomes unusually hot</td><td>Stop the workload, disconnect charging if safe, let the device cool and do not bypass thermal protections.</td></tr>
+        </tbody></table>
+
+        <h2>Common mistakes</h2>
+        <ul>
+          <li><strong>Judging from one percentage point:</strong> iOS rounds the indicator, and short samples are noisy.</li>
+          <li><strong>Changing several variables:</strong> different brightness, cellular coverage, workload or temperature invalidates the comparison.</li>
+          <li><strong>Using Low Power Mode in only one run:</strong> that changes background and performance behavior.</li>
+          <li><strong>Assuming Safe Mode equals stock:</strong> Safe Mode can suppress many tweaks, but a full reboot and Dopamine’s explicit injection switch answer different questions.</li>
+          <li><strong>Raising Jetsam limits for battery drain:</strong> Dopamine describes Jetsam controls as memory-limit tools for crash loops. They are not a documented battery fix, and higher limits can increase system memory use.</li>
+          <li><strong>Deleting preferences first:</strong> that destroys useful configuration evidence and may not remove the cause.</li>
+        </ul>
+
+        <h2>Frequently asked questions</h2>
+        <div class="faq-list">
+          <details><summary>Does disabling tweak injection remove my tweaks?</summary><p>No. Dopamine 3.0.13 keeps the packages installed and changes whether injected tweaks load. Its source requires a userspace reboot to apply the switch.</p></details>
+          <details><summary>Does a full reboot remove Dopamine?</summary><p>No. Dopamine is semi-untethered. The device boots without the active jailbreak until you run Dopamine again, while the installed jailbreak environment remains on storage.</p></details>
+          <details><summary>Can Apple’s Battery screen name the bad tweak?</summary><p>Usually not. It reports app and system activity, not a dependable per-tweak energy ledger. Use it to identify workload clues, then use the three-state comparison to isolate the jailbreak layer.</p></details>
+          <details><summary>Should I install a battery-monitor tweak to diagnose the problem?</summary><p>Not first. Adding another injected component changes the system you are measuring. Start with Apple’s built-in history and Dopamine’s existing injection control.</p></details>
+          <details><summary>Does this guide apply to RootHide?</summary><p>The diagnostic idea is general, but the exact Tweak Injection path is verified only in official Dopamine 3.0.13. RootHide environments use different controls and package architectures.</p></details>
+        </div>
+        <div class="article-disclaimer"><strong>Stopping rule:</strong> do not disable thermal protection, force-install incompatible packages or erase the jailbreak to chase a single short sample. Preserve the package list, change one variable at a time and seek hardware service when Battery Health indicates it.</div>
+      </div><aside class="article-sidebar" aria-label="Official sources"><h2>Official sources</h2><p>The workflow is based on Apple’s current battery-usage documentation and Dopamine’s tagged 3.0.13 source.</p><div class="button-stack"><a class="button button-primary" href="https://support.apple.com/en-ie/102432" rel="nofollow noopener noreferrer">Apple battery usage guide</a><a class="button" href="https://support.apple.com/guide/iphone/understand-iphone-battery-usage-health-iphd453d043a/27/ios/27" rel="nofollow noopener noreferrer">Apple activity details</a><a class="button" href="https://github.com/opa334/Dopamine/releases/tag/3.0.13" rel="nofollow noopener noreferrer">Dopamine 3.0.13 release</a><a class="button" href="https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Settings/DOSettingsController.m" rel="nofollow noopener noreferrer">Dopamine injection setting source</a><a class="button" href="https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings" rel="nofollow noopener noreferrer">Dopamine setting text</a></div><p class="source-note">No tweak package, battery profile or unofficial Dopamine build is hosted on this page.</p></aside></div>
+    </article>
+    <section class="container nj-comments" data-nj-comments data-comments-api="https://comments.nextjailbreak.com" aria-labelledby="community-comments-title"><div class="nj-comments-head"><div><h2 id="community-comments-title">Community comments</h2><p>Include the device, exact iOS version, Dopamine version, test state and comparable workload. Do not post serial numbers or full diagnostic reports.</p></div><span class="nj-comments-count"><strong data-comment-count>0</strong> comments</span></div><form class="nj-comment-form" data-comment-form><label>Your name<input type="text" name="name" minlength="2" maxlength="60" autocomplete="name" required></label><label class="nj-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label><label class="comment-body">Comment<textarea name="body" minlength="2" maxlength="2000" placeholder="Share a useful result or ask a question…" required></textarea></label><div class="nj-comment-actions"><span class="nj-comment-status" data-comment-status>Loading comments…</span><button type="submit">Post comment</button></div></form><div class="nj-comment-list" data-comment-list></div></section>
+  </main>
+  <footer class="site-footer"><div class="footer-shell"><div class="footer-brand"><a class="brand" href="/"><img class="brand-logo" src="/assets/brand/next-jailbreak-mark.svg" alt="" width="52" height="52"><span class="brand-name"><strong>Next</strong> Jailbreak</span></a><p>Jailbreak news, useful tweak information, practical guides, and original videos.</p></div><div class="footer-column"><strong>Read</strong><a href="/#latest">Latest articles</a><a href="/tutorials/#verified-articles">Tweaks</a><a href="/tutorials/#jailbreak-guides">Jailbreak</a></div><div class="footer-column"><strong>Legal</strong><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></div></div><div class="footer-bottom"><div class="container"><span>© 2026 Next Jailbreak</span></div></div></footer>
+  <script src="/assets/community-comments.js" defer></script>
+  <script defer src="/assets/adsterra.js?v=20260910-1" data-ns-monetag-loader="1"></script>
+  <script defer src="/assets/site-runtime.js" data-ns-site-runtime="1"></script>
+</body>
+</html>

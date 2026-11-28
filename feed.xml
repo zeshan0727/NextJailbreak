@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <lastBuildDate>Fri, 27 Nov 2026 21:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 28 Nov 2026 03:00:00 GMT</lastBuildDate>
+<item>
+      <title>How to Diagnose Jailbreak Battery Drain on Dopamine</title>
+      <link>https://nextjailbreak.com/diagnose-jailbreak-battery-drain-dopamine-guide/</link>
+      <guid isPermaLink="true">https://nextjailbreak.com/diagnose-jailbreak-battery-drain-dopamine-guide/</guid>
+      <pubDate>Sat, 28 Nov 2026 03:00:00 GMT</pubDate>
+      <description>Diagnose battery drain on Dopamine 3.0.13 by separating app activity, battery health, the jailbreak environment and tweak injection without deleting everything.</description>
+      <category>Evergreen Jailbreak Guide</category>
+    </item>
 <item>
       <title>WorkTweaks 7.0 Adds Save Vault, Diagnostics and Wi-Fi File Sharing</title>
       <link>https://nextjailbreak.com/worktweaks-7-0-save-vault-diagnostics-update/</link>

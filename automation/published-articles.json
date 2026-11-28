@@ -2,6 +2,47 @@
   "entries": [
     {
       "action": "create",
+      "additional_source_urls": [
+        "https://support.apple.com/guide/iphone/understand-iphone-battery-usage-health-iphd453d043a/27/ios/27",
+        "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/UI/Settings/DOSettingsController.m",
+        "https://github.com/opa334/Dopamine/blob/3.0.13/Application/Dopamine/en.lproj/Localizable.strings"
+      ],
+      "candidate_fingerprint": "evergreen-guide.diagnose-jailbreak-battery-drain-dopamine-3.0.13-2026-11-28",
+      "category": {
+        "id": "evergreen-jailbreak-guide",
+        "label": "Evergreen Jailbreak Guide"
+      },
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "compat": "The exact injection-switch workflow is verified against official Dopamine 3.0.13. Its README lists arm64e iOS 15.0–17.3.1, A12/A13 iOS 15.0–18.7.1 plus 26.0–26.0.1, and arm64 iOS 15.0–18.7.1. RootHide Bootstrap, Dopamine RootHide forks, palera1n and other jailbreaks may use different controls. Firmware compatibility does not prove jailbreak availability or tweak compatibility for every device.",
+      "description": "Diagnose battery drain on Dopamine 3.0.13 by separating app activity, battery health, the jailbreak environment and tweak injection without deleting everything.",
+      "developer": "opa334 / Apple",
+      "entry_type": "evergreen-jailbreak-guide",
+      "href": "diagnose-jailbreak-battery-drain-dopamine-guide/",
+      "image": "assets/articles/source-media/apple-ios-26-view-all-battery-usage.png",
+      "media_alt": "Apple’s official iPhone Battery settings image showing apps, activity time, Battery Health and View All Battery Usage",
+      "media_credit": "Apple Support — official iOS 26 Battery settings interface image",
+      "media_retrieval_status": "Retrieved the exact image linked from Apple Support article 102432 through ordinary read-only HTTP, verified it as a 760 by 780 RGBA PNG and visually inspected the Battery settings interface before committing it unchanged.",
+      "media_source_url": "https://cdsassets.apple.com/live/7WUAS350/images/ios/ios-26-iphone-16-pro-settings-battery-view-all-battery-usage-ontap-crop.png",
+      "modified_at": "2026-11-28T06:00:00+03:00",
+      "name": "Dopamine battery drain diagnosis",
+      "package": "guide.dopamine-battery-drain-diagnosis",
+      "published_at": "2026-11-28T06:00:00+03:00",
+      "quality_target": 9,
+      "release": "Dopamine 3.0.13 — released 2026-11-03; Apple battery guidance published 2026-04-08",
+      "route": "diagnose-jailbreak-battery-drain-dopamine-guide/",
+      "run_id": "scheduled-2026-11-28T03:00:00Z",
+      "selection_pool": "scheduled-evergreen-jailbreak-guide",
+      "slug": "diagnose-jailbreak-battery-drain-dopamine-guide",
+      "source_name": "Official Apple battery-usage documentation and Dopamine 3.0.13 release, README and tagged settings source",
+      "source_page_url": "https://support.apple.com/en-ie/102432",
+      "source_url": "https://github.com/opa334/Dopamine/releases/tag/3.0.13",
+      "source_visual_origin": "official-apple-support-interface-image",
+      "source_visual_url": "https://cdsassets.apple.com/live/7WUAS350/images/ios/ios-26-iphone-16-pro-settings-battery-view-all-battery-usage-ontap-crop.png",
+      "title": "How to Diagnose Jailbreak Battery Drain on Dopamine",
+      "version": "Dopamine 3.0.13 / Apple iOS 27 battery guidance"
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "individual-update.worktweaks-7.0-save-vault-diagnostics-2026-11-27",
       "category": {
         "id": "individual-tweak-update",
@@ -8385,6 +8426,16 @@
   "events": [
     {
       "action": "create",
+      "candidate_fingerprint": "evergreen-guide.diagnose-jailbreak-battery-drain-dopamine-3.0.13-2026-11-28",
+      "channel": "scheduled-evergreen-jailbreak-guide",
+      "href": "diagnose-jailbreak-battery-drain-dopamine-guide/",
+      "package": "guide.dopamine-battery-drain-diagnosis",
+      "published_at": "2026-11-28T06:00:00+03:00",
+      "run_id": "scheduled-2026-11-28T03:00:00Z",
+      "version": "Dopamine 3.0.13 / Apple iOS 27 battery guidance"
+    },
+    {
+      "action": "create",
       "candidate_fingerprint": "evergreen-guide.tsschecker-ios-signing-status-shsh-449-2026-11-16",
       "channel": "scheduled-evergreen-jailbreak-guide",
       "href": "check-ios-signing-status-tsschecker-guide/",
@@ -12186,5 +12237,5 @@
     }
   ],
   "schema_version": 1,
-  "updated_at": "2026-11-28T00:00:00+03:00"
+  "updated_at": "2026-11-28T06:00:00+03:00"
 }
