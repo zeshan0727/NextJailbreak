@@ -1,0 +1,2 @@
+589e0f2b588243f36524363bd244746ff6c4c687fd597208845bf2e0fd384ef0  NotifyGlow_1.0.9_RootHide.deb
+f085e0dd82e532f3eaf39298726a5edfcb3fa516d128ab293849d4d4ee1ca203  GlowRuntime_1.0.5_RootHide.deb
