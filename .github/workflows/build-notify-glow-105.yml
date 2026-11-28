@@ -33,6 +33,22 @@ jobs:
           git -C "$RUNNER_TEMP/theos" fetch --depth 1 origin 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
           git -C "$RUNNER_TEMP/theos" checkout --detach FETCH_HEAD
           git -C "$RUNNER_TEMP/theos" submodule update --init --recursive --depth 1
+      - name: Supply iOS 16 Preferences linker stub
+        run: |
+          set -euo pipefail
+          F="$RUNNER_TEMP/glow-private/Preferences.framework"
+          mkdir -p "$F"
+          curl --fail --silent --show-error --location --retry 3 'https://raw.githubusercontent.com/theos/sdks/0222fd5413cf4b9af096f37b4621afa2688572f7/iPhoneOS16.5.sdk/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd' -o "$F/Preferences.tbd"
+          grep -q 'PSListController' "$F/Preferences.tbd"
+          grep -q 'PSSpecifier' "$F/Preferences.tbd"
+          python3 - "$RUNNER_TEMP/glow/category/prefs/Makefile" "$RUNNER_TEMP/glow-private" <<'PY'
+          import pathlib, sys
+          p = pathlib.Path(sys.argv[1])
+          s = p.read_text()
+          needle = 'include $(THEOS_MAKE_PATH)/bundle.mk'
+          assert needle in s
+          p.write_text(s.replace(needle, 'NotifyGlowPrefs_LDFLAGS += -F' + sys.argv[2] + '\n' + needle))
+          PY
       - name: Compile and package
         run: |
           set -euo pipefail
