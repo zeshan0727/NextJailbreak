@@ -79,13 +79,39 @@ static NSString *NSUString(id value) { return [value isKindOfClass:NSString.clas
     }]];
     [self.tableView reloadData];
 }
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { return 1; }
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section { return self.visibleApps.count; }
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section { return [NSString stringWithFormat:@"%lu selected · %lu shown",(unsigned long)self.selected.count,(unsigned long)self.visibleApps.count]; }
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { return 2; }
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section { return section==0?2:self.visibleApps.count; }
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return section==0?@"Manage selection":[NSString stringWithFormat:@"%lu selected · %lu shown",(unsigned long)self.selected.count,(unsigned long)self.visibleApps.count];
+}
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
-    return @"Tap an app to enable or disable AI summaries. Only selected apps send notification previews to OpenAI. Use + to add a missing bundle ID. System notifications without an app identifier cannot be selected automatically.";
+    if(section==0) return @"Bulk actions apply to the entire app list, even when searching. Newly installed apps remain off until selected.";
+    return @"Tap any app to enable or disable AI summaries individually. Only selected apps send notification previews to OpenAI. Use + to add a missing bundle ID.";
+}
+- (NSSet<NSString *> *)allAppIDs {
+    NSMutableSet<NSString *> *ids=[NSMutableSet set];
+    for(NSDictionary *row in self.apps) {
+        NSString *identifier=row[@"id"];
+        if([identifier isKindOfClass:NSString.class] && identifier.length) [ids addObject:identifier];
+    }
+    return [ids copy];
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if(indexPath.section==0) {
+        UITableViewCell *cell=[tableView dequeueReusableCellWithIdentifier:@"NSUBulk"];
+        if(!cell) cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"NSUBulk"];
+        BOOL select=indexPath.row==0;
+        NSSet *all=[self allAppIDs];
+        BOOL available=select?(all.count>0 && ![all isSubsetOfSet:self.selected]):self.selected.count>0;
+        cell.textLabel.text=select?@"Select All":@"Deselect All";
+        cell.textLabel.textColor=available?self.view.tintColor:UIColor.tertiaryLabelColor;
+        cell.imageView.image=[UIImage systemImageNamed:select?@"checkmark.circle":@"circle"];
+        cell.imageView.tintColor=cell.textLabel.textColor;
+        cell.selectionStyle=available?UITableViewCellSelectionStyleDefault:UITableViewCellSelectionStyleNone;
+        cell.userInteractionEnabled=available;
+        cell.accessibilityTraits=UIAccessibilityTraitButton|(available?0:UIAccessibilityTraitNotEnabled);
+        return cell;
+    }
     UITableViewCell *cell=[tableView dequeueReusableCellWithIdentifier:@"NSUApp"];
     if (!cell) cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"NSUApp"];
     NSDictionary *row=self.visibleApps[indexPath.row];
@@ -101,17 +127,42 @@ static NSString *NSUString(id value) { return [value isKindOfClass:NSString.clas
     [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
     [self presentViewController:a animated:YES completion:nil];
 }
+- (BOOL)saveSelection:(NSSet<NSString *> *)selection {
+    NSMutableDictionary *config=[NSUConfig() mutableCopy];
+    config[@"apps"]=[[selection allObjects] sortedArrayUsingSelector:@selector(compare:)];
+    if(!NSUSave(config)) { [self error:@"Could not save app selection."]; return NO; }
+    self.selected=[selection mutableCopy];
+    [self.tableView reloadData];
+    return YES;
+}
+- (void)selectAllApps {
+    NSSet *all=[self allAppIDs];
+    if(!all.count || [all isSubsetOfSet:self.selected]) return;
+    UIAlertController *a=[UIAlertController alertControllerWithTitle:@"Select all apps?" message:@"AI summaries will send eligible notification previews from every listed app to your OpenAI API when enabled. This may include sensitive messages and increase API usage." preferredStyle:UIAlertControllerStyleAlert];
+    [a addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    __weak typeof(self) weakSelf=self;
+    [a addAction:[UIAlertAction actionWithTitle:@"Select All" style:UIAlertActionStyleDefault handler:^(__unused UIAlertAction *action){
+        typeof(self) strongSelf=weakSelf;
+        if(strongSelf) [strongSelf saveSelection:[strongSelf allAppIDs]];
+    }]];
+    UIViewController *presenter=self.search.active?self.search:self;
+    [presenter presentViewController:a animated:YES completion:nil];
+}
+- (void)deselectAllApps {
+    if(self.selected.count) [self saveSelection:[NSSet set]];
+}
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if(indexPath.section==0) {
+        if(indexPath.row==0) [self selectAllApps]; else [self deselectAllApps];
+        return;
+    }
+    if(indexPath.row>=self.visibleApps.count) return;
     NSString *identifier=self.visibleApps[indexPath.row][@"id"];
-    NSMutableDictionary *config=[NSUConfig() mutableCopy];
-    id stored=config[@"apps"];
+    id stored=NSUConfig()[@"apps"];
     NSMutableSet *next=[NSMutableSet setWithArray:[stored isKindOfClass:NSArray.class]?stored:@[]];
-    if ([next containsObject:identifier]) [next removeObject:identifier]; else [next addObject:identifier];
-    config[@"apps"]=[[next allObjects] sortedArrayUsingSelector:@selector(compare:)];
-    if (!NSUSave(config)) { [self error:@"Could not save app selection."]; return; }
-    self.selected=next;
-    [self.tableView reloadData];
+    if([next containsObject:identifier]) [next removeObject:identifier]; else [next addObject:identifier];
+    [self saveSelection:next];
 }
 - (void)addBundleID {
     self.search.active=NO;
