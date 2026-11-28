@@ -145,7 +145,8 @@ static NSString *NSUString(id value) { return [value isKindOfClass:NSString.clas
         typeof(self) strongSelf=weakSelf;
         if(strongSelf) [strongSelf saveSelection:[strongSelf allAppIDs]];
     }]];
-    UIViewController *presenter=self.search.active?self.search:self;
+    UIViewController *presenter=self;
+    if(self.search.active) presenter=self.search;
     [presenter presentViewController:a animated:YES completion:nil];
 }
 - (void)deselectAllApps {
