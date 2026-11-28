@@ -50,9 +50,34 @@ struct SavedLink: Codable, Identifiable {
     let title: String
     let url: URL
 }
+struct RecentChat: Codable, Identifiable {
+    var id: URL { url }
+    let url: URL
+    var title: String
+    var visited: Date
+}
+private func conversationURL(_ url: URL?) -> URL? {
+    guard let url, chatPage(url), !authPage(url) else { return nil }
+    let parts = url.path.split(separator: "/")
+    guard let index = parts.firstIndex(of: "c"), index + 1 < parts.count else { return nil }
+    guard index == 0 || (index > 0 && parts.first == "g") else { return nil }
+    var clean = URLComponents(url: url, resolvingAgainstBaseURL: false)
+    clean?.query = nil
+    clean?.fragment = nil
+    return clean?.url
+}
 struct LocalFile: Identifiable {
     let url: URL
     var id: URL { url }
+    var bytes: Int64 {
+        Int64((try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+    }
+    var modified: Date {
+        (try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? .distantPast
+    }
+    var detail: String {
+        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
 }
 struct PendingDownload: Identifiable {
     let id: ObjectIdentifier
@@ -78,6 +103,8 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     @Published var files: [LocalFile] = []
     @Published var active: [PendingDownload] = []
     @Published var bookmarks: [SavedLink] = []
+    @Published var recentChats: [RecentChat] = []
+    private var recentWork: DispatchWorkItem?
     let web: WKWebView
     private var observations: [NSKeyValueObservation] = []
     private var transfers: [ObjectIdentifier: WKDownload] = [:]
@@ -104,6 +131,11 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         web.isOpaque = false
         if let data = UserDefaults.standard.data(forKey: "bookmarks"),
            let decoded = try? JSONDecoder().decode([SavedLink].self, from: data) { bookmarks = decoded.filter { chatPage($0.url) } }
+        if UserDefaults.standard.object(forKey: "recordRecentChats") as? Bool ?? true,
+           let data = UserDefaults.standard.data(forKey: "recentChats"),
+           let decoded = try? JSONDecoder().decode([RecentChat].self, from: data) {
+            recentChats = Array(decoded.filter { conversationURL($0.url) != nil }.prefix(100))
+        }
         observations = [
             web.observe(\.isLoading, options: [.initial,.new]) { [weak self] w,_ in DispatchQueue.main.async { self?.loading = w.isLoading } },
             web.observe(\.canGoBack, options: [.initial,.new]) { [weak self] w,_ in DispatchQueue.main.async { self?.canBack = w.canGoBack } },
@@ -113,8 +145,9 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
                 if let url = w.url, chatPage(url), url.path.hasPrefix("/c/") || url.path.hasPrefix("/g/") {
                     UserDefaults.standard.set(url.absoluteString, forKey: "lastChat")
                 }
+                self?.scheduleRecent()
             } },
-            web.observe(\.title, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { self?.pageTitle = w.title ?? "ChatGPT" } }
+            web.observe(\.title, options: [.new]) { [weak self] w,_ in DispatchQueue.main.async { self?.pageTitle = w.title ?? "ChatGPT"; self?.scheduleRecent() } }
         ]
         monitor.pathUpdateHandler = { [weak self] path in DispatchQueue.main.async { self?.online = path.status == .satisfied } }
         monitor.start(queue: DispatchQueue(label: "nextchat.network"))
@@ -169,10 +202,50 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
     }
     func safari() { UIApplication.shared.open(browserStart(current)) }
     func safariLogin() { closePopup(); loginHelp = false; UIApplication.shared.open(homeURL) }
+    private func scheduleRecent() {
+        recentWork?.cancel()
+        guard UserDefaults.standard.object(forKey: "recordRecentChats") as? Bool ?? true,
+              let url = conversationURL(web.url) else { return }
+        let work = DispatchWorkItem { [weak self] in
+            guard let self, conversationURL(self.web.url) == url,
+                  UserDefaults.standard.object(forKey: "recordRecentChats") as? Bool ?? true else { return }
+            let title = self.web.title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let previous = self.recentChats.first { $0.url == url }
+            let label = title.isEmpty || title == "ChatGPT" ? (previous?.title ?? "Conversation") : title
+            self.recentChats.removeAll { $0.url == url }
+            self.recentChats.insert(RecentChat(url: url, title: label, visited: Date()), at: 0)
+            self.recentChats = Array(self.recentChats.prefix(100))
+            self.persistRecents()
+        }
+        recentWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: work)
+    }
+    private func persistRecents() {
+        if let data = try? JSONEncoder().encode(recentChats) { UserDefaults.standard.set(data, forKey: "recentChats") }
+    }
+    func clearRecents() {
+        recentWork?.cancel()
+        recentChats = []
+        UserDefaults.standard.removeObject(forKey: "recentChats")
+    }
+    func removeRecent(_ url: URL) {
+        recentChats.removeAll { $0.url == url }; persistRecents()
+    }
+    func pin(_ url: URL, title: String) {
+        guard let safe = conversationURL(url), !bookmarks.contains(where: { conversationURL($0.url) == safe }) else { return }
+        bookmarks.insert(SavedLink(title: title, url: safe), at: 0); persistBookmarks()
+    }
+    func renamePin(_ id: UUID, title: String) {
+        let clean = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty, let i = bookmarks.firstIndex(where: { $0.id == id }) else { return }
+        let old = bookmarks[i]
+        bookmarks[i] = SavedLink(id: old.id, title: clean, url: old.url)
+        persistBookmarks()
+    }
     func savePage() {
-        guard let current, chatPage(current), current.path != "/" else { notice = "Open a conversation before saving it."; return }
-        if bookmarks.contains(where: { $0.url == current }) { notice = "Already saved."; return }
-        bookmarks.insert(SavedLink(title: pageTitle, url: current), at: 0); persistBookmarks()
+        guard let current = conversationURL(web.url) else { notice = "Open a conversation before saving it."; return }
+        if bookmarks.contains(where: { conversationURL($0.url) == current }) { notice = "Already pinned."; return }
+        pin(current, title: pageTitle == "ChatGPT" ? "Conversation" : pageTitle)
     }
     func removeBookmark(_ id: UUID) { bookmarks.removeAll { $0.id == id }; persistBookmarks() }
     private func persistBookmarks() { if let data = try? JSONEncoder().encode(bookmarks) { UserDefaults.standard.set(data, forKey: "bookmarks") } }
@@ -180,7 +253,7 @@ final class Browser: NSObject, ObservableObject, WKNavigationDelegate, WKUIDeleg
         if all { closePopup(); web.stopLoading() }
         let types: Set<String> = all ? WKWebsiteDataStore.allWebsiteDataTypes() : [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache]
         web.configuration.websiteDataStore.removeData(ofTypes: types, modifiedSince: .distantPast) { [weak self] in
-            if all { UserDefaults.standard.removeObject(forKey: "lastChat"); self?.newChat() }
+            if all { UserDefaults.standard.removeObject(forKey: "lastChat"); self?.clearRecents(); self?.newChat() }
             self?.notice = all ? "Local website data cleared." : "Cache cleared."
         }
     }
@@ -471,10 +544,91 @@ final class Dictation: ObservableObject {
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 }
+struct ConversationHub: View {
+    @ObservedObject var browser: Browser
+    @AppStorage("recordRecentChats") private var recordRecentChats = true
+    @State private var search = ""
+    @State private var editing: SavedLink?
+    @State private var titleDraft = ""
+    @State private var confirmClear = false
+    @Environment(\.dismiss) private var dismiss
+    private func matches(_ title: String) -> Bool { search.isEmpty || title.localizedCaseInsensitiveContains(search) }
+    private func open(_ url: URL) { browser.open(url); dismiss() }
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Button { browser.newChat(); dismiss() } label: { Label("New conversation", systemImage: "square.and.pencil") }
+                    Button { browser.savePage() } label: { Label("Pin current conversation", systemImage: "pin") }
+                }
+                Section("Pinned") {
+                    if browser.bookmarks.filter({ matches($0.title) }).isEmpty {
+                        Text("Pin important conversations for quick access.").foregroundStyle(.secondary)
+                    }
+                    ForEach(browser.bookmarks.filter { matches($0.title) }) { item in
+                        Button { open(item.url) } label: { Label(item.title, systemImage: "pin.fill") }
+                            .contextMenu {
+                                Button("Rename") { titleDraft = item.title; editing = item }
+                                ShareLink(item: item.url)
+                                Button("Unpin", role: .destructive) { browser.removeBookmark(item.id) }
+                            }
+                            .swipeActions { Button("Unpin", role: .destructive) { browser.removeBookmark(item.id) } }
+                    }
+                }
+                Section("Recently opened on this device") {
+                    if !recordRecentChats { Text("Local history is disabled in Settings.").foregroundStyle(.secondary) }
+                    else if browser.recentChats.filter({ matches($0.title) }).isEmpty { Text("Open conversations to build this list.").foregroundStyle(.secondary) }
+                    ForEach(browser.recentChats.filter { matches($0.title) }) { item in
+                        Button { open(item.url) } label: {
+                            HStack {
+                                Image(systemName: "clock").foregroundStyle(.secondary)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.title).lineLimit(2)
+                                    Text(item.visited, style: .relative).font(.caption).foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        .swipeActions(edge: .leading) { Button { browser.pin(item.url, title: item.title) } label: { Label("Pin", systemImage: "pin") }.tint(.blue) }
+                        .swipeActions { Button("Remove", role: .destructive) { browser.removeRecent(item.url) } }
+                        .contextMenu {
+                            Button("Pin") { browser.pin(item.url, title: item.title) }
+                            Button("Remove from recents", role: .destructive) { browser.removeRecent(item.url) }
+                        }
+                    }
+                }
+                Section {
+                    Button("Clear local recents", role: .destructive) { confirmClear = true }.disabled(browser.recentChats.isEmpty)
+                } footer: { Text("Only titles and links opened in Next Chat are stored locally. Your full account history remains in the ChatGPT sidebar. Removing a local shortcut does not delete a conversation.") }
+            }
+            .searchable(text: $search, prompt: "Search local conversations")
+            .navigationTitle("Conversations")
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .alert("Rename pinned conversation", isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
+                TextField("Title", text: $titleDraft)
+                Button("Save") { if let item = editing { browser.renamePin(item.id, title: titleDraft) }; editing = nil }
+                Button("Cancel", role: .cancel) { editing = nil }
+            }
+            .confirmationDialog("Clear local recent conversations?", isPresented: $confirmClear, titleVisibility: .visible) {
+                Button("Clear recents", role: .destructive) { browser.clearRecents() }
+            }
+        }
+    }
+}
 struct PromptTools: View {
     @StateObject private var dictation = Dictation()
     @AppStorage("favoritePrompts") private var favorites = "Review this code for bugs.\nSummarize the key findings."
     @State private var selectedText = ""
+    @State private var promptSearch = ""
+    @State private var category = "All"
+    private let templates: [(category: String, title: String, prompt: String)] = [
+        ("Development", "Debug a crash", "Analyze this crash log. Identify the likely root cause, affected code, minimal correction and device test plan. Distinguish evidence from assumptions."),
+        ("Development", "Review a patch", "Review the changes for regressions, security issues, compatibility, and edge cases. Prioritize actionable fixes and tests."),
+        ("Accounting", "Reconcile balances", "Reconcile these balances by account and period. Show matching entries, differences, likely causes and supporting evidence. Do not invent amounts."),
+        ("Accounting", "Financial review", "Review these financial statements. Summarize material variances, classification issues and questions for management. Separate observations from conclusions."),
+        ("Writing", "Professional email", "Draft a clear, concise professional email based on the details below. Preserve the facts and requested action."),
+        ("Research", "Compare options", "Compare the options using current evidence, costs, advantages, limitations and risks. State assumptions and cite sources where available."),
+        ("Research", "Summarize evidence", "Summarize the supplied material, identify key findings and unresolved questions, and distinguish facts from interpretation.")
+    ]
     @State private var speaking = false
     @State private var speaker = AVSpeechSynthesizer()
     @Environment(\.dismiss) private var dismiss
@@ -488,6 +642,23 @@ struct PromptTools: View {
                     }
                     if let error = dictation.error { Text(error).foregroundStyle(.secondary) }
                     Button("Copy draft to paste in ChatGPT") { dictation.stop(); UIPasteboard.general.string = dictation.text; dismiss() }.disabled(dictation.text.isEmpty)
+                }
+                Section("Prompt library") {
+                    Picker("Category", selection: $category) {
+                        ForEach(["All","Development","Accounting","Writing","Research"], id: \.self) { Text($0) }
+                    }
+                    TextField("Search templates", text: $promptSearch)
+                    ForEach(templates.filter { (category == "All" || $0.category == category) && (promptSearch.isEmpty || $0.title.localizedCaseInsensitiveContains(promptSearch) || $0.prompt.localizedCaseInsensitiveContains(promptSearch)) }, id: \.title) { template in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(template.title).font(.headline)
+                            Text(template.prompt).font(.caption).foregroundStyle(.secondary).lineLimit(3)
+                            HStack {
+                                Button("Edit draft") { dictation.text = template.prompt }.buttonStyle(.borderless)
+                                Spacer()
+                                Button("Copy & return") { dictation.stop(); UIPasteboard.general.string = template.prompt; dismiss() }.buttonStyle(.borderless)
+                            }
+                        }
+                    }
                 }
                 Section("Favorite prompts · one per line") {
                     TextEditor(text: $favorites).frame(minHeight: 100)
@@ -509,7 +680,17 @@ struct DownloadsView: View {
     @State private var preview: LocalFile?
     @State private var editing: LocalFile?
     @State private var name = ""
+    @State private var search = ""
+    @State private var sort = "Newest"
     @Environment(\.dismiss) private var dismiss
+    private var visibleFiles: [LocalFile] {
+        let filtered = browser.files.filter { search.isEmpty || $0.url.lastPathComponent.localizedCaseInsensitiveContains(search) }
+        switch sort {
+        case "Name": return filtered.sorted { $0.url.lastPathComponent.localizedStandardCompare($1.url.lastPathComponent) == .orderedAscending }
+        case "Size": return filtered.sorted { $0.bytes > $1.bytes }
+        default: return filtered.sorted { $0.modified > $1.modified }
+        }
+    }
     var body: some View {
         NavigationStack {
             List {
@@ -523,10 +704,30 @@ struct DownloadsView: View {
                         }
                     }
                 }
+                Section {
+                    HStack {
+                        Text("\(browser.files.count) files").font(.subheadline)
+                        Spacer()
+                        Text(ByteCountFormatter.string(fromByteCount: browser.files.reduce(Int64(0)) { $0 + $1.bytes }, countStyle: .file)).font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    Picker("Sort by", selection: $sort) {
+                        ForEach(["Newest","Name","Size"], id: \.self) { Text($0) }
+                    }
+                }
                 Section("Saved files") {
-                    if browser.files.isEmpty { Text("Downloaded files appear here.").foregroundStyle(.secondary) }
-                    ForEach(browser.files) { file in
-                        Button { preview = file } label: { Label(file.url.lastPathComponent, systemImage: "doc") }
+                    if visibleFiles.isEmpty { Text(search.isEmpty ? "Downloaded files appear here." : "No matching files.").foregroundStyle(.secondary) }
+                    ForEach(visibleFiles) { file in
+                        Button { preview = file } label: {
+                            HStack {
+                                Image(systemName: "doc").font(.title3)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(file.url.lastPathComponent).lineLimit(2)
+                                    Text(file.detail).font(.caption).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
                             .contextMenu {
                                 ShareLink(item: file.url)
                                 Button("Rename") { name = file.url.lastPathComponent; editing = file }
@@ -535,7 +736,7 @@ struct DownloadsView: View {
                             .swipeActions { Button("Delete", role: .destructive) { browser.delete(file) } }
                     }
                 }
-            }.navigationTitle("Downloads").toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            }.searchable(text: $search, prompt: "Search files").navigationTitle("Downloads").toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .sheet(item: $preview) { file in
                 NavigationStack { Preview(url: file.url).toolbar { ToolbarItem(placement: .primaryAction) { ShareLink(item: file.url) } } }
             }
@@ -553,6 +754,7 @@ struct SettingsView: View {
     @AppStorage("haptics") private var haptics = true
     @AppStorage("restore") private var restore = true
     @AppStorage("externalLinkMode") private var externalLinkMode = "In-app browser"
+    @AppStorage("recordRecentChats") private var recordRecentChats = true
     @AppStorage("appLock") private var appLock = false
     @AppStorage("privacy") private var privacy = true
     @AppStorage("lockDelay") private var lockDelay = 0
@@ -572,6 +774,9 @@ struct SettingsView: View {
                 }
                 Section("Privacy") {
                     Toggle("App switcher privacy", isOn: $privacy)
+                    Toggle("Record local recent conversations", isOn: $recordRecentChats)
+                        .onChange(of: recordRecentChats) { if !$0 { browser.clearRecents() } }
+                    Text("Stores only conversation titles and links on this device. Disabling clears this local list, not your account history.").font(.caption).foregroundStyle(.secondary)
                     Toggle("Device authentication", isOn: Binding(get: { appLock }, set: { value in
                         let context = LAContext()
                         var error: NSError?
@@ -591,10 +796,10 @@ struct SettingsView: View {
                     ShareLink(item: browser.downloadDiagnostic) { Label("Share download diagnostics", systemImage: "square.and.arrow.up") }
                     ShareLink(item: browser.diagnostic) { Label("Share login diagnostics", systemImage: "square.and.arrow.up") }
                     Button("Open in Safari") { browser.safariLogin() }
-                    ShareLink(item: "Next Chat 1.0.0 (7)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
+                    ShareLink(item: "Next Chat 1.0.0 (8)\niOS \(UIDevice.current.systemVersion)\nNetwork: \(browser.online ? "available" : "offline")\nNo account or session information included.") { Label("Share diagnostics", systemImage: "square.and.arrow.up") }
                 }
                 Section("About") {
-                    LabeledContent("Version", value: "1.0.0 (7)")
+                    LabeledContent("Version", value: "1.0.0 (8)")
                     Text("Unofficial companion. Conversations and authentication are provided by the ChatGPT website. Safari sessions are separate. No additional API subscription is used. Local bookmarks and downloads are stored on this device.")
                     Link("OpenAI privacy policy", destination: URL(string: "https://openai.com/policies/privacy-policy/")!)
                 }
@@ -700,10 +905,12 @@ struct RootView: View {
                 VStack(spacing: 0) {
                 if browser.loading { ProgressView().progressViewStyle(.linear) }
                 Divider()
-                HStack(spacing: 18) {
+                HStack(spacing: 12) {
                 Button { tap(); browser.web.goBack() } label: { Image(systemName: "chevron.left") }.disabled(!browser.canBack).accessibilityLabel("Back")
                 Button { tap(); browser.web.goForward() } label: { Image(systemName: "chevron.right") }.disabled(!browser.canForward).accessibilityLabel("Forward")
                 Spacer(minLength: 0)
+                Button { tap(); panel = .bookmarks } label: { Image(systemName: "books.vertical") }.accessibilityLabel("Conversations")
+                Button { tap(); panel = .prompts } label: { Image(systemName: "text.bubble") }.accessibilityLabel("Prompt studio")
                 Button { tap(); browser.newChat() } label: { Image(systemName: "square.and.pencil") }.accessibilityLabel("New chat")
                 Button { tap(); panel = .downloads } label: {
                     Image(systemName: "arrow.down.circle").overlay(alignment: .topTrailing) {
@@ -737,15 +944,7 @@ struct RootView: View {
             case .browserMode: SafariSurface(start: homeURL).ignoresSafeArea()
             case .externalBrowser:
                 if let url = externalStart { SafariSurface(start: url).ignoresSafeArea() }
-            case .bookmarks:
-                NavigationStack {
-                    List {
-                        if browser.bookmarks.isEmpty { Text("Save a conversation from the More menu. All account history is in ChatGPT's own sidebar.").foregroundStyle(.secondary) }
-                        ForEach(browser.bookmarks.filter { bookmarkSearch.isEmpty || $0.title.localizedCaseInsensitiveContains(bookmarkSearch) }) { item in
-                            Button(item.title) { browser.open(item.url); panel = nil }.swipeActions { Button("Remove", role: .destructive) { browser.removeBookmark(item.id) } }
-                        }
-                    }.searchable(text: $bookmarkSearch).navigationTitle("Saved conversations").toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { panel = nil } } }
-                }
+            case .bookmarks: ConversationHub(browser: browser)
             }
         }
         .onChange(of: browser.externalURL) { url in

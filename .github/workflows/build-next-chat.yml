@@ -7,7 +7,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: next-chat-build7-publication
+  group: next-chat-build8-publication
   cancel-in-progress: true
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild -project NextChat.xcodeproj -scheme NextChat -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tee "$RUNNER_TEMP/nextchat-build.log"
-      - name: Verify, sign and package Build 7
+      - name: Verify, sign and package Build 8
         working-directory: NextChat
         run: |
           set -euo pipefail
@@ -41,25 +41,25 @@ jobs:
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = com.nextsolution.chat
           for INFO in "$APP/Info.plist" "$WIDGET/Info.plist"; do
             /usr/libexec/PlistBuddy -c 'Set :CFBundleShortVersionString 1.0.0' "$INFO"
-            /usr/libexec/PlistBuddy -c 'Set :CFBundleVersion 7' "$INFO"
+            /usr/libexec/PlistBuddy -c 'Set :CFBundleVersion 8' "$INFO"
           done
           codesign --force --sign - --timestamp=none --generate-entitlement-der "$WIDGET"
           codesign --force --sign - --timestamp=none --generate-entitlement-der "$APP"
           codesign --verify --deep --strict "$APP"
-          mkdir -p "$RUNNER_TEMP/nextchat-build7/Payload"
-          ditto "$APP" "$RUNNER_TEMP/nextchat-build7/Payload/NextChat.app"
-          cd "$RUNNER_TEMP/nextchat-build7"
-          zip -qry "$RUNNER_TEMP/NextChat_1.0.0_Build7.ipa" Payload
-          unzip -tqq "$RUNNER_TEMP/NextChat_1.0.0_Build7.ipa"
+          mkdir -p "$RUNNER_TEMP/nextchat-build8/Payload"
+          ditto "$APP" "$RUNNER_TEMP/nextchat-build8/Payload/NextChat.app"
+          cd "$RUNNER_TEMP/nextchat-build8"
+          zip -qry "$RUNNER_TEMP/NextChat_1.0.0_Build8.ipa" Payload
+          unzip -tqq "$RUNNER_TEMP/NextChat_1.0.0_Build8.ipa"
           cd "$RUNNER_TEMP"
-          shasum -a 256 NextChat_1.0.0_Build7.ipa > NextChat_1.0.0_Build7.ipa.sha256
+          shasum -a 256 NextChat_1.0.0_Build8.ipa > NextChat_1.0.0_Build8.ipa.sha256
       - name: Upload test package
         uses: actions/upload-artifact@v4
         with:
-          name: NextChat-Advanced-Build7
+          name: NextChat-Advanced-Build8
           path: |
-            ${{ runner.temp }}/NextChat_1.0.0_Build7.ipa
-            ${{ runner.temp }}/NextChat_1.0.0_Build7.ipa.sha256
+            ${{ runner.temp }}/NextChat_1.0.0_Build8.ipa
+            ${{ runner.temp }}/NextChat_1.0.0_Build8.ipa.sha256
           if-no-files-found: error
       - name: Upload compile log
         if: always()
@@ -73,7 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           RELEASE_DIR=transfer/files/NextChat/1.0.0
-          FILE_NAME=NextChat_1.0.0_Build7.ipa
+          FILE_NAME=NextChat_1.0.0_Build8.ipa
           for ATTEMPT in 1 2 3 4; do
             git fetch origin main:refs/remotes/origin/main
             git reset --hard origin/main
@@ -89,16 +89,16 @@ jobs:
           p=Path('transfer/index.json')
           d=json.loads(p.read_text())
           entry={
-            'id':'next-chat-1.0.0-build7',
-            'name':'Next Chat Advanced 1.0.0 - Build 7',
-            'fileName':'NextChat_1.0.0_Build7.ipa',
+            'id':'next-chat-1.0.0-build8',
+            'name':'Next Chat Advanced 1.0.0 - Build 8',
+            'fileName':'NextChat_1.0.0_Build8.ipa',
             'type':'ipa',
             'platform':'iOS 16+ / TrollStore (ad-hoc signed)',
-            'version':'1.0.0 (7)',
-            'url':'https://nextjailbreak.com/transfer/files/NextChat/1.0.0/NextChat_1.0.0_Build7.ipa',
+            'version':'1.0.0 (8)',
+            'url':'https://nextjailbreak.com/transfer/files/NextChat/1.0.0/NextChat_1.0.0_Build8.ipa',
             'sha256':os.environ['SHA256'],
             'sizeBytes':int(os.environ['SIZE']),
-            'notes':'Unofficial ChatGPT web companion. Direct-mode attachment and external link routing, persistent keyboard-safe toolbar; existing website session retained. Physical-device login still requires testing. Not Apple Distribution signed.'
+            'notes':'Unofficial ChatGPT web companion. Native conversation hub, prompt library, searchable download center and local history privacy controls; Build 7 authentication and routing retained. Physical-device login still requires testing. Not Apple Distribution signed.'
           }
           d['files']=[entry]+[x for x in d.get('files',[]) if x.get('id')!=entry['id']]
           d['updatedAt']=datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00','Z')
@@ -108,7 +108,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -f "$RELEASE_DIR/$FILE_NAME" "$RELEASE_DIR/$FILE_NAME.sha256" transfer/index.json
-            if ! git diff --cached --quiet; then git commit -m 'Publish Next Chat Advanced 1.0.0 Build 7 IPA'; fi
+            if ! git diff --cached --quiet; then git commit -m 'Publish Next Chat Advanced 1.0.0 Build 8 IPA'; fi
             if git push origin HEAD:main; then
               echo "Published: https://nextjailbreak.com/$RELEASE_DIR/$FILE_NAME" >> "$GITHUB_STEP_SUMMARY"
               exit 0
