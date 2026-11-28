@@ -25,8 +25,16 @@ jobs:
           git -C "$THEOS" fetch --depth 1 origin 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
           git -C "$THEOS" checkout --detach 88506b2c22e9e07dd4ed055f23c9e398a117a2c7
           git -C "$THEOS" submodule update --init --recursive --depth 1
+          # The stock Xcode SDK omits the private Preferences framework.
+          # Use the patched SDK already used by the project's other tweak builds.
+          mkdir -p "$THEOS/sdks"
+          curl -fL --retry 3 https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz -o "$RUNNER_TEMP/iphoneos16.5-sdk.tar.xz"
+          tar -xJf "$RUNNER_TEMP/iphoneos16.5-sdk.tar.xz" -C "$THEOS/sdks"
+          SDK="$THEOS/sdks/iPhoneOS16.5.sdk"
+          test -d "$SDK"
+          test -f "$SDK/System/Library/PrivateFrameworks/Preferences.framework/Preferences.tbd"
           cd source/NextSummary
-          make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide
+          make clean package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide TARGET=iphone:clang:16.5:16.0
           deb="$(find packages -name '*_iphoneos-arm64e.deb' -print -quit)"
           test -n "$deb"
           test "$(dpkg-deb -f "$deb" Package)" = com.nextjailbreak.nextsummary
