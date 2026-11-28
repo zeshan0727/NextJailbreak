@@ -1,0 +1,44 @@
+[0;36m==> [1;36mNotice:[m Build may be slow as Theos isn’t using all available CPU cores on this computer. Consider upgrading GNU Make: https://theos.dev/docs/parallel-building
+[1;31m> [1;3;39mMaking all for tweak CCModuleBackgrounds…[m
+[0;32m==> [1;39mCompiling Tweak.m (arm64)…[m
+[0;33m==> [1;39mLinking tweak CCModuleBackgrounds (arm64)…[m
+ld: warning: -multiply_defined is obsolete
+[0;34m==> [1;39mGenerating debug symbols for CCModuleBackgrounds…[m
+[0;34m==> [1;39mStripping CCModuleBackgrounds (arm64)…[m
+[0;32m==> [1;39mCompiling Tweak.m (arm64e)…[m
+[0;33m==> [1;39mLinking tweak CCModuleBackgrounds (arm64e)…[m
+ld: warning: -multiply_defined is obsolete
+[0;34m==> [1;39mGenerating debug symbols for CCModuleBackgrounds…[m
+[0;34m==> [1;39mStripping CCModuleBackgrounds (arm64e)…[m
+[0;34m==> [1;39mMerging tweak CCModuleBackgrounds…[m
+[0;34m==> [1;39mSigning CCModuleBackgrounds…[m
+[1;31m> [1;3;39mMaking all for tweak ModuleGlassStandalonePrefsExtension…[m
+[0;32m==> [1;39mCompiling ModuleGlassPrefsExtension.m (arm64)…[m
+[0;33m==> [1;39mLinking tweak ModuleGlassStandalonePrefsExtension (arm64)…[m
+ld: warning: -multiply_defined is obsolete
+[0;34m==> [1;39mGenerating debug symbols for ModuleGlassStandalonePrefsExtension…[m
+[0;34m==> [1;39mStripping ModuleGlassStandalonePrefsExtension (arm64)…[m
+[0;32m==> [1;39mCompiling ModuleGlassPrefsExtension.m (arm64e)…[m
+[0;33m==> [1;39mLinking tweak ModuleGlassStandalonePrefsExtension (arm64e)…[m
+ld: warning: -multiply_defined is obsolete
+[0;34m==> [1;39mGenerating debug symbols for ModuleGlassStandalonePrefsExtension…[m
+[0;34m==> [1;39mStripping ModuleGlassStandalonePrefsExtension (arm64e)…[m
+[0;34m==> [1;39mMerging tweak ModuleGlassStandalonePrefsExtension…[m
+[0;34m==> [1;39mSigning ModuleGlassStandalonePrefsExtension…[m
+[1;31m> [1;3;39mMaking all for tweak ModuleGlassActivation…[m
+[0;32m==> [1;39mCompiling ModuleGlassActivation.m (arm64)…[m
+[0;33m==> [1;39mLinking tweak ModuleGlassActivation (arm64)…[m
+ld: warning: -multiply_defined is obsolete
+[0;34m==> [1;39mGenerating debug symbols for ModuleGlassActivation…[m
+[0;34m==> [1;39mStripping ModuleGlassActivation (arm64)…[m
+[0;32m==> [1;39mCompiling ModuleGlassActivation.m (arm64e)…[m
+[0;33m==> [1;39mLinking tweak ModuleGlassActivation (arm64e)…[m
+ld: warning: -multiply_defined is obsolete
+[0;34m==> [1;39mGenerating debug symbols for ModuleGlassActivation…[m
+[0;34m==> [1;39mStripping ModuleGlassActivation (arm64e)…[m
+[0;34m==> [1;39mMerging tweak ModuleGlassActivation…[m
+[0;34m==> [1;39mSigning ModuleGlassActivation…[m
+[1;31m> [1;3;39mMaking stage for tweak CCModuleBackgrounds…[m
+[1;31m> [1;3;39mMaking stage for tweak ModuleGlassStandalonePrefsExtension…[m
+[1;31m> [1;3;39mMaking stage for tweak ModuleGlassActivation…[m
+dm.pl: building package `com.nextsolution.nextaura.cc-module-backgrounds:iphoneos-arm64e' in `./packages/com.nextsolution.nextaura.cc-module-backgrounds_1.1.22_iphoneos-arm64e.deb'

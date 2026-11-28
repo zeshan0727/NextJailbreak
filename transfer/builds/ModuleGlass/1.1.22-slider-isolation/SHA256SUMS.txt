@@ -1,0 +1,2 @@
+57bb13dc13d26f4310a446bf6462a0366b5e6d72c4be63e12ab0eef3e77f507d  output/ModuleGlass_1.1.22_RootHide.deb
+c04f66f2df151b28245ad6e3298eb432ee13660d70c66e3d0e7dd7178af5bd1f  output/ModuleGlass_1.1.22_Source.zip
